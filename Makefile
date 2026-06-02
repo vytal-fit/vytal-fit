@@ -1,4 +1,4 @@
-.PHONY: help install setup-env dev-web dev build lint type-check test test-watch
+.PHONY: help install setup-env dev-web dev-mobile dev build lint type-check test test-watch
 
 help: ## Show available commands
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-18s\033[0m %s\n", $$1, $$2}'
@@ -22,6 +22,9 @@ setup: install setup-env ## Full local setup (install + env)
 
 dev-web: ## Start web dev server (Next.js)
 	npm run dev:web
+
+dev-mobile: ## Start mobile dev server (Expo)
+	npm run dev:mobile
 
 dev: ## Start all apps via Turborepo
 	npm run dev
