@@ -1,0 +1,7 @@
+apps/mobile
+*.db
+*.db-shm
+*.db-wal
+.expo
+.turbo
+apps/web/.next
