@@ -1,0 +1,30 @@
+{
+  "name": "vytal-fit",
+  "private": true,
+  "scripts": {
+    "dev": "turbo dev",
+    "dev:web": "turbo dev --filter=@vytal-fit/web",
+    "build": "turbo build",
+    "build:web": "cd apps/web && next build",
+    "lint": "turbo lint",
+    "type-check": "turbo type-check",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
+  },
+  "devDependencies": {
+    "@vitest/coverage-v8": "^4.1.6",
+    "turbo": "^2.5.0",
+    "typescript": "^5",
+    "vitest": "^4.1.6"
+  },
+  "packageManager": "npm@11.7.0",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "overrides": {
+    "postcss": "^8.5.14",
+    "esbuild": "^0.28.0"
+  }
+}
