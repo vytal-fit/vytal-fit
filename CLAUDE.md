@@ -14,6 +14,7 @@ AI-powered SaaS platform for intelligent management of CrossFit boxes, functiona
 ```
 apps/
   web/          — Next.js 15 App Router (Vercel deployment)
+  mobile/       — Expo 54 / React Native (iOS + Android)
 packages/
   api/          — tRPC routers (shared backend logic)
   db/           — Drizzle ORM schema + migrations
@@ -27,7 +28,8 @@ packages/
 - **Backend:** tRPC, Drizzle ORM, PostgreSQL
 - **Build:** Turborepo, TypeScript 5, npm workspaces
 - **Test:** Vitest
-- **Deploy:** Vercel (web)
+- **Mobile:** Expo 54, React Native, Zustand
+- **Deploy:** Vercel (web), Expo EAS (mobile)
 - **i18n:** Portuguese (pt), English (en), Spanish (es)
 
 ## Key Conventions
@@ -39,6 +41,7 @@ packages/
 
 ```bash
 npm run dev:web      # Start web dev server
+npm run dev:mobile   # Start Expo dev server
 npm run build:web    # Build web for production
 npm run lint         # Lint all packages
 npm run type-check   # Type check all packages
