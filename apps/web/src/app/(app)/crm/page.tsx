@@ -223,6 +223,7 @@ function InlineAddLeadForm({
   onClose: () => void;
   onAdd: (name: string, phone: string, source: string) => void;
 }) {
+  const { t } = useI18n();
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [source, setSource] = useState("");
@@ -269,13 +270,13 @@ function InlineAddLeadForm({
           onChange={(e) => setSource(e.target.value)}
           className="w-full rounded border border-vytal-border bg-vytal-bg2 px-2 py-1.5 text-xs text-vytal-text focus:border-vytal-green/30 focus:outline-none"
         >
-          <option value="">Source...</option>
+          <option value="">{t("crm.source")}...</option>
           <option value="Instagram">Instagram</option>
           <option value="Facebook">Facebook</option>
-          <option value="Website">Website</option>
-          <option value="Walk-in">Walk-in</option>
-          <option value="Referral">Referral</option>
-          <option value="Flyers">Flyers</option>
+          <option value="Website">{t("crm.sourceWebsite")}</option>
+          <option value="Walk-in">{t("crm.sourceWalkIn")}</option>
+          <option value="Referral">{t("crm.sourceReferral")}</option>
+          <option value="Flyers">{t("crm.sourceFlyers")}</option>
         </select>
         <button
           onClick={handleAdd}

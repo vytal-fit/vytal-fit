@@ -258,7 +258,7 @@ export default function ClassCreatePage() {
             <h2 className="mb-5 text-lg font-semibold text-vytal-text">{t("classCreate.capacity")}</h2>
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <span className="text-sm text-vytal-text">Limit capacity</span>
+                <span className="text-sm text-vytal-text">{t("classCreate.limitCapacity")}</span>
                 <button
                   type="button"
                   onClick={() => setHasCapacity(!hasCapacity)}
@@ -282,7 +282,7 @@ export default function ClassCreatePage() {
           </div>
 
           <div className="rounded-xl border border-vytal-border bg-vytal-card p-6">
-            <h2 className="mb-5 text-lg font-semibold text-vytal-text">Coaches</h2>
+            <h2 className="mb-5 text-lg font-semibold text-vytal-text">{t("classCreate.coaches")}</h2>
             <div className="space-y-2">
               {storeCoaches.map((coach) => (
                 <label
@@ -318,7 +318,7 @@ export default function ClassCreatePage() {
 
         {/* Registration Rules */}
         <div className="rounded-xl border border-vytal-border bg-vytal-card p-6">
-          <h2 className="mb-5 text-lg font-semibold text-vytal-text">Registration Rules</h2>
+          <h2 className="mb-5 text-lg font-semibold text-vytal-text">{t("classCreate.registrationRules")}</h2>
           <div className="space-y-4">
             <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">
               Registration Opens
@@ -352,7 +352,7 @@ export default function ClassCreatePage() {
 
         {/* Waiting List */}
         <div className="rounded-xl border border-vytal-border bg-vytal-card p-6">
-          <h2 className="mb-5 text-lg font-semibold text-vytal-text">Waiting List</h2>
+          <h2 className="mb-5 text-lg font-semibold text-vytal-text">{t("classCreate.waitingList")}</h2>
           <div className="space-y-4">
             <div className="flex gap-2">
               {([
