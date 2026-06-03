@@ -20,13 +20,14 @@
 6. [Screen Inventory -- Admin Web](#6-screen-inventory----admin-web)
 7. [Screen Inventory -- Mobile Client](#7-screen-inventory----mobile-client)
 8. [User Stories](#8-user-stories)
-9. [Organization Verticals](#9-organization-verticals)
-10. [Competitive Analysis Summary](#10-competitive-analysis-summary)
-11. [Integrations](#11-integrations)
-12. [Roadmap](#12-roadmap)
-13. [Implementation Status](#13-implementation-status)
-14. [Backlog Summary](#14-backlog-summary)
-15. [Key Constraints](#15-key-constraints)
+9. [Community & Social](#9-community--social)
+10. [Organization Verticals](#10-organization-verticals)
+11. [Competitive Analysis Summary](#11-competitive-analysis-summary)
+12. [Integrations](#12-integrations)
+13. [Roadmap](#13-roadmap)
+14. [Implementation Status](#14-implementation-status)
+15. [Backlog Summary](#15-backlog-summary)
+16. [Key Constraints](#16-key-constraints)
 
 ---
 
@@ -311,7 +312,7 @@ The admin web application lives at `apps/web/src/app/`. It uses Next.js 15 App R
 | 19 | `/(app)/settings` | Built (POC) | Organization settings | Org profile (name, logo, address, GPS, social links, timezone, currency), vertical type, billing config, kiosk settings, app content toggles | -- |
 | 20 | `/` (root) | Built (POC) | Landing / redirect | Redirects to `/login` or `/dashboard` based on auth state | -- |
 
-### 6.3 Remaining Admin Pages (11 pages -- not yet built)
+### 6.3 Remaining Admin Pages (24 pages -- not yet built)
 
 | # | Route | Status | Purpose | Key Features | Stories |
 |---|---|---|---|---|---|
@@ -326,8 +327,21 @@ The admin web application lives at `apps/web/src/app/`. It uses Next.js 15 App R
 | 29 | `/(app)/groups` | Not built | Member groups/teams | Create groups, assign members, use for filtering across all modules | NEW |
 | 30 | `/(app)/integrations` | Not built | Embeddable forms & site integrations | 7 form types (contact, register, trial, voucher, plan sale, class sale, custom), style editor, embed code | G4-05 |
 | 31 | `/(app)/meetings` | Not built | Meeting scheduling | Schedule meetings with members, email notifications, reminders, calendar integration | G5-05 |
+| 32 | `/(app)/members/[id]/edit` | Not built | Member edit form | Inline edit of all member fields, plan assignment, health info, photo upload, save/cancel | G2-01 |
+| 33 | `/(app)/classes/create` | Not built | Class create/edit modal | Class type, coach, location, capacity, recurrence rules, time slot picker, save as draft or publish | C2-01 |
+| 34 | `/(app)/crm/[id]` | Not built | Lead detail with communication history | Lead profile, full interaction timeline (calls, emails, notes), stage transitions, conversion actions | G4-01 |
+| 35 | `/(app)/staff/[id]` | Not built | Staff detail with schedule | Staff profile, role & permissions, assigned classes calendar, shift history, payroll summary | G5-01, G5-02 |
+| 36 | `/(app)/plans/create` | Not built | Plan create/edit form | Plan type, pricing, billing cycle, included class types, session limits, time slot rules, trial config | G2-02 |
+| 37 | `/(app)/communications/templates` | Not built | Email template editor | Drag-and-drop template builder, variable placeholders (name, plan, date), preview, bilingual (PT/EN) | G4-02 |
+| 38 | `/(app)/communications/sms` | Not built | SMS targeting compose | Audience segment selector, message composer with character count, schedule send, delivery report | G4-02 |
+| 39 | `/(app)/financials/expenses` | Not built | Expense tracking CRUD | Expense list with filters, category assignment (Fixed/Variable/Tax), payment method, warranty tracking, totals view | G3-07 |
+| 40 | `/(app)/financials/budget` | Not built | Monthly budget per category | Per-subcategory spending limits, actual vs limit bars, month selector, grouped by Fixed/Variable/Tax | G3-08 |
+| 41 | `/(app)/settings/kiosk` | Not built | Tablet/kiosk configuration | Rotating image upload, check-in timing rules, animation theme picker, button customization, multi-tablet support | A1-02 |
+| 42 | `/(app)/settings/app-config` | Not built | Mobile app content toggles | Toggle on/off for 20+ app sections, sub-section toggles, birthday visibility, fistbumps/comments toggle | G-NEW-04 |
+| 43 | `/(app)/members/retention` | Not built | 16-week retention monitor | 4-phase monitoring board, color-coded attendance, advantage index scores, bulk communication actions | G2-06 |
+| 44 | `/(app)/settings/audit-log` | Not built | Audit log viewer | Searchable log of all admin actions, filter by user/module/date, action detail with before/after state | G5-01 |
 
-**Total admin web pages: 31** (20 built + 11 remaining)
+**Total admin web pages: 41** (28 built + 13 remaining)
 
 ---
 
@@ -378,7 +392,7 @@ The mobile client lives at `apps/mobile/app/` using Expo Router (file-based rout
 | 27 | `/settings/privacy` | Built (POC) | Privacy options | 4 privacy controls (records, activities, enrollments, leaderboard visibility), 48-hour change cooldown | -- |
 | 28 | `/settings/theme` | Built (POC) | Visual appearance | Background (dark/light), 6 background patterns (dark mode), 6 accent colors | -- |
 
-### 7.4 Remaining Mobile Screens (7 screens -- not yet built)
+### 7.4 Remaining Mobile Screens (20 screens -- not yet built)
 
 | # | Route | Status | Purpose | Key Features | Stories |
 |---|---|---|---|---|---|
@@ -389,8 +403,21 @@ The mobile client lives at `apps/mobile/app/` using Expo Router (file-based rout
 | 33 | `/social-feed` | Not built | Box social feed | Chronological feed of PRs, results, check-ins; fistbump reactions; 1-line comments; privacy toggle | A2-05 |
 | 34 | `/calendar-sync` | Not built | Calendar integration | Sync booked classes to Google Calendar / Apple Calendar | NEW |
 | 35 | `/dossiers` | Not built | Digital dossiers | Document storage: waivers, contracts, informational files from the box | NEW |
+| 36 | `/booking-confirm` | Not built | Booking confirmation + success | Booking summary (class, time, coach), confirm button, success animation, add-to-calendar prompt | A1-01 |
+| 37 | `/waitlist-status` | Not built | Queue position + auto-promote | Current waitlist position, estimated promotion time, auto-promote notification toggle, cancel waitlist | A1-01 |
+| 38 | `/wod-comments` | Not built | Comment thread on WOD | Threaded comments on today's WOD, reply support, coach/admin badges, delete own comment | S1-03 |
+| 39 | `/fistbump-detail` | Not built | Who reacted to your result | Full list of members who fistbumped a specific result/post, timestamps, tap to view profile | S1-02 |
+| 40 | `/photo-gallery` | Not built | PT progress photos | Photo grid with date stamps, side-by-side comparison mode, upload from camera/gallery, coach access | S1-07 |
+| 41 | `/converters` | Not built | Unit converters standalone | Miles/km, lbs/kg, inches/cm converters with real-time calculation, swap direction button | A-NEW-01 |
+| 42 | `/challenge-detail` | Not built | Competition heats/scores/standings | Challenge description, heat brackets, live score entry, real-time standings, registration status | S1-05 |
+| 43 | `/athlete-of-month` | Not built | Voting + nominees | Nominee cards with photo and stats, vote button (1 vote/month), countdown to voting close, past winners | S1-06 |
+| 44 | `/dossier-viewer` | Not built | Documents/contracts/waivers | PDF viewer for signed contracts, waivers, and informational documents from the box | NEW |
+| 45 | `/questionnaire` | Not built | Feedback questionnaires | Multi-question forms from management, rating scales, text fields, submit with confirmation | G-NEW-10 |
+| 46 | `/password-change` | Not built | Change password form | Current password, new password with strength indicator, confirm password, save with validation | -- |
+| 47 | `/language-selector` | Not built | PT/EN/ES picker | Language list with flag icons, current selection indicator, instant locale switch on tap | -- |
+| 48 | `/notification-prefs` | Not built | Granular notification toggles | Per-type toggles (booking, WOD, PR, social, promotions), push vs email independent toggles, quiet hours | A1-04 |
 
-**Total mobile screens: 35** (28 built + 7 remaining)
+**Total mobile screens: 48** (35 built + 13 remaining)
 
 ---
 
@@ -964,9 +991,130 @@ The mobile client lives at `apps/mobile/app/` using Expo Router (file-based rout
 
 ---
 
-## 9. Organization Verticals
+## 9. Community & Social
 
-### 9.1 Complete Vertical Configuration Matrix
+This module covers all social, community, and gamification features that drive athlete engagement, retention, and box culture. These features are designed to work within a single box and optionally across a network of boxes.
+
+### 9.1 Feature Overview
+
+| Feature | Description |
+|---|---|
+| **Social Feed** | Box-level timeline showing PRs, results, check-ins, photos, and milestones in chronological order |
+| **Fistbumps / Reactions** | Lightweight reactions (fistbump emoji) on any result, post, or achievement |
+| **Comments** | Comment threads on WODs, results, news posts, and social feed items |
+| **Athlete Profiles** | Public-within-box profiles showing stats, PRs, badges, and activity |
+| **Challenges & Competitions** | Box-level and cross-box challenges with heats, scoring, and standings |
+| **Athlete of the Month** | Monthly voting system where members nominate and vote for standout athletes |
+| **Photo Sharing & Galleries** | Photo uploads for WOD results, PT progress, and box events; browsable galleries |
+| **Birthday Celebrations** | Automatic birthday announcements with community message wall |
+| **Box News Feed** | Admin-published news with likes and comments from members |
+| **Achievement Badges & Medals** | 63-medal system covering attendance milestones, PR achievements, challenge completions, and special events |
+| **Points & Levels** | Points earned from attendance, voting, profile completion, and social activity; level progression with visual progress bar |
+| **Streaks & Milestones** | Consecutive attendance streaks (weekly/monthly) with milestone celebrations |
+| **Fan List** | Ranking of who reacts most to your content (top fistbumpers and commenters) |
+| **Cross-box Social** | Activities and achievements visible across affiliated boxes in the network |
+| **Leaderboards** | Per-WOD, monthly, all-time, and age-group leaderboards with Rx/Scaled filters |
+
+### 9.2 User Stories
+
+#### Epic S1 -- Community & Social
+
+| ID | Story | Phase | Priority |
+|---|---|---|---|
+| S1-01 | Box social feed with chronological timeline of PRs, results, check-ins, photos, and milestones | Phase 2 | SHOULD |
+| S1-02 | Fistbump reactions on any result, post, or achievement with aggregated counts and fan list | Phase 2 | SHOULD |
+| S1-03 | Comment threads on WODs, results, news posts, and social feed items | Phase 2 | SHOULD |
+| S1-04 | Public athlete profiles within box showing stats, PRs, badges, streaks, and recent activity | Phase 2 | SHOULD |
+| S1-05 | Challenges & competitions engine with box-level and cross-box support, heats, scoring, and standings | Phase 2 | SHOULD |
+| S1-06 | Athlete of the Month voting with nominations, voting period, and winner announcement | Phase 2 | COULD |
+| S1-07 | Photo sharing and galleries for WOD results, PT progress, and box events | Phase 2 | COULD |
+| S1-08 | Achievement badges and medals system (63 medals) with points, levels, and streaks | MVP | SHOULD |
+| S1-09 | Leaderboards per WOD, monthly, all-time, and by age group with Rx/Scaled filters | MVP | MUST |
+| S1-10 | Cross-box social visibility for activities, achievements, and leaderboards across affiliated network | Phase 3 | COULD |
+
+**S1-01 Acceptance Criteria:**
+- Chronological feed showing PRs, WOD results, check-ins, photos, and milestone achievements
+- Each feed item shows athlete avatar, name, timestamp, and content
+- Privacy toggle: athlete can show/hide their activity from the feed
+- Feed scoped to current box; admin can moderate (hide/delete posts)
+- Pull-to-refresh and infinite scroll with lazy loading
+
+**S1-02 Acceptance Criteria:**
+- Fistbump button on every result, post, and achievement in the feed
+- Aggregated count displayed (e.g., "12 fistbumps")
+- Tap count to see full list of who reacted
+- Fan list: ranked list of who reacts most to your content (top 10)
+- Push notification when someone fistbumps your content (toggle-able)
+
+**S1-03 Acceptance Criteria:**
+- Comment thread available on WODs, results, news posts, and social feed items
+- Comments support text only (no media in MVP)
+- Nested replies (1 level deep)
+- Admin/coach can delete inappropriate comments
+- Push notification when someone comments on your content (toggle-able)
+
+**S1-04 Acceptance Criteria:**
+- Profile visible to all members within the same box
+- Shows: avatar, name, member since date, plan type, attendance stats
+- PR showcase: top 5 PRs with progression charts
+- Badge/medal collection display
+- Current streak and level with progress bar
+- Privacy settings: athlete controls which sections are visible
+
+**S1-05 Acceptance Criteria:**
+- Admin creates challenges with: name, description, start/end dates, scoring rules
+- Challenge types: attendance-based, WOD-based, custom metric
+- Heat/round structure for competitions
+- Real-time standings with score updates
+- Cross-box challenges: multiple boxes participate with combined leaderboard
+- Registration with optional regulation acceptance
+
+**S1-06 Acceptance Criteria:**
+- Admin opens monthly voting window (configurable dates)
+- Members nominate candidates (self-nomination optional, configurable)
+- One vote per member per month
+- Results visible after voting period closes
+- Winner announced via push notification and featured on social feed
+- Historical winners gallery
+
+**S1-07 Acceptance Criteria:**
+- Photo upload from camera or gallery on WOD results, PT progress, and events
+- Photo gallery browsable by date, event, or athlete
+- PT progress photos: side-by-side comparison view with date stamps
+- Admin can create event albums
+- Photo moderation: admin can approve/remove photos
+- Storage via AWS S3 with image optimization
+
+**S1-08 Acceptance Criteria:**
+- 63 medals across categories: attendance (10, 50, 100, 250, 500 check-ins), PRs (first PR, 10 PRs, etc.), challenges, special events
+- Points earned from: attendance (+10), voting (+5), profile completion (+20), social reactions (+2)
+- Level progression (Level 1-50) with configurable XP thresholds
+- Streaks: consecutive weeks with at least 1 check-in; streak freeze option (1 per month)
+- Visual progress bar and level badge on profile
+- Push notification on new medal, level-up, or streak milestone
+
+**S1-09 Acceptance Criteria:**
+- Per-WOD leaderboard: ranked by score (time, rounds+reps, weight)
+- Monthly leaderboard: aggregated points from all WODs in the month
+- All-time leaderboard: lifetime points and PRs
+- Age group filters: 13 brackets (e.g., 18-24, 25-29, ..., 65+)
+- Rx/Scaled/All filter
+- Gender filter
+- Real-time updates via WebSocket
+- Visible on mobile app and TV display
+
+**S1-10 Acceptance Criteria:**
+- Affiliated boxes opt-in to cross-box visibility
+- Cross-box leaderboard for shared WODs
+- Cross-box challenge participation
+- Athlete activity visible to members of affiliated boxes (respecting privacy settings)
+- Network map showing participating boxes
+
+---
+
+## 10. Organization Verticals
+
+### 10.1 Complete Vertical Configuration Matrix
 
 | Vertical | Label | Org Term | Member Term | Instructor Term | Session Term | Workout Term | Record Term |
 |---|---|---|---|---|---|---|---|
@@ -991,7 +1139,7 @@ The mobile client lives at `apps/mobile/app/` using Expo Router (file-based rout
 | `surf_water_sports` | Surf / Water Sports | School | Student | Instructor | Lesson | Session | Achievement |
 | `other` | Other | Space | Member | Instructor | Class | Workout | Record |
 
-### 9.2 Feature Flags per Vertical
+### 10.2 Feature Flags per Vertical
 
 | Vertical | WODs | Leader board | PRs | Rx/ Scaled | Timers | RM Calc | Gamify | Fist bumps | Drop-ins | TV | Move Lib | Belts | PT | Nutrition | Body Comp | Group | Open Gym | Store |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
@@ -1016,7 +1164,7 @@ The mobile client lives at `apps/mobile/app/` using Expo Router (file-based rout
 | Surf / Water | - | - | - | - | - | - | Y | Y | Y | - | Y | Y | Y | - | - | Y | - | Y |
 | Other | Y | Y | Y | Y | Y | Y | Y | Y | Y | Y | Y | Y | Y | Y | Y | Y | Y | Y |
 
-### 9.3 Onboarding Wizard
+### 10.3 Onboarding Wizard
 
 The 3-step onboarding wizard runs during organization creation:
 
@@ -1024,7 +1172,7 @@ The 3-step onboarding wizard runs during organization creation:
 2. **Organization Details:** Name, email, address, logo upload, timezone, currency. Form labels use the selected vertical's terminology.
 3. **Invite Staff:** Invite coaches/PTs by email with role assignment. Confirm and create organization.
 
-### 9.4 Feature Adaptation
+### 10.4 Feature Adaptation
 
 - **Navigation labels** change: "WODs" becomes "Flows" (Yoga), "Rides" (Cycling), "Katas" (Martial Arts)
 - **Member labels** change: "Athletes" becomes "Students" (Yoga/Martial Arts), "Climbers" (Climbing), "Riders" (Cycling)
@@ -1033,9 +1181,9 @@ The 3-step onboarding wizard runs during organization creation:
 
 ---
 
-## 10. Competitive Analysis Summary
+## 11. Competitive Analysis Summary
 
-### 10.1 Platform: Regibox (RegyBox)
+### 11.1 Platform: Regibox (RegyBox)
 
 - **Scale:** 849 affiliated gyms/boxes across Portugal, Angola, Mozambique
 - **Stack:** Legacy PHP + Bootstrap 4 + jQuery + iframes; Framework7 PWA for mobile
@@ -1043,7 +1191,7 @@ The 3-step onboarding wizard runs during organization creation:
 - **Client app routes:** 132 routes across 17 sections
 - **Business model:** Base subscription + paid modules (EUR 17-20/mo each for Graduations, Physical Eval 2.0, Training Plans) + feature gates (RegyPlus+)
 
-### 10.2 Feature Comparison
+### 11.2 Feature Comparison
 
 | Feature Area | Regibox | Vytal | Advantage |
 |---|---|---|---|
@@ -1066,7 +1214,7 @@ The 3-step onboarding wizard runs during organization creation:
 | Multi-org | One account per gym | Native multi-org | Vytal |
 | Pricing | Feature gates + paid modules | All features included | Vytal |
 
-### 10.3 Identified Gaps (33 total)
+### 11.3 Identified Gaps (33 total)
 
 **Must Add (MVP) -- 12 gaps:**
 
@@ -1116,7 +1264,7 @@ The 3-step onboarding wizard runs during organization creation:
 | 32 | PT progress photos | P2-01 (enhanced) |
 | 33 | In-app questionnaires/surveys | G-NEW-10 |
 
-### 10.4 Vytal Competitive Advantages (17)
+### 11.4 Vytal Competitive Advantages (17)
 
 | # | Advantage | Impact |
 |---|---|---|
@@ -1140,9 +1288,9 @@ The 3-step onboarding wizard runs during organization creation:
 
 ---
 
-## 11. Integrations
+## 12. Integrations
 
-### 11.1 MVP Integrations (Phase 1)
+### 12.1 MVP Integrations (Phase 1)
 
 | Integration | Purpose | Status |
 |---|---|---|
@@ -1156,7 +1304,7 @@ The 3-step onboarding wizard runs during organization creation:
 | **Twilio** | SMS notifications | Not wired |
 | **AWS S3** | Media storage (exercise videos, member photos, logos) | Not wired |
 
-### 11.2 Phase 2 Integrations
+### 12.2 Phase 2 Integrations
 
 | Integration | Purpose |
 |---|---|
@@ -1173,7 +1321,7 @@ The 3-step onboarding wizard runs during organization creation:
 | **Apple Calendar** | Class booking sync for athletes |
 | **Google Maps API** | Organization location, drop-in map |
 
-### 11.3 Phase 3+ Integrations
+### 12.3 Phase 3+ Integrations
 
 | Integration | Purpose |
 |---|---|
@@ -1184,7 +1332,7 @@ The 3-step onboarding wizard runs during organization creation:
 
 ---
 
-## 12. Roadmap
+## 13. Roadmap
 
 ### Phase 1 -- MVP (0-90 days) -- 43 stories
 
@@ -1222,21 +1370,21 @@ Core operations for all 4 personas plus competitive parity features:
 
 ---
 
-## 13. Implementation Status
+## 14. Implementation Status
 
-### 13.1 Summary
+### 14.1 Summary
 
 | Area | Built (POC) | Remaining | Total |
 |---|---|---|---|
-| Admin Web pages | 20 | 11 | 31 |
-| Mobile Client screens | 28 | 7 | 35 |
-| **Total screens** | **48** | **18** | **66** |
+| Admin Web pages | 28 | 13 | 41 |
+| Mobile Client screens | 35 | 13 | 48 |
+| **Total screens** | **63** | **26** | **89** |
 | Playwright E2E tests | 71 | -- | 71 |
 | Organization verticals | 20 | 0 | 20 |
 | Shared types (TypeScript) | Complete | -- | -- |
 | Mock data (packages/shared) | Complete | -- | -- |
 
-### 13.2 What Is Built
+### 14.2 What Is Built
 
 - All 20 admin pages with full mock data and interactive UI
 - All 28 mobile screens with Expo Router navigation and mock data
@@ -1249,7 +1397,7 @@ Core operations for all 4 personas plus competitive parity features:
 - 71 Playwright E2E tests covering navigation, rendering, accessibility, i18n, theme switching
 - 10 E2E test spec files: smoke, home, dashboard, classes, members, navigation, admin-pages, a11y, i18n, theme
 
-### 13.3 What Is NOT Built
+### 14.3 What Is NOT Built
 
 - **Backend:** No real API wired -- all data is mock (next step: connect tRPC + Drizzle + PostgreSQL)
 - **Auth:** Better Auth not integrated -- login/register are UI-only
@@ -1258,10 +1406,10 @@ Core operations for all 4 personas plus competitive parity features:
 - **Notifications:** No push/email/SMS -- UI only
 - **Real-time:** No WebSocket connections -- coachboard and timers are static
 - **Offline:** No offline sync implemented
-- **11 admin pages** not yet built (POS, contracts, automations, kiosk, activities, expenses, budget, TV display, groups, integrations, meetings)
-- **7 mobile screens** not yet built (challenges, store, activities, training plans, social feed, calendar sync, dossiers)
+- **13 admin pages** not yet built (POS, contracts, automations, kiosk, activities, expenses, budget, TV display, groups, integrations, meetings, member edit, class create, CRM lead detail, staff detail, plan create, email templates, SMS compose, expense tracking, budget per category, kiosk config, app config, retention monitor, audit log)
+- **13 mobile screens** not yet built (challenges, store, activities, training plans, social feed, calendar sync, dossiers, booking confirm, waitlist status, WOD comments, fistbump detail, photo gallery, converters, challenge detail, athlete of month, dossier viewer, questionnaire, password change, language selector, notification prefs)
 
-### 13.4 Test Coverage
+### 14.4 Test Coverage
 
 | Test File | Focus |
 |---|---|
@@ -1278,11 +1426,11 @@ Core operations for all 4 personas plus competitive parity features:
 
 ---
 
-## 14. Backlog Summary
+## 15. Backlog Summary
 
-### 14.1 Total Story Count
+### 15.1 Total Story Count
 
-**90 total stories** (65 original + 12 G-NEW + 6 A-NEW + 7 enhancements to existing stories)
+**100 total stories** (65 original + 12 G-NEW + 6 A-NEW + 10 S1 social/community + 7 enhancements to existing stories)
 
 | Persona | MVP | Phase 2 | Phase 3 | Phase 4 | Total |
 |---|---|---|---|---|---|
@@ -1290,22 +1438,23 @@ Core operations for all 4 personas plus competitive parity features:
 | Coach | 10 | 3 | 2 | 0 | 15 |
 | Personal Trainer | 6 | 5 | 1 | 1 | 13 |
 | Athlete/Member | 5 | 8 | 1 | 0 | 14 |
-| **Total** | **43** | **31** | **6** | **1** | **81** |
+| Community & Social | 2 | 7 | 1 | 0 | 10 |
+| **Total** | **45** | **38** | **7** | **1** | **91** |
 
-Note: Some stories span multiple personas (e.g., leaderboard is both Coach and Athlete). The 81 unique stories above deduplicate cross-persona overlaps. Including all role-specific views, the full backlog is approximately 90 trackable items.
+Note: Some stories span multiple personas (e.g., leaderboard is both Coach and Athlete). The 91 unique stories above deduplicate cross-persona overlaps. Including all role-specific views, the full backlog is approximately 100 trackable items. The Community & Social epic (S1-01 through S1-10) covers social feed, reactions, comments, profiles, challenges, voting, photos, gamification, leaderboards, and cross-box social features.
 
-### 14.2 MoSCoW Prioritization
+### 15.2 MoSCoW Prioritization
 
 | Priority | Count | Description |
 |---|---|---|
-| **MUST** | 32 | Essential for MVP launch -- blocking if missing |
-| **SHOULD** | 34 | Important for product-market fit -- planned for MVP or Phase 2 |
-| **COULD** | 15 | Nice-to-have -- improves UX/engagement but not blocking |
+| **MUST** | 33 | Essential for MVP launch -- blocking if missing |
+| **SHOULD** | 40 | Important for product-market fit -- planned for MVP or Phase 2 |
+| **COULD** | 18 | Nice-to-have -- improves UX/engagement but not blocking |
 | **WON'T (yet)** | 0 | Deferred beyond Phase 4 |
 
 ---
 
-## 15. Key Constraints
+## 16. Key Constraints
 
 | # | Constraint | Impact |
 |---|---|---|
