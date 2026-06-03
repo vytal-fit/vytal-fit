@@ -10,23 +10,10 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { ChevronRight, Cake } from "lucide-react-native";
 import { mockCoaches, mockDashboardStats } from "@vytal-fit/shared";
+import { colors } from "@/colors";
+import { t } from "@/i18n";
 
-// ─── Colors ──────────────────────────────────────────────
-const C = {
-  bg: "#080c0a",
-  surface: "#0f1610",
-  surface2: "#162018",
-  green: "#3dff6e",
-  blue: "#00d4ff",
-  amber: "#ffb300",
-  red: "#ff4757",
-  purple: "#c084fc",
-  orange: "#ff8c42",
-  text: "#dceee0",
-  muted: "#6b8c72",
-  cardBg: "rgba(22,32,24,0.9)",
-  border: "rgba(61,255,110,0.1)",
-};
+const C = colors;
 
 // ─── Mock News ───────────────────────────────────────────
 const mockNews = [
@@ -322,7 +309,7 @@ const styles = StyleSheet.create({
   },
   quickCard: {
     flex: 1,
-    backgroundColor: C.cardBg,
+    backgroundColor: C.card,
     borderRadius: 14,
     borderWidth: 1,
     borderColor: C.border,
@@ -347,7 +334,7 @@ const styles = StyleSheet.create({
   // Occupancy Section
   sectionCard: {
     marginHorizontal: 16,
-    backgroundColor: C.cardBg,
+    backgroundColor: C.card,
     borderRadius: 14,
     borderWidth: 1,
     borderColor: C.border,
@@ -449,7 +436,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
-    backgroundColor: C.cardBg,
+    backgroundColor: C.card,
     borderRadius: 14,
     borderWidth: 1,
     borderColor: C.border,
@@ -492,7 +479,7 @@ const styles = StyleSheet.create({
   // News
   newsCard: {
     marginHorizontal: 16,
-    backgroundColor: C.cardBg,
+    backgroundColor: C.card,
     borderRadius: 14,
     borderWidth: 1,
     borderColor: C.border,

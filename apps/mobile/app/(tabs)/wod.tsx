@@ -8,23 +8,10 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
+import { colors } from "@/colors";
+import { t } from "@/i18n";
 
-// ─── Colors ──────────────────────────────────────────────
-const C = {
-  bg: "#080c0a",
-  surface: "#0f1610",
-  surface2: "#162018",
-  green: "#3dff6e",
-  blue: "#00d4ff",
-  amber: "#ffb300",
-  red: "#ff4757",
-  purple: "#c084fc",
-  orange: "#ff8c42",
-  text: "#dceee0",
-  muted: "#6b8c72",
-  cardBg: "rgba(22,32,24,0.9)",
-  border: "rgba(61,255,110,0.1)",
-};
+const C = colors;
 
 // ─── Types ───────────────────────────────────────────────
 type WODExercise = {
@@ -179,7 +166,7 @@ export default function WODScreen() {
       <View style={styles.container}>
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>WOD</Text>
+          <Text style={styles.headerTitle}>{t("screen.wod")}</Text>
           <Text style={styles.headerDate}>{formatDateHeader()}</Text>
         </View>
 
@@ -188,7 +175,7 @@ export default function WODScreen() {
           <Text style={styles.wodTitle}>{todayWOD.title}</Text>
           <View style={styles.publishedBadge}>
             <View style={styles.liveDot} />
-            <Text style={styles.publishedText}>Publicado</Text>
+            <Text style={styles.publishedText}>{t("status.published")}</Text>
           </View>
         </View>
 
@@ -211,25 +198,25 @@ export default function WODScreen() {
             style={styles.actionSecondary}
             onPress={() => router.push(`/wod-detail?id=${todayWOD.id}`)}
           >
-            <Text style={styles.actionSecondaryText}>DETALHES</Text>
+            <Text style={styles.actionSecondaryText}>{t("btn.details")}</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.actionPrimary}
             onPress={() => router.push("/score-entry")}
           >
-            <Text style={styles.actionPrimaryText}>RESULTADO</Text>
+            <Text style={styles.actionPrimaryText}>{t("btn.result")}</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.actionSecondary}
             onPress={() => router.push("/leaderboard")}
           >
-            <Text style={styles.actionSecondaryText}>TABELA</Text>
+            <Text style={styles.actionSecondaryText}>{t("btn.leaderboard")}</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.actionSecondary}
             onPress={() => router.push("/wod-history")}
           >
-            <Text style={styles.actionSecondaryText}>HISTORICO</Text>
+            <Text style={styles.actionSecondaryText}>{t("btn.history")}</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -307,7 +294,7 @@ const styles = StyleSheet.create({
 
   // Part Card
   partCard: {
-    backgroundColor: C.cardBg,
+    backgroundColor: C.card,
     borderRadius: 16,
     borderWidth: 1,
     borderColor: C.border,

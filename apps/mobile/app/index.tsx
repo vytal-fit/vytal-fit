@@ -1,6 +1,12 @@
 import { Redirect } from "expo-router";
+import { useAuthStore } from "@/stores/auth-store";
 
 export default function Index() {
-  // In a real app this would check auth state; for POC just go to login
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+
+  if (isAuthenticated) {
+    return <Redirect href="/(tabs)/classes" />;
+  }
+
   return <Redirect href="/login" />;
 }
