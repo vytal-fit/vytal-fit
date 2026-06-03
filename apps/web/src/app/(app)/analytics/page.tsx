@@ -2,6 +2,7 @@
 
 import { useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
+import { formatCurrency, formatCurrencyCompact } from "@/stores/data-store";
 import {
   ResponsiveContainer,
   LineChart,
@@ -252,7 +253,7 @@ function RevenueBreakdownTooltip({ active, payload, label }: RevenueBreakdownToo
       <p style={{ color: "#6b8c72", marginBottom: 4 }}>{label}</p>
       {payload.map((entry) => (
         <p key={entry.dataKey} style={{ color: entry.color }}>
-          {entry.name}: {new Intl.NumberFormat("pt-PT", { style: "currency", currency: "EUR", minimumFractionDigits: 0 }).format(entry.value)}
+          {entry.name}: {formatCurrency(entry.value)}
         </p>
       ))}
     </div>
@@ -448,7 +449,7 @@ export default function AnalyticsPage() {
                     tick={{ fill: "#6b8c72", fontSize: 11 }}
                     axisLine={false}
                     tickLine={false}
-                    tickFormatter={(v: number) => `\u20AC${Math.round(v / 1000)}K`}
+                    tickFormatter={(v: number) => formatCurrencyCompact(v)}
                   />
                   <Tooltip content={<RevenueBreakdownTooltip />} />
                   <Legend
@@ -478,9 +479,9 @@ export default function AnalyticsPage() {
                     axisLine={false}
                     tickLine={false}
                     domain={[40, 55]}
-                    tickFormatter={(v: number) => `\u20AC${v}`}
+                    tickFormatter={(v: number) => formatCurrency(v)}
                   />
-                  <Tooltip {...tooltipStyle} formatter={(value) => [`\u20AC${Number(value).toFixed(1)}`, t("analytics.revenuePerMember")]} />
+                  <Tooltip {...tooltipStyle} formatter={(value) => [formatCurrency(Number(value)), t("analytics.revenuePerMember")]} />
                   <Line type="monotone" dataKey="rpm" stroke="#22c55e" strokeWidth={2} dot={{ r: 3, fill: "#22c55e" }} />
                 </LineChart>
               </ResponsiveContainer>

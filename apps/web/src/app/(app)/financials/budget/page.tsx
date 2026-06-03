@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Save, Wallet } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { Breadcrumbs } from "@/components/breadcrumbs";
+import { formatCurrency } from "@/stores/data-store";
 
 type BudgetCategory = "Fixed" | "Variable" | "Tax";
 
@@ -44,11 +45,7 @@ const categoryBg: Record<BudgetCategory, string> = {
 };
 
 function formatEur(value: number): string {
-  return new Intl.NumberFormat("pt-PT", {
-    style: "currency",
-    currency: "EUR",
-    minimumFractionDigits: 0,
-  }).format(value);
+  return formatCurrency(value);
 }
 
 export default function MonthlyBudgetPage() {
