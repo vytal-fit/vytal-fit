@@ -651,7 +651,79 @@ Based on this analysis, the following features are present in Regibox but missin
 
 ---
 
-## 17. Vytal Competitive Advantages Over Regibox
+## 17. Client App Deep Dive (132 Routes)
+
+The athlete-facing app is a Framework7 SPA with 132 routes across 17 sections. Key features not captured in admin analysis:
+
+### Additional Client App Features
+
+| Feature | Routes | Notes |
+|---|---|---|
+| **Bet Game** | 5 routes | Gamified betting on WOD outcomes — bet on who wins, leaderboard, most-bet-on athletes, all-time standings |
+| **Social Feed** | `/regi_social_main/` | Instagram-style social feed within the box community |
+| **Photo Contests** | 2 routes | Photo upload + community voting |
+| **Quizzes** | `/quiz_main/` | Interactive quizzes |
+| **Certificates** | `/certifica_pdf/` | PDF diploma/certificate generation for competitions |
+| **Percentage Calculator** | `/calculadora/` | RM percentage calculator (e.g., 85% of 1RM) |
+| **Calendar Integrations** | `/int_cals/` | Sync classes to Google Calendar / Apple Calendar |
+| **Partner/Affiliate System** | 5 routes | Partner box calendar, rules, history, sales tracking |
+| **Competition Screen** | `/ecra_competicao/` | Large-screen display for live competitions |
+| **Import PRs** | `/records_pessoais_importar/` | Import PRs from another source or box |
+| **3-Step Registration** | 3 routes | Wizard: name/email/password → gender/gym/DOB → country/confirm |
+| **Guest Registration** | `/login_convidados/` | Simplified registration with Facebook Login |
+| **Coach Monitoring** | 3 routes | Coach view of athletes within the same app |
+| **PT Progress Photos** | `/pt_fotos/` | Photo tracking for PT clients |
+| **Questionnaires** | `/responder_quest/` | Surveys sent by management |
+| **4 Languages** | PT, EN, ES, FR | French support in addition to PT/EN/ES |
+
+### Client App Route Statistics
+
+| Section | Routes |
+|---|---|
+| Login/Auth/Registration | 10 |
+| Classes/Booking | 15 |
+| Drop-In | 6 |
+| Workouts (WODs) | 13 |
+| Personal Training | 4 |
+| Personal Records | 11 |
+| Activities/Competitions | 23 |
+| Ranking/Leaderboard | 4 |
+| Social (Fist Bumps/Comments) | 3 |
+| Timers | 5 |
+| Settings/Profile | 10 |
+| My Box (Community) | 4 |
+| Shop/Commerce | 4 |
+| Financial | 3 |
+| Partner System | 5 |
+| Other (News, Feedback, Docs) | 7 |
+| Admin/Coach (in same app) | 5 |
+| **Total** | **~132** |
+
+### Additional Gaps to Add to Vytal PRD
+
+| # | Feature | Priority |
+|---|---|---|
+| 23 | Bet Game — gamified WOD outcome betting with leaderboard | Phase 2 (gamification) |
+| 24 | RM Percentage Calculator (built-in tool) | MVP (low effort, high value) |
+| 25 | Calendar sync (Google Calendar, Apple Calendar for booked classes) | MVP |
+| 26 | Photo contests with community voting | Phase 2 |
+| 27 | PDF certificates for competition finishers | Phase 2 |
+| 28 | Import PRs from another box or source | MVP |
+| 29 | French language support (PT, EN, ES, FR) | Phase 2 |
+| 30 | Partner/affiliate box system (cross-box partnerships) | Phase 3 |
+| 31 | Facebook Login for guest registration | MVP |
+| 32 | PT progress photos | MVP |
+| 33 | In-app questionnaires/surveys from management | Phase 2 |
+
+### Platform Scale
+
+- **849 affiliated gyms/boxes** across Portugal and Portuguese-speaking countries
+- Primarily CrossFit but also: Pilates, martial arts, surf, yoga, fitness centers
+- Framework7 webview (PWA) — not native mobile
+
+---
+
+## 18. Vytal Competitive Advantages Over Regibox
 
 | Area | Regibox | Vytal |
 |---|---|---|
