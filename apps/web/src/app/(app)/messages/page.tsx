@@ -14,6 +14,7 @@ import {
   User,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/lib/i18n";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -212,6 +213,7 @@ export default function MessagesPage() {
   const [inputText, setInputText] = useState("");
   const [showQuickReplies, setShowQuickReplies] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const { t } = useI18n();
 
   const selectedConv = conversations.find((c) => c.id === selectedConvId) ?? null;
 
@@ -292,12 +294,12 @@ export default function MessagesPage() {
       <div className="flex w-80 shrink-0 flex-col border-r border-vytal-border bg-vytal-bg2">
         {/* Header */}
         <div className="border-b border-vytal-border p-4">
-          <h2 className="text-lg font-bold text-vytal-text">Messages</h2>
+          <h2 className="text-lg font-bold text-vytal-text">{t("messages.title")}</h2>
           <div className="relative mt-3">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-vytal-muted" />
             <input
               type="text"
-              placeholder="Pesquisar..."
+              placeholder={t("messages.searchPlaceholder")}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full rounded-lg border border-vytal-border bg-vytal-bg3 py-2 pl-9 pr-3 text-sm text-vytal-text placeholder:text-vytal-muted focus:border-vytal-green/30 focus:outline-none"
@@ -401,7 +403,7 @@ export default function MessagesPage() {
               </div>
               <button className="flex items-center gap-1 text-xs text-vytal-muted transition-colors hover:text-vytal-text">
                 <User className="h-3.5 w-3.5" />
-                View Profile
+                {t("messages.viewProfile")}
               </button>
             </div>
 
@@ -498,7 +500,7 @@ export default function MessagesPage() {
                 </button>
                 <input
                   type="text"
-                  placeholder="Escrever mensagem..."
+                  placeholder={t("messages.placeholder")}
                   value={inputText}
                   onChange={(e) => setInputText(e.target.value)}
                   onKeyDown={handleKeyDown}
@@ -526,10 +528,10 @@ export default function MessagesPage() {
               <MessageCircle className="h-10 w-10 text-vytal-muted" />
             </div>
             <p className="mt-4 text-lg font-semibold text-vytal-text">
-              Selecione uma conversa
+              {t("messages.selectConversation")}
             </p>
             <p className="mt-1 text-sm text-vytal-muted">
-              Choose a conversation from the list to start messaging
+              {t("messages.selectConversationSub")}
             </p>
           </div>
         )}
