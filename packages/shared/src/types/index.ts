@@ -1,7 +1,6 @@
 export type {
   Member,
   MemberStatus,
-  MemberPlan,
   Class,
   ClassType,
   Location,

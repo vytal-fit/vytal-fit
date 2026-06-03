@@ -1,31 +1,5 @@
-import { View, Text, StyleSheet } from "react-native";
+import { Redirect } from "expo-router";
 
-export default function Home() {
-  return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Vytal</Text>
-      <Text style={styles.subtitle}>
-        Intelligent management for CrossFit boxes
-      </Text>
-    </View>
-  );
+export default function Index() {
+  return <Redirect href="/(tabs)/classes" />;
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#080c0a",
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: "700",
-    color: "#dceee0",
-  },
-  subtitle: {
-    fontSize: 16,
-    color: "#6b8c72",
-    marginTop: 12,
-  },
-});
