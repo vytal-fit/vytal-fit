@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Smartphone, Save, Camera } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/lib/i18n";
+import { Breadcrumbs } from "@/components/breadcrumbs";
 
 interface SectionToggle {
   key: string;
@@ -78,18 +79,26 @@ export default function AppConfigPage() {
         type="button"
         onClick={onToggle}
         className={cn(
-          "relative h-6 w-11 shrink-0 rounded-full transition-colors",
+          "relative h-6 w-11 shrink-0 rounded-full transition-colors duration-200",
           enabled ? "bg-vytal-green" : "bg-vytal-bg3"
         )}
       >
-        <span className={cn("absolute top-0.5 h-5 w-5 rounded-full bg-white transition-transform", enabled ? "left-[22px]" : "left-0.5")} />
+        <span className={cn("absolute top-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-transform duration-200", enabled ? "left-[22px]" : "left-0.5")} />
       </button>
     );
   }
 
   return (
     <div className="space-y-6">
-      <div className="flex items-end justify-between">
+      {/* Breadcrumbs */}
+      <Breadcrumbs
+        items={[
+          { label: t("nav.settings"), href: "/settings" },
+          { label: t("appConfig.title") },
+        ]}
+      />
+
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-vytal-text">{t("appConfig.title")}</h1>
           <p className="mt-1 text-sm text-vytal-muted">
@@ -108,7 +117,7 @@ export default function AppConfigPage() {
 
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Section Toggles */}
-        <div className="rounded-xl border border-vytal-border bg-vytal-card p-6">
+        <div className="rounded-xl border border-vytal-border bg-vytal-card p-6 transition-all duration-200 hover:border-[rgba(61,255,110,0.22)]">
           <div className="mb-5 flex items-center gap-2">
             <Smartphone className="h-5 w-5 text-vytal-green" />
             <h2 className="text-lg font-semibold text-vytal-text">App Sections</h2>
@@ -137,7 +146,7 @@ export default function AppConfigPage() {
 
         {/* Theme & PWA */}
         <div className="space-y-6">
-          <div className="rounded-xl border border-vytal-border bg-vytal-card p-6">
+          <div className="rounded-xl border border-vytal-border bg-vytal-card p-6 transition-all duration-200 hover:border-[rgba(61,255,110,0.22)]">
             <h2 className="mb-5 text-lg font-semibold text-vytal-text">Theme</h2>
             <div className="space-y-4">
               <div>
@@ -167,7 +176,7 @@ export default function AppConfigPage() {
             </div>
           </div>
 
-          <div className="rounded-xl border border-vytal-border bg-vytal-card p-6">
+          <div className="rounded-xl border border-vytal-border bg-vytal-card p-6 transition-all duration-200 hover:border-[rgba(61,255,110,0.22)]">
             <h2 className="mb-5 text-lg font-semibold text-vytal-text">PWA Settings</h2>
             <div className="space-y-4">
               <div>
@@ -196,7 +205,7 @@ export default function AppConfigPage() {
       <div className="flex justify-end">
         <button className="flex items-center gap-2 rounded-lg bg-vytal-green px-6 py-2.5 text-sm font-semibold text-vytal-bg transition-colors hover:bg-vytal-green/90">
           <Save className="h-4 w-4" />
-          Save Changes
+          {t("action.save")}
         </button>
       </div>
     </div>

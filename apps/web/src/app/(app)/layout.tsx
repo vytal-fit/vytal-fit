@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
@@ -11,6 +11,8 @@ import {
   UserPlus,
   CreditCard,
   Bell,
+  Menu,
+  X as XIcon,
   Trophy,
   Megaphone,
   CalendarCheck,
@@ -576,6 +578,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const user = useAuthStore((s) => s.user);
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const logout = useAuthStore((s) => s.logout);
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   // Get active org type for feature-based nav filtering
   const activeOrg = user?.memberships.find(
@@ -585,11 +588,30 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const orgConfig = ORGANIZATION_CONFIGS[orgType];
   const navGroups = getNavGroups(orgType);
 
+  // Close mobile sidebar on route change
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [pathname]);
+
   useEffect(() => {
     if (!isAuthenticated) {
       router.replace("/login");
     }
   }, [isAuthenticated, router]);
+
+  // Lock body scroll when mobile sidebar is open
+  useEffect(() => {
+    if (mobileOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [mobileOpen]);
+
+  const closeMobile = useCallback(() => setMobileOpen(false), []);
 
   if (!isAuthenticated || !user) {
     return null;
@@ -600,108 +622,156 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     router.push("/login");
   }
 
+  /** Sidebar inner content — shared between desktop and mobile */
+  const sidebarContent = (
+    <>
+      {/* Org Switcher */}
+      <div className="border-b border-vytal-border px-3 py-3">
+        <OrgSwitcher />
+      </div>
+
+      {/* Org type badge */}
+      {orgConfig && (
+        <div className="border-b border-vytal-border px-4 py-2">
+          <span className="text-[9px] font-bold uppercase tracking-widest text-vytal-muted">
+            {orgConfig.label}
+          </span>
+          <span className="ml-2 text-[9px] text-vytal-muted">
+            · {orgConfig.terminology.memberPlural} · {orgConfig.terminology.instructorPlural}
+          </span>
+        </div>
+      )}
+
+      {/* Navigation — filtered by org type features */}
+      <nav className="mt-4 flex flex-1 flex-col gap-1 overflow-y-auto px-3">
+        {navGroups.map((group, gi) => (
+          <div key={gi} className={gi > 0 ? "mt-4" : ""}>
+            {group.titleKey && (
+              <span className="mb-1 block px-3 text-[10px] font-semibold uppercase tracking-widest text-vytal-muted">
+                {t(group.titleKey)}
+              </span>
+            )}
+            {group.items.map((item) => {
+              const isActive =
+                pathname === item.href || pathname.startsWith(item.href + "/");
+              const Icon = item.icon;
+
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={cn(
+                    "group flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                    isActive
+                      ? "border-l-2 border-vytal-green bg-vytal-green/5 text-vytal-green"
+                      : "border-l-2 border-transparent text-vytal-muted hover:bg-vytal-bg3 hover:text-vytal-text"
+                  )}
+                >
+                  <Icon
+                    className={cn(
+                      "h-[18px] w-[18px] shrink-0",
+                      isActive
+                        ? "text-vytal-green"
+                        : "text-vytal-muted group-hover:text-vytal-text"
+                    )}
+                  />
+                  <span className="flex-1">{t(item.labelKey)}</span>
+                  {item.badge != null && item.badge > 0 && (
+                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-vytal-green text-[10px] font-bold text-vytal-bg">
+                      {item.badge}
+                    </span>
+                  )}
+                </Link>
+              );
+            })}
+          </div>
+        ))}
+      </nav>
+
+      {/* User Area — click name to open profile */}
+      <div className="border-t border-vytal-border p-4">
+        <div className="flex items-center gap-3">
+          <Link href="/profile" className="flex flex-1 items-center gap-3 rounded-lg p-1 -m-1 transition-colors hover:bg-vytal-bg3">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-vytal-green/10 text-sm font-semibold text-vytal-green">
+              {user.user.name.split(" ").map((n) => n[0]).join("").slice(0, 2)}
+            </div>
+            <div className="flex flex-1 flex-col min-w-0">
+              <span className="text-sm font-medium text-vytal-text truncate">
+                {user.user.name}
+              </span>
+              <span className="text-xs text-vytal-muted truncate">{user.user.email}</span>
+            </div>
+          </Link>
+          <button
+            onClick={handleLogout}
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-vytal-muted transition-colors hover:bg-vytal-bg3 hover:text-vytal-red"
+            title={t("action.logout")}
+          >
+            <LogOut className="h-4 w-4" />
+          </button>
+        </div>
+      </div>
+    </>
+  );
+
   return (
     <ToastProvider>
     <div className="flex h-screen overflow-hidden bg-vytal-bg">
-      {/* Sidebar */}
-      <aside className="flex w-64 flex-col border-r border-vytal-border bg-vytal-bg2">
-        {/* Org Switcher */}
-        <div className="border-b border-vytal-border px-3 py-3">
-          <OrgSwitcher />
-        </div>
+      {/* Desktop Sidebar */}
+      <aside className="hidden w-64 flex-col border-r border-vytal-border bg-vytal-bg2 lg:flex">
+        {sidebarContent}
+      </aside>
 
-        {/* Org type badge */}
-        {orgConfig && (
-          <div className="border-b border-vytal-border px-4 py-2">
-            <span className="text-[9px] font-bold uppercase tracking-widest text-vytal-muted">
-              {orgConfig.label}
-            </span>
-            <span className="ml-2 text-[9px] text-vytal-muted">
-              · {orgConfig.terminology.memberPlural} · {orgConfig.terminology.instructorPlural}
-            </span>
-          </div>
+      {/* Mobile Sidebar Overlay */}
+      {mobileOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm lg:hidden"
+          onClick={closeMobile}
+        />
+      )}
+
+      {/* Mobile Sidebar Drawer */}
+      <aside
+        className={cn(
+          "fixed inset-y-0 left-0 z-50 flex w-72 flex-col border-r border-vytal-border bg-vytal-bg2 transition-transform duration-300 ease-in-out lg:hidden",
+          mobileOpen ? "translate-x-0" : "-translate-x-full"
         )}
-
-        {/* Navigation — filtered by org type features */}
-        <nav className="mt-4 flex flex-1 flex-col gap-1 overflow-y-auto px-3">
-          {navGroups.map((group, gi) => (
-            <div key={gi} className={gi > 0 ? "mt-4" : ""}>
-              {group.titleKey && (
-                <span className="mb-1 block px-3 text-[10px] font-semibold uppercase tracking-widest text-vytal-muted">
-                  {t(group.titleKey)}
-                </span>
-              )}
-              {group.items.map((item) => {
-                const isActive =
-                  pathname === item.href || pathname.startsWith(item.href + "/");
-                const Icon = item.icon;
-
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={cn(
-                      "group flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
-                      isActive
-                        ? "border-l-2 border-vytal-green bg-vytal-green/5 text-vytal-green"
-                        : "border-l-2 border-transparent text-vytal-muted hover:bg-vytal-bg3 hover:text-vytal-text"
-                    )}
-                  >
-                    <Icon
-                      className={cn(
-                        "h-[18px] w-[18px] shrink-0",
-                        isActive
-                          ? "text-vytal-green"
-                          : "text-vytal-muted group-hover:text-vytal-text"
-                      )}
-                    />
-                    <span className="flex-1">{t(item.labelKey)}</span>
-                    {item.badge != null && item.badge > 0 && (
-                      <span className="flex h-5 w-5 items-center justify-center rounded-full bg-vytal-green text-[10px] font-bold text-vytal-bg">
-                        {item.badge}
-                      </span>
-                    )}
-                  </Link>
-                );
-              })}
-            </div>
-          ))}
-        </nav>
-
-        {/* User Area — click name to open profile */}
-        <div className="border-t border-vytal-border p-4">
-          <div className="flex items-center gap-3">
-            <Link href="/profile" className="flex flex-1 items-center gap-3 rounded-lg p-1 -m-1 transition-colors hover:bg-vytal-bg3">
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-vytal-green/10 text-sm font-semibold text-vytal-green">
-                {user.user.name.split(" ").map((n) => n[0]).join("").slice(0, 2)}
-              </div>
-              <div className="flex flex-1 flex-col min-w-0">
-                <span className="text-sm font-medium text-vytal-text truncate">
-                  {user.user.name}
-                </span>
-                <span className="text-xs text-vytal-muted truncate">{user.user.email}</span>
-              </div>
-            </Link>
-            <button
-              onClick={handleLogout}
-              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-vytal-muted transition-colors hover:bg-vytal-bg3 hover:text-vytal-red"
-              title={t("action.logout")}
-            >
-              <LogOut className="h-4 w-4" />
-            </button>
-          </div>
+      >
+        {/* Close button */}
+        <div className="flex items-center justify-end px-3 pt-3">
+          <button
+            onClick={closeMobile}
+            className="flex h-9 w-9 items-center justify-center rounded-lg text-vytal-muted transition-colors hover:bg-vytal-bg3 hover:text-vytal-text"
+          >
+            <XIcon className="h-5 w-5" />
+          </button>
         </div>
+        {sidebarContent}
       </aside>
 
       {/* Main Content */}
       <main className="flex-1 overflow-y-auto">
         {/* Top bar */}
-        <div className="flex h-14 items-center justify-end gap-3 border-b border-vytal-border bg-vytal-bg2/50 px-8">
-          <LanguageSwitcher />
-          <ThemeToggle />
-          <NotificationsDropdown />
+        <div className="flex h-14 items-center justify-between gap-3 border-b border-vytal-border bg-vytal-bg2/50 px-4 lg:justify-end lg:px-8">
+          {/* Mobile: hamburger + org name */}
+          <div className="flex items-center gap-3 lg:hidden">
+            <button
+              onClick={() => setMobileOpen(true)}
+              className="flex h-9 w-9 items-center justify-center rounded-lg text-vytal-muted transition-colors hover:bg-vytal-bg3 hover:text-vytal-text"
+            >
+              <Menu className="h-5 w-5" />
+            </button>
+            <span className="text-sm font-semibold text-vytal-text truncate">
+              {activeOrg?.organization.name ?? "Vytal"}
+            </span>
+          </div>
+          <div className="flex items-center gap-3">
+            <LanguageSwitcher />
+            <ThemeToggle />
+            <NotificationsDropdown />
+          </div>
         </div>
-        <div className="p-8">{children}</div>
+        <div className="p-4 lg:p-8">{children}</div>
       </main>
 
       {/* Floating Messenger-style chat widget */}

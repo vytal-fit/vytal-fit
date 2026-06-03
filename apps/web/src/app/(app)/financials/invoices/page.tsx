@@ -3,16 +3,18 @@
 import { useState, useMemo } from "react";
 import Link from "next/link";
 import {
-  ArrowLeft,
   Download,
   FileText,
   ChevronDown,
   ChevronUp,
   Search,
   QrCode,
+  Inbox,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/lib/i18n";
+import { Breadcrumbs } from "@/components/breadcrumbs";
+import { EmptyState } from "@/components/empty-state";
 
 type InvoiceStatus = "paid" | "pending" | "overdue";
 
@@ -205,6 +207,14 @@ function StatusBadge({ status }: { status: InvoiceStatus }) {
   );
 }
 
+function formatEur(value: number): string {
+  return new Intl.NumberFormat("pt-PT", {
+    style: "currency",
+    currency: "EUR",
+    minimumFractionDigits: 0,
+  }).format(value);
+}
+
 function MethodBadge({ method }: { method: string }) {
   return (
     <span className="inline-flex items-center rounded bg-vytal-bg3 px-2 py-0.5 text-xs text-vytal-muted">
@@ -232,7 +242,7 @@ function InvoiceRow({ invoice }: { invoice: Invoice }) {
           {invoice.member}
         </td>
         <td className="px-4 py-3 font-mono text-sm text-vytal-text">
-          {invoice.amount} EUR
+          {formatEur(invoice.amount)}
         </td>
         <td className="px-4 py-3">
           <StatusBadge status={invoice.status} />
@@ -297,10 +307,10 @@ function InvoiceRow({ invoice }: { invoice: Invoice }) {
                             {item.quantity}
                           </td>
                           <td className="px-3 py-2 text-right font-mono text-xs text-vytal-muted">
-                            {item.unitPrice} EUR
+                            {formatEur(item.unitPrice)}
                           </td>
                           <td className="px-3 py-2 text-right font-mono text-xs font-semibold text-vytal-text">
-                            {item.total} EUR
+                            {formatEur(item.total)}
                           </td>
                         </tr>
                       ))}
@@ -373,21 +383,21 @@ export default function InvoicesPage() {
 
   return (
     <div className="space-y-6">
+      {/* Breadcrumbs */}
+      <Breadcrumbs
+        items={[
+          { label: t("nav.financials"), href: "/financials" },
+          { label: t("invoices.title") },
+        ]}
+      />
+
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Link
-            href="/financials"
-            className="flex h-9 w-9 items-center justify-center rounded-lg text-vytal-muted transition-colors hover:bg-vytal-bg3 hover:text-vytal-text"
-          >
-            <ArrowLeft className="h-4 w-4" />
-          </Link>
-          <div>
-            <h1 className="text-2xl font-bold text-vytal-text">{t("invoices.title")}</h1>
-            <p className="mt-1 text-sm text-vytal-muted">
-              {t("invoices.subtitle")} ({MOCK_INVOICES.length} total)
-            </p>
-          </div>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-vytal-text">{t("invoices.title")}</h1>
+          <p className="mt-1 text-sm text-vytal-muted">
+            {t("invoices.subtitle")} ({MOCK_INVOICES.length} total)
+          </p>
         </div>
         <button
           type="button"
@@ -473,11 +483,11 @@ export default function InvoicesPage() {
         </table>
 
         {filtered.length === 0 && (
-          <div className="bg-vytal-card p-8 text-center">
-            <p className="text-sm text-vytal-muted">
-              No invoices found matching your filters
-            </p>
-          </div>
+          <EmptyState
+            icon={Inbox}
+            title="Sem faturas"
+            description="Nenhuma fatura encontrada para os filtros selecionados."
+          />
         )}
       </div>
     </div>

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Monitor, Camera, QrCode, Save } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/lib/i18n";
+import { Breadcrumbs } from "@/components/breadcrumbs";
 
 const timingOptions = [
   { value: "beginning", label: "At beginning" },
@@ -39,17 +40,17 @@ export default function KioskConfigPage() {
 
   function Toggle({ enabled, onToggle, label }: { enabled: boolean; onToggle: () => void; label: string }) {
     return (
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between rounded-lg px-3 py-2.5 transition-colors hover:bg-vytal-bg2">
         <span className="text-sm text-vytal-text">{label}</span>
         <button
           type="button"
           onClick={onToggle}
           className={cn(
-            "relative h-6 w-11 shrink-0 rounded-full transition-colors",
+            "relative h-6 w-11 shrink-0 rounded-full transition-colors duration-200",
             enabled ? "bg-vytal-green" : "bg-vytal-bg3"
           )}
         >
-          <span className={cn("absolute top-0.5 h-5 w-5 rounded-full bg-white transition-transform", enabled ? "left-[22px]" : "left-0.5")} />
+          <span className={cn("absolute top-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-transform duration-200", enabled ? "left-[22px]" : "left-0.5")} />
         </button>
       </div>
     );
@@ -57,6 +58,14 @@ export default function KioskConfigPage() {
 
   return (
     <div className="space-y-6">
+      {/* Breadcrumbs */}
+      <Breadcrumbs
+        items={[
+          { label: t("nav.settings"), href: "/settings" },
+          { label: t("kiosk.title") },
+        ]}
+      />
+
       <div>
         <h1 className="text-2xl font-bold text-vytal-text">{t("kiosk.title")}</h1>
         <p className="mt-1 text-sm text-vytal-muted">
@@ -66,7 +75,7 @@ export default function KioskConfigPage() {
 
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Image Slots */}
-        <div className="rounded-xl border border-vytal-border bg-vytal-card p-6 lg:col-span-2">
+        <div className="rounded-xl border border-vytal-border bg-vytal-card p-6 transition-all duration-200 hover:border-[rgba(61,255,110,0.22)] lg:col-span-2">
           <div className="mb-5 flex items-center gap-2">
             <Camera className="h-5 w-5 text-vytal-green" />
             <h2 className="text-lg font-semibold text-vytal-text">Slideshow Images</h2>
@@ -94,7 +103,7 @@ export default function KioskConfigPage() {
         </div>
 
         {/* Check-in Settings */}
-        <div className="rounded-xl border border-vytal-border bg-vytal-card p-6">
+        <div className="rounded-xl border border-vytal-border bg-vytal-card p-6 transition-all duration-200 hover:border-[rgba(61,255,110,0.22)]">
           <div className="mb-5 flex items-center gap-2">
             <Monitor className="h-5 w-5 text-vytal-green" />
             <h2 className="text-lg font-semibold text-vytal-text">Check-in Settings</h2>
@@ -123,7 +132,7 @@ export default function KioskConfigPage() {
 
         {/* Theme & QR */}
         <div className="space-y-6">
-          <div className="rounded-xl border border-vytal-border bg-vytal-card p-6">
+          <div className="rounded-xl border border-vytal-border bg-vytal-card p-6 transition-all duration-200 hover:border-[rgba(61,255,110,0.22)]">
             <h2 className="mb-5 text-lg font-semibold text-vytal-text">Theme Color</h2>
             <div className="flex flex-wrap gap-3">
               {themeColors.map((color) => (
@@ -141,7 +150,7 @@ export default function KioskConfigPage() {
             </div>
           </div>
 
-          <div className="rounded-xl border border-vytal-border bg-vytal-card p-6">
+          <div className="rounded-xl border border-vytal-border bg-vytal-card p-6 transition-all duration-200 hover:border-[rgba(61,255,110,0.22)]">
             <div className="mb-5 flex items-center gap-2">
               <QrCode className="h-5 w-5 text-vytal-green" />
               <h2 className="text-lg font-semibold text-vytal-text">Tablet Launch</h2>
@@ -160,7 +169,7 @@ export default function KioskConfigPage() {
       <div className="flex justify-end">
         <button className="flex items-center gap-2 rounded-lg bg-vytal-green px-6 py-2.5 text-sm font-semibold text-vytal-bg transition-colors hover:bg-vytal-green/90">
           <Save className="h-4 w-4" />
-          Save Changes
+          {t("action.save")}
         </button>
       </div>
     </div>
