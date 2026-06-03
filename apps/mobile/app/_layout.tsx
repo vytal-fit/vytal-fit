@@ -41,6 +41,19 @@ export default function RootLayout() {
         <Stack.Screen name="forgot-password" options={{ animation: "slide_from_right" }} />
         <Stack.Screen name="org-switcher" options={{ animation: "slide_from_right" }} />
         <Stack.Screen name="onboarding" options={{ animation: "fade" }} />
+        <Stack.Screen name="booking-confirm" options={{ animation: "slide_from_right" }} />
+        <Stack.Screen name="waitlist-status" options={{ animation: "slide_from_right" }} />
+        <Stack.Screen name="wod-comments" options={{ animation: "slide_from_right" }} />
+        <Stack.Screen name="fistbump-detail" options={{ animation: "slide_from_right" }} />
+        <Stack.Screen name="photo-gallery" options={{ animation: "slide_from_right" }} />
+        <Stack.Screen name="converters" options={{ animation: "slide_from_right" }} />
+        <Stack.Screen name="challenge-detail" options={{ animation: "slide_from_right" }} />
+        <Stack.Screen name="athlete-of-month" options={{ animation: "slide_from_right" }} />
+        <Stack.Screen name="dossier-viewer" options={{ animation: "slide_from_right" }} />
+        <Stack.Screen name="questionnaire" options={{ animation: "slide_from_right" }} />
+        <Stack.Screen name="password-change" options={{ animation: "slide_from_right" }} />
+        <Stack.Screen name="language-selector" options={{ animation: "slide_from_right" }} />
+        <Stack.Screen name="notification-prefs" options={{ animation: "slide_from_right" }} />
       </Stack>
     </>
   );
