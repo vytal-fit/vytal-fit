@@ -25,6 +25,8 @@ import {
   BarChart3,
   MessageSquare,
   Settings,
+  Zap,
+  Globe,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { mockNotifications, mockCurrentUser } from "@vytal-fit/shared";
@@ -60,6 +62,7 @@ const navGroups: NavGroup[] = [
       { href: "/locations", label: "Locations", icon: MapPin },
       { href: "/exercises", label: "Exercises", icon: Dumbbell },
       { href: "/plans", label: "Plans", icon: CreditCard },
+      { href: "/dropins", label: "Drop-ins", icon: Globe },
     ],
   },
   {
@@ -68,6 +71,7 @@ const navGroups: NavGroup[] = [
       { href: "/financials", label: "Financials", icon: DollarSign },
       { href: "/reports", label: "Reports", icon: BarChart3 },
       { href: "/communications", label: "Communications", icon: MessageSquare },
+      { href: "/automations", label: "Automations", icon: Zap },
     ],
   },
   {

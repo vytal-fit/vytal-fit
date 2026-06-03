@@ -1,6 +1,6 @@
 import { mockClasses } from "@vytal-fit/shared";
 import type { Class } from "@vytal-fit/shared";
-import { MapPin, User, Clock, Users, CalendarOff } from "lucide-react";
+import { MapPin, User, Clock, Users, CalendarOff, CalendarDays } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
@@ -150,6 +150,13 @@ export default function ClassesPage() {
           </p>
         </div>
         <div className="hidden items-center gap-4 sm:flex">
+          <Link
+            href="/classes/calendar"
+            className="flex items-center gap-2 rounded-lg border border-vytal-border px-4 py-2 text-sm font-medium text-vytal-text transition-colors hover:bg-vytal-bg3"
+          >
+            <CalendarDays className="h-4 w-4" />
+            Calendar View
+          </Link>
           <div className="text-right">
             <p className="text-xs text-vytal-muted">Total Enrolled</p>
             <p className="font-mono text-sm font-semibold text-vytal-text">

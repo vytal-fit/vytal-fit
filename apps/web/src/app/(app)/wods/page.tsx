@@ -1,7 +1,8 @@
 import { mockWODs, mockClassTypes } from "@vytal-fit/shared";
 import type { WOD, WODPart, WODType } from "@vytal-fit/shared";
-import { Dumbbell, Clock, Flame, Zap, Timer, Repeat, ChevronRight } from "lucide-react";
+import { Dumbbell, Clock, Flame, Zap, Timer, Repeat, ChevronRight, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
+import Link from "next/link";
 
 const wodTypeConfig: Record<
   WODType,
@@ -164,16 +165,25 @@ export default function WODsPage() {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-vytal-text">WODs</h1>
-        <p className="mt-1 text-sm text-vytal-muted">
-          Today&apos;s programming &mdash;{" "}
-          {new Date().toLocaleDateString("pt-PT", {
-            weekday: "long",
-            day: "numeric",
-            month: "long",
-          })}
-        </p>
+      <div className="flex items-end justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-vytal-text">WODs</h1>
+          <p className="mt-1 text-sm text-vytal-muted">
+            Today&apos;s programming &mdash;{" "}
+            {new Date().toLocaleDateString("pt-PT", {
+              weekday: "long",
+              day: "numeric",
+              month: "long",
+            })}
+          </p>
+        </div>
+        <Link
+          href="/wods/builder"
+          className="flex items-center gap-2 rounded-lg bg-vytal-green px-4 py-2.5 text-sm font-semibold text-vytal-bg transition-all hover:bg-vytal-green/90"
+        >
+          <Plus className="h-4 w-4" />
+          Create WOD
+        </Link>
       </div>
 
       {/* Today's WODs */}

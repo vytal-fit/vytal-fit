@@ -3,7 +3,7 @@
 import { useState, useMemo } from "react";
 import { mockMembers } from "@vytal-fit/shared";
 import type { Member, MemberStatus } from "@vytal-fit/shared";
-import { Search, Users, UserCheck, UserX, Clock } from "lucide-react";
+import { Search, Users, UserCheck, UserX, Clock, Upload } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
@@ -119,11 +119,20 @@ export default function MembersPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-vytal-text">Members</h1>
-        <p className="mt-1 text-sm text-vytal-muted">
-          Manage your box members
-        </p>
+      <div className="flex items-end justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-vytal-text">Members</h1>
+          <p className="mt-1 text-sm text-vytal-muted">
+            Manage your box members
+          </p>
+        </div>
+        <Link
+          href="/members/import"
+          className="flex items-center gap-2 rounded-lg border border-vytal-border px-4 py-2 text-sm font-medium text-vytal-text transition-colors hover:bg-vytal-bg3"
+        >
+          <Upload className="h-4 w-4" />
+          Import
+        </Link>
       </div>
 
       {/* Stats Bar */}
