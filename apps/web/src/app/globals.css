@@ -21,10 +21,25 @@
 }
 
 @layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
     background-color: var(--color-vytal-bg);
     color: var(--color-vytal-text);
     font-family: var(--font-sans);
+  }
+
+  /* Better focus ring */
+  *:focus-visible {
+    outline: 2px solid var(--color-vytal-green);
+    outline-offset: 2px;
+  }
+
+  /* Selection color */
+  ::selection {
+    background: rgba(34, 197, 94, 0.2);
   }
 
   /* Light theme overrides */
@@ -37,6 +52,25 @@
     --color-vytal-border: rgba(34, 197, 94, 0.15);
     --color-vytal-card: rgba(255, 255, 255, 0.95);
   }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(107, 140, 114, 0.3);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(107, 140, 114, 0.5);
 }
 
 /* ── Onboarding Wizard Animations ─────────────────────────────── */
@@ -166,4 +200,29 @@
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: var(--color-vytal-green);
+}
+
+/* Auth page animated gradient */
+@keyframes auth-gradient-shift {
+  0%   { transform: translate(0, 0) scale(1); }
+  33%  { transform: translate(30px, -50px) scale(1.1); }
+  66%  { transform: translate(-20px, 20px) scale(0.9); }
+  100% { transform: translate(0, 0) scale(1); }
+}
+
+.animate-auth-gradient {
+  animation: auth-gradient-shift 20s ease-in-out infinite;
+}
+
+.animate-auth-gradient-delayed {
+  animation: auth-gradient-shift 25s ease-in-out infinite reverse;
+}
+
+/* Password strength meter */
+@keyframes strength-fill {
+  from { width: 0; }
+}
+
+.animate-strength-fill {
+  animation: strength-fill 0.3s ease-out both;
 }

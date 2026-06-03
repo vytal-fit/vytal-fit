@@ -3,6 +3,7 @@
 import { Shield, Clock, Filter } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/lib/i18n";
+import { Breadcrumbs } from "@/components/breadcrumbs";
 
 type ActionType = "create" | "update" | "delete" | "payment" | "settings" | "login" | "export";
 
@@ -47,16 +48,24 @@ export default function AuditLogPage() {
   const { t } = useI18n();
   return (
     <div className="space-y-6">
-      <div className="flex items-end justify-between">
+      {/* Breadcrumbs */}
+      <Breadcrumbs
+        items={[
+          { label: t("nav.settings"), href: "/settings" },
+          { label: t("auditLog.title") },
+        ]}
+      />
+
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-vytal-text">{t("auditLog.title")}</h1>
           <p className="mt-1 text-sm text-vytal-muted">
             {t("auditLog.subtitle")}
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          <Filter className="h-4 w-4 text-vytal-muted" />
-          <span className="text-xs text-vytal-muted">{mockAuditLog.length} entries</span>
+        <div className="flex items-center gap-2 rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-2">
+          <Shield className="h-4 w-4 text-vytal-muted" />
+          <span className="text-xs font-medium text-vytal-muted">{mockAuditLog.length} entries</span>
         </div>
       </div>
 
