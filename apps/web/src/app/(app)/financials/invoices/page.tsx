@@ -184,14 +184,15 @@ const MOCK_INVOICES: Invoice[] = [
 ];
 
 function StatusBadge({ status }: { status: InvoiceStatus }) {
-  const config: Record<InvoiceStatus, { label: string; className: string }> = {
-    paid: { label: "Paid", className: "bg-vytal-green/10 text-vytal-green" },
+  const { t } = useI18n();
+  const config: Record<InvoiceStatus, { labelKey: string; className: string }> = {
+    paid: { labelKey: "status.paid", className: "bg-vytal-green/10 text-vytal-green" },
     pending: {
-      label: "Pending",
+      labelKey: "status.pending",
       className: "bg-vytal-amber/10 text-vytal-amber",
     },
     overdue: {
-      label: "Overdue",
+      labelKey: "status.overdue",
       className: "bg-vytal-red/10 text-vytal-red",
     },
   };
@@ -203,7 +204,7 @@ function StatusBadge({ status }: { status: InvoiceStatus }) {
         c.className
       )}
     >
-      {c.label}
+      {t(c.labelKey)}
     </span>
   );
 }
@@ -222,6 +223,7 @@ function MethodBadge({ method }: { method: string }) {
 
 function InvoiceRow({ invoice }: { invoice: Invoice }) {
   const [expanded, setExpanded] = useState(false);
+  const { t } = useI18n();
 
   return (
     <>
@@ -274,23 +276,23 @@ function InvoiceRow({ invoice }: { invoice: Invoice }) {
               {/* Line Items */}
               <div>
                 <h4 className="mb-2 text-xs font-medium uppercase tracking-wider text-vytal-muted">
-                  Line Items
+                  {t("invoices.lineItems")}
                 </h4>
                 <div className="overflow-hidden rounded-lg border border-vytal-border">
                   <table className="w-full">
                     <thead>
                       <tr className="border-b border-vytal-border bg-vytal-bg3">
                         <th className="px-3 py-2 text-left text-[10px] font-medium uppercase tracking-wider text-vytal-muted">
-                          Description
+                          {t("invoices.description")}
                         </th>
                         <th className="px-3 py-2 text-right text-[10px] font-medium uppercase tracking-wider text-vytal-muted">
-                          Qty
+                          {t("invoices.qty")}
                         </th>
                         <th className="px-3 py-2 text-right text-[10px] font-medium uppercase tracking-wider text-vytal-muted">
-                          Price
+                          {t("invoices.price")}
                         </th>
                         <th className="px-3 py-2 text-right text-[10px] font-medium uppercase tracking-wider text-vytal-muted">
-                          Total
+                          {t("invoices.total")}
                         </th>
                       </tr>
                     </thead>
@@ -319,7 +321,7 @@ function InvoiceRow({ invoice }: { invoice: Invoice }) {
               {/* Fiscal Details */}
               <div className="space-y-3">
                 <h4 className="text-xs font-medium uppercase tracking-wider text-vytal-muted">
-                  Fiscal Details
+                  {t("invoices.fiscalDetails")}
                 </h4>
                 <div className="space-y-2 rounded-lg border border-vytal-border bg-vytal-bg3 p-3">
                   <div className="flex items-center justify-between">
@@ -341,10 +343,10 @@ function InvoiceRow({ invoice }: { invoice: Invoice }) {
                   <QrCode className="h-10 w-10 text-vytal-muted" />
                   <div>
                     <p className="text-xs font-medium text-vytal-text">
-                      Fiscal QR Code
+                      {t("invoices.fiscalQrCode")}
                     </p>
                     <p className="text-[10px] text-vytal-muted">
-                      Portuguese tax authority compliant
+                      {t("invoices.taxCompliant")}
                     </p>
                   </div>
                 </div>
@@ -393,7 +395,7 @@ export default function InvoicesPage() {
         <div>
           <h1 className="text-2xl font-bold text-vytal-text">{t("invoices.title")}</h1>
           <p className="mt-1 text-sm text-vytal-muted">
-            {t("invoices.subtitle")} ({MOCK_INVOICES.length} total)
+            {t("invoices.subtitle")} ({MOCK_INVOICES.length})
           </p>
         </div>
         <button
@@ -410,10 +412,10 @@ export default function InvoicesPage() {
         <div className="flex rounded-lg border border-vytal-border">
           {(
             [
-              { value: "all", label: "All" },
-              { value: "paid", label: "Paid" },
-              { value: "pending", label: "Pending" },
-              { value: "overdue", label: "Overdue" },
+              { value: "all", labelKey: "invoices.all" },
+              { value: "paid", labelKey: "invoices.paid" },
+              { value: "pending", labelKey: "invoices.pending" },
+              { value: "overdue", labelKey: "invoices.overdue" },
             ] as const
           ).map((opt) => (
             <button
@@ -427,7 +429,7 @@ export default function InvoicesPage() {
                   : "text-vytal-muted hover:text-vytal-text"
               )}
             >
-              {opt.label}
+              {t(opt.labelKey)}
             </button>
           ))}
         </div>
@@ -436,7 +438,7 @@ export default function InvoicesPage() {
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-vytal-muted" />
           <input
             type="text"
-            placeholder="Search by member or invoice number..."
+            placeholder={t("invoices.searchPlaceholder")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 py-2 pl-10 pr-4 text-sm text-vytal-text placeholder:text-vytal-muted focus:border-vytal-green/30 focus:outline-none focus:ring-1 focus:ring-vytal-green/20"
@@ -450,25 +452,25 @@ export default function InvoicesPage() {
           <thead>
             <tr className="border-b border-vytal-border bg-vytal-bg2">
               <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-vytal-muted">
-                Invoice #
+                {t("invoices.invoiceNumber")}
               </th>
               <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-vytal-muted">
-                Date
+                {t("invoices.date")}
               </th>
               <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-vytal-muted">
-                Member
+                {t("invoices.member")}
               </th>
               <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-vytal-muted">
-                Amount
+                {t("invoices.amount")}
               </th>
               <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-vytal-muted">
-                Status
+                {t("invoices.status")}
               </th>
               <th className="hidden px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-vytal-muted sm:table-cell">
-                Method
+                {t("invoices.method")}
               </th>
               <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-vytal-muted">
-                Actions
+                {t("invoices.actions")}
               </th>
             </tr>
           </thead>

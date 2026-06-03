@@ -60,7 +60,7 @@ function PlanCard({
       )}
 
       {/* Delete button */}
-      <button onClick={onDelete} className="absolute right-3 top-3 rounded-lg p-1.5 text-vytal-muted opacity-0 transition-all hover:bg-vytal-red/10 hover:text-vytal-red group-hover:opacity-100" title="Delete">
+      <button onClick={onDelete} className="absolute right-3 top-3 rounded-lg p-1.5 text-vytal-muted opacity-0 transition-all hover:bg-vytal-red/10 hover:text-vytal-red group-hover:opacity-100" title={t("action.delete")}>
         <Trash2 className="h-3.5 w-3.5" />
       </button>
 
@@ -169,13 +169,13 @@ export default function PlansPage() {
 
   function handleToggleActive(id: string, currentActive: boolean) {
     updatePlan(id, { active: !currentActive });
-    toast(currentActive ? "Plan deactivated" : "Plan activated", "success");
+    toast(currentActive ? t("plans.planDeactivated") : t("plans.planActivated"), "success");
   }
 
   function handleConfirmDelete() {
     if (!deleteTarget) return;
     deletePlan(deleteTarget.id);
-    toast("Plan deleted", "success");
+    toast(t("plans.planDeleted"), "success");
     setDeleteTarget(null);
   }
 
@@ -227,8 +227,8 @@ export default function PlansPage() {
 
       <ConfirmDialog
         open={!!deleteTarget}
-        title="Delete Plan"
-        description={`Are you sure you want to delete "${deleteTarget?.name}"? Active subscribers will need to be migrated.`}
+        title={t("plans.deletePlan")}
+        description={t("plans.confirmDelete").replace("{name}", deleteTarget?.name ?? "")}
         confirmLabel={t("action.delete")}
         cancelLabel={t("action.cancel")}
         variant="danger"

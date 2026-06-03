@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 import { useI18n } from "@/lib/i18n";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 
-const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+const DAY_KEYS = ["attendance.mon", "attendance.tue", "attendance.wed", "attendance.thu", "attendance.fri", "attendance.sat", "attendance.sun"];
 const TIME_SLOTS = [
   "06:00", "07:00", "08:00", "09:00", "10:00", "11:00",
   "12:00", "13:00", "14:00", "15:00", "16:00", "17:00",
@@ -90,10 +90,10 @@ export default function AttendanceHeatmapPage() {
           <div className="flex items-start justify-between">
             <div className="flex flex-col gap-1">
               <span className="text-xs font-medium uppercase tracking-wider text-vytal-muted">
-                Peak Day
+                {t("attendance.peakDay")}
               </span>
               <span className="text-2xl font-bold text-vytal-text">
-                Thursday
+                {t("reports.thursday")}
               </span>
             </div>
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-vytal-green/10">
@@ -105,7 +105,7 @@ export default function AttendanceHeatmapPage() {
           <div className="flex items-start justify-between">
             <div className="flex flex-col gap-1">
               <span className="text-xs font-medium uppercase tracking-wider text-vytal-muted">
-                Peak Time
+                {t("attendance.peakTime")}
               </span>
               <span className="text-2xl font-bold text-vytal-text">
                 17:30 - 18:30
@@ -120,7 +120,7 @@ export default function AttendanceHeatmapPage() {
           <div className="flex items-start justify-between">
             <div className="flex flex-col gap-1">
               <span className="text-xs font-medium uppercase tracking-wider text-vytal-muted">
-                Avg per Class
+                {t("attendance.avgPerClass")}
               </span>
               <span className="text-2xl font-bold text-vytal-text">14.2</span>
             </div>
@@ -136,7 +136,7 @@ export default function AttendanceHeatmapPage() {
         <div className="mb-4 flex items-center gap-2">
           <BarChart3 className="h-4 w-4 text-vytal-green" />
           <h3 className="text-sm font-semibold text-vytal-text">
-            Weekly Attendance Pattern
+            {t("attendance.weeklyPattern")}
           </h3>
         </div>
 
@@ -156,10 +156,10 @@ export default function AttendanceHeatmapPage() {
               </tr>
             </thead>
             <tbody>
-              {DAYS.map((day, dayIdx) => (
-                <tr key={day}>
+              {DAY_KEYS.map((dayKey, dayIdx) => (
+                <tr key={dayKey}>
                   <td className="px-2 py-0.5 text-xs font-medium text-vytal-muted">
-                    {day}
+                    {t(dayKey)}
                   </td>
                   {HEATMAP_DATA[dayIdx].map((value, timeIdx) => (
                     <td key={timeIdx} className="px-0.5 py-0.5">
@@ -189,7 +189,7 @@ export default function AttendanceHeatmapPage() {
         {/* Legend */}
         <div className="mt-6 flex items-center gap-4">
           <span className="text-[10px] font-medium uppercase tracking-wider text-vytal-muted">
-            Less
+            {t("attendance.less")}
           </span>
           <div className="flex gap-1">
             <div className="h-4 w-8 rounded bg-vytal-bg3" />
@@ -200,7 +200,7 @@ export default function AttendanceHeatmapPage() {
             <div className="h-4 w-8 rounded bg-vytal-green/80" />
           </div>
           <span className="text-[10px] font-medium uppercase tracking-wider text-vytal-muted">
-            More
+            {t("attendance.more")}
           </span>
         </div>
       </div>

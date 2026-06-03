@@ -140,10 +140,10 @@ function formatTimeAgo(dateStr: string): string {
   const diffHours = Math.floor(diffMs / 3600000);
   const diffDays = Math.floor(diffMs / 86400000);
 
-  if (diffMin < 1) return "Just now";
-  if (diffMin < 60) return `${diffMin}m ago`;
-  if (diffHours < 24) return `${diffHours}h ago`;
-  if (diffDays < 7) return `${diffDays}d ago`;
+  if (diffMin < 1) return "Agora";
+  if (diffMin < 60) return `${diffMin}m`;
+  if (diffHours < 24) return `${diffHours}h`;
+  if (diffDays < 7) return `${diffDays}d`;
   return date.toLocaleDateString("pt-PT", { day: "2-digit", month: "short" });
 }
 
@@ -338,7 +338,7 @@ function OrgSwitcher() {
           </span>
           <span className="text-[10px] text-vytal-muted">
             {activeOrg ? ROLE_LABELS[activeOrg.role] : ""}
-            {activeOrg && ` · ${ORGANIZATION_CONFIGS[activeOrg.organization.type]?.label ?? activeOrg.organization.type}`}
+            {activeOrg && ` · ${t(`vertical.${activeOrg.organization.type}`)}`}
           </span>
         </div>
         <svg className={cn("h-4 w-4 text-vytal-muted transition-transform", open && "rotate-180")} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
@@ -387,7 +387,7 @@ function OrgSwitcher() {
                       {ROLE_LABELS[mem.role]}
                     </span>
                     <span className="text-[9px] text-vytal-muted">
-                      · {config?.label}
+                      · {t(`vertical.${mem.organization.type}`)}
                     </span>
                   </div>
                 </div>
@@ -732,7 +732,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       {orgConfig && (
         <div className="border-b border-vytal-border px-4 py-2">
           <span className="text-[9px] font-bold uppercase tracking-widest text-vytal-muted">
-            {orgConfig.label}
+            {t(`vertical.${orgType}`)}
           </span>
           <span className="ml-2 text-[9px] text-vytal-muted">
             · {orgConfig.terminology.memberPlural} · {orgConfig.terminology.instructorPlural}
@@ -850,7 +850,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               className="hidden items-center gap-2 rounded-lg border border-vytal-border bg-vytal-bg3/50 px-3 py-1.5 text-xs text-vytal-muted transition-colors hover:border-vytal-green/20 hover:text-vytal-text sm:flex"
             >
               <Search className="h-3.5 w-3.5" />
-              <span>Search...</span>
+              <span>{t("ui.searchPlaceholder")}</span>
               <kbd className="rounded border border-vytal-border bg-vytal-bg3 px-1 py-0.5 text-[10px] font-semibold">
                 {typeof navigator !== "undefined" && /Mac/.test(navigator.userAgent) ? "\u2318K" : "Ctrl+K"}
               </kbd>

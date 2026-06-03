@@ -109,7 +109,7 @@ export default function FinancialsPage() {
                   {revenueChange >= 0 ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}
                   {revenueChange >= 0 ? "+" : ""}{revenueChange.toFixed(1)}%
                 </div>
-                <span className="text-xs text-vytal-muted">vs {formatCurrency(lastMonthRevenue)} last month</span>
+                <span className="text-xs text-vytal-muted">{t("financials.vsLastMonthAmount").replace("{amount}", formatCurrency(lastMonthRevenue))}</span>
               </div>
             </div>
             <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-vytal-green/10">
@@ -130,9 +130,9 @@ export default function FinancialsPage() {
         <div className="rounded-xl border border-vytal-border bg-vytal-card p-6 transition-colors hover:border-[rgba(61,255,110,0.22)]">
           <div className="flex items-start justify-between">
             <div className="flex flex-col gap-1">
-              <span className="text-xs font-medium uppercase tracking-wider text-vytal-muted">Monthly Target</span>
+              <span className="text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("financials.monthlyTarget")}</span>
               <span className="text-3xl font-bold text-vytal-text">{revenueProgress.toFixed(0)}%</span>
-              <span className="text-xs text-vytal-muted">{formatCurrency(currentMonthRevenue)} of {formatCurrency(revenueTarget)} target</span>
+              <span className="text-xs text-vytal-muted">{formatCurrency(currentMonthRevenue)} {t("financials.ofTarget").replace("{target}", formatCurrency(revenueTarget))}</span>
             </div>
             <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-vytal-blue/10">
               <Target className="h-6 w-6 text-vytal-blue" />
@@ -253,7 +253,7 @@ export default function FinancialsPage() {
                 <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("financials.amount")}</th>
                 <th className="hidden px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-vytal-muted sm:table-cell">{t("financials.daysOverdue")}</th>
                 <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("financials.status")}</th>
-                <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-vytal-muted">Action</th>
+                <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("table.action")}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-vytal-border">
@@ -272,10 +272,10 @@ export default function FinancialsPage() {
                   <td className="px-4 py-3"><StatusBadge status={p.status} /></td>
                   <td className="px-4 py-3 text-right">
                     <button
-                      onClick={() => toast(`Payment reminder sent to ${p.member}`, "success")}
+                      onClick={() => toast(t("financials.reminderSent").replace("{name}", p.member), "success")}
                       className="inline-flex items-center gap-1.5 rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-1.5 text-xs font-medium text-vytal-text transition-colors hover:bg-vytal-bg3 hover:text-vytal-green"
                     >
-                      <Send className="h-3 w-3" /> Remind
+                      <Send className="h-3 w-3" /> {t("financials.remind")}
                     </button>
                   </td>
                 </tr>
@@ -322,19 +322,19 @@ export default function FinancialsPage() {
                       <td colSpan={6} className="px-6 py-4">
                         <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
                           <div>
-                            <p className="text-[10px] font-medium uppercase tracking-wider text-vytal-muted">Reference</p>
+                            <p className="text-[10px] font-medium uppercase tracking-wider text-vytal-muted">{t("table.reference")}</p>
                             <p className="mt-0.5 font-mono text-sm text-vytal-text">{tx.ref}</p>
                           </div>
                           <div>
-                            <p className="text-[10px] font-medium uppercase tracking-wider text-vytal-muted">Plan</p>
+                            <p className="text-[10px] font-medium uppercase tracking-wider text-vytal-muted">{t("table.plan")}</p>
                             <p className="mt-0.5 text-sm text-vytal-text">{tx.plan}</p>
                           </div>
                           <div>
-                            <p className="text-[10px] font-medium uppercase tracking-wider text-vytal-muted">Payment Method</p>
+                            <p className="text-[10px] font-medium uppercase tracking-wider text-vytal-muted">{t("table.paymentMethod")}</p>
                             <p className="mt-0.5 text-sm text-vytal-text">{tx.method}</p>
                           </div>
                           <div>
-                            <p className="text-[10px] font-medium uppercase tracking-wider text-vytal-muted">Amount</p>
+                            <p className="text-[10px] font-medium uppercase tracking-wider text-vytal-muted">{t("financials.amount")}</p>
                             <p className="mt-0.5 font-mono text-sm font-semibold text-vytal-text">{formatCurrency(tx.amount)}</p>
                           </div>
                         </div>
