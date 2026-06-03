@@ -56,8 +56,8 @@
 
 /* Custom scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 4px;
+  height: 4px;
 }
 
 ::-webkit-scrollbar-track {
@@ -65,12 +65,22 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(107, 140, 114, 0.3);
-  border-radius: 3px;
+  background: rgba(107, 140, 114, 0.2);
+  border-radius: 2px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(107, 140, 114, 0.5);
+  background: rgba(107, 140, 114, 0.4);
+}
+
+/* Page enter animation */
+.page-enter {
+  animation: page-fade-in 0.3s ease-out;
+}
+
+@keyframes page-fade-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 /* ── Onboarding Wizard Animations ─────────────────────────────── */
@@ -242,4 +252,57 @@
 @keyframes confirm-scale-in {
   from { opacity: 0; transform: scale(0.95); }
   to   { opacity: 1; transform: scale(1); }
+}
+
+/* ── Admin Polish: Stat card hover lift ───────────────────── */
+.stat-card-hover {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.stat-card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* ── Admin Polish: Table zebra striping ───────────────────── */
+.zebra-table tbody tr:nth-child(even) {
+  background-color: rgba(34, 197, 94, 0.02);
+}
+html.light .zebra-table tbody tr:nth-child(even) {
+  background-color: rgba(34, 197, 94, 0.03);
+}
+
+/* ── Admin Polish: Sticky table header ────────────────────── */
+.sticky-thead thead {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+/* ── Admin Polish: Sidebar nav transition ─────────────────── */
+.nav-item-transition {
+  transition: all 0.15s ease;
+}
+
+/* ── Admin Polish: Language switcher pill transition ───────── */
+.lang-pill-transition {
+  transition: all 0.2s ease;
+}
+
+/* ── Admin Polish: Org switcher shadow ────────────────────── */
+.org-dropdown-shadow {
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* ── Admin Polish: Schedule row hover ─────────────────────── */
+.schedule-row-hover {
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+/* ── Admin Polish: Focus ring animation ───────────────────── */
+.focus-ring-animate {
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.focus-ring-animate:focus {
+  border-color: rgba(34, 197, 94, 0.4);
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
 }

@@ -184,10 +184,27 @@ export default function ExercisesPage() {
       </div>
 
       {exercises.length === 0 && (
-        <div className="rounded-xl border border-vytal-border bg-vytal-card p-8 text-center">
-          <p className="text-sm text-vytal-muted">
-            No exercises found matching your filters
+        <div className="rounded-xl border border-vytal-border bg-vytal-card p-12 text-center">
+          <Dumbbell className="mx-auto h-8 w-8 text-vytal-muted" />
+          <p className="mt-3 text-sm font-medium text-vytal-text">
+            {t("exercises.noResults")}
           </p>
+          <p className="mt-1 text-xs text-vytal-muted">
+            {search
+              ? t("exercises.noResultsFor").replace("{query}", search)
+              : t("exercises.noResultsInCategory")}
+          </p>
+          {(search || activeCategory !== "all") && (
+            <button
+              onClick={() => {
+                setSearch("");
+                setActiveCategory("all");
+              }}
+              className="mt-4 rounded-lg border border-vytal-border px-4 py-2 text-xs font-medium text-vytal-text transition-colors hover:bg-vytal-bg3"
+            >
+              {t("exercises.clearFilters")}
+            </button>
+          )}
         </div>
       )}
     </div>

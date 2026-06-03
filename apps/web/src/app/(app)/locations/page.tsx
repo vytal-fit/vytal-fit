@@ -46,8 +46,8 @@ export default function LocationsPage() {
           description={t("locations.noLocationsDesc")}
         />
       ) : (
-      <div className="overflow-hidden rounded-xl border border-vytal-border">
-        <table className="w-full">
+      <div className="overflow-x-auto rounded-xl border border-vytal-border">
+        <table className="w-full min-w-[400px]">
           <thead>
             <tr className="border-b border-vytal-border bg-vytal-bg2">
               <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-vytal-muted">

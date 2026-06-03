@@ -129,112 +129,125 @@ export default function ProfileScreen() {
     ]);
   }
 
-  const menuItems: MenuItemConfig[] = [
+  const menuSections: { title: string; items: MenuItemConfig[] }[] = [
     {
-      icon: <UserIcon size={20} color={C.blue} strokeWidth={1.8} />,
-      label: t("menu.personalData"),
-      sublabel: t("menu.personalData.sub"),
-      color: C.blue,
-      onPress: () => router.push("/settings/personal-data"),
+      title: "FERRAMENTAS",
+      items: [
+        {
+          icon: <Timer size={20} color={C.orange} strokeWidth={1.8} />,
+          label: t("menu.timer"),
+          sublabel: t("menu.timer.sub"),
+          color: C.orange,
+          onPress: () => router.push("/timer"),
+        },
+        {
+          icon: <Calculator size={20} color={C.red} strokeWidth={1.8} />,
+          label: t("menu.calculator"),
+          sublabel: t("menu.calculator.sub"),
+          color: C.red,
+          onPress: () => router.push("/calculator"),
+        },
+        {
+          icon: <BookOpen size={20} color={C.purple} strokeWidth={1.8} />,
+          label: t("menu.exercises"),
+          sublabel: t("menu.exercises.sub"),
+          color: C.purple,
+          onPress: () => router.push("/exercises"),
+        },
+      ],
     },
     {
-      icon: <CreditCard size={20} color={C.green} strokeWidth={1.8} />,
-      label: t("menu.plan"),
-      sublabel: t("menu.plan.sub"),
-      color: C.green,
-      onPress: () => router.push("/plan-detail"),
+      title: "A MINHA CONTA",
+      items: [
+        {
+          icon: <UserIcon size={20} color={C.blue} strokeWidth={1.8} />,
+          label: t("menu.personalData"),
+          sublabel: t("menu.personalData.sub"),
+          color: C.blue,
+          onPress: () => router.push("/settings/personal-data"),
+        },
+        {
+          icon: <CreditCard size={20} color={C.green} strokeWidth={1.8} />,
+          label: t("menu.plan"),
+          sublabel: t("menu.plan.sub"),
+          color: C.green,
+          onPress: () => router.push("/plan-detail"),
+        },
+        {
+          icon: <History size={20} color={C.orange} strokeWidth={1.8} />,
+          label: t("menu.classHistory"),
+          sublabel: t("menu.classHistory.sub"),
+          color: C.orange,
+          onPress: () => router.push("/booking-history"),
+        },
+        {
+          icon: <Bell size={20} color={C.amber} strokeWidth={1.8} />,
+          label: t("menu.notifications"),
+          sublabel: t("menu.notifications.sub"),
+          color: C.amber,
+          onPress: () => router.push("/notifications"),
+          badge: unreadCount,
+        },
+      ],
     },
     {
-      icon: <History size={20} color={C.orange} strokeWidth={1.8} />,
-      label: t("menu.classHistory"),
-      sublabel: t("menu.classHistory.sub"),
-      color: C.orange,
-      onPress: () => router.push("/booking-history"),
+      title: "COMUNIDADE",
+      items: [
+        {
+          icon: <Mail size={20} color={C.blue} strokeWidth={1.8} />,
+          label: t("menu.messages"),
+          sublabel: t("menu.messages.sub"),
+          color: C.blue,
+          onPress: () => router.push("/chat"),
+        },
+        {
+          icon: <Heart size={20} color={C.red} strokeWidth={1.8} />,
+          label: t("menu.fistbumps"),
+          sublabel: t("menu.fistbumps.sub"),
+          color: C.red,
+          onPress: () => router.push("/fistbumps"),
+        },
+        {
+          icon: <QrCode size={20} color={C.green} strokeWidth={1.8} />,
+          label: t("menu.qrCheckin"),
+          sublabel: t("menu.qrCheckin.sub"),
+          color: C.green,
+          onPress: () => router.push("/checkin"),
+        },
+        {
+          icon: <MessageSquare size={20} color={C.amber} strokeWidth={1.8} />,
+          label: t("menu.feedback"),
+          sublabel: t("menu.feedback.sub"),
+          color: C.amber,
+          onPress: () => router.push("/feedback"),
+        },
+      ],
     },
     {
-      icon: <MapPin size={20} color={C.blue} strokeWidth={1.8} />,
-      label: t("menu.dropin"),
-      sublabel: t("menu.dropin.sub"),
-      color: C.blue,
-      onPress: () => router.push("/dropin"),
-    },
-    {
-      icon: <Bell size={20} color={C.amber} strokeWidth={1.8} />,
-      label: t("menu.notifications"),
-      sublabel: t("menu.notifications.sub"),
-      color: C.amber,
-      onPress: () => router.push("/notifications"),
-      badge: unreadCount,
-    },
-    {
-      icon: <Timer size={20} color={C.orange} strokeWidth={1.8} />,
-      label: t("menu.timer"),
-      sublabel: t("menu.timer.sub"),
-      color: C.orange,
-      onPress: () => router.push("/timer"),
-    },
-    {
-      icon: <Calculator size={20} color={C.red} strokeWidth={1.8} />,
-      label: t("menu.calculator"),
-      sublabel: t("menu.calculator.sub"),
-      color: C.red,
-      onPress: () => router.push("/calculator"),
-    },
-    {
-      icon: <BookOpen size={20} color={C.purple} strokeWidth={1.8} />,
-      label: t("menu.exercises"),
-      sublabel: t("menu.exercises.sub"),
-      color: C.purple,
-      onPress: () => router.push("/exercises"),
-    },
-    {
-      icon: <Heart size={20} color={C.red} strokeWidth={1.8} />,
-      label: t("menu.fistbumps"),
-      sublabel: t("menu.fistbumps.sub"),
-      color: C.red,
-      onPress: () => router.push("/fistbumps"),
-    },
-    {
-      icon: <QrCode size={20} color={C.green} strokeWidth={1.8} />,
-      label: t("menu.qrCheckin"),
-      sublabel: t("menu.qrCheckin.sub"),
-      color: C.green,
-      onPress: () => router.push("/checkin"),
-    },
-    {
-      icon: <Mail size={20} color={C.blue} strokeWidth={1.8} />,
-      label: t("menu.messages"),
-      sublabel: t("menu.messages.sub"),
-      color: C.blue,
-      onPress: () => router.push("/chat"),
-    },
-    {
-      icon: <MessageSquare size={20} color={C.amber} strokeWidth={1.8} />,
-      label: t("menu.feedback"),
-      sublabel: t("menu.feedback.sub"),
-      color: C.amber,
-      onPress: () => router.push("/feedback"),
-    },
-    {
-      icon: <Shield size={20} color={C.purple} strokeWidth={1.8} />,
-      label: t("menu.privacy"),
-      sublabel: t("menu.privacy.sub"),
-      color: C.purple,
-      onPress: () => router.push("/settings/privacy"),
-    },
-    {
-      icon: <Palette size={20} color={C.green} strokeWidth={1.8} />,
-      label: t("menu.theme"),
-      sublabel: THEME_LABELS[theme] || theme,
-      color: C.green,
-      onPress: () => router.push("/settings/theme"),
-    },
-    {
-      icon: <Globe size={20} color={C.blue} strokeWidth={1.8} />,
-      label: t("menu.language"),
-      sublabel: LANGUAGE_LABELS[language] || language,
-      color: C.blue,
-      onPress: handleLanguageCycle,
+      title: "PREFERENCIAS",
+      items: [
+        {
+          icon: <Shield size={20} color={C.purple} strokeWidth={1.8} />,
+          label: t("menu.privacy"),
+          sublabel: t("menu.privacy.sub"),
+          color: C.purple,
+          onPress: () => router.push("/settings/privacy"),
+        },
+        {
+          icon: <Palette size={20} color={C.green} strokeWidth={1.8} />,
+          label: t("menu.theme"),
+          sublabel: THEME_LABELS[theme] || theme,
+          color: C.green,
+          onPress: () => router.push("/settings/theme"),
+        },
+        {
+          icon: <Globe size={20} color={C.blue} strokeWidth={1.8} />,
+          label: t("menu.language"),
+          sublabel: LANGUAGE_LABELS[language] || language,
+          color: C.blue,
+          onPress: handleLanguageCycle,
+        },
+      ],
     },
   ];
 
@@ -297,12 +310,17 @@ export default function ProfileScreen() {
           </Text>
         </View>
 
-        {/* Menu Items */}
-        <View style={styles.menuSection}>
-          {menuItems.map((item, i) => (
-            <MenuItem key={i} item={item} />
-          ))}
-        </View>
+        {/* Menu Sections */}
+        {menuSections.map((section, si) => (
+          <View key={si}>
+            <Text style={styles.sectionHeader}>{section.title}</Text>
+            <View style={styles.menuSection}>
+              {section.items.map((item, i) => (
+                <MenuItem key={i} item={item} />
+              ))}
+            </View>
+          </View>
+        ))}
 
         {/* Logout Button */}
         <TouchableOpacity
@@ -455,10 +473,21 @@ const styles = StyleSheet.create({
     textTransform: "capitalize",
   },
 
+  // Section Header
+  sectionHeader: {
+    fontSize: 10,
+    fontWeight: "700",
+    letterSpacing: 1.5,
+    color: C.muted,
+    marginTop: 20,
+    marginBottom: 8,
+    marginHorizontal: 20,
+  },
+
   // Menu
   menuSection: {
     marginHorizontal: 16,
-    marginTop: 10,
+    marginTop: 0,
     backgroundColor: C.card,
     borderRadius: 14,
     borderWidth: 1,

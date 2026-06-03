@@ -25,7 +25,7 @@ export default function TabLayout() {
         tabBarActiveTintColor: colors.green,
         tabBarInactiveTintColor: colors.muted,
         tabBarLabelStyle: {
-          fontSize: 11,
+          fontSize: 10,
           fontWeight: "600",
           marginTop: 4,
         },

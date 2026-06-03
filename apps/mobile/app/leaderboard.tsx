@@ -10,25 +10,11 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { mockLeaderboard } from "@vytal-fit/shared";
 import { ArrowLeft, Zap, Heart } from "lucide-react-native";
+import { colors } from "@/colors";
 
 const CURRENT_USER_NAME = "Jose Fonte";
 
-// ─── Colors ──────────────────────────────────────────────
-const C = {
-  bg: "#080c0a",
-  surface: "#0f1610",
-  surface2: "#162018",
-  green: "#3dff6e",
-  blue: "#00d4ff",
-  amber: "#ffb300",
-  red: "#ff4757",
-  purple: "#c084fc",
-  orange: "#ff8c42",
-  text: "#dceee0",
-  muted: "#6b8c72",
-  cardBg: "rgba(22,32,24,0.9)",
-  border: "rgba(61,255,110,0.1)",
-};
+const C = { ...colors, cardBg: colors.card };
 
 function getMedalEmoji(rank: number): string {
   switch (rank) {
@@ -113,7 +99,7 @@ export default function LeaderboardScreen() {
       <View style={styles.container}>
         {/* Header */}
         <View style={styles.header}>
-          <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+          <TouchableOpacity style={styles.backButton} onPress={() => router.back()} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
             <ArrowLeft size={24} color={C.text} strokeWidth={1.8} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Tabela</Text>

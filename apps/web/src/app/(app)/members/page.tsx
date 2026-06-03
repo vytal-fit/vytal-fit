@@ -452,8 +452,8 @@ export default function MembersPage() {
       )}
 
       {/* Table */}
-      <div className="overflow-hidden rounded-xl border border-vytal-border">
-        <table className="w-full">
+      <div className="overflow-x-auto rounded-xl border border-vytal-border">
+        <table className="zebra-table sticky-thead w-full min-w-[800px]">
           <thead>
             <tr className="border-b border-vytal-border bg-vytal-bg2">
               <th className="w-10 px-4 py-3">

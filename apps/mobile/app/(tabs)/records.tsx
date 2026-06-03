@@ -338,7 +338,7 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   prAccent: {
-    width: 3,
+    width: 4,
     borderRadius: 2,
     minHeight: 40,
   },
@@ -418,16 +418,16 @@ const styles = StyleSheet.create({
 
   // PR Badge
   prBadge: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 10,
     backgroundColor: C.green + "18",
     alignItems: "center",
     justifyContent: "center",
     marginLeft: 12,
   },
   prBadgeIcon: {
-    fontSize: 13,
+    fontSize: 11,
     fontWeight: "900",
     color: C.green,
     letterSpacing: 0.5,
