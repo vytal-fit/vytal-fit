@@ -1,4 +1,4 @@
-.PHONY: help install setup-env dev-web dev-mobile dev build lint type-check test test-watch
+.PHONY: help install setup-env dev-web dev-mobile dev build lint type-check test test-watch test-e2e
 
 help: ## Show available commands
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-18s\033[0m %s\n", $$1, $$2}'
@@ -45,5 +45,11 @@ test: ## Run all tests
 
 test-watch: ## Run tests in watch mode
 	npm run test:watch
+
+test-e2e: ## Run Playwright E2E tests
+	npm run test:e2e
+
+test-e2e-ui: ## Run Playwright E2E tests with UI
+	npm run test:e2e:ui
 
 check: lint type-check test ## Run lint + type-check + tests
