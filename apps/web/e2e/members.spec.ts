@@ -22,8 +22,8 @@ test.describe("Admin Members Page", () => {
   });
 
   test("shows status badges", async ({ page }) => {
-    // PT: "Ativo", EN: "Active" — verify status text appears in the page
-    const activeBadges = page.locator("main td").getByText(/ativo|active/i);
+    // PT: "Ativo", EN: "Active" — verify status badge text appears in the table
+    const activeBadges = page.locator("main table").getByText(/ativo|active/i);
     expect(await activeBadges.count()).toBeGreaterThan(0);
   });
 

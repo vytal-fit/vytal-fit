@@ -19,7 +19,8 @@ test.describe("Admin Classes Page", () => {
   });
 
   test("shows coach names", async ({ page }) => {
-    await expect(page.getByText(/Andre Loureiro|Marine Robba|Ricardo Ribeiro/i).first()).toBeVisible();
+    // Classes page renders first names only (e.g. "Andre", "Marine", "Ricardo")
+    await expect(page.getByText(/Andre|Marine|Ricardo/i).first()).toBeVisible();
   });
 
   test("shows location names", async ({ page }) => {

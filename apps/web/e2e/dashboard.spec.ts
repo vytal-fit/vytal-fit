@@ -7,9 +7,9 @@ test.describe("Admin Dashboard", () => {
 
   test("displays KPI stat cards", async ({ page }) => {
     // PT: "Total de Membros", "Membros Ativos", "Ocupação"
-    await expect(page.getByText(/total.*memb|total members/i)).toBeVisible();
-    await expect(page.getByText(/membros ativos|active members/i)).toBeVisible();
-    await expect(page.getByText(/ocupa[çc]|occupancy/i)).toBeVisible();
+    await expect(page.getByText(/total.*memb|total members/i).first()).toBeVisible();
+    await expect(page.getByText(/membros ativos|active members/i).first()).toBeVisible();
+    await expect(page.getByText(/ocupa[çc][ãa]o|occupancy/i).first()).toBeVisible();
   });
 
   test("shows member counts from mock data", async ({ page }) => {
@@ -35,7 +35,7 @@ test.describe("Admin Dashboard", () => {
   });
 
   test("sidebar shows active organization", async ({ page }) => {
-    await expect(page.getByText("CrossFit Aveiro")).toBeVisible();
+    await expect(page.getByText("CrossFit Aveiro").first()).toBeVisible();
   });
 
   test("navigates to members page", async ({ page }) => {
