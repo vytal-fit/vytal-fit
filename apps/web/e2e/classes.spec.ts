@@ -6,7 +6,8 @@ test.describe("Admin Classes Page", () => {
   });
 
   test("displays classes heading", async ({ page }) => {
-    await expect(page.getByRole("heading", { name: /classes/i })).toBeVisible();
+    // PT: "Aulas" / "Agenda de aulas", EN: "Classes" / "Class schedule"
+    await expect(page.getByRole("heading", { name: /aulas|classes|agenda/i })).toBeVisible();
   });
 
   test("shows class cards", async ({ page }) => {

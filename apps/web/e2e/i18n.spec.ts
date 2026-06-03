@@ -1,4 +1,7 @@
 import { test, expect } from "@playwright/test";
+import path from "node:path";
+
+const authFile = path.join(__dirname, ".auth/user.json");
 
 test.describe("Internationalization", () => {
   const locales = [
@@ -9,7 +12,10 @@ test.describe("Internationalization", () => {
 
   for (const locale of locales) {
     test(`renders in ${locale.label} (${locale.code})`, async ({ browser }) => {
-      const context = await browser.newContext({ locale: locale.code });
+      const context = await browser.newContext({
+        locale: locale.code,
+        storageState: authFile,
+      });
       const page = await context.newPage();
       await page.goto("/dashboard");
       await expect(page.getByRole("heading", { name: /dashboard/i })).toBeVisible();

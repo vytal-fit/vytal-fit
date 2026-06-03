@@ -3,19 +3,19 @@ import { test, expect } from "@playwright/test";
 test.describe("Admin - All Pages Load", () => {
   const pages = [
     { path: "/dashboard", heading: /dashboard/i },
-    { path: "/members", heading: /members/i },
-    { path: "/classes", heading: /classes/i },
+    { path: "/members", heading: /membros|members|miembros/i },
+    { path: "/classes", heading: /aulas|classes|clases|agenda/i },
     { path: "/wods", heading: /wod/i },
     { path: "/crm", heading: /crm|leads|pipeline/i },
-    { path: "/plans", heading: /plan|subscription/i },
+    { path: "/plans", heading: /plan|plano|subscription/i },
     { path: "/staff", heading: /staff|coach/i },
-    { path: "/class-types", heading: /class.type/i },
-    { path: "/locations", heading: /location/i },
-    { path: "/exercises", heading: /exercise/i },
-    { path: "/reports", heading: /report/i },
-    { path: "/financials", heading: /financial|revenue/i },
-    { path: "/communications", heading: /communication/i },
-    { path: "/settings", heading: /setting/i },
+    { path: "/class-types", heading: /class.type|tipos de aula/i },
+    { path: "/locations", heading: /location|localiza/i },
+    { path: "/exercises", heading: /exerc[ií]/i },
+    { path: "/reports", heading: /report|relat[oó]rio/i },
+    { path: "/financials", heading: /financ/i },
+    { path: "/communications", heading: /comunica|communication/i },
+    { path: "/settings", heading: /setting|defini[çc]/i },
   ];
 
   for (const { path, heading } of pages) {
@@ -44,6 +44,7 @@ test.describe("Admin - CRM Pipeline", () => {
   test("shows pipeline columns", async ({ page }) => {
     await page.goto("/crm");
     await expect(page.getByText(/lead/i).first()).toBeVisible();
+    // CRM page uses hardcoded English labels
     await expect(page.getByText(/contacted/i).first()).toBeVisible();
     await expect(page.getByText(/prospect/i).first()).toBeVisible();
   });
@@ -62,7 +63,8 @@ test.describe("Admin - Member Detail", () => {
 
   test("shows member stats", async ({ page }) => {
     await page.goto("/members/m-1");
-    await expect(page.getByText(/streak|check-in/i).first()).toBeVisible();
+    // PT: "Sequência", EN: "Streak"
+    await expect(page.getByText(/streak|sequ[êe]ncia|check-in/i).first()).toBeVisible();
   });
 });
 
@@ -91,7 +93,8 @@ test.describe("Admin - Exercises", () => {
 
   test("has search functionality", async ({ page }) => {
     await page.goto("/exercises");
-    const search = page.getByPlaceholder(/search/i);
+    // PT: "Pesquisar", EN: "Search"
+    const search = page.getByPlaceholder(/pesquisar|search|buscar/i);
     await expect(search).toBeVisible();
   });
 });
@@ -106,6 +109,7 @@ test.describe("Admin - Staff", () => {
 test.describe("Admin - Settings", () => {
   test("shows box settings form", async ({ page }) => {
     await page.goto("/settings");
-    await expect(page.getByText(/save/i).first()).toBeVisible();
+    // PT: "Guardar", EN: "Save"
+    await expect(page.getByText(/save|guardar/i).first()).toBeVisible();
   });
 });

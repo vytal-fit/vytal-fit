@@ -5,11 +5,13 @@ test.describe("Admin Navigation", () => {
     await page.goto("/dashboard");
     await expect(page.getByText("CrossFit Aveiro")).toBeVisible();
 
-    await page.getByRole("link", { name: /members/i }).click();
+    // PT: "Membros", EN: "Members"
+    await page.getByRole("link", { name: /membros|members/i }).click();
     await page.waitForURL(/members/);
     await expect(page.getByText("CrossFit Aveiro")).toBeVisible();
 
-    await page.getByRole("link", { name: /classes/i }).click();
+    // PT: "Aulas", EN: "Classes"
+    await page.getByRole("link", { name: /aulas|classes/i }).click();
     await page.waitForURL(/classes/);
     await expect(page.getByText("CrossFit Aveiro")).toBeVisible();
   });
