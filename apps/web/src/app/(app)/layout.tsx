@@ -438,9 +438,9 @@ function FloatingChat() {
 
   return (
     <div ref={ref} className="fixed bottom-6 right-6 z-50">
-      {/* Chat window */}
+      {/* Chat window — positioned absolutely above the bubble */}
       {open && (
-        <div className="mb-4 flex h-[480px] w-[380px] flex-col overflow-hidden rounded-2xl border border-vytal-border bg-vytal-bg2 shadow-2xl shadow-black/30">
+        <div className="absolute bottom-16 right-0 flex h-[480px] w-[380px] flex-col overflow-hidden rounded-2xl border border-vytal-border bg-vytal-bg2 shadow-2xl shadow-black/30">
           {!activeChat ? (
             <>
               {/* Header */}
@@ -726,7 +726,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       )}
 
       {/* Navigation — filtered by org type features */}
-      <nav className="mt-4 flex flex-1 flex-col gap-1 overflow-y-auto px-3">
+      <nav className="mt-4 flex flex-1 flex-col gap-1 overflow-y-auto px-3 pb-6">
         {navGroups.map((group, gi) => (
           <div key={gi} className={gi > 0 ? "mt-4" : ""}>
             {group.titleKey && (
