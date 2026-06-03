@@ -27,8 +27,9 @@ import {
   Settings,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { mockNotifications } from "@vytal-fit/shared";
+import { mockNotifications, mockCurrentUser } from "@vytal-fit/shared";
 import type { NotificationType } from "@vytal-fit/shared";
+import { ROLE_LABELS, ROLE_COLORS, ORGANIZATION_CONFIGS } from "@vytal-fit/shared";
 
 interface NavItem {
   href: string;
@@ -190,6 +191,112 @@ function NotificationsDropdown() {
   );
 }
 
+function OrgSwitcher() {
+  const [open, setOpen] = useState(false);
+  const [activeOrgId, setActiveOrgId] = useState(mockCurrentUser.activeOrganizationId);
+  const ref = useRef<HTMLDivElement>(null);
+
+  const activeOrg = mockCurrentUser.memberships.find(
+    (m) => m.organizationId === activeOrgId
+  );
+  const activeMembership = activeOrg;
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (ref.current && !ref.current.contains(event.target as Node)) {
+        setOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  return (
+    <div className="relative" ref={ref}>
+      <button
+        onClick={() => setOpen(!open)}
+        className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left transition-colors hover:bg-vytal-bg3"
+      >
+        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-vytal-green/10 text-sm font-bold text-vytal-green">
+          {activeOrg?.organization.name.charAt(0) ?? "V"}
+        </div>
+        <div className="flex flex-1 flex-col min-w-0">
+          <span className="text-sm font-semibold text-vytal-text truncate">
+            {activeOrg?.organization.name ?? "Select org"}
+          </span>
+          <span className="text-[10px] text-vytal-muted">
+            {activeMembership ? ROLE_LABELS[activeMembership.role] : ""}
+            {activeOrg && ` · ${ORGANIZATION_CONFIGS[activeOrg.organization.type]?.label ?? activeOrg.organization.type}`}
+          </span>
+        </div>
+        <svg className={cn("h-4 w-4 text-vytal-muted transition-transform", open && "rotate-180")} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+      </button>
+
+      {open && (
+        <div className="absolute left-0 right-0 top-full z-50 mt-1 rounded-xl border border-vytal-border bg-vytal-bg2 shadow-2xl">
+          <div className="border-b border-vytal-border px-3 py-2">
+            <span className="text-[10px] font-semibold uppercase tracking-widest text-vytal-muted">
+              Your organizations
+            </span>
+          </div>
+          {mockCurrentUser.memberships.map((mem) => {
+            const isActive = mem.organizationId === activeOrgId;
+            const config = ORGANIZATION_CONFIGS[mem.organization.type];
+            return (
+              <button
+                key={mem.id}
+                onClick={() => {
+                  setActiveOrgId(mem.organizationId);
+                  setOpen(false);
+                }}
+                className={cn(
+                  "flex w-full items-center gap-3 px-3 py-2.5 text-left transition-colors hover:bg-vytal-bg3",
+                  isActive && "bg-vytal-green/5"
+                )}
+              >
+                <div
+                  className="flex h-8 w-8 items-center justify-center rounded-lg text-xs font-bold"
+                  style={{
+                    backgroundColor: isActive ? "rgba(61,255,110,0.1)" : "rgba(107,140,114,0.1)",
+                    color: isActive ? "#3dff6e" : "#6b8c72",
+                  }}
+                >
+                  {mem.organization.name.charAt(0)}
+                </div>
+                <div className="flex flex-1 flex-col min-w-0">
+                  <span className={cn("text-xs font-medium truncate", isActive ? "text-vytal-text" : "text-vytal-muted")}>
+                    {mem.organization.name}
+                  </span>
+                  <div className="flex items-center gap-1.5">
+                    <span
+                      className="text-[9px] font-semibold"
+                      style={{ color: ROLE_COLORS[mem.role] }}
+                    >
+                      {ROLE_LABELS[mem.role]}
+                    </span>
+                    <span className="text-[9px] text-vytal-muted">
+                      · {config?.label}
+                    </span>
+                  </div>
+                </div>
+                {isActive && (
+                  <div className="h-1.5 w-1.5 rounded-full bg-vytal-green" />
+                )}
+              </button>
+            );
+          })}
+          <div className="border-t border-vytal-border px-3 py-2">
+            <button className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-xs text-vytal-muted transition-colors hover:bg-vytal-bg3 hover:text-vytal-text">
+              <span className="text-lg leading-none">+</span>
+              Create new organization
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
@@ -197,17 +304,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     <div className="flex h-screen overflow-hidden bg-vytal-bg">
       {/* Sidebar */}
       <aside className="flex w-64 flex-col border-r border-vytal-border bg-vytal-bg2">
-        {/* Logo */}
-        <div className="flex h-16 items-center gap-2 px-6">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-vytal-green/10">
-            <span className="text-sm font-bold text-vytal-green">V</span>
-          </div>
-          <span className="text-lg font-bold tracking-tight text-vytal-text">
-            Vytal
-          </span>
-          <span className="ml-1 rounded bg-vytal-green/10 px-1.5 py-0.5 text-[10px] font-medium text-vytal-green">
-            ADMIN
-          </span>
+        {/* Org Switcher */}
+        <div className="border-b border-vytal-border px-3 py-3">
+          <OrgSwitcher />
         </div>
 
         {/* Navigation */}
@@ -255,13 +354,13 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         <div className="border-t border-vytal-border p-4">
           <div className="flex items-center gap-3">
             <div className="flex h-9 w-9 items-center justify-center rounded-full bg-vytal-green/10 text-sm font-semibold text-vytal-green">
-              JF
+              {mockCurrentUser.user.name.split(" ").map((n) => n[0]).join("").slice(0, 2)}
             </div>
             <div className="flex flex-col">
               <span className="text-sm font-medium text-vytal-text">
-                Jose Fonte
+                {mockCurrentUser.user.name}
               </span>
-              <span className="text-xs text-vytal-muted">Owner</span>
+              <span className="text-xs text-vytal-muted">{mockCurrentUser.user.email}</span>
             </div>
           </div>
         </div>

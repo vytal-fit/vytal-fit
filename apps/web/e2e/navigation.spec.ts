@@ -3,15 +3,15 @@ import { test, expect } from "@playwright/test";
 test.describe("Admin Navigation", () => {
   test("sidebar persists across pages", async ({ page }) => {
     await page.goto("/dashboard");
-    await expect(page.getByText("VYTAL")).toBeVisible();
+    await expect(page.getByText("CrossFit Aveiro")).toBeVisible();
 
     await page.getByRole("link", { name: /members/i }).click();
     await page.waitForURL(/members/);
-    await expect(page.getByText("VYTAL")).toBeVisible();
+    await expect(page.getByText("CrossFit Aveiro")).toBeVisible();
 
     await page.getByRole("link", { name: /classes/i }).click();
     await page.waitForURL(/classes/);
-    await expect(page.getByText("VYTAL")).toBeVisible();
+    await expect(page.getByText("CrossFit Aveiro")).toBeVisible();
   });
 
   test("active nav item is highlighted", async ({ page }) => {

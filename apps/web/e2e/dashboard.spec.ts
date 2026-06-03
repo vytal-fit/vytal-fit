@@ -31,8 +31,8 @@ test.describe("Admin Dashboard", () => {
     await expect(sidebar.getByText(/members/i).first()).toBeVisible();
   });
 
-  test("sidebar shows Vytal branding", async ({ page }) => {
-    await expect(page.getByText("VYTAL")).toBeVisible();
+  test("sidebar shows active organization", async ({ page }) => {
+    await expect(page.getByText("CrossFit Aveiro")).toBeVisible();
   });
 
   test("navigates to members page", async ({ page }) => {

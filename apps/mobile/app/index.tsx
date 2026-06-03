@@ -1,5 +1,6 @@
 import { Redirect } from "expo-router";
 
 export default function Index() {
-  return <Redirect href="/(tabs)/classes" />;
+  // In a real app this would check auth state; for POC just go to login
+  return <Redirect href="/login" />;
 }

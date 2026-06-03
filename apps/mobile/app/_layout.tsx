@@ -12,6 +12,9 @@ export default function RootLayout() {
           animation: "fade",
         }}
       >
+        <Stack.Screen name="index" />
+        <Stack.Screen name="login" options={{ animation: "fade" }} />
+        <Stack.Screen name="register" options={{ animation: "slide_from_right" }} />
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="class-detail" options={{ animation: "slide_from_right" }} />
         <Stack.Screen name="leaderboard" options={{ animation: "slide_from_right" }} />
