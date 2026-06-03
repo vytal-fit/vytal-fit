@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ArrowLeft, BarChart3, Clock, Calendar, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/lib/i18n";
+import { Breadcrumbs } from "@/components/breadcrumbs";
 
 const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 const TIME_SLOTS = [
@@ -63,6 +64,8 @@ export default function AttendanceHeatmapPage() {
 
   return (
     <div className="space-y-6">
+      <Breadcrumbs items={[{ label: t("reports.title"), href: "/reports" }, { label: t("attendance.title") }]} />
+
       {/* Header */}
       <div className="flex items-center gap-4">
         <Link

@@ -202,7 +202,7 @@ export default function DropInsPage() {
           <div className="rounded-xl border border-vytal-border bg-vytal-card p-6 space-y-4">
             <div className="flex items-center gap-2">
               <Image className="h-4 w-4 text-vytal-green" />
-              <h3 className="text-sm font-semibold text-vytal-text">Photos</h3>
+              <h3 className="text-sm font-semibold text-vytal-text">{t("dropins.photos")}</h3>
             </div>
             <div className="grid grid-cols-3 gap-3">
               {[1, 2, 3, 4, 5, 6].map((n) => (
@@ -223,7 +223,7 @@ export default function DropInsPage() {
           <div className="rounded-xl border border-vytal-border bg-vytal-card p-6 space-y-5">
             <div className="flex items-center gap-2">
               <ShieldCheck className="h-4 w-4 text-vytal-green" />
-              <h3 className="text-sm font-semibold text-vytal-text">Rules</h3>
+              <h3 className="text-sm font-semibold text-vytal-text">{t("dropins.rules")}</h3>
             </div>
 
             <div>
@@ -256,9 +256,9 @@ export default function DropInsPage() {
 
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-vytal-text">Email Validation</p>
+                <p className="text-sm text-vytal-text">{t("dropins.emailValidation")}</p>
                 <p className="text-xs text-vytal-muted">
-                  Require email verification before check-in
+                  {t("dropins.emailValidationDesc")}
                 </p>
               </div>
               <button
@@ -346,16 +346,16 @@ export default function DropInsPage() {
 
             {(
               [
-                { key: "about", label: "About" },
-                { key: "equipment", label: "Equipment" },
-                { key: "parking", label: "Parking" },
-                { key: "showers", label: "Showers" },
-                { key: "payment", label: "Payment Methods" },
+                { key: "about", labelKey: "dropins.about" },
+                { key: "equipment", labelKey: "dropins.equipment" },
+                { key: "parking", labelKey: "dropins.parking" },
+                { key: "showers", labelKey: "dropins.showers" },
+                { key: "payment", labelKey: "dropins.paymentMethods" },
               ] as const
             ).map((field) => (
               <div key={field.key}>
                 <label className="mb-1 block text-[10px] font-medium uppercase tracking-wider text-vytal-muted">
-                  {field.label}
+                  {t(field.labelKey)}
                 </label>
                 <textarea
                   value={content[field.key]}

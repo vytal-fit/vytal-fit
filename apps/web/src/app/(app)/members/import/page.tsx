@@ -251,7 +251,7 @@ export default function MemberImportPage() {
                 </div>
                 <div>
                   <p className="text-2xl font-bold text-vytal-text">5</p>
-                  <p className="text-xs text-vytal-muted">Ready to import</p>
+                  <p className="text-xs text-vytal-muted">{t("memberImport.readyToImport")}</p>
                 </div>
               </div>
             </div>
@@ -275,7 +275,7 @@ export default function MemberImportPage() {
                 </div>
                 <div>
                   <p className="text-2xl font-bold text-vytal-text">8</p>
-                  <p className="text-xs text-vytal-muted">Columns mapped</p>
+                  <p className="text-xs text-vytal-muted">{t("memberImport.columnsMapped")}</p>
                 </div>
               </div>
             </div>

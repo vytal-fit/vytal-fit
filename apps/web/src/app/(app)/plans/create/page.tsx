@@ -140,7 +140,7 @@ export default function PlanCreatePage() {
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Basic Info */}
         <div className="rounded-xl border border-vytal-border bg-vytal-card p-6">
-          <h2 className="mb-5 text-lg font-semibold text-vytal-text">Basic Information</h2>
+          <h2 className="mb-5 text-lg font-semibold text-vytal-text">{t("planCreate.basicInfo")}</h2>
           <div className="space-y-4">
             <div>
               <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">
@@ -182,7 +182,7 @@ export default function PlanCreatePage() {
               />
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-vytal-text">Session Limit</span>
+              <span className="text-sm text-vytal-text">{t("planCreate.sessionLimit")}</span>
               <button
                 type="button"
                 onClick={() => setHasSessionLimit(!hasSessionLimit)}
@@ -213,7 +213,7 @@ export default function PlanCreatePage() {
               </div>
             )}
             <div className="flex items-center justify-between">
-              <span className="text-sm text-vytal-text">Active</span>
+              <span className="text-sm text-vytal-text">{t("planCreate.active")}</span>
               <button
                 type="button"
                 onClick={() => setActive(!active)}
