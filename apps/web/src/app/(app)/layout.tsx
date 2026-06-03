@@ -841,7 +841,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                       )}
                       <ChevronDown
                         className={cn(
-                          "h-4 w-4 shrink-0 text-vytal-muted transition-transform duration-200",
+                          "h-3.5 w-3.5 shrink-0 text-vytal-muted/60 transition-transform duration-200",
                           isExpanded ? "rotate-0" : "-rotate-90"
                         )}
                       />
@@ -849,13 +849,13 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                     <div
                       className={cn(
                         "overflow-hidden transition-all duration-200 ease-in-out",
-                        isExpanded ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
+                        isExpanded ? "max-h-96 opacity-100 mt-0.5" : "max-h-0 opacity-0"
                       )}
                     >
+                      <div className="ml-[22px] border-l border-vytal-border/60 pl-0">
                       {item.children.map((child) => {
                         const isChildActive =
                           pathname === child.href || pathname.startsWith(child.href + "/");
-                        // For the overview child (same href as parent), only exact match
                         const isExactChild = child.href === item.href
                           ? pathname === child.href
                           : isChildActive;
@@ -864,16 +864,17 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                             key={child.href + child.labelKey}
                             href={child.href}
                             className={cn(
-                              "nav-item-transition group flex items-center gap-3 rounded-lg py-1.5 pl-9 pr-3 text-xs font-medium",
+                              "nav-item-transition relative flex items-center rounded-r-lg py-1.5 pl-4 pr-3 text-[13px] font-medium transition-all",
                               isExactChild
-                                ? "text-vytal-green"
-                                : "text-vytal-muted hover:bg-vytal-bg3 hover:text-vytal-text"
+                                ? "bg-vytal-green/8 text-vytal-green before:absolute before:left-[-1px] before:top-1 before:bottom-1 before:w-[2px] before:rounded-full before:bg-vytal-green"
+                                : "text-vytal-muted hover:bg-vytal-bg3/50 hover:text-vytal-text"
                             )}
                           >
                             <span className="flex-1">{t(child.labelKey)}</span>
                           </Link>
                         );
                       })}
+                      </div>
                     </div>
                   </div>
                 );
