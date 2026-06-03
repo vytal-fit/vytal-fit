@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   LayoutDashboard,
   Users,
@@ -27,57 +27,63 @@ import {
   Settings,
   Zap,
   Globe,
+  LogOut,
+  Sun,
+  Moon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { mockNotifications, mockCurrentUser } from "@vytal-fit/shared";
+import { mockNotifications } from "@vytal-fit/shared";
 import type { NotificationType } from "@vytal-fit/shared";
 import { ROLE_LABELS, ROLE_COLORS, ORGANIZATION_CONFIGS } from "@vytal-fit/shared";
+import { useAuthStore } from "@/stores/auth-store";
+import { useAppStore } from "@/stores/app-store";
+import { useI18n, type Language } from "@/lib/i18n";
 
 interface NavItem {
   href: string;
-  label: string;
+  labelKey: string;
   icon: React.ComponentType<{ className?: string }>;
 }
 
 interface NavGroup {
-  title?: string;
+  titleKey?: string;
   items: NavItem[];
 }
 
 const navGroups: NavGroup[] = [
   {
     items: [
-      { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-      { href: "/members", label: "Members", icon: Users },
-      { href: "/classes", label: "Classes", icon: CalendarDays },
-      { href: "/wods", label: "WODs", icon: Dumbbell },
-      { href: "/crm", label: "CRM", icon: UserPlus },
+      { href: "/dashboard", labelKey: "nav.dashboard", icon: LayoutDashboard },
+      { href: "/members", labelKey: "nav.members", icon: Users },
+      { href: "/classes", labelKey: "nav.classes", icon: CalendarDays },
+      { href: "/wods", labelKey: "nav.wods", icon: Dumbbell },
+      { href: "/crm", labelKey: "nav.crm", icon: UserPlus },
     ],
   },
   {
-    title: "Management",
+    titleKey: "nav.group.management",
     items: [
-      { href: "/staff", label: "Staff", icon: UserCog },
-      { href: "/class-types", label: "Class Types", icon: Tag },
-      { href: "/locations", label: "Locations", icon: MapPin },
-      { href: "/exercises", label: "Exercises", icon: Dumbbell },
-      { href: "/plans", label: "Plans", icon: CreditCard },
-      { href: "/dropins", label: "Drop-ins", icon: Globe },
+      { href: "/staff", labelKey: "nav.staff", icon: UserCog },
+      { href: "/class-types", labelKey: "nav.classTypes", icon: Tag },
+      { href: "/locations", labelKey: "nav.locations", icon: MapPin },
+      { href: "/exercises", labelKey: "nav.exercises", icon: Dumbbell },
+      { href: "/plans", labelKey: "nav.plans", icon: CreditCard },
+      { href: "/dropins", labelKey: "nav.dropins", icon: Globe },
     ],
   },
   {
-    title: "Operations",
+    titleKey: "nav.group.operations",
     items: [
-      { href: "/financials", label: "Financials", icon: DollarSign },
-      { href: "/reports", label: "Reports", icon: BarChart3 },
-      { href: "/communications", label: "Communications", icon: MessageSquare },
-      { href: "/automations", label: "Automations", icon: Zap },
+      { href: "/financials", labelKey: "nav.financials", icon: DollarSign },
+      { href: "/reports", labelKey: "nav.reports", icon: BarChart3 },
+      { href: "/communications", labelKey: "nav.communications", icon: MessageSquare },
+      { href: "/automations", labelKey: "nav.automations", icon: Zap },
     ],
   },
   {
-    title: "Settings",
+    titleKey: "nav.group.settings",
     items: [
-      { href: "/settings", label: "Settings", icon: Settings },
+      { href: "/settings", labelKey: "nav.settings", icon: Settings },
     ],
   },
 ];
@@ -111,6 +117,7 @@ function formatTimeAgo(dateStr: string): string {
 function NotificationsDropdown() {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const { t } = useI18n();
   const unreadCount = mockNotifications.filter((n) => !n.read).length;
 
   useEffect(() => {
@@ -142,11 +149,11 @@ function NotificationsDropdown() {
           <div className="border-b border-vytal-border px-4 py-3">
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-semibold text-vytal-text">
-                Notifications
+                {t("ui.notifications")}
               </h3>
               {unreadCount > 0 && (
                 <span className="rounded-full bg-vytal-green/10 px-2 py-0.5 text-[10px] font-semibold text-vytal-green">
-                  {unreadCount} new
+                  {unreadCount} {t("ui.new")}
                 </span>
               )}
             </div>
@@ -195,15 +202,65 @@ function NotificationsDropdown() {
   );
 }
 
+function LanguageSwitcher() {
+  const { language, setLanguage } = useI18n();
+  const languages: { code: Language; label: string }[] = [
+    { code: "pt", label: "PT" },
+    { code: "en", label: "EN" },
+    { code: "es", label: "ES" },
+  ];
+
+  return (
+    <div className="flex items-center gap-0.5 rounded-lg bg-vytal-bg3 p-0.5">
+      {languages.map((lang) => (
+        <button
+          key={lang.code}
+          onClick={() => setLanguage(lang.code)}
+          className={cn(
+            "rounded-md px-2 py-1 text-[11px] font-semibold transition-colors",
+            language === lang.code
+              ? "bg-vytal-green text-vytal-bg"
+              : "text-vytal-muted hover:text-vytal-text"
+          )}
+        >
+          {lang.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function ThemeToggle() {
+  const { theme, toggleTheme } = useAppStore();
+
+  return (
+    <button
+      onClick={toggleTheme}
+      className="flex h-9 w-9 items-center justify-center rounded-lg text-vytal-muted transition-colors hover:bg-vytal-bg3 hover:text-vytal-text"
+      title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+    >
+      {theme === "dark" ? (
+        <Sun className="h-[18px] w-[18px]" />
+      ) : (
+        <Moon className="h-[18px] w-[18px]" />
+      )}
+    </button>
+  );
+}
+
 function OrgSwitcher() {
   const [open, setOpen] = useState(false);
-  const [activeOrgId, setActiveOrgId] = useState(mockCurrentUser.activeOrganizationId);
   const ref = useRef<HTMLDivElement>(null);
+  const { t } = useI18n();
+  const user = useAuthStore((s) => s.user);
+  const switchOrg = useAuthStore((s) => s.switchOrg);
 
-  const activeOrg = mockCurrentUser.memberships.find(
+  const memberships = user?.memberships ?? [];
+  const activeOrgId = user?.activeOrganizationId ?? "";
+
+  const activeOrg = memberships.find(
     (m) => m.organizationId === activeOrgId
   );
-  const activeMembership = activeOrg;
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -226,10 +283,10 @@ function OrgSwitcher() {
         </div>
         <div className="flex flex-1 flex-col min-w-0">
           <span className="text-sm font-semibold text-vytal-text truncate">
-            {activeOrg?.organization.name ?? "Select org"}
+            {activeOrg?.organization.name ?? t("ui.selectOrg")}
           </span>
           <span className="text-[10px] text-vytal-muted">
-            {activeMembership ? ROLE_LABELS[activeMembership.role] : ""}
+            {activeOrg ? ROLE_LABELS[activeOrg.role] : ""}
             {activeOrg && ` · ${ORGANIZATION_CONFIGS[activeOrg.organization.type]?.label ?? activeOrg.organization.type}`}
           </span>
         </div>
@@ -240,17 +297,17 @@ function OrgSwitcher() {
         <div className="absolute left-0 right-0 top-full z-50 mt-1 rounded-xl border border-vytal-border bg-vytal-bg2 shadow-2xl">
           <div className="border-b border-vytal-border px-3 py-2">
             <span className="text-[10px] font-semibold uppercase tracking-widest text-vytal-muted">
-              Your organizations
+              {t("ui.yourOrganizations")}
             </span>
           </div>
-          {mockCurrentUser.memberships.map((mem) => {
+          {memberships.map((mem) => {
             const isActive = mem.organizationId === activeOrgId;
             const config = ORGANIZATION_CONFIGS[mem.organization.type];
             return (
               <button
                 key={mem.id}
                 onClick={() => {
-                  setActiveOrgId(mem.organizationId);
+                  switchOrg(mem.organizationId);
                   setOpen(false);
                 }}
                 className={cn(
@@ -292,7 +349,7 @@ function OrgSwitcher() {
           <div className="border-t border-vytal-border px-3 py-2">
             <button className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-xs text-vytal-muted transition-colors hover:bg-vytal-bg3 hover:text-vytal-text">
               <span className="text-lg leading-none">+</span>
-              Create new organization
+              {t("ui.createNewOrg")}
             </button>
           </div>
         </div>
@@ -303,6 +360,26 @@ function OrgSwitcher() {
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
+  const { t } = useI18n();
+  const user = useAuthStore((s) => s.user);
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const logout = useAuthStore((s) => s.logout);
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      router.replace("/login");
+    }
+  }, [isAuthenticated, router]);
+
+  if (!isAuthenticated || !user) {
+    return null;
+  }
+
+  function handleLogout() {
+    logout();
+    router.push("/login");
+  }
 
   return (
     <div className="flex h-screen overflow-hidden bg-vytal-bg">
@@ -317,9 +394,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         <nav className="mt-4 flex flex-1 flex-col gap-1 overflow-y-auto px-3">
           {navGroups.map((group, gi) => (
             <div key={gi} className={gi > 0 ? "mt-4" : ""}>
-              {group.title && (
+              {group.titleKey && (
                 <span className="mb-1 block px-3 text-[10px] font-semibold uppercase tracking-widest text-vytal-muted">
-                  {group.title}
+                  {t(group.titleKey)}
                 </span>
               )}
               {group.items.map((item) => {
@@ -346,7 +423,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                           : "text-vytal-muted group-hover:text-vytal-text"
                       )}
                     />
-                    {item.label}
+                    {t(item.labelKey)}
                   </Link>
                 );
               })}
@@ -358,22 +435,31 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         <div className="border-t border-vytal-border p-4">
           <div className="flex items-center gap-3">
             <div className="flex h-9 w-9 items-center justify-center rounded-full bg-vytal-green/10 text-sm font-semibold text-vytal-green">
-              {mockCurrentUser.user.name.split(" ").map((n) => n[0]).join("").slice(0, 2)}
+              {user.user.name.split(" ").map((n) => n[0]).join("").slice(0, 2)}
             </div>
-            <div className="flex flex-col">
-              <span className="text-sm font-medium text-vytal-text">
-                {mockCurrentUser.user.name}
+            <div className="flex flex-1 flex-col min-w-0">
+              <span className="text-sm font-medium text-vytal-text truncate">
+                {user.user.name}
               </span>
-              <span className="text-xs text-vytal-muted">{mockCurrentUser.user.email}</span>
+              <span className="text-xs text-vytal-muted truncate">{user.user.email}</span>
             </div>
+            <button
+              onClick={handleLogout}
+              className="flex h-8 w-8 items-center justify-center rounded-lg text-vytal-muted transition-colors hover:bg-vytal-bg3 hover:text-vytal-red"
+              title={t("action.logout")}
+            >
+              <LogOut className="h-4 w-4" />
+            </button>
           </div>
         </div>
       </aside>
 
       {/* Main Content */}
       <main className="flex-1 overflow-y-auto">
-        {/* Top bar with notifications */}
-        <div className="flex h-14 items-center justify-end border-b border-vytal-border bg-vytal-bg2/50 px-8">
+        {/* Top bar */}
+        <div className="flex h-14 items-center justify-end gap-3 border-b border-vytal-border bg-vytal-bg2/50 px-8">
+          <LanguageSwitcher />
+          <ThemeToggle />
           <NotificationsDropdown />
         </div>
         <div className="p-8">{children}</div>

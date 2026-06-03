@@ -2,10 +2,11 @@
 
 import { useState, useMemo } from "react";
 import { mockMembers } from "@vytal-fit/shared";
-import type { Member, MemberStatus } from "@vytal-fit/shared";
+import type { MemberStatus } from "@vytal-fit/shared";
 import { Search, Users, UserCheck, UserX, Clock, Upload } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { useI18n } from "@/lib/i18n";
 
 const planMap: Record<string, string> = {
   "m-1": "Unlimited",
@@ -18,25 +19,25 @@ const planMap: Record<string, string> = {
   "m-8": "5x/week",
 };
 
-function StatusBadge({ status }: { status: MemberStatus }) {
+function StatusBadge({ status, t }: { status: MemberStatus; t: (key: string) => string }) {
   const config: Record<
     MemberStatus,
-    { label: string; className: string }
+    { labelKey: string; className: string }
   > = {
     active: {
-      label: "Active",
+      labelKey: "members.active",
       className: "bg-vytal-green/10 text-vytal-green",
     },
     inactive: {
-      label: "Inactive",
+      labelKey: "members.inactive",
       className: "bg-vytal-red/10 text-vytal-red",
     },
     trial: {
-      label: "Trial",
+      labelKey: "members.trial",
       className: "bg-vytal-amber/10 text-vytal-amber",
     },
     suspended: {
-      label: "Suspended",
+      labelKey: "members.suspended",
       className: "bg-vytal-purple/10 text-vytal-purple",
     },
   };
@@ -50,7 +51,7 @@ function StatusBadge({ status }: { status: MemberStatus }) {
         c.className
       )}
     >
-      {c.label}
+      {t(c.labelKey)}
     </span>
   );
 }
@@ -94,6 +95,7 @@ function MiniStat({ label, value, icon, color }: StatProps) {
 
 export default function MembersPage() {
   const [search, setSearch] = useState("");
+  const { t } = useI18n();
 
   const members = useMemo(() => {
     if (!search.trim()) return mockMembers;
@@ -121,9 +123,9 @@ export default function MembersPage() {
       {/* Header */}
       <div className="flex items-end justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-vytal-text">Members</h1>
+          <h1 className="text-2xl font-bold text-vytal-text">{t("members.title")}</h1>
           <p className="mt-1 text-sm text-vytal-muted">
-            Manage your box members
+            {t("members.subtitle")}
           </p>
         </div>
         <Link
@@ -131,32 +133,32 @@ export default function MembersPage() {
           className="flex items-center gap-2 rounded-lg border border-vytal-border px-4 py-2 text-sm font-medium text-vytal-text transition-colors hover:bg-vytal-bg3"
         >
           <Upload className="h-4 w-4" />
-          Import
+          {t("action.import")}
         </Link>
       </div>
 
       {/* Stats Bar */}
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <MiniStat
-          label="Total"
+          label={t("members.total")}
           value={counts.total}
           icon={<Users className="h-4 w-4 text-vytal-blue" />}
           color="bg-vytal-blue/10"
         />
         <MiniStat
-          label="Active"
+          label={t("members.active")}
           value={counts.active}
           icon={<UserCheck className="h-4 w-4 text-vytal-green" />}
           color="bg-vytal-green/10"
         />
         <MiniStat
-          label="Inactive"
+          label={t("members.inactive")}
           value={counts.inactive}
           icon={<UserX className="h-4 w-4 text-vytal-red" />}
           color="bg-vytal-red/10"
         />
         <MiniStat
-          label="Trial"
+          label={t("members.trial")}
           value={counts.trial}
           icon={<Clock className="h-4 w-4 text-vytal-amber" />}
           color="bg-vytal-amber/10"
@@ -168,7 +170,7 @@ export default function MembersPage() {
         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-vytal-muted" />
         <input
           type="text"
-          placeholder="Search by name, email or member number..."
+          placeholder={t("members.searchPlaceholder")}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 py-2.5 pl-10 pr-4 text-sm text-vytal-text placeholder:text-vytal-muted focus:border-vytal-green/30 focus:outline-none focus:ring-1 focus:ring-vytal-green/20"
@@ -184,25 +186,25 @@ export default function MembersPage() {
                 #
               </th>
               <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-vytal-muted">
-                Name
+                {t("members.name")}
               </th>
               <th className="hidden px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-vytal-muted md:table-cell">
-                Email
+                {t("members.email")}
               </th>
               <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-vytal-muted">
-                Status
+                {t("members.status")}
               </th>
               <th className="hidden px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-vytal-muted lg:table-cell">
-                Plan
+                {t("members.plan")}
               </th>
               <th className="hidden px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-vytal-muted sm:table-cell">
-                Last Check-in
+                {t("members.lastCheckIn")}
               </th>
               <th className="hidden px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-vytal-muted xl:table-cell">
-                Streak
+                {t("members.streak")}
               </th>
               <th className="hidden px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-vytal-muted xl:table-cell">
-                Check-ins
+                {t("members.checkIns")}
               </th>
             </tr>
           </thead>
@@ -233,7 +235,7 @@ export default function MembersPage() {
                   {member.email}
                 </td>
                 <td className="px-4 py-3">
-                  <StatusBadge status={member.status} />
+                  <StatusBadge status={member.status} t={t} />
                 </td>
                 <td className="hidden px-4 py-3 text-sm text-vytal-muted lg:table-cell">
                   {planMap[member.id] || "N/A"}
@@ -263,7 +265,7 @@ export default function MembersPage() {
         {members.length === 0 && (
           <div className="bg-vytal-card p-8 text-center">
             <p className="text-sm text-vytal-muted">
-              No members found matching &quot;{search}&quot;
+              {t("members.noResults")} &quot;{search}&quot;
             </p>
           </div>
         )}
