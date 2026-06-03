@@ -158,7 +158,7 @@ const funnelData = [
   { label: "Contacted", count: 24, pct: 85, color: "#ff8c42" },
   { label: "Trial", count: 17, pct: 60, color: "#22c55e" },
   { label: "Subscribed", count: 11, pct: 40, color: "#00d4ff" },
-  { label: "Active 3mo+", count: 10, pct: 35, color: "#3dff6e" },
+  { label: "Active 3mo+", count: 10, pct: 35, color: "#22c55e" },
 ];
 
 // ---------------------------------------------------------------------------
