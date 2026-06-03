@@ -590,6 +590,51 @@ const translations: Record<Language, Record<string, string>> = {
     "classCreate.maxWaitlistSize": "Tamanho m\u00e1x. da lista de espera",
     "classCreate.success": "Aula Criada com Sucesso!",
     "classCreate.createAnother": "Criar Outra",
+
+    // Page headings (Task 1)
+    "staff.title": "Staff",
+    "staff.subtitle": "Gerir a sua equipa de coaches",
+    "staff.addCoach": "Adicionar Coach",
+    "communications.title": "Comunica\u00e7\u00f5es",
+    "communications.subtitle": "Not\u00edcias, email e mensagens SMS",
+    "communications.composeNews": "Escrever Not\u00edcia",
+    "communications.newPost": "Novo Post",
+    "communications.sendEmail": "Enviar Email",
+    "communications.sendSms": "Enviar SMS",
+    "communications.composeEmail": "Compor Email",
+    "communications.composeSms": "Compor SMS",
+    "plans.title": "Planos & Subscri\u00e7\u00f5es",
+    "plans.subtitle": "Gerir os seus planos de subscri\u00e7\u00e3o e pre\u00e7os",
+    "classes.title": "Aulas",
+    "classes.subtitle": "Agenda de hoje",
+    "classes.noClassesToday": "Sem aulas agendadas para hoje",
+    "crm.title": "Pipeline CRM",
+    "crm.subtitle": "Acompanhe leads desde o primeiro contacto at\u00e9 \u00e0 subscri\u00e7\u00e3o",
+    "crm.addLead": "Adicionar Lead",
+    "wods.subtitle": "Programa\u00e7\u00e3o de hoje",
+    "memberDetail.backToMembers": "Voltar aos Membros",
+    "memberDetail.personalRecords": "Recordes Pessoais",
+    "memberDetail.activityTimeline": "Cronologia de Atividade",
+
+    // Audit Log hardcoded strings
+    "auditLog.entries": "entradas",
+    "auditLog.timestamp": "Data/Hora",
+    "auditLog.user": "Utilizador",
+    "auditLog.action": "A\u00e7\u00e3o",
+    "auditLog.resource": "Recurso",
+    "auditLog.details": "Detalhes",
+
+    // Invoices hardcoded string
+    "invoices.noInvoices": "Sem faturas",
+    "invoices.noInvoicesDesc": "Nenhuma fatura encontrada para os filtros selecionados.",
+
+    // Empty states
+    "staff.noStaff": "Sem coaches",
+    "staff.noStaffDesc": "Adicione coaches para gerir a sua equipa.",
+    "locations.noLocations": "Sem localiza\u00e7\u00f5es",
+    "locations.noLocationsDesc": "Adicione uma localiza\u00e7\u00e3o para come\u00e7ar.",
+    "classTypes.noClassTypes": "Sem tipos de aula",
+    "classTypes.noClassTypesDesc": "Adicione um tipo de aula para come\u00e7ar.",
   },
 
   en: {
@@ -1164,6 +1209,51 @@ const translations: Record<Language, Record<string, string>> = {
     "classCreate.maxWaitlistSize": "Max waitlist size",
     "classCreate.success": "Class Created Successfully!",
     "classCreate.createAnother": "Create Another",
+
+    // Page headings (Task 1)
+    "staff.title": "Staff",
+    "staff.subtitle": "Manage your coaching team",
+    "staff.addCoach": "Add Coach",
+    "communications.title": "Communications",
+    "communications.subtitle": "News, email, and SMS messaging",
+    "communications.composeNews": "Compose News",
+    "communications.newPost": "New Post",
+    "communications.sendEmail": "Send Email",
+    "communications.sendSms": "Send SMS",
+    "communications.composeEmail": "Compose Email",
+    "communications.composeSms": "Compose SMS",
+    "plans.title": "Plans & Subscriptions",
+    "plans.subtitle": "Manage your membership plans and pricing",
+    "classes.title": "Classes",
+    "classes.subtitle": "Today's schedule",
+    "classes.noClassesToday": "No classes scheduled for today",
+    "crm.title": "CRM Pipeline",
+    "crm.subtitle": "Track leads from first contact to subscription",
+    "crm.addLead": "Add Lead",
+    "wods.subtitle": "Today's programming",
+    "memberDetail.backToMembers": "Back to Members",
+    "memberDetail.personalRecords": "Personal Records",
+    "memberDetail.activityTimeline": "Activity Timeline",
+
+    // Audit Log hardcoded strings
+    "auditLog.entries": "entries",
+    "auditLog.timestamp": "Timestamp",
+    "auditLog.user": "User",
+    "auditLog.action": "Action",
+    "auditLog.resource": "Resource",
+    "auditLog.details": "Details",
+
+    // Invoices hardcoded string
+    "invoices.noInvoices": "No invoices",
+    "invoices.noInvoicesDesc": "No invoices found for the selected filters.",
+
+    // Empty states
+    "staff.noStaff": "No coaches",
+    "staff.noStaffDesc": "Add coaches to manage your team.",
+    "locations.noLocations": "No locations",
+    "locations.noLocationsDesc": "Add a location to get started.",
+    "classTypes.noClassTypes": "No class types",
+    "classTypes.noClassTypesDesc": "Add a class type to get started.",
   },
 
   es: {
@@ -1738,6 +1828,51 @@ const translations: Record<Language, Record<string, string>> = {
     "classCreate.maxWaitlistSize": "Tama\u00f1o m\u00e1x. de lista de espera",
     "classCreate.success": "\u00a1Clase Creada Exitosamente!",
     "classCreate.createAnother": "Crear Otra",
+
+    // Page headings (Task 1)
+    "staff.title": "Staff",
+    "staff.subtitle": "Gestiona tu equipo de coaches",
+    "staff.addCoach": "A\u00f1adir Coach",
+    "communications.title": "Comunicaciones",
+    "communications.subtitle": "Noticias, email y mensajes SMS",
+    "communications.composeNews": "Escribir Noticia",
+    "communications.newPost": "Nuevo Post",
+    "communications.sendEmail": "Enviar Email",
+    "communications.sendSms": "Enviar SMS",
+    "communications.composeEmail": "Componer Email",
+    "communications.composeSms": "Componer SMS",
+    "plans.title": "Planes & Suscripciones",
+    "plans.subtitle": "Gestiona tus planes de suscripci\u00f3n y precios",
+    "classes.title": "Clases",
+    "classes.subtitle": "Agenda de hoy",
+    "classes.noClassesToday": "No hay clases programadas para hoy",
+    "crm.title": "Pipeline CRM",
+    "crm.subtitle": "Seguimiento de leads desde el primer contacto hasta la suscripci\u00f3n",
+    "crm.addLead": "A\u00f1adir Lead",
+    "wods.subtitle": "Programaci\u00f3n de hoy",
+    "memberDetail.backToMembers": "Volver a Miembros",
+    "memberDetail.personalRecords": "R\u00e9cords Personales",
+    "memberDetail.activityTimeline": "Cronolog\u00eda de Actividad",
+
+    // Audit Log hardcoded strings
+    "auditLog.entries": "entradas",
+    "auditLog.timestamp": "Fecha/Hora",
+    "auditLog.user": "Usuario",
+    "auditLog.action": "Acci\u00f3n",
+    "auditLog.resource": "Recurso",
+    "auditLog.details": "Detalles",
+
+    // Invoices hardcoded string
+    "invoices.noInvoices": "Sin facturas",
+    "invoices.noInvoicesDesc": "No se encontraron facturas para los filtros seleccionados.",
+
+    // Empty states
+    "staff.noStaff": "Sin coaches",
+    "staff.noStaffDesc": "A\u00f1ade coaches para gestionar tu equipo.",
+    "locations.noLocations": "Sin ubicaciones",
+    "locations.noLocationsDesc": "A\u00f1ade una ubicaci\u00f3n para empezar.",
+    "classTypes.noClassTypes": "Sin tipos de clase",
+    "classTypes.noClassTypesDesc": "A\u00f1ade un tipo de clase para empezar.",
   },
 };
 

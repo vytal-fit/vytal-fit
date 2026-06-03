@@ -89,7 +89,7 @@ export default function ExercisesPage() {
               : "bg-vytal-bg2 text-vytal-muted hover:text-vytal-text"
           )}
         >
-          All
+          {t("expenses.all")}
         </button>
         {categories.map((cat) => {
           const config = categoryConfig[cat];

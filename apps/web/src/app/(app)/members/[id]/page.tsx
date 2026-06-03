@@ -1,3 +1,5 @@
+"use client";
+
 import { mockMembers, mockSubscriptions, mockPersonalRecords } from "@vytal-fit/shared";
 import type { MemberStatus } from "@vytal-fit/shared";
 import {
@@ -16,6 +18,8 @@ import {
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { useParams } from "next/navigation";
+import { useI18n } from "@/lib/i18n";
 
 function StatusBadge({ status }: { status: MemberStatus }) {
   const config: Record<MemberStatus, { label: string; className: string }> = {
@@ -129,12 +133,10 @@ function formatRelative(dateStr?: string): string {
   });
 }
 
-export default async function MemberDetailPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const { id } = await params;
+export default function MemberDetailPage() {
+  const { t } = useI18n();
+  const params = useParams();
+  const id = params.id as string;
   const member = mockMembers.find((m) => m.id === id);
 
   if (!member) {
@@ -160,7 +162,7 @@ export default async function MemberDetailPage({
         className="inline-flex items-center gap-1.5 text-sm text-vytal-muted transition-colors hover:text-vytal-text"
       >
         <ArrowLeft className="h-4 w-4" />
-        Back to Members
+        {t("memberDetail.backToMembers")}
       </Link>
 
       {/* Profile Header */}

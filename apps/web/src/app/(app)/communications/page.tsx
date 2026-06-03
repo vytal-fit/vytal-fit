@@ -4,6 +4,7 @@ import { useState, useCallback } from "react";
 import { MessageSquare, Mail, Smartphone, Heart, Send, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/components/toast";
+import { useI18n } from "@/lib/i18n";
 
 type Tab = "news" | "email" | "sms";
 
@@ -44,6 +45,7 @@ const initialNews: NewsItem[] = [
 ];
 
 export default function CommunicationsPage() {
+  const { t } = useI18n();
   const [activeTab, setActiveTab] = useState<Tab>("news");
   const { toast } = useToast();
 
@@ -121,9 +123,9 @@ export default function CommunicationsPage() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-vytal-text">Communications</h1>
+        <h1 className="text-2xl font-bold text-vytal-text">{t("communications.title")}</h1>
         <p className="mt-1 text-sm text-vytal-muted">
-          News, email, and SMS messaging
+          {t("communications.subtitle")}
         </p>
       </div>
 

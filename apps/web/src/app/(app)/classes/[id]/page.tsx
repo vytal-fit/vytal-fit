@@ -1,3 +1,5 @@
+"use client";
+
 import { mockClasses, mockMembers } from "@vytal-fit/shared";
 import {
   MapPin,
@@ -11,6 +13,8 @@ import {
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { useParams } from "next/navigation";
+import { useI18n } from "@/lib/i18n";
 
 function getEnrollmentStatus(enrolled: number, capacity: number) {
   const pct = (enrolled / capacity) * 100;
@@ -33,12 +37,10 @@ function getEnrollmentStatus(enrolled: number, capacity: number) {
   } as const;
 }
 
-export default async function ClassDetailPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const { id } = await params;
+export default function ClassDetailPage() {
+  const { t } = useI18n();
+  const params = useParams();
+  const id = params.id as string;
   const cls = mockClasses.find((c) => c.id === id);
 
   if (!cls) {

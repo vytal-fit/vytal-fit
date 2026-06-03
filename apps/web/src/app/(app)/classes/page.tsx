@@ -1,8 +1,11 @@
+"use client";
+
 import { mockClasses } from "@vytal-fit/shared";
 import type { Class } from "@vytal-fit/shared";
 import { MapPin, User, Clock, Users, CalendarOff, CalendarDays } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { useI18n } from "@/lib/i18n";
 
 function getEnrollmentStatus(enrolled: number, capacity: number) {
   const pct = (enrolled / capacity) * 100;
@@ -206,6 +209,7 @@ function ClassCard({ cls }: { cls: Class }) {
 }
 
 export default function ClassesPage() {
+  const { t } = useI18n();
   const today = new Date().toISOString().split("T")[0];
   const todayClasses = mockClasses
     .filter((c) => c.date === today)
@@ -221,7 +225,7 @@ export default function ClassesPage() {
       {/* Header */}
       <div className="flex items-end justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-vytal-text">Classes</h1>
+          <h1 className="text-2xl font-bold text-vytal-text">{t("classes.title")}</h1>
           <p className="mt-1 text-sm text-vytal-muted">
             Today&apos;s schedule &mdash;{" "}
             {new Date().toLocaleDateString("pt-PT", {

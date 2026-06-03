@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Bell, Mail, Smartphone } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/lib/i18n";
 
 type TabKey = "w1_4" | "w5_8" | "w9_12" | "w13_16";
 
@@ -67,6 +68,7 @@ function getAdvantageColor(index: number): string {
 }
 
 export default function RetentionMonitorPage() {
+  const { t } = useI18n();
   const [activeTab, setActiveTab] = useState<TabKey>("w1_4");
   const [members, setMembers] = useState(mockNewMembers);
   const [thresholdGreen, setThresholdGreen] = useState(3);
@@ -83,9 +85,9 @@ export default function RetentionMonitorPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-vytal-text">Retention Monitor</h1>
+        <h1 className="text-2xl font-bold text-vytal-text">{t("retention.title")}</h1>
         <p className="mt-1 text-sm text-vytal-muted">
-          Track new member attendance and engagement
+          {t("retention.subtitle")}
         </p>
       </div>
 

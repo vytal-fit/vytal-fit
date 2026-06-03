@@ -14,6 +14,7 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/lib/i18n";
 import { formatCurrency as formatCurrencyStore } from "@/stores/data-store";
 
 const typeLabels: Record<string, { label: string; className: string }> = {
@@ -247,6 +248,7 @@ function PlanCard({
 }
 
 export default function PlansPage() {
+  const { t } = useI18n();
   const [showInactive, setShowInactive] = useState(false);
 
   const plans = useMemo(() => {
@@ -276,10 +278,10 @@ export default function PlansPage() {
       <div className="flex items-end justify-between">
         <div>
           <h1 className="text-2xl font-bold text-vytal-text">
-            Plans & Subscriptions
+            {t("plans.title")}
           </h1>
           <p className="mt-1 text-sm text-vytal-muted">
-            Manage your membership plans and pricing
+            {t("plans.subtitle")}
           </p>
         </div>
         <div className="hidden items-center gap-4 sm:flex">

@@ -12,6 +12,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/lib/i18n";
 
 const FIELDS = [
   "Name",
@@ -38,6 +39,7 @@ const MOCK_HEADERS = ["nome", "email", "telefone", "nif", "nascimento", "sexo", 
 type Step = 1 | 2 | 3;
 
 export default function MemberImportPage() {
+  const { t } = useI18n();
   const [step, setStep] = useState<Step>(1);
   const [fileName, setFileName] = useState<string | null>(null);
   const [mappings, setMappings] = useState<string[]>(
@@ -70,9 +72,9 @@ export default function MemberImportPage() {
           <ArrowLeft className="h-4 w-4" />
         </Link>
         <div>
-          <h1 className="text-2xl font-bold text-vytal-text">Import Members</h1>
+          <h1 className="text-2xl font-bold text-vytal-text">{t("memberImport.title")}</h1>
           <p className="mt-1 text-sm text-vytal-muted">
-            Upload a CSV or XLSX file to import members in bulk
+            {t("memberImport.subtitle")}
           </p>
         </div>
       </div>
