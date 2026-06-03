@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/lib/i18n";
+import { formatCurrency } from "@/stores/data-store";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { EmptyState } from "@/components/empty-state";
 
@@ -208,11 +209,7 @@ function StatusBadge({ status }: { status: InvoiceStatus }) {
 }
 
 function formatEur(value: number): string {
-  return new Intl.NumberFormat("pt-PT", {
-    style: "currency",
-    currency: "EUR",
-    minimumFractionDigits: 0,
-  }).format(value);
+  return formatCurrency(value);
 }
 
 function MethodBadge({ method }: { method: string }) {
