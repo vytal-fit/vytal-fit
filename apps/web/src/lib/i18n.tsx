@@ -37,6 +37,8 @@ const translations: Record<Language, Record<string, string>> = {
     "nav.automations": "Automações",
     "nav.dropins": "Drop-ins",
     "nav.analytics": "Analytics",
+    "nav.community": "Comunidade",
+    "nav.messages": "Mensagens",
 
     // Nav group titles
     "nav.group.management": "Gestão",
@@ -316,6 +318,8 @@ const translations: Record<Language, Record<string, string>> = {
     "nav.automations": "Automations",
     "nav.dropins": "Drop-ins",
     "nav.analytics": "Analytics",
+    "nav.community": "Community",
+    "nav.messages": "Messages",
 
     // Nav group titles
     "nav.group.management": "Management",
@@ -595,6 +599,8 @@ const translations: Record<Language, Record<string, string>> = {
     "nav.automations": "Automatizaciones",
     "nav.dropins": "Drop-ins",
     "nav.analytics": "Analytics",
+    "nav.community": "Comunidad",
+    "nav.messages": "Mensajes",
 
     // Nav group titles
     "nav.group.management": "Gestión",
