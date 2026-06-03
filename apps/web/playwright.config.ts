@@ -58,7 +58,7 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: "npm run dev --filter=@vytal-fit/web",
+    command: "npm run dev:web",
     url: baseURL,
     reuseExistingServer: !process.env.CI,
     cwd: "../..",

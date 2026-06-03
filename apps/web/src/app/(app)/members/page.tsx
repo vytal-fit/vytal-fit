@@ -5,6 +5,7 @@ import { mockMembers } from "@vytal-fit/shared";
 import type { Member, MemberStatus } from "@vytal-fit/shared";
 import { Search, Users, UserCheck, UserX, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
+import Link from "next/link";
 
 const planMap: Record<string, string> = {
   "m-1": "Unlimited",
@@ -206,7 +207,7 @@ export default function MembersPage() {
                   {member.memberNumber}
                 </td>
                 <td className="px-4 py-3">
-                  <div className="flex items-center gap-3">
+                  <Link href={`/members/${member.id}`} className="flex items-center gap-3 group">
                     <div className="flex h-8 w-8 items-center justify-center rounded-full bg-vytal-green/10 text-xs font-semibold text-vytal-green">
                       {member.name
                         .split(" ")
@@ -214,10 +215,10 @@ export default function MembersPage() {
                         .join("")
                         .slice(0, 2)}
                     </div>
-                    <span className="text-sm font-medium text-vytal-text">
+                    <span className="text-sm font-medium text-vytal-text group-hover:text-vytal-green transition-colors">
                       {member.name}
                     </span>
-                  </div>
+                  </Link>
                 </td>
                 <td className="hidden px-4 py-3 text-sm text-vytal-muted md:table-cell">
                   {member.email}

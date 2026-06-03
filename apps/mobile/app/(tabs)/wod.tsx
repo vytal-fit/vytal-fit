@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useRouter } from "expo-router";
 
 // ─── Colors ──────────────────────────────────────────────
 const C = {
@@ -171,6 +172,8 @@ function WODPartCard({
 
 // ─── Screen ──────────────────────────────────────────────
 export default function WODScreen() {
+  const router = useRouter();
+
   return (
     <SafeAreaView style={styles.safe} edges={["top"]}>
       <View style={styles.container}>
@@ -204,13 +207,22 @@ export default function WODScreen() {
 
         {/* Action Buttons */}
         <View style={styles.actionBar}>
-          <TouchableOpacity style={styles.actionSecondary}>
+          <TouchableOpacity
+            style={styles.actionSecondary}
+            onPress={() => router.push(`/wod-detail?id=${todayWOD.id}`)}
+          >
             <Text style={styles.actionSecondaryText}>DETALHES</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.actionPrimary}>
+          <TouchableOpacity
+            style={styles.actionPrimary}
+            onPress={() => router.push("/score-entry")}
+          >
             <Text style={styles.actionPrimaryText}>RESULTADO</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.actionSecondary}>
+          <TouchableOpacity
+            style={styles.actionSecondary}
+            onPress={() => router.push("/leaderboard")}
+          >
             <Text style={styles.actionSecondaryText}>TABELA</Text>
           </TouchableOpacity>
         </View>

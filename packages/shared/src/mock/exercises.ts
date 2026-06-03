@@ -1,0 +1,28 @@
+import type { Exercise } from "../types/models";
+
+export const mockExercises: Exercise[] = [
+  { id: "ex-1", name: "Back Squat", category: "weightlifting", equipment: ["barbell", "rack"], muscleGroups: ["quads", "glutes", "core"] },
+  { id: "ex-2", name: "Front Squat", category: "weightlifting", equipment: ["barbell", "rack"], muscleGroups: ["quads", "core"] },
+  { id: "ex-3", name: "Deadlift", category: "weightlifting", equipment: ["barbell"], muscleGroups: ["posterior chain", "back", "grip"] },
+  { id: "ex-4", name: "Clean & Jerk", category: "weightlifting", equipment: ["barbell"], muscleGroups: ["full body"] },
+  { id: "ex-5", name: "Snatch", category: "weightlifting", equipment: ["barbell"], muscleGroups: ["full body"] },
+  { id: "ex-6", name: "Bench Press", category: "weightlifting", equipment: ["barbell", "bench"], muscleGroups: ["chest", "triceps"] },
+  { id: "ex-7", name: "Overhead Press", category: "weightlifting", equipment: ["barbell"], muscleGroups: ["shoulders", "triceps"] },
+  { id: "ex-8", name: "Power Clean", category: "weightlifting", equipment: ["barbell"], muscleGroups: ["full body"] },
+  { id: "ex-9", name: "Thruster", category: "weightlifting", equipment: ["barbell"], muscleGroups: ["quads", "shoulders"] },
+  { id: "ex-10", name: "Pull-Up", category: "gymnastics", equipment: ["pull-up bar"], muscleGroups: ["back", "biceps"] },
+  { id: "ex-11", name: "Muscle-Up", category: "gymnastics", equipment: ["rings"], muscleGroups: ["back", "chest", "triceps"] },
+  { id: "ex-12", name: "Handstand Push-Up", category: "gymnastics", equipment: ["wall"], muscleGroups: ["shoulders", "triceps"] },
+  { id: "ex-13", name: "Toes to Bar", category: "gymnastics", equipment: ["pull-up bar"], muscleGroups: ["core", "grip"] },
+  { id: "ex-14", name: "Ring Dip", category: "gymnastics", equipment: ["rings"], muscleGroups: ["chest", "triceps"] },
+  { id: "ex-15", name: "Box Jump", category: "gymnastics", equipment: ["box"], muscleGroups: ["quads", "glutes"] },
+  { id: "ex-16", name: "Burpee", category: "cardio", muscleGroups: ["full body"] },
+  { id: "ex-17", name: "Double Under", category: "cardio", equipment: ["jump rope"], muscleGroups: ["calves", "coordination"] },
+  { id: "ex-18", name: "Row (Assault Bike)", category: "cardio", equipment: ["assault bike"], muscleGroups: ["full body"] },
+  { id: "ex-19", name: "Row (Concept2)", category: "cardio", equipment: ["rower"], muscleGroups: ["full body"] },
+  { id: "ex-20", name: "Run", category: "cardio", muscleGroups: ["legs", "cardio"] },
+  { id: "ex-21", name: "Wall Ball", category: "other", equipment: ["medicine ball"], muscleGroups: ["quads", "shoulders"] },
+  { id: "ex-22", name: "KB Swing", category: "other", equipment: ["kettlebell"], muscleGroups: ["posterior chain", "grip"] },
+  { id: "ex-23", name: "Turkish Get-Up", category: "other", equipment: ["kettlebell"], muscleGroups: ["full body", "stability"] },
+  { id: "ex-24", name: "Rope Climb", category: "gymnastics", equipment: ["rope"], muscleGroups: ["back", "grip", "biceps"] },
+];

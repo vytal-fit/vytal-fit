@@ -4,8 +4,11 @@ import {
   Text,
   StyleSheet,
   ScrollView,
+  TouchableOpacity,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useRouter } from "expo-router";
+import { ChevronRight, Building2 } from "lucide-react-native";
 
 // ─── Colors ──────────────────────────────────────────────
 const C = {
@@ -141,15 +144,42 @@ function formatDate(dateStr: string): string {
   return `${parts[2]}/${parts[1]}`;
 }
 
+// Map exercise names to IDs for navigation
+const exerciseNameToId: Record<string, string> = {
+  "Back Squat": "ex-1",
+  "Front Squat": "ex-2",
+  "Deadlift": "ex-3",
+  "Clean & Jerk": "ex-4",
+  "Snatch": "ex-5",
+  "Bench Press": "ex-6",
+  "Overhead Press": "ex-7",
+  "Thruster": "ex-9",
+  "Pull-Up": "ex-10",
+  "Strict Pull-Ups": "ex-10",
+};
+
 // ─── Screen ──────────────────────────────────────────────
 export default function RecordsScreen() {
+  const router = useRouter();
+
   return (
     <SafeAreaView style={styles.safe} edges={["top"]}>
       <View style={styles.container}>
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>Recordes</Text>
-          <Text style={styles.headerSubtitle}>Os teus Personal Records</Text>
+          <View style={styles.headerRow}>
+            <View>
+              <Text style={styles.headerTitle}>Recordes</Text>
+              <Text style={styles.headerSubtitle}>Os teus Personal Records</Text>
+            </View>
+            <TouchableOpacity
+              style={styles.boxRecordsButton}
+              onPress={() => router.push("/box-records")}
+            >
+              <Building2 size={16} color={C.green} strokeWidth={2} />
+              <Text style={styles.boxRecordsText}>Box</Text>
+            </TouchableOpacity>
+          </View>
         </View>
 
         {/* Stats Summary */}
@@ -179,8 +209,17 @@ export default function RecordsScreen() {
         >
           {mockPRs.map((pr) => {
             const catColor = getCategoryColor(pr.category);
+            const exerciseId = exerciseNameToId[pr.exercise];
             return (
-              <View key={pr.id} style={styles.prCard}>
+              <TouchableOpacity
+                key={pr.id}
+                style={styles.prCard}
+                onPress={() => {
+                  if (exerciseId) {
+                    router.push(`/pr-entry?exerciseId=${exerciseId}`);
+                  }
+                }}
+              >
                 <View style={styles.prLeft}>
                   <View style={[styles.prAccent, { backgroundColor: catColor }]} />
                   <View style={styles.prInfo}>
@@ -212,10 +251,15 @@ export default function RecordsScreen() {
                     </Text>
                   </View>
                 </View>
-                <View style={styles.prBadge}>
-                  <Text style={styles.prBadgeIcon}>PR</Text>
+                <View style={styles.prRight}>
+                  <View style={styles.prBadge}>
+                    <Text style={styles.prBadgeIcon}>PR</Text>
+                  </View>
+                  {exerciseId && (
+                    <ChevronRight size={14} color={C.muted} strokeWidth={2} />
+                  )}
                 </View>
-              </View>
+              </TouchableOpacity>
             );
           })}
         </ScrollView>
@@ -353,6 +397,36 @@ const styles = StyleSheet.create({
   prDate: {
     fontSize: 12,
     color: C.muted,
+  },
+
+  // Header Row
+  headerRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+  },
+  boxRecordsButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 10,
+    borderWidth: 1.5,
+    borderColor: C.green + "40",
+    backgroundColor: C.green + "10",
+  },
+  boxRecordsText: {
+    fontSize: 13,
+    fontWeight: "700",
+    color: C.green,
+  },
+
+  // PR Right
+  prRight: {
+    alignItems: "center",
+    gap: 6,
+    marginLeft: 12,
   },
 
   // PR Badge

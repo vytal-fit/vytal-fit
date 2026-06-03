@@ -8,6 +8,7 @@ import {
   FlatList,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useRouter } from "expo-router";
 import { mockClasses } from "@vytal-fit/shared";
 import type { Class } from "@vytal-fit/shared";
 
@@ -121,14 +122,14 @@ function DaySelector({
   );
 }
 
-function ClassCard({ cls }: { cls: Class }) {
+function ClassCard({ cls, onPress }: { cls: Class; onPress: () => void }) {
   const isFull = cls.enrolledCount >= cls.maxCapacity;
   const isBooked = bookedClassIds.has(cls.id);
   const occupancy = cls.enrolledCount / cls.maxCapacity;
   const coachName = cls.coaches.length > 0 ? cls.coaches[0].name : "TBD";
 
   return (
-    <View style={styles.card}>
+    <TouchableOpacity style={styles.card} onPress={onPress} activeOpacity={0.8}>
       <View style={styles.cardHeader}>
         <View style={styles.classTypeRow}>
           <View
@@ -207,12 +208,13 @@ function ClassCard({ cls }: { cls: Class }) {
           </TouchableOpacity>
         )}
       </View>
-    </View>
+    </TouchableOpacity>
   );
 }
 
 // ─── Screen ──────────────────────────────────────────────
 export default function ClassesScreen() {
+  const router = useRouter();
   const weekDays = getWeekDays();
   const [selectedDate, setSelectedDate] = useState(weekDays[0].dateStr);
 
@@ -240,7 +242,12 @@ export default function ClassesScreen() {
         <FlatList
           data={filteredClasses}
           keyExtractor={(item) => item.id}
-          renderItem={({ item }) => <ClassCard cls={item} />}
+          renderItem={({ item }) => (
+            <ClassCard
+              cls={item}
+              onPress={() => router.push(`/class-detail?id=${item.id}`)}
+            />
+          )}
           contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}
           ListEmptyComponent={

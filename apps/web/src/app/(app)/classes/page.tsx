@@ -2,6 +2,7 @@ import { mockClasses } from "@vytal-fit/shared";
 import type { Class } from "@vytal-fit/shared";
 import { MapPin, User, Clock, Users, CalendarOff } from "lucide-react";
 import { cn } from "@/lib/utils";
+import Link from "next/link";
 
 function getEnrollmentStatus(enrolled: number, capacity: number) {
   const pct = (enrolled / capacity) * 100;
@@ -16,7 +17,7 @@ function ClassCard({ cls }: { cls: Class }) {
   const isFull = cls.enrolledCount >= cls.maxCapacity;
 
   return (
-    <div className="group rounded-xl border border-vytal-border bg-vytal-card p-5 transition-colors hover:border-[rgba(61,255,110,0.22)]">
+    <Link href={`/classes/${cls.id}`} className="group block rounded-xl border border-vytal-border bg-vytal-card p-5 transition-colors hover:border-[rgba(61,255,110,0.22)]">
       {/* Top Row: Time + Class Type */}
       <div className="mb-4 flex items-start justify-between">
         <div className="flex items-center gap-3">
@@ -119,7 +120,7 @@ function ClassCard({ cls }: { cls: Class }) {
           </div>
         )}
       </div>
-    </div>
+    </Link>
   );
 }
 
