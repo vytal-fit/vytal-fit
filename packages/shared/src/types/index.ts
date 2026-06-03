@@ -9,6 +9,22 @@ export type {
 export { ORGANIZATION_CONFIGS, ORGANIZATION_TYPE_LIST } from "./verticals";
 
 export type {
+  User,
+  UserRole,
+  OrgMembership,
+  UserWithOrgs,
+} from "./user";
+
+export {
+  ROLE_HIERARCHY,
+  ROLE_LABELS,
+  ROLE_COLORS,
+  hasMinRole,
+  isAdmin,
+  isStaff,
+} from "./user";
+
+export type {
   Member,
   MemberStatus,
   Class,
