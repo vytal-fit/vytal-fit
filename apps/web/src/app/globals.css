@@ -16,8 +16,8 @@
   --color-vytal-border: rgba(34, 197, 94, 0.12);
   --color-vytal-card: rgba(22, 32, 24, 0.9);
 
-  --font-sans: "Space Grotesk", system-ui, sans-serif;
-  --font-mono: "Space Mono", ui-monospace, monospace;
+  --font-sans: "Inter", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
 }
 
 @layer base {

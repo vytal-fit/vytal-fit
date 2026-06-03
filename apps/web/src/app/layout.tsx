@@ -1,18 +1,17 @@
 import type { Metadata } from "next";
-import { Space_Grotesk, Space_Mono } from "next/font/google";
+import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { I18nProvider } from "@/lib/i18n";
 import { AuthProvider } from "@/providers/auth-provider";
 import { ThemeInitializer } from "@/providers/theme-initializer";
 
-const spaceGrotesk = Space_Grotesk({
+const inter = Inter({
   subsets: ["latin"],
   variable: "--font-sans",
 });
 
-const spaceMono = Space_Mono({
+const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
-  weight: ["400", "700"],
   variable: "--font-mono",
 });
 
@@ -28,7 +27,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="pt" className="dark" suppressHydrationWarning>
-      <body className={`${spaceGrotesk.variable} ${spaceMono.variable} antialiased`}>
+      <body className={`${inter.variable} ${jetbrainsMono.variable} antialiased`}>
         <I18nProvider>
           <AuthProvider>
             <ThemeInitializer />
