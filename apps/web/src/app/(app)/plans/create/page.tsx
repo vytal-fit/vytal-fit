@@ -247,7 +247,7 @@ export default function PlanCreatePage() {
 
         {/* Allowed Class Types */}
         <div className="rounded-xl border border-vytal-border bg-vytal-card p-6">
-          <h2 className="mb-5 text-lg font-semibold text-vytal-text">Allowed Class Types</h2>
+          <h2 className="mb-5 text-lg font-semibold text-vytal-text">{t("planCreate.allowedClassTypes")}</h2>
           <div className="space-y-2">
             {storeClassTypes.filter((ct) => ct.active).map((ct) => (
               <label

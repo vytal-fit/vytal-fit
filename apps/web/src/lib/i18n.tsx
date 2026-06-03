@@ -562,6 +562,10 @@ const translations: Record<Language, Record<string, string>> = {
     "planCreate.success": "Plano Criado com Sucesso!",
     "planCreate.createAnother": "Criar Outro",
     "planCreate.active": "Ativo",
+    "crm.sourceWebsite": "Website",
+    "crm.sourceWalkIn": "Presencial",
+    "crm.sourceReferral": "Referência",
+    "crm.sourceFlyers": "Flyers",
 
     // WOD Builder
     "wodBuilder.title": "WOD Builder",
@@ -1342,6 +1346,10 @@ const translations: Record<Language, Record<string, string>> = {
     "planCreate.success": "Plan Created Successfully!",
     "planCreate.createAnother": "Create Another",
     "planCreate.active": "Active",
+    "crm.sourceWebsite": "Website",
+    "crm.sourceWalkIn": "Walk-in",
+    "crm.sourceReferral": "Referral",
+    "crm.sourceFlyers": "Flyers",
 
     // WOD Builder
     "wodBuilder.title": "WOD Builder",
@@ -2366,6 +2374,10 @@ const translations: Record<Language, Record<string, string>> = {
     "planCreate.success": "\u00a1Plan Creado Exitosamente!",
     "planCreate.createAnother": "Crear Otro",
     "planCreate.active": "Activo",
+    "crm.sourceWebsite": "Sitio web",
+    "crm.sourceWalkIn": "Presencial",
+    "crm.sourceReferral": "Referencia",
+    "crm.sourceFlyers": "Flyers",
 
     // WOD Builder
     "wodBuilder.title": "WOD Builder",
