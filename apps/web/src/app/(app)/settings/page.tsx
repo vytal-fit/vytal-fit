@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { useToast } from "@/components/toast";
 import { useAppStore } from "@/stores/app-store";
+import { useDataStore } from "@/stores/data-store";
 
 const businessTypes = ["Box", "Gym", "Studio", "Academy", "Training Center"];
 const timezones = [
@@ -42,25 +43,27 @@ export default function SettingsPage() {
   const { toast } = useToast();
   const accentColor = useAppStore((s) => s.accentColor);
   const setAccentColor = useAppStore((s) => s.setAccentColor);
+  const orgSettings = useDataStore((s) => s.orgSettings);
+  const updateOrgSettings = useDataStore((s) => s.updateOrgSettings);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [logoFileName, setLogoFileName] = useState<string | null>(null);
   const [form, setForm] = useState({
-    name: "CrossFit Vytal",
-    slogan: "Forging Elite Fitness",
-    email: "info@vytal.fit",
-    phone: "+351 912 345 678",
-    businessType: "Box",
-    timezone: "Europe/Lisbon",
-    currency: "EUR",
-    website: "https://vytal.fit",
-    facebook: "https://facebook.com/crossfitvytal",
-    instagram: "https://instagram.com/crossfitvytal",
-    youtube: "https://youtube.com/@crossfitvytal",
-    address: "Rua do CrossFit 123",
-    city: "Lisboa",
-    zipCode: "1200-001",
-    country: "Portugal",
-    brandColor: "#22c55e",
+    name: orgSettings.name,
+    slogan: orgSettings.slogan,
+    email: orgSettings.email,
+    phone: orgSettings.phone,
+    businessType: orgSettings.businessType,
+    timezone: orgSettings.timezone,
+    currency: orgSettings.currency,
+    website: orgSettings.website,
+    facebook: orgSettings.facebook,
+    instagram: orgSettings.instagram,
+    youtube: orgSettings.youtube,
+    address: orgSettings.address,
+    city: orgSettings.city,
+    zipCode: orgSettings.zipCode,
+    country: orgSettings.country,
+    brandColor: accentColor,
   });
 
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -423,7 +426,27 @@ export default function SettingsPage() {
       {/* Save Button */}
       <div className="flex justify-end">
         <button
-          onClick={() => toast("Settings saved successfully!", "success")}
+          onClick={() => {
+            updateOrgSettings({
+              name: form.name,
+              slug: form.name.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, ""),
+              slogan: form.slogan,
+              email: form.email,
+              phone: form.phone,
+              businessType: form.businessType,
+              timezone: form.timezone,
+              currency: form.currency,
+              website: form.website,
+              facebook: form.facebook,
+              instagram: form.instagram,
+              youtube: form.youtube,
+              address: form.address,
+              city: form.city,
+              zipCode: form.zipCode,
+              country: form.country,
+            });
+            toast("Settings saved successfully!", "success");
+          }}
           className="flex items-center gap-2 rounded-lg bg-vytal-green px-6 py-2.5 text-sm font-semibold text-vytal-bg transition-colors hover:bg-vytal-green/90"
         >
           <Save className="h-4 w-4" />

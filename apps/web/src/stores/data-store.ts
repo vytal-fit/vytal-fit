@@ -21,11 +21,86 @@ export interface Conversation {
   lastMessageTime: string;
 }
 
+export interface OrgSettings {
+  name: string;
+  slug: string;
+  email: string;
+  phone: string;
+  currency: string;
+  timezone: string;
+  country: string;
+  address: string;
+  city: string;
+  zipCode: string;
+  website: string;
+  facebook: string;
+  instagram: string;
+  youtube: string;
+  slogan: string;
+  businessType: string;
+}
+
+const ORG_SETTINGS_KEY = "vytal-org-settings";
+
+const defaultOrgSettings: OrgSettings = {
+  name: "CrossFit Aveiro",
+  slug: "crossfit-aveiro",
+  email: "info@crossfitaveiro.pt",
+  phone: "+351 234 567 890",
+  currency: "EUR",
+  timezone: "Europe/Lisbon",
+  country: "Portugal",
+  address: "Rua do Desporto 42",
+  city: "Aveiro",
+  zipCode: "3800-100",
+  website: "https://crossfitaveiro.pt",
+  facebook: "https://facebook.com/crossfitaveiro",
+  instagram: "https://instagram.com/crossfitaveiro",
+  youtube: "",
+  slogan: "Stronger Every Day",
+  businessType: "crossfit_box",
+};
+
+function loadOrgSettings(): OrgSettings {
+  if (typeof window === "undefined") return defaultOrgSettings;
+  try {
+    const raw = localStorage.getItem(ORG_SETTINGS_KEY);
+    if (!raw) return defaultOrgSettings;
+    return { ...defaultOrgSettings, ...JSON.parse(raw) };
+  } catch {
+    return defaultOrgSettings;
+  }
+}
+
+function persistOrgSettings(settings: OrgSettings) {
+  if (typeof window === "undefined") return;
+  localStorage.setItem(ORG_SETTINGS_KEY, JSON.stringify(settings));
+}
+
+/** Format currency using org settings */
+export function formatCurrency(amount: number, currency?: string): string {
+  const cur = currency ?? loadOrgSettings().currency;
+  const localeMap: Record<string, string> = {
+    EUR: "pt-PT", USD: "en-US", GBP: "en-GB", BRL: "pt-BR",
+    CHF: "de-CH", MZN: "pt-MZ", MAD: "fr-MA", AOA: "pt-AO", CVE: "pt-CV",
+  };
+  return new Intl.NumberFormat(localeMap[cur] ?? "pt-PT", {
+    style: "currency",
+    currency: cur,
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  }).format(amount);
+}
+
 interface DataStore {
+  // Messages
   conversations: Conversation[];
   sendMessage: (conversationId: string, text: string) => void;
   markAsRead: (conversationId: string) => void;
   totalUnread: () => number;
+  // Org settings
+  orgSettings: OrgSettings;
+  updateOrgSettings: (partial: Partial<OrgSettings>) => void;
 }
 
 // ---------------------------------------------------------------------------
@@ -216,5 +291,16 @@ export const useDataStore = create<DataStore>((set, get) => ({
 
   totalUnread: () => {
     return get().conversations.reduce((sum, c) => sum + c.unreadCount, 0);
+  },
+
+  // Org settings
+  orgSettings: loadOrgSettings(),
+
+  updateOrgSettings: (partial: Partial<OrgSettings>) => {
+    set((state) => {
+      const updated = { ...state.orgSettings, ...partial };
+      persistOrgSettings(updated);
+      return { orgSettings: updated };
+    });
   },
 }));
