@@ -13,6 +13,7 @@ import {
   Smartphone,
 } from "lucide-react";
 import { useToast } from "@/components/toast";
+import { useAppStore } from "@/stores/app-store";
 
 const businessTypes = ["Box", "Gym", "Studio", "Academy", "Training Center"];
 const timezones = [
@@ -26,8 +27,21 @@ const timezones = [
 ];
 const currencies = ["EUR", "USD", "GBP", "BRL"];
 
+const accentPresets = [
+  { label: "Green", color: "#22c55e" },
+  { label: "Blue", color: "#3b82f6" },
+  { label: "Purple", color: "#8b5cf6" },
+  { label: "Red", color: "#ef4444" },
+  { label: "Orange", color: "#f97316" },
+  { label: "Pink", color: "#ec4899" },
+  { label: "Teal", color: "#14b8a6" },
+  { label: "Yellow", color: "#eab308" },
+];
+
 export default function SettingsPage() {
   const { toast } = useToast();
+  const accentColor = useAppStore((s) => s.accentColor);
+  const setAccentColor = useAppStore((s) => s.setAccentColor);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [logoFileName, setLogoFileName] = useState<string | null>(null);
   const [form, setForm] = useState({
@@ -218,23 +232,58 @@ export default function SettingsPage() {
             </div>
             <div className="grid gap-6 sm:grid-cols-2">
               {/* Color Picker */}
-              <div>
-                <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">
-                  Primary Color
-                </label>
-                <div className="flex items-center gap-3">
-                  <input
-                    type="color"
-                    value={form.brandColor}
-                    onChange={(e) => update("brandColor", e.target.value)}
-                    className="h-10 w-10 cursor-pointer rounded-lg border border-vytal-border bg-transparent"
-                  />
-                  <input
-                    type="text"
-                    value={form.brandColor}
-                    onChange={(e) => update("brandColor", e.target.value)}
-                    className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-2.5 font-mono text-sm text-vytal-text focus:border-vytal-green/30 focus:outline-none focus:ring-1 focus:ring-vytal-green/20"
-                  />
+              <div className="space-y-4">
+                <div>
+                  <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">
+                    Primary Color
+                  </label>
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="color"
+                      value={accentColor}
+                      onChange={(e) => {
+                        setAccentColor(e.target.value);
+                        update("brandColor", e.target.value);
+                      }}
+                      className="h-10 w-10 cursor-pointer rounded-lg border border-vytal-border bg-transparent"
+                    />
+                    <input
+                      type="text"
+                      value={accentColor}
+                      onChange={(e) => {
+                        setAccentColor(e.target.value);
+                        update("brandColor", e.target.value);
+                      }}
+                      className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-2.5 font-mono text-sm text-vytal-text focus:border-vytal-green/30 focus:outline-none focus:ring-1 focus:ring-vytal-green/20"
+                    />
+                  </div>
+                </div>
+                {/* Preset Colors */}
+                <div>
+                  <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">
+                    Presets
+                  </label>
+                  <div className="flex flex-wrap gap-2">
+                    {accentPresets.map((preset) => (
+                      <button
+                        key={preset.color}
+                        onClick={() => {
+                          setAccentColor(preset.color);
+                          update("brandColor", preset.color);
+                        }}
+                        className="group relative flex h-8 w-8 items-center justify-center rounded-full border-2 transition-all hover:scale-110"
+                        style={{
+                          backgroundColor: preset.color,
+                          borderColor: accentColor === preset.color ? "white" : "transparent",
+                        }}
+                        title={preset.label}
+                      >
+                        {accentColor === preset.color && (
+                          <svg className="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
+                        )}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
               {/* Mini Phone Preview */}
@@ -242,7 +291,7 @@ export default function SettingsPage() {
                 <div className="w-32 rounded-2xl border-2 border-vytal-border bg-vytal-bg p-2">
                   <div
                     className="mb-2 flex h-6 items-center justify-center rounded-lg text-[8px] font-bold text-white"
-                    style={{ backgroundColor: form.brandColor }}
+                    style={{ backgroundColor: accentColor }}
                   >
                     {form.name}
                   </div>
@@ -251,7 +300,7 @@ export default function SettingsPage() {
                     <div className="h-2 w-3/4 rounded bg-vytal-bg3" />
                     <div
                       className="mt-2 flex h-4 items-center justify-center rounded text-[6px] font-bold text-white"
-                      style={{ backgroundColor: form.brandColor }}
+                      style={{ backgroundColor: accentColor }}
                     >
                       Book Class
                     </div>
@@ -259,7 +308,7 @@ export default function SettingsPage() {
                     <div className="h-2 w-1/2 rounded bg-vytal-bg3" />
                   </div>
                   <div className="mt-2 flex justify-around border-t border-vytal-border pt-1">
-                    <div className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: form.brandColor }} />
+                    <div className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: accentColor }} />
                     <div className="h-1.5 w-1.5 rounded-full bg-vytal-muted/30" />
                     <div className="h-1.5 w-1.5 rounded-full bg-vytal-muted/30" />
                     <div className="h-1.5 w-1.5 rounded-full bg-vytal-muted/30" />

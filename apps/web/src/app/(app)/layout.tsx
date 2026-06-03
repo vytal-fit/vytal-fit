@@ -41,6 +41,7 @@ import type { NotificationType } from "@vytal-fit/shared";
 import { ROLE_LABELS, ROLE_COLORS, ORGANIZATION_CONFIGS } from "@vytal-fit/shared";
 import { useAuthStore } from "@/stores/auth-store";
 import { useAppStore } from "@/stores/app-store";
+import { useDataStore } from "@/stores/data-store";
 import { useI18n, type Language } from "@/lib/i18n";
 
 interface NavItem {
@@ -392,18 +393,11 @@ function OrgSwitcher() {
   );
 }
 
-const chatContacts = [
-  { id: "c1", name: "Ana Silva", initials: "AS", lastMsg: "Olá, gostaria de saber sobre o plano semestral", time: "2m", unread: 2, online: true },
-  { id: "c2", name: "Miguel Costa", initials: "MC", lastMsg: "Posso cancelar a aula de amanhã?", time: "15m", unread: 1, online: true },
-  { id: "c3", name: "Sofia Santos", initials: "SS", lastMsg: "Obrigada pela informação! 🙏", time: "1h", unread: 0, online: false },
-  { id: "c4", name: "Pedro Almeida", initials: "PA", lastMsg: "Quando abre a inscrição para o throwdown?", time: "3h", unread: 0, online: true },
-];
-
-const quickReplies = [
-  "Obrigado pela mensagem! 👋",
-  "A sua aula está confirmada! ✅",
-  "Consulte o horário na app 📅",
-  "Vamos verificar e respondemos já! 🔍",
+const floatingQuickReplies = [
+  "Obrigado pela mensagem!",
+  "A sua aula esta confirmada!",
+  "Consulte o horario na app",
+  "Vamos verificar e respondemos ja!",
 ];
 
 function FloatingChat() {
@@ -411,46 +405,29 @@ function FloatingChat() {
   const [activeChat, setActiveChat] = useState<string | null>(null);
   const [msgInput, setMsgInput] = useState("");
   const { t } = useI18n();
-  const [messages, setMessages] = useState<Record<string, Array<{ text: string; fromMe: boolean; time: string }>>>({
-    c1: [
-      { text: "Olá, gostaria de saber sobre o plano semestral", fromMe: false, time: "14:32" },
-      { text: "Claro! O plano semestral custa 390€ e inclui todas as aulas.", fromMe: true, time: "14:33" },
-      { text: "Posso fazer uma aula experimental primeiro?", fromMe: false, time: "14:35" },
-    ],
-    c2: [
-      { text: "Bom dia! Posso cancelar a aula de amanhã?", fromMe: false, time: "15:10" },
-    ],
-  });
+  const conversations = useDataStore((s) => s.conversations);
+  const sendMessage = useDataStore((s) => s.sendMessage);
+  const markAsRead = useDataStore((s) => s.markAsRead);
+  const totalUnread = useDataStore((s) => s.totalUnread)();
   const ref = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const totalUnread = chatContacts.reduce((s, c) => s + c.unread, 0);
+
+  const activeConversation = conversations.find((c) => c.id === activeChat);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, activeChat]);
+  }, [activeConversation?.messages.length, activeChat]);
 
-  useEffect(() => {
-    function handleClickOutside(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) {
-        // Don't close, just deselect active chat
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  function sendMessage() {
+  function handleSend() {
     if (!msgInput.trim() || !activeChat) return;
-    const now = new Date();
-    const time = `${now.getHours().toString().padStart(2, "0")}:${now.getMinutes().toString().padStart(2, "0")}`;
-    setMessages((prev) => ({
-      ...prev,
-      [activeChat]: [...(prev[activeChat] ?? []), { text: msgInput, fromMe: true, time }],
-    }));
+    sendMessage(activeChat, msgInput.trim());
     setMsgInput("");
   }
 
-  const activeContact = chatContacts.find((c) => c.id === activeChat);
+  function handleSelectChat(convId: string) {
+    setActiveChat(convId);
+    markAsRead(convId);
+  }
 
   return (
     <div ref={ref} className="fixed bottom-6 right-6 z-50">
@@ -470,36 +447,39 @@ function FloatingChat() {
                     <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
                   </Link>
                   <button onClick={() => setOpen(false)} className="flex h-7 w-7 items-center justify-center rounded-lg text-vytal-muted hover:bg-vytal-bg3 hover:text-vytal-text">
-                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
                   </button>
                 </div>
               </div>
               {/* Contact list */}
               <div className="flex-1 overflow-y-auto">
-                {chatContacts.map((c) => (
-                  <button
-                    key={c.id}
-                    onClick={() => setActiveChat(c.id)}
-                    className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-vytal-bg3"
-                  >
-                    <div className="relative">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-vytal-green/10 text-xs font-bold text-vytal-green">
-                        {c.initials}
+                {conversations.map((c) => {
+                  const lastMsg = c.messages[c.messages.length - 1];
+                  return (
+                    <button
+                      key={c.id}
+                      onClick={() => handleSelectChat(c.id)}
+                      className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-vytal-bg3"
+                    >
+                      <div className="relative">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-vytal-green/10 text-xs font-bold text-vytal-green">
+                          {c.contactInitials}
+                        </div>
+                        {c.online && <div className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-vytal-bg2 bg-vytal-green" />}
                       </div>
-                      {c.online && <div className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-vytal-bg2 bg-vytal-green" />}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm font-medium text-vytal-text">{c.name}</span>
-                        <span className="text-[10px] text-vytal-muted">{c.time}</span>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-medium text-vytal-text">{c.contactName}</span>
+                          <span className="text-[10px] text-vytal-muted">{c.lastMessageTime}</span>
+                        </div>
+                        <p className="truncate text-xs text-vytal-muted">{lastMsg?.text ?? ""}</p>
                       </div>
-                      <p className="truncate text-xs text-vytal-muted">{c.lastMsg}</p>
-                    </div>
-                    {c.unread > 0 && (
-                      <span className="flex h-5 w-5 items-center justify-center rounded-full bg-vytal-green text-[10px] font-bold text-vytal-bg">{c.unread}</span>
-                    )}
-                  </button>
-                ))}
+                      {c.unreadCount > 0 && (
+                        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-vytal-green text-[10px] font-bold text-vytal-bg">{c.unreadCount}</span>
+                      )}
+                    </button>
+                  );
+                })}
               </div>
             </>
           ) : (
@@ -511,18 +491,18 @@ function FloatingChat() {
                 </button>
                 <div className="relative">
                   <div className="flex h-8 w-8 items-center justify-center rounded-full bg-vytal-green/10 text-xs font-bold text-vytal-green">
-                    {activeContact?.initials}
+                    {activeConversation?.contactInitials}
                   </div>
-                  {activeContact?.online && <div className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-vytal-bg2 bg-vytal-green" />}
+                  {activeConversation?.online && <div className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-vytal-bg2 bg-vytal-green" />}
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-vytal-text">{activeContact?.name}</p>
-                  <p className="text-[10px] text-vytal-muted">{activeContact?.online ? t("messages.online") : t("messages.offline")}</p>
+                  <p className="text-sm font-semibold text-vytal-text">{activeConversation?.contactName}</p>
+                  <p className="text-[10px] text-vytal-muted">{activeConversation?.online ? t("messages.online") : t("messages.offline")}</p>
                 </div>
               </div>
               {/* Messages */}
               <div className="flex-1 overflow-y-auto px-4 py-3 space-y-2">
-                {(messages[activeChat] ?? []).map((msg, i) => (
+                {(activeConversation?.messages ?? []).map((msg, i) => (
                   <div key={i} className={`flex ${msg.fromMe ? "justify-end" : "justify-start"}`}>
                     <div className={`max-w-[75%] rounded-2xl px-3.5 py-2 ${msg.fromMe ? "rounded-br-md bg-vytal-green text-vytal-bg" : "rounded-bl-md bg-vytal-bg3 text-vytal-text"}`}>
                       <p className="text-[13px] leading-relaxed">{msg.text}</p>
@@ -534,7 +514,7 @@ function FloatingChat() {
               </div>
               {/* Quick replies */}
               <div className="flex gap-1.5 overflow-x-auto px-4 py-2 border-t border-vytal-border">
-                {quickReplies.map((qr, i) => (
+                {floatingQuickReplies.map((qr, i) => (
                   <button
                     key={i}
                     onClick={() => setMsgInput(qr)}
@@ -549,12 +529,12 @@ function FloatingChat() {
                 <input
                   value={msgInput}
                   onChange={(e) => setMsgInput(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+                  onKeyDown={(e) => e.key === "Enter" && handleSend()}
                   placeholder={t("messages.placeholder")}
                   className="flex-1 rounded-full border border-vytal-border bg-vytal-bg3 px-4 py-2 text-sm text-vytal-text placeholder:text-vytal-muted/50 outline-none focus:border-vytal-green/40"
                 />
                 <button
-                  onClick={sendMessage}
+                  onClick={handleSend}
                   disabled={!msgInput.trim()}
                   className="flex h-9 w-9 items-center justify-center rounded-full bg-vytal-green text-vytal-bg transition-all hover:bg-vytal-green/90 disabled:opacity-30"
                 >
@@ -571,11 +551,11 @@ function FloatingChat() {
         onClick={() => setOpen(!open)}
         className={cn(
           "flex h-14 w-14 items-center justify-center rounded-full shadow-lg transition-all hover:scale-110 active:scale-95",
-          open ? "bg-vytal-bg3 shadow-black/20 rotate-0" : "bg-vytal-green shadow-vytal-green/20"
+          "bg-vytal-green shadow-vytal-green/20"
         )}
       >
         {open ? (
-          <svg className="h-6 w-6 text-vytal-text" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+          <svg className="h-6 w-6 text-vytal-bg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
         ) : (
           <MessageCircle className="h-6 w-6 text-vytal-bg" />
         )}
