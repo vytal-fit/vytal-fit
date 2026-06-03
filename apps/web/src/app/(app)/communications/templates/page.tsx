@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Mail, Send, Save, Globe } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/lib/i18n";
+import { Breadcrumbs } from "@/components/breadcrumbs";
 
 type Language = "pt" | "en";
 
@@ -93,6 +94,8 @@ export default function EmailTemplatesPage() {
 
   return (
     <div className="space-y-6">
+      <Breadcrumbs items={[{ label: t("communications.title"), href: "/communications" }, { label: "Templates" }]} />
+
       <div>
         <h1 className="text-2xl font-bold text-vytal-text">{t("templates.title")}</h1>
         <p className="mt-1 text-sm text-vytal-muted">
@@ -153,7 +156,7 @@ export default function EmailTemplatesPage() {
 
             <div className="space-y-4">
               <div>
-                <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">Subject</label>
+                <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("templates.subject")}</label>
                 <input
                   type="text"
                   value={selected.subject[lang]}
@@ -162,7 +165,7 @@ export default function EmailTemplatesPage() {
                 />
               </div>
               <div>
-                <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">Greeting</label>
+                <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("templates.greeting")}</label>
                 <input
                   type="text"
                   value={selected.greeting[lang]}
@@ -171,7 +174,7 @@ export default function EmailTemplatesPage() {
                 />
               </div>
               <div>
-                <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">Body</label>
+                <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("templates.body")}</label>
                 <textarea
                   value={selected.body[lang]}
                   onChange={(e) => updateField(selected.id, "body", e.target.value)}
@@ -180,7 +183,7 @@ export default function EmailTemplatesPage() {
                 />
               </div>
               <div>
-                <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">Closing</label>
+                <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("templates.closing")}</label>
                 <textarea
                   value={selected.closing[lang]}
                   onChange={(e) => updateField(selected.id, "closing", e.target.value)}
@@ -191,15 +194,15 @@ export default function EmailTemplatesPage() {
 
               {/* Toggles */}
               <div className="space-y-3 border-t border-vytal-border pt-4">
-                <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">Options</label>
+                <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("templates.options")}</label>
                 {([
-                  { key: "includeClassDetails" as const, label: "Include class details" },
-                  { key: "includeCalendarLink" as const, label: "Google Calendar link" },
-                  { key: "includeMapLink" as const, label: "Map link" },
-                  { key: "includeCoachPhoto" as const, label: "Coach photo" },
+                  { key: "includeClassDetails" as const, labelKey: "templates.includeClassDetails" },
+                  { key: "includeCalendarLink" as const, labelKey: "templates.googleCalendarLink" },
+                  { key: "includeMapLink" as const, labelKey: "templates.mapLink" },
+                  { key: "includeCoachPhoto" as const, labelKey: "templates.coachPhoto" },
                 ]).map((opt) => (
                   <div key={opt.key} className="flex items-center justify-between">
-                    <span className="text-sm text-vytal-text">{opt.label}</span>
+                    <span className="text-sm text-vytal-text">{t(opt.labelKey)}</span>
                     <button
                       type="button"
                       onClick={() => updateTemplate(selected.id, { [opt.key]: !selected[opt.key] })}
@@ -233,7 +236,7 @@ export default function EmailTemplatesPage() {
           </div>
         ) : (
           <div className="flex items-center justify-center rounded-xl border border-dashed border-vytal-border p-12 lg:col-span-2">
-            <p className="text-sm text-vytal-muted">Select a template to edit</p>
+            <p className="text-sm text-vytal-muted">{t("templates.selectTemplate")}</p>
           </div>
         )}
       </div>

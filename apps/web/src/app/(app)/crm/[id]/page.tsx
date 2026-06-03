@@ -19,6 +19,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { useParams } from "next/navigation";
 import { useI18n } from "@/lib/i18n";
+import { Breadcrumbs } from "@/components/breadcrumbs";
 
 const stageConfig: Record<
   LeadStage,
@@ -69,6 +70,8 @@ export default function LeadDetailPage() {
 
   return (
     <div className="space-y-6">
+      <Breadcrumbs items={[{ label: t("crm.title"), href: "/crm" }, { label: t("ui.details") }]} />
+
       <Link
         href="/crm"
         className="inline-flex items-center gap-1.5 text-sm text-vytal-muted transition-colors hover:text-vytal-text"
@@ -123,11 +126,11 @@ export default function LeadDetailPage() {
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Actions */}
         <div className="rounded-xl border border-vytal-border bg-vytal-card p-6">
-          <h2 className="mb-4 text-lg font-semibold text-vytal-text">Actions</h2>
+          <h2 className="mb-4 text-lg font-semibold text-vytal-text">{t("crmDetail.actions")}</h2>
           <div className="space-y-3">
             <div>
               <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">
-                Change Stage
+                {t("crmDetail.changeStage")}
               </label>
               <select
                 defaultValue={lead.stage}
@@ -140,26 +143,26 @@ export default function LeadDetailPage() {
             </div>
             <button className="flex w-full items-center justify-center gap-2 rounded-lg border border-vytal-border bg-vytal-bg2 px-4 py-2.5 text-sm font-medium text-vytal-text transition-colors hover:bg-vytal-bg3">
               <User className="h-4 w-4" />
-              Assign Coach
+              {t("crmDetail.assignCoach")}
             </button>
             <button className="flex w-full items-center justify-center gap-2 rounded-lg border border-vytal-border bg-vytal-bg2 px-4 py-2.5 text-sm font-medium text-vytal-text transition-colors hover:bg-vytal-bg3">
               <Calendar className="h-4 w-4" />
-              Book Trial
+              {t("crmDetail.bookTrial")}
             </button>
             <button className="flex w-full items-center justify-center gap-2 rounded-lg bg-vytal-green px-4 py-2.5 text-sm font-semibold text-vytal-bg transition-colors hover:bg-vytal-green/90">
               <UserPlus className="h-4 w-4" />
-              Convert to Member
+              {t("crmDetail.convertToMember")}
             </button>
             <button className="flex w-full items-center justify-center gap-2 rounded-lg border border-vytal-red/30 bg-vytal-red/10 px-4 py-2.5 text-sm font-medium text-vytal-red transition-colors hover:bg-vytal-red/20">
               <XCircle className="h-4 w-4" />
-              Mark as Lost
+              {t("crmDetail.markAsLost")}
             </button>
           </div>
         </div>
 
         {/* Communication Timeline */}
         <div className="rounded-xl border border-vytal-border bg-vytal-card p-6 lg:col-span-2">
-          <h2 className="mb-4 text-lg font-semibold text-vytal-text">Communication History</h2>
+          <h2 className="mb-4 text-lg font-semibold text-vytal-text">{t("crmDetail.communicationHistory")}</h2>
           <div className="space-y-4">
             {communicationHistory.map((item) => (
               <div
@@ -186,7 +189,7 @@ export default function LeadDetailPage() {
 
       {/* Notes Section */}
       <div className="rounded-xl border border-vytal-border bg-vytal-card p-6">
-        <h2 className="mb-4 text-lg font-semibold text-vytal-text">Notes</h2>
+        <h2 className="mb-4 text-lg font-semibold text-vytal-text">{t("crmDetail.notes")}</h2>
         {lead.notes && (
           <div className="mb-4 flex items-start gap-2 rounded-lg bg-vytal-bg2 p-3">
             <MessageSquare className="mt-0.5 h-3.5 w-3.5 text-vytal-muted" />
@@ -196,11 +199,11 @@ export default function LeadDetailPage() {
         <div className="flex gap-3">
           <input
             type="text"
-            placeholder="Add a note..."
+            placeholder={t("crmDetail.addNotePlaceholder")}
             className="flex-1 rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-2.5 text-sm text-vytal-text placeholder:text-vytal-muted focus:border-vytal-green/30 focus:outline-none focus:ring-1 focus:ring-vytal-green/20"
           />
           <button className="rounded-lg bg-vytal-green px-4 py-2.5 text-sm font-semibold text-vytal-bg transition-colors hover:bg-vytal-green/90">
-            Add Note
+            {t("crmDetail.addNote")}
           </button>
         </div>
       </div>

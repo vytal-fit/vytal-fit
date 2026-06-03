@@ -193,7 +193,7 @@ export default function WODsPage() {
       {/* Today's WODs */}
       <div>
         <div className="mb-4 flex items-center gap-2">
-          <h2 className="text-lg font-semibold text-vytal-text">Today</h2>
+          <h2 className="text-lg font-semibold text-vytal-text">{t("wods.today")}</h2>
           <span className="rounded-full bg-vytal-green/10 px-2 py-0.5 text-[10px] font-semibold text-vytal-green">
             {todayWODs.length} {todayWODs.length === 1 ? "WOD" : "WODs"}
           </span>
@@ -208,7 +208,7 @@ export default function WODsPage() {
           <div className="rounded-xl border border-vytal-border bg-vytal-card p-8 text-center">
             <Dumbbell className="mx-auto h-8 w-8 text-vytal-muted" />
             <p className="mt-3 text-sm text-vytal-muted">
-              No WODs published for today yet
+              {t("wods.noWodsToday")}
             </p>
           </div>
         )}
@@ -218,7 +218,7 @@ export default function WODsPage() {
       {pastWODs.length > 0 && (
         <div>
           <h2 className="mb-4 text-lg font-semibold text-vytal-text">
-            Previous
+            {t("wods.previous")}
           </h2>
           <div className="space-y-4">
             {pastWODs.map((wod) => (

@@ -58,11 +58,12 @@ const overdueTotal = pendingPayments
 const dso = 12;
 
 function StatusBadge({ status }: { status: "paid" | "pending" | "failed" | "overdue" }) {
+  const { t } = useI18n();
   const config = {
-    paid: { label: "Paid", className: "bg-vytal-green/10 text-vytal-green" },
-    pending: { label: "Pending", className: "bg-vytal-amber/10 text-vytal-amber" },
-    failed: { label: "Failed", className: "bg-vytal-red/10 text-vytal-red" },
-    overdue: { label: "Overdue", className: "bg-vytal-red/10 text-vytal-red" },
+    paid: { label: t("financials.paid"), className: "bg-vytal-green/10 text-vytal-green" },
+    pending: { label: t("financials.pending"), className: "bg-vytal-amber/10 text-vytal-amber" },
+    failed: { label: t("financials.failed"), className: "bg-vytal-red/10 text-vytal-red" },
+    overdue: { label: t("financials.overdue"), className: "bg-vytal-red/10 text-vytal-red" },
   };
   const c = config[status];
 
@@ -122,12 +123,12 @@ export default function FinancialsPage() {
           <div className="flex items-start justify-between">
             <div className="flex flex-col gap-1">
               <span className="text-xs font-medium uppercase tracking-wider text-vytal-muted">
-                Monthly Revenue
+                {t("financials.monthlyRevenue")}
               </span>
               <span className="text-2xl font-bold text-vytal-text">
                 {formatCurrency(18450)}
               </span>
-              <span className="text-xs text-vytal-green">+5.2% vs last month</span>
+              <span className="text-xs text-vytal-green">{t("financials.vsLastMonth")}</span>
             </div>
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-vytal-green/10">
               <DollarSign className="h-5 w-5 text-vytal-green" />
@@ -153,12 +154,12 @@ export default function FinancialsPage() {
           <div className="flex items-start justify-between">
             <div className="flex flex-col gap-1">
               <span className="text-xs font-medium uppercase tracking-wider text-vytal-muted">
-                YTD Revenue
+                {t("financials.ytdRevenue")}
               </span>
               <span className="text-2xl font-bold text-vytal-text">
                 {formatCurrency(98200)}
               </span>
-              <span className="text-xs text-vytal-green">On track</span>
+              <span className="text-xs text-vytal-green">{t("financials.onTrack")}</span>
             </div>
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-vytal-blue/10">
               <TrendingUp className="h-5 w-5 text-vytal-blue" />
@@ -171,13 +172,13 @@ export default function FinancialsPage() {
           <div className="flex items-start justify-between">
             <div className="flex flex-col gap-1">
               <span className="text-xs font-medium uppercase tracking-wider text-vytal-muted">
-                Overdue Amount
+                {t("financials.overdueAmount")}
               </span>
               <span className="text-2xl font-bold text-vytal-red">
                 {formatCurrency(overdueTotal)}
               </span>
               <span className="text-xs text-vytal-red">
-                {pendingPayments.filter((p) => p.status === "overdue").length} overdue payments
+                {t("financials.overduePayments").replace("{count}", String(pendingPayments.filter((p) => p.status === "overdue").length))}
               </span>
             </div>
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-vytal-red/10">
@@ -191,12 +192,12 @@ export default function FinancialsPage() {
           <div className="flex items-start justify-between">
             <div className="flex flex-col gap-1">
               <span className="text-xs font-medium uppercase tracking-wider text-vytal-muted">
-                Days Sales Outstanding
+                {t("financials.daysOutstanding")}
               </span>
               <span className="text-2xl font-bold text-vytal-text">
-                {dso} days
+                {dso} {t("financials.days")}
               </span>
-              <span className="text-xs text-vytal-green">Good</span>
+              <span className="text-xs text-vytal-green">{t("financials.good")}</span>
             </div>
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-vytal-amber/10">
               <Clock className="h-5 w-5 text-vytal-amber" />
@@ -210,7 +211,7 @@ export default function FinancialsPage() {
         {/* Revenue Trend */}
         <div className="rounded-xl border border-vytal-border bg-vytal-card p-6">
           <h3 className="mb-4 text-sm font-semibold text-vytal-text">
-            Revenue Trend (6 Months)
+            {t("financials.revenueTrend")}
           </h3>
           <div className="h-48">
             <ResponsiveContainer width="100%" height="100%">
@@ -244,7 +245,7 @@ export default function FinancialsPage() {
         {/* Payment Method Breakdown */}
         <div className="rounded-xl border border-vytal-border bg-vytal-card p-6">
           <h3 className="mb-4 text-sm font-semibold text-vytal-text">
-            Payment Methods
+            {t("financials.paymentMethods")}
           </h3>
           <div className="flex items-center gap-6">
             <div className="h-40 w-40 shrink-0">
@@ -289,23 +290,23 @@ export default function FinancialsPage() {
       {/* Pending Payments */}
       <div>
         <h2 className="mb-4 text-lg font-semibold text-vytal-text">
-          Pending Payments
+          {t("financials.pendingPayments")}
         </h2>
         <div className="overflow-hidden rounded-xl border border-vytal-border">
           <table className="w-full">
             <thead>
               <tr className="border-b border-vytal-border bg-vytal-bg2">
                 <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-vytal-muted">
-                  Member
+                  {t("financials.member")}
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-vytal-muted">
-                  Amount
+                  {t("financials.amount")}
                 </th>
                 <th className="hidden px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-vytal-muted sm:table-cell">
-                  Days Overdue
+                  {t("financials.daysOverdue")}
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-vytal-muted">
-                  Status
+                  {t("financials.status")}
                 </th>
               </tr>
             </thead>
@@ -341,26 +342,26 @@ export default function FinancialsPage() {
       {/* Recent Transactions */}
       <div>
         <h2 className="mb-4 text-lg font-semibold text-vytal-text">
-          Recent Transactions
+          {t("financials.recentTransactions")}
         </h2>
         <div className="overflow-hidden rounded-xl border border-vytal-border">
           <table className="w-full">
             <thead>
               <tr className="border-b border-vytal-border bg-vytal-bg2">
                 <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-vytal-muted">
-                  Date
+                  {t("financials.date")}
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-vytal-muted">
-                  Member
+                  {t("financials.member")}
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-vytal-muted">
-                  Amount
+                  {t("financials.amount")}
                 </th>
                 <th className="hidden px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-vytal-muted sm:table-cell">
-                  Method
+                  {t("financials.method")}
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-vytal-muted">
-                  Status
+                  {t("financials.status")}
                 </th>
               </tr>
             </thead>

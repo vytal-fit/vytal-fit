@@ -20,6 +20,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { useParams } from "next/navigation";
 import { useI18n } from "@/lib/i18n";
+import { Breadcrumbs } from "@/components/breadcrumbs";
 
 function StatusBadge({ status }: { status: MemberStatus }) {
   const config: Record<MemberStatus, { label: string; className: string }> = {
@@ -156,6 +157,8 @@ export default function MemberDetailPage() {
 
   return (
     <div className="space-y-6">
+      <Breadcrumbs items={[{ label: t("members.title"), href: "/members" }, { label: t("ui.details") }]} />
+
       {/* Back link */}
       <Link
         href="/members"

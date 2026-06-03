@@ -107,10 +107,10 @@ export default function AppConfigPage() {
         </div>
         <div className="flex gap-2">
           <button onClick={selectAll} className="rounded-lg border border-vytal-border bg-vytal-bg2 px-4 py-2 text-xs font-medium text-vytal-muted transition-colors hover:text-vytal-text">
-            Select All
+            {t("appConfig.selectAll")}
           </button>
           <button onClick={deselectAll} className="rounded-lg border border-vytal-border bg-vytal-bg2 px-4 py-2 text-xs font-medium text-vytal-muted transition-colors hover:text-vytal-text">
-            Deselect All
+            {t("appConfig.deselectAll")}
           </button>
         </div>
       </div>
@@ -120,7 +120,7 @@ export default function AppConfigPage() {
         <div className="rounded-xl border border-vytal-border bg-vytal-card p-6 transition-all duration-200 hover:border-[rgba(61,255,110,0.22)]">
           <div className="mb-5 flex items-center gap-2">
             <Smartphone className="h-5 w-5 text-vytal-green" />
-            <h2 className="text-lg font-semibold text-vytal-text">App Sections</h2>
+            <h2 className="text-lg font-semibold text-vytal-text">{t("appConfig.appSections")}</h2>
           </div>
           <div className="space-y-3">
             {appSections.map((section) => (
@@ -147,10 +147,10 @@ export default function AppConfigPage() {
         {/* Theme & PWA */}
         <div className="space-y-6">
           <div className="rounded-xl border border-vytal-border bg-vytal-card p-6 transition-all duration-200 hover:border-[rgba(61,255,110,0.22)]">
-            <h2 className="mb-5 text-lg font-semibold text-vytal-text">Theme</h2>
+            <h2 className="mb-5 text-lg font-semibold text-vytal-text">{t("appConfig.theme")}</h2>
             <div className="space-y-4">
               <div>
-                <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">Background</label>
+                <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("appConfig.background")}</label>
                 <div className="flex gap-3">
                   {(["dark", "light"] as const).map((t) => (
                     <button
@@ -170,23 +170,23 @@ export default function AppConfigPage() {
                 </div>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm text-vytal-text">Allow member color change</span>
+                <span className="text-sm text-vytal-text">{t("appConfig.allowMemberColorChange")}</span>
                 <ToggleSwitch enabled={allowColorChange} onToggle={() => setAllowColorChange(!allowColorChange)} />
               </div>
             </div>
           </div>
 
           <div className="rounded-xl border border-vytal-border bg-vytal-card p-6 transition-all duration-200 hover:border-[rgba(61,255,110,0.22)]">
-            <h2 className="mb-5 text-lg font-semibold text-vytal-text">PWA Settings</h2>
+            <h2 className="mb-5 text-lg font-semibold text-vytal-text">{t("appConfig.pwaSettings")}</h2>
             <div className="space-y-4">
               <div>
-                <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">App Icon</label>
+                <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("appConfig.appIcon")}</label>
                 <div className="flex h-20 w-20 items-center justify-center rounded-xl border-2 border-dashed border-vytal-border bg-vytal-bg2">
                   <Camera className="h-6 w-6 text-vytal-muted" />
                 </div>
               </div>
               <div>
-                <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">Splash Color</label>
+                <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("appConfig.splashColor")}</label>
                 <div className="flex items-center gap-3">
                   <input
                     type="color"

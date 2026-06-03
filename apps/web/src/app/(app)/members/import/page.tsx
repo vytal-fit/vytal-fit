@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/lib/i18n";
+import { Breadcrumbs } from "@/components/breadcrumbs";
 
 const FIELDS = [
   "Name",
@@ -63,6 +64,8 @@ export default function MemberImportPage() {
 
   return (
     <div className="space-y-6">
+      <Breadcrumbs items={[{ label: t("members.title"), href: "/members" }, { label: t("memberImport.title") }]} />
+
       {/* Header */}
       <div className="flex items-center gap-4">
         <Link

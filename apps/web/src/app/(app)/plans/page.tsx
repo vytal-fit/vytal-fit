@@ -89,6 +89,7 @@ function PlanCard({
   monthlyRevenue: number;
   maxSubscribers: number;
 }) {
+  const { t } = useI18n();
   const typeConfig = typeLabels[plan.type] ?? {
     label: plan.type,
     className: "bg-vytal-muted/10 text-vytal-muted",
@@ -110,7 +111,7 @@ function PlanCard({
       {isPopular && (
         <div className="absolute -top-2.5 left-4 flex items-center gap-1 rounded-full bg-vytal-green px-2.5 py-0.5 text-[10px] font-bold text-vytal-bg">
           <Star className="h-2.5 w-2.5" />
-          MOST POPULAR
+          {t("plans.mostPopular")}
         </div>
       )}
 
@@ -130,12 +131,12 @@ function PlanCard({
             {plan.active ? (
               <span className="inline-flex items-center gap-1 rounded-full bg-vytal-green/10 px-2 py-0.5 text-[10px] font-medium text-vytal-green">
                 <CheckCircle className="h-2.5 w-2.5" />
-                Active
+                {t("plans.active")}
               </span>
             ) : (
               <span className="inline-flex items-center gap-1 rounded-full bg-vytal-red/10 px-2 py-0.5 text-[10px] font-medium text-vytal-red">
                 <XCircle className="h-2.5 w-2.5" />
-                Inactive
+                {t("plans.inactive")}
               </span>
             )}
           </div>
@@ -172,7 +173,7 @@ function PlanCard({
               {subscriberCount}
             </span>
           </div>
-          <p className="text-[10px] text-vytal-muted">Subscribers</p>
+          <p className="text-[10px] text-vytal-muted">{t("plans.subscribers")}</p>
         </div>
         <div className="rounded-lg bg-vytal-bg3 px-3 py-2">
           <div className="flex items-center gap-1.5">
@@ -181,7 +182,7 @@ function PlanCard({
               {formatCurrency(monthlyRevenue, plan.currency)}
             </span>
           </div>
-          <p className="text-[10px] text-vytal-muted">Monthly Revenue</p>
+          <p className="text-[10px] text-vytal-muted">{t("plans.monthlyRevenue")}</p>
         </div>
       </div>
 
@@ -194,7 +195,7 @@ function PlanCard({
           />
         </div>
         <p className="mt-1 text-[10px] text-vytal-muted text-right">
-          {subscriberPct.toFixed(0)}% of subscribers
+          {subscriberPct.toFixed(0)}% {t("plans.ofSubscribers")}
         </p>
       </div>
 
@@ -212,20 +213,20 @@ function PlanCard({
         {!plan.maxSessions && plan.type !== "day_pass" && (
           <div className="flex items-center gap-2 text-sm text-vytal-green">
             <Dumbbell className="h-3.5 w-3.5" />
-            <span>Unlimited sessions</span>
+            <span>{t("plans.unlimitedSessions")}</span>
           </div>
         )}
         {plan.type === "day_pass" && (
           <div className="flex items-center gap-2 text-sm text-vytal-muted">
             <Tag className="h-3.5 w-3.5" />
-            <span>Single day access</span>
+            <span>{t("plans.singleDayAccess")}</span>
           </div>
         )}
 
         {/* Allowed Class Types */}
         <div>
           <p className="mb-1.5 text-xs font-medium uppercase tracking-wider text-vytal-muted">
-            Allowed Classes
+            {t("plans.allowedClasses")}
           </p>
           <div className="flex flex-wrap gap-1.5">
             {allowedTypes.map((ct) => (
@@ -286,19 +287,19 @@ export default function PlansPage() {
         </div>
         <div className="hidden items-center gap-4 sm:flex">
           <div className="text-right">
-            <p className="text-xs text-vytal-muted">Total Subscribers</p>
+            <p className="text-xs text-vytal-muted">{t("plans.totalSubscribers")}</p>
             <p className="font-mono text-sm font-semibold text-vytal-blue">
               {totalSubscribers}
             </p>
           </div>
           <div className="text-right">
-            <p className="text-xs text-vytal-muted">Monthly Revenue</p>
+            <p className="text-xs text-vytal-muted">{t("plans.monthlyRevenue")}</p>
             <p className="font-mono text-sm font-semibold text-vytal-green">
               {formatCurrency(totalMonthlyRevenue, "EUR")}
             </p>
           </div>
           <div className="text-right">
-            <p className="text-xs text-vytal-muted">Active Plans</p>
+            <p className="text-xs text-vytal-muted">{t("plans.activePlans")}</p>
             <p className="font-mono text-sm font-semibold text-vytal-text">
               {mockPlans.filter((p) => p.active).length}
             </p>
@@ -317,7 +318,7 @@ export default function PlansPage() {
               : "bg-vytal-bg2 text-vytal-muted hover:text-vytal-text"
           )}
         >
-          Active Plans
+          {t("plans.activeFilter")}
         </button>
         <button
           onClick={() => setShowInactive(true)}
@@ -328,7 +329,7 @@ export default function PlansPage() {
               : "bg-vytal-bg2 text-vytal-muted hover:text-vytal-text"
           )}
         >
-          All Plans
+          {t("plans.allFilter")}
         </button>
       </div>
 

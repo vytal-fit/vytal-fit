@@ -557,9 +557,9 @@ export default function CommunityPage() {
                   }
                   className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-2.5 text-sm text-vytal-text focus:border-vytal-green/30 focus:outline-none focus:ring-1 focus:ring-vytal-green/20"
                 >
-                  <option value="challenge">Challenge</option>
-                  <option value="competition">Competition</option>
-                  <option value="event">Event</option>
+                  <option value="challenge">{t("community.challengeType")}</option>
+                  <option value="competition">{t("community.competitionType")}</option>
+                  <option value="event">{t("community.eventType")}</option>
                 </select>
                 <div className="grid grid-cols-2 gap-3">
                   <input
