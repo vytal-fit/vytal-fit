@@ -1376,9 +1376,9 @@ Core operations for all 4 personas plus competitive parity features:
 
 | Area | Built (POC) | Remaining | Total |
 |---|---|---|---|
-| Admin Web pages | 28 | 13 | 41 |
-| Mobile Client screens | 35 | 13 | 48 |
-| **Total screens** | **63** | **26** | **89** |
+| Admin Web pages | 46 | 0 | 46 |
+| Mobile Client screens | 48 | 0 | 48 |
+| **Total screens** | **94** | **0** | **94** |
 | Playwright E2E tests | 71 | -- | 71 |
 | Organization verticals | 20 | 0 | 20 |
 | Shared types (TypeScript) | Complete | -- | -- |
@@ -1386,28 +1386,27 @@ Core operations for all 4 personas plus competitive parity features:
 
 ### 14.2 What Is Built
 
-- All 20 admin pages with full mock data and interactive UI
-- All 28 mobile screens with Expo Router navigation and mock data
-- 3 authentication pages (login, register, onboarding wizard)
+- 46 admin web pages: dashboard, members (list, detail, edit, import, retention), classes (list, detail, create, calendar), WODs (list, builder), CRM (pipeline, lead detail), plans (list, create), staff (list, detail), financials (overview, expenses, invoices, budget), communications (overview, SMS, templates), settings (general, kiosk, app-config, audit-log), reports (overview, attendance), community, exercises, locations, class-types, dropins, automations, analytics, messages, profile, help, plus 4 auth pages (login, register, onboarding, forgot-password) and root redirect
+- 48 mobile screens: 5 tab screens (classes, mybox, profile, records, wod) + 43 standalone screens (login, register, onboarding, forgot-password, org-switcher, class-detail, booking-confirm, booking-history, wod-detail, wod-history, wod-comments, score-entry, pr-entry, checkin, timer, exercises, box-records, calculator, converters, coach-profile, plan-detail, dropin, chat, news, notifications, notification-prefs, feedback, social-feed, fistbumps, fistbump-detail, leaderboard, photo-gallery, challenge-detail, athlete-of-month, birthdays, dossier-viewer, questionnaire, password-change, language-selector, waitlist-status, settings/personal-data, settings/privacy, settings/theme)
 - 20 organization vertical configs with terminology + feature flags
 - Multi-org user model with org switcher in admin sidebar
 - Role hierarchy and permission helpers
 - Shared TypeScript types for all domain models (Member, Class, WOD, Booking, Lead, etc.)
-- Design system: dark theme, Space Grotesk font, green (#3dff6e) accent, glassmorphism cards
+- Design system: dark theme, Space Grotesk font, green (#22c55e) accent, glassmorphism cards
+- i18n: PT/EN/ES with 1500+ translation keys
 - 71 Playwright E2E tests covering navigation, rendering, accessibility, i18n, theme switching
 - 10 E2E test spec files: smoke, home, dashboard, classes, members, navigation, admin-pages, a11y, i18n, theme
 
 ### 14.3 What Is NOT Built
 
 - **Backend:** No real API wired -- all data is mock (next step: connect tRPC + Drizzle + PostgreSQL)
-- **Auth:** Better Auth not integrated -- login/register are UI-only
+- **Auth:** Better Auth not integrated -- login/register are UI-only (Zustand + localStorage pseudo-auth)
 - **Payments:** No Stripe/MBWay/SEPA integration
 - **Fiscal:** No SAF-T/ATCUD generation
 - **Notifications:** No push/email/SMS -- UI only
 - **Real-time:** No WebSocket connections -- coachboard and timers are static
 - **Offline:** No offline sync implemented
-- **13 admin pages** not yet built (POS, contracts, automations, kiosk, activities, expenses, budget, TV display, groups, integrations, meetings, member edit, class create, CRM lead detail, staff detail, plan create, email templates, SMS compose, expense tracking, budget per category, kiosk config, app config, retention monitor, audit log)
-- **13 mobile screens** not yet built (challenges, store, activities, training plans, social feed, calendar sync, dossiers, booking confirm, waitlist status, WOD comments, fistbump detail, photo gallery, converters, challenge detail, athlete of month, dossier viewer, questionnaire, password change, language selector, notification prefs)
+- **All UI screens are complete** -- no remaining pages/screens to build for POC
 
 ### 14.4 Test Coverage
 
