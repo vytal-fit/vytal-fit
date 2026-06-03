@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { mockDashboardStats } from "@vytal-fit/shared";
 import type { Class, DashboardStats } from "@vytal-fit/shared";
-import { useDataStore, formatCurrency } from "@/stores/data-store";
+import { useDataStore, formatCurrency, formatCurrencyCompact } from "@/stores/data-store";
 import { useAuthStore } from "@/stores/auth-store";
 import {
   Users,
@@ -550,7 +550,7 @@ export default function DashboardPage() {
                   tick={{ fill: "#6b8c72", fontSize: 11 }}
                   axisLine={false}
                   tickLine={false}
-                  tickFormatter={(v: number) => `\u20AC${Math.round(v / 1000)}K`}
+                  tickFormatter={(v: number) => formatCurrencyCompact(v)}
                 />
                 <Tooltip content={<RevenueTooltip />} />
                 <Bar dataKey="revenue" fill="#22c55e" radius={[6, 6, 0, 0]} name={t("dashboard.monthlyRevenue")} />

@@ -297,7 +297,7 @@ export default function PlansPage() {
           <div className="text-right">
             <p className="text-xs text-vytal-muted">{t("plans.monthlyRevenue")}</p>
             <p className="font-mono text-sm font-semibold text-vytal-green">
-              {formatCurrency(totalMonthlyRevenue, "EUR")}
+              {formatCurrency(totalMonthlyRevenue)}
             </p>
           </div>
           <div className="text-right">

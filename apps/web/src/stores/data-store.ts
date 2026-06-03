@@ -125,6 +125,22 @@ export function formatCurrency(amount: number, currency?: string): string {
   }).format(amount);
 }
 
+/** Format currency with compact notation (e.g. 15K, 1.2M) for chart axes */
+export function formatCurrencyCompact(amount: number, currency?: string): string {
+  const cur = currency ?? loadOrgSettings().currency;
+  const localeMap: Record<string, string> = {
+    EUR: "pt-PT", USD: "en-US", GBP: "en-GB", BRL: "pt-BR",
+    CHF: "de-CH", MZN: "pt-MZ", MAD: "fr-MA", AOA: "pt-AO", CVE: "pt-CV",
+  };
+  return new Intl.NumberFormat(localeMap[cur] ?? "pt-PT", {
+    style: "currency",
+    currency: cur,
+    notation: "compact",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 1,
+  }).format(amount);
+}
+
 // ---------------------------------------------------------------------------
 // Unified data persistence
 // ---------------------------------------------------------------------------
