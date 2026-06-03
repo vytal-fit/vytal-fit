@@ -225,6 +225,12 @@ export default function WODScreen() {
           >
             <Text style={styles.actionSecondaryText}>TABELA</Text>
           </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.actionSecondary}
+            onPress={() => router.push("/wod-history")}
+          >
+            <Text style={styles.actionSecondaryText}>HISTORICO</Text>
+          </TouchableOpacity>
         </View>
       </View>
     </SafeAreaView>

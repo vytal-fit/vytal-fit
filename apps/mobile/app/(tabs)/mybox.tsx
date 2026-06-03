@@ -212,6 +212,17 @@ export default function MyBoxScreen() {
           </TouchableOpacity>
         </View>
 
+        <View style={styles.quickLinksRow}>
+          <TouchableOpacity
+            style={styles.quickLinkCard}
+            onPress={() => router.push("/social-feed")}
+          >
+            <Text style={[styles.quickLinkIcon, { color: C.green, backgroundColor: C.green + "18" }]}>C</Text>
+            <Text style={styles.quickLinkText}>Comunidade</Text>
+            <ChevronRight size={16} color={C.muted} strokeWidth={2} />
+          </TouchableOpacity>
+        </View>
+
         {/* News / Announcements */}
         <View style={styles.sectionWrapper}>
           <View style={styles.newsSectionHeader}>

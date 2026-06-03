@@ -25,6 +25,8 @@ import {
   Heart,
   MessageSquare,
   QrCode,
+  History,
+  MapPin,
 } from "lucide-react-native";
 
 // ─── Colors ──────────────────────────────────────────────
@@ -109,6 +111,20 @@ export default function ProfileScreen() {
       sublabel: "Mensal Ilimitado",
       color: C.green,
       onPress: () => router.push("/plan-detail"),
+    },
+    {
+      icon: <History size={20} color={C.orange} strokeWidth={1.8} />,
+      label: "Historico de Aulas",
+      sublabel: "Presencas e faltas",
+      color: C.orange,
+      onPress: () => router.push("/booking-history"),
+    },
+    {
+      icon: <MapPin size={20} color={C.blue} strokeWidth={1.8} />,
+      label: "Drop-in",
+      sublabel: "Visitar outros espacos",
+      color: C.blue,
+      onPress: () => router.push("/dropin"),
     },
     {
       icon: <Bell size={20} color={C.amber} strokeWidth={1.8} />,
@@ -202,11 +218,14 @@ export default function ProfileScreen() {
           </View>
           <Text style={styles.userName}>{currentUser.name}</Text>
           <Text style={styles.userEmail}>{currentUser.email}</Text>
-          <View style={styles.memberBadge}>
+          <TouchableOpacity
+            style={styles.memberBadge}
+            onPress={() => router.push("/org-switcher")}
+          >
             <Text style={styles.memberBadgeText}>
-              Membro #{currentUser.memberNumber}
+              Membro #{currentUser.memberNumber} {">"} Trocar espaco
             </Text>
-          </View>
+          </TouchableOpacity>
         </View>
 
         {/* Stats Row */}

@@ -34,6 +34,13 @@ export default function RootLayout() {
         <Stack.Screen name="fistbumps" options={{ animation: "slide_from_right" }} />
         <Stack.Screen name="feedback" options={{ animation: "slide_from_right" }} />
         <Stack.Screen name="settings" options={{ animation: "slide_from_right" }} />
+        <Stack.Screen name="booking-history" options={{ animation: "slide_from_right" }} />
+        <Stack.Screen name="wod-history" options={{ animation: "slide_from_right" }} />
+        <Stack.Screen name="dropin" options={{ animation: "slide_from_right" }} />
+        <Stack.Screen name="social-feed" options={{ animation: "slide_from_right" }} />
+        <Stack.Screen name="forgot-password" options={{ animation: "slide_from_right" }} />
+        <Stack.Screen name="org-switcher" options={{ animation: "slide_from_right" }} />
+        <Stack.Screen name="onboarding" options={{ animation: "fade" }} />
       </Stack>
     </>
   );
