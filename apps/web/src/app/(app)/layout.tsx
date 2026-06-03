@@ -278,6 +278,7 @@ function ThemeToggle() {
 function OrgSwitcher() {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const router = useRouter();
   const { t } = useI18n();
   const user = useAuthStore((s) => s.user);
   const switchOrg = useAuthStore((s) => s.switchOrg);
@@ -374,7 +375,13 @@ function OrgSwitcher() {
             );
           })}
           <div className="border-t border-vytal-border px-3 py-2">
-            <button className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-xs text-vytal-muted transition-colors hover:bg-vytal-bg3 hover:text-vytal-text">
+            <button
+              onClick={() => {
+                setOpen(false);
+                router.push("/onboarding");
+              }}
+              className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-xs text-vytal-muted transition-colors hover:bg-vytal-bg3 hover:text-vytal-text"
+            >
               <span className="text-lg leading-none">+</span>
               {t("ui.createNewOrg")}
             </button>
@@ -403,6 +410,7 @@ function FloatingChat() {
   const [open, setOpen] = useState(false);
   const [activeChat, setActiveChat] = useState<string | null>(null);
   const [msgInput, setMsgInput] = useState("");
+  const { t } = useI18n();
   const [messages, setMessages] = useState<Record<string, Array<{ text: string; fromMe: boolean; time: string }>>>({
     c1: [
       { text: "Olá, gostaria de saber sobre o plano semestral", fromMe: false, time: "14:32" },
@@ -454,8 +462,8 @@ function FloatingChat() {
               {/* Header */}
               <div className="flex items-center justify-between border-b border-vytal-border bg-vytal-green/5 px-4 py-3">
                 <div>
-                  <h3 className="text-sm font-bold text-vytal-text">Mensagens</h3>
-                  <p className="text-[10px] text-vytal-muted">{totalUnread} não lidas</p>
+                  <h3 className="text-sm font-bold text-vytal-text">{t("messages.title")}</h3>
+                  <p className="text-[10px] text-vytal-muted">{totalUnread} {t("messages.unread")}</p>
                 </div>
                 <div className="flex gap-1">
                   <Link href="/messages" className="flex h-7 w-7 items-center justify-center rounded-lg text-vytal-muted hover:bg-vytal-bg3 hover:text-vytal-text" title="Abrir tudo">
@@ -509,7 +517,7 @@ function FloatingChat() {
                 </div>
                 <div>
                   <p className="text-sm font-semibold text-vytal-text">{activeContact?.name}</p>
-                  <p className="text-[10px] text-vytal-muted">{activeContact?.online ? "Online" : "Offline"}</p>
+                  <p className="text-[10px] text-vytal-muted">{activeContact?.online ? t("messages.online") : t("messages.offline")}</p>
                 </div>
               </div>
               {/* Messages */}
@@ -542,7 +550,7 @@ function FloatingChat() {
                   value={msgInput}
                   onChange={(e) => setMsgInput(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-                  placeholder="Escrever mensagem..."
+                  placeholder={t("messages.placeholder")}
                   className="flex-1 rounded-full border border-vytal-border bg-vytal-bg3 px-4 py-2 text-sm text-vytal-text placeholder:text-vytal-muted/50 outline-none focus:border-vytal-green/40"
                 />
                 <button

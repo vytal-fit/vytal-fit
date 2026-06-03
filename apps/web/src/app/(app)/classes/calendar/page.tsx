@@ -2,11 +2,12 @@
 
 import { useState, useMemo, useCallback } from "react";
 import Link from "next/link";
-import { ChevronLeft, ChevronRight, ArrowLeft, X, Trash2, Edit, Users } from "lucide-react";
+import { ChevronLeft, ChevronRight, ArrowLeft, X, Trash2, Users } from "lucide-react";
 import { mockClassTypes, mockCoaches, mockLocations } from "@vytal-fit/shared";
 import type { Class } from "@vytal-fit/shared";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/components/toast";
+import { useI18n } from "@/lib/i18n";
 
 const TIME_SLOTS = [
   "06:00", "07:00", "08:00", "09:00", "10:00", "11:00",
@@ -89,18 +90,32 @@ function generateWeekClasses(monday: Date): Class[] {
 function ClassBlock({
   cls,
   onClick,
+  isDragging,
+  onDragStart,
 }: {
   cls: Class;
   onClick: () => void;
+  isDragging: boolean;
+  onDragStart: (e: React.DragEvent) => void;
 }) {
+  const { t } = useI18n();
   const pct = (cls.enrolledCount / cls.maxCapacity) * 100;
   const isFull = pct >= 100;
 
   return (
     <button
-      onClick={onClick}
+      draggable
+      onDragStart={onDragStart}
+      onClick={(e) => {
+        e.stopPropagation();
+        onClick();
+      }}
       className="group block w-full rounded-lg border border-transparent p-1.5 text-left transition-all hover:border-[rgba(61,255,110,0.22)] hover:shadow-lg"
-      style={{ backgroundColor: `${cls.classType.color}15` }}
+      style={{
+        backgroundColor: `${cls.classType.color}15`,
+        opacity: isDragging ? 0.5 : 1,
+        cursor: "grab",
+      }}
     >
       <div className="mb-0.5 flex items-center gap-1.5">
         <div
@@ -114,7 +129,7 @@ function ClassBlock({
       <p className="truncate text-[10px] text-vytal-muted">
         {cls.coaches.length > 0
           ? cls.coaches.map((c) => c.name.split(" ")[0]).join(", ")
-          : "Open Box"}
+          : t("calendar.openBox")}
       </p>
       <p
         className={cn(
@@ -140,6 +155,7 @@ function ClassDetailPopup({
   onClose: () => void;
   onDelete: () => void;
 }) {
+  const { t } = useI18n();
   const pct = Math.min((cls.enrolledCount / cls.maxCapacity) * 100, 100);
 
   return (
@@ -165,28 +181,28 @@ function ClassDetailPopup({
 
         <div className="mb-4 space-y-2 text-sm text-vytal-muted">
           <p>
-            <span className="font-medium text-vytal-text">Date:</span> {cls.date}
+            <span className="font-medium text-vytal-text">{t("calendar.date")}:</span> {cls.date}
           </p>
           <p>
-            <span className="font-medium text-vytal-text">Time:</span> {cls.startTime} - {cls.endTime}
+            <span className="font-medium text-vytal-text">{t("calendar.time")}:</span> {cls.startTime} - {cls.endTime}
           </p>
           <p>
-            <span className="font-medium text-vytal-text">Coach:</span>{" "}
-            {cls.coaches.length > 0 ? cls.coaches.map((c) => c.name).join(", ") : "Open Box"}
+            <span className="font-medium text-vytal-text">{t("calendar.coach")}:</span>{" "}
+            {cls.coaches.length > 0 ? cls.coaches.map((c) => c.name).join(", ") : t("calendar.openBox")}
           </p>
           <p>
-            <span className="font-medium text-vytal-text">Location:</span> {cls.location.name}
+            <span className="font-medium text-vytal-text">{t("classes.location")}:</span> {cls.location.name}
           </p>
           <div className="flex items-center gap-2">
             <Users className="h-4 w-4" />
-            <span className="font-medium text-vytal-text">Enrollment:</span>
+            <span className="font-medium text-vytal-text">{t("calendar.enrollment")}:</span>
             <span className={cn("font-mono", pct >= 100 ? "text-vytal-red" : "text-vytal-green")}>
               {cls.enrolledCount}/{cls.maxCapacity}
             </span>
           </div>
           {cls.waitlistCount > 0 && (
             <p>
-              <span className="font-medium text-vytal-amber">Waitlist:</span> {cls.waitlistCount}
+              <span className="font-medium text-vytal-amber">{t("classes.waitlist")}:</span> {cls.waitlistCount}
             </p>
           )}
         </div>
@@ -208,13 +224,13 @@ function ClassDetailPopup({
             className="flex items-center gap-2 rounded-lg border border-vytal-red/30 bg-vytal-red/5 px-4 py-2 text-sm font-medium text-vytal-red transition-colors hover:bg-vytal-red/10"
           >
             <Trash2 className="h-4 w-4" />
-            Delete
+            {t("action.delete")}
           </button>
           <button
             onClick={onClose}
             className="ml-auto rounded-lg border border-vytal-border px-4 py-2 text-sm font-medium text-vytal-text transition-colors hover:bg-vytal-bg3"
           >
-            Close
+            {t("action.cancel")}
           </button>
         </div>
       </div>
@@ -233,6 +249,7 @@ function CreateClassModal({
   onClose: () => void;
   onCreate: (cls: Class) => void;
 }) {
+  const { t } = useI18n();
   const [classTypeId, setClassTypeId] = useState(mockClassTypes[0].id);
   const [coachId, setCoachId] = useState(mockCoaches[0].id);
   const [endTime, setEndTime] = useState(() => {
@@ -270,7 +287,7 @@ function CreateClassModal({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="mb-4 flex items-center justify-between">
-          <h3 className="text-lg font-bold text-vytal-text">Create Class</h3>
+          <h3 className="text-lg font-bold text-vytal-text">{t("calendar.createClass")}</h3>
           <button onClick={onClose} className="text-vytal-muted hover:text-vytal-text">
             <X className="h-5 w-5" />
           </button>
@@ -279,7 +296,7 @@ function CreateClassModal({
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="mb-1 block text-xs font-medium uppercase tracking-wider text-vytal-muted">Date</label>
+              <label className="mb-1 block text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("calendar.date")}</label>
               <input
                 type="text"
                 value={date}
@@ -288,7 +305,7 @@ function CreateClassModal({
               />
             </div>
             <div>
-              <label className="mb-1 block text-xs font-medium uppercase tracking-wider text-vytal-muted">Start</label>
+              <label className="mb-1 block text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("calendar.start")}</label>
               <input
                 type="text"
                 value={time}
@@ -298,7 +315,7 @@ function CreateClassModal({
             </div>
           </div>
           <div>
-            <label className="mb-1 block text-xs font-medium uppercase tracking-wider text-vytal-muted">End Time</label>
+            <label className="mb-1 block text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("calendar.endTime")}</label>
             <input
               type="time"
               value={endTime}
@@ -307,7 +324,7 @@ function CreateClassModal({
             />
           </div>
           <div>
-            <label className="mb-1 block text-xs font-medium uppercase tracking-wider text-vytal-muted">Class Type</label>
+            <label className="mb-1 block text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("calendar.classType")}</label>
             <select
               value={classTypeId}
               onChange={(e) => setClassTypeId(e.target.value)}
@@ -319,7 +336,7 @@ function CreateClassModal({
             </select>
           </div>
           <div>
-            <label className="mb-1 block text-xs font-medium uppercase tracking-wider text-vytal-muted">Coach</label>
+            <label className="mb-1 block text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("calendar.coach")}</label>
             <select
               value={coachId}
               onChange={(e) => setCoachId(e.target.value)}
@@ -331,7 +348,7 @@ function CreateClassModal({
             </select>
           </div>
           <div>
-            <label className="mb-1 block text-xs font-medium uppercase tracking-wider text-vytal-muted">Max Capacity</label>
+            <label className="mb-1 block text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("calendar.maxCapacity")}</label>
             <input
               type="number"
               value={maxCapacity}
@@ -346,13 +363,13 @@ function CreateClassModal({
             onClick={onClose}
             className="rounded-lg border border-vytal-border px-4 py-2 text-sm font-medium text-vytal-text transition-colors hover:bg-vytal-bg3"
           >
-            Cancel
+            {t("action.cancel")}
           </button>
           <button
             onClick={handleCreate}
             className="rounded-lg bg-vytal-green px-4 py-2 text-sm font-semibold text-vytal-bg transition-colors hover:bg-vytal-green/90"
           >
-            Create
+            {t("action.create")}
           </button>
         </div>
       </div>
@@ -363,6 +380,7 @@ function CreateClassModal({
 export default function ClassCalendarPage() {
   const [weekOffset, setWeekOffset] = useState(0);
   const { toast } = useToast();
+  const { t } = useI18n();
 
   const monday = useMemo(() => {
     const m = getMonday(new Date());
@@ -408,6 +426,10 @@ export default function ClassCalendarPage() {
   const [selectedClass, setSelectedClass] = useState<Class | null>(null);
   const [createModal, setCreateModal] = useState<{ date: string; time: string } | null>(null);
 
+  // Drag state
+  const [draggedClassId, setDraggedClassId] = useState<string | null>(null);
+  const [dropTarget, setDropTarget] = useState<string | null>(null);
+
   const handleCellClick = useCallback(
     (dateStr: string, time: string) => {
       const key = `${dateStr}|${time}`;
@@ -423,19 +445,95 @@ export default function ClassCalendarPage() {
     (cls: Class) => {
       setDeletedIds((prev) => new Set([...prev, cls.id]));
       setSelectedClass(null);
-      toast(`Deleted ${cls.classType.name} on ${cls.date}`, "success");
+      toast(`${t("action.delete")}: ${cls.classType.name} ${cls.date}`, "success");
     },
-    [toast]
+    [toast, t]
   );
 
   const handleCreate = useCallback(
     (cls: Class) => {
       setExtraClasses((prev) => [...prev, cls]);
       setCreateModal(null);
-      toast(`Created ${cls.classType.name} on ${cls.date} at ${cls.startTime}`, "success");
+      toast(`${t("action.create")}: ${cls.classType.name} ${cls.date} ${cls.startTime}`, "success");
     },
-    [toast]
+    [toast, t]
   );
+
+  const handleDragStart = useCallback(
+    (e: React.DragEvent, classId: string) => {
+      e.stopPropagation();
+      setDraggedClassId(classId);
+      e.dataTransfer.effectAllowed = "move";
+    },
+    []
+  );
+
+  const handleDragOver = useCallback(
+    (e: React.DragEvent, cellKey: string) => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = "move";
+      setDropTarget(cellKey);
+    },
+    []
+  );
+
+  const handleDragLeave = useCallback(() => {
+    setDropTarget(null);
+  }, []);
+
+  const handleDrop = useCallback(
+    (e: React.DragEvent, dateStr: string, time: string) => {
+      e.preventDefault();
+      setDropTarget(null);
+
+      if (!draggedClassId) return;
+
+      // Find the dragged class in all sources
+      const allClasses = [...generateWeekClasses(monday), ...extraClasses].filter(
+        (c) => !deletedIds.has(c.id)
+      );
+      const draggedClass = allClasses.find((c) => c.id === draggedClassId);
+
+      if (!draggedClass) {
+        setDraggedClassId(null);
+        return;
+      }
+
+      // If dropped on same slot, do nothing
+      if (draggedClass.date === dateStr && draggedClass.startTime === time) {
+        setDraggedClassId(null);
+        return;
+      }
+
+      // Calculate new end time preserving duration
+      const [startH, startM] = draggedClass.startTime.split(":").map(Number);
+      const [endH, endM] = draggedClass.endTime.split(":").map(Number);
+      const durationMin = (endH * 60 + endM) - (startH * 60 + startM);
+      const [newStartH, newStartM] = time.split(":").map(Number);
+      const newEndTotalMin = newStartH * 60 + newStartM + durationMin;
+      const newEndTime = `${String(Math.floor(newEndTotalMin / 60)).padStart(2, "0")}:${String(newEndTotalMin % 60).padStart(2, "0")}`;
+
+      // Delete original and create moved copy
+      setDeletedIds((prev) => new Set([...prev, draggedClassId]));
+      const movedClass: Class = {
+        ...draggedClass,
+        id: `cal-moved-${Date.now()}`,
+        date: dateStr,
+        startTime: time,
+        endTime: newEndTime,
+      };
+      setExtraClasses((prev) => [...prev, movedClass]);
+
+      setDraggedClassId(null);
+      toast(`${draggedClass.classType.name} → ${dateStr} ${time}`, "success");
+    },
+    [draggedClassId, monday, extraClasses, deletedIds, toast]
+  );
+
+  const handleDragEnd = useCallback(() => {
+    setDraggedClassId(null);
+    setDropTarget(null);
+  }, []);
 
   return (
     <div className="space-y-6">
@@ -450,7 +548,7 @@ export default function ClassCalendarPage() {
           </Link>
           <div>
             <h1 className="text-2xl font-bold text-vytal-text">
-              Weekly Calendar
+              {t("calendar.title")}
             </h1>
             <p className="mt-1 text-sm text-vytal-muted">
               {formatDateShort(monday)} &mdash; {formatDateShort(sunday)}
@@ -470,7 +568,7 @@ export default function ClassCalendarPage() {
             onClick={() => setWeekOffset(0)}
             className="rounded-lg border border-vytal-border px-3 py-1.5 text-xs font-medium text-vytal-muted transition-colors hover:bg-vytal-bg3 hover:text-vytal-text"
           >
-            This Week
+            {t("calendar.thisWeek")}
           </button>
           <button
             onClick={() => setWeekOffset((o) => o + 1)}
@@ -487,7 +585,7 @@ export default function ClassCalendarPage() {
           <thead>
             <tr className="border-b border-vytal-border bg-vytal-bg2">
               <th className="w-16 px-2 py-3 text-left text-xs font-medium uppercase tracking-wider text-vytal-muted">
-                Time
+                {t("calendar.time")}
               </th>
               {weekDates.map((dateStr, i) => {
                 const isToday = dateStr === today;
@@ -526,6 +624,7 @@ export default function ClassCalendarPage() {
                   const key = `${dateStr}|${time}`;
                   const classes = grid[key] || [];
                   const isToday = dateStr === today;
+                  const isDropTarget = dropTarget === key;
 
                   return (
                     <td
@@ -534,13 +633,27 @@ export default function ClassCalendarPage() {
                         "cursor-pointer px-1 py-1 align-top transition-colors hover:bg-vytal-green/[0.04]",
                         isToday && "bg-vytal-green/[0.02]"
                       )}
+                      style={
+                        isDropTarget
+                          ? {
+                              outline: "2px dashed rgba(34,197,94,0.6)",
+                              outlineOffset: "-2px",
+                              backgroundColor: "rgba(34,197,94,0.06)",
+                            }
+                          : undefined
+                      }
                       onClick={() => handleCellClick(dateStr, time)}
+                      onDragOver={(e) => handleDragOver(e, key)}
+                      onDragLeave={handleDragLeave}
+                      onDrop={(e) => handleDrop(e, dateStr, time)}
                     >
                       <div className="space-y-1">
                         {classes.map((cls) => (
                           <ClassBlock
                             key={cls.id}
                             cls={cls}
+                            isDragging={draggedClassId === cls.id}
+                            onDragStart={(e) => handleDragStart(e, cls.id)}
                             onClick={() => {
                               setSelectedClass(cls);
                             }}
@@ -555,6 +668,15 @@ export default function ClassCalendarPage() {
           </tbody>
         </table>
       </div>
+
+      {/* Handle drag end globally */}
+      {draggedClassId && (
+        <div
+          className="fixed inset-0 z-40"
+          style={{ pointerEvents: "none" }}
+          onDragEnd={handleDragEnd}
+        />
+      )}
 
       {/* Class detail popup */}
       {selectedClass && (

@@ -35,6 +35,7 @@ import {
 } from "recharts";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/components/toast";
+import { useI18n } from "@/lib/i18n";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -244,6 +245,7 @@ export default function CommunityPage() {
     endDate: "",
   });
   const { toast } = useToast();
+  const { t } = useI18n();
 
   // Feed actions
   const handleHide = useCallback(
@@ -314,10 +316,10 @@ export default function CommunityPage() {
   }, [newChallenge, toast]);
 
   const tabs: { key: Tab; label: string; icon: React.ReactNode }[] = [
-    { key: "feed", label: "Feed", icon: <Heart className="h-4 w-4" /> },
-    { key: "moderation", label: "Moderation", icon: <Shield className="h-4 w-4" /> },
-    { key: "challenges", label: "Challenges & Events", icon: <Trophy className="h-4 w-4" /> },
-    { key: "analytics", label: "Engagement Analytics", icon: <TrendingUp className="h-4 w-4" /> },
+    { key: "feed", label: t("community.feed"), icon: <Heart className="h-4 w-4" /> },
+    { key: "moderation", label: t("community.moderation"), icon: <Shield className="h-4 w-4" /> },
+    { key: "challenges", label: t("community.challenges"), icon: <Trophy className="h-4 w-4" /> },
+    { key: "analytics", label: t("community.engagementAnalytics"), icon: <TrendingUp className="h-4 w-4" /> },
   ];
 
   const statusColors: Record<ChallengeStatus, { text: string; bg: string }> = {
@@ -336,19 +338,19 @@ export default function CommunityPage() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-vytal-text">Comunidade</h1>
+        <h1 className="text-2xl font-bold text-vytal-text">{t("community.title")}</h1>
         <p className="mt-1 text-sm text-vytal-muted">
-          Community management and social activity
+          {t("community.subtitle")}
         </p>
       </div>
 
       {/* Stats Row */}
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
-        <StatCard label="Posts Today" value={12} color="blue" />
-        <StatCard label="Fist Bumps Today" value={47} color="purple" />
-        <StatCard label="Comments Today" value={23} color="green" />
-        <StatCard label="Active Posters" value={89} color="amber" />
-        <StatCard label="Engagement Rate" value="72%" color="green" />
+        <StatCard label={t("community.postsToday")} value={12} color="blue" />
+        <StatCard label={t("community.fistBumpsToday")} value={47} color="purple" />
+        <StatCard label={t("community.commentsToday")} value={23} color="green" />
+        <StatCard label={t("community.activePosters")} value={89} color="amber" />
+        <StatCard label={t("community.engagementRate")} value="72%" color="green" />
       </div>
 
       {/* Tab Pills */}
@@ -444,10 +446,10 @@ export default function CommunityPage() {
             <div className="rounded-xl border border-vytal-border bg-vytal-card p-12 text-center">
               <CheckCircle className="mx-auto h-12 w-12 text-vytal-green/50" />
               <p className="mt-4 text-lg font-semibold text-vytal-text">
-                All clear!
+                {t("community.allClear")}
               </p>
               <p className="mt-1 text-sm text-vytal-muted">
-                No flagged content.
+                {t("community.noFlaggedContent")}
               </p>
             </div>
           ) : (
@@ -466,7 +468,7 @@ export default function CommunityPage() {
                     </div>
                     <div className="mt-2 flex items-center gap-3 text-xs text-vytal-muted">
                       <span>
-                        Reported by{" "}
+                        {t("community.reportedBy")}{" "}
                         <span className="text-vytal-text">{item.reporterName}</span>
                       </span>
                       <span>\u00B7</span>
@@ -481,19 +483,19 @@ export default function CommunityPage() {
                     onClick={() => handleApprove(item.id)}
                     className="rounded-lg bg-vytal-green/10 px-4 py-2 text-xs font-semibold text-vytal-green transition-colors hover:bg-vytal-green/20"
                   >
-                    Approve
+                    {t("community.approve")}
                   </button>
                   <button
                     onClick={() => handleRemove(item.id)}
                     className="rounded-lg bg-vytal-red/10 px-4 py-2 text-xs font-semibold text-vytal-red transition-colors hover:bg-vytal-red/20"
                   >
-                    Remove
+                    {t("community.remove")}
                   </button>
                   <button
                     onClick={() => handleWarnUser(item.id)}
                     className="rounded-lg bg-vytal-amber/10 px-4 py-2 text-xs font-semibold text-vytal-amber transition-colors hover:bg-vytal-amber/20"
                   >
-                    Warn User
+                    {t("community.warnUser")}
                   </button>
                 </div>
               </div>
@@ -510,14 +512,14 @@ export default function CommunityPage() {
             className="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-vytal-border py-4 text-sm text-vytal-muted transition-colors hover:border-vytal-green/30 hover:text-vytal-green"
           >
             <Plus className="h-4 w-4" />
-            Create Challenge
+            {t("community.createChallenge")}
           </button>
 
           {showCreateChallenge && (
             <div className="rounded-xl border border-vytal-green/20 bg-vytal-green/5 p-5">
               <div className="mb-4 flex items-center justify-between">
                 <h3 className="text-sm font-semibold text-vytal-green">
-                  New Challenge
+                  {t("community.newChallenge")}
                 </h3>
                 <button
                   onClick={() => setShowCreateChallenge(false)}
@@ -529,7 +531,7 @@ export default function CommunityPage() {
               <div className="space-y-3">
                 <input
                   type="text"
-                  placeholder="Title"
+                  placeholder={t("community.title.placeholder")}
                   value={newChallenge.title}
                   onChange={(e) =>
                     setNewChallenge((prev) => ({ ...prev, title: e.target.value }))
@@ -537,7 +539,7 @@ export default function CommunityPage() {
                   className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-2.5 text-sm text-vytal-text placeholder:text-vytal-muted focus:border-vytal-green/30 focus:outline-none focus:ring-1 focus:ring-vytal-green/20"
                 />
                 <textarea
-                  placeholder="Description"
+                  placeholder={t("community.description.placeholder")}
                   value={newChallenge.description}
                   onChange={(e) =>
                     setNewChallenge((prev) => ({ ...prev, description: e.target.value }))
@@ -582,7 +584,7 @@ export default function CommunityPage() {
                     onClick={handleCreateChallenge}
                     className="rounded-lg bg-vytal-green px-6 py-2.5 text-sm font-semibold text-vytal-bg transition-colors hover:bg-vytal-green/90"
                   >
-                    Create
+                    {t("action.create")}
                   </button>
                 </div>
               </div>
@@ -626,7 +628,7 @@ export default function CommunityPage() {
                   </span>
                   <span className="flex items-center gap-1">
                     <Users className="h-3 w-3" />
-                    {ch.participants} participants
+                    {ch.participants} {t("community.participants")}
                   </span>
                 </div>
               </div>
@@ -642,32 +644,32 @@ export default function CommunityPage() {
           <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
             <div className="rounded-xl border border-vytal-border bg-vytal-card p-5">
               <p className="text-xs font-medium uppercase tracking-wider text-vytal-muted">
-                Most Popular WOD This Week
+                {t("community.mostPopularWod")}
               </p>
               <p className="mt-2 text-lg font-bold text-vytal-text">Fran</p>
-              <p className="text-xs text-vytal-green">85 completions</p>
+              <p className="text-xs text-vytal-green">85 {t("community.completions")}</p>
             </div>
             <div className="rounded-xl border border-vytal-border bg-vytal-card p-5">
               <p className="text-xs font-medium uppercase tracking-wider text-vytal-muted">
-                Most Fistbumped Result
+                {t("community.mostFistbumped")}
               </p>
               <p className="mt-2 text-lg font-bold text-vytal-text">
                 Pedro - Back Squat 140kg
               </p>
-              <p className="text-xs text-vytal-purple">32 fistbumps</p>
+              <p className="text-xs text-vytal-purple">32 {t("community.fistbumps")}</p>
             </div>
             <div className="rounded-xl border border-vytal-border bg-vytal-card p-5">
               <p className="text-xs font-medium uppercase tracking-wider text-vytal-muted">
-                Longest Active Streak
+                {t("community.longestStreak")}
               </p>
               <p className="mt-2 text-lg font-bold text-vytal-text">Jose Fonte</p>
-              <p className="text-xs text-vytal-amber">15 weeks</p>
+              <p className="text-xs text-vytal-amber">15 {t("community.weeks")}</p>
             </div>
           </div>
 
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
             {/* Posts per Day */}
-            <ChartCard title="Posts per Day (Last 30 Days)">
+            <ChartCard title={t("community.postsPerDay")}>
               <div className="h-72">
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={postsPerDayData}>
@@ -701,7 +703,7 @@ export default function CommunityPage() {
             </ChartCard>
 
             {/* Top 10 Most Active */}
-            <ChartCard title="Top 10 Most Active Members">
+            <ChartCard title={t("community.topActive")}>
               <div className="h-72">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={topActiveMembers} layout="vertical">
@@ -736,7 +738,7 @@ export default function CommunityPage() {
             </ChartCard>
 
             {/* Activity Type Breakdown (Donut) */}
-            <ChartCard title="Activity Type Breakdown" className="lg:col-span-2">
+            <ChartCard title={t("community.activityBreakdown")} className="lg:col-span-2">
               <div className="h-72">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
