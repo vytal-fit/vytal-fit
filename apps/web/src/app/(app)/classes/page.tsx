@@ -11,23 +11,71 @@ function getEnrollmentStatus(enrolled: number, capacity: number) {
   return { color: "bg-vytal-green", textColor: "text-vytal-green", label: "Available" } as const;
 }
 
+function getTimeStatus(date: string, startTime: string, endTime: string) {
+  const now = new Date();
+  const today = now.toISOString().split("T")[0];
+  if (date !== today) return "future" as const;
+
+  const [sh, sm] = startTime.split(":").map(Number);
+  const [eh, em] = endTime.split(":").map(Number);
+  const nowMinutes = now.getHours() * 60 + now.getMinutes();
+  const startMinutes = sh * 60 + sm;
+  const endMinutes = eh * 60 + em;
+
+  if (nowMinutes >= startMinutes && nowMinutes <= endMinutes) return "live" as const;
+  if (startMinutes - nowMinutes <= 60 && startMinutes - nowMinutes > 0) return "upcoming" as const;
+  if (nowMinutes > endMinutes) return "finished" as const;
+  return "scheduled" as const;
+}
+
+const classTypeEmojis: Record<string, string> = {
+  CrossFit: "WOD",
+  "Open Box": "OB",
+  "CrossFit Teens": "Teen",
+  Weightlifting: "WL",
+  Gymnastics: "GYM",
+  Endurance: "END",
+};
+
 function ClassCard({ cls }: { cls: Class }) {
   const pct = Math.min((cls.enrolledCount / cls.maxCapacity) * 100, 100);
   const status = getEnrollmentStatus(cls.enrolledCount, cls.maxCapacity);
   const isFull = cls.enrolledCount >= cls.maxCapacity;
+  const spotsLeft = Math.max(cls.maxCapacity - cls.enrolledCount, 0);
+  const timeStatus = getTimeStatus(cls.date, cls.startTime, cls.endTime);
+
+  const duration = (() => {
+    const [sh, sm] = cls.startTime.split(":").map(Number);
+    const [eh, em] = cls.endTime.split(":").map(Number);
+    return (eh * 60 + em) - (sh * 60 + sm);
+  })();
 
   return (
     <Link href={`/classes/${cls.id}`} className="group block rounded-xl border border-vytal-border bg-vytal-card p-5 transition-colors hover:border-[rgba(61,255,110,0.22)]">
       {/* Top Row: Time + Class Type */}
       <div className="mb-4 flex items-start justify-between">
         <div className="flex items-center gap-3">
-          <div className="flex flex-col items-center rounded-lg bg-vytal-bg3 px-3 py-2">
+          <div className="relative flex flex-col items-center rounded-lg bg-vytal-bg3 px-3 py-2">
             <span className="font-mono text-lg font-bold leading-tight text-vytal-text">
               {cls.startTime}
             </span>
             <span className="font-mono text-[10px] text-vytal-muted">
               {cls.endTime}
             </span>
+            {/* Live indicator */}
+            {timeStatus === "live" && (
+              <span className="absolute -right-1 -top-1 flex h-3 w-3">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-vytal-green opacity-75" />
+                <span className="relative inline-flex h-3 w-3 rounded-full bg-vytal-green" />
+              </span>
+            )}
+            {/* Upcoming indicator */}
+            {timeStatus === "upcoming" && (
+              <span className="absolute -right-1 -top-1 flex h-3 w-3">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-vytal-amber opacity-75" />
+                <span className="relative inline-flex h-3 w-3 rounded-full bg-vytal-amber" />
+              </span>
+            )}
           </div>
           <div>
             <div className="flex items-center gap-2">
@@ -39,25 +87,47 @@ function ClassCard({ cls }: { cls: Class }) {
                 {cls.classType.name}
               </h3>
             </div>
-            <span className="mt-0.5 inline-block rounded bg-vytal-bg3 px-1.5 py-0.5 font-mono text-[10px] font-medium text-vytal-muted">
-              {cls.classType.abbreviation}
-            </span>
+            <div className="mt-0.5 flex items-center gap-2">
+              <span className="inline-block rounded bg-vytal-bg3 px-1.5 py-0.5 font-mono text-[10px] font-medium text-vytal-muted">
+                {classTypeEmojis[cls.classType.name] ?? cls.classType.abbreviation}
+              </span>
+              <span className="rounded bg-vytal-bg3 px-1.5 py-0.5 text-[10px] text-vytal-muted">
+                {duration} min
+              </span>
+              {timeStatus === "live" && (
+                <span className="rounded-full bg-vytal-green/10 px-2 py-0.5 text-[10px] font-semibold text-vytal-green">
+                  LIVE NOW
+                </span>
+              )}
+              {timeStatus === "upcoming" && (
+                <span className="rounded-full bg-vytal-amber/10 px-2 py-0.5 text-[10px] font-semibold text-vytal-amber">
+                  STARTING SOON
+                </span>
+              )}
+            </div>
           </div>
         </div>
 
         {/* Status indicator */}
-        <span
-          className={cn(
-            "rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider",
-            isFull
-              ? "bg-vytal-red/10 text-vytal-red"
-              : pct >= 80
-                ? "bg-vytal-amber/10 text-vytal-amber"
-                : "bg-vytal-green/10 text-vytal-green"
+        <div className="flex flex-col items-end gap-1">
+          <span
+            className={cn(
+              "rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider",
+              isFull
+                ? "bg-vytal-red/10 text-vytal-red"
+                : pct >= 80
+                  ? "bg-vytal-amber/10 text-vytal-amber"
+                  : "bg-vytal-green/10 text-vytal-green"
+            )}
+          >
+            {status.label}
+          </span>
+          {!isFull && (
+            <span className="text-[10px] font-medium text-vytal-muted">
+              {spotsLeft} {spotsLeft === 1 ? "spot" : "spots"} left
+            </span>
           )}
-        >
-          {status.label}
-        </span>
+        </div>
       </div>
 
       {/* Details */}
@@ -67,23 +137,34 @@ function ClassCard({ cls }: { cls: Class }) {
           <span>{cls.location.name}</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <User className="h-3.5 w-3.5" />
-          <span>
-            {cls.coaches.length > 0
-              ? cls.coaches.map((c) => c.name).join(", ")
-              : "Open Box (no coach)"}
-          </span>
+          {cls.coaches.length > 0 ? (
+            <>
+              {/* Coach avatar initials */}
+              <div className="flex -space-x-1.5">
+                {cls.coaches.map((c) => (
+                  <div
+                    key={c.id}
+                    className="flex h-5 w-5 items-center justify-center rounded-full border border-vytal-bg bg-vytal-green/10 text-[8px] font-bold text-vytal-green"
+                    title={c.name}
+                  >
+                    {c.name.split(" ").map((n) => n[0]).join("").slice(0, 2)}
+                  </div>
+                ))}
+              </div>
+              <span>
+                {cls.coaches.map((c) => c.name.split(" ")[0]).join(", ")}
+              </span>
+            </>
+          ) : (
+            <>
+              <User className="h-3.5 w-3.5" />
+              <span>Open Box (no coach)</span>
+            </>
+          )}
         </div>
         <div className="flex items-center gap-1.5">
           <Clock className="h-3.5 w-3.5" />
-          <span>
-            {(() => {
-              const [sh, sm] = cls.startTime.split(":").map(Number);
-              const [eh, em] = cls.endTime.split(":").map(Number);
-              return (eh * 60 + em) - (sh * 60 + sm);
-            })()}
-            min
-          </span>
+          <span>{duration} min</span>
         </div>
       </div>
 
@@ -133,6 +214,7 @@ export default function ClassesPage() {
   const totalEnrolled = todayClasses.reduce((s, c) => s + c.enrolledCount, 0);
   const totalCapacity = todayClasses.reduce((s, c) => s + c.maxCapacity, 0);
   const totalWaitlist = todayClasses.reduce((s, c) => s + c.waitlistCount, 0);
+  const totalSpotsLeft = totalCapacity - totalEnrolled;
 
   return (
     <div className="space-y-6">
@@ -163,6 +245,14 @@ export default function ClassesPage() {
               {totalEnrolled}/{totalCapacity}
             </p>
           </div>
+          {totalSpotsLeft > 0 && (
+            <div className="text-right">
+              <p className="text-xs text-vytal-muted">Spots Left</p>
+              <p className="font-mono text-sm font-semibold text-vytal-green">
+                {totalSpotsLeft}
+              </p>
+            </div>
+          )}
           {totalWaitlist > 0 && (
             <div className="text-right">
               <p className="text-xs text-vytal-muted">Waitlisted</p>

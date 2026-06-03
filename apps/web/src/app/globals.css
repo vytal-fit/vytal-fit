@@ -38,3 +38,122 @@
     --color-vytal-card: rgba(255, 255, 255, 0.95);
   }
 }
+
+/* ── Onboarding Wizard Animations ─────────────────────────────── */
+
+@keyframes onboarding-fade-in {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes onboarding-scale-in {
+  from { opacity: 0; transform: scale(0.95); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes onboarding-checkmark-draw {
+  from { stroke-dashoffset: 56; }
+  to   { stroke-dashoffset: 0; }
+}
+
+@keyframes onboarding-confetti {
+  0%   { transform: translateY(0) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(-120px) rotate(720deg); opacity: 0; }
+}
+
+@keyframes onboarding-float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-6px); }
+}
+
+@keyframes onboarding-gradient-shift {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes onboarding-progress-glow {
+  0%, 100% { box-shadow: 0 0 8px rgba(34, 197, 94, 0.3); }
+  50%      { box-shadow: 0 0 20px rgba(34, 197, 94, 0.6); }
+}
+
+@keyframes onboarding-celebrate-ring {
+  0%   { transform: scale(0.8); opacity: 0.8; }
+  100% { transform: scale(2.5); opacity: 0; }
+}
+
+.animate-onboarding-fade-in {
+  animation: onboarding-fade-in 0.5s ease-out both;
+}
+
+.animate-onboarding-scale-in {
+  animation: onboarding-scale-in 0.4s ease-out both;
+}
+
+.animate-onboarding-float {
+  animation: onboarding-float 3s ease-in-out infinite;
+}
+
+.animate-onboarding-gradient {
+  background-size: 200% 200%;
+  animation: onboarding-gradient-shift 8s ease-in-out infinite;
+}
+
+.animate-onboarding-progress-glow {
+  animation: onboarding-progress-glow 2s ease-in-out infinite;
+}
+
+/* Confetti particle base */
+.onboarding-confetti-particle {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  animation: onboarding-confetti 1.5s ease-out both;
+}
+
+/* Checkmark animation */
+.onboarding-checkmark-circle {
+  stroke-dasharray: 166;
+  stroke-dashoffset: 166;
+  animation: onboarding-checkmark-draw 0.6s ease-out 0.2s forwards;
+}
+
+.onboarding-checkmark-check {
+  stroke-dasharray: 56;
+  stroke-dashoffset: 56;
+  animation: onboarding-checkmark-draw 0.4s ease-out 0.6s forwards;
+}
+
+/* Celebration ring */
+.onboarding-celebrate-ring {
+  animation: onboarding-celebrate-ring 1s ease-out both;
+}
+
+/* Step transition wrapper */
+.onboarding-step-enter {
+  animation: onboarding-fade-in 0.45s ease-out both;
+}
+
+/* Floating label styles */
+.onboarding-floating-label {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 14px;
+  color: var(--color-vytal-muted);
+  pointer-events: none;
+  transition: all 0.2s ease;
+}
+
+.onboarding-floating-input:focus ~ .onboarding-floating-label,
+.onboarding-floating-input:not(:placeholder-shown) ~ .onboarding-floating-label {
+  top: 6px;
+  transform: translateY(0);
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-vytal-green);
+}
