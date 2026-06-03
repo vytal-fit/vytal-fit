@@ -8,7 +8,8 @@ import {
   Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { mockMembers } from "@vytal-fit/shared";
+import { useRouter } from "expo-router";
+import { mockMembers, mockNotifications } from "@vytal-fit/shared";
 import {
   User as UserIcon,
   CreditCard,
@@ -18,6 +19,12 @@ import {
   Globe,
   ChevronRight,
   LogOut,
+  Timer,
+  Calculator,
+  BookOpen,
+  Heart,
+  MessageSquare,
+  QrCode,
 } from "lucide-react-native";
 
 // ─── Colors ──────────────────────────────────────────────
@@ -30,6 +37,7 @@ const C = {
   amber: "#ffb300",
   red: "#ff4757",
   purple: "#c084fc",
+  orange: "#ff8c42",
   text: "#dceee0",
   muted: "#6b8c72",
   cardBg: "rgba(22,32,24,0.9)",
@@ -54,14 +62,21 @@ type MenuItemConfig = {
   label: string;
   sublabel?: string;
   color?: string;
+  onPress?: () => void;
+  badge?: number;
 };
 
 function MenuItem({ item }: { item: MenuItemConfig }) {
   return (
-    <TouchableOpacity style={styles.menuItem}>
+    <TouchableOpacity style={styles.menuItem} onPress={item.onPress}>
       <View style={styles.menuLeft}>
         <View style={[styles.menuIconBox, { backgroundColor: (item.color || C.muted) + "15" }]}>
           {item.icon}
+          {item.badge != null && item.badge > 0 && (
+            <View style={styles.menuBadge}>
+              <Text style={styles.menuBadgeText}>{item.badge}</Text>
+            </View>
+          )}
         </View>
         <View>
           <Text style={styles.menuLabel}>{item.label}</Text>
@@ -77,36 +92,87 @@ function MenuItem({ item }: { item: MenuItemConfig }) {
 
 // ─── Screen ──────────────────────────────────────────────
 export default function ProfileScreen() {
+  const router = useRouter();
+  const unreadCount = mockNotifications.filter((n) => !n.read).length;
+
   const menuItems: MenuItemConfig[] = [
     {
       icon: <UserIcon size={20} color={C.blue} strokeWidth={1.8} />,
       label: "Dados Pessoais",
       sublabel: "Nome, email, contacto",
       color: C.blue,
+      onPress: () => router.push("/settings/personal-data"),
     },
     {
       icon: <CreditCard size={20} color={C.green} strokeWidth={1.8} />,
       label: "O Meu Plano",
       sublabel: "Mensal Ilimitado",
       color: C.green,
+      onPress: () => router.push("/plan-detail"),
     },
     {
       icon: <Bell size={20} color={C.amber} strokeWidth={1.8} />,
       label: "Notificacoes",
       sublabel: "Aulas, WODs, PRs",
       color: C.amber,
+      onPress: () => router.push("/notifications"),
+      badge: unreadCount,
+    },
+    {
+      icon: <Timer size={20} color={C.orange} strokeWidth={1.8} />,
+      label: "Timer",
+      sublabel: "AMRAP, EMOM, Tabata",
+      color: C.orange,
+      onPress: () => router.push("/timer"),
+    },
+    {
+      icon: <Calculator size={20} color={C.red} strokeWidth={1.8} />,
+      label: "Calculadora RM",
+      sublabel: "Percentagens e estimativas",
+      color: C.red,
+      onPress: () => router.push("/calculator"),
+    },
+    {
+      icon: <BookOpen size={20} color={C.purple} strokeWidth={1.8} />,
+      label: "Exercicios",
+      sublabel: "Biblioteca de movimentos",
+      color: C.purple,
+      onPress: () => router.push("/exercises"),
+    },
+    {
+      icon: <Heart size={20} color={C.red} strokeWidth={1.8} />,
+      label: "Fistbumps",
+      sublabel: "Reacoes e comentarios",
+      color: C.red,
+      onPress: () => router.push("/fistbumps"),
+    },
+    {
+      icon: <QrCode size={20} color={C.green} strokeWidth={1.8} />,
+      label: "QR Check-in",
+      sublabel: "Check-in por QR code",
+      color: C.green,
+      onPress: () => router.push("/checkin"),
+    },
+    {
+      icon: <MessageSquare size={20} color={C.amber} strokeWidth={1.8} />,
+      label: "Feedback",
+      sublabel: "Envia-nos a tua opiniao",
+      color: C.amber,
+      onPress: () => router.push("/feedback"),
     },
     {
       icon: <Shield size={20} color={C.purple} strokeWidth={1.8} />,
       label: "Privacidade",
       sublabel: "Visibilidade do perfil",
       color: C.purple,
+      onPress: () => router.push("/settings/privacy"),
     },
     {
       icon: <Palette size={20} color={C.green} strokeWidth={1.8} />,
       label: "Tema",
       sublabel: "Escuro",
       color: C.green,
+      onPress: () => router.push("/settings/theme"),
     },
     {
       icon: <Globe size={20} color={C.blue} strokeWidth={1.8} />,
@@ -365,6 +431,24 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignItems: "center",
     justifyContent: "center",
+    position: "relative",
+  },
+  menuBadge: {
+    position: "absolute",
+    top: -4,
+    right: -4,
+    backgroundColor: C.red,
+    borderRadius: 8,
+    minWidth: 16,
+    height: 16,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 4,
+  },
+  menuBadgeText: {
+    fontSize: 9,
+    fontWeight: "800",
+    color: "#fff",
   },
   menuLabel: {
     fontSize: 15,

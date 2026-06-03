@@ -7,6 +7,8 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useRouter } from "expo-router";
+import { ChevronRight, Cake } from "lucide-react-native";
 import { mockCoaches, mockDashboardStats } from "@vytal-fit/shared";
 
 // ─── Colors ──────────────────────────────────────────────
@@ -83,6 +85,8 @@ function getRoleColor(role: string): string {
 
 // ─── Screen ──────────────────────────────────────────────
 export default function MyBoxScreen() {
+  const router = useRouter();
+
   return (
     <SafeAreaView style={styles.safe} edges={["top"]}>
       <ScrollView
@@ -154,7 +158,11 @@ export default function MyBoxScreen() {
             {mockCoaches.map((coach) => {
               const roleColor = getRoleColor(coach.role);
               return (
-                <View key={coach.id} style={styles.coachCard}>
+                <TouchableOpacity
+                  key={coach.id}
+                  style={styles.coachCard}
+                  onPress={() => router.push(`/coach-profile?id=${coach.id}`)}
+                >
                   <View
                     style={[
                       styles.coachAvatar,
@@ -178,17 +186,46 @@ export default function MyBoxScreen() {
                       {getRoleLabel(coach.role)}
                     </Text>
                   </View>
-                </View>
+                </TouchableOpacity>
               );
             })}
           </ScrollView>
         </View>
 
+        {/* Quick Links */}
+        <View style={styles.quickLinksRow}>
+          <TouchableOpacity
+            style={styles.quickLinkCard}
+            onPress={() => router.push("/birthdays")}
+          >
+            <Cake size={20} color={C.amber} strokeWidth={2} />
+            <Text style={styles.quickLinkText}>Aniversarios</Text>
+            <ChevronRight size={16} color={C.muted} strokeWidth={2} />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.quickLinkCard}
+            onPress={() => router.push("/news")}
+          >
+            <Text style={styles.quickLinkIcon}>N</Text>
+            <Text style={styles.quickLinkText}>Noticias</Text>
+            <ChevronRight size={16} color={C.muted} strokeWidth={2} />
+          </TouchableOpacity>
+        </View>
+
         {/* News / Announcements */}
         <View style={styles.sectionWrapper}>
-          <Text style={styles.sectionTitleStandalone}>Noticias</Text>
+          <View style={styles.newsSectionHeader}>
+            <Text style={styles.sectionTitleStandalone}>Noticias</Text>
+            <TouchableOpacity onPress={() => router.push("/news")}>
+              <Text style={styles.seeAllText}>Ver todas</Text>
+            </TouchableOpacity>
+          </View>
           {mockNews.map((item) => (
-            <TouchableOpacity key={item.id} style={styles.newsCard}>
+            <TouchableOpacity
+              key={item.id}
+              style={styles.newsCard}
+              onPress={() => router.push("/news")}
+            >
               <View style={styles.newsHeader}>
                 <View
                   style={[
@@ -387,6 +424,58 @@ const styles = StyleSheet.create({
     fontSize: 9,
     fontWeight: "700",
     letterSpacing: 0.3,
+  },
+
+  // Quick Links
+  quickLinksRow: {
+    flexDirection: "row",
+    paddingHorizontal: 16,
+    gap: 10,
+    marginBottom: 20,
+  },
+  quickLinkCard: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    backgroundColor: C.cardBg,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: C.border,
+    paddingVertical: 14,
+    paddingHorizontal: 14,
+  },
+  quickLinkText: {
+    flex: 1,
+    fontSize: 14,
+    fontWeight: "600",
+    color: C.text,
+  },
+  quickLinkIcon: {
+    fontSize: 16,
+    fontWeight: "800",
+    color: C.blue,
+    backgroundColor: C.blue + "18",
+    width: 24,
+    height: 24,
+    textAlign: "center",
+    lineHeight: 24,
+    borderRadius: 6,
+    overflow: "hidden",
+  },
+
+  // News Section Header
+  newsSectionHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 20,
+    marginBottom: 14,
+  },
+  seeAllText: {
+    fontSize: 13,
+    fontWeight: "600",
+    color: C.green,
   },
 
   // News
