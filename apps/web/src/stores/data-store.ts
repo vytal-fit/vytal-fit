@@ -428,6 +428,9 @@ interface DataStore {
 
   // Exercises
   exercises: Exercise[];
+  addExercise: (exercise: Omit<Exercise, "id">) => string;
+  updateExercise: (id: string, partial: Partial<Exercise>) => void;
+  deleteExercise: (id: string) => void;
 
   // Personal Records
   personalRecords: PersonalRecord[];
@@ -790,6 +793,37 @@ export const useDataStore = create<DataStore>((set, get) => ({
 
   // ---- Exercises ----
   exercises: initialData.exercises,
+
+  addExercise: (exercise) => {
+    const id = `ex-${generateId()}`;
+    set((state) => {
+      const updated = [...state.exercises, { ...exercise, id }];
+      const newState = { ...state, exercises: updated };
+      persistData(snapshotData(newState as unknown as DataStore));
+      return { exercises: updated };
+    });
+    return id;
+  },
+
+  updateExercise: (id, partial) => {
+    set((state) => {
+      const updated = state.exercises.map((e) =>
+        e.id === id ? { ...e, ...partial } : e
+      );
+      const newState = { ...state, exercises: updated };
+      persistData(snapshotData(newState as unknown as DataStore));
+      return { exercises: updated };
+    });
+  },
+
+  deleteExercise: (id) => {
+    set((state) => {
+      const updated = state.exercises.filter((e) => e.id !== id);
+      const newState = { ...state, exercises: updated };
+      persistData(snapshotData(newState as unknown as DataStore));
+      return { exercises: updated };
+    });
+  },
 
   // ---- Personal Records ----
   personalRecords: initialData.personalRecords,
