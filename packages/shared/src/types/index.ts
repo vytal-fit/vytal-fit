@@ -1,4 +1,14 @@
 export type {
+  OrganizationType,
+  OrganizationTypeConfig,
+  OrganizationTerminology,
+  OrganizationFeatures,
+  Organization,
+} from "./organization";
+
+export { ORGANIZATION_CONFIGS, ORGANIZATION_TYPE_LIST } from "./verticals";
+
+export type {
   Member,
   MemberStatus,
   Class,
