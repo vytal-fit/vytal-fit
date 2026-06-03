@@ -852,7 +852,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                         isExpanded ? "max-h-96 opacity-100 mt-0.5" : "max-h-0 opacity-0"
                       )}
                     >
-                      <div className="ml-[22px] border-l border-vytal-border/60 pl-0">
+                      <div className="ml-[29px] space-y-0.5 py-1">
                       {item.children.map((child) => {
                         const isChildActive =
                           pathname === child.href || pathname.startsWith(child.href + "/");
@@ -864,13 +864,16 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                             key={child.href + child.labelKey}
                             href={child.href}
                             className={cn(
-                              "nav-item-transition relative flex items-center rounded-r-lg py-1.5 pl-4 pr-3 text-[13px] font-medium transition-all",
+                              "flex items-center rounded-md py-1.5 px-3 text-[13px] transition-colors duration-150",
                               isExactChild
-                                ? "bg-vytal-green/8 text-vytal-green before:absolute before:left-[-1px] before:top-1 before:bottom-1 before:w-[2px] before:rounded-full before:bg-vytal-green"
-                                : "text-vytal-muted hover:bg-vytal-bg3/50 hover:text-vytal-text"
+                                ? "font-semibold text-vytal-text"
+                                : "font-normal text-vytal-muted hover:text-vytal-text"
                             )}
                           >
-                            <span className="flex-1">{t(child.labelKey)}</span>
+                            {isExactChild && (
+                              <span className="mr-2 h-1.5 w-1.5 rounded-full bg-vytal-green" />
+                            )}
+                            <span>{t(child.labelKey)}</span>
                           </Link>
                         );
                       })}

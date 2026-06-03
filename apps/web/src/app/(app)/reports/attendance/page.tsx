@@ -1,12 +1,17 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, BarChart3, Clock, Calendar, Users } from "lucide-react";
+import { ArrowLeft, BarChart3, Clock, Calendar, Users, Download } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/lib/i18n";
 import { Breadcrumbs } from "@/components/breadcrumbs";
+import { useToast } from "@/components/toast";
+
+type Period = "thisWeek" | "thisMonth" | "thisQuarter";
 
 const DAY_KEYS = ["attendance.mon", "attendance.tue", "attendance.wed", "attendance.thu", "attendance.fri", "attendance.sat", "attendance.sun"];
+const DAY_NAMES_PT = ["Segunda", "Terca", "Quarta", "Quinta", "Sexta", "Sabado", "Domingo"];
 const TIME_SLOTS = [
   "06:00", "07:00", "08:00", "09:00", "10:00", "11:00",
   "12:00", "13:00", "14:00", "15:00", "16:00", "17:00",
@@ -58,29 +63,86 @@ function getTextColor(value: number, max: number): string {
   return "text-vytal-bg";
 }
 
+function getDayTotals(): number[] {
+  return HEATMAP_DATA.map((row) => row.reduce((a, b) => a + b, 0));
+}
+
+function getSlotTotals(): number[] {
+  const totals: number[] = Array(TIME_SLOTS.length).fill(0);
+  for (const row of HEATMAP_DATA) {
+    for (let i = 0; i < row.length; i++) {
+      totals[i] += row[i];
+    }
+  }
+  return totals;
+}
+
 export default function AttendanceHeatmapPage() {
   const { t } = useI18n();
+  const { toast } = useToast();
   const max = getMaxValue();
+  const dayTotals = getDayTotals();
+  const slotTotals = getSlotTotals();
+  const grandTotal = dayTotals.reduce((a, b) => a + b, 0);
+
+  const [period, setPeriod] = useState<Period>("thisMonth");
+  const [hoveredCell, setHoveredCell] = useState<{ dayIdx: number; timeIdx: number } | null>(null);
+
+  const periodOptions: { value: Period; labelKey: string }[] = [
+    { value: "thisWeek", labelKey: "attendance.period.thisWeek" },
+    { value: "thisMonth", labelKey: "attendance.period.thisMonth" },
+    { value: "thisQuarter", labelKey: "attendance.period.thisQuarter" },
+  ];
 
   return (
     <div className="space-y-6">
       <Breadcrumbs items={[{ label: t("reports.title"), href: "/reports" }, { label: t("attendance.title") }]} />
 
       {/* Header */}
-      <div className="flex items-center gap-4">
-        <Link
-          href="/reports"
-          className="flex h-9 w-9 items-center justify-center rounded-lg text-vytal-muted transition-colors hover:bg-vytal-bg3 hover:text-vytal-text"
-        >
-          <ArrowLeft className="h-4 w-4" />
-        </Link>
-        <div>
-          <h1 className="text-2xl font-bold text-vytal-text">
-            {t("attendance.title")}
-          </h1>
-          <p className="mt-1 text-sm text-vytal-muted">
-            {t("attendance.subtitle")}
-          </p>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-4">
+          <Link
+            href="/reports"
+            className="flex h-9 w-9 items-center justify-center rounded-lg text-vytal-muted transition-colors hover:bg-vytal-bg3 hover:text-vytal-text"
+          >
+            <ArrowLeft className="h-4 w-4" />
+          </Link>
+          <div>
+            <h1 className="text-2xl font-bold text-vytal-text">
+              {t("attendance.title")}
+            </h1>
+            <p className="mt-1 text-sm text-vytal-muted">
+              {t("attendance.subtitle")}
+            </p>
+          </div>
+        </div>
+        <div className="flex items-center gap-3">
+          {/* Period Selector */}
+          <div className="flex rounded-lg border border-vytal-border">
+            {periodOptions.map((opt) => (
+              <button
+                key={opt.value}
+                type="button"
+                onClick={() => setPeriod(opt.value)}
+                className={cn(
+                  "px-3 py-1.5 text-xs font-medium transition-colors first:rounded-l-lg last:rounded-r-lg",
+                  period === opt.value
+                    ? "bg-vytal-green/10 text-vytal-green"
+                    : "text-vytal-muted hover:text-vytal-text"
+                )}
+              >
+                {t(opt.labelKey)}
+              </button>
+            ))}
+          </div>
+          {/* Export */}
+          <button
+            onClick={() => toast(t("reports.comingSoon"), "info")}
+            className="flex items-center gap-2 rounded-lg bg-vytal-green px-4 py-2 text-sm font-semibold text-vytal-bg transition-all hover:bg-vytal-green/90"
+          >
+            <Download className="h-4 w-4" />
+            {t("attendance.export")}
+          </button>
         </div>
       </div>
 
@@ -133,26 +195,42 @@ export default function AttendanceHeatmapPage() {
 
       {/* Heatmap */}
       <div className="rounded-xl border border-vytal-border bg-vytal-card p-6">
-        <div className="mb-4 flex items-center gap-2">
-          <BarChart3 className="h-4 w-4 text-vytal-green" />
-          <h3 className="text-sm font-semibold text-vytal-text">
-            {t("attendance.weeklyPattern")}
-          </h3>
+        <div className="mb-4 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <BarChart3 className="h-4 w-4 text-vytal-green" />
+            <h3 className="text-sm font-semibold text-vytal-text">
+              {t("attendance.weeklyPattern")}
+            </h3>
+          </div>
+          {/* Tooltip for hovered cell */}
+          {hoveredCell && (
+            <div className="inline-flex items-center gap-2 rounded-lg border border-vytal-green/20 bg-vytal-green/5 px-3 py-1.5">
+              <span className="text-xs text-vytal-text">
+                <span className="font-semibold">{DAY_NAMES_PT[hoveredCell.dayIdx]} {TIME_SLOTS[hoveredCell.timeIdx]}</span>
+                {" \u2014 "}
+                {HEATMAP_DATA[hoveredCell.dayIdx][hoveredCell.timeIdx]} check-ins
+              </span>
+            </div>
+          )}
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[700px]">
+          <table className="w-full min-w-[750px]">
             <thead>
               <tr>
                 <th className="w-16 px-2 py-2 text-left text-[10px] font-medium uppercase tracking-wider text-vytal-muted" />
-                {TIME_SLOTS.map((t) => (
+                {TIME_SLOTS.map((slot) => (
                   <th
-                    key={t}
+                    key={slot}
                     className="px-0.5 py-2 text-center text-[10px] font-medium text-vytal-muted"
                   >
-                    {t.slice(0, 2)}
+                    {slot.slice(0, 2)}
                   </th>
                 ))}
+                {/* Total column header */}
+                <th className="px-2 py-2 text-center text-[10px] font-bold uppercase tracking-wider text-vytal-green">
+                  {t("attendance.totalPerSlot")}
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -165,9 +243,11 @@ export default function AttendanceHeatmapPage() {
                     <td key={timeIdx} className="px-0.5 py-0.5">
                       <div
                         className={cn(
-                          "flex h-10 items-center justify-center rounded",
+                          "flex h-10 items-center justify-center rounded cursor-pointer transition-all hover:ring-1 hover:ring-vytal-green/40",
                           getColor(value, max)
                         )}
+                        onMouseEnter={() => setHoveredCell({ dayIdx, timeIdx })}
+                        onMouseLeave={() => setHoveredCell(null)}
                       >
                         <span
                           className={cn(
@@ -180,8 +260,32 @@ export default function AttendanceHeatmapPage() {
                       </div>
                     </td>
                   ))}
+                  {/* Day total */}
+                  <td className="px-2 py-0.5 text-center">
+                    <span className="font-mono text-xs font-bold text-vytal-green">
+                      {dayTotals[dayIdx]}
+                    </span>
+                  </td>
                 </tr>
               ))}
+              {/* Summary row: totals per time slot */}
+              <tr className="border-t border-vytal-border">
+                <td className="px-2 py-2 text-xs font-bold uppercase tracking-wider text-vytal-green">
+                  {t("attendance.totalPerDay")}
+                </td>
+                {slotTotals.map((total, idx) => (
+                  <td key={idx} className="px-0.5 py-2 text-center">
+                    <span className="font-mono text-[10px] font-bold text-vytal-green">
+                      {total > 0 ? total : ""}
+                    </span>
+                  </td>
+                ))}
+                <td className="px-2 py-2 text-center">
+                  <span className="font-mono text-xs font-bold text-vytal-text">
+                    {grandTotal}
+                  </span>
+                </td>
+              </tr>
             </tbody>
           </table>
         </div>
