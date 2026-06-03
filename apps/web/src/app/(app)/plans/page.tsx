@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { mockPlans, mockClassTypes } from "@vytal-fit/shared";
+import { useDataStore } from "@/stores/data-store";
 import type { SubscriptionPlan } from "@vytal-fit/shared";
 import {
   CreditCard,
@@ -17,33 +17,33 @@ import { cn } from "@/lib/utils";
 import { useI18n } from "@/lib/i18n";
 import { formatCurrency as formatCurrencyStore } from "@/stores/data-store";
 
-const typeLabels: Record<string, { label: string; className: string }> = {
+const typeLabels: Record<string, { labelKey: string; className: string }> = {
   monthly: {
-    label: "Monthly",
+    labelKey: "plans.monthly",
     className: "bg-vytal-green/10 text-vytal-green",
   },
   quarterly: {
-    label: "Quarterly",
+    labelKey: "plans.quarterly",
     className: "bg-vytal-blue/10 text-vytal-blue",
   },
   semester: {
-    label: "Semester",
+    labelKey: "plans.semester",
     className: "bg-vytal-blue/10 text-vytal-blue",
   },
   annual: {
-    label: "Annual",
+    labelKey: "plans.annual",
     className: "bg-vytal-purple/10 text-vytal-purple",
   },
   session_pack: {
-    label: "Session Pack",
+    labelKey: "plans.sessionPack",
     className: "bg-vytal-amber/10 text-vytal-amber",
   },
   day_pass: {
-    label: "Day Pass",
+    labelKey: "plans.dayPass",
     className: "bg-vytal-orange/10 text-vytal-orange",
   },
   trial: {
-    label: "Trial",
+    labelKey: "plans.trialType",
     className: "bg-vytal-amber/10 text-vytal-amber",
   },
 };
@@ -90,12 +90,13 @@ function PlanCard({
   maxSubscribers: number;
 }) {
   const { t } = useI18n();
+  const storeClassTypes = useDataStore((s) => s.classTypes);
   const typeConfig = typeLabels[plan.type] ?? {
-    label: plan.type,
+    labelKey: plan.type,
     className: "bg-vytal-muted/10 text-vytal-muted",
   };
   const allowedTypes = plan.allowedClassTypes
-    .map((ctId) => mockClassTypes.find((ct) => ct.id === ctId))
+    .map((ctId) => storeClassTypes.find((ct) => ct.id === ctId))
     .filter(Boolean);
 
   const subscriberPct = maxSubscribers > 0 ? (subscriberCount / maxSubscribers) * 100 : 0;
@@ -126,7 +127,7 @@ function PlanCard({
                 typeConfig.className
               )}
             >
-              {typeConfig.label}
+              {t(typeConfig.labelKey)}
             </span>
             {plan.active ? (
               <span className="inline-flex items-center gap-1 rounded-full bg-vytal-green/10 px-2 py-0.5 text-[10px] font-medium text-vytal-green">
@@ -153,13 +154,13 @@ function PlanCard({
         </span>
         <span className="text-sm text-vytal-muted">
           {plan.type === "monthly"
-            ? "/month"
+            ? t("plans.perMonth")
             : plan.type === "semester"
-              ? "/6 months"
+              ? t("plans.per6Months")
               : plan.type === "annual"
-                ? "/year"
+                ? t("plans.perYear")
                 : plan.type === "quarterly"
-                  ? "/quarter"
+                  ? t("plans.perQuarter")
                   : ""}
         </span>
       </div>
@@ -205,8 +206,8 @@ function PlanCard({
           <div className="flex items-center gap-2 text-sm text-vytal-muted">
             <Tag className="h-3.5 w-3.5" />
             <span>
-              {plan.maxSessions} sessions{" "}
-              {plan.type === "session_pack" ? "total" : "per month"}
+              {plan.maxSessions} {t("plans.sessions")}{" "}
+              {plan.type === "session_pack" ? t("plans.total") : t("plans.perMonthLabel")}
             </span>
           </div>
         )}
@@ -250,11 +251,12 @@ function PlanCard({
 
 export default function PlansPage() {
   const { t } = useI18n();
+  const storePlans = useDataStore((s) => s.plans);
   const [showInactive, setShowInactive] = useState(false);
 
   const plans = useMemo(() => {
-    return showInactive ? mockPlans : mockPlans.filter((p) => p.active);
-  }, [showInactive]);
+    return showInactive ? storePlans : storePlans.filter((p) => p.active);
+  }, [showInactive, storePlans]);
 
   const totalSubscribers = Object.values(planSubscribers).reduce(
     (s, v) => s + v,
@@ -301,7 +303,7 @@ export default function PlansPage() {
           <div className="text-right">
             <p className="text-xs text-vytal-muted">{t("plans.activePlans")}</p>
             <p className="font-mono text-sm font-semibold text-vytal-text">
-              {mockPlans.filter((p) => p.active).length}
+              {storePlans.filter((p) => p.active).length}
             </p>
           </div>
         </div>

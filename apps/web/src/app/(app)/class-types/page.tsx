@@ -1,13 +1,14 @@
 "use client";
 
-import { mockClassTypes } from "@vytal-fit/shared";
+import { useDataStore } from "@/stores/data-store";
 import { Plus, Dumbbell } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { EmptyState } from "@/components/empty-state";
 
 export default function ClassTypesPage() {
   const { t } = useI18n();
-  const classTypes = mockClassTypes;
+  const classTypes = useDataStore((s) => s.classTypes);
+  const updateClassType = useDataStore((s) => s.updateClassType);
 
   return (
     <div className="space-y-6">
@@ -80,6 +81,7 @@ export default function ClassTypesPage() {
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-2">
                     <div
+                      onClick={() => updateClassType(ct.id, { active: !ct.active })}
                       className={`relative inline-flex h-5 w-9 cursor-pointer items-center rounded-full transition-colors ${
                         ct.active ? "bg-vytal-green" : "bg-vytal-bg3"
                       }`}

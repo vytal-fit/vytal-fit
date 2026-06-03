@@ -3,7 +3,7 @@
 import { useState, useMemo, useCallback } from "react";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight, ArrowLeft, X, Trash2, Users } from "lucide-react";
-import { mockClassTypes, mockCoaches, mockLocations } from "@vytal-fit/shared";
+import { useDataStore } from "@/stores/data-store";
 import type { Class } from "@vytal-fit/shared";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/components/toast";
@@ -31,7 +31,7 @@ function formatDateShort(date: Date): string {
   return date.toLocaleDateString("pt-PT", { day: "2-digit", month: "short" });
 }
 
-function generateWeekClasses(monday: Date): Class[] {
+function generateWeekClasses(monday: Date, classTypes: import("@vytal-fit/shared").ClassType[], coaches: import("@vytal-fit/shared").Coach[], locations: import("@vytal-fit/shared").Location[]): Class[] {
   const templates = [
     { time: "07:00", end: "08:00", ctIdx: 0, coachIdx: 0, cap: 20, enrolled: 18, waitlist: 2 },
     { time: "09:00", end: "10:00", ctIdx: 0, coachIdx: 1, cap: 20, enrolled: 14, waitlist: 0 },
@@ -64,15 +64,15 @@ function generateWeekClasses(monday: Date): Class[] {
     if (dayOffset === 6) dayTemplates = sunTemplates;
 
     for (const t of dayTemplates) {
-      const ct = mockClassTypes[t.ctIdx] ?? mockClassTypes[0];
-      const coach = t.coachIdx >= 0 ? mockCoaches[t.coachIdx] : undefined;
+      const ct = classTypes[t.ctIdx] ?? classTypes[0];
+      const coach = t.coachIdx >= 0 ? coaches[t.coachIdx] : undefined;
       classes.push({
         id: `cal-${idCounter++}`,
         organizationId: "org-1",
         classTypeId: ct.id,
         classType: ct,
-        locationId: mockLocations[0].id,
-        location: mockLocations[0],
+        locationId: locations[0].id,
+        location: locations[0],
         coachIds: coach ? [coach.id] : [],
         coaches: coach ? [coach] : [],
         date: dateStr,
@@ -251,8 +251,11 @@ function CreateClassModal({
   onCreate: (cls: Class) => void;
 }) {
   const { t } = useI18n();
-  const [classTypeId, setClassTypeId] = useState(mockClassTypes[0].id);
-  const [coachId, setCoachId] = useState(mockCoaches[0].id);
+  const classTypes = useDataStore((s) => s.classTypes);
+  const coaches = useDataStore((s) => s.coaches);
+  const locations = useDataStore((s) => s.locations);
+  const [classTypeId, setClassTypeId] = useState(classTypes[0].id);
+  const [coachId, setCoachId] = useState(coaches[0].id);
   const [endTime, setEndTime] = useState(() => {
     const [h, m] = time.split(":").map(Number);
     return `${String(h + 1).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
@@ -260,15 +263,15 @@ function CreateClassModal({
   const [maxCapacity, setMaxCapacity] = useState("20");
 
   function handleCreate() {
-    const ct = mockClassTypes.find((c) => c.id === classTypeId) ?? mockClassTypes[0];
-    const coach = mockCoaches.find((c) => c.id === coachId);
+    const ct = classTypes.find((c) => c.id === classTypeId) ?? classTypes[0];
+    const coach = coaches.find((c) => c.id === coachId);
     const newClass: Class = {
       id: `cal-new-${Date.now()}`,
       organizationId: "org-1",
       classTypeId: ct.id,
       classType: ct,
-      locationId: mockLocations[0].id,
-      location: mockLocations[0],
+      locationId: locations[0].id,
+      location: locations[0],
       coachIds: coach ? [coach.id] : [],
       coaches: coach ? [coach] : [],
       date,
@@ -331,7 +334,7 @@ function CreateClassModal({
               onChange={(e) => setClassTypeId(e.target.value)}
               className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-2 text-sm text-vytal-text focus:border-vytal-green/30 focus:outline-none"
             >
-              {mockClassTypes.filter((ct) => ct.active).map((ct) => (
+              {classTypes.filter((ct) => ct.active).map((ct) => (
                 <option key={ct.id} value={ct.id}>{ct.name}</option>
               ))}
             </select>
@@ -343,7 +346,7 @@ function CreateClassModal({
               onChange={(e) => setCoachId(e.target.value)}
               className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-2 text-sm text-vytal-text focus:border-vytal-green/30 focus:outline-none"
             >
-              {mockCoaches.map((c) => (
+              {coaches.map((c) => (
                 <option key={c.id} value={c.id}>{c.name}</option>
               ))}
             </select>
@@ -382,6 +385,9 @@ export default function ClassCalendarPage() {
   const [weekOffset, setWeekOffset] = useState(0);
   const { toast } = useToast();
   const { t } = useI18n();
+  const classTypes = useDataStore((s) => s.classTypes);
+  const coaches = useDataStore((s) => s.coaches);
+  const locations = useDataStore((s) => s.locations);
 
   const monday = useMemo(() => {
     const m = getMonday(new Date());
@@ -399,9 +405,9 @@ export default function ClassCalendarPage() {
   const [deletedIds, setDeletedIds] = useState<Set<string>>(new Set());
 
   const weekClasses = useMemo(() => {
-    const base = generateWeekClasses(monday);
+    const base = generateWeekClasses(monday, classTypes, coaches, locations);
     return [...base, ...extraClasses].filter((c) => !deletedIds.has(c.id));
-  }, [monday, extraClasses, deletedIds]);
+  }, [monday, extraClasses, deletedIds, classTypes, coaches, locations]);
 
   const today = new Date().toISOString().split("T")[0];
 
@@ -490,7 +496,7 @@ export default function ClassCalendarPage() {
       if (!draggedClassId) return;
 
       // Find the dragged class in all sources
-      const allClasses = [...generateWeekClasses(monday), ...extraClasses].filter(
+      const allClasses = [...generateWeekClasses(monday, classTypes, coaches, locations), ...extraClasses].filter(
         (c) => !deletedIds.has(c.id)
       );
       const draggedClass = allClasses.find((c) => c.id === draggedClassId);
@@ -528,7 +534,7 @@ export default function ClassCalendarPage() {
       setDraggedClassId(null);
       toast(`${draggedClass.classType.name} → ${dateStr} ${time}`, "success");
     },
-    [draggedClassId, monday, extraClasses, deletedIds, toast]
+    [draggedClassId, monday, extraClasses, deletedIds, toast, classTypes, coaches, locations]
   );
 
   const handleDragEnd = useCallback(() => {

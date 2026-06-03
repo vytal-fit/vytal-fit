@@ -1,6 +1,6 @@
 "use client";
 
-import { mockClasses, mockMembers } from "@vytal-fit/shared";
+import { useDataStore } from "@/stores/data-store";
 import {
   MapPin,
   User,
@@ -42,7 +42,9 @@ export default function ClassDetailPage() {
   const { t } = useI18n();
   const params = useParams();
   const id = params.id as string;
-  const cls = mockClasses.find((c) => c.id === id);
+  const storeClasses = useDataStore((s) => s.classes);
+  const storeMembers = useDataStore((s) => s.members);
+  const cls = storeClasses.find((c) => c.id === id);
 
   if (!cls) {
     notFound();
@@ -59,9 +61,9 @@ export default function ClassDetailPage() {
   })();
 
   // Simulate enrolled members by taking a slice of mock members
-  const enrolledMembers = mockMembers.slice(
+  const enrolledMembers = storeMembers.slice(
     0,
-    Math.min(cls.enrolledCount, mockMembers.length)
+    Math.min(cls.enrolledCount, storeMembers.length)
   );
 
   return (

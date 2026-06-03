@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { mockClassTypes } from "@vytal-fit/shared";
+import { useDataStore } from "@/stores/data-store";
 import { ArrowLeft, Save, X, CheckCircle, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
@@ -24,6 +24,8 @@ export default function PlanCreatePage() {
   const { t } = useI18n();
   const router = useRouter();
   const { toast } = useToast();
+  const storeClassTypes = useDataStore((s) => s.classTypes);
+  const storeAddPlan = useDataStore((s) => s.addPlan);
   const [name, setName] = useState("");
   const [type, setType] = useState("monthly");
   const [price, setPrice] = useState("");
@@ -60,6 +62,16 @@ export default function PlanCreatePage() {
       toast("Price is required", "error");
       return;
     }
+    storeAddPlan({
+      organizationId: "org-1",
+      name: name.trim(),
+      type: type as import("@vytal-fit/shared").SubscriptionPlan["type"],
+      price: parseFloat(price) || 0,
+      currency: "EUR",
+      maxSessions: hasSessionLimit ? parseInt(maxSessions) || undefined : undefined,
+      allowedClassTypes: Array.from(selectedClassTypes),
+      active,
+    });
     setSuccess(true);
     toast("Plan created successfully!", "success");
   }
@@ -76,7 +88,7 @@ export default function PlanCreatePage() {
   }
 
   if (success) {
-    const selectedCTs = mockClassTypes.filter((ct) => selectedClassTypes.has(ct.id));
+    const selectedCTs = storeClassTypes.filter((ct) => selectedClassTypes.has(ct.id));
     return (
       <div className="space-y-6">
         <Link
@@ -237,7 +249,7 @@ export default function PlanCreatePage() {
         <div className="rounded-xl border border-vytal-border bg-vytal-card p-6">
           <h2 className="mb-5 text-lg font-semibold text-vytal-text">Allowed Class Types</h2>
           <div className="space-y-2">
-            {mockClassTypes.filter((ct) => ct.active).map((ct) => (
+            {storeClassTypes.filter((ct) => ct.active).map((ct) => (
               <label
                 key={ct.id}
                 className={cn(

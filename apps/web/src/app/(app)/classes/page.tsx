@@ -1,6 +1,6 @@
 "use client";
 
-import { mockClasses } from "@vytal-fit/shared";
+import { useDataStore } from "@/stores/data-store";
 import type { Class } from "@vytal-fit/shared";
 import { MapPin, User, Clock, Users, CalendarOff, CalendarDays } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -9,9 +9,9 @@ import { useI18n } from "@/lib/i18n";
 
 function getEnrollmentStatus(enrolled: number, capacity: number) {
   const pct = (enrolled / capacity) * 100;
-  if (pct >= 100) return { color: "bg-vytal-red", textColor: "text-vytal-red", label: "Full" } as const;
-  if (pct >= 80) return { color: "bg-vytal-amber", textColor: "text-vytal-amber", label: "Filling up" } as const;
-  return { color: "bg-vytal-green", textColor: "text-vytal-green", label: "Available" } as const;
+  if (pct >= 100) return { color: "bg-vytal-red", textColor: "text-vytal-red", labelKey: "classes.full" } as const;
+  if (pct >= 80) return { color: "bg-vytal-amber", textColor: "text-vytal-amber", labelKey: "classes.fillingUp" } as const;
+  return { color: "bg-vytal-green", textColor: "text-vytal-green", labelKey: "classes.available" } as const;
 }
 
 function getTimeStatus(date: string, startTime: string, endTime: string) {
@@ -100,12 +100,12 @@ function ClassCard({ cls }: { cls: Class }) {
               </span>
               {timeStatus === "live" && (
                 <span className="rounded-full bg-vytal-green/10 px-2 py-0.5 text-[10px] font-semibold text-vytal-green">
-                  LIVE NOW
+                  {t("classes.liveNow")}
                 </span>
               )}
               {timeStatus === "upcoming" && (
                 <span className="rounded-full bg-vytal-amber/10 px-2 py-0.5 text-[10px] font-semibold text-vytal-amber">
-                  STARTING SOON
+                  {t("classes.startingSoon")}
                 </span>
               )}
             </div>
@@ -124,7 +124,7 @@ function ClassCard({ cls }: { cls: Class }) {
                   : "bg-vytal-green/10 text-vytal-green"
             )}
           >
-            {status.label}
+            {t(status.labelKey)}
           </span>
           {!isFull && (
             <span className="text-[10px] font-medium text-vytal-muted">
@@ -162,7 +162,7 @@ function ClassCard({ cls }: { cls: Class }) {
           ) : (
             <>
               <User className="h-3.5 w-3.5" />
-              <span>Open Box (no coach)</span>
+              <span>{t("classes.openBoxNoCoach")}</span>
             </>
           )}
         </div>
@@ -211,8 +211,9 @@ function ClassCard({ cls }: { cls: Class }) {
 
 export default function ClassesPage() {
   const { t } = useI18n();
+  const allClasses = useDataStore((s) => s.classes);
   const today = new Date().toISOString().split("T")[0];
-  const todayClasses = mockClasses
+  const todayClasses = allClasses
     .filter((c) => c.date === today)
     .sort((a, b) => a.startTime.localeCompare(b.startTime));
 
@@ -228,7 +229,7 @@ export default function ClassesPage() {
         <div>
           <h1 className="text-2xl font-bold text-vytal-text">{t("classes.title")}</h1>
           <p className="mt-1 text-sm text-vytal-muted">
-            Today&apos;s schedule &mdash;{" "}
+            {t("classes.todaysSchedule")} &mdash;{" "}
             {new Date().toLocaleDateString("pt-PT", {
               weekday: "long",
               day: "numeric",
@@ -242,7 +243,7 @@ export default function ClassesPage() {
             className="flex items-center gap-2 rounded-lg border border-vytal-border px-4 py-2 text-sm font-medium text-vytal-text transition-colors hover:bg-vytal-bg3"
           >
             <CalendarDays className="h-4 w-4" />
-            Calendar View
+            {t("classes.calendarViewBtn")}
           </Link>
           <div className="text-right">
             <p className="text-xs text-vytal-muted">{t("classes.totalEnrolled")}</p>
@@ -286,7 +287,7 @@ export default function ClassesPage() {
         <div className="rounded-xl border border-vytal-border bg-vytal-card p-12 text-center">
           <CalendarOff className="mx-auto h-8 w-8 text-vytal-muted" />
           <p className="mt-3 text-sm text-vytal-muted">
-            No classes scheduled for today
+            {t("classes.noClassesToday")}
           </p>
         </div>
       )}

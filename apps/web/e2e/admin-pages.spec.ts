@@ -44,9 +44,8 @@ test.describe("Admin - CRM Pipeline", () => {
   test("shows pipeline columns", async ({ page }) => {
     await page.goto("/crm");
     await expect(page.getByText(/lead/i).first()).toBeVisible();
-    // CRM page uses hardcoded English labels
-    await expect(page.getByText(/contacted/i).first()).toBeVisible();
-    await expect(page.getByText(/prospect/i).first()).toBeVisible();
+    await expect(page.getByText(/contact|contactado/i).first()).toBeVisible();
+    await expect(page.getByText(/prospect|prospeto/i).first()).toBeVisible();
   });
 
   test("shows lead cards", async ({ page }) => {

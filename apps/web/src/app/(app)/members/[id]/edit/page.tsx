@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { mockMembers, mockPlans } from "@vytal-fit/shared";
+import { useDataStore } from "@/stores/data-store";
 import type { MemberStatus } from "@vytal-fit/shared";
 import { ArrowLeft, Save, X } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -49,11 +49,14 @@ function Field({
 
 export default function MemberEditPage() {
   const { t } = useI18n();
+  const storeMembers = useDataStore((s) => s.members);
+  const storePlans = useDataStore((s) => s.plans);
+  const updateMember = useDataStore((s) => s.updateMember);
   const params = useParams();
   const router = useRouter();
   const { toast } = useToast();
   const id = params.id as string;
-  const member = mockMembers.find((m) => m.id === id);
+  const member = storeMembers.find((m) => m.id === id);
 
   const [name, setName] = useState(member?.name ?? "");
   const [email, setEmail] = useState(member?.email ?? "");
@@ -116,11 +119,23 @@ export default function MemberEditPage() {
   }, [isDirty]);
 
   function handleSave() {
-    const plan = mockPlans.find((p) => p.id === planId);
+    updateMember(id, {
+      name,
+      email,
+      phone: phone || undefined,
+      nif: nif || undefined,
+      dateOfBirth: dob || undefined,
+      gender,
+      emergencyContact: emergencyContact || undefined,
+      status,
+      planId: planId || undefined,
+    });
+    const plan = storePlans.find((p) => p.id === planId);
     toast(
       `Saved ${name} - Status: ${status}, Plan: ${plan?.name ?? "N/A"}`,
       "success"
     );
+    router.push(`/members/${id}`);
   }
 
   function handleCancel() {
@@ -234,7 +249,7 @@ export default function MemberEditPage() {
                   onChange={(e) => setPlanId(e.target.value)}
                   className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-2.5 text-sm text-vytal-text focus:border-vytal-green/30 focus:outline-none focus:ring-1 focus:ring-vytal-green/20"
                 >
-                  {mockPlans.map((plan) => (
+                  {storePlans.map((plan) => (
                     <option key={plan.id} value={plan.id}>
                       {plan.name} - {plan.price} {plan.currency}
                     </option>

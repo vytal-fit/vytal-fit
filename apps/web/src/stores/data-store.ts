@@ -1,7 +1,36 @@
 import { create } from "zustand";
+import {
+  mockMembers,
+  mockClasses,
+  mockLeads,
+  mockCoaches,
+  mockLocations,
+  mockClassTypes,
+  mockPlans,
+  mockNotifications,
+  mockExercises,
+  mockPersonalRecords,
+  mockSubscriptions,
+  mockWODs,
+} from "@vytal-fit/shared";
+import type {
+  Member,
+  Class,
+  Lead,
+  LeadStage,
+  Coach,
+  Location,
+  ClassType,
+  SubscriptionPlan,
+  Notification,
+  Exercise,
+  PersonalRecord,
+  Subscription,
+  WOD,
+} from "@vytal-fit/shared";
 
 // ---------------------------------------------------------------------------
-// Types
+// Chat types (kept from original)
 // ---------------------------------------------------------------------------
 
 export interface ChatMessage {
@@ -39,6 +68,10 @@ export interface OrgSettings {
   slogan: string;
   businessType: string;
 }
+
+// ---------------------------------------------------------------------------
+// Org Settings persistence (separate key, kept as-is)
+// ---------------------------------------------------------------------------
 
 const ORG_SETTINGS_KEY = "vytal-org-settings";
 
@@ -92,41 +125,82 @@ export function formatCurrency(amount: number, currency?: string): string {
   }).format(amount);
 }
 
-interface DataStore {
-  // Messages
-  conversations: Conversation[];
-  sendMessage: (conversationId: string, text: string) => void;
-  markAsRead: (conversationId: string) => void;
-  totalUnread: () => number;
-  // Org settings
-  orgSettings: OrgSettings;
-  updateOrgSettings: (partial: Partial<OrgSettings>) => void;
+// ---------------------------------------------------------------------------
+// Unified data persistence
+// ---------------------------------------------------------------------------
+
+const DATA_KEY = "vytal-data";
+const MESSAGES_KEY = "vytal-messages";
+
+interface PersistedData {
+  members: Member[];
+  classes: Class[];
+  leads: Lead[];
+  coaches: Coach[];
+  locations: Location[];
+  classTypes: ClassType[];
+  plans: SubscriptionPlan[];
+  subscriptions: Subscription[];
+  notifications: Notification[];
+  exercises: Exercise[];
+  personalRecords: PersonalRecord[];
+  wods: WOD[];
 }
 
-// ---------------------------------------------------------------------------
-// Persistence helpers
-// ---------------------------------------------------------------------------
+function defaultData(): PersistedData {
+  return {
+    members: [...mockMembers],
+    classes: [...mockClasses],
+    leads: [...mockLeads],
+    coaches: [...mockCoaches],
+    locations: [...mockLocations],
+    classTypes: [...mockClassTypes],
+    plans: [...mockPlans],
+    subscriptions: [...mockSubscriptions],
+    notifications: [...mockNotifications],
+    exercises: [...mockExercises],
+    personalRecords: [...mockPersonalRecords],
+    wods: [...mockWODs],
+  };
+}
 
-const STORAGE_KEY = "vytal-messages";
-
-function loadConversations(): Conversation[] | null {
-  if (typeof window === "undefined") return null;
+function loadData(): PersistedData {
+  if (typeof window === "undefined") return defaultData();
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return null;
-    return JSON.parse(raw) as Conversation[];
+    const raw = localStorage.getItem(DATA_KEY);
+    if (!raw) return defaultData();
+    const parsed = JSON.parse(raw) as Partial<PersistedData>;
+    const defaults = defaultData();
+    return {
+      members: parsed.members ?? defaults.members,
+      classes: parsed.classes ?? defaults.classes,
+      leads: parsed.leads ?? defaults.leads,
+      coaches: parsed.coaches ?? defaults.coaches,
+      locations: parsed.locations ?? defaults.locations,
+      classTypes: parsed.classTypes ?? defaults.classTypes,
+      plans: parsed.plans ?? defaults.plans,
+      subscriptions: parsed.subscriptions ?? defaults.subscriptions,
+      notifications: parsed.notifications ?? defaults.notifications,
+      exercises: parsed.exercises ?? defaults.exercises,
+      personalRecords: parsed.personalRecords ?? defaults.personalRecords,
+      wods: parsed.wods ?? defaults.wods,
+    };
   } catch {
-    return null;
+    return defaultData();
   }
 }
 
-function persistConversations(conversations: Conversation[]) {
+function persistData(data: PersistedData) {
   if (typeof window === "undefined") return;
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(conversations));
+  localStorage.setItem(DATA_KEY, JSON.stringify(data));
+}
+
+function generateId(): string {
+  return Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 8);
 }
 
 // ---------------------------------------------------------------------------
-// Default seed data (union of layout.tsx FloatingChat + messages/page.tsx)
+// Conversation seed data
 // ---------------------------------------------------------------------------
 
 const defaultConversations: Conversation[] = [
@@ -254,11 +328,130 @@ const defaultConversations: Conversation[] = [
   },
 ];
 
+function loadConversations(): Conversation[] | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = localStorage.getItem(MESSAGES_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw) as Conversation[];
+  } catch {
+    return null;
+  }
+}
+
+function persistConversations(conversations: Conversation[]) {
+  if (typeof window === "undefined") return;
+  localStorage.setItem(MESSAGES_KEY, JSON.stringify(conversations));
+}
+
+// ---------------------------------------------------------------------------
+// Store interface
+// ---------------------------------------------------------------------------
+
+interface DataStore {
+  // Messages
+  conversations: Conversation[];
+  sendMessage: (conversationId: string, text: string) => void;
+  markAsRead: (conversationId: string) => void;
+  totalUnread: () => number;
+
+  // Org settings
+  orgSettings: OrgSettings;
+  updateOrgSettings: (partial: Partial<OrgSettings>) => void;
+
+  // Members
+  members: Member[];
+  addMember: (member: Omit<Member, "id">) => string;
+  updateMember: (id: string, partial: Partial<Member>) => void;
+  deleteMember: (id: string) => void;
+
+  // Classes
+  classes: Class[];
+  addClass: (cls: Omit<Class, "id">) => string;
+  updateClass: (id: string, partial: Partial<Class>) => void;
+  deleteClass: (id: string) => void;
+
+  // Leads
+  leads: Lead[];
+  addLead: (lead: Omit<Lead, "id" | "createdAt">) => string;
+  updateLead: (id: string, partial: Partial<Lead>) => void;
+  deleteLead: (id: string) => void;
+  moveLead: (id: string, stage: LeadStage) => void;
+
+  // Coaches
+  coaches: Coach[];
+  addCoach: (coach: Omit<Coach, "id">) => string;
+  updateCoach: (id: string, partial: Partial<Coach>) => void;
+  deleteCoach: (id: string) => void;
+
+  // Locations
+  locations: Location[];
+  addLocation: (loc: Omit<Location, "id">) => string;
+  updateLocation: (id: string, partial: Partial<Location>) => void;
+  deleteLocation: (id: string) => void;
+
+  // ClassTypes
+  classTypes: ClassType[];
+  addClassType: (ct: Omit<ClassType, "id">) => string;
+  updateClassType: (id: string, partial: Partial<ClassType>) => void;
+  deleteClassType: (id: string) => void;
+
+  // Plans
+  plans: SubscriptionPlan[];
+  addPlan: (plan: Omit<SubscriptionPlan, "id">) => string;
+  updatePlan: (id: string, partial: Partial<SubscriptionPlan>) => void;
+  deletePlan: (id: string) => void;
+
+  // Subscriptions
+  subscriptions: Subscription[];
+
+  // Notifications
+  notifications: Notification[];
+  markNotificationRead: (id: string) => void;
+  markAllNotificationsRead: () => void;
+
+  // Exercises
+  exercises: Exercise[];
+
+  // Personal Records
+  personalRecords: PersonalRecord[];
+
+  // WODs
+  wods: WOD[];
+
+  // Reset all data
+  resetAllData: () => void;
+}
+
+// ---------------------------------------------------------------------------
+// Helper: snapshot persisted data from state
+// ---------------------------------------------------------------------------
+
+function snapshotData(state: DataStore): PersistedData {
+  return {
+    members: state.members,
+    classes: state.classes,
+    leads: state.leads,
+    coaches: state.coaches,
+    locations: state.locations,
+    classTypes: state.classTypes,
+    plans: state.plans,
+    subscriptions: state.subscriptions,
+    notifications: state.notifications,
+    exercises: state.exercises,
+    personalRecords: state.personalRecords,
+    wods: state.wods,
+  };
+}
+
 // ---------------------------------------------------------------------------
 // Store
 // ---------------------------------------------------------------------------
 
+const initialData = loadData();
+
 export const useDataStore = create<DataStore>((set, get) => ({
+  // ---- Conversations ----
   conversations: loadConversations() ?? defaultConversations,
 
   sendMessage: (conversationId: string, text: string) => {
@@ -293,7 +486,7 @@ export const useDataStore = create<DataStore>((set, get) => ({
     return get().conversations.reduce((sum, c) => sum + c.unreadCount, 0);
   },
 
-  // Org settings
+  // ---- Org Settings ----
   orgSettings: loadOrgSettings(),
 
   updateOrgSettings: (partial: Partial<OrgSettings>) => {
@@ -301,6 +494,305 @@ export const useDataStore = create<DataStore>((set, get) => ({
       const updated = { ...state.orgSettings, ...partial };
       persistOrgSettings(updated);
       return { orgSettings: updated };
+    });
+  },
+
+  // ---- Members ----
+  members: initialData.members,
+
+  addMember: (member) => {
+    const id = `m-${generateId()}`;
+    set((state) => {
+      const updated = [...state.members, { ...member, id }];
+      const newState = { ...state, members: updated };
+      persistData(snapshotData(newState as unknown as DataStore));
+      return { members: updated };
+    });
+    return id;
+  },
+
+  updateMember: (id, partial) => {
+    set((state) => {
+      const updated = state.members.map((m) =>
+        m.id === id ? { ...m, ...partial } : m
+      );
+      const newState = { ...state, members: updated };
+      persistData(snapshotData(newState as unknown as DataStore));
+      return { members: updated };
+    });
+  },
+
+  deleteMember: (id) => {
+    set((state) => {
+      const updated = state.members.filter((m) => m.id !== id);
+      const newState = { ...state, members: updated };
+      persistData(snapshotData(newState as unknown as DataStore));
+      return { members: updated };
+    });
+  },
+
+  // ---- Classes ----
+  classes: initialData.classes,
+
+  addClass: (cls) => {
+    const id = `cl-${generateId()}`;
+    set((state) => {
+      const updated = [...state.classes, { ...cls, id }];
+      const newState = { ...state, classes: updated };
+      persistData(snapshotData(newState as unknown as DataStore));
+      return { classes: updated };
+    });
+    return id;
+  },
+
+  updateClass: (id, partial) => {
+    set((state) => {
+      const updated = state.classes.map((c) =>
+        c.id === id ? { ...c, ...partial } : c
+      );
+      const newState = { ...state, classes: updated };
+      persistData(snapshotData(newState as unknown as DataStore));
+      return { classes: updated };
+    });
+  },
+
+  deleteClass: (id) => {
+    set((state) => {
+      const updated = state.classes.filter((c) => c.id !== id);
+      const newState = { ...state, classes: updated };
+      persistData(snapshotData(newState as unknown as DataStore));
+      return { classes: updated };
+    });
+  },
+
+  // ---- Leads ----
+  leads: initialData.leads,
+
+  addLead: (lead) => {
+    const id = `lead-${generateId()}`;
+    set((state) => {
+      const updated = [...state.leads, { ...lead, id, createdAt: new Date().toISOString() }];
+      const newState = { ...state, leads: updated };
+      persistData(snapshotData(newState as unknown as DataStore));
+      return { leads: updated };
+    });
+    return id;
+  },
+
+  updateLead: (id, partial) => {
+    set((state) => {
+      const updated = state.leads.map((l) =>
+        l.id === id ? { ...l, ...partial } : l
+      );
+      const newState = { ...state, leads: updated };
+      persistData(snapshotData(newState as unknown as DataStore));
+      return { leads: updated };
+    });
+  },
+
+  deleteLead: (id) => {
+    set((state) => {
+      const updated = state.leads.filter((l) => l.id !== id);
+      const newState = { ...state, leads: updated };
+      persistData(snapshotData(newState as unknown as DataStore));
+      return { leads: updated };
+    });
+  },
+
+  moveLead: (id, stage) => {
+    set((state) => {
+      const updated = state.leads.map((l) =>
+        l.id === id ? { ...l, stage, lastContactAt: new Date().toISOString() } : l
+      );
+      const newState = { ...state, leads: updated };
+      persistData(snapshotData(newState as unknown as DataStore));
+      return { leads: updated };
+    });
+  },
+
+  // ---- Coaches ----
+  coaches: initialData.coaches,
+
+  addCoach: (coach) => {
+    const id = `coach-${generateId()}`;
+    set((state) => {
+      const updated = [...state.coaches, { ...coach, id }];
+      const newState = { ...state, coaches: updated };
+      persistData(snapshotData(newState as unknown as DataStore));
+      return { coaches: updated };
+    });
+    return id;
+  },
+
+  updateCoach: (id, partial) => {
+    set((state) => {
+      const updated = state.coaches.map((c) =>
+        c.id === id ? { ...c, ...partial } : c
+      );
+      const newState = { ...state, coaches: updated };
+      persistData(snapshotData(newState as unknown as DataStore));
+      return { coaches: updated };
+    });
+  },
+
+  deleteCoach: (id) => {
+    set((state) => {
+      const updated = state.coaches.filter((c) => c.id !== id);
+      const newState = { ...state, coaches: updated };
+      persistData(snapshotData(newState as unknown as DataStore));
+      return { coaches: updated };
+    });
+  },
+
+  // ---- Locations ----
+  locations: initialData.locations,
+
+  addLocation: (loc) => {
+    const id = `loc-${generateId()}`;
+    set((state) => {
+      const updated = [...state.locations, { ...loc, id }];
+      const newState = { ...state, locations: updated };
+      persistData(snapshotData(newState as unknown as DataStore));
+      return { locations: updated };
+    });
+    return id;
+  },
+
+  updateLocation: (id, partial) => {
+    set((state) => {
+      const updated = state.locations.map((l) =>
+        l.id === id ? { ...l, ...partial } : l
+      );
+      const newState = { ...state, locations: updated };
+      persistData(snapshotData(newState as unknown as DataStore));
+      return { locations: updated };
+    });
+  },
+
+  deleteLocation: (id) => {
+    set((state) => {
+      const updated = state.locations.filter((l) => l.id !== id);
+      const newState = { ...state, locations: updated };
+      persistData(snapshotData(newState as unknown as DataStore));
+      return { locations: updated };
+    });
+  },
+
+  // ---- ClassTypes ----
+  classTypes: initialData.classTypes,
+
+  addClassType: (ct) => {
+    const id = `ct-${generateId()}`;
+    set((state) => {
+      const updated = [...state.classTypes, { ...ct, id }];
+      const newState = { ...state, classTypes: updated };
+      persistData(snapshotData(newState as unknown as DataStore));
+      return { classTypes: updated };
+    });
+    return id;
+  },
+
+  updateClassType: (id, partial) => {
+    set((state) => {
+      const updated = state.classTypes.map((ct) =>
+        ct.id === id ? { ...ct, ...partial } : ct
+      );
+      const newState = { ...state, classTypes: updated };
+      persistData(snapshotData(newState as unknown as DataStore));
+      return { classTypes: updated };
+    });
+  },
+
+  deleteClassType: (id) => {
+    set((state) => {
+      const updated = state.classTypes.filter((ct) => ct.id !== id);
+      const newState = { ...state, classTypes: updated };
+      persistData(snapshotData(newState as unknown as DataStore));
+      return { classTypes: updated };
+    });
+  },
+
+  // ---- Plans ----
+  plans: initialData.plans,
+
+  addPlan: (plan) => {
+    const id = `plan-${generateId()}`;
+    set((state) => {
+      const updated = [...state.plans, { ...plan, id }];
+      const newState = { ...state, plans: updated };
+      persistData(snapshotData(newState as unknown as DataStore));
+      return { plans: updated };
+    });
+    return id;
+  },
+
+  updatePlan: (id, partial) => {
+    set((state) => {
+      const updated = state.plans.map((p) =>
+        p.id === id ? { ...p, ...partial } : p
+      );
+      const newState = { ...state, plans: updated };
+      persistData(snapshotData(newState as unknown as DataStore));
+      return { plans: updated };
+    });
+  },
+
+  deletePlan: (id) => {
+    set((state) => {
+      const updated = state.plans.filter((p) => p.id !== id);
+      const newState = { ...state, plans: updated };
+      persistData(snapshotData(newState as unknown as DataStore));
+      return { plans: updated };
+    });
+  },
+
+  // ---- Subscriptions ----
+  subscriptions: initialData.subscriptions,
+
+  // ---- Notifications ----
+  notifications: initialData.notifications,
+
+  markNotificationRead: (id) => {
+    set((state) => {
+      const updated = state.notifications.map((n) =>
+        n.id === id ? { ...n, read: true } : n
+      );
+      const newState = { ...state, notifications: updated };
+      persistData(snapshotData(newState as unknown as DataStore));
+      return { notifications: updated };
+    });
+  },
+
+  markAllNotificationsRead: () => {
+    set((state) => {
+      const updated = state.notifications.map((n) => ({ ...n, read: true }));
+      const newState = { ...state, notifications: updated };
+      persistData(snapshotData(newState as unknown as DataStore));
+      return { notifications: updated };
+    });
+  },
+
+  // ---- Exercises ----
+  exercises: initialData.exercises,
+
+  // ---- Personal Records ----
+  personalRecords: initialData.personalRecords,
+
+  // ---- WODs ----
+  wods: initialData.wods,
+
+  // ---- Reset ----
+  resetAllData: () => {
+    if (typeof window !== "undefined") {
+      localStorage.removeItem(DATA_KEY);
+      localStorage.removeItem(MESSAGES_KEY);
+      localStorage.removeItem(ORG_SETTINGS_KEY);
+    }
+    const fresh = defaultData();
+    set({
+      ...fresh,
+      conversations: defaultConversations,
+      orgSettings: defaultOrgSettings,
     });
   },
 }));

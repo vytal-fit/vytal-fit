@@ -1,6 +1,6 @@
 "use client";
 
-import { mockCoaches, mockClasses } from "@vytal-fit/shared";
+import { useDataStore } from "@/stores/data-store";
 import {
   ArrowLeft,
   Mail,
@@ -50,7 +50,9 @@ export default function StaffDetailPage() {
   const { t } = useI18n();
   const params = useParams();
   const id = params.id as string;
-  const coach = mockCoaches.find((c) => c.id === id);
+  const storeCoaches = useDataStore((s) => s.coaches);
+  const storeClasses = useDataStore((s) => s.classes);
+  const coach = storeCoaches.find((c) => c.id === id);
 
   if (!coach) {
     notFound();
@@ -62,7 +64,7 @@ export default function StaffDetailPage() {
   const bio = coachBios[coach.id] ?? "";
   const initials = coach.name.split(" ").map((n) => n[0]).join("").slice(0, 2);
 
-  const assignedClasses = mockClasses.filter((cls) =>
+  const assignedClasses = storeClasses.filter((cls) =>
     cls.coachIds.includes(coach.id)
   );
 

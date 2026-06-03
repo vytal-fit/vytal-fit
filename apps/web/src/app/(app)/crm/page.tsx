@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState, useCallback } from "react";
-import { mockLeads, mockCoaches } from "@vytal-fit/shared";
+import { useDataStore } from "@/stores/data-store";
 import type { Lead, LeadStage } from "@vytal-fit/shared";
 import {
   Phone,
@@ -29,40 +29,40 @@ import { useI18n } from "@/lib/i18n";
 
 const stageConfig: Record<
   LeadStage,
-  { label: string; color: string; bgColor: string; borderColor: string }
+  { labelKey: string; color: string; bgColor: string; borderColor: string }
 > = {
   lead: {
-    label: "Lead",
+    labelKey: "crm.stage.lead",
     color: "text-vytal-muted",
     bgColor: "bg-vytal-muted/10",
     borderColor: "border-vytal-muted/20",
   },
   contacted: {
-    label: "Contacted",
+    labelKey: "crm.stage.contacted",
     color: "text-vytal-amber",
     bgColor: "bg-vytal-amber/10",
     borderColor: "border-vytal-amber/20",
   },
   prospect: {
-    label: "Prospect",
+    labelKey: "crm.stage.prospect",
     color: "text-vytal-blue",
     bgColor: "bg-vytal-blue/10",
     borderColor: "border-vytal-blue/20",
   },
   trial_booked: {
-    label: "Trial Booked",
+    labelKey: "crm.stage.trial_booked",
     color: "text-vytal-blue",
     bgColor: "bg-vytal-blue/10",
     borderColor: "border-vytal-blue/20",
   },
   subscribed: {
-    label: "Subscribed",
+    labelKey: "crm.stage.subscribed",
     color: "text-vytal-green",
     bgColor: "bg-vytal-green/10",
     borderColor: "border-vytal-green/20",
   },
   lost: {
-    label: "Lost",
+    labelKey: "crm.stage.lost",
     color: "text-vytal-red",
     bgColor: "bg-vytal-red/10",
     borderColor: "border-vytal-red/20",
@@ -114,8 +114,9 @@ function LeadCard({
   onDragStart: (e: React.DragEvent, id: string) => void;
   draggingId: string | null;
 }) {
+  const coaches = useDataStore((s) => s.coaches);
   const coach = lead.assignedCoachId
-    ? mockCoaches.find((c) => c.id === lead.assignedCoachId)
+    ? coaches.find((c) => c.id === lead.assignedCoachId)
     : null;
 
   const isDragging = draggingId === lead.id;
@@ -316,6 +317,7 @@ function PipelineColumn({
   onEmail: (lead: Lead) => void;
   onBookTrial: (lead: Lead) => void;
 }) {
+  const { t } = useI18n();
   const config = stageConfig[stage];
   const isDropTarget = dropTarget === stage;
 
@@ -343,7 +345,7 @@ function PipelineColumn({
         )}
       >
         <span className={cn("text-sm font-semibold", config.color)}>
-          {config.label}
+          {t(config.labelKey)}
         </span>
         <div className="flex items-center gap-2">
           <span
@@ -400,7 +402,9 @@ function PipelineColumn({
 export default function CRMPage() {
   const { t } = useI18n();
   const [showAddForm, setShowAddForm] = useState(false);
-  const [leads, setLeads] = useState<Lead[]>(() => [...mockLeads]);
+  const leads = useDataStore((s) => s.leads);
+  const storeAddLead = useDataStore((s) => s.addLead);
+  const storeMoveLead = useDataStore((s) => s.moveLead);
   const [draggingId, setDraggingId] = useState<string | null>(null);
   const [dropTarget, setDropTarget] = useState<LeadStage | null>(null);
   const { toast } = useToast();
@@ -450,15 +454,11 @@ export default function CRMPage() {
       e.preventDefault();
       const leadId = e.dataTransfer.getData("text/plain");
       if (leadId) {
-        setLeads((prev) =>
-          prev.map((l) =>
-            l.id === leadId ? { ...l, stage: targetStage } : l
-          )
-        );
+        storeMoveLead(leadId, targetStage);
         const lead = leads.find((l) => l.id === leadId);
         if (lead) {
           toast(
-            `Moved ${lead.name} to ${stageConfig[targetStage].label}`,
+            t("crm.movedTo").replace("{name}", lead.name).replace("{stage}", t(stageConfig[targetStage].labelKey)),
             "success"
           );
         }
@@ -466,24 +466,21 @@ export default function CRMPage() {
       setDraggingId(null);
       setDropTarget(null);
     },
-    [leads, toast]
+    [leads, toast, storeMoveLead]
   );
 
   const handleAddLead = useCallback(
     (name: string, phone: string, source: string) => {
-      const newLead: Lead = {
-        id: `lead-${Date.now()}`,
+      storeAddLead({
         organizationId: "org-1",
         name,
         phone: phone || undefined,
         stage: "lead",
         source: source || undefined,
-        createdAt: new Date().toISOString(),
-      };
-      setLeads((prev) => [...prev, newLead]);
+      });
       toast(`Added lead: ${name}`, "success");
     },
-    [toast]
+    [toast, storeAddLead]
   );
 
   const handleCall = useCallback(
@@ -502,14 +499,10 @@ export default function CRMPage() {
 
   const handleBookTrial = useCallback(
     (lead: Lead) => {
-      setLeads((prev) =>
-        prev.map((l) =>
-          l.id === lead.id ? { ...l, stage: "trial_booked" as LeadStage } : l
-        )
-      );
+      storeMoveLead(lead.id, "trial_booked");
       toast(`${lead.name} moved to Trial Booked`, "success");
     },
-    [toast]
+    [toast, storeMoveLead]
   );
 
   return (
@@ -545,7 +538,7 @@ export default function CRMPage() {
           </div>
           <div>
             <p className="text-lg font-bold text-vytal-text">{totalLeads}</p>
-            <p className="text-xs text-vytal-muted">Total Leads</p>
+            <p className="text-xs text-vytal-muted">{t("crm.totalLeads")}</p>
           </div>
         </div>
         <div className="flex items-center gap-3 rounded-lg border border-vytal-border bg-vytal-card px-4 py-3">
@@ -554,7 +547,7 @@ export default function CRMPage() {
           </div>
           <div>
             <p className="text-lg font-bold text-vytal-text">{activeLeads}</p>
-            <p className="text-xs text-vytal-muted">Active Pipeline</p>
+            <p className="text-xs text-vytal-muted">{t("crm.activePipeline")}</p>
           </div>
         </div>
         <div className="flex items-center gap-3 rounded-lg border border-vytal-border bg-vytal-card px-4 py-3">
@@ -565,7 +558,7 @@ export default function CRMPage() {
             <p className="text-lg font-bold text-vytal-green">
               {conversionRate}%
             </p>
-            <p className="text-xs text-vytal-muted">Conversion Rate</p>
+            <p className="text-xs text-vytal-muted">{t("crm.conversionRate")}</p>
           </div>
         </div>
         <div className="flex items-center gap-3 rounded-lg border border-vytal-border bg-vytal-card px-4 py-3">
@@ -576,7 +569,7 @@ export default function CRMPage() {
             <p className="text-lg font-bold text-vytal-text">
               {avgTimeInStage}d
             </p>
-            <p className="text-xs text-vytal-muted">Avg Time in Stage</p>
+            <p className="text-xs text-vytal-muted">{t("crm.avgTimeInStage")}</p>
           </div>
         </div>
         <div className="flex items-center gap-3 rounded-lg border border-vytal-border bg-vytal-card px-4 py-3">
@@ -587,7 +580,7 @@ export default function CRMPage() {
             <p className="text-lg font-bold text-vytal-text">
               {totalPipelineValue} EUR
             </p>
-            <p className="text-xs text-vytal-muted">Pipeline Value</p>
+            <p className="text-xs text-vytal-muted">{t("crm.pipelineValue")}</p>
           </div>
         </div>
       </div>

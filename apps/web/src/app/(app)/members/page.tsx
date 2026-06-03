@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo, useCallback, useEffect } from "react";
-import { mockMembers } from "@vytal-fit/shared";
+import { useDataStore } from "@/stores/data-store";
 import type { MemberStatus } from "@vytal-fit/shared";
 import {
   Search,
@@ -92,20 +92,23 @@ function StatusBadge({
   );
 }
 
-function formatDate(dateStr?: string): string {
-  if (!dateStr) return "Never";
-  const date = new Date(dateStr);
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+function useFormatDate() {
+  const { t } = useI18n();
+  return (dateStr?: string): string => {
+    if (!dateStr) return t("ui.never");
+    const date = new Date(dateStr);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
 
-  if (diffDays === 0) return "Today";
-  if (diffDays === 1) return "Yesterday";
-  if (diffDays < 7) return `${diffDays}d ago`;
-  return date.toLocaleDateString("pt-PT", {
-    day: "2-digit",
-    month: "short",
-  });
+    if (diffDays === 0) return t("ui.today");
+    if (diffDays === 1) return t("ui.yesterday");
+    if (diffDays < 7) return `${diffDays}${t("time.dAgo")}`;
+    return date.toLocaleDateString("pt-PT", {
+      day: "2-digit",
+      month: "short",
+    });
+  };
 }
 
 interface StatProps {
@@ -149,7 +152,10 @@ export default function MembersPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const PAGE_SIZE = 10;
   const { t } = useI18n();
+  const storeMembers = useDataStore((s) => s.members);
+  const deleteMember = useDataStore((s) => s.deleteMember);
   const { toast } = useToast();
+  const formatDate = useFormatDate();
 
   const handleSort = useCallback(
     (key: SortKey) => {
@@ -164,7 +170,7 @@ export default function MembersPage() {
   );
 
   const members = useMemo(() => {
-    let list = [...mockMembers];
+    let list = [...storeMembers];
 
     // Apply status filter
     if (filter === "active") list = list.filter((m) => m.status === "active");
@@ -234,7 +240,7 @@ export default function MembersPage() {
   }, [members, currentPage]);
 
   const counts = useMemo(() => {
-    const all = mockMembers;
+    const all = storeMembers;
     return {
       total: all.length,
       active: all.filter((m) => m.status === "active").length,
@@ -262,7 +268,7 @@ export default function MembersPage() {
 
   const handleExportCSV = useCallback(() => {
     const headers = ["#", "Name", "Email", "Phone", "Status", "Plan", "Last Check-in", "Streak", "Check-ins"];
-    const rows = mockMembers.map((m) => [
+    const rows = storeMembers.map((m) => [
       m.memberNumber,
       m.name,
       m.email,
@@ -281,19 +287,19 @@ export default function MembersPage() {
     a.download = "members.csv";
     a.click();
     URL.revokeObjectURL(url);
-    toast("CSV exported successfully", "success");
+    toast(t("members.csvExported"), "success");
   }, [toast]);
 
   const handleExportPDF = useCallback(() => {
-    toast("PDF generated", "success");
+    toast(t("members.pdfGenerated"), "success");
   }, [toast]);
 
   const filters: { key: FilterKey; label: string; count?: number }[] = [
-    { key: "all", label: "All", count: counts.total },
+    { key: "all", label: t("members.all"), count: counts.total },
     { key: "active", label: t("members.active"), count: counts.active },
     { key: "inactive", label: t("members.inactive"), count: counts.inactive },
     { key: "trial", label: t("members.trial"), count: counts.trial },
-    { key: "at_risk", label: "At Risk" },
+    { key: "at_risk", label: t("members.atRisk") },
   ];
 
   const thClass =
@@ -414,33 +420,33 @@ export default function MembersPage() {
       {selectedIds.size > 0 && (
         <div className="flex items-center gap-3 rounded-lg border border-vytal-green/20 bg-vytal-green/5 px-4 py-3">
           <span className="text-sm font-medium text-vytal-green">
-            {selectedIds.size} member{selectedIds.size !== 1 ? "s" : ""} selected
+            {t("members.selected").replace("{count}", String(selectedIds.size))}
           </span>
           <div className="flex gap-2">
             <button
-              onClick={() => toast(`Email sent to ${selectedIds.size} member(s)`, "success")}
+              onClick={() => toast(t("members.emailSent").replace("{count}", String(selectedIds.size)), "success")}
               className="flex items-center gap-1.5 rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-1.5 text-xs font-medium text-vytal-text transition-colors hover:bg-vytal-bg3"
             >
-              <Mail className="h-3 w-3" /> Send Email
+              <Mail className="h-3 w-3" /> {t("members.sendEmail")}
             </button>
             <button
-              onClick={() => toast(`SMS sent to ${selectedIds.size} member(s)`, "success")}
+              onClick={() => toast(t("members.smsSent").replace("{count}", String(selectedIds.size)), "success")}
               className="flex items-center gap-1.5 rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-1.5 text-xs font-medium text-vytal-text transition-colors hover:bg-vytal-bg3"
             >
-              <Smartphone className="h-3 w-3" /> Send SMS
+              <Smartphone className="h-3 w-3" /> {t("members.sendSms")}
             </button>
             <button
-              onClick={() => toast(`Plan changed for ${selectedIds.size} member(s)`, "success")}
+              onClick={() => toast(t("members.planChanged").replace("{count}", String(selectedIds.size)), "success")}
               className="flex items-center gap-1.5 rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-1.5 text-xs font-medium text-vytal-text transition-colors hover:bg-vytal-bg3"
             >
-              <CreditCard className="h-3 w-3" /> Change Plan
+              <CreditCard className="h-3 w-3" /> {t("members.changePlan")}
             </button>
           </div>
           <button
             onClick={() => setSelectedIds(new Set())}
             className="ml-auto text-xs text-vytal-muted transition-colors hover:text-vytal-text"
           >
-            Clear
+            {t("members.clearSelection")}
           </button>
         </div>
       )}
@@ -575,12 +581,12 @@ export default function MembersPage() {
           <div className="bg-vytal-card p-12 text-center">
             <SearchX className="mx-auto h-8 w-8 text-vytal-muted" />
             <p className="mt-3 text-sm font-medium text-vytal-text">
-              No members found
+              {t("members.noMembersFound")}
             </p>
             <p className="mt-1 text-xs text-vytal-muted">
               {search
-                ? `No results matching "${search}"${filter !== "all" ? ` in ${filter} filter` : ""}`
-                : `No members in the "${filter}" filter`}
+                ? t("members.noResultsFor").replace("{query}", search)
+                : t("members.noMembersInFilter").replace("{filter}", filter)}
             </p>
             {(search || filter !== "all") && (
               <button
@@ -590,7 +596,7 @@ export default function MembersPage() {
                 }}
                 className="mt-4 rounded-lg border border-vytal-border px-4 py-2 text-xs font-medium text-vytal-text transition-colors hover:bg-vytal-bg3"
               >
-                Clear filters
+                {t("members.clearFilters")}
               </button>
             )}
           </div>

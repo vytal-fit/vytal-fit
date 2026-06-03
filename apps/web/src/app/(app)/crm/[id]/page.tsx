@@ -1,6 +1,6 @@
 "use client";
 
-import { mockLeads, mockCoaches } from "@vytal-fit/shared";
+import { useDataStore } from "@/stores/data-store";
 import type { LeadStage } from "@vytal-fit/shared";
 import {
   ArrowLeft,
@@ -51,14 +51,16 @@ export default function LeadDetailPage() {
   const { t } = useI18n();
   const params = useParams();
   const id = params.id as string;
-  const lead = mockLeads.find((l) => l.id === id);
+  const leads = useDataStore((s) => s.leads);
+  const coaches = useDataStore((s) => s.coaches);
+  const lead = leads.find((l) => l.id === id);
 
   if (!lead) {
     notFound();
   }
 
   const coach = lead.assignedCoachId
-    ? mockCoaches.find((c) => c.id === lead.assignedCoachId)
+    ? coaches.find((c) => c.id === lead.assignedCoachId)
     : null;
 
   const stage = stageConfig[lead.stage];

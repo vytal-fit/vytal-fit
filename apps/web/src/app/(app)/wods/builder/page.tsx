@@ -17,7 +17,7 @@ import {
   GripVertical,
   Eye,
 } from "lucide-react";
-import { mockExercises, mockClassTypes } from "@vytal-fit/shared";
+import { useDataStore } from "@/stores/data-store";
 import type { WODType, Exercise } from "@vytal-fit/shared";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/components/toast";
@@ -66,14 +66,15 @@ function ExerciseSearch({
 }: {
   onSelect: (ex: Exercise) => void;
 }) {
+  const storeExercises = useDataStore((s) => s.exercises);
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
 
   const filtered = query.trim()
-    ? mockExercises.filter((e) =>
+    ? storeExercises.filter((e) =>
         e.name.toLowerCase().includes(query.toLowerCase())
       ).slice(0, 8)
-    : mockExercises.slice(0, 8);
+    : storeExercises.slice(0, 8);
 
   return (
     <div className="relative">
@@ -126,9 +127,10 @@ let partIdCounter = 0;
 
 export default function WODBuilderPage() {
   const { t } = useI18n();
+  const storeClassTypes = useDataStore((s) => s.classTypes);
   const [title, setTitle] = useState("");
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
-  const [classTypeId, setClassTypeId] = useState(mockClassTypes[0].id);
+  const [classTypeId, setClassTypeId] = useState(storeClassTypes[0]?.id ?? "ct-1");
   const { toast } = useToast();
   const [parts, setParts] = useState<Part[]>([
     {
@@ -275,7 +277,7 @@ export default function WODBuilderPage() {
     toast("Draft saved", "info");
   }
 
-  const selectedClassType = mockClassTypes.find((ct) => ct.id === classTypeId);
+  const selectedClassType = storeClassTypes.find((ct) => ct.id === classTypeId);
 
   // Determine which fields to show per type
   function showTimeCap(type: WODType) {
@@ -342,7 +344,7 @@ export default function WODBuilderPage() {
                   onChange={(e) => setClassTypeId(e.target.value)}
                   className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 px-4 py-2.5 text-sm text-vytal-text focus:border-vytal-green/30 focus:outline-none focus:ring-1 focus:ring-vytal-green/20"
                 >
-                  {mockClassTypes.map((ct) => (
+                  {storeClassTypes.map((ct) => (
                     <option key={ct.id} value={ct.id}>
                       {ct.name}
                     </option>
