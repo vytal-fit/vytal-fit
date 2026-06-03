@@ -27,6 +27,7 @@ import {
   QrCode,
   History,
   MapPin,
+  Mail,
 } from "lucide-react-native";
 
 // ─── Colors ──────────────────────────────────────────────
@@ -168,6 +169,13 @@ export default function ProfileScreen() {
       sublabel: "Check-in por QR code",
       color: C.green,
       onPress: () => router.push("/checkin"),
+    },
+    {
+      icon: <Mail size={20} color={C.blue} strokeWidth={1.8} />,
+      label: "Mensagens",
+      sublabel: "Conversar com o box",
+      color: C.blue,
+      onPress: () => router.push("/chat"),
     },
     {
       icon: <MessageSquare size={20} color={C.amber} strokeWidth={1.8} />,

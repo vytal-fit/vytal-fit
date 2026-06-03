@@ -25,6 +25,8 @@ import {
   BarChart3,
   TrendingUp,
   MessageSquare,
+  MessageCircle,
+  Heart,
   Settings,
   Zap,
   Globe,
@@ -47,6 +49,8 @@ interface NavItem {
   icon: React.ComponentType<{ className?: string }>;
   /** Feature flag required — item hidden if feature is disabled for this org type */
   requiresFeature?: keyof import("@vytal-fit/shared").OrganizationFeatures;
+  /** Optional badge count to show next to the nav item */
+  badge?: number;
 }
 
 interface NavGroup {
@@ -81,6 +85,8 @@ const allNavGroups: NavGroup[] = [
       { href: "/financials", labelKey: "nav.financials", icon: DollarSign },
       { href: "/analytics", labelKey: "nav.analytics", icon: TrendingUp },
       { href: "/reports", labelKey: "nav.reports", icon: BarChart3 },
+      { href: "/community", labelKey: "nav.community", icon: Heart },
+      { href: "/messages", labelKey: "nav.messages", icon: MessageCircle, badge: 3 },
       { href: "/communications", labelKey: "nav.communications", icon: MessageSquare },
       { href: "/automations", labelKey: "nav.automations", icon: Zap },
     ],
@@ -466,7 +472,12 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                           : "text-vytal-muted group-hover:text-vytal-text"
                       )}
                     />
-                    {t(item.labelKey)}
+                    <span className="flex-1">{t(item.labelKey)}</span>
+                    {item.badge != null && item.badge > 0 && (
+                      <span className="flex h-5 w-5 items-center justify-center rounded-full bg-vytal-green text-[10px] font-bold text-vytal-bg">
+                        {item.badge}
+                      </span>
+                    )}
                   </Link>
                 );
               })}
