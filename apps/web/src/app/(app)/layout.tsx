@@ -37,6 +37,7 @@ import {
   Moon,
   Search,
   HelpCircle,
+  ChevronDown,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ToastProvider } from "@/components/toast";
@@ -52,10 +53,9 @@ interface NavItem {
   href: string;
   labelKey: string;
   icon: React.ComponentType<{ className?: string }>;
-  /** Feature flag required — item hidden if feature is disabled for this org type */
   requiresFeature?: keyof import("@vytal-fit/shared").OrganizationFeatures;
-  /** Optional badge count to show next to the nav item */
   badge?: number;
+  children?: NavItem[];
 }
 
 interface NavGroup {
@@ -67,8 +67,16 @@ const allNavGroups: NavGroup[] = [
   {
     items: [
       { href: "/dashboard", labelKey: "nav.dashboard", icon: LayoutDashboard },
-      { href: "/members", labelKey: "nav.members", icon: Users },
-      { href: "/classes", labelKey: "nav.classes", icon: CalendarDays, requiresFeature: "groupClasses" },
+      { href: "/members", labelKey: "nav.members", icon: Users, children: [
+        { href: "/members", labelKey: "nav.membersOverview", icon: Users },
+        { href: "/members/import", labelKey: "nav.import", icon: Users },
+        { href: "/members/retention", labelKey: "nav.retention", icon: Users },
+      ]},
+      { href: "/classes", labelKey: "nav.classes", icon: CalendarDays, requiresFeature: "groupClasses", children: [
+        { href: "/classes", labelKey: "nav.classesOverview", icon: CalendarDays },
+        { href: "/classes/calendar", labelKey: "nav.calendar", icon: CalendarDays },
+        { href: "/classes/create", labelKey: "nav.createClass", icon: CalendarDays },
+      ]},
       { href: "/wods", labelKey: "nav.wods", icon: Dumbbell, requiresFeature: "wods" },
       { href: "/crm", labelKey: "nav.crm", icon: UserPlus },
     ],
@@ -87,19 +95,36 @@ const allNavGroups: NavGroup[] = [
   {
     titleKey: "nav.group.operations",
     items: [
-      { href: "/financials", labelKey: "nav.financials", icon: DollarSign },
+      { href: "/financials", labelKey: "nav.financials", icon: DollarSign, children: [
+        { href: "/financials", labelKey: "nav.financialsOverview", icon: DollarSign },
+        { href: "/financials/invoices", labelKey: "nav.invoices", icon: DollarSign },
+        { href: "/financials/expenses", labelKey: "nav.expenses", icon: DollarSign },
+        { href: "/financials/budget", labelKey: "nav.budget", icon: DollarSign },
+      ]},
       { href: "/analytics", labelKey: "nav.analytics", icon: TrendingUp },
-      { href: "/reports", labelKey: "nav.reports", icon: BarChart3 },
+      { href: "/reports", labelKey: "nav.reports", icon: BarChart3, children: [
+        { href: "/reports", labelKey: "nav.reportsOverview", icon: BarChart3 },
+        { href: "/reports/attendance", labelKey: "nav.attendanceReport", icon: BarChart3 },
+      ]},
       { href: "/community", labelKey: "nav.community", icon: Heart },
       { href: "/messages", labelKey: "nav.messages", icon: MessageCircle, badge: 3 },
-      { href: "/communications", labelKey: "nav.communications", icon: MessageSquare },
+      { href: "/communications", labelKey: "nav.communications", icon: MessageSquare, children: [
+        { href: "/communications", labelKey: "nav.commsOverview", icon: MessageSquare },
+        { href: "/communications/sms", labelKey: "nav.sms", icon: MessageSquare },
+        { href: "/communications/templates", labelKey: "nav.templates", icon: MessageSquare },
+      ]},
       { href: "/automations", labelKey: "nav.automations", icon: Zap },
     ],
   },
   {
     titleKey: "nav.group.settings",
     items: [
-      { href: "/settings", labelKey: "nav.settings", icon: Settings },
+      { href: "/settings", labelKey: "nav.settings", icon: Settings, children: [
+        { href: "/settings", labelKey: "nav.settingsOverview", icon: Settings },
+        { href: "/settings/kiosk", labelKey: "nav.kiosk", icon: Settings },
+        { href: "/settings/app-config", labelKey: "nav.appConfig", icon: Settings },
+        { href: "/settings/audit-log", labelKey: "nav.auditLog", icon: Settings },
+      ]},
       { href: "/help", labelKey: "nav.help", icon: HelpCircle },
     ],
   },
@@ -677,6 +702,37 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const logout = useAuthStore((s) => s.logout);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [expandedNavItems, setExpandedNavItems] = useState<Set<string>>(new Set());
+
+  // Auto-expand parents whose children match the current pathname
+  useEffect(() => {
+    setExpandedNavItems((prev) => {
+      const next = new Set(prev);
+      for (const group of allNavGroups) {
+        for (const item of group.items) {
+          if (item.children) {
+            const childMatch = item.children.some(
+              (child) => pathname === child.href || pathname.startsWith(child.href + "/")
+            );
+            if (childMatch) next.add(item.href);
+          }
+        }
+      }
+      return next;
+    });
+  }, [pathname]);
+
+  const toggleNavExpand = useCallback((href: string) => {
+    setExpandedNavItems((prev) => {
+      const next = new Set(prev);
+      if (next.has(href)) {
+        next.delete(href);
+      } else {
+        next.add(href);
+      }
+      return next;
+    });
+  }, []);
 
   // Get active org type for feature-based nav filtering
   const activeOrg = user?.memberships.find(
@@ -750,9 +806,81 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               </span>
             )}
             {group.items.map((item) => {
+              const Icon = item.icon;
+
+              if (item.children && item.children.length > 0) {
+                const isExpanded = expandedNavItems.has(item.href);
+                const isParentActive = item.children.some(
+                  (child) => pathname === child.href || pathname.startsWith(child.href + "/")
+                );
+
+                return (
+                  <div key={item.href}>
+                    <button
+                      onClick={() => toggleNavExpand(item.href)}
+                      className={cn(
+                        "nav-item-transition group flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium",
+                        isParentActive
+                          ? "border-l-2 border-vytal-green bg-vytal-green/5 text-vytal-green"
+                          : "border-l-2 border-transparent text-vytal-muted hover:bg-vytal-bg3 hover:text-vytal-text hover:border-vytal-green/30"
+                      )}
+                    >
+                      <Icon
+                        className={cn(
+                          "h-[18px] w-[18px] shrink-0",
+                          isParentActive
+                            ? "text-vytal-green"
+                            : "text-vytal-muted group-hover:text-vytal-text"
+                        )}
+                      />
+                      <span className="flex-1 text-left">{t(item.labelKey)}</span>
+                      {item.badge != null && item.badge > 0 && (
+                        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-vytal-green text-[10px] font-bold text-vytal-bg">
+                          {item.badge}
+                        </span>
+                      )}
+                      <ChevronDown
+                        className={cn(
+                          "h-4 w-4 shrink-0 text-vytal-muted transition-transform duration-200",
+                          isExpanded ? "rotate-0" : "-rotate-90"
+                        )}
+                      />
+                    </button>
+                    <div
+                      className={cn(
+                        "overflow-hidden transition-all duration-200 ease-in-out",
+                        isExpanded ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
+                      )}
+                    >
+                      {item.children.map((child) => {
+                        const isChildActive =
+                          pathname === child.href || pathname.startsWith(child.href + "/");
+                        // For the overview child (same href as parent), only exact match
+                        const isExactChild = child.href === item.href
+                          ? pathname === child.href
+                          : isChildActive;
+                        return (
+                          <Link
+                            key={child.href + child.labelKey}
+                            href={child.href}
+                            className={cn(
+                              "nav-item-transition group flex items-center gap-3 rounded-lg py-1.5 pl-9 pr-3 text-xs font-medium",
+                              isExactChild
+                                ? "text-vytal-green"
+                                : "text-vytal-muted hover:bg-vytal-bg3 hover:text-vytal-text"
+                            )}
+                          >
+                            <span className="flex-1">{t(child.labelKey)}</span>
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              }
+
               const isActive =
                 pathname === item.href || pathname.startsWith(item.href + "/");
-              const Icon = item.icon;
 
               return (
                 <Link
