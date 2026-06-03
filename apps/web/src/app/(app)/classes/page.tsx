@@ -41,6 +41,7 @@ const classTypeEmojis: Record<string, string> = {
 };
 
 function ClassCard({ cls }: { cls: Class }) {
+  const { t } = useI18n();
   const pct = Math.min((cls.enrolledCount / cls.maxCapacity) * 100, 100);
   const status = getEnrollmentStatus(cls.enrolledCount, cls.maxCapacity);
   const isFull = cls.enrolledCount >= cls.maxCapacity;
@@ -127,7 +128,7 @@ function ClassCard({ cls }: { cls: Class }) {
           </span>
           {!isFull && (
             <span className="text-[10px] font-medium text-vytal-muted">
-              {spotsLeft} {spotsLeft === 1 ? "spot" : "spots"} left
+              {spotsLeft} {spotsLeft === 1 ? t("classes.spotLeft") : t("classes.spotsLeftLabel")}
             </span>
           )}
         </div>
@@ -176,7 +177,7 @@ function ClassCard({ cls }: { cls: Class }) {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1.5 text-xs text-vytal-muted">
             <Users className="h-3.5 w-3.5" />
-            <span>Enrollment</span>
+            <span>{t("classes.enrollment")}</span>
           </div>
           <span
             className={cn(
@@ -197,9 +198,9 @@ function ClassCard({ cls }: { cls: Class }) {
         {/* Waitlist */}
         {cls.waitlistCount > 0 && (
           <div className="flex items-center justify-between">
-            <span className="text-[10px] text-vytal-muted">Waitlist</span>
+            <span className="text-[10px] text-vytal-muted">{t("classes.waitlist")}</span>
             <span className="rounded-full bg-vytal-amber/10 px-2 py-0.5 text-[10px] font-semibold text-vytal-amber">
-              {cls.waitlistCount} {cls.waitlistCount === 1 ? "person" : "people"} waiting
+              {cls.waitlistCount} {cls.waitlistCount === 1 ? t("classes.personWaiting") : t("classes.peopleWaiting")}
             </span>
           </div>
         )}
@@ -244,14 +245,14 @@ export default function ClassesPage() {
             Calendar View
           </Link>
           <div className="text-right">
-            <p className="text-xs text-vytal-muted">Total Enrolled</p>
+            <p className="text-xs text-vytal-muted">{t("classes.totalEnrolled")}</p>
             <p className="font-mono text-sm font-semibold text-vytal-text">
               {totalEnrolled}/{totalCapacity}
             </p>
           </div>
           {totalSpotsLeft > 0 && (
             <div className="text-right">
-              <p className="text-xs text-vytal-muted">Spots Left</p>
+              <p className="text-xs text-vytal-muted">{t("classes.spotsLeft")}</p>
               <p className="font-mono text-sm font-semibold text-vytal-green">
                 {totalSpotsLeft}
               </p>
@@ -259,14 +260,14 @@ export default function ClassesPage() {
           )}
           {totalWaitlist > 0 && (
             <div className="text-right">
-              <p className="text-xs text-vytal-muted">Waitlisted</p>
+              <p className="text-xs text-vytal-muted">{t("classes.waitlisted")}</p>
               <p className="font-mono text-sm font-semibold text-vytal-amber">
                 {totalWaitlist}
               </p>
             </div>
           )}
           <div className="text-right">
-            <p className="text-xs text-vytal-muted">Classes</p>
+            <p className="text-xs text-vytal-muted">{t("classes.classesCount")}</p>
             <p className="font-mono text-sm font-semibold text-vytal-text">
               {todayClasses.length}
             </p>

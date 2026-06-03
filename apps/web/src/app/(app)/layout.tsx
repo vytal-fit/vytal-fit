@@ -553,7 +553,7 @@ function FloatingChat() {
         </div>
       )}
 
-      {/* Floating bubble */}
+      {/* Floating bubble — always shows MessageCircle, never changes */}
       <button
         onClick={() => setOpen(!open)}
         className={cn(
@@ -561,17 +561,95 @@ function FloatingChat() {
           "bg-vytal-green shadow-vytal-green/20"
         )}
       >
-        {open ? (
-          <svg className="h-6 w-6 text-vytal-bg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
-        ) : (
-          <MessageCircle className="h-6 w-6 text-vytal-bg" />
-        )}
-        {!open && totalUnread > 0 && (
+        <MessageCircle className="h-6 w-6 text-vytal-bg" />
+        {totalUnread > 0 && (
           <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-vytal-red text-[10px] font-bold text-white">
             {totalUnread}
           </span>
         )}
       </button>
+    </div>
+  );
+}
+
+function UserMenu({ user, onLogout }: { user: { user: { name: string; email: string } }; onLogout: () => void }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  const { t } = useI18n();
+  const activeOrg = useAuthStore((s) => s.user)?.memberships.find(
+    (m) => m.organizationId === useAuthStore.getState().user?.activeOrganizationId
+  );
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (ref.current && !ref.current.contains(event.target as Node)) {
+        setOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const initials = user.user.name.split(" ").map((n) => n[0]).join("").slice(0, 2);
+
+  return (
+    <div className="relative" ref={ref}>
+      <button
+        onClick={() => setOpen(!open)}
+        className="flex items-center gap-2.5 rounded-lg px-2 py-1.5 transition-colors hover:bg-vytal-bg3"
+      >
+        <div className="relative">
+          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-vytal-green/10 text-xs font-semibold text-vytal-green">
+            {initials}
+          </div>
+          <div className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-vytal-bg2 bg-vytal-green" />
+        </div>
+        <div className="hidden flex-col items-start md:flex">
+          <span className="text-xs font-medium text-vytal-text">{user.user.name}</span>
+          <span className="text-[10px] text-vytal-muted">
+            {activeOrg ? ROLE_LABELS[activeOrg.role] : ""}
+          </span>
+        </div>
+      </button>
+
+      {open && (
+        <div className="absolute right-0 top-full z-50 mt-2 w-52 rounded-xl border border-vytal-border bg-vytal-bg2 shadow-2xl">
+          <div className="px-3 py-2.5 border-b border-vytal-border">
+            <p className="text-sm font-medium text-vytal-text truncate">{user.user.name}</p>
+            <p className="text-[10px] text-vytal-muted truncate">{user.user.email}</p>
+          </div>
+          <div className="py-1">
+            <Link
+              href="/profile"
+              onClick={() => setOpen(false)}
+              className="flex w-full items-center gap-2.5 px-3 py-2 text-sm text-vytal-text transition-colors hover:bg-vytal-bg3"
+            >
+              <Users className="h-4 w-4 text-vytal-muted" />
+              {t("ui.myProfile")}
+            </Link>
+            <Link
+              href="/settings"
+              onClick={() => setOpen(false)}
+              className="flex w-full items-center gap-2.5 px-3 py-2 text-sm text-vytal-text transition-colors hover:bg-vytal-bg3"
+            >
+              <Settings className="h-4 w-4 text-vytal-muted" />
+              {t("ui.settingsLabel")}
+            </Link>
+          </div>
+          <div className="border-t border-vytal-border py-1">
+            <button
+              onClick={() => {
+                setOpen(false);
+                onLogout();
+              }}
+              className="flex w-full items-center gap-2.5 px-3 py-2 text-sm text-vytal-red transition-colors hover:bg-vytal-bg3"
+            >
+              <LogOut className="h-4 w-4" />
+              {t("ui.logoutLabel")}
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -693,29 +771,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         ))}
       </nav>
 
-      {/* User Area — click name to open profile */}
-      <div className="border-t border-vytal-border p-4">
-        <div className="flex items-center gap-3">
-          <Link href="/profile" className="flex flex-1 items-center gap-3 rounded-lg p-1 -m-1 transition-colors hover:bg-vytal-bg3">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-vytal-green/10 text-sm font-semibold text-vytal-green">
-              {user.user.name.split(" ").map((n) => n[0]).join("").slice(0, 2)}
-            </div>
-            <div className="flex flex-1 flex-col min-w-0">
-              <span className="text-sm font-medium text-vytal-text truncate">
-                {user.user.name}
-              </span>
-              <span className="text-xs text-vytal-muted truncate">{user.user.email}</span>
-            </div>
-          </Link>
-          <button
-            onClick={handleLogout}
-            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-vytal-muted transition-colors hover:bg-vytal-bg3 hover:text-vytal-red"
-            title={t("action.logout")}
-          >
-            <LogOut className="h-4 w-4" />
-          </button>
-        </div>
-      </div>
+      {/* User area moved to topbar */}
     </>
   );
 
@@ -787,6 +843,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             <LanguageSwitcher />
             <ThemeToggle />
             <NotificationsDropdown />
+            <UserMenu user={user} onLogout={handleLogout} />
           </div>
         </div>
         <div className="p-4 lg:p-8">{children}</div>

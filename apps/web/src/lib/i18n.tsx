@@ -300,6 +300,25 @@ const translations: Record<Language, Record<string, string>> = {
     "settings.subtitle": "Gerir o perfil e prefer\u00eancias do seu box",
     "settings.dangerZone": "Zona de Perigo",
 
+    // User menu (topbar)
+    "ui.myProfile": "O Meu Perfil",
+    "ui.settingsLabel": "Definições",
+    "ui.logoutLabel": "Sair",
+
+    // Classes page
+    "classes.enrollment": "Inscrição",
+    "classes.totalEnrolled": "Total Inscritos",
+    "classes.spotsLeft": "Vagas Disponíveis",
+    "classes.waitlisted": "Em Lista de Espera",
+    "classes.classesCount": "Aulas",
+    "classes.personWaiting": "pessoa em espera",
+    "classes.peopleWaiting": "pessoas em espera",
+    "classes.spotLeft": "vaga disponível",
+    "classes.spotsLeftLabel": "vagas disponíveis",
+
+    // Classes Create
+    "classCreate.fieldRequired": "Este campo é obrigatório",
+
     // Floating Chat
     "messages.title": "Mensagens",
     "messages.unread": "n\u00e3o lidas",
@@ -529,6 +548,7 @@ const translations: Record<Language, Record<string, string>> = {
     "planCreate.allowedClassTypes": "Tipos de Aula Permitidos",
     "planCreate.success": "Plano Criado com Sucesso!",
     "planCreate.createAnother": "Criar Outro",
+    "planCreate.active": "Ativo",
 
     // WOD Builder
     "wodBuilder.title": "WOD Builder",
@@ -920,6 +940,25 @@ const translations: Record<Language, Record<string, string>> = {
     "settings.subtitle": "Manage your box profile and preferences",
     "settings.dangerZone": "Danger Zone",
 
+    // User menu (topbar)
+    "ui.myProfile": "My Profile",
+    "ui.settingsLabel": "Settings",
+    "ui.logoutLabel": "Log out",
+
+    // Classes page
+    "classes.enrollment": "Enrollment",
+    "classes.totalEnrolled": "Total Enrolled",
+    "classes.spotsLeft": "Spots Left",
+    "classes.waitlisted": "Waitlisted",
+    "classes.classesCount": "Classes",
+    "classes.personWaiting": "person waiting",
+    "classes.peopleWaiting": "people waiting",
+    "classes.spotLeft": "spot left",
+    "classes.spotsLeftLabel": "spots left",
+
+    // Classes Create
+    "classCreate.fieldRequired": "This field is required",
+
     // Floating Chat
     "messages.title": "Messages",
     "messages.unread": "unread",
@@ -1149,6 +1188,7 @@ const translations: Record<Language, Record<string, string>> = {
     "planCreate.allowedClassTypes": "Allowed Class Types",
     "planCreate.success": "Plan Created Successfully!",
     "planCreate.createAnother": "Create Another",
+    "planCreate.active": "Active",
 
     // WOD Builder
     "wodBuilder.title": "WOD Builder",
@@ -1764,6 +1804,25 @@ const translations: Record<Language, Record<string, string>> = {
     "settings.subtitle": "Gestionar el perfil y preferencias de su box",
     "settings.dangerZone": "Zona de Peligro",
 
+    // User menu (topbar)
+    "ui.myProfile": "Mi Perfil",
+    "ui.settingsLabel": "Ajustes",
+    "ui.logoutLabel": "Cerrar sesión",
+
+    // Classes page
+    "classes.enrollment": "Inscripción",
+    "classes.totalEnrolled": "Total Inscritos",
+    "classes.spotsLeft": "Plazas Disponibles",
+    "classes.waitlisted": "En Lista de Espera",
+    "classes.classesCount": "Clases",
+    "classes.personWaiting": "persona en espera",
+    "classes.peopleWaiting": "personas en espera",
+    "classes.spotLeft": "plaza disponible",
+    "classes.spotsLeftLabel": "plazas disponibles",
+
+    // Classes Create
+    "classCreate.fieldRequired": "Este campo es obligatorio",
+
     // Floating Chat
     "messages.title": "Mensajes",
     "messages.unread": "sin leer",
@@ -1993,6 +2052,7 @@ const translations: Record<Language, Record<string, string>> = {
     "planCreate.allowedClassTypes": "Tipos de Clase Permitidos",
     "planCreate.success": "\u00a1Plan Creado Exitosamente!",
     "planCreate.createAnother": "Crear Otro",
+    "planCreate.active": "Activo",
 
     // WOD Builder
     "wodBuilder.title": "WOD Builder",

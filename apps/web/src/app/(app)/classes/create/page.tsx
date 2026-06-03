@@ -23,6 +23,7 @@ function Field({
   type?: string;
   error?: boolean;
 }) {
+  const { t } = useI18n();
   return (
     <div>
       <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">
@@ -38,7 +39,7 @@ function Field({
         )}
       />
       {error && (
-        <p className="mt-1 text-xs text-vytal-red">This field is required</p>
+        <p className="mt-1 text-xs text-vytal-red">{t("classCreate.fieldRequired")}</p>
       )}
     </div>
   );
@@ -180,7 +181,7 @@ export default function ClassCreatePage() {
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Schedule */}
         <div className="rounded-xl border border-vytal-border bg-vytal-card p-6">
-          <h2 className="mb-5 text-lg font-semibold text-vytal-text">Schedule</h2>
+          <h2 className="mb-5 text-lg font-semibold text-vytal-text">{t("classCreate.schedule")}</h2>
           <div className="space-y-4">
             <Field label="Date" value={date} onChange={setDate} type="date" error={errors.date} />
             <div className="grid grid-cols-2 gap-4">
@@ -225,7 +226,7 @@ export default function ClassCreatePage() {
         {/* Capacity & Coaches */}
         <div className="space-y-6">
           <div className="rounded-xl border border-vytal-border bg-vytal-card p-6">
-            <h2 className="mb-5 text-lg font-semibold text-vytal-text">Capacity</h2>
+            <h2 className="mb-5 text-lg font-semibold text-vytal-text">{t("classCreate.capacity")}</h2>
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <span className="text-sm text-vytal-text">Limit capacity</span>
