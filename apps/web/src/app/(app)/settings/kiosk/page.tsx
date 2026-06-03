@@ -15,7 +15,7 @@ const timingOptions = [
 ];
 
 const themeColors = [
-  "#3dff6e", "#00d4ff", "#ffb300", "#ff4757",
+  "#22c55e", "#00d4ff", "#ffb300", "#ff4757",
   "#c084fc", "#ff8c42", "#ffffff", "#6b8c72",
 ];
 
@@ -24,7 +24,7 @@ export default function KioskConfigPage() {
   const [images, setImages] = useState(Array(6).fill(""));
   const [overlays, setOverlays] = useState(Array(6).fill(""));
   const [timing, setTiming] = useState("15min");
-  const [themeColor, setThemeColor] = useState("#3dff6e");
+  const [themeColor, setThemeColor] = useState("#22c55e");
   const [newMemberReg, setNewMemberReg] = useState(true);
   const [digitalSignature, setDigitalSignature] = useState(true);
   const [checkIn, setCheckIn] = useState(true);

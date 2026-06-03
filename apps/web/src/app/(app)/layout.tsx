@@ -355,7 +355,7 @@ function OrgSwitcher() {
                   className="flex h-8 w-8 items-center justify-center rounded-lg text-xs font-bold"
                   style={{
                     backgroundColor: isActive ? "rgba(61,255,110,0.1)" : "rgba(107,140,114,0.1)",
-                    color: isActive ? "#3dff6e" : "#6b8c72",
+                    color: isActive ? "#22c55e" : "#6b8c72",
                   }}
                 >
                   {mem.organization.name.charAt(0)}
