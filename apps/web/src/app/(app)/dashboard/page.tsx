@@ -1,3 +1,5 @@
+"use client";
+
 import {
   mockDashboardStats,
   mockClasses,
@@ -14,6 +16,7 @@ import {
   Trophy,
   ScanLine,
 } from "lucide-react";
+import { useI18n } from "@/lib/i18n";
 
 function formatCurrency(value: number): string {
   return new Intl.NumberFormat("pt-PT", {
@@ -143,6 +146,7 @@ function ClassScheduleRow({ cls }: { cls: Class }) {
 }
 
 export default function DashboardPage() {
+  const { t } = useI18n();
   const stats: DashboardStats = mockDashboardStats;
   const today = new Date().toISOString().split("T")[0];
   const todayClasses = mockClasses
@@ -153,68 +157,68 @@ export default function DashboardPage() {
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-vytal-text">Dashboard</h1>
+        <h1 className="text-2xl font-bold text-vytal-text">{t("dashboard.title")}</h1>
         <p className="mt-1 text-sm text-vytal-muted">
-          Overview of your box performance
+          {t("dashboard.subtitle")}
         </p>
       </div>
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
         <StatCard
-          label="Total Members"
+          label={t("dashboard.totalMembers")}
           value={stats.totalMembers}
           icon={<Users className="h-5 w-5" />}
           color="blue"
         />
         <StatCard
-          label="Active Members"
+          label={t("dashboard.activeMembers")}
           value={stats.activeMembers}
           icon={<UserCheck className="h-5 w-5" />}
           color="green"
-          subtitle={`${Math.round((stats.activeMembers / stats.totalMembers) * 100)}% of total`}
+          subtitle={`${Math.round((stats.activeMembers / stats.totalMembers) * 100)}% ${t("dashboard.ofTotal")}`}
         />
         <StatCard
-          label="Today's Classes"
+          label={t("dashboard.todaysClasses")}
           value={stats.todayClasses}
           icon={<CalendarDays className="h-5 w-5" />}
           color="blue"
         />
         <StatCard
-          label="Occupancy"
+          label={t("dashboard.occupancy")}
           value={`${stats.occupancyPercent}%`}
           icon={<TrendingUp className="h-5 w-5" />}
           color={stats.occupancyPercent >= 80 ? "green" : "amber"}
-          subtitle={stats.occupancyPercent >= 80 ? "Above target" : "Below 80% target"}
+          subtitle={stats.occupancyPercent >= 80 ? t("dashboard.aboveTarget") : t("dashboard.belowTarget")}
         />
         <StatCard
-          label="Monthly Revenue"
+          label={t("dashboard.monthlyRevenue")}
           value={formatCurrency(stats.monthlyRevenue)}
           icon={<DollarSign className="h-5 w-5" />}
           color="green"
         />
         <StatCard
-          label="Churn Rate"
+          label={t("dashboard.churnRate")}
           value={`${stats.churnRate}%`}
           icon={<TrendingDown className="h-5 w-5" />}
           color={stats.churnRate > 5 ? "red" : stats.churnRate > 3 ? "amber" : "green"}
-          subtitle={stats.churnRate <= 3 ? "Healthy" : "Needs attention"}
+          subtitle={stats.churnRate <= 3 ? t("dashboard.healthy") : t("dashboard.needsAttention")}
         />
         <StatCard
-          label="At-Risk Members"
+          label={t("dashboard.atRiskMembers")}
           value={stats.atRiskMembers}
           icon={<AlertTriangle className="h-5 w-5" />}
           color={stats.atRiskMembers > 10 ? "red" : "amber"}
-          subtitle="Haven't trained in 7+ days"
+          subtitle={t("dashboard.noTraining7Days")}
         />
         <StatCard
-          label="PRs Today"
+          label={t("dashboard.prsToday")}
           value={stats.prsToday}
           icon={<Trophy className="h-5 w-5" />}
           color="green"
         />
         <StatCard
-          label="Check-ins Today"
+          label={t("dashboard.checkInsToday")}
           value={stats.checkInsToday}
           icon={<ScanLine className="h-5 w-5" />}
           color="green"
@@ -225,7 +229,7 @@ export default function DashboardPage() {
       <div>
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-lg font-semibold text-vytal-text">
-            Today&apos;s Schedule
+            {t("dashboard.todaysSchedule")}
           </h2>
           <span className="text-xs text-vytal-muted">
             {new Date().toLocaleDateString("pt-PT", {
@@ -244,7 +248,7 @@ export default function DashboardPage() {
           ) : (
             <div className="rounded-xl border border-vytal-border bg-vytal-card p-8 text-center">
               <p className="text-sm text-vytal-muted">
-                No classes scheduled for today
+                {t("dashboard.noClassesToday")}
               </p>
             </div>
           )}

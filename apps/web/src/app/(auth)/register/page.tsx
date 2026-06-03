@@ -4,9 +4,11 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Eye, EyeOff, UserPlus } from "lucide-react";
+import { useI18n } from "@/lib/i18n";
 
 export default function RegisterPage() {
   const router = useRouter();
+  const { t } = useI18n();
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -21,12 +23,12 @@ export default function RegisterPage() {
 
   function validate(): boolean {
     const errs: Record<string, string> = {};
-    if (!form.name.trim()) errs.name = "Nome e obrigatorio";
-    if (!form.email.trim()) errs.email = "Email e obrigatorio";
+    if (!form.name.trim()) errs.name = t("auth.nameRequired");
+    if (!form.email.trim()) errs.email = t("auth.emailRequired");
     if (form.password.length < 10)
-      errs.password = "Password deve ter pelo menos 10 caracteres";
+      errs.password = t("auth.passwordMinLength");
     if (form.password !== form.confirmPassword)
-      errs.confirmPassword = "Passwords nao coincidem";
+      errs.confirmPassword = t("auth.passwordMismatch");
     setErrors(errs);
     return Object.keys(errs).length === 0;
   }
@@ -61,7 +63,7 @@ export default function RegisterPage() {
             VYTAL
           </h1>
           <p className="mt-2 text-sm text-vytal-muted">
-            Crie a sua conta para comecar
+            {t("auth.registerSubtitle")}
           </p>
         </div>
 
@@ -72,7 +74,7 @@ export default function RegisterPage() {
               htmlFor="name"
               className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted"
             >
-              Nome
+              {t("auth.name")}
             </label>
             <input
               id="name"
@@ -80,7 +82,7 @@ export default function RegisterPage() {
               required
               value={form.name}
               onChange={(e) => updateField("name", e.target.value)}
-              placeholder="O seu nome"
+              placeholder={t("auth.namePlaceholder")}
               className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 px-4 py-3 text-sm text-vytal-text placeholder:text-vytal-muted/50 outline-none transition-colors focus:border-vytal-green/40 focus:ring-1 focus:ring-vytal-green/20"
             />
             {errors.name && (
@@ -94,7 +96,7 @@ export default function RegisterPage() {
               htmlFor="email"
               className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted"
             >
-              Email
+              {t("auth.email")}
             </label>
             <input
               id="email"
@@ -102,7 +104,7 @@ export default function RegisterPage() {
               required
               value={form.email}
               onChange={(e) => updateField("email", e.target.value)}
-              placeholder="voce@exemplo.com"
+              placeholder={t("auth.emailPlaceholder")}
               className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 px-4 py-3 text-sm text-vytal-text placeholder:text-vytal-muted/50 outline-none transition-colors focus:border-vytal-green/40 focus:ring-1 focus:ring-vytal-green/20"
             />
             {errors.email && (
@@ -116,9 +118,9 @@ export default function RegisterPage() {
               htmlFor="phone"
               className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted"
             >
-              Telefone{" "}
+              {t("auth.phone")}{" "}
               <span className="normal-case tracking-normal text-vytal-muted/60">
-                (opcional)
+                ({t("auth.optional")})
               </span>
             </label>
             <input
@@ -126,7 +128,7 @@ export default function RegisterPage() {
               type="tel"
               value={form.phone}
               onChange={(e) => updateField("phone", e.target.value)}
-              placeholder="+351 912 345 678"
+              placeholder={t("auth.phonePlaceholder")}
               className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 px-4 py-3 text-sm text-vytal-text placeholder:text-vytal-muted/50 outline-none transition-colors focus:border-vytal-green/40 focus:ring-1 focus:ring-vytal-green/20"
             />
           </div>
@@ -137,7 +139,7 @@ export default function RegisterPage() {
               htmlFor="password"
               className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted"
             >
-              Password
+              {t("auth.password")}
             </label>
             <div className="relative">
               <input
@@ -146,7 +148,7 @@ export default function RegisterPage() {
                 required
                 value={form.password}
                 onChange={(e) => updateField("password", e.target.value)}
-                placeholder="Minimo 10 caracteres"
+                placeholder={t("auth.minChars")}
                 className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 px-4 py-3 pr-11 text-sm text-vytal-text placeholder:text-vytal-muted/50 outline-none transition-colors focus:border-vytal-green/40 focus:ring-1 focus:ring-vytal-green/20"
               />
               <button
@@ -172,7 +174,7 @@ export default function RegisterPage() {
               htmlFor="confirmPassword"
               className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted"
             >
-              Confirmar Password
+              {t("auth.confirmPassword")}
             </label>
             <div className="relative">
               <input
@@ -181,7 +183,7 @@ export default function RegisterPage() {
                 required
                 value={form.confirmPassword}
                 onChange={(e) => updateField("confirmPassword", e.target.value)}
-                placeholder="Repita a password"
+                placeholder={t("auth.confirmPlaceholder")}
                 className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 px-4 py-3 pr-11 text-sm text-vytal-text placeholder:text-vytal-muted/50 outline-none transition-colors focus:border-vytal-green/40 focus:ring-1 focus:ring-vytal-green/20"
               />
               <button
@@ -214,7 +216,7 @@ export default function RegisterPage() {
             ) : (
               <>
                 <UserPlus className="h-4 w-4" />
-                Criar conta
+                {t("auth.createAccount")}
               </>
             )}
           </button>
@@ -223,12 +225,12 @@ export default function RegisterPage() {
         {/* Login link */}
         <div className="mt-6 text-center">
           <span className="text-sm text-vytal-muted">
-            Ja tem conta?{" "}
+            {t("auth.hasAccount")}{" "}
             <Link
               href="/login"
               className="font-medium text-vytal-green transition-colors hover:text-vytal-green/80"
             >
-              Entrar
+              {t("auth.login")}
             </Link>
           </span>
         </div>

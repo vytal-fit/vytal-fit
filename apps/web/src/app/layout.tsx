@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import { Space_Grotesk, Space_Mono } from "next/font/google";
 import "./globals.css";
+import { I18nProvider } from "@/lib/i18n";
+import { AuthProvider } from "@/providers/auth-provider";
+import { ThemeInitializer } from "@/providers/theme-initializer";
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
@@ -24,9 +27,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="pt" className="dark">
+    <html lang="pt" className="dark" suppressHydrationWarning>
       <body className={`${spaceGrotesk.variable} ${spaceMono.variable} antialiased`}>
-        {children}
+        <I18nProvider>
+          <AuthProvider>
+            <ThemeInitializer />
+            {children}
+          </AuthProvider>
+        </I18nProvider>
       </body>
     </html>
   );

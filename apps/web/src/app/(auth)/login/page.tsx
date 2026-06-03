@@ -4,9 +4,13 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Eye, EyeOff, LogIn } from "lucide-react";
+import { useAuthStore } from "@/stores/auth-store";
+import { useI18n } from "@/lib/i18n";
 
 export default function LoginPage() {
   const router = useRouter();
+  const login = useAuthStore((s) => s.login);
+  const { t } = useI18n();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -15,10 +19,13 @@ export default function LoginPage() {
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
-    // Mock: any email/password combination logs in
     setTimeout(() => {
-      router.push("/dashboard");
-    }, 600);
+      const success = login(email, password);
+      if (success) {
+        router.push("/dashboard");
+      }
+      setLoading(false);
+    }, 400);
   }
 
   return (
@@ -30,7 +37,7 @@ export default function LoginPage() {
             VYTAL
           </h1>
           <p className="mt-2 text-sm text-vytal-muted">
-            Plataforma inteligente para o seu espaco fitness
+            {t("auth.subtitle")}
           </p>
         </div>
 
@@ -41,7 +48,7 @@ export default function LoginPage() {
               htmlFor="email"
               className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted"
             >
-              Email
+              {t("auth.email")}
             </label>
             <input
               id="email"
@@ -49,7 +56,7 @@ export default function LoginPage() {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="voce@exemplo.com"
+              placeholder={t("auth.emailPlaceholder")}
               className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 px-4 py-3 text-sm text-vytal-text placeholder:text-vytal-muted/50 outline-none transition-colors focus:border-vytal-green/40 focus:ring-1 focus:ring-vytal-green/20"
             />
           </div>
@@ -60,7 +67,7 @@ export default function LoginPage() {
               htmlFor="password"
               className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted"
             >
-              Password
+              {t("auth.password")}
             </label>
             <div className="relative">
               <input
@@ -69,7 +76,7 @@ export default function LoginPage() {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="A sua password"
+                placeholder={t("auth.passwordPlaceholder")}
                 className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 px-4 py-3 pr-11 text-sm text-vytal-text placeholder:text-vytal-muted/50 outline-none transition-colors focus:border-vytal-green/40 focus:ring-1 focus:ring-vytal-green/20"
               />
               <button
@@ -92,7 +99,7 @@ export default function LoginPage() {
               href="/forgot-password"
               className="text-xs text-vytal-muted transition-colors hover:text-vytal-green"
             >
-              Esqueceu a password?
+              {t("auth.forgotPassword")}
             </Link>
           </div>
 
@@ -107,7 +114,7 @@ export default function LoginPage() {
             ) : (
               <>
                 <LogIn className="h-4 w-4" />
-                Entrar
+                {t("auth.login")}
               </>
             )}
           </button>
@@ -116,12 +123,12 @@ export default function LoginPage() {
         {/* Register link */}
         <div className="mt-6 text-center">
           <span className="text-sm text-vytal-muted">
-            Nao tem conta?{" "}
+            {t("auth.noAccount")}{" "}
             <Link
               href="/register"
               className="font-medium text-vytal-green transition-colors hover:text-vytal-green/80"
             >
-              Criar conta
+              {t("auth.createAccount")}
             </Link>
           </span>
         </div>
