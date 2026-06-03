@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import {
   UserX,
   Cake,
@@ -15,6 +15,40 @@ import { cn } from "@/lib/utils";
 import { useToast } from "@/components/toast";
 import { useI18n } from "@/lib/i18n";
 
+// ---------------------------------------------------------------------------
+// Persistence
+// ---------------------------------------------------------------------------
+const AUTOMATIONS_KEY = "vytal-automations";
+
+interface AutomationStates {
+  noShow: boolean;
+  birthday: boolean;
+  winBack: boolean;
+  onboarding: boolean;
+}
+
+function loadAutomationStates(): AutomationStates {
+  if (typeof window === "undefined")
+    return { noShow: true, birthday: true, winBack: false, onboarding: true };
+  try {
+    const raw = localStorage.getItem(AUTOMATIONS_KEY);
+    if (!raw)
+      return { noShow: true, birthday: true, winBack: false, onboarding: true };
+    return JSON.parse(raw) as AutomationStates;
+  } catch {
+    return { noShow: true, birthday: true, winBack: false, onboarding: true };
+  }
+}
+
+function persistAutomationStates(states: AutomationStates) {
+  if (typeof window === "undefined") return;
+  localStorage.setItem(AUTOMATIONS_KEY, JSON.stringify(states));
+}
+
+// ---------------------------------------------------------------------------
+// Components
+// ---------------------------------------------------------------------------
+
 interface AutomationCardProps {
   title: string;
   description: string;
@@ -23,6 +57,7 @@ interface AutomationCardProps {
   enabled: boolean;
   onToggle: () => void;
   lastTriggered: string;
+  justEnabled: boolean;
   children: React.ReactNode;
 }
 
@@ -34,12 +69,14 @@ function AutomationCard({
   enabled,
   onToggle,
   lastTriggered,
+  justEnabled,
   children,
 }: AutomationCardProps) {
+  const { t } = useI18n();
   return (
     <div
       className={cn(
-        "rounded-xl border bg-vytal-card p-6 transition-colors",
+        "rounded-xl border bg-vytal-card p-6 transition-all duration-300",
         enabled
           ? "border-vytal-green/20"
           : "border-vytal-border opacity-75"
@@ -56,9 +93,18 @@ function AutomationCard({
             {icon}
           </div>
           <div>
-            <h3 className="text-base font-semibold text-vytal-text">
-              {title}
-            </h3>
+            <div className="flex items-center gap-2">
+              <h3 className="text-base font-semibold text-vytal-text">
+                {title}
+              </h3>
+              {/* Status indicator */}
+              <span
+                className={cn(
+                  "h-2 w-2 rounded-full transition-colors duration-300",
+                  enabled ? "bg-vytal-green" : "bg-vytal-muted/40"
+                )}
+              />
+            </div>
             <p className="text-xs text-vytal-muted">{description}</p>
           </div>
         </div>
@@ -66,22 +112,25 @@ function AutomationCard({
           type="button"
           onClick={onToggle}
           className={cn(
-            "relative h-6 w-11 shrink-0 rounded-full transition-colors",
+            "relative h-6 w-11 shrink-0 rounded-full transition-colors duration-300",
             enabled ? "bg-vytal-green" : "bg-vytal-bg3"
           )}
         >
           <span
             className={cn(
-              "absolute top-0.5 h-5 w-5 rounded-full bg-white transition-transform",
+              "absolute top-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-all duration-300",
               enabled ? "left-[22px]" : "left-0.5"
             )}
           />
         </button>
       </div>
 
-      <div className="mb-4 flex items-center gap-1.5 text-[10px] text-vytal-muted">
+      <div className={cn(
+        "mb-4 flex items-center gap-1.5 text-[10px] text-vytal-muted",
+        justEnabled && "animate-pulse"
+      )}>
         <Clock className="h-3 w-3" />
-        Last triggered: {lastTriggered}
+        {t("automations.lastTriggered").replace("{time}", lastTriggered)}
       </div>
 
       {enabled && <div className="space-y-4 border-t border-vytal-border pt-4">{children}</div>}
@@ -134,8 +183,18 @@ export default function AutomationsPage() {
   const { t } = useI18n();
   const { toast } = useToast();
 
+  // Load persisted states
+  const [automationStates, setAutomationStates] = useState<AutomationStates>(
+    () => loadAutomationStates()
+  );
+  const [justEnabled, setJustEnabled] = useState<Record<string, boolean>>({});
+
+  // Persist on change
+  useEffect(() => {
+    persistAutomationStates(automationStates);
+  }, [automationStates]);
+
   // No-show
-  const [noShowEnabled, setNoShowEnabled] = useState(true);
   const [noShowLastTriggered, setNoShowLastTriggered] = useState("2 days ago");
   const [noShowDays, setNoShowDays] = useState(14);
   const [noShowMessage, setNoShowMessage] = useState(
@@ -148,7 +207,6 @@ export default function AutomationsPage() {
   });
 
   // Birthday
-  const [birthdayEnabled, setBirthdayEnabled] = useState(true);
   const [birthdayLastTriggered, setBirthdayLastTriggered] = useState("5 days ago");
   const [birthdayOffer, setBirthdayOffer] = useState(
     "Happy Birthday {name}! Enjoy a free guest pass for a friend this week."
@@ -158,7 +216,6 @@ export default function AutomationsPage() {
   );
 
   // Win-back
-  const [winBackEnabled, setWinBackEnabled] = useState(false);
   const [winBackLastTriggered, setWinBackLastTriggered] = useState("12 days ago");
   const [winBackDays, setWinBackDays] = useState(21);
   const [winBackInterval, setWinBackInterval] = useState(3);
@@ -169,7 +226,6 @@ export default function AutomationsPage() {
   ]);
 
   // Onboarding
-  const [onboardingEnabled, setOnboardingEnabled] = useState(true);
   const [onboardingLastTriggered, setOnboardingLastTriggered] = useState("1 day ago");
   const [onboardingSteps, setOnboardingSteps] = useState([
     {
@@ -203,21 +259,25 @@ export default function AutomationsPage() {
 
   const handleToggle = useCallback(
     (
+      key: keyof AutomationStates,
       name: string,
-      enabled: boolean,
-      setEnabled: (v: boolean) => void,
       setLastTriggered: (v: string) => void
     ) => {
-      const newState = !enabled;
-      setEnabled(newState);
+      const newState = !automationStates[key];
+      setAutomationStates((prev) => ({ ...prev, [key]: newState }));
       if (newState) {
-        setLastTriggered("Just now");
-        toast(`${name} automation enabled`, "success");
+        setLastTriggered(t("automations.justNow"));
+        setJustEnabled((prev) => ({ ...prev, [key]: true }));
+        // Clear pulse after 3s
+        setTimeout(() => {
+          setJustEnabled((prev) => ({ ...prev, [key]: false }));
+        }, 3000);
+        toast(`${name} ${t("automations.enabled")}`, "success");
       } else {
-        toast(`${name} automation disabled`, "info");
+        toast(`${name} ${t("automations.disabled")}`, "info");
       }
     },
-    [toast]
+    [automationStates, toast, t]
   );
 
   return (
@@ -233,19 +293,20 @@ export default function AutomationsPage() {
       <div className="grid gap-6 lg:grid-cols-2">
         {/* No-Show */}
         <AutomationCard
-          title="No-Show Alert"
-          description="Nudge members who haven't checked in"
+          title={t("automations.noShowAlert")}
+          description={t("automations.noShowDesc")}
           icon={<UserX className="h-5 w-5 text-vytal-red" />}
           iconBg="bg-vytal-red/10"
-          enabled={noShowEnabled}
+          enabled={automationStates.noShow}
           onToggle={() =>
-            handleToggle("No-Show Alert", noShowEnabled, setNoShowEnabled, setNoShowLastTriggered)
+            handleToggle("noShow", t("automations.noShowAlert"), setNoShowLastTriggered)
           }
           lastTriggered={noShowLastTriggered}
+          justEnabled={!!justEnabled.noShow}
         >
           <div>
             <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">
-              Trigger after (days without check-in)
+              {t("automations.triggerAfterDays")}
             </label>
             <div className="flex items-center gap-4">
               <input
@@ -263,7 +324,7 @@ export default function AutomationsPage() {
           </div>
           <div>
             <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">
-              Message Template
+              {t("automations.messageTemplate")}
             </label>
             <textarea
               value={noShowMessage}
@@ -274,7 +335,7 @@ export default function AutomationsPage() {
           </div>
           <div>
             <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">
-              Channel
+              {t("automations.channel")}
             </label>
             <ChannelCheckboxes
               channels={noShowChannels}
@@ -285,19 +346,20 @@ export default function AutomationsPage() {
 
         {/* Birthday */}
         <AutomationCard
-          title="Birthday"
-          description="Celebrate your members' birthdays"
+          title={t("automations.birthday")}
+          description={t("automations.birthdayDesc")}
           icon={<Cake className="h-5 w-5 text-vytal-amber" />}
           iconBg="bg-vytal-amber/10"
-          enabled={birthdayEnabled}
+          enabled={automationStates.birthday}
           onToggle={() =>
-            handleToggle("Birthday", birthdayEnabled, setBirthdayEnabled, setBirthdayLastTriggered)
+            handleToggle("birthday", t("automations.birthday"), setBirthdayLastTriggered)
           }
           lastTriggered={birthdayLastTriggered}
+          justEnabled={!!justEnabled.birthday}
         >
           <div>
             <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">
-              Offer Text
+              {t("automations.offerText")}
             </label>
             <textarea
               value={birthdayOffer}
@@ -308,13 +370,13 @@ export default function AutomationsPage() {
           </div>
           <div>
             <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">
-              Send Timing
+              {t("automations.sendTiming")}
             </label>
             <div className="flex gap-3">
               {(
                 [
-                  { value: "on_day", label: "On the day" },
-                  { value: "day_before", label: "Day before" },
+                  { value: "on_day", labelKey: "automations.onTheDay" },
+                  { value: "day_before", labelKey: "automations.dayBefore" },
                 ] as const
               ).map((opt) => (
                 <button
@@ -328,7 +390,7 @@ export default function AutomationsPage() {
                       : "border-vytal-border text-vytal-muted hover:text-vytal-text"
                   )}
                 >
-                  {opt.label}
+                  {t(opt.labelKey)}
                 </button>
               ))}
             </div>
@@ -337,19 +399,20 @@ export default function AutomationsPage() {
 
         {/* Win-back */}
         <AutomationCard
-          title="Win-Back"
-          description="Re-engage inactive members with a message sequence"
+          title={t("automations.winBack")}
+          description={t("automations.winBackDesc")}
           icon={<UserMinus className="h-5 w-5 text-vytal-blue" />}
           iconBg="bg-vytal-blue/10"
-          enabled={winBackEnabled}
+          enabled={automationStates.winBack}
           onToggle={() =>
-            handleToggle("Win-Back", winBackEnabled, setWinBackEnabled, setWinBackLastTriggered)
+            handleToggle("winBack", t("automations.winBack"), setWinBackLastTriggered)
           }
           lastTriggered={winBackLastTriggered}
+          justEnabled={!!justEnabled.winBack}
         >
           <div>
             <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">
-              Inactive for (days)
+              {t("automations.inactiveDays")}
             </label>
             <div className="flex items-center gap-4">
               <input
@@ -367,7 +430,7 @@ export default function AutomationsPage() {
           </div>
           <div>
             <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">
-              Interval between messages (days)
+              {t("automations.intervalDays")}
             </label>
             <input
               type="number"
@@ -380,12 +443,12 @@ export default function AutomationsPage() {
           </div>
           <div className="space-y-3">
             <label className="block text-xs font-medium uppercase tracking-wider text-vytal-muted">
-              Message Sequence (3 messages)
+              {t("automations.messageSequence").replace("{count}", "3")}
             </label>
             {winBackMessages.map((msg, i) => (
               <div key={i}>
                 <span className="mb-1 block text-[10px] font-semibold text-vytal-muted">
-                  Message {i + 1}
+                  {t("automations.messageN").replace("{n}", String(i + 1))}
                 </span>
                 <textarea
                   value={msg}
@@ -404,20 +467,20 @@ export default function AutomationsPage() {
 
         {/* Onboarding */}
         <AutomationCard
-          title="New Member Onboarding"
-          description="Welcome sequence for new members"
+          title={t("automations.onboarding")}
+          description={t("automations.onboardingDesc")}
           icon={<UserPlus className="h-5 w-5 text-vytal-green" />}
           iconBg="bg-vytal-green/10"
-          enabled={onboardingEnabled}
+          enabled={automationStates.onboarding}
           onToggle={() =>
             handleToggle(
-              "Onboarding",
-              onboardingEnabled,
-              setOnboardingEnabled,
+              "onboarding",
+              t("automations.onboarding"),
               setOnboardingLastTriggered
             )
           }
           lastTriggered={onboardingLastTriggered}
+          justEnabled={!!justEnabled.onboarding}
         >
           <div className="space-y-4">
             {onboardingSteps.map((step, i) => (
