@@ -5,6 +5,7 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
+  Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -186,7 +187,10 @@ export default function ClassDetailScreen() {
           {isBooked ? (
             <TouchableOpacity
               style={styles.cancelButton}
-              onPress={() => setIsBooked(false)}
+              onPress={() => {
+                Alert.alert("Reserva Cancelada", "A tua reserva foi cancelada.");
+                setIsBooked(false);
+              }}
             >
               <Text style={styles.cancelButtonText}>CANCELAR RESERVA</Text>
             </TouchableOpacity>
@@ -197,7 +201,10 @@ export default function ClassDetailScreen() {
           ) : (
             <TouchableOpacity
               style={styles.bookButton}
-              onPress={() => setIsBooked(true)}
+              onPress={() => {
+                Alert.alert("Reservado!", "A tua reserva foi confirmada com sucesso.");
+                setIsBooked(true);
+              }}
             >
               <Text style={styles.bookButtonText}>RESERVAR</Text>
             </TouchableOpacity>

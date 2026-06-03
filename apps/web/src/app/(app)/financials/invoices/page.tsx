@@ -12,6 +12,7 @@ import {
   QrCode,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/lib/i18n";
 
 type InvoiceStatus = "paid" | "pending" | "overdue";
 
@@ -350,6 +351,7 @@ function InvoiceRow({ invoice }: { invoice: Invoice }) {
 }
 
 export default function InvoicesPage() {
+  const { t } = useI18n();
   const [statusFilter, setStatusFilter] = useState<InvoiceStatus | "all">("all");
   const [search, setSearch] = useState("");
 
@@ -381,9 +383,9 @@ export default function InvoicesPage() {
             <ArrowLeft className="h-4 w-4" />
           </Link>
           <div>
-            <h1 className="text-2xl font-bold text-vytal-text">Invoices</h1>
+            <h1 className="text-2xl font-bold text-vytal-text">{t("invoices.title")}</h1>
             <p className="mt-1 text-sm text-vytal-muted">
-              View and manage invoices ({MOCK_INVOICES.length} total)
+              {t("invoices.subtitle")} ({MOCK_INVOICES.length} total)
             </p>
           </div>
         </div>
@@ -392,7 +394,7 @@ export default function InvoicesPage() {
           className="flex items-center gap-2 rounded-lg border border-vytal-border px-4 py-2.5 text-sm font-medium text-vytal-text transition-colors hover:bg-vytal-bg3"
         >
           <FileText className="h-4 w-4" />
-          Export SAF-T
+          {t("invoices.exportSaft")}
         </button>
       </div>
 

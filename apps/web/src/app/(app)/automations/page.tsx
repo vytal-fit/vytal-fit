@@ -1,8 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import {
-  Zap,
   UserX,
   Cake,
   UserMinus,
@@ -13,6 +12,7 @@ import {
   Clock,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useToast } from "@/components/toast";
 
 interface AutomationCardProps {
   title: string;
@@ -130,8 +130,11 @@ function ChannelCheckboxes({
 }
 
 export default function AutomationsPage() {
+  const { toast } = useToast();
+
   // No-show
   const [noShowEnabled, setNoShowEnabled] = useState(true);
+  const [noShowLastTriggered, setNoShowLastTriggered] = useState("2 days ago");
   const [noShowDays, setNoShowDays] = useState(14);
   const [noShowMessage, setNoShowMessage] = useState(
     "Hey {name}, we miss you! It's been {days} days since your last visit. Come back and crush a WOD with us!"
@@ -144,6 +147,7 @@ export default function AutomationsPage() {
 
   // Birthday
   const [birthdayEnabled, setBirthdayEnabled] = useState(true);
+  const [birthdayLastTriggered, setBirthdayLastTriggered] = useState("5 days ago");
   const [birthdayOffer, setBirthdayOffer] = useState(
     "Happy Birthday {name}! Enjoy a free guest pass for a friend this week."
   );
@@ -153,6 +157,7 @@ export default function AutomationsPage() {
 
   // Win-back
   const [winBackEnabled, setWinBackEnabled] = useState(false);
+  const [winBackLastTriggered, setWinBackLastTriggered] = useState("12 days ago");
   const [winBackDays, setWinBackDays] = useState(21);
   const [winBackInterval, setWinBackInterval] = useState(3);
   const [winBackMessages, setWinBackMessages] = useState([
@@ -163,6 +168,7 @@ export default function AutomationsPage() {
 
   // Onboarding
   const [onboardingEnabled, setOnboardingEnabled] = useState(true);
+  const [onboardingLastTriggered, setOnboardingLastTriggered] = useState("1 day ago");
   const [onboardingSteps, setOnboardingSteps] = useState([
     {
       day: "D+0",
@@ -193,6 +199,25 @@ export default function AutomationsPage() {
     },
   ]);
 
+  const handleToggle = useCallback(
+    (
+      name: string,
+      enabled: boolean,
+      setEnabled: (v: boolean) => void,
+      setLastTriggered: (v: string) => void
+    ) => {
+      const newState = !enabled;
+      setEnabled(newState);
+      if (newState) {
+        setLastTriggered("Just now");
+        toast(`${name} automation enabled`, "success");
+      } else {
+        toast(`${name} automation disabled`, "info");
+      }
+    },
+    [toast]
+  );
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -211,8 +236,10 @@ export default function AutomationsPage() {
           icon={<UserX className="h-5 w-5 text-vytal-red" />}
           iconBg="bg-vytal-red/10"
           enabled={noShowEnabled}
-          onToggle={() => setNoShowEnabled(!noShowEnabled)}
-          lastTriggered="2 days ago"
+          onToggle={() =>
+            handleToggle("No-Show Alert", noShowEnabled, setNoShowEnabled, setNoShowLastTriggered)
+          }
+          lastTriggered={noShowLastTriggered}
         >
           <div>
             <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">
@@ -261,8 +288,10 @@ export default function AutomationsPage() {
           icon={<Cake className="h-5 w-5 text-vytal-amber" />}
           iconBg="bg-vytal-amber/10"
           enabled={birthdayEnabled}
-          onToggle={() => setBirthdayEnabled(!birthdayEnabled)}
-          lastTriggered="5 days ago"
+          onToggle={() =>
+            handleToggle("Birthday", birthdayEnabled, setBirthdayEnabled, setBirthdayLastTriggered)
+          }
+          lastTriggered={birthdayLastTriggered}
         >
           <div>
             <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">
@@ -311,8 +340,10 @@ export default function AutomationsPage() {
           icon={<UserMinus className="h-5 w-5 text-vytal-blue" />}
           iconBg="bg-vytal-blue/10"
           enabled={winBackEnabled}
-          onToggle={() => setWinBackEnabled(!winBackEnabled)}
-          lastTriggered="12 days ago"
+          onToggle={() =>
+            handleToggle("Win-Back", winBackEnabled, setWinBackEnabled, setWinBackLastTriggered)
+          }
+          lastTriggered={winBackLastTriggered}
         >
           <div>
             <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">
@@ -376,14 +407,21 @@ export default function AutomationsPage() {
           icon={<UserPlus className="h-5 w-5 text-vytal-green" />}
           iconBg="bg-vytal-green/10"
           enabled={onboardingEnabled}
-          onToggle={() => setOnboardingEnabled(!onboardingEnabled)}
-          lastTriggered="1 day ago"
+          onToggle={() =>
+            handleToggle(
+              "Onboarding",
+              onboardingEnabled,
+              setOnboardingEnabled,
+              setOnboardingLastTriggered
+            )
+          }
+          lastTriggered={onboardingLastTriggered}
         >
           <div className="space-y-4">
             {onboardingSteps.map((step, i) => (
               <div
                 key={i}
-                className="rounded-lg border border-vytal-border bg-vytal-bg2 p-3 space-y-2"
+                className="space-y-2 rounded-lg border border-vytal-border bg-vytal-bg2 p-3"
               >
                 <div className="flex items-center gap-2">
                   <span className="rounded bg-vytal-green/10 px-2 py-0.5 text-[10px] font-bold text-vytal-green">

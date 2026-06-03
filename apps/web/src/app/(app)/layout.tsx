@@ -33,6 +33,7 @@ import {
   Moon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { ToastProvider } from "@/components/toast";
 import { mockNotifications } from "@vytal-fit/shared";
 import type { NotificationType } from "@vytal-fit/shared";
 import { ROLE_LABELS, ROLE_COLORS, ORGANIZATION_CONFIGS } from "@vytal-fit/shared";
@@ -411,6 +412,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   }
 
   return (
+    <ToastProvider>
     <div className="flex h-screen overflow-hidden bg-vytal-bg">
       {/* Sidebar */}
       <aside className="flex w-64 flex-col border-r border-vytal-border bg-vytal-bg2">
@@ -506,5 +508,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         <div className="p-8">{children}</div>
       </main>
     </div>
+    </ToastProvider>
   );
 }

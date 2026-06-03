@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import {
   Settings,
   Globe,
@@ -12,6 +12,7 @@ import {
   AlertTriangle,
   Smartphone,
 } from "lucide-react";
+import { useToast } from "@/components/toast";
 
 const businessTypes = ["Box", "Gym", "Studio", "Academy", "Training Center"];
 const timezones = [
@@ -26,6 +27,9 @@ const timezones = [
 const currencies = ["EUR", "USD", "GBP", "BRL"];
 
 export default function SettingsPage() {
+  const { toast } = useToast();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [logoFileName, setLogoFileName] = useState<string | null>(null);
   const [form, setForm] = useState({
     name: "CrossFit Vytal",
     slogan: "Forging Elite Fitness",
@@ -155,7 +159,23 @@ export default function SettingsPage() {
                 Logo
               </h2>
             </div>
-            <div className="group flex flex-col items-center gap-4 rounded-lg border-2 border-dashed border-vytal-border p-8 transition-colors hover:border-vytal-green/30 hover:bg-vytal-green/5">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) {
+                  setLogoFileName(file.name);
+                  toast(`Logo selected: ${file.name}`, "success");
+                }
+              }}
+            />
+            <div
+              className="group flex cursor-pointer flex-col items-center gap-4 rounded-lg border-2 border-dashed border-vytal-border p-8 transition-colors hover:border-vytal-green/30 hover:bg-vytal-green/5"
+              onClick={() => fileInputRef.current?.click()}
+            >
               <div className="relative flex h-20 w-20 items-center justify-center rounded-xl bg-vytal-green/10">
                 <span className="text-3xl font-bold text-vytal-green">V</span>
                 <div className="absolute -bottom-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full border-2 border-vytal-card bg-vytal-bg3 text-vytal-muted transition-colors group-hover:bg-vytal-green/10 group-hover:text-vytal-green">
@@ -163,14 +183,25 @@ export default function SettingsPage() {
                 </div>
               </div>
               <div className="text-center">
-                <p className="text-sm text-vytal-muted">
-                  Drag and drop your logo here, or click to browse
-                </p>
+                {logoFileName ? (
+                  <p className="text-sm font-medium text-vytal-green">{logoFileName}</p>
+                ) : (
+                  <p className="text-sm text-vytal-muted">
+                    Drag and drop your logo here, or click to browse
+                  </p>
+                )}
                 <p className="mt-1 text-[10px] text-vytal-muted">
                   PNG, JPG or SVG. Max 2MB. Recommended 512x512px.
                 </p>
               </div>
-              <button className="flex items-center gap-2 rounded-lg border border-vytal-border bg-vytal-bg2 px-4 py-2 text-sm text-vytal-text transition-colors hover:bg-vytal-bg3">
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  fileInputRef.current?.click();
+                }}
+                className="flex items-center gap-2 rounded-lg border border-vytal-border bg-vytal-bg2 px-4 py-2 text-sm text-vytal-text transition-colors hover:bg-vytal-bg3"
+              >
                 <Upload className="h-3.5 w-3.5" />
                 Upload Logo
               </button>
@@ -342,7 +373,10 @@ export default function SettingsPage() {
 
       {/* Save Button */}
       <div className="flex justify-end">
-        <button className="flex items-center gap-2 rounded-lg bg-vytal-green px-6 py-2.5 text-sm font-semibold text-vytal-bg transition-colors hover:bg-vytal-green/90">
+        <button
+          onClick={() => toast("Settings saved successfully!", "success")}
+          className="flex items-center gap-2 rounded-lg bg-vytal-green px-6 py-2.5 text-sm font-semibold text-vytal-bg transition-colors hover:bg-vytal-green/90"
+        >
           <Save className="h-4 w-4" />
           Save Changes
         </button>
@@ -382,6 +416,13 @@ export default function SettingsPage() {
             <div className="flex gap-2">
               <button
                 disabled={deleteConfirmText !== form.name}
+                onClick={() => {
+                  if (deleteConfirmText === form.name) {
+                    toast("Organization deleted (mock)", "error");
+                    setShowDeleteConfirm(false);
+                    setDeleteConfirmText("");
+                  }
+                }}
                 className="flex items-center gap-2 rounded-lg bg-vytal-red px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-vytal-red/90 disabled:cursor-not-allowed disabled:opacity-40"
               >
                 <Trash2 className="h-4 w-4" />

@@ -1,14 +1,16 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import {
   View,
   Text,
   StyleSheet,
   ScrollView,
   TouchableOpacity,
+  TextInput,
+  Animated,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
-import { ArrowLeft, Heart, MessageCircle } from "lucide-react-native";
+import { ArrowLeft, Heart, MessageCircle, Send } from "lucide-react-native";
 
 // ─── Colors ──────────────────────────────────────────────
 const C = {
@@ -153,8 +155,24 @@ export default function SocialFeedScreen() {
   const router = useRouter();
   const [posts, setPosts] = useState(initialPosts);
   const [fistbumpedIds, setFistbumpedIds] = useState<Set<string>>(new Set());
+  const [commentingId, setCommentingId] = useState<string | null>(null);
+  const [commentText, setCommentText] = useState("");
+  const bounceAnims = useRef<Record<string, Animated.Value>>({}).current;
+
+  function getBounceAnim(id: string): Animated.Value {
+    if (!bounceAnims[id]) {
+      bounceAnims[id] = new Animated.Value(1);
+    }
+    return bounceAnims[id];
+  }
 
   function toggleFistbump(id: string) {
+    const anim = getBounceAnim(id);
+    Animated.sequence([
+      Animated.timing(anim, { toValue: 1.3, duration: 100, useNativeDriver: true }),
+      Animated.spring(anim, { toValue: 1, friction: 3, useNativeDriver: true }),
+    ]).start();
+
     setPosts((prev) =>
       prev.map((post) => {
         if (post.id !== id) return post;
@@ -174,6 +192,17 @@ export default function SocialFeedScreen() {
       }
       return next;
     });
+  }
+
+  function submitComment(postId: string) {
+    if (!commentText.trim()) return;
+    setPosts((prev) =>
+      prev.map((post) =>
+        post.id === postId ? { ...post, comments: post.comments + 1 } : post
+      )
+    );
+    setCommentText("");
+    setCommentingId(null);
   }
 
   return (
@@ -230,21 +259,48 @@ export default function SocialFeedScreen() {
                     style={styles.actionButton}
                     onPress={() => toggleFistbump(post.id)}
                   >
-                    <Heart
-                      size={18}
-                      color={isBumped ? C.red : C.muted}
-                      strokeWidth={2}
-                      fill={isBumped ? C.red : "none"}
-                    />
+                    <Animated.View style={{ transform: [{ scale: getBounceAnim(post.id) }] }}>
+                      <Heart
+                        size={18}
+                        color={isBumped ? C.red : C.muted}
+                        strokeWidth={2}
+                        fill={isBumped ? C.red : "none"}
+                      />
+                    </Animated.View>
                     <Text style={[styles.actionCount, isBumped && { color: C.red }]}>
                       {post.fistbumps}
                     </Text>
                   </TouchableOpacity>
-                  <TouchableOpacity style={styles.actionButton}>
-                    <MessageCircle size={18} color={C.muted} strokeWidth={2} />
-                    <Text style={styles.actionCount}>{post.comments}</Text>
+                  <TouchableOpacity
+                    style={styles.actionButton}
+                    onPress={() => setCommentingId(commentingId === post.id ? null : post.id)}
+                  >
+                    <MessageCircle size={18} color={commentingId === post.id ? C.green : C.muted} strokeWidth={2} />
+                    <Text style={[styles.actionCount, commentingId === post.id && { color: C.green }]}>
+                      {post.comments}
+                    </Text>
                   </TouchableOpacity>
                 </View>
+
+                {/* Inline Comment Input */}
+                {commentingId === post.id && (
+                  <View style={styles.commentInputRow}>
+                    <TextInput
+                      style={styles.commentInput}
+                      placeholder="Escreve um comentario..."
+                      placeholderTextColor={C.muted}
+                      value={commentText}
+                      onChangeText={setCommentText}
+                      autoFocus
+                    />
+                    <TouchableOpacity
+                      style={styles.commentSendButton}
+                      onPress={() => submitComment(post.id)}
+                    >
+                      <Send size={16} color={commentText.trim() ? C.green : C.muted} strokeWidth={2} />
+                    </TouchableOpacity>
+                  </View>
+                )}
               </View>
             );
           })}
@@ -391,5 +447,35 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: "600",
     color: C.muted,
+  },
+
+  // Comment Input
+  commentInputRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    marginTop: 10,
+    paddingTop: 10,
+    borderTopWidth: 1,
+    borderTopColor: C.border,
+  },
+  commentInput: {
+    flex: 1,
+    backgroundColor: C.surface2,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: C.border,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    fontSize: 13,
+    color: C.text,
+  },
+  commentSendButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: C.surface2,
+    alignItems: "center",
+    justifyContent: "center",
   },
 });

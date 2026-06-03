@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -6,6 +6,7 @@ import {
   ScrollView,
   TouchableOpacity,
   FlatList,
+  Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
@@ -58,9 +59,6 @@ function formatDateHeader(): string {
   ];
   return `${weekDays[now.getDay()]}, ${now.getDate()} de ${months[now.getMonth()]}`;
 }
-
-// Mock booked classes (simulate user bookings)
-const bookedClassIds = new Set(["cl-2", "cl-6"]);
 
 // ─── Components ──────────────────────────────────────────
 
@@ -122,10 +120,22 @@ function DaySelector({
   );
 }
 
-function ClassCard({ cls, onPress }: { cls: Class; onPress: () => void }) {
-  const isFull = cls.enrolledCount >= cls.maxCapacity;
-  const isBooked = bookedClassIds.has(cls.id);
-  const occupancy = cls.enrolledCount / cls.maxCapacity;
+function ClassCard({
+  cls,
+  onPress,
+  isBooked,
+  onBook,
+  enrollmentOffset,
+}: {
+  cls: Class;
+  onPress: () => void;
+  isBooked: boolean;
+  onBook: () => void;
+  enrollmentOffset: number;
+}) {
+  const adjustedEnrolled = cls.enrolledCount + enrollmentOffset;
+  const isFull = adjustedEnrolled >= cls.maxCapacity;
+  const occupancy = adjustedEnrolled / cls.maxCapacity;
   const coachName = cls.coaches.length > 0 ? cls.coaches[0].name : "TBD";
 
   return (
@@ -168,7 +178,7 @@ function ClassCard({ cls, onPress }: { cls: Class; onPress: () => void }) {
       <View style={styles.enrollmentSection}>
         <View style={styles.enrollmentHeader}>
           <Text style={styles.enrollmentLabel}>
-            {cls.enrolledCount}/{cls.maxCapacity} inscritos
+            {adjustedEnrolled}/{cls.maxCapacity} inscritos
           </Text>
           {cls.waitlistCount > 0 && (
             <Text style={styles.waitlistLabel}>
@@ -195,7 +205,13 @@ function ClassCard({ cls, onPress }: { cls: Class; onPress: () => void }) {
 
       <View style={styles.cardFooter}>
         {isBooked ? (
-          <TouchableOpacity style={styles.bookedButton}>
+          <TouchableOpacity
+            style={styles.bookedButton}
+            onPress={(e) => {
+              e.stopPropagation?.();
+              onBook();
+            }}
+          >
             <Text style={styles.bookedButtonText}>RESERVADO</Text>
           </TouchableOpacity>
         ) : isFull ? (
@@ -203,7 +219,13 @@ function ClassCard({ cls, onPress }: { cls: Class; onPress: () => void }) {
             <Text style={styles.waitlistButtonText}>LISTA DE ESPERA</Text>
           </TouchableOpacity>
         ) : (
-          <TouchableOpacity style={styles.bookButton}>
+          <TouchableOpacity
+            style={styles.bookButton}
+            onPress={(e) => {
+              e.stopPropagation?.();
+              onBook();
+            }}
+          >
             <Text style={styles.bookButtonText}>RESERVAR</Text>
           </TouchableOpacity>
         )}
@@ -217,10 +239,25 @@ export default function ClassesScreen() {
   const router = useRouter();
   const weekDays = getWeekDays();
   const [selectedDate, setSelectedDate] = useState(weekDays[0].dateStr);
+  const [bookedIds, setBookedIds] = useState<Set<string>>(new Set(["cl-2", "cl-6"]));
 
   const filteredClasses = mockClasses.filter(
     (cls) => cls.date === selectedDate
   );
+
+  function toggleBooking(classId: string) {
+    setBookedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(classId)) {
+        next.delete(classId);
+        Alert.alert("Reserva Cancelada", "A tua reserva foi cancelada.");
+      } else {
+        next.add(classId);
+        Alert.alert("Reservado!", "A tua reserva foi confirmada com sucesso.");
+      }
+      return next;
+    });
+  }
 
   return (
     <SafeAreaView style={styles.safe} edges={["top"]}>
@@ -246,6 +283,9 @@ export default function ClassesScreen() {
             <ClassCard
               cls={item}
               onPress={() => router.push(`/class-detail?id=${item.id}`)}
+              isBooked={bookedIds.has(item.id)}
+              onBook={() => toggleBooking(item.id)}
+              enrollmentOffset={bookedIds.has(item.id) ? 1 : 0}
             />
           )}
           contentContainerStyle={styles.listContent}

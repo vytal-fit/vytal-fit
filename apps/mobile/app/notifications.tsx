@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -17,6 +17,7 @@ import {
   Flame,
   Bell,
   CreditCard,
+  CheckCheck,
 } from "lucide-react-native";
 
 // ─── Colors ──────────────────────────────────────────────
@@ -75,7 +76,27 @@ function timeAgo(dateStr: string): string {
 // ─── Screen ──────────────────────────────────────────────
 export default function NotificationsScreen() {
   const router = useRouter();
-  const unreadCount = mockNotifications.filter((n) => !n.read).length;
+  const [readIds, setReadIds] = useState<Set<string>>(() => {
+    const initial = new Set<string>();
+    mockNotifications.forEach((n) => {
+      if (n.read) initial.add(n.id);
+    });
+    return initial;
+  });
+
+  function markAsRead(id: string) {
+    setReadIds((prev) => {
+      const next = new Set(prev);
+      next.add(id);
+      return next;
+    });
+  }
+
+  function markAllAsRead() {
+    setReadIds(new Set(mockNotifications.map((n) => n.id)));
+  }
+
+  const unreadCount = mockNotifications.filter((n) => !readIds.has(n.id)).length;
 
   return (
     <SafeAreaView style={styles.safe} edges={["top"]}>
@@ -93,7 +114,13 @@ export default function NotificationsScreen() {
               </View>
             )}
           </View>
-          <View style={{ width: 44 }} />
+          {unreadCount > 0 ? (
+            <TouchableOpacity style={styles.markAllButton} onPress={markAllAsRead}>
+              <CheckCheck size={18} color={C.green} strokeWidth={2} />
+            </TouchableOpacity>
+          ) : (
+            <View style={{ width: 44 }} />
+          )}
         </View>
 
         {/* Notification List */}
@@ -104,19 +131,21 @@ export default function NotificationsScreen() {
           showsVerticalScrollIndicator={false}
           renderItem={({ item }) => {
             const { icon, color } = getNotificationIcon(item.type);
+            const isRead = readIds.has(item.id);
             return (
               <TouchableOpacity
                 style={[
                   styles.notifCard,
-                  !item.read && styles.notifCardUnread,
+                  !isRead && styles.notifCardUnread,
                 ]}
+                onPress={() => markAsRead(item.id)}
               >
                 <View style={[styles.notifIconBox, { backgroundColor: color + "15" }]}>
                   {icon}
                 </View>
                 <View style={styles.notifContent}>
                   <View style={styles.notifHeader}>
-                    <Text style={[styles.notifTitle, !item.read && styles.notifTitleUnread]}>
+                    <Text style={[styles.notifTitle, !isRead && styles.notifTitleUnread]}>
                       {item.title}
                     </Text>
                     <Text style={styles.notifTime}>{timeAgo(item.createdAt)}</Text>
@@ -125,7 +154,7 @@ export default function NotificationsScreen() {
                     {item.body}
                   </Text>
                 </View>
-                {!item.read && <View style={styles.unreadDot} />}
+                {!isRead && <View style={styles.unreadDot} />}
               </TouchableOpacity>
             );
           }}
@@ -257,6 +286,18 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     backgroundColor: C.green,
     marginLeft: 4,
+  },
+
+  // Mark All
+  markAllButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 14,
+    backgroundColor: C.green + "15",
+    borderWidth: 1,
+    borderColor: C.green + "30",
+    alignItems: "center",
+    justifyContent: "center",
   },
 
   // Empty

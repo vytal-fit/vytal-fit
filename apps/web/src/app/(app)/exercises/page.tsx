@@ -5,6 +5,7 @@ import { mockExercises } from "@vytal-fit/shared";
 import type { ExerciseCategory } from "@vytal-fit/shared";
 import { Search, Dumbbell } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/lib/i18n";
 
 const categoryConfig: Record<
   ExerciseCategory,
@@ -46,6 +47,7 @@ const categories: ExerciseCategory[] = [
 ];
 
 export default function ExercisesPage() {
+  const { t } = useI18n();
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState<
     ExerciseCategory | "all"
@@ -70,9 +72,9 @@ export default function ExercisesPage() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-vytal-text">Exercise Library</h1>
+        <h1 className="text-2xl font-bold text-vytal-text">{t("exercises.title")}</h1>
         <p className="mt-1 text-sm text-vytal-muted">
-          Browse and manage exercises ({mockExercises.length} total)
+          {t("exercises.subtitle")} ({mockExercises.length} total)
         </p>
       </div>
 

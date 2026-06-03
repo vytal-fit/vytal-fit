@@ -1,3 +1,5 @@
+"use client";
+
 import {
   BarChart3,
   Users,
@@ -7,6 +9,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 import Link from "next/link";
+import { useI18n } from "@/lib/i18n";
 
 interface ReportCardProps {
   title: string;
@@ -59,13 +62,14 @@ function ReportCard({ title, icon, iconBg, metrics, href }: ReportCardProps) {
 }
 
 export default function ReportsPage() {
+  const { t } = useI18n();
   return (
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-vytal-text">Reports</h1>
+        <h1 className="text-2xl font-bold text-vytal-text">{t("reports.title")}</h1>
         <p className="mt-1 text-sm text-vytal-muted">
-          View and download performance reports
+          {t("reports.subtitle")}
         </p>
       </div>
 

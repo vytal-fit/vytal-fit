@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Smartphone, Save, Camera } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/lib/i18n";
 
 interface SectionToggle {
   key: string;
@@ -33,6 +34,7 @@ const appSections: SectionToggle[] = [
 ];
 
 export default function AppConfigPage() {
+  const { t } = useI18n();
   const [toggles, setToggles] = useState<Record<string, boolean>>(() => {
     const initial: Record<string, boolean> = {};
     for (const section of appSections) {
@@ -89,9 +91,9 @@ export default function AppConfigPage() {
     <div className="space-y-6">
       <div className="flex items-end justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-vytal-text">App Configuration</h1>
+          <h1 className="text-2xl font-bold text-vytal-text">{t("appConfig.title")}</h1>
           <p className="mt-1 text-sm text-vytal-muted">
-            Configure mobile app sections and appearance
+            {t("appConfig.subtitle")}
           </p>
         </div>
         <div className="flex gap-2">

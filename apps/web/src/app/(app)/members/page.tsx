@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { mockMembers } from "@vytal-fit/shared";
 import type { MemberStatus } from "@vytal-fit/shared";
 import {
@@ -18,10 +18,13 @@ import {
   AlertTriangle,
   Eye,
   SearchX,
+  ArrowUp,
+  ArrowDown,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useI18n } from "@/lib/i18n";
+import { useToast } from "@/components/toast";
 
 const planMap: Record<string, string> = {
   "m-1": "Unlimited",
@@ -35,6 +38,8 @@ const planMap: Record<string, string> = {
 };
 
 type FilterKey = "all" | "active" | "inactive" | "trial" | "at_risk";
+type SortKey = "memberNumber" | "name" | "email" | "status" | "lastCheckIn" | "streakWeeks" | "totalCheckIns";
+type SortDir = "asc" | "desc";
 
 const avatarColors: Record<MemberStatus, string> = {
   active: "bg-vytal-green/10 text-vytal-green",
@@ -125,14 +130,38 @@ function MiniStat({ label, value, icon, color }: StatProps) {
   );
 }
 
+function SortIcon({ sortKey, currentKey, dir }: { sortKey: SortKey; currentKey: SortKey; dir: SortDir }) {
+  if (sortKey !== currentKey) return null;
+  return dir === "asc" ? (
+    <ArrowUp className="ml-1 inline h-3 w-3" />
+  ) : (
+    <ArrowDown className="ml-1 inline h-3 w-3" />
+  );
+}
+
 export default function MembersPage() {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<FilterKey>("all");
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [sortKey, setSortKey] = useState<SortKey>("memberNumber");
+  const [sortDir, setSortDir] = useState<SortDir>("asc");
   const { t } = useI18n();
+  const { toast } = useToast();
+
+  const handleSort = useCallback(
+    (key: SortKey) => {
+      if (sortKey === key) {
+        setSortDir((d) => (d === "asc" ? "desc" : "asc"));
+      } else {
+        setSortKey(key);
+        setSortDir("asc");
+      }
+    },
+    [sortKey]
+  );
 
   const members = useMemo(() => {
-    let list = mockMembers;
+    let list = [...mockMembers];
 
     // Apply status filter
     if (filter === "active") list = list.filter((m) => m.status === "active");
@@ -158,8 +187,37 @@ export default function MembersPage() {
       );
     }
 
+    // Apply sorting
+    list.sort((a, b) => {
+      let cmp = 0;
+      switch (sortKey) {
+        case "memberNumber":
+          cmp = a.memberNumber - b.memberNumber;
+          break;
+        case "name":
+          cmp = a.name.localeCompare(b.name);
+          break;
+        case "email":
+          cmp = a.email.localeCompare(b.email);
+          break;
+        case "status":
+          cmp = a.status.localeCompare(b.status);
+          break;
+        case "lastCheckIn":
+          cmp = (a.lastCheckIn ?? "").localeCompare(b.lastCheckIn ?? "");
+          break;
+        case "streakWeeks":
+          cmp = a.streakWeeks - b.streakWeeks;
+          break;
+        case "totalCheckIns":
+          cmp = a.totalCheckIns - b.totalCheckIns;
+          break;
+      }
+      return sortDir === "asc" ? cmp : -cmp;
+    });
+
     return list;
-  }, [search, filter]);
+  }, [search, filter, sortKey, sortDir]);
 
   const counts = useMemo(() => {
     const all = mockMembers;
@@ -188,6 +246,34 @@ export default function MembersPage() {
     }
   };
 
+  const handleExportCSV = useCallback(() => {
+    const headers = ["#", "Name", "Email", "Phone", "Status", "Plan", "Last Check-in", "Streak", "Check-ins"];
+    const rows = mockMembers.map((m) => [
+      m.memberNumber,
+      m.name,
+      m.email,
+      m.phone ?? "",
+      m.status,
+      planMap[m.id] ?? "N/A",
+      m.lastCheckIn ?? "Never",
+      m.streakWeeks,
+      m.totalCheckIns,
+    ]);
+    const csv = [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "members.csv";
+    a.click();
+    URL.revokeObjectURL(url);
+    toast("CSV exported successfully", "success");
+  }, [toast]);
+
+  const handleExportPDF = useCallback(() => {
+    toast("PDF generated", "success");
+  }, [toast]);
+
   const filters: { key: FilterKey; label: string; count?: number }[] = [
     { key: "all", label: "All", count: counts.total },
     { key: "active", label: t("members.active"), count: counts.active },
@@ -195,6 +281,9 @@ export default function MembersPage() {
     { key: "trial", label: t("members.trial"), count: counts.trial },
     { key: "at_risk", label: "At Risk" },
   ];
+
+  const thClass =
+    "cursor-pointer select-none px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-vytal-muted hover:text-vytal-text transition-colors";
 
   return (
     <div className="space-y-6">
@@ -209,11 +298,17 @@ export default function MembersPage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <button className="flex items-center gap-2 rounded-lg border border-vytal-border px-3 py-2 text-sm font-medium text-vytal-text transition-colors hover:bg-vytal-bg3">
+          <button
+            onClick={handleExportCSV}
+            className="flex items-center gap-2 rounded-lg border border-vytal-border px-3 py-2 text-sm font-medium text-vytal-text transition-colors hover:bg-vytal-bg3"
+          >
             <Download className="h-4 w-4" />
             CSV
           </button>
-          <button className="flex items-center gap-2 rounded-lg border border-vytal-border px-3 py-2 text-sm font-medium text-vytal-text transition-colors hover:bg-vytal-bg3">
+          <button
+            onClick={handleExportPDF}
+            className="flex items-center gap-2 rounded-lg border border-vytal-border px-3 py-2 text-sm font-medium text-vytal-text transition-colors hover:bg-vytal-bg3"
+          >
             <FileText className="h-4 w-4" />
             PDF
           </button>
@@ -305,16 +400,25 @@ export default function MembersPage() {
       {selectedIds.size > 0 && (
         <div className="flex items-center gap-3 rounded-lg border border-vytal-green/20 bg-vytal-green/5 px-4 py-3">
           <span className="text-sm font-medium text-vytal-green">
-            {selectedIds.size} selected
+            {selectedIds.size} member{selectedIds.size !== 1 ? "s" : ""} selected
           </span>
           <div className="flex gap-2">
-            <button className="flex items-center gap-1.5 rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-1.5 text-xs font-medium text-vytal-text transition-colors hover:bg-vytal-bg3">
+            <button
+              onClick={() => toast(`Email sent to ${selectedIds.size} member(s)`, "success")}
+              className="flex items-center gap-1.5 rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-1.5 text-xs font-medium text-vytal-text transition-colors hover:bg-vytal-bg3"
+            >
               <Mail className="h-3 w-3" /> Send Email
             </button>
-            <button className="flex items-center gap-1.5 rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-1.5 text-xs font-medium text-vytal-text transition-colors hover:bg-vytal-bg3">
+            <button
+              onClick={() => toast(`SMS sent to ${selectedIds.size} member(s)`, "success")}
+              className="flex items-center gap-1.5 rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-1.5 text-xs font-medium text-vytal-text transition-colors hover:bg-vytal-bg3"
+            >
               <Smartphone className="h-3 w-3" /> Send SMS
             </button>
-            <button className="flex items-center gap-1.5 rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-1.5 text-xs font-medium text-vytal-text transition-colors hover:bg-vytal-bg3">
+            <button
+              onClick={() => toast(`Plan changed for ${selectedIds.size} member(s)`, "success")}
+              className="flex items-center gap-1.5 rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-1.5 text-xs font-medium text-vytal-text transition-colors hover:bg-vytal-bg3"
+            >
               <CreditCard className="h-3 w-3" /> Change Plan
             </button>
           </div>
@@ -342,29 +446,29 @@ export default function MembersPage() {
                   className="h-3.5 w-3.5 rounded border-vytal-border accent-vytal-green"
                 />
               </th>
-              <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-vytal-muted">
-                #
+              <th className={thClass} onClick={() => handleSort("memberNumber")}>
+                # <SortIcon sortKey="memberNumber" currentKey={sortKey} dir={sortDir} />
               </th>
-              <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-vytal-muted">
-                {t("members.name")}
+              <th className={thClass} onClick={() => handleSort("name")}>
+                {t("members.name")} <SortIcon sortKey="name" currentKey={sortKey} dir={sortDir} />
               </th>
-              <th className="hidden px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-vytal-muted md:table-cell">
-                {t("members.email")}
+              <th className={cn(thClass, "hidden md:table-cell")} onClick={() => handleSort("email")}>
+                {t("members.email")} <SortIcon sortKey="email" currentKey={sortKey} dir={sortDir} />
               </th>
-              <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-vytal-muted">
-                {t("members.status")}
+              <th className={thClass} onClick={() => handleSort("status")}>
+                {t("members.status")} <SortIcon sortKey="status" currentKey={sortKey} dir={sortDir} />
               </th>
-              <th className="hidden px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-vytal-muted lg:table-cell">
+              <th className={cn(thClass, "hidden lg:table-cell")}>
                 {t("members.plan")}
               </th>
-              <th className="hidden px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-vytal-muted sm:table-cell">
-                {t("members.lastCheckIn")}
+              <th className={cn(thClass, "hidden sm:table-cell")} onClick={() => handleSort("lastCheckIn")}>
+                {t("members.lastCheckIn")} <SortIcon sortKey="lastCheckIn" currentKey={sortKey} dir={sortDir} />
               </th>
-              <th className="hidden px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-vytal-muted xl:table-cell">
-                {t("members.streak")}
+              <th className={cn(thClass, "hidden xl:table-cell text-right")} onClick={() => handleSort("streakWeeks")}>
+                {t("members.streak")} <SortIcon sortKey="streakWeeks" currentKey={sortKey} dir={sortDir} />
               </th>
-              <th className="hidden px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-vytal-muted xl:table-cell">
-                {t("members.checkIns")}
+              <th className={cn(thClass, "hidden xl:table-cell text-right")} onClick={() => handleSort("totalCheckIns")}>
+                {t("members.checkIns")} <SortIcon sortKey="totalCheckIns" currentKey={sortKey} dir={sortDir} />
               </th>
               <th className="w-12 px-4 py-3" />
             </tr>

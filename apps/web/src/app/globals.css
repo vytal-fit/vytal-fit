@@ -103,6 +103,16 @@
   animation: onboarding-progress-glow 2s ease-in-out infinite;
 }
 
+/* Toast slide-in animation */
+@keyframes slide-in-right {
+  from { opacity: 0; transform: translateX(100%); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+.animate-slide-in-right {
+  animation: slide-in-right 0.3s ease-out both;
+}
+
 /* Confetti particle base */
 .onboarding-confetti-particle {
   position: absolute;

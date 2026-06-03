@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Mail, Send, Save, Globe } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/lib/i18n";
 
 type Language = "pt" | "en";
 
@@ -71,6 +72,7 @@ const initialTemplates: EmailTemplate[] = [
 ];
 
 export default function EmailTemplatesPage() {
+  const { t } = useI18n();
   const [templates, setTemplates] = useState(initialTemplates);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [lang, setLang] = useState<Language>("pt");
@@ -92,9 +94,9 @@ export default function EmailTemplatesPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-vytal-text">Email Templates</h1>
+        <h1 className="text-2xl font-bold text-vytal-text">{t("templates.title")}</h1>
         <p className="mt-1 text-sm text-vytal-muted">
-          Manage automated email templates
+          {t("templates.subtitle")}
         </p>
       </div>
 
@@ -220,11 +222,11 @@ export default function EmailTemplatesPage() {
               <div className="flex justify-end gap-3 border-t border-vytal-border pt-4">
                 <button className="flex items-center gap-2 rounded-lg border border-vytal-border bg-vytal-bg2 px-4 py-2.5 text-sm font-medium text-vytal-muted transition-colors hover:text-vytal-text">
                   <Send className="h-4 w-4" />
-                  Send Test
+                  {t("templates.sendTest")}
                 </button>
                 <button className="flex items-center gap-2 rounded-lg bg-vytal-green px-6 py-2.5 text-sm font-semibold text-vytal-bg transition-colors hover:bg-vytal-green/90">
                   <Save className="h-4 w-4" />
-                  Save
+                  {t("action.save")}
                 </button>
               </div>
             </div>

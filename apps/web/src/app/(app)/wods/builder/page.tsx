@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -14,12 +14,13 @@ import {
   Zap,
   Timer,
   ChevronRight,
-  ChevronDown,
+  GripVertical,
   Eye,
 } from "lucide-react";
 import { mockExercises, mockClassTypes } from "@vytal-fit/shared";
 import type { WODType, Exercise } from "@vytal-fit/shared";
 import { cn } from "@/lib/utils";
+import { useToast } from "@/components/toast";
 
 const PART_NAMES = ["Warm Up", "Skill", "Strength", "WOD", "Cool Down", "Custom"];
 
@@ -101,7 +102,7 @@ function ExerciseSearch({
               }}
               className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-vytal-text transition-colors hover:bg-vytal-bg3"
             >
-              <Dumbbell className="h-3 w-3 text-vytal-green shrink-0" />
+              <Dumbbell className="h-3 w-3 shrink-0 text-vytal-green" />
               <span>{ex.name}</span>
               <span className="ml-auto text-[10px] text-vytal-muted">
                 {ex.category}
@@ -125,6 +126,7 @@ export default function WODBuilderPage() {
   const [title, setTitle] = useState("");
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
   const [classTypeId, setClassTypeId] = useState(mockClassTypes[0].id);
+  const { toast } = useToast();
   const [parts, setParts] = useState<Part[]>([
     {
       id: `part-${partIdCounter++}`,
@@ -151,6 +153,9 @@ export default function WODBuilderPage() {
       exercises: [],
     },
   ]);
+
+  // Drag state for exercise reordering
+  const [dragExercise, setDragExercise] = useState<{ partId: string; exIdx: number } | null>(null);
 
   function addPart() {
     setParts((prev) => [
@@ -227,7 +232,55 @@ export default function WODBuilderPage() {
     );
   }
 
+  const handleExDragStart = useCallback(
+    (partId: string, exIdx: number) => {
+      setDragExercise({ partId, exIdx });
+    },
+    []
+  );
+
+  const handleExDrop = useCallback(
+    (partId: string, targetIdx: number) => {
+      if (!dragExercise || dragExercise.partId !== partId) {
+        setDragExercise(null);
+        return;
+      }
+      const sourceIdx = dragExercise.exIdx;
+      if (sourceIdx === targetIdx) {
+        setDragExercise(null);
+        return;
+      }
+      setParts((prev) =>
+        prev.map((p) => {
+          if (p.id !== partId) return p;
+          const newExercises = [...p.exercises];
+          const [moved] = newExercises.splice(sourceIdx, 1);
+          newExercises.splice(targetIdx, 0, moved);
+          return { ...p, exercises: newExercises };
+        })
+      );
+      setDragExercise(null);
+    },
+    [dragExercise]
+  );
+
+  function handlePublish() {
+    toast(`WOD published for ${date}!`, "success");
+  }
+
+  function handleSaveDraft() {
+    toast("Draft saved", "info");
+  }
+
   const selectedClassType = mockClassTypes.find((ct) => ct.id === classTypeId);
+
+  // Determine which fields to show per type
+  function showTimeCap(type: WODType) {
+    return type === "amrap" || type === "for_time" || type === "tabata";
+  }
+  function showRounds(type: WODType) {
+    return type === "emom" || type === "tabata";
+  }
 
   return (
     <div className="space-y-6">
@@ -249,9 +302,9 @@ export default function WODBuilderPage() {
 
       <div className="grid gap-8 lg:grid-cols-5">
         {/* Editor - Left */}
-        <div className="lg:col-span-3 space-y-6">
+        <div className="space-y-6 lg:col-span-3">
           {/* Basic Info */}
-          <div className="rounded-xl border border-vytal-border bg-vytal-card p-6 space-y-4">
+          <div className="space-y-4 rounded-xl border border-vytal-border bg-vytal-card p-6">
             <div>
               <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">
                 Title
@@ -300,7 +353,7 @@ export default function WODBuilderPage() {
           {parts.map((part, partIdx) => (
             <div
               key={part.id}
-              className="rounded-xl border border-vytal-border bg-vytal-card p-6 space-y-4"
+              className="space-y-4 rounded-xl border border-vytal-border bg-vytal-card p-6"
             >
               <div className="flex items-center justify-between">
                 <h3 className="text-sm font-semibold text-vytal-text">
@@ -356,34 +409,70 @@ export default function WODBuilderPage() {
                     ))}
                   </select>
                 </div>
-                <div>
-                  <label className="mb-1 block text-[10px] font-medium uppercase tracking-wider text-vytal-muted">
-                    Time Cap (min)
-                  </label>
-                  <input
-                    type="number"
-                    value={part.timeCap}
-                    onChange={(e) =>
-                      updatePart(part.id, { timeCap: e.target.value })
-                    }
-                    placeholder="--"
-                    className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-2 text-sm text-vytal-text placeholder:text-vytal-muted focus:border-vytal-green/30 focus:outline-none focus:ring-1 focus:ring-vytal-green/20"
-                  />
-                </div>
-                <div>
-                  <label className="mb-1 block text-[10px] font-medium uppercase tracking-wider text-vytal-muted">
-                    Rounds
-                  </label>
-                  <input
-                    type="number"
-                    value={part.rounds}
-                    onChange={(e) =>
-                      updatePart(part.id, { rounds: e.target.value })
-                    }
-                    placeholder="--"
-                    className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-2 text-sm text-vytal-text placeholder:text-vytal-muted focus:border-vytal-green/30 focus:outline-none focus:ring-1 focus:ring-vytal-green/20"
-                  />
-                </div>
+                {showTimeCap(part.type) && (
+                  <div>
+                    <label className="mb-1 block text-[10px] font-medium uppercase tracking-wider text-vytal-muted">
+                      Time Cap (min)
+                    </label>
+                    <input
+                      type="number"
+                      value={part.timeCap}
+                      onChange={(e) =>
+                        updatePart(part.id, { timeCap: e.target.value })
+                      }
+                      placeholder="--"
+                      className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-2 text-sm text-vytal-text placeholder:text-vytal-muted focus:border-vytal-green/30 focus:outline-none focus:ring-1 focus:ring-vytal-green/20"
+                    />
+                  </div>
+                )}
+                {showRounds(part.type) && (
+                  <div>
+                    <label className="mb-1 block text-[10px] font-medium uppercase tracking-wider text-vytal-muted">
+                      Rounds
+                    </label>
+                    <input
+                      type="number"
+                      value={part.rounds}
+                      onChange={(e) =>
+                        updatePart(part.id, { rounds: e.target.value })
+                      }
+                      placeholder="--"
+                      className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-2 text-sm text-vytal-text placeholder:text-vytal-muted focus:border-vytal-green/30 focus:outline-none focus:ring-1 focus:ring-vytal-green/20"
+                    />
+                  </div>
+                )}
+                {!showTimeCap(part.type) && (
+                  <div>
+                    <label className="mb-1 block text-[10px] font-medium uppercase tracking-wider text-vytal-muted">
+                      Time Cap (min)
+                    </label>
+                    <input
+                      type="number"
+                      value={part.timeCap}
+                      onChange={(e) =>
+                        updatePart(part.id, { timeCap: e.target.value })
+                      }
+                      placeholder="--"
+                      className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-2 text-sm text-vytal-text placeholder:text-vytal-muted focus:border-vytal-green/30 focus:outline-none focus:ring-1 focus:ring-vytal-green/20"
+                    />
+                  </div>
+                )}
+                {!showRounds(part.type) && (
+                  <div>
+                    <label className="mb-1 block text-[10px] font-medium uppercase tracking-wider text-vytal-muted">
+                      Rounds
+                    </label>
+                    <input
+                      type="number"
+                      value={part.rounds}
+                      onChange={(e) =>
+                        updatePart(part.id, { rounds: e.target.value })
+                      }
+                      placeholder="--"
+                      className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-2 text-sm text-vytal-text placeholder:text-vytal-muted focus:border-vytal-green/30 focus:outline-none focus:ring-1 focus:ring-vytal-green/20"
+                    />
+                  </div>
+                )}
               </div>
 
               {/* Exercises */}
@@ -394,11 +483,19 @@ export default function WODBuilderPage() {
                 {part.exercises.map((ex, exIdx) => (
                   <div
                     key={exIdx}
-                    className="flex items-start gap-2 rounded-lg border border-vytal-border bg-vytal-bg2 p-3"
+                    draggable
+                    onDragStart={() => handleExDragStart(part.id, exIdx)}
+                    onDragOver={(e) => e.preventDefault()}
+                    onDrop={() => handleExDrop(part.id, exIdx)}
+                    className={cn(
+                      "flex items-start gap-2 rounded-lg border border-vytal-border bg-vytal-bg2 p-3 transition-opacity",
+                      dragExercise?.partId === part.id && dragExercise?.exIdx === exIdx && "opacity-40"
+                    )}
                   >
+                    <GripVertical className="mt-2 h-3.5 w-3.5 shrink-0 cursor-grab text-vytal-muted/50" />
                     <div className="flex-1 space-y-2">
                       <div className="flex items-center gap-2">
-                        <Dumbbell className="h-3.5 w-3.5 text-vytal-green shrink-0" />
+                        <Dumbbell className="h-3.5 w-3.5 shrink-0 text-vytal-green" />
                         <span className="text-sm font-medium text-vytal-text">
                           {ex.exercise?.name ?? "Unknown"}
                         </span>
@@ -470,12 +567,14 @@ export default function WODBuilderPage() {
           <div className="flex gap-3">
             <button
               type="button"
+              onClick={handlePublish}
               className="flex items-center gap-2 rounded-lg bg-vytal-green px-6 py-2.5 text-sm font-semibold text-vytal-bg transition-all hover:bg-vytal-green/90"
             >
               Publish
             </button>
             <button
               type="button"
+              onClick={handleSaveDraft}
               className="flex items-center gap-2 rounded-lg border border-vytal-border px-6 py-2.5 text-sm font-medium text-vytal-text transition-colors hover:bg-vytal-bg3"
             >
               Save Draft
@@ -496,14 +595,14 @@ export default function WODBuilderPage() {
 
               {/* Preview Header */}
               <div className="mb-5">
-                <div className="flex items-center gap-3 mb-1">
+                <div className="mb-1 flex items-center gap-3">
                   {title && (
                     <h4 className="text-lg font-bold text-vytal-text">
                       {title}
                     </h4>
                   )}
                   {!title && (
-                    <h4 className="text-lg font-bold text-vytal-muted italic">
+                    <h4 className="text-lg font-bold italic text-vytal-muted">
                       Untitled WOD
                     </h4>
                   )}
@@ -527,10 +626,8 @@ export default function WODBuilderPage() {
               {/* Preview Parts */}
               <div className="space-y-4">
                 {parts.map((part) => {
-                  if (part.exercises.length === 0 && !part.timeCap && !part.rounds)
-                    return null;
-
                   const config = wodTypeConfig[part.type];
+                  const hasContent = part.exercises.length > 0 || part.timeCap || part.rounds;
 
                   return (
                     <div key={part.id} className="space-y-2">

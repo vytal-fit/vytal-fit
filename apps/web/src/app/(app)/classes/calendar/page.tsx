@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import Link from "next/link";
-import { ChevronLeft, ChevronRight, ArrowLeft } from "lucide-react";
-import { mockClasses, mockClassTypes, mockCoaches, mockLocations } from "@vytal-fit/shared";
+import { ChevronLeft, ChevronRight, ArrowLeft, X, Trash2, Edit, Users } from "lucide-react";
+import { mockClassTypes, mockCoaches, mockLocations } from "@vytal-fit/shared";
 import type { Class } from "@vytal-fit/shared";
 import { cn } from "@/lib/utils";
+import { useToast } from "@/components/toast";
 
 const TIME_SLOTS = [
   "06:00", "07:00", "08:00", "09:00", "10:00", "11:00",
@@ -82,47 +83,35 @@ function generateWeekClasses(monday: Date): Class[] {
     }
   }
 
-  // Also merge in any real mockClasses that fall within the week
-  const sunday = new Date(monday);
-  sunday.setDate(sunday.getDate() + 6);
-  const mondayStr = monday.toISOString().split("T")[0];
-  const sundayStr = sunday.toISOString().split("T")[0];
-
-  for (const cls of mockClasses) {
-    if (cls.date >= mondayStr && cls.date <= sundayStr) {
-      // Avoid duplicates by checking if we already have one at that date+time
-      const exists = classes.some(
-        (c) => c.date === cls.date && c.startTime === cls.startTime && c.classTypeId === cls.classTypeId
-      );
-      if (!exists) {
-        classes.push(cls);
-      }
-    }
-  }
-
   return classes;
 }
 
-function ClassBlock({ cls }: { cls: Class }) {
+function ClassBlock({
+  cls,
+  onClick,
+}: {
+  cls: Class;
+  onClick: () => void;
+}) {
   const pct = (cls.enrolledCount / cls.maxCapacity) * 100;
   const isFull = pct >= 100;
 
   return (
-    <Link
-      href={`/classes/${cls.id}`}
-      className="group block rounded-lg border border-transparent p-1.5 transition-all hover:border-[rgba(61,255,110,0.22)] hover:shadow-lg"
+    <button
+      onClick={onClick}
+      className="group block w-full rounded-lg border border-transparent p-1.5 text-left transition-all hover:border-[rgba(61,255,110,0.22)] hover:shadow-lg"
       style={{ backgroundColor: `${cls.classType.color}15` }}
     >
-      <div className="flex items-center gap-1.5 mb-0.5">
+      <div className="mb-0.5 flex items-center gap-1.5">
         <div
-          className="h-2 w-2 rounded-full shrink-0"
+          className="h-2 w-2 shrink-0 rounded-full"
           style={{ backgroundColor: cls.classType.color }}
         />
-        <span className="text-[11px] font-semibold text-vytal-text truncate">
+        <span className="truncate text-[11px] font-semibold text-vytal-text">
           {cls.classType.name}
         </span>
       </div>
-      <p className="text-[10px] text-vytal-muted truncate">
+      <p className="truncate text-[10px] text-vytal-muted">
         {cls.coaches.length > 0
           ? cls.coaches.map((c) => c.name.split(" ")[0]).join(", ")
           : "Open Box"}
@@ -138,12 +127,242 @@ function ClassBlock({ cls }: { cls: Class }) {
           <span className="text-vytal-amber"> +{cls.waitlistCount}</span>
         )}
       </p>
-    </Link>
+    </button>
+  );
+}
+
+function ClassDetailPopup({
+  cls,
+  onClose,
+  onDelete,
+}: {
+  cls: Class;
+  onClose: () => void;
+  onDelete: () => void;
+}) {
+  const pct = Math.min((cls.enrolledCount / cls.maxCapacity) * 100, 100);
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={onClose}>
+      <div
+        className="w-full max-w-md rounded-xl border border-vytal-border bg-vytal-bg2 p-6 shadow-2xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="mb-4 flex items-start justify-between">
+          <div className="flex items-center gap-3">
+            <div
+              className="h-4 w-4 rounded-full"
+              style={{ backgroundColor: cls.classType.color }}
+            />
+            <h3 className="text-lg font-bold text-vytal-text">
+              {cls.classType.name}
+            </h3>
+          </div>
+          <button onClick={onClose} className="text-vytal-muted hover:text-vytal-text">
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+
+        <div className="mb-4 space-y-2 text-sm text-vytal-muted">
+          <p>
+            <span className="font-medium text-vytal-text">Date:</span> {cls.date}
+          </p>
+          <p>
+            <span className="font-medium text-vytal-text">Time:</span> {cls.startTime} - {cls.endTime}
+          </p>
+          <p>
+            <span className="font-medium text-vytal-text">Coach:</span>{" "}
+            {cls.coaches.length > 0 ? cls.coaches.map((c) => c.name).join(", ") : "Open Box"}
+          </p>
+          <p>
+            <span className="font-medium text-vytal-text">Location:</span> {cls.location.name}
+          </p>
+          <div className="flex items-center gap-2">
+            <Users className="h-4 w-4" />
+            <span className="font-medium text-vytal-text">Enrollment:</span>
+            <span className={cn("font-mono", pct >= 100 ? "text-vytal-red" : "text-vytal-green")}>
+              {cls.enrolledCount}/{cls.maxCapacity}
+            </span>
+          </div>
+          {cls.waitlistCount > 0 && (
+            <p>
+              <span className="font-medium text-vytal-amber">Waitlist:</span> {cls.waitlistCount}
+            </p>
+          )}
+        </div>
+
+        {/* Enrollment bar */}
+        <div className="mb-5 h-2 w-full overflow-hidden rounded-full bg-vytal-bg3">
+          <div
+            className={cn(
+              "h-full rounded-full",
+              pct >= 100 ? "bg-vytal-red" : pct >= 80 ? "bg-vytal-amber" : "bg-vytal-green"
+            )}
+            style={{ width: `${pct}%` }}
+          />
+        </div>
+
+        <div className="flex gap-2">
+          <button
+            onClick={onDelete}
+            className="flex items-center gap-2 rounded-lg border border-vytal-red/30 bg-vytal-red/5 px-4 py-2 text-sm font-medium text-vytal-red transition-colors hover:bg-vytal-red/10"
+          >
+            <Trash2 className="h-4 w-4" />
+            Delete
+          </button>
+          <button
+            onClick={onClose}
+            className="ml-auto rounded-lg border border-vytal-border px-4 py-2 text-sm font-medium text-vytal-text transition-colors hover:bg-vytal-bg3"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function CreateClassModal({
+  date,
+  time,
+  onClose,
+  onCreate,
+}: {
+  date: string;
+  time: string;
+  onClose: () => void;
+  onCreate: (cls: Class) => void;
+}) {
+  const [classTypeId, setClassTypeId] = useState(mockClassTypes[0].id);
+  const [coachId, setCoachId] = useState(mockCoaches[0].id);
+  const [endTime, setEndTime] = useState(() => {
+    const [h, m] = time.split(":").map(Number);
+    return `${String(h + 1).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+  });
+  const [maxCapacity, setMaxCapacity] = useState("20");
+
+  function handleCreate() {
+    const ct = mockClassTypes.find((c) => c.id === classTypeId) ?? mockClassTypes[0];
+    const coach = mockCoaches.find((c) => c.id === coachId);
+    const newClass: Class = {
+      id: `cal-new-${Date.now()}`,
+      organizationId: "org-1",
+      classTypeId: ct.id,
+      classType: ct,
+      locationId: mockLocations[0].id,
+      location: mockLocations[0],
+      coachIds: coach ? [coach.id] : [],
+      coaches: coach ? [coach] : [],
+      date,
+      startTime: time,
+      endTime,
+      maxCapacity: parseInt(maxCapacity) || 20,
+      enrolledCount: 0,
+      waitlistCount: 0,
+    };
+    onCreate(newClass);
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={onClose}>
+      <div
+        className="w-full max-w-md rounded-xl border border-vytal-border bg-vytal-bg2 p-6 shadow-2xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="mb-4 flex items-center justify-between">
+          <h3 className="text-lg font-bold text-vytal-text">Create Class</h3>
+          <button onClick={onClose} className="text-vytal-muted hover:text-vytal-text">
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+
+        <div className="space-y-4">
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="mb-1 block text-xs font-medium uppercase tracking-wider text-vytal-muted">Date</label>
+              <input
+                type="text"
+                value={date}
+                readOnly
+                className="w-full rounded-lg border border-vytal-border bg-vytal-bg px-3 py-2 text-sm text-vytal-muted"
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-medium uppercase tracking-wider text-vytal-muted">Start</label>
+              <input
+                type="text"
+                value={time}
+                readOnly
+                className="w-full rounded-lg border border-vytal-border bg-vytal-bg px-3 py-2 text-sm text-vytal-muted"
+              />
+            </div>
+          </div>
+          <div>
+            <label className="mb-1 block text-xs font-medium uppercase tracking-wider text-vytal-muted">End Time</label>
+            <input
+              type="time"
+              value={endTime}
+              onChange={(e) => setEndTime(e.target.value)}
+              className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-2 text-sm text-vytal-text focus:border-vytal-green/30 focus:outline-none"
+            />
+          </div>
+          <div>
+            <label className="mb-1 block text-xs font-medium uppercase tracking-wider text-vytal-muted">Class Type</label>
+            <select
+              value={classTypeId}
+              onChange={(e) => setClassTypeId(e.target.value)}
+              className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-2 text-sm text-vytal-text focus:border-vytal-green/30 focus:outline-none"
+            >
+              {mockClassTypes.filter((ct) => ct.active).map((ct) => (
+                <option key={ct.id} value={ct.id}>{ct.name}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="mb-1 block text-xs font-medium uppercase tracking-wider text-vytal-muted">Coach</label>
+            <select
+              value={coachId}
+              onChange={(e) => setCoachId(e.target.value)}
+              className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-2 text-sm text-vytal-text focus:border-vytal-green/30 focus:outline-none"
+            >
+              {mockCoaches.map((c) => (
+                <option key={c.id} value={c.id}>{c.name}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="mb-1 block text-xs font-medium uppercase tracking-wider text-vytal-muted">Max Capacity</label>
+            <input
+              type="number"
+              value={maxCapacity}
+              onChange={(e) => setMaxCapacity(e.target.value)}
+              className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-2 text-sm text-vytal-text focus:border-vytal-green/30 focus:outline-none"
+            />
+          </div>
+        </div>
+
+        <div className="mt-5 flex justify-end gap-2">
+          <button
+            onClick={onClose}
+            className="rounded-lg border border-vytal-border px-4 py-2 text-sm font-medium text-vytal-text transition-colors hover:bg-vytal-bg3"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleCreate}
+            className="rounded-lg bg-vytal-green px-4 py-2 text-sm font-semibold text-vytal-bg transition-colors hover:bg-vytal-green/90"
+          >
+            Create
+          </button>
+        </div>
+      </div>
+    </div>
   );
 }
 
 export default function ClassCalendarPage() {
   const [weekOffset, setWeekOffset] = useState(0);
+  const { toast } = useToast();
 
   const monday = useMemo(() => {
     const m = getMonday(new Date());
@@ -157,11 +376,16 @@ export default function ClassCalendarPage() {
     return s;
   }, [monday]);
 
-  const weekClasses = useMemo(() => generateWeekClasses(monday), [monday]);
+  const [extraClasses, setExtraClasses] = useState<Class[]>([]);
+  const [deletedIds, setDeletedIds] = useState<Set<string>>(new Set());
+
+  const weekClasses = useMemo(() => {
+    const base = generateWeekClasses(monday);
+    return [...base, ...extraClasses].filter((c) => !deletedIds.has(c.id));
+  }, [monday, extraClasses, deletedIds]);
 
   const today = new Date().toISOString().split("T")[0];
 
-  // Group classes by day + time
   const grid = useMemo(() => {
     const map: Record<string, Class[]> = {};
     for (const cls of weekClasses) {
@@ -179,6 +403,39 @@ export default function ClassCalendarPage() {
       return d.toISOString().split("T")[0];
     });
   }, [monday]);
+
+  // Popup states
+  const [selectedClass, setSelectedClass] = useState<Class | null>(null);
+  const [createModal, setCreateModal] = useState<{ date: string; time: string } | null>(null);
+
+  const handleCellClick = useCallback(
+    (dateStr: string, time: string) => {
+      const key = `${dateStr}|${time}`;
+      const existing = grid[key];
+      if (!existing || existing.length === 0) {
+        setCreateModal({ date: dateStr, time });
+      }
+    },
+    [grid]
+  );
+
+  const handleDelete = useCallback(
+    (cls: Class) => {
+      setDeletedIds((prev) => new Set([...prev, cls.id]));
+      setSelectedClass(null);
+      toast(`Deleted ${cls.classType.name} on ${cls.date}`, "success");
+    },
+    [toast]
+  );
+
+  const handleCreate = useCallback(
+    (cls: Class) => {
+      setExtraClasses((prev) => [...prev, cls]);
+      setCreateModal(null);
+      toast(`Created ${cls.classType.name} on ${cls.date} at ${cls.startTime}`, "success");
+    },
+    [toast]
+  );
 
   return (
     <div className="space-y-6">
@@ -274,13 +531,20 @@ export default function ClassCalendarPage() {
                     <td
                       key={dateStr}
                       className={cn(
-                        "px-1 py-1 align-top",
+                        "cursor-pointer px-1 py-1 align-top transition-colors hover:bg-vytal-green/[0.04]",
                         isToday && "bg-vytal-green/[0.02]"
                       )}
+                      onClick={() => handleCellClick(dateStr, time)}
                     >
                       <div className="space-y-1">
                         {classes.map((cls) => (
-                          <ClassBlock key={cls.id} cls={cls} />
+                          <ClassBlock
+                            key={cls.id}
+                            cls={cls}
+                            onClick={() => {
+                              setSelectedClass(cls);
+                            }}
+                          />
                         ))}
                       </div>
                     </td>
@@ -291,6 +555,25 @@ export default function ClassCalendarPage() {
           </tbody>
         </table>
       </div>
+
+      {/* Class detail popup */}
+      {selectedClass && (
+        <ClassDetailPopup
+          cls={selectedClass}
+          onClose={() => setSelectedClass(null)}
+          onDelete={() => handleDelete(selectedClass)}
+        />
+      )}
+
+      {/* Create class modal */}
+      {createModal && (
+        <CreateClassModal
+          date={createModal.date}
+          time={createModal.time}
+          onClose={() => setCreateModal(null)}
+          onCreate={handleCreate}
+        />
+      )}
     </div>
   );
 }

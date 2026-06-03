@@ -5,6 +5,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   TextInput,
+  Vibration,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
@@ -48,7 +49,8 @@ function formatTime(totalSeconds: number): string {
 
 function getDisplayColor(state: TimerState, remaining: number): string {
   if (state === "rest") return C.red;
-  if (state === "running" && remaining <= 10 && remaining > 0) return C.amber;
+  if (state === "paused") return C.amber;
+  if (state === "running" && remaining <= 10 && remaining > 0) return C.red;
   if (state === "running") return C.green;
   return C.text;
 }
@@ -148,6 +150,7 @@ export default function TimerScreen() {
         if (mode !== "stopwatch" && next >= total) {
           if (intervalRef.current) clearInterval(intervalRef.current);
           setTimerState("idle");
+          Vibration.vibrate([0, 500, 200, 500, 200, 500]);
         }
 
         return next;

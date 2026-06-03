@@ -2,10 +2,11 @@
 
 import { useState } from "react";
 import { mockClassTypes } from "@vytal-fit/shared";
-import { ArrowLeft, Save, X } from "lucide-react";
+import { ArrowLeft, Save, X, CheckCircle, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useToast } from "@/components/toast";
 
 const planTypes = [
   { value: "monthly", label: "Monthly" },
@@ -19,6 +20,7 @@ const planTypes = [
 
 export default function PlanCreatePage() {
   const router = useRouter();
+  const { toast } = useToast();
   const [name, setName] = useState("");
   const [type, setType] = useState("monthly");
   const [price, setPrice] = useState("");
@@ -26,6 +28,7 @@ export default function PlanCreatePage() {
   const [maxSessions, setMaxSessions] = useState("13");
   const [selectedClassTypes, setSelectedClassTypes] = useState<Set<string>>(new Set());
   const [active, setActive] = useState(true);
+  const [success, setSuccess] = useState(false);
 
   function toggleClassType(id: string) {
     setSelectedClassTypes((prev) => {
@@ -34,6 +37,90 @@ export default function PlanCreatePage() {
       else next.add(id);
       return next;
     });
+  }
+
+  function handlePriceBlur() {
+    if (price) {
+      const num = parseFloat(price);
+      if (!isNaN(num)) {
+        setPrice(num.toFixed(2));
+      }
+    }
+  }
+
+  function handleCreate() {
+    if (!name.trim()) {
+      toast("Plan name is required", "error");
+      return;
+    }
+    if (!price) {
+      toast("Price is required", "error");
+      return;
+    }
+    setSuccess(true);
+    toast("Plan created successfully!", "success");
+  }
+
+  function handleReset() {
+    setName("");
+    setType("monthly");
+    setPrice("");
+    setHasSessionLimit(false);
+    setMaxSessions("13");
+    setSelectedClassTypes(new Set());
+    setActive(true);
+    setSuccess(false);
+  }
+
+  if (success) {
+    const selectedCTs = mockClassTypes.filter((ct) => selectedClassTypes.has(ct.id));
+    return (
+      <div className="space-y-6">
+        <Link
+          href="/plans"
+          className="inline-flex items-center gap-1.5 text-sm text-vytal-muted transition-colors hover:text-vytal-text"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Back to Plans
+        </Link>
+
+        <div className="mx-auto max-w-lg rounded-xl border border-vytal-green/20 bg-vytal-green/5 p-8 text-center">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-vytal-green/10">
+            <CheckCircle className="h-8 w-8 text-vytal-green" />
+          </div>
+          <h2 className="mb-2 text-xl font-bold text-vytal-text">
+            Plan Created Successfully!
+          </h2>
+          <div className="mb-6 space-y-1 text-sm text-vytal-muted">
+            <p>
+              <span className="font-medium text-vytal-text">{name}</span> -{" "}
+              <span className="font-medium text-vytal-text">{price} EUR</span>
+            </p>
+            <p>Type: {planTypes.find((pt) => pt.value === type)?.label}</p>
+            {hasSessionLimit && <p>Max sessions: {maxSessions}</p>}
+            <p>Status: {active ? "Active" : "Inactive"}</p>
+            {selectedCTs.length > 0 && (
+              <p>Class types: {selectedCTs.map((ct) => ct.name).join(", ")}</p>
+            )}
+          </div>
+          <div className="flex justify-center gap-3">
+            <button
+              onClick={handleReset}
+              className="flex items-center gap-2 rounded-lg bg-vytal-green px-6 py-2.5 text-sm font-semibold text-vytal-bg transition-colors hover:bg-vytal-green/90"
+            >
+              <Plus className="h-4 w-4" />
+              Create Another
+            </button>
+            <Link
+              href="/plans"
+              className="rounded-lg border border-vytal-border px-6 py-2.5 text-sm font-medium text-vytal-text transition-colors hover:bg-vytal-bg3"
+            >
+              Back to Plans
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -92,6 +179,7 @@ export default function PlanCreatePage() {
                 type="number"
                 value={price}
                 onChange={(e) => setPrice(e.target.value)}
+                onBlur={handlePriceBlur}
                 placeholder="0.00"
                 className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-2.5 text-sm text-vytal-text placeholder:text-vytal-muted focus:border-vytal-green/30 focus:outline-none focus:ring-1 focus:ring-vytal-green/20"
               />
@@ -194,7 +282,10 @@ export default function PlanCreatePage() {
           <X className="h-4 w-4" />
           Cancel
         </button>
-        <button className="flex items-center gap-2 rounded-lg bg-vytal-green px-6 py-2.5 text-sm font-semibold text-vytal-bg transition-colors hover:bg-vytal-green/90">
+        <button
+          onClick={handleCreate}
+          className="flex items-center gap-2 rounded-lg bg-vytal-green px-6 py-2.5 text-sm font-semibold text-vytal-bg transition-colors hover:bg-vytal-green/90"
+        >
           <Save className="h-4 w-4" />
           Create
         </button>
