@@ -9,6 +9,7 @@ import {
   Calendar,
   Users,
   TrendingUp,
+  Pencil,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
@@ -96,6 +97,13 @@ export default function StaffDetailPage() {
               <span className={cn("inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold", role.className)}>
                 {role.label}
               </span>
+              <Link
+                href={`/staff/${id}/edit`}
+                className="flex items-center gap-1.5 rounded-lg border border-vytal-border px-3 py-1.5 text-xs font-medium text-vytal-muted transition-colors hover:bg-vytal-bg3 hover:text-vytal-text"
+              >
+                <Pencil className="h-3 w-3" />
+                {t("action.edit")}
+              </Link>
             </div>
             <div className="mt-2 flex flex-wrap items-center gap-4 text-sm text-vytal-muted">
               <div className="flex items-center gap-1.5">
