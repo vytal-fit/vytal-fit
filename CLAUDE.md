@@ -47,6 +47,8 @@ npm run lint         # Lint all packages
 npm run type-check   # Type check all packages
 npm test             # Run all tests
 npm run test:watch   # Tests in watch mode
+npm run test:e2e     # Run Playwright E2E tests
+npm run test:e2e:ui  # Playwright interactive UI
 ```
 
 ## Rules

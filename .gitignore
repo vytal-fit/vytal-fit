@@ -55,6 +55,11 @@ apps/web/.next/
 # Build
 dist/
 
+# Playwright
+apps/web/e2e/test-results/
+apps/web/e2e/html-report/
+apps/web/e2e/.auth/
+
 # Expo
 .expo/
 apps/mobile/.expo/
