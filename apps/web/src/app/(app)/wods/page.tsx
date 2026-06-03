@@ -1,6 +1,6 @@
 "use client";
 
-import { mockWODs, mockClassTypes } from "@vytal-fit/shared";
+import { useDataStore } from "@/stores/data-store";
 import type { WOD, WODPart, WODType } from "@vytal-fit/shared";
 import { Dumbbell, Clock, Flame, Zap, Timer, Repeat, ChevronRight, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -114,7 +114,8 @@ function PartSection({ part }: { part: WODPart }) {
 }
 
 function WODCard({ wod }: { wod: WOD }) {
-  const classType = mockClassTypes.find((ct) => ct.id === wod.classTypeId);
+  const storeClassTypes = useDataStore((s) => s.classTypes);
+  const classType = storeClassTypes.find((ct: { id: string }) => ct.id === wod.classTypeId);
   const mainPart = wod.parts.find(
     (p) => p.type !== "custom" && p.name !== "Warm Up" && p.name !== "Cool Down"
   );
@@ -162,9 +163,10 @@ function WODCard({ wod }: { wod: WOD }) {
 
 export default function WODsPage() {
   const { t } = useI18n();
+  const storeWODs = useDataStore((s) => s.wods);
   const today = new Date().toISOString().split("T")[0];
-  const todayWODs = mockWODs.filter((w) => w.date === today);
-  const pastWODs = mockWODs.filter((w) => w.date !== today);
+  const todayWODs = storeWODs.filter((w) => w.date === today);
+  const pastWODs = storeWODs.filter((w) => w.date !== today);
 
   return (
     <div className="space-y-8">
@@ -173,7 +175,7 @@ export default function WODsPage() {
         <div>
           <h1 className="text-2xl font-bold text-vytal-text">{t("wods.title")}</h1>
           <p className="mt-1 text-sm text-vytal-muted">
-            Today&apos;s programming &mdash;{" "}
+            {t("wods.todaysProgramming")} &mdash;{" "}
             {new Date().toLocaleDateString("pt-PT", {
               weekday: "long",
               day: "numeric",

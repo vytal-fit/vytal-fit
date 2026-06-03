@@ -90,34 +90,34 @@ export default function SettingsPage() {
           <div className="mb-5 flex items-center gap-2">
             <Building2 className="h-5 w-5 text-vytal-green" />
             <h2 className="text-lg font-semibold text-vytal-text">
-              General Information
+              {t("settings.generalInfo")}
             </h2>
           </div>
           <div className="space-y-4">
             <Field
-              label="Box Name"
+              label={t("settings.boxName")}
               value={form.name}
               onChange={(v) => update("name", v)}
             />
             <Field
-              label="Slogan"
+              label={t("settings.slogan")}
               value={form.slogan}
               onChange={(v) => update("slogan", v)}
             />
             <Field
-              label="Email"
+              label={t("settings.email")}
               value={form.email}
               onChange={(v) => update("email", v)}
               type="email"
             />
             <Field
-              label="Phone"
+              label={t("settings.phone")}
               value={form.phone}
               onChange={(v) => update("phone", v)}
             />
             <div>
               <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">
-                Business Type
+                {t("settings.businessType")}
               </label>
               <select
                 value={form.businessType}
@@ -134,7 +134,7 @@ export default function SettingsPage() {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">
-                  Timezone
+                  {t("settings.timezone")}
                 </label>
                 <select
                   value={form.timezone}
@@ -150,7 +150,7 @@ export default function SettingsPage() {
               </div>
               <div>
                 <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">
-                  Currency
+                  {t("settings.currency")}
                 </label>
                 <select
                   value={form.currency}
@@ -175,7 +175,7 @@ export default function SettingsPage() {
             <div className="mb-5 flex items-center gap-2">
               <Camera className="h-5 w-5 text-vytal-green" />
               <h2 className="text-lg font-semibold text-vytal-text">
-                Logo
+                {t("settings.logo")}
               </h2>
             </div>
             <input
@@ -206,11 +206,11 @@ export default function SettingsPage() {
                   <p className="text-sm font-medium text-vytal-green">{logoFileName}</p>
                 ) : (
                   <p className="text-sm text-vytal-muted">
-                    Drag and drop your logo here, or click to browse
+                    {t("settings.dragDropLogo")}
                   </p>
                 )}
                 <p className="mt-1 text-[10px] text-vytal-muted">
-                  PNG, JPG or SVG. Max 2MB. Recommended 512x512px.
+                  {t("settings.logoHint")}
                 </p>
               </div>
               <button
@@ -222,7 +222,7 @@ export default function SettingsPage() {
                 className="flex items-center gap-2 rounded-lg border border-vytal-border bg-vytal-bg2 px-4 py-2 text-sm text-vytal-text transition-colors hover:bg-vytal-bg3"
               >
                 <Upload className="h-3.5 w-3.5" />
-                Upload Logo
+                {t("settings.uploadLogo")}
               </button>
             </div>
           </div>
@@ -232,7 +232,7 @@ export default function SettingsPage() {
             <div className="mb-5 flex items-center gap-2">
               <Smartphone className="h-5 w-5 text-vytal-green" />
               <h2 className="text-lg font-semibold text-vytal-text">
-                Brand Color
+                {t("settings.brandColor")}
               </h2>
             </div>
             <div className="grid gap-6 sm:grid-cols-2">
@@ -240,7 +240,7 @@ export default function SettingsPage() {
               <div className="space-y-4">
                 <div>
                   <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">
-                    Primary Color
+                    {t("settings.primaryColor")}
                   </label>
                   <div className="flex items-center gap-3">
                     <input
@@ -266,7 +266,7 @@ export default function SettingsPage() {
                 {/* Preset Colors */}
                 <div>
                   <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">
-                    Presets
+                    {t("settings.presets")}
                   </label>
                   <div className="flex flex-wrap gap-2">
                     {accentPresets.map((preset) => (
@@ -307,7 +307,7 @@ export default function SettingsPage() {
                       className="mt-2 flex h-4 items-center justify-center rounded text-[6px] font-bold text-white"
                       style={{ backgroundColor: accentColor }}
                     >
-                      Book Class
+                      {t("settings.bookClass")}
                     </div>
                     <div className="h-2 rounded bg-vytal-bg3" />
                     <div className="h-2 w-1/2 rounded bg-vytal-bg3" />
@@ -328,29 +328,29 @@ export default function SettingsPage() {
             <div className="mb-5 flex items-center gap-2">
               <Globe className="h-5 w-5 text-vytal-green" />
               <h2 className="text-lg font-semibold text-vytal-text">
-                Address
+                {t("settings.addressSection")}
               </h2>
             </div>
             <div className="space-y-4">
               <Field
-                label="Address"
+                label={t("settings.address")}
                 value={form.address}
                 onChange={(v) => update("address", v)}
               />
               <div className="grid grid-cols-2 gap-4">
                 <Field
-                  label="City"
+                  label={t("settings.city")}
                   value={form.city}
                   onChange={(v) => update("city", v)}
                 />
                 <Field
-                  label="Zip Code"
+                  label={t("settings.zipCode")}
                   value={form.zipCode}
                   onChange={(v) => update("zipCode", v)}
                 />
               </div>
               <Field
-                label="Country"
+                label={t("settings.country")}
                 value={form.country}
                 onChange={(v) => update("country", v)}
               />
@@ -363,7 +363,7 @@ export default function SettingsPage() {
           <div className="mb-5 flex items-center gap-2">
             <Globe className="h-5 w-5 text-vytal-green" />
             <h2 className="text-lg font-semibold text-vytal-text">
-              Social Links
+              {t("settings.socialLinks")}
             </h2>
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
@@ -447,7 +447,7 @@ export default function SettingsPage() {
               zipCode: form.zipCode,
               country: form.country,
             });
-            toast("Settings saved successfully!", "success");
+            toast(t("toast.settingsSaved"), "success");
           }}
           className="flex items-center gap-2 rounded-lg bg-vytal-green px-6 py-2.5 text-sm font-semibold text-vytal-bg transition-colors hover:bg-vytal-green/90"
         >
@@ -463,9 +463,7 @@ export default function SettingsPage() {
           <h2 className="text-lg font-semibold text-vytal-red">{t("settings.dangerZone")}</h2>
         </div>
         <p className="mb-4 text-sm text-vytal-muted">
-          Once you delete your organization, there is no going back. All data
-          including members, classes, payments, and WODs will be permanently
-          deleted.
+          {t("settings.deleteOrgWarning")}
         </p>
         {!showDeleteConfirm ? (
           <button
@@ -473,12 +471,12 @@ export default function SettingsPage() {
             className="flex items-center gap-2 rounded-lg border border-vytal-red/30 bg-vytal-red/5 px-4 py-2.5 text-sm font-semibold text-vytal-red transition-colors hover:bg-vytal-red/10"
           >
             <Trash2 className="h-4 w-4" />
-            Delete Organization
+            {t("settings.deleteOrg")}
           </button>
         ) : (
           <div className="space-y-3 rounded-lg border border-vytal-red/20 bg-vytal-red/5 p-4">
             <p className="text-sm font-medium text-vytal-red">
-              Type &quot;{form.name}&quot; to confirm deletion:
+              {t("settings.typeToConfirm").replace("{name}", form.name)}
             </p>
             <input
               type="text"
@@ -492,7 +490,7 @@ export default function SettingsPage() {
                 disabled={deleteConfirmText !== form.name}
                 onClick={() => {
                   if (deleteConfirmText === form.name) {
-                    toast("Organization deleted (mock)", "error");
+                    toast(t("settings.orgDeleted"), "error");
                     setShowDeleteConfirm(false);
                     setDeleteConfirmText("");
                   }
@@ -500,7 +498,7 @@ export default function SettingsPage() {
                 className="flex items-center gap-2 rounded-lg bg-vytal-red px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-vytal-red/90 disabled:cursor-not-allowed disabled:opacity-40"
               >
                 <Trash2 className="h-4 w-4" />
-                Permanently Delete
+                {t("settings.permanentlyDelete")}
               </button>
               <button
                 onClick={() => {
@@ -509,7 +507,7 @@ export default function SettingsPage() {
                 }}
                 className="rounded-lg border border-vytal-border px-4 py-2 text-sm text-vytal-text transition-colors hover:bg-vytal-bg3"
               >
-                Cancel
+                {t("action.cancel")}
               </button>
             </div>
           </div>

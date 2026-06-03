@@ -1,6 +1,6 @@
 "use client";
 
-import { mockMembers, mockSubscriptions, mockPersonalRecords } from "@vytal-fit/shared";
+import { useDataStore } from "@/stores/data-store";
 import type { MemberStatus } from "@vytal-fit/shared";
 import {
   Mail,
@@ -136,16 +136,19 @@ function formatRelative(dateStr?: string): string {
 
 export default function MemberDetailPage() {
   const { t } = useI18n();
+  const members = useDataStore((s) => s.members);
+  const subscriptions = useDataStore((s) => s.subscriptions);
+  const personalRecords = useDataStore((s) => s.personalRecords);
   const params = useParams();
   const id = params.id as string;
-  const member = mockMembers.find((m) => m.id === id);
+  const member = members.find((m) => m.id === id);
 
   if (!member) {
     notFound();
   }
 
-  const subscription = mockSubscriptions.find((s) => s.memberId === member.id);
-  const records = mockPersonalRecords.filter(
+  const subscription = subscriptions.find((s) => s.memberId === member.id);
+  const records = personalRecords.filter(
     (r) => r.memberId === member.id
   );
 

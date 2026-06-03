@@ -1,13 +1,13 @@
 "use client";
 
-import { mockLocations } from "@vytal-fit/shared";
+import { useDataStore } from "@/stores/data-store";
 import { Plus, MapPin, Pencil } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { EmptyState } from "@/components/empty-state";
 
 export default function LocationsPage() {
   const { t } = useI18n();
-  const locations = mockLocations;
+  const locations = useDataStore((s) => s.locations);
 
   return (
     <div className="space-y-6">

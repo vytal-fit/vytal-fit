@@ -1,11 +1,8 @@
 "use client";
 
-import {
-  mockDashboardStats,
-  mockClasses,
-  mockClassTypes,
-} from "@vytal-fit/shared";
+import { mockDashboardStats } from "@vytal-fit/shared";
 import type { Class, DashboardStats } from "@vytal-fit/shared";
+import { useDataStore, formatCurrency } from "@/stores/data-store";
 import {
   Users,
   UserCheck,
@@ -34,7 +31,6 @@ import {
   Legend,
 } from "recharts";
 import { cn } from "@/lib/utils";
-import { useDataStore, formatCurrency } from "@/stores/data-store";
 
 // ---------------------------------------------------------------------------
 // Stat Card
@@ -173,15 +169,19 @@ function getOccupancyColor(pct: number): string {
   return "#22c55e";
 }
 
-const classDistributionData = [
-  { name: "WOD", value: 45, color: mockClassTypes[0].color },
-  { name: "Open Box", value: 15, color: mockClassTypes[1].color },
-  { name: "Strength", value: 12, color: mockClassTypes[2].color },
-  { name: "Hyrox", value: 10, color: mockClassTypes[3].color },
-  { name: "Gymnastics", value: 8, color: mockClassTypes[4].color },
-  { name: "Mobility", value: 5, color: mockClassTypes[5].color },
-  { name: "Other", value: 5, color: "#6b8c72" },
-];
+const defaultDistributionColors = ["#3dff6e", "#00d4ff", "#ffb300", "#ff4757", "#c084fc", "#ff8c42"];
+
+function buildClassDistributionData(classTypes: { name: string; color: string }[]) {
+  const names = ["WOD", "Open Box", "Strength", "Hyrox", "Gymnastics", "Mobility"];
+  const values = [45, 15, 12, 10, 8, 5];
+  const items = names.map((name, i) => ({
+    name,
+    value: values[i],
+    color: classTypes[i]?.color ?? defaultDistributionColors[i] ?? "#6b8c72",
+  }));
+  items.push({ name: "Other", value: 5, color: "#6b8c72" });
+  return items;
+}
 
 // Attendance heatmap data: 7 days x 13 hours (06:00-18:00)
 const HEATMAP_DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
@@ -228,6 +228,7 @@ function getEnrollmentColor(enrolled: number, capacity: number): string {
 }
 
 function ClassScheduleRow({ cls }: { cls: Class }) {
+  const { t } = useI18n();
   const pct = Math.min((cls.enrolledCount / cls.maxCapacity) * 100, 100);
   const barColor = getEnrollmentColor(cls.enrolledCount, cls.maxCapacity);
   const isFull = cls.enrolledCount >= cls.maxCapacity;
@@ -274,7 +275,7 @@ function ClassScheduleRow({ cls }: { cls: Class }) {
       </div>
       {cls.waitlistCount > 0 && (
         <span className="rounded-full bg-vytal-amber/10 px-2 py-0.5 text-[10px] font-medium text-vytal-amber">
-          +{cls.waitlistCount} waitlist
+          +{cls.waitlistCount} {t("classes.waitlist")}
         </span>
       )}
     </div>
@@ -325,9 +326,12 @@ function RevenueTooltip({ active, payload, label }: RevenueTooltipProps) {
 
 export default function DashboardPage() {
   const { t } = useI18n();
+  const storeClasses = useDataStore((s) => s.classes);
+  const storeClassTypes = useDataStore((s) => s.classTypes);
+  const classDistributionData = buildClassDistributionData(storeClassTypes);
   const stats: DashboardStats = mockDashboardStats;
   const today = new Date().toISOString().split("T")[0];
-  const todayClasses = mockClasses
+  const todayClasses = storeClasses
     .filter((c) => c.date === today)
     .sort((a, b) => a.startTime.localeCompare(b.startTime));
 

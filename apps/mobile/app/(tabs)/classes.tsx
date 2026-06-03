@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
+import { User, MapPin, Bell, Check, CalendarX } from "lucide-react-native";
 import { mockClasses } from "@vytal-fit/shared";
 import type { Class } from "@vytal-fit/shared";
 import { colors } from "@/colors";
@@ -155,11 +156,11 @@ function ClassCard({
 
       <View style={styles.cardBody}>
         <View style={styles.infoRow}>
-          <Text style={styles.infoIcon}>{"///"}</Text>
+          <User size={14} color={C.muted} strokeWidth={1.8} />
           <Text style={styles.infoText}>{coachName}</Text>
         </View>
         <View style={styles.infoRow}>
-          <Text style={styles.infoIcon}>{"@"}</Text>
+          <MapPin size={14} color={C.muted} strokeWidth={1.8} />
           <Text style={styles.infoText}>{cls.location.name}</Text>
         </View>
       </View>
@@ -182,7 +183,7 @@ function ClassCard({
               {
                 width: `${Math.min(occupancy * 100, 100)}%`,
                 backgroundColor: isFull
-                  ? C.amber
+                  ? C.red
                   : occupancy > 0.8
                   ? C.amber
                   : C.green,
@@ -201,7 +202,10 @@ function ClassCard({
               onBook();
             }}
           >
-            <Text style={styles.bookedButtonText}>{t("btn.booked")}</Text>
+            <View style={styles.bookedButtonContent}>
+              <Check size={14} color="#080c0a" strokeWidth={2.5} />
+              <Text style={styles.bookedButtonText}>{t("btn.booked")}</Text>
+            </View>
           </TouchableOpacity>
         ) : isFull ? (
           <TouchableOpacity style={styles.waitlistButton}>
@@ -253,8 +257,18 @@ export default function ClassesScreen() {
       <View style={styles.container}>
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>{t("screen.classes")}</Text>
-          <Text style={styles.headerDate}>{formatDateHeader()}</Text>
+          <View style={styles.headerRow}>
+            <View>
+              <Text style={styles.headerTitle}>{t("screen.classes")}</Text>
+              <Text style={styles.headerDate}>{formatDateHeader()}</Text>
+            </View>
+            <TouchableOpacity
+              style={styles.headerAction}
+              onPress={() => router.push("/notifications")}
+            >
+              <Bell size={22} color={C.text} strokeWidth={1.8} />
+            </TouchableOpacity>
+          </View>
         </View>
 
         {/* Day Selector */}
@@ -279,9 +293,10 @@ export default function ClassesScreen() {
           )}
           contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}
+          ItemSeparatorComponent={() => <View style={styles.cardDivider} />}
           ListEmptyComponent={
             <View style={styles.emptyState}>
-              <Text style={styles.emptyIcon}>{"( )"}</Text>
+              <CalendarX size={48} color={C.muted} strokeWidth={1.2} />
               <Text style={styles.emptyText}>
                 {t("label.noClasses")}
               </Text>
@@ -309,6 +324,11 @@ const styles = StyleSheet.create({
     paddingTop: 8,
     paddingBottom: 16,
   },
+  headerRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+  },
   headerTitle: {
     fontSize: 28,
     fontWeight: "800",
@@ -319,6 +339,16 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: C.muted,
     marginTop: 4,
+  },
+  headerAction: {
+    width: 44,
+    height: 44,
+    borderRadius: 14,
+    backgroundColor: C.surface,
+    borderWidth: 1,
+    borderColor: C.border,
+    alignItems: "center",
+    justifyContent: "center",
   },
 
   // Day Selector
@@ -434,12 +464,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 8,
   },
-  infoIcon: {
-    fontSize: 12,
-    color: C.muted,
-    width: 20,
-    textAlign: "center",
-    fontWeight: "700",
+  cardDivider: {
+    height: 1,
+    backgroundColor: C.border,
+    marginHorizontal: 4,
   },
   infoText: {
     fontSize: 14,
@@ -498,6 +526,11 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     backgroundColor: C.green,
   },
+  bookedButtonContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+  },
   bookedButtonText: {
     fontSize: 13,
     fontWeight: "800",
@@ -524,9 +557,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     paddingVertical: 60,
   },
-  emptyIcon: {
-    fontSize: 40,
-    color: C.muted,
+  emptyIconWrap: {
     marginBottom: 12,
   },
   emptyText: {

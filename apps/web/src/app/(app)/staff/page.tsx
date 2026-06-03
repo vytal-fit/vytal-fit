@@ -1,36 +1,38 @@
 "use client";
 
-import { mockCoaches, mockClasses } from "@vytal-fit/shared";
+import { useDataStore } from "@/stores/data-store";
 import type { Coach } from "@vytal-fit/shared";
 import { Users, Plus, Calendar, TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useI18n } from "@/lib/i18n";
+import { useToast } from "@/components/toast";
 import { EmptyState } from "@/components/empty-state";
 
-const roleBadgeConfig: Record<Coach["role"], { label: string; className: string }> = {
+const roleBadgeConfig: Record<Coach["role"], { labelKey: string; className: string }> = {
   head_coach: {
-    label: "Head Coach",
+    labelKey: "staff.headCoach",
     className: "bg-vytal-green/10 text-vytal-green",
   },
   coach: {
-    label: "Coach",
+    labelKey: "staff.coach",
     className: "bg-vytal-blue/10 text-vytal-blue",
   },
   assistant: {
-    label: "Assistant",
+    labelKey: "staff.assistant",
     className: "bg-vytal-amber/10 text-vytal-amber",
   },
 };
 
 function RoleBadge({ role }: { role: Coach["role"] }) {
+  const { t } = useI18n();
   const c = roleBadgeConfig[role];
 
   return (
     <span
       className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${c.className}`}
     >
-      {c.label}
+      {t(c.labelKey)}
     </span>
   );
 }
@@ -51,13 +53,10 @@ const coachAvgAttendance: Record<string, number> = {
   "coach-4": 91,
 };
 
-function getWeeklyClassCount(coachId: string): number {
-  return mockClasses.filter((c) =>
-    c.coachIds.includes(coachId)
-  ).length;
-}
+// Weekly class count is computed inline in CoachCard using store data
 
 function CoachCard({ coach }: { coach: Coach }) {
+  const storeClasses = useDataStore((s) => s.classes);
   const { t } = useI18n();
   const initials = coach.name
     .split(" ")
@@ -65,7 +64,7 @@ function CoachCard({ coach }: { coach: Coach }) {
     .join("")
     .slice(0, 2);
 
-  const weeklyClasses = getWeeklyClassCount(coach.id);
+  const weeklyClasses = storeClasses.filter((c) => c.coachIds.includes(coach.id)).length;
   const avgAttendance = coachAvgAttendance[coach.id] ?? 0;
   const specialties = coachSpecialties[coach.id] ?? [];
   const roleConfig = roleBadgeConfig[coach.role];
@@ -143,7 +142,9 @@ function CoachCard({ coach }: { coach: Coach }) {
 
 export default function StaffPage() {
   const { t } = useI18n();
-  const coaches = mockCoaches;
+  const { toast } = useToast();
+  const storeCoaches = useDataStore((s) => s.coaches);
+  const coaches = storeCoaches;
 
   const headCoaches = coaches.filter((c) => c.role === "head_coach").length;
   const coachCount = coaches.filter((c) => c.role === "coach").length;
@@ -159,7 +160,10 @@ export default function StaffPage() {
             {t("staff.subtitle")}
           </p>
         </div>
-        <button className="flex items-center gap-2 rounded-lg bg-vytal-green px-4 py-2.5 text-sm font-semibold text-vytal-bg transition-colors hover:bg-vytal-green/90">
+        <button
+          onClick={() => toast(t("toast.featureComingSoon"), "info")}
+          className="flex items-center gap-2 rounded-lg bg-vytal-green px-4 py-2.5 text-sm font-semibold text-vytal-bg transition-colors hover:bg-vytal-green/90"
+        >
           <Plus className="h-4 w-4" />
           {t("staff.addCoach")}
         </button>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { mockExercises } from "@vytal-fit/shared";
+import { useDataStore } from "@/stores/data-store";
 import type { ExerciseCategory } from "@vytal-fit/shared";
 import { Search, Dumbbell } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -48,13 +48,14 @@ const categories: ExerciseCategory[] = [
 
 export default function ExercisesPage() {
   const { t } = useI18n();
+  const storeExercises = useDataStore((s) => s.exercises);
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState<
     ExerciseCategory | "all"
   >("all");
 
   const exercises = useMemo(() => {
-    let filtered = mockExercises;
+    let filtered = storeExercises;
 
     if (activeCategory !== "all") {
       filtered = filtered.filter((e) => e.category === activeCategory);
@@ -74,7 +75,7 @@ export default function ExercisesPage() {
       <div>
         <h1 className="text-2xl font-bold text-vytal-text">{t("exercises.title")}</h1>
         <p className="mt-1 text-sm text-vytal-muted">
-          {t("exercises.subtitle")} ({mockExercises.length} total)
+          {t("exercises.subtitle")} ({storeExercises.length} total)
         </p>
       </div>
 
@@ -93,7 +94,7 @@ export default function ExercisesPage() {
         </button>
         {categories.map((cat) => {
           const config = categoryConfig[cat];
-          const count = mockExercises.filter((e) => e.category === cat).length;
+          const count = storeExercises.filter((e) => e.category === cat).length;
           return (
             <button
               key={cat}

@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useCallback } from "react";
-import { mockMembers } from "@vytal-fit/shared";
+import { useState, useCallback, useMemo } from "react";
+import { useDataStore } from "@/stores/data-store";
 import {
   Trophy,
   CheckCircle,
@@ -140,18 +140,20 @@ const postsPerDayData = Array.from({ length: 30 }, (_, i) => ({
   posts: Math.floor(Math.random() * 15) + 5,
 }));
 
-const topActiveMembers = mockMembers
-  .slice(0, 8)
-  .map((m) => ({
-    name: m.name.split(" ")[0],
-    activity: Math.floor(Math.random() * 50) + 10,
-  }))
-  .concat([
-    { name: "Ricardo", activity: 35 },
-    { name: "Silvina", activity: 28 },
-  ])
-  .sort((a, b) => b.activity - a.activity)
-  .slice(0, 10);
+function getTopActiveMembers(members: { name: string }[]) {
+  return members
+    .slice(0, 8)
+    .map((m) => ({
+      name: m.name.split(" ")[0],
+      activity: Math.floor(Math.random() * 50) + 10,
+    }))
+    .concat([
+      { name: "Ricardo", activity: 35 },
+      { name: "Silvina", activity: 28 },
+    ])
+    .sort((a, b) => b.activity - a.activity)
+    .slice(0, 10);
+}
 
 const activityBreakdownData = [
   { name: "PRs", value: 25, color: "#ffb300" },
@@ -232,6 +234,8 @@ function ChartCard({
 // ---------------------------------------------------------------------------
 
 export default function CommunityPage() {
+  const storeMembers = useDataStore((s) => s.members);
+  const topActiveMembers = useMemo(() => getTopActiveMembers(storeMembers), [storeMembers]);
   const [activeTab, setActiveTab] = useState<Tab>("feed");
   const [feedItems, setFeedItems] = useState<FeedItem[]>(initialFeedItems);
   const [flaggedItems, setFlaggedItems] = useState<FlaggedItem[]>(initialFlaggedItems);

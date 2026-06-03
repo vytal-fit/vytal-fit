@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { mockMembers, mockPlans, mockClassTypes } from "@vytal-fit/shared";
+import { useDataStore } from "@/stores/data-store";
 import type { MemberStatus } from "@vytal-fit/shared";
 import { Smartphone, Send, Users, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -30,6 +30,9 @@ const recentSMS = [
 
 export default function SMSTargetingPage() {
   const { t } = useI18n();
+  const storeMembers = useDataStore((s) => s.members);
+  const storePlans = useDataStore((s) => s.plans);
+  const storeClassTypes = useDataStore((s) => s.classTypes);
   const [gender, setGender] = useState("all");
   const [statusFilter, setStatusFilter] = useState<"all" | MemberStatus>("all");
   const [planFilter, setPlanFilter] = useState("all");
@@ -37,7 +40,7 @@ export default function SMSTargetingPage() {
   const [message, setMessage] = useState("");
 
   const recipientCount = useMemo(() => {
-    return mockMembers.filter((m) => {
+    return storeMembers.filter((m) => {
       if (gender !== "all" && m.gender !== gender) return false;
       if (statusFilter !== "all" && m.status !== statusFilter) return false;
       if (planFilter !== "all" && m.planId !== planFilter) return false;
@@ -93,7 +96,7 @@ export default function SMSTargetingPage() {
                 className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-2.5 text-sm text-vytal-text focus:border-vytal-green/30 focus:outline-none focus:ring-1 focus:ring-vytal-green/20"
               >
                 <option value="all">{t("sms.allPlans")}</option>
-                {mockPlans.map((p) => (
+                {storePlans.map((p) => (
                   <option key={p.id} value={p.id}>{p.name}</option>
                 ))}
               </select>
@@ -106,7 +109,7 @@ export default function SMSTargetingPage() {
                 className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-2.5 text-sm text-vytal-text focus:border-vytal-green/30 focus:outline-none focus:ring-1 focus:ring-vytal-green/20"
               >
                 <option value="all">{t("sms.allClassTypes")}</option>
-                {mockClassTypes.filter((ct) => ct.active).map((ct) => (
+                {storeClassTypes.filter((ct) => ct.active).map((ct) => (
                   <option key={ct.id} value={ct.id}>{ct.name}</option>
                 ))}
               </select>

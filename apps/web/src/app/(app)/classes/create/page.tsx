@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { mockLocations, mockClassTypes, mockCoaches } from "@vytal-fit/shared";
+import { useDataStore } from "@/stores/data-store";
 import { ArrowLeft, Save, X, CheckCircle, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
@@ -24,6 +24,10 @@ function Field({
   error?: boolean;
 }) {
   const { t } = useI18n();
+  const storeLocations = useDataStore((s) => s.locations);
+  const storeClassTypes = useDataStore((s) => s.classTypes);
+  const storeCoaches = useDataStore((s) => s.coaches);
+  const storeAddClass = useDataStore((s) => s.addClass);
   return (
     <div>
       <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">
@@ -50,13 +54,17 @@ type RegistrationRule = "before" | "after" | "custom";
 
 export default function ClassCreatePage() {
   const { t } = useI18n();
+  const storeLocations = useDataStore((s) => s.locations);
+  const storeClassTypes = useDataStore((s) => s.classTypes);
+  const storeCoaches = useDataStore((s) => s.coaches);
+  const storeAddClass = useDataStore((s) => s.addClass);
   const router = useRouter();
   const { toast } = useToast();
   const [date, setDate] = useState("2026-06-05");
   const [startTime, setStartTime] = useState("07:00");
   const [endTime, setEndTime] = useState("08:00");
-  const [locationId, setLocationId] = useState(mockLocations[0].id);
-  const [classTypeId, setClassTypeId] = useState(mockClassTypes[0].id);
+  const [locationId, setLocationId] = useState(storeLocations[0].id);
+  const [classTypeId, setClassTypeId] = useState(storeClassTypes[0].id);
   const [hasCapacity, setHasCapacity] = useState(true);
   const [maxCapacity, setMaxCapacity] = useState("20");
   const [selectedCoaches, setSelectedCoaches] = useState<Set<string>>(new Set(["coach-1"]));
@@ -89,6 +97,27 @@ export default function ClassCreatePage() {
     }
 
     setErrors({});
+
+    const ct = storeClassTypes.find((c) => c.id === classTypeId) ?? storeClassTypes[0];
+    const loc = storeLocations.find((l) => l.id === locationId) ?? storeLocations[0];
+    const coaches = storeCoaches.filter((c) => selectedCoaches.has(c.id));
+
+    storeAddClass({
+      organizationId: "org-1",
+      classTypeId: ct.id,
+      classType: ct,
+      locationId: loc.id,
+      location: loc,
+      coachIds: coaches.map((c) => c.id),
+      coaches,
+      date,
+      startTime,
+      endTime,
+      maxCapacity: hasCapacity ? parseInt(maxCapacity) || 20 : 999,
+      enrolledCount: 0,
+      waitlistCount: 0,
+    });
+
     setSuccess(true);
     toast("Class created successfully!", "success");
   }
@@ -97,8 +126,8 @@ export default function ClassCreatePage() {
     setDate("2026-06-05");
     setStartTime("07:00");
     setEndTime("08:00");
-    setLocationId(mockLocations[0].id);
-    setClassTypeId(mockClassTypes[0].id);
+    setLocationId(storeLocations[0].id);
+    setClassTypeId(storeClassTypes[0].id);
     setHasCapacity(true);
     setMaxCapacity("20");
     setSelectedCoaches(new Set(["coach-1"]));
@@ -111,9 +140,9 @@ export default function ClassCreatePage() {
   }
 
   if (success) {
-    const ct = mockClassTypes.find((c) => c.id === classTypeId);
-    const loc = mockLocations.find((l) => l.id === locationId);
-    const coaches = mockCoaches.filter((c) => selectedCoaches.has(c.id));
+    const ct = storeClassTypes.find((c) => c.id === classTypeId);
+    const loc = storeLocations.find((l) => l.id === locationId);
+    const coaches = storeCoaches.filter((c) => selectedCoaches.has(c.id));
 
     return (
       <div className="space-y-6">
@@ -197,7 +226,7 @@ export default function ClassCreatePage() {
                 onChange={(e) => setLocationId(e.target.value)}
                 className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-2.5 text-sm text-vytal-text focus:border-vytal-green/30 focus:outline-none focus:ring-1 focus:ring-vytal-green/20"
               >
-                {mockLocations.map((loc) => (
+                {storeLocations.map((loc) => (
                   <option key={loc.id} value={loc.id}>
                     {loc.name} {loc.capacity ? `(cap. ${loc.capacity})` : ""}
                   </option>
@@ -213,7 +242,7 @@ export default function ClassCreatePage() {
                 onChange={(e) => setClassTypeId(e.target.value)}
                 className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-2.5 text-sm text-vytal-text focus:border-vytal-green/30 focus:outline-none focus:ring-1 focus:ring-vytal-green/20"
               >
-                {mockClassTypes.filter((ct) => ct.active).map((ct) => (
+                {storeClassTypes.filter((ct) => ct.active).map((ct) => (
                   <option key={ct.id} value={ct.id}>
                     {ct.name} ({ct.abbreviation})
                   </option>
@@ -255,7 +284,7 @@ export default function ClassCreatePage() {
           <div className="rounded-xl border border-vytal-border bg-vytal-card p-6">
             <h2 className="mb-5 text-lg font-semibold text-vytal-text">Coaches</h2>
             <div className="space-y-2">
-              {mockCoaches.map((coach) => (
+              {storeCoaches.map((coach) => (
                 <label
                   key={coach.id}
                   className={cn(

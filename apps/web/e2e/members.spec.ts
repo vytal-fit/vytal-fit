@@ -17,8 +17,8 @@ test.describe("Admin Members Page", () => {
 
   test("displays member table with data", async ({ page }) => {
     const main = page.locator("main");
-    await expect(main.getByText("Jose Fonte")).toBeVisible();
-    await expect(main.getByText("Ana Silva")).toBeVisible();
+    await expect(main.getByText("Jose Fonte").first()).toBeVisible();
+    await expect(main.getByText("Ana Silva").first()).toBeVisible();
   });
 
   test("shows status badges", async ({ page }) => {
@@ -47,7 +47,7 @@ test.describe("Admin Members Page", () => {
     // Wait for filtering
     await page.waitForTimeout(300);
     await search.clear();
-    await expect(main.getByText("Jose Fonte")).toBeVisible();
-    await expect(main.getByText("Ana Silva")).toBeVisible();
+    await expect(main.getByText("Jose Fonte").first()).toBeVisible();
+    await expect(main.getByText("Ana Silva").first()).toBeVisible();
   });
 });

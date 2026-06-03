@@ -14,6 +14,8 @@ import {
   LogOut,
   Camera,
   Smartphone,
+  Laptop,
+  Tablet,
   Trash2,
   Download,
   Key,
@@ -21,10 +23,12 @@ import {
   EyeOff,
   ChevronRight,
   Check,
+  AlertTriangle,
 } from "lucide-react";
 import { useAuthStore } from "@/stores/auth-store";
 import { useAppStore } from "@/stores/app-store";
 import { useI18n, type Language } from "@/lib/i18n";
+import { useToast } from "@/components/toast";
 import { ROLE_LABELS, ROLE_COLORS, ORGANIZATION_CONFIGS } from "@vytal-fit/shared";
 
 export default function ProfilePage() {
@@ -39,6 +43,9 @@ export default function ProfilePage() {
   const [phone, setPhone] = useState(user?.user.phone ?? "");
   const [showPassword, setShowPassword] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [show2fa, setShow2fa] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const { toast } = useToast();
 
   const [notifications, setNotifications] = useState({
     classReminder: true,
@@ -237,22 +244,66 @@ export default function ProfilePage() {
               <div className="rounded-xl border border-vytal-border bg-vytal-card p-6">
                 <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-vytal-muted">{t("profile.2fa")}</h2>
                 <p className="mb-4 text-sm text-vytal-muted">{t("profile.2faDesc")}</p>
-                <button className="flex items-center gap-2 rounded-lg border border-vytal-green/30 px-4 py-2.5 text-sm font-medium text-vytal-green transition-colors hover:bg-vytal-green/10">
-                  <Shield className="h-4 w-4" /> {t("profile.enable2fa")}
-                </button>
+                {!show2fa ? (
+                  <button
+                    onClick={() => setShow2fa(true)}
+                    className="flex items-center gap-2 rounded-lg border border-vytal-green/30 px-4 py-2.5 text-sm font-medium text-vytal-green transition-colors hover:bg-vytal-green/10"
+                  >
+                    <Shield className="h-4 w-4" /> {t("profile.enable2fa")}
+                  </button>
+                ) : (
+                  <div className="space-y-4">
+                    <div className="flex flex-col items-center gap-3 rounded-lg border border-vytal-border bg-vytal-bg2 p-6">
+                      <p className="text-sm font-medium text-vytal-text">{t("profile.2faQrTitle")}</p>
+                      <div className="flex h-40 w-40 items-center justify-center rounded-lg border-2 border-dashed border-vytal-border bg-vytal-bg3">
+                        <div className="grid grid-cols-5 gap-1">
+                          {Array.from({ length: 25 }).map((_, i) => (
+                            <div key={i} className={`h-5 w-5 rounded-sm ${Math.random() > 0.4 ? "bg-vytal-text" : "bg-transparent"}`} />
+                          ))}
+                        </div>
+                      </div>
+                      <p className="text-xs text-vytal-muted">{t("profile.2faQrDesc")}</p>
+                    </div>
+                    <div>
+                      <label className="mb-1.5 block text-xs font-medium text-vytal-muted">{t("profile.2faEnterCode")}</label>
+                      <input
+                        type="text"
+                        placeholder="000000"
+                        maxLength={6}
+                        className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 px-4 py-2.5 text-center font-mono text-lg tracking-[0.5em] text-vytal-text outline-none focus:border-vytal-green/40"
+                      />
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => { setShow2fa(false); toast(t("toast.featureComingSoon"), "info"); }}
+                        className="rounded-lg bg-vytal-green px-4 py-2.5 text-sm font-semibold text-vytal-bg transition-colors hover:bg-vytal-green/90"
+                      >
+                        {t("profile.2faVerify")}
+                      </button>
+                      <button
+                        onClick={() => setShow2fa(false)}
+                        className="rounded-lg border border-vytal-border px-4 py-2.5 text-sm text-vytal-text transition-colors hover:bg-vytal-bg3"
+                      >
+                        {t("profile.2faCancel")}
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div className="rounded-xl border border-vytal-border bg-vytal-card p-6">
                 <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-vytal-muted">{t("profile.activeSessions")}</h2>
                 <div className="space-y-3">
                   {[
-                    { device: "MacBook Pro — Chrome", location: "Aveiro, Portugal", current: true, time: "Agora" },
-                    { device: "iPhone 15 — Safari", location: "Aveiro, Portugal", current: false, time: "Há 2 horas" },
-                    { device: "iPad — Chrome", location: "Porto, Portugal", current: false, time: "Há 3 dias" },
-                  ].map((session, i) => (
+                    { device: "MacBook Pro — Chrome", location: "Aveiro, Portugal", current: true, time: "Agora", icon: Laptop },
+                    { device: "iPhone 15 — Safari", location: "Aveiro, Portugal", current: false, time: "2h", icon: Smartphone },
+                    { device: "iPad — Chrome", location: "Porto, Portugal", current: false, time: "3d", icon: Tablet },
+                  ].map((session, i) => {
+                    const DeviceIcon = session.icon;
+                    return (
                     <div key={i} className="flex items-center justify-between rounded-lg border border-vytal-border bg-vytal-bg2 p-3">
                       <div className="flex items-center gap-3">
-                        <Smartphone className="h-4 w-4 text-vytal-muted" />
+                        <DeviceIcon className="h-4 w-4 text-vytal-muted" />
                         <div>
                           <p className="text-sm text-vytal-text">{session.device}</p>
                           <p className="text-xs text-vytal-muted">{session.location} · {session.time}</p>
@@ -261,10 +312,16 @@ export default function ProfilePage() {
                       {session.current ? (
                         <span className="rounded-full bg-vytal-green/10 px-2 py-0.5 text-[10px] font-semibold text-vytal-green">{t("profile.current")}</span>
                       ) : (
-                        <button className="text-xs text-vytal-red hover:underline">{t("profile.endSession")}</button>
+                        <button
+                          onClick={() => toast(t("toast.sessionEnded"), "success")}
+                          className="text-xs text-vytal-red hover:underline"
+                        >
+                          {t("profile.endSession")}
+                        </button>
                       )}
                     </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             </div>
@@ -376,7 +433,10 @@ export default function ProfilePage() {
                 <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-vytal-muted">{t("profile.dataGdpr")}</h2>
                 <p className="mb-4 text-sm text-vytal-muted">{t("profile.gdprDesc")}</p>
                 <div className="space-y-3">
-                  <button className="flex w-full items-center justify-between rounded-lg border border-vytal-border bg-vytal-bg2 p-3 text-sm text-vytal-text transition-colors hover:bg-vytal-bg3">
+                  <button
+                    onClick={() => toast(t("profile.exportPreparing"), "info")}
+                    className="flex w-full items-center justify-between rounded-lg border border-vytal-border bg-vytal-bg2 p-3 text-sm text-vytal-text transition-colors hover:bg-vytal-bg3"
+                  >
                     <div className="flex items-center gap-3">
                       <Download className="h-4 w-4 text-vytal-muted" />
                       <div className="text-left">
@@ -409,9 +469,40 @@ export default function ProfilePage() {
                   >
                     <LogOut className="h-4 w-4" /> {t("profile.endAllSessions")}
                   </button>
-                  <button className="flex items-center gap-2 rounded-lg border border-vytal-red/30 px-4 py-2.5 text-sm font-medium text-vytal-red transition-colors hover:bg-vytal-red/10">
-                    <Trash2 className="h-4 w-4" /> {t("profile.deleteAccount")}
-                  </button>
+                  {!showDeleteConfirm ? (
+                    <button
+                      onClick={() => setShowDeleteConfirm(true)}
+                      className="flex items-center gap-2 rounded-lg border border-vytal-red/30 px-4 py-2.5 text-sm font-medium text-vytal-red transition-colors hover:bg-vytal-red/10"
+                    >
+                      <Trash2 className="h-4 w-4" /> {t("profile.deleteAccount")}
+                    </button>
+                  ) : (
+                    <div className="space-y-3 rounded-lg border border-vytal-red/20 bg-vytal-red/5 p-4">
+                      <div className="flex items-center gap-2">
+                        <AlertTriangle className="h-4 w-4 text-vytal-red" />
+                        <p className="text-sm font-medium text-vytal-red">{t("profile.deleteAccountConfirm")}</p>
+                      </div>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => {
+                            toast(t("toast.accountDeleted"), "error");
+                            setShowDeleteConfirm(false);
+                            logout();
+                          }}
+                          className="flex items-center gap-2 rounded-lg bg-vytal-red px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-vytal-red/90"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                          {t("profile.deleteAccountConfirmBtn")}
+                        </button>
+                        <button
+                          onClick={() => setShowDeleteConfirm(false)}
+                          className="rounded-lg border border-vytal-border px-4 py-2 text-sm text-vytal-text transition-colors hover:bg-vytal-bg3"
+                        >
+                          {t("action.cancel")}
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
