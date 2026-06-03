@@ -1192,8 +1192,24 @@ const translations: Record<Language, Record<string, string>> = {
     "reports.mostPopular": "Mais popular",
     "reports.leastPopular": "Menos popular",
     "reports.thursday": "Quinta-feira",
+    "reports.dateRange.thisMonth": "Este M\u00eas",
+    "reports.dateRange.lastMonth": "M\u00eas Anterior",
+    "reports.dateRange.thisQuarter": "Este Trimestre",
+    "reports.dateRange.thisYear": "Este Ano",
+    "reports.exportAll": "Exportar Todos",
+    "reports.checkInsThisMonth": "{count} check-ins este m\u00eas",
+    "reports.revenueThisMonth": "\u20AC{amount} este m\u00eas ({pct})",
+    "reports.membersSummary": "{new} novos, {churn} churn",
+    "reports.classesSummary": "{count} aulas, {avg} m\u00e9dia presen\u00e7a",
 
     // Attendance page
+    "attendance.period.thisWeek": "Esta Semana",
+    "attendance.period.thisMonth": "Este M\u00eas",
+    "attendance.period.thisQuarter": "Este Trimestre",
+    "attendance.totalPerDay": "Total",
+    "attendance.totalPerSlot": "Total",
+    "attendance.cellTooltip": "{day} {time} \u2014 {count} check-ins",
+    "attendance.export": "Exportar",
     "attendance.peakDay": "Dia de Pico",
     "attendance.peakTime": "Hora de Pico",
     "attendance.avgPerClass": "Média por Aula",
@@ -1207,6 +1223,53 @@ const translations: Record<Language, Record<string, string>> = {
     "attendance.fri": "Sex",
     "attendance.sat": "Sáb",
     "attendance.sun": "Dom",
+
+    // Automations
+    "automations.noShowAlert": "Alerta de Aus\u00eancia",
+    "automations.noShowDesc": "Notificar membros que n\u00e3o fizeram check-in",
+    "automations.triggerAfterDays": "Disparar ap\u00f3s (dias sem check-in)",
+    "automations.messageTemplate": "Modelo de Mensagem",
+    "automations.channel": "Canal",
+    "automations.birthday": "Anivers\u00e1rio",
+    "automations.birthdayDesc": "Celebrar os anivers\u00e1rios dos seus membros",
+    "automations.offerText": "Texto da Oferta",
+    "automations.sendTiming": "Hora de Envio",
+    "automations.onTheDay": "No dia",
+    "automations.dayBefore": "Dia anterior",
+    "automations.winBack": "Recupera\u00e7\u00e3o",
+    "automations.winBackDesc": "Reengajar membros inativos com sequ\u00eancia de mensagens",
+    "automations.inactiveDays": "Inativo h\u00e1 (dias)",
+    "automations.intervalDays": "Intervalo entre mensagens (dias)",
+    "automations.messageSequence": "Sequ\u00eancia de Mensagens ({count} mensagens)",
+    "automations.messageN": "Mensagem {n}",
+    "automations.onboarding": "Onboarding de Novo Membro",
+    "automations.onboardingDesc": "Sequ\u00eancia de boas-vindas para novos membros",
+    "automations.lastTriggered": "\u00daltimo disparo: {time}",
+    "automations.justNow": "Agora mesmo",
+    "automations.enabled": "automa\u00e7\u00e3o ativada",
+    "automations.disabled": "automa\u00e7\u00e3o desativada",
+
+    // WODs extra
+    "wods.copyClipboard": "Copiar",
+    "wods.copied": "WOD copiado!",
+    "wods.estimatedDuration": "Dura\u00e7\u00e3o estimada",
+    "wods.assignedTo": "Atribu\u00eddo a",
+    "wods.editWod": "Editar",
+    "wods.editComingSoon": "Edi\u00e7\u00e3o de WOD em breve",
+    "wods.minutes": "{min} min",
+
+    // Dashboard extra
+    "dashboard.lastLogin": "\u00daltimo login: h\u00e1 {hours} horas",
+
+    // Drop-ins extra
+    "dropins.uploadPhoto": "Carregar foto",
+    "dropins.previewCard": "Pr\u00e9-visualiza\u00e7\u00e3o para Visitantes",
+    "dropins.perSession": "por sess\u00e3o",
+    "dropins.bookNow": "Reservar Agora",
+
+    // Kiosk extra
+    "kiosk.buttonPreview": "Pr\u00e9-visualiza\u00e7\u00e3o do Bot\u00e3o",
+    "kiosk.checkInButton": "Check-in",
 
     // Vertical translations
     "vertical.crossfit_box": "Box de CrossFit",
@@ -2451,6 +2514,15 @@ const translations: Record<Language, Record<string, string>> = {
     "reports.mostPopular": "Most popular",
     "reports.leastPopular": "Least popular",
     "reports.thursday": "Thursday",
+    "reports.dateRange.thisMonth": "This Month",
+    "reports.dateRange.lastMonth": "Last Month",
+    "reports.dateRange.thisQuarter": "This Quarter",
+    "reports.dateRange.thisYear": "This Year",
+    "reports.exportAll": "Export All",
+    "reports.checkInsThisMonth": "{count} check-ins this month",
+    "reports.revenueThisMonth": "\u20AC{amount} this month ({pct})",
+    "reports.membersSummary": "{new} new, {churn} churn",
+    "reports.classesSummary": "{count} classes, {avg} avg attendance",
 
     // Attendance page
     "attendance.peakDay": "Peak Day",
@@ -2466,6 +2538,62 @@ const translations: Record<Language, Record<string, string>> = {
     "attendance.fri": "Fri",
     "attendance.sat": "Sat",
     "attendance.sun": "Sun",
+
+    // Automations
+    "automations.noShowAlert": "No-Show Alert",
+    "automations.noShowDesc": "Nudge members who haven't checked in",
+    "automations.triggerAfterDays": "Trigger after (days without check-in)",
+    "automations.messageTemplate": "Message Template",
+    "automations.channel": "Channel",
+    "automations.birthday": "Birthday",
+    "automations.birthdayDesc": "Celebrate your members' birthdays",
+    "automations.offerText": "Offer Text",
+    "automations.sendTiming": "Send Timing",
+    "automations.onTheDay": "On the day",
+    "automations.dayBefore": "Day before",
+    "automations.winBack": "Win-Back",
+    "automations.winBackDesc": "Re-engage inactive members with a message sequence",
+    "automations.inactiveDays": "Inactive for (days)",
+    "automations.intervalDays": "Interval between messages (days)",
+    "automations.messageSequence": "Message Sequence ({count} messages)",
+    "automations.messageN": "Message {n}",
+    "automations.onboarding": "New Member Onboarding",
+    "automations.onboardingDesc": "Welcome sequence for new members",
+    "automations.lastTriggered": "Last triggered: {time}",
+    "automations.justNow": "Just now",
+    "automations.enabled": "automation enabled",
+    "automations.disabled": "automation disabled",
+
+    // WODs extra
+    "wods.copyClipboard": "Copy",
+    "wods.copied": "WOD copied!",
+    "wods.estimatedDuration": "Estimated duration",
+    "wods.assignedTo": "Assigned to",
+    "wods.editWod": "Edit",
+    "wods.editComingSoon": "WOD editing coming soon",
+    "wods.minutes": "{min} min",
+
+    // Dashboard extra
+    "dashboard.lastLogin": "Last login: {hours} hours ago",
+
+    // Drop-ins extra
+    "dropins.uploadPhoto": "Upload photo",
+    "dropins.previewCard": "Visitor Preview",
+    "dropins.perSession": "per session",
+    "dropins.bookNow": "Book Now",
+
+    // Kiosk extra
+    "kiosk.buttonPreview": "Button Preview",
+    "kiosk.checkInButton": "Check-in",
+
+    // Attendance extra
+    "attendance.period.thisWeek": "This Week",
+    "attendance.period.thisMonth": "This Month",
+    "attendance.period.thisQuarter": "This Quarter",
+    "attendance.totalPerDay": "Total",
+    "attendance.totalPerSlot": "Total",
+    "attendance.cellTooltip": "{day} {time} \u2014 {count} check-ins",
+    "attendance.export": "Export",
 
     // Vertical translations
     "vertical.crossfit_box": "CrossFit Box",
@@ -3690,9 +3818,18 @@ const translations: Record<Language, Record<string, string>> = {
     "reports.mostPopular": "Más popular",
     "reports.leastPopular": "Menos popular",
     "reports.thursday": "Jueves",
+    "reports.dateRange.thisMonth": "Este Mes",
+    "reports.dateRange.lastMonth": "Mes Anterior",
+    "reports.dateRange.thisQuarter": "Este Trimestre",
+    "reports.dateRange.thisYear": "Este A\u00f1o",
+    "reports.exportAll": "Exportar Todos",
+    "reports.checkInsThisMonth": "{count} check-ins este mes",
+    "reports.revenueThisMonth": "\u20AC{amount} este mes ({pct})",
+    "reports.membersSummary": "{new} nuevos, {churn} churn",
+    "reports.classesSummary": "{count} clases, {avg} asistencia media",
 
     // Attendance page
-    "attendance.peakDay": "Día Pico",
+    "attendance.peakDay": "D\u00eda Pico",
     "attendance.peakTime": "Hora Pico",
     "attendance.avgPerClass": "Promedio por Clase",
     "attendance.weeklyPattern": "Patrón de Asistencia Semanal",
@@ -3705,6 +3842,62 @@ const translations: Record<Language, Record<string, string>> = {
     "attendance.fri": "Vie",
     "attendance.sat": "Sáb",
     "attendance.sun": "Dom",
+
+    // Automations
+    "automations.noShowAlert": "Alerta de Ausencia",
+    "automations.noShowDesc": "Notificar a miembros que no han hecho check-in",
+    "automations.triggerAfterDays": "Disparar despu\u00e9s de (d\u00edas sin check-in)",
+    "automations.messageTemplate": "Plantilla de Mensaje",
+    "automations.channel": "Canal",
+    "automations.birthday": "Cumplea\u00f1os",
+    "automations.birthdayDesc": "Celebrar los cumplea\u00f1os de sus miembros",
+    "automations.offerText": "Texto de la Oferta",
+    "automations.sendTiming": "Hora de Env\u00edo",
+    "automations.onTheDay": "El mismo d\u00eda",
+    "automations.dayBefore": "D\u00eda anterior",
+    "automations.winBack": "Recuperaci\u00f3n",
+    "automations.winBackDesc": "Reenganchar miembros inactivos con secuencia de mensajes",
+    "automations.inactiveDays": "Inactivo hace (d\u00edas)",
+    "automations.intervalDays": "Intervalo entre mensajes (d\u00edas)",
+    "automations.messageSequence": "Secuencia de Mensajes ({count} mensajes)",
+    "automations.messageN": "Mensaje {n}",
+    "automations.onboarding": "Onboarding de Nuevo Miembro",
+    "automations.onboardingDesc": "Secuencia de bienvenida para nuevos miembros",
+    "automations.lastTriggered": "\u00daltimo disparo: {time}",
+    "automations.justNow": "Ahora mismo",
+    "automations.enabled": "automatizaci\u00f3n activada",
+    "automations.disabled": "automatizaci\u00f3n desactivada",
+
+    // WODs extra
+    "wods.copyClipboard": "Copiar",
+    "wods.copied": "WOD copiado!",
+    "wods.estimatedDuration": "Duraci\u00f3n estimada",
+    "wods.assignedTo": "Asignado a",
+    "wods.editWod": "Editar",
+    "wods.editComingSoon": "Edici\u00f3n de WOD pr\u00f3ximamente",
+    "wods.minutes": "{min} min",
+
+    // Dashboard extra
+    "dashboard.lastLogin": "\u00daltimo login: hace {hours} horas",
+
+    // Drop-ins extra
+    "dropins.uploadPhoto": "Subir foto",
+    "dropins.previewCard": "Vista Previa para Visitantes",
+    "dropins.perSession": "por sesi\u00f3n",
+    "dropins.bookNow": "Reservar Ahora",
+
+    // Kiosk extra
+    "kiosk.buttonPreview": "Vista Previa del Bot\u00f3n",
+    "kiosk.checkInButton": "Check-in",
+
+    // Attendance extra
+    "attendance.period.thisWeek": "Esta Semana",
+    "attendance.period.thisMonth": "Este Mes",
+    "attendance.period.thisQuarter": "Este Trimestre",
+    "attendance.totalPerDay": "Total",
+    "attendance.totalPerSlot": "Total",
+    "attendance.cellTooltip": "{day} {time} \u2014 {count} check-ins",
+    "attendance.export": "Exportar",
 
     // Vertical translations
     "vertical.crossfit_box": "Box de CrossFit",
