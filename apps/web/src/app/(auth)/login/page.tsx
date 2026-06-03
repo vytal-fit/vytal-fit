@@ -88,12 +88,12 @@ export default function LoginPage() {
 
           {/* Forgot password */}
           <div className="text-right">
-            <button
-              type="button"
+            <Link
+              href="/forgot-password"
               className="text-xs text-vytal-muted transition-colors hover:text-vytal-green"
             >
               Esqueceu a password?
-            </button>
+            </Link>
           </div>
 
           {/* Submit */}

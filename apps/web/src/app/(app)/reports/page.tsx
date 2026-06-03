@@ -4,16 +4,19 @@ import {
   DollarSign,
   CalendarDays,
   Download,
+  ArrowRight,
 } from "lucide-react";
+import Link from "next/link";
 
 interface ReportCardProps {
   title: string;
   icon: React.ReactNode;
   iconBg: string;
   metrics: Array<{ label: string; value: string }>;
+  href?: string;
 }
 
-function ReportCard({ title, icon, iconBg, metrics }: ReportCardProps) {
+function ReportCard({ title, icon, iconBg, metrics, href }: ReportCardProps) {
   return (
     <div className="rounded-xl border border-vytal-border bg-vytal-card p-6 transition-colors hover:border-[rgba(61,255,110,0.22)]">
       <div className="mb-5 flex items-center gap-3">
@@ -36,11 +39,20 @@ function ReportCard({ title, icon, iconBg, metrics }: ReportCardProps) {
         ))}
       </div>
 
-      <div className="mt-5 border-t border-vytal-border pt-4">
-        <button className="flex w-full items-center justify-center gap-2 rounded-lg border border-vytal-border bg-vytal-bg2 px-4 py-2 text-sm text-vytal-text transition-colors hover:bg-vytal-bg3">
+      <div className="mt-5 flex gap-2 border-t border-vytal-border pt-4">
+        <button className="flex flex-1 items-center justify-center gap-2 rounded-lg border border-vytal-border bg-vytal-bg2 px-4 py-2 text-sm text-vytal-text transition-colors hover:bg-vytal-bg3">
           <Download className="h-4 w-4" />
           Download PDF
         </button>
+        {href && (
+          <Link
+            href={href}
+            className="flex items-center justify-center gap-2 rounded-lg border border-vytal-border bg-vytal-bg2 px-4 py-2 text-sm text-vytal-text transition-colors hover:bg-vytal-bg3"
+          >
+            <ArrowRight className="h-4 w-4" />
+            View
+          </Link>
+        )}
       </div>
     </div>
   );
@@ -63,6 +75,7 @@ export default function ReportsPage() {
           title="Attendance Report"
           icon={<BarChart3 className="h-5 w-5 text-vytal-green" />}
           iconBg="bg-vytal-green/10"
+          href="/reports/attendance"
           metrics={[
             { label: "Total check-ins this month", value: "1,240" },
             { label: "Average per day", value: "41" },
