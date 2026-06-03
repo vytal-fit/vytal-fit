@@ -4,6 +4,7 @@ import { useState, useMemo } from "react";
 import { Receipt, Plus, Filter, Inbox } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/lib/i18n";
+import { formatCurrency } from "@/stores/data-store";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { EmptyState } from "@/components/empty-state";
 
@@ -40,11 +41,7 @@ const categoryColors: Record<ExpenseCategory, string> = {
 };
 
 function formatEur(value: number): string {
-  return new Intl.NumberFormat("pt-PT", {
-    style: "currency",
-    currency: "EUR",
-    minimumFractionDigits: 0,
-  }).format(value);
+  return formatCurrency(value);
 }
 
 export default function ExpenseTrackingPage() {

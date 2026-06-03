@@ -35,6 +35,8 @@ import {
   LogOut,
   Sun,
   Moon,
+  Search,
+  HelpCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ToastProvider } from "@/components/toast";
@@ -45,6 +47,7 @@ import { useAuthStore } from "@/stores/auth-store";
 import { useAppStore } from "@/stores/app-store";
 import { useDataStore } from "@/stores/data-store";
 import { useI18n, type Language } from "@/lib/i18n";
+import { CommandPalette } from "@/components/command-palette";
 
 interface NavItem {
   href: string;
@@ -98,6 +101,7 @@ const allNavGroups: NavGroup[] = [
     titleKey: "nav.group.settings",
     items: [
       { href: "/settings", labelKey: "nav.settings", icon: Settings },
+      { href: "/help", labelKey: "nav.help", icon: HelpCircle },
     ],
   },
 ];
@@ -285,6 +289,7 @@ function OrgSwitcher() {
   const { t } = useI18n();
   const user = useAuthStore((s) => s.user);
   const switchOrg = useAuthStore((s) => s.switchOrg);
+  const orgSettings = useDataStore((s) => s.orgSettings);
 
   const memberships = user?.memberships ?? [];
   const activeOrgId = user?.activeOrganizationId ?? "";
@@ -310,11 +315,11 @@ function OrgSwitcher() {
         className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left transition-colors hover:bg-vytal-bg3"
       >
         <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-vytal-green/10 text-sm font-bold text-vytal-green">
-          {activeOrg?.organization.name.charAt(0) ?? "V"}
+          {orgSettings.name.charAt(0) || activeOrg?.organization.name.charAt(0) || "V"}
         </div>
         <div className="flex flex-1 flex-col min-w-0">
           <span className="text-sm font-semibold text-vytal-text truncate">
-            {activeOrg?.organization.name ?? t("ui.selectOrg")}
+            {orgSettings.name || activeOrg?.organization.name || t("ui.selectOrg")}
           </span>
           <span className="text-[10px] text-vytal-muted">
             {activeOrg ? ROLE_LABELS[activeOrg.role] : ""}
@@ -766,6 +771,19 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             </span>
           </div>
           <div className="flex items-center gap-3">
+            <button
+              onClick={() => {
+                // Trigger Cmd+K programmatically
+                document.dispatchEvent(new KeyboardEvent("keydown", { key: "k", metaKey: true, bubbles: true }));
+              }}
+              className="hidden items-center gap-2 rounded-lg border border-vytal-border bg-vytal-bg3/50 px-3 py-1.5 text-xs text-vytal-muted transition-colors hover:border-vytal-green/20 hover:text-vytal-text sm:flex"
+            >
+              <Search className="h-3.5 w-3.5" />
+              <span>Search...</span>
+              <kbd className="rounded border border-vytal-border bg-vytal-bg3 px-1 py-0.5 text-[10px] font-semibold">
+                {typeof navigator !== "undefined" && /Mac/.test(navigator.userAgent) ? "\u2318K" : "Ctrl+K"}
+              </kbd>
+            </button>
             <LanguageSwitcher />
             <ThemeToggle />
             <NotificationsDropdown />
@@ -776,6 +794,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
       {/* Floating Messenger-style chat widget */}
       <FloatingChat />
+
+      {/* Command Palette */}
+      <CommandPalette />
     </div>
     </ToastProvider>
   );

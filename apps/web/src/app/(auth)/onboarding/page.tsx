@@ -22,6 +22,7 @@ import {
 } from "@vytal-fit/shared";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/lib/i18n";
+import { useDataStore } from "@/stores/data-store";
 
 // ─── Emoji map for org types ─────────────────────────────────────────────────
 
@@ -251,6 +252,7 @@ function FloatingInput({
 export default function OnboardingPage() {
   const router = useRouter();
   const { t } = useI18n();
+  const updateOrgSettings = useDataStore((s) => s.updateOrgSettings);
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [direction, setDirection] = useState<"forward" | "backward">("forward");
@@ -337,6 +339,20 @@ export default function OnboardingPage() {
       setStep(step + 1);
     } else {
       setLoading(true);
+      // Persist onboarding data to the data store
+      updateOrgSettings({
+        name: details.name,
+        slug: details.slug,
+        email: details.email,
+        phone: details.phone,
+        currency: details.currency,
+        timezone: details.timezone,
+        country: details.country,
+        address: details.address,
+        city: details.city,
+        zipCode: details.zipCode,
+        businessType: selectedType ?? undefined,
+      });
       setTimeout(() => {
         router.push("/dashboard");
       }, 800);

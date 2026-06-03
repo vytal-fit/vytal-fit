@@ -310,6 +310,54 @@ export default async function MemberDetailPage({
           </div>
         </div>
       )}
+
+      {/* Activity Timeline */}
+      <div>
+        <h2 className="mb-4 text-lg font-semibold text-vytal-text">
+          Activity Timeline
+        </h2>
+        <div className="relative">
+          {/* Vertical line */}
+          <div className="absolute left-[11px] top-2 bottom-2 w-0.5 bg-vytal-border" />
+
+          <div className="space-y-4">
+            {[
+              { type: "checkin" as const, description: "Checked in to WOD 17:30", time: "2 hours ago" },
+              { type: "pr" as const, description: "Achieved PR: Back Squat 140kg", time: "Yesterday" },
+              { type: "booking" as const, description: "Booked class: Strength 12:00", time: "Yesterday" },
+              { type: "payment" as const, description: "Payment processed: \u20AC75.00", time: "3 days ago" },
+              { type: "plan" as const, description: "Changed plan to Livre", time: "1 week ago" },
+              { type: "achievement" as const, description: "Completed 30-day challenge", time: "2 weeks ago" },
+              { type: "joined" as const, description: "Joined CrossFit Aveiro", time: "6 months ago" },
+            ].map((entry, i) => {
+              const dotColors: Record<string, string> = {
+                checkin: "bg-vytal-green",
+                pr: "bg-vytal-amber",
+                booking: "bg-vytal-blue",
+                payment: "bg-vytal-green",
+                plan: "bg-vytal-purple",
+                achievement: "bg-vytal-amber",
+                joined: "bg-vytal-green",
+              };
+              return (
+                <div key={i} className="relative flex items-start gap-4 pl-8">
+                  {/* Dot */}
+                  <div
+                    className={cn(
+                      "absolute left-1.5 top-1.5 h-3 w-3 rounded-full border-2 border-vytal-bg2",
+                      dotColors[entry.type] ?? "bg-vytal-muted"
+                    )}
+                  />
+                  <div className="flex flex-1 items-center justify-between rounded-lg border border-vytal-border bg-vytal-card px-4 py-3 transition-colors hover:border-[rgba(61,255,110,0.22)]">
+                    <p className="text-sm text-vytal-text">{entry.description}</p>
+                    <span className="ml-4 shrink-0 text-xs text-vytal-muted">{entry.time}</span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

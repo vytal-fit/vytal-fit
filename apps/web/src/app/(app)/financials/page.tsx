@@ -2,6 +2,7 @@
 
 import { DollarSign, TrendingUp, AlertTriangle, Clock } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
+import { formatCurrency } from "@/stores/data-store";
 import {
   LineChart,
   Line,
@@ -94,7 +95,7 @@ function CustomTooltip({ active, payload, label }: { active?: boolean; payload?:
       <div className="rounded-lg border border-vytal-border bg-vytal-card px-3 py-2 shadow-lg">
         <p className="text-xs text-vytal-muted">{label}</p>
         <p className="font-mono text-sm font-bold text-vytal-green">
-          {payload[0].value.toLocaleString("pt-PT")} EUR
+          {formatCurrency(payload[0].value)}
         </p>
       </div>
     );
@@ -124,7 +125,7 @@ export default function FinancialsPage() {
                 Monthly Revenue
               </span>
               <span className="text-2xl font-bold text-vytal-text">
-                18,450 EUR
+                {formatCurrency(18450)}
               </span>
               <span className="text-xs text-vytal-green">+5.2% vs last month</span>
             </div>
@@ -155,7 +156,7 @@ export default function FinancialsPage() {
                 YTD Revenue
               </span>
               <span className="text-2xl font-bold text-vytal-text">
-                98,200 EUR
+                {formatCurrency(98200)}
               </span>
               <span className="text-xs text-vytal-green">On track</span>
             </div>
@@ -173,7 +174,7 @@ export default function FinancialsPage() {
                 Overdue Amount
               </span>
               <span className="text-2xl font-bold text-vytal-red">
-                {overdueTotal} EUR
+                {formatCurrency(overdueTotal)}
               </span>
               <span className="text-xs text-vytal-red">
                 {pendingPayments.filter((p) => p.status === "overdue").length} overdue payments
@@ -318,7 +319,7 @@ export default function FinancialsPage() {
                     {p.member}
                   </td>
                   <td className="px-4 py-3 font-mono text-sm text-vytal-text">
-                    {p.amount} EUR
+                    {formatCurrency(p.amount)}
                   </td>
                   <td className="hidden px-4 py-3 sm:table-cell">
                     <span
@@ -376,7 +377,7 @@ export default function FinancialsPage() {
                     {tx.member}
                   </td>
                   <td className="px-4 py-3 font-mono text-sm text-vytal-text">
-                    {tx.amount} EUR
+                    {formatCurrency(tx.amount)}
                   </td>
                   <td className="hidden px-4 py-3 sm:table-cell">
                     <MethodBadge method={tx.method} />

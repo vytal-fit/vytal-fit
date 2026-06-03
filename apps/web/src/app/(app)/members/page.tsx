@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import { mockMembers } from "@vytal-fit/shared";
 import type { MemberStatus } from "@vytal-fit/shared";
 import {
@@ -25,6 +25,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useI18n } from "@/lib/i18n";
 import { useToast } from "@/components/toast";
+import { Pagination } from "@/components/pagination";
 
 const planMap: Record<string, string> = {
   "m-1": "Unlimited",
@@ -145,6 +146,8 @@ export default function MembersPage() {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [sortKey, setSortKey] = useState<SortKey>("memberNumber");
   const [sortDir, setSortDir] = useState<SortDir>("asc");
+  const [currentPage, setCurrentPage] = useState(1);
+  const PAGE_SIZE = 10;
   const { t } = useI18n();
   const { toast } = useToast();
 
@@ -218,6 +221,17 @@ export default function MembersPage() {
 
     return list;
   }, [search, filter, sortKey, sortDir]);
+
+  // Reset page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, filter, sortKey, sortDir]);
+
+  const totalPages = Math.max(1, Math.ceil(members.length / PAGE_SIZE));
+  const pagedMembers = useMemo(() => {
+    const start = (currentPage - 1) * PAGE_SIZE;
+    return members.slice(start, start + PAGE_SIZE);
+  }, [members, currentPage]);
 
   const counts = useMemo(() => {
     const all = mockMembers;
@@ -474,7 +488,7 @@ export default function MembersPage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-vytal-border">
-            {members.map((member) => (
+            {pagedMembers.map((member) => (
               <tr
                 key={member.id}
                 className={cn(
@@ -582,6 +596,15 @@ export default function MembersPage() {
           </div>
         )}
       </div>
+
+      {/* Pagination */}
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        totalItems={members.length}
+        pageSize={PAGE_SIZE}
+        onPageChange={setCurrentPage}
+      />
     </div>
   );
 }

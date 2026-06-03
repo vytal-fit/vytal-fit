@@ -14,6 +14,7 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { formatCurrency as formatCurrencyStore } from "@/stores/data-store";
 
 const typeLabels: Record<string, { label: string; className: string }> = {
   monthly: {
@@ -70,12 +71,8 @@ const planMonthlyRevenue: Record<string, number> = {
   "plan-8": 120,
 };
 
-function formatCurrency(value: number, currency: string): string {
-  return new Intl.NumberFormat("pt-PT", {
-    style: "currency",
-    currency,
-    minimumFractionDigits: value % 1 === 0 ? 0 : 2,
-  }).format(value);
+function formatCurrency(value: number, _currency?: string): string {
+  return formatCurrencyStore(value);
 }
 
 function PlanCard({

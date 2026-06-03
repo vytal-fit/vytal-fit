@@ -34,18 +34,7 @@ import {
   Legend,
 } from "recharts";
 import { cn } from "@/lib/utils";
-
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
-function formatCurrency(value: number): string {
-  return new Intl.NumberFormat("pt-PT", {
-    style: "currency",
-    currency: "EUR",
-    minimumFractionDigits: 0,
-  }).format(value);
-}
+import { useDataStore, formatCurrency } from "@/stores/data-store";
 
 // ---------------------------------------------------------------------------
 // Stat Card
