@@ -460,7 +460,7 @@ export default function SettingsPage() {
       <div className="rounded-xl border-2 border-vytal-red/20 bg-vytal-card p-6">
         <div className="mb-4 flex items-center gap-2">
           <AlertTriangle className="h-5 w-5 text-vytal-red" />
-          <h2 className="text-lg font-semibold text-vytal-red">Danger Zone</h2>
+          <h2 className="text-lg font-semibold text-vytal-red">{t("settings.dangerZone")}</h2>
         </div>
         <p className="mb-4 text-sm text-vytal-muted">
           Once you delete your organization, there is no going back. All data

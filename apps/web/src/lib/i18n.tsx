@@ -298,6 +298,7 @@ const translations: Record<Language, Record<string, string>> = {
     "kiosk.subtitle": "Configurar apar\u00eancia e comportamento do quiosque de check-in",
     "settings.title": "Defini\u00e7\u00f5es",
     "settings.subtitle": "Gerir o perfil e prefer\u00eancias do seu box",
+    "settings.dangerZone": "Zona de Perigo",
 
     // Floating Chat
     "messages.title": "Mensagens",
@@ -917,6 +918,7 @@ const translations: Record<Language, Record<string, string>> = {
     "kiosk.subtitle": "Configure check-in kiosk appearance and behavior",
     "settings.title": "Settings",
     "settings.subtitle": "Manage your box profile and preferences",
+    "settings.dangerZone": "Danger Zone",
 
     // Floating Chat
     "messages.title": "Messages",
@@ -1536,6 +1538,7 @@ const translations: Record<Language, Record<string, string>> = {
     "kiosk.subtitle": "Configurar apariencia y comportamiento del quiosco de check-in",
     "settings.title": "Ajustes",
     "settings.subtitle": "Gestionar el perfil y preferencias de su box",
+    "settings.dangerZone": "Zona de Peligro",
 
     // Floating Chat
     "messages.title": "Mensajes",
