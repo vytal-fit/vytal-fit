@@ -292,10 +292,12 @@ export default function OnboardingPage() {
     const q = searchQuery.toLowerCase();
     return ORGANIZATION_TYPE_LIST.filter(
       (c) =>
+        t(`vertical.${c.type}`).toLowerCase().includes(q) ||
+        t(`vertical.${c.type}.desc`).toLowerCase().includes(q) ||
         c.label.toLowerCase().includes(q) ||
         c.description.toLowerCase().includes(q)
     );
-  }, [searchQuery]);
+  }, [searchQuery, t]);
 
   const featuresByCategory = useMemo(() => {
     if (!selectedConfig) return {};
@@ -375,6 +377,15 @@ export default function OnboardingPage() {
       <div className="relative overflow-hidden rounded-3xl border border-vytal-border bg-vytal-card backdrop-blur-xl">
         {/* Animated gradient accent at top */}
         <div className="absolute inset-x-0 top-0 h-1 animate-onboarding-gradient bg-gradient-to-r from-vytal-green via-vytal-blue to-vytal-green" />
+
+        {/* Close button */}
+        <button
+          type="button"
+          onClick={() => router.push("/dashboard")}
+          className="absolute right-4 top-4 z-10 flex h-8 w-8 items-center justify-center rounded-lg text-vytal-muted transition-colors hover:bg-vytal-bg3 hover:text-white"
+        >
+          <X className="h-5 w-5" />
+        </button>
 
         <div className="p-6 sm:p-10">
           {/* ── Header ──────────────────────────────────────────── */}
@@ -518,12 +529,12 @@ export default function OnboardingPage() {
                               : "text-vytal-text"
                           )}
                         >
-                          {config.label}
+                          {t(`vertical.${config.type}`)}
                         </span>
 
                         {/* Description */}
                         <span className="line-clamp-1 text-[10px] leading-tight text-vytal-muted">
-                          {config.description}
+                          {t(`vertical.${config.type}.desc`)}
                         </span>
                       </button>
                     );
@@ -697,7 +708,7 @@ export default function OnboardingPage() {
                         <div className="mb-4 flex justify-center">
                           <span className="inline-flex items-center gap-1.5 rounded-full bg-vytal-green/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-vytal-green">
                             <span>{EMOJI_MAP[selectedConfig.type]}</span>
-                            {selectedConfig.label}
+                            {t(`vertical.${selectedConfig.type}`)}
                           </span>
                         </div>
                       )}
@@ -773,7 +784,7 @@ export default function OnboardingPage() {
                         </h3>
                         <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-vytal-green/10 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-vytal-green">
                           {EMOJI_MAP[selectedConfig.type]}{" "}
-                          {selectedConfig.label}
+                          {t(`vertical.${selectedConfig.type}`)}
                         </span>
                       </div>
                       <p className="mt-0.5 text-sm text-vytal-muted truncate">

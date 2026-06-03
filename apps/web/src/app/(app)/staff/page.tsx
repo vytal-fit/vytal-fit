@@ -53,7 +53,7 @@ function CoachCard({ coach, onDelete }: { coach: Coach; onDelete: (id: string, n
       <button
         onClick={(e) => { e.preventDefault(); onDelete(coach.id, coach.name); }}
         className="absolute right-3 top-3 rounded-lg p-1.5 text-vytal-muted opacity-0 transition-all hover:bg-vytal-red/10 hover:text-vytal-red group-hover:opacity-100"
-        title="Delete"
+        title={t("action.delete")}
       >
         <Trash2 className="h-3.5 w-3.5" />
       </button>
@@ -116,15 +116,15 @@ export default function StaffPage() {
   const assistants = storeCoaches.filter((c) => c.role === "assistant").length;
 
   function handleAdd() {
-    if (!addName.trim()) { toast("Name is required", "error"); return; }
-    if (!addEmail.trim()) { toast("Email is required", "error"); return; }
+    if (!addName.trim()) { toast(t("staff.nameRequired"), "error"); return; }
+    if (!addEmail.trim()) { toast(t("staff.emailRequired"), "error"); return; }
     addCoach({
       organizationId: "org-1",
       name: addName.trim(),
       email: addEmail.trim(),
       role: addRole,
     });
-    toast("Coach added", "success");
+    toast(t("staff.coachAdded"), "success");
     setAddName(""); setAddEmail(""); setAddRole("coach");
     setShowAddForm(false);
   }
@@ -132,7 +132,7 @@ export default function StaffPage() {
   function handleConfirmDelete() {
     if (!deleteTarget) return;
     deleteCoach(deleteTarget.id);
-    toast("Coach deleted", "success");
+    toast(t("staff.coachDeleted"), "success");
     setDeleteTarget(null);
   }
 
@@ -162,19 +162,19 @@ export default function StaffPage() {
           <h3 className="mb-4 text-sm font-semibold text-vytal-text">{t("staff.addCoach")}</h3>
           <div className="flex flex-wrap items-end gap-3">
             <div className="flex-1 min-w-[180px]">
-              <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">Name</label>
-              <input type="text" value={addName} onChange={(e) => setAddName(e.target.value)} placeholder="Full name" className={inputClass} />
+              <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("staff.name")}</label>
+              <input type="text" value={addName} onChange={(e) => setAddName(e.target.value)} placeholder={t("staff.name")} className={inputClass} />
             </div>
             <div className="flex-1 min-w-[180px]">
-              <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">Email</label>
+              <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("staff.email")}</label>
               <input type="email" value={addEmail} onChange={(e) => setAddEmail(e.target.value)} placeholder="coach@gym.com" className={inputClass} />
             </div>
             <div className="w-40">
-              <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">Role</label>
+              <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("staff.role")}</label>
               <select value={addRole} onChange={(e) => setAddRole(e.target.value as Coach["role"])} className={inputClass}>
-                <option value="head_coach">Head Coach</option>
-                <option value="coach">Coach</option>
-                <option value="assistant">Assistant</option>
+                <option value="head_coach">{t("staff.headCoachOption")}</option>
+                <option value="coach">{t("staff.coachOption")}</option>
+                <option value="assistant">{t("staff.assistantOption")}</option>
               </select>
             </div>
             <button onClick={handleAdd} className="flex items-center gap-2 rounded-lg bg-vytal-green px-5 py-2 text-sm font-semibold text-vytal-bg hover:bg-vytal-green/90">
@@ -217,8 +217,8 @@ export default function StaffPage() {
 
       <ConfirmDialog
         open={!!deleteTarget}
-        title="Delete Coach"
-        description={`Are you sure you want to delete "${deleteTarget?.name}"? This cannot be undone.`}
+        title={t("staff.deleteCoach")}
+        description={t("staff.confirmDelete").replace("{name}", deleteTarget?.name ?? "")}
         confirmLabel={t("action.delete")}
         cancelLabel={t("action.cancel")}
         variant="danger"

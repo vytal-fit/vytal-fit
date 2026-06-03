@@ -28,7 +28,7 @@ export default function LocationsPage() {
 
   function handleAdd() {
     if (!addName.trim()) {
-      toast(t("locations.nameRequired") || "Name is required", "error");
+      toast(t("locations.nameRequired"), "error");
       return;
     }
     addLocation({
@@ -36,7 +36,7 @@ export default function LocationsPage() {
       name: addName.trim(),
       capacity: addCapacity ? parseInt(addCapacity) : undefined,
     });
-    toast(t("locations.locationAdded") || "Location added", "success");
+    toast(t("locations.locationAdded"), "success");
     setAddName("");
     setAddCapacity("");
     setShowAddForm(false);
@@ -54,14 +54,14 @@ export default function LocationsPage() {
       name: editName.trim(),
       capacity: editCapacity ? parseInt(editCapacity) : undefined,
     });
-    toast(t("locations.locationUpdated") || "Location updated", "success");
+    toast(t("locations.locationUpdated"), "success");
     setEditingId(null);
   }
 
   function handleConfirmDelete() {
     if (!deleteTarget) return;
     deleteLocation(deleteTarget.id);
-    toast(t("locations.locationDeleted") || "Location deleted", "success");
+    toast(t("locations.locationDeleted"), "success");
     setDeleteTarget(null);
   }
 
@@ -257,7 +257,7 @@ export default function LocationsPage() {
       <ConfirmDialog
         open={!!deleteTarget}
         title={t("action.delete")}
-        description={`${t("locations.confirmDelete") || "Are you sure you want to delete"} "${deleteTarget?.name}"?`}
+        description={`${t("locations.confirmDelete")} "${deleteTarget?.name}"?`}
         confirmLabel={t("action.delete")}
         cancelLabel={t("action.cancel")}
         variant="danger"

@@ -35,7 +35,7 @@ export default function ClassTypesPage() {
 
   function handleAdd() {
     if (!addName.trim()) {
-      toast("Name is required", "error");
+      toast(t("classTypes.nameRequired"), "error");
       return;
     }
     addClassType({
@@ -45,7 +45,7 @@ export default function ClassTypesPage() {
       color: addColor,
       active: true,
     });
-    toast("Class type added", "success");
+    toast(t("classTypes.classTypeAdded"), "success");
     setAddName("");
     setAddAbbr("");
     setAddColor(defaultColors[0]);
@@ -66,14 +66,14 @@ export default function ClassTypesPage() {
       abbreviation: editAbbr.trim(),
       color: editColor,
     });
-    toast("Class type updated", "success");
+    toast(t("classTypes.classTypeUpdated"), "success");
     setEditingId(null);
   }
 
   function handleConfirmDelete() {
     if (!deleteTarget) return;
     deleteClassType(deleteTarget.id);
-    toast("Class type deleted", "success");
+    toast(t("classTypes.classTypeDeleted"), "success");
     setDeleteTarget(null);
   }
 
@@ -105,15 +105,15 @@ export default function ClassTypesPage() {
           <h3 className="mb-4 text-sm font-semibold text-vytal-text">{t("classTypes.addClassType")}</h3>
           <div className="flex flex-wrap items-end gap-3">
             <div className="flex-1 min-w-[180px]">
-              <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">Name</label>
+              <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("classTypes.name")}</label>
               <input type="text" value={addName} onChange={(e) => setAddName(e.target.value)} placeholder="e.g. CrossFit" className={inputClass} onKeyDown={(e) => e.key === "Enter" && handleAdd()} />
             </div>
             <div className="w-28">
-              <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">Abbreviation</label>
+              <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("classTypes.abbreviation")}</label>
               <input type="text" value={addAbbr} onChange={(e) => setAddAbbr(e.target.value)} placeholder="CF" className={inputClass} onKeyDown={(e) => e.key === "Enter" && handleAdd()} />
             </div>
             <div className="w-auto">
-              <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">Color</label>
+              <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("classTypes.color")}</label>
               <div className="flex items-center gap-1.5">
                 {defaultColors.map((c) => (
                   <button key={c} type="button" onClick={() => setAddColor(c)} className={`h-7 w-7 rounded-full border-2 transition-all ${addColor === c ? "border-white scale-110" : "border-transparent"}`} style={{ backgroundColor: c }} />
@@ -140,12 +140,12 @@ export default function ClassTypesPage() {
           <table className="w-full min-w-[500px]">
             <thead>
               <tr className="border-b border-vytal-border bg-vytal-bg2">
-                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-vytal-muted">Color</th>
-                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-vytal-muted">Name</th>
-                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-vytal-muted">Abbreviation</th>
-                <th className="hidden px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-vytal-muted sm:table-cell">Icon</th>
-                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-vytal-muted">Status</th>
-                <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-vytal-muted">Actions</th>
+                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("table.color")}</th>
+                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("table.name")}</th>
+                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("table.abbreviation")}</th>
+                <th className="hidden px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-vytal-muted sm:table-cell">{t("table.icon")}</th>
+                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("table.status")}</th>
+                <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("table.actions")}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-vytal-border">
@@ -192,14 +192,14 @@ export default function ClassTypesPage() {
                           <div
                             onClick={() => {
                               updateClassType(ct.id, { active: !ct.active });
-                              toast(ct.active ? "Class type deactivated" : "Class type activated", "success");
+                              toast(ct.active ? t("classTypes.classTypeDeactivated") : t("classTypes.classTypeActivated"), "success");
                             }}
                             className={`relative inline-flex h-5 w-9 cursor-pointer items-center rounded-full transition-colors ${ct.active ? "bg-vytal-green" : "bg-vytal-bg3"}`}
                           >
                             <span className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform ${ct.active ? "translate-x-4" : "translate-x-0.5"}`} />
                           </div>
                           <span className={`text-xs ${ct.active ? "text-vytal-green" : "text-vytal-muted"}`}>
-                            {ct.active ? "Active" : "Inactive"}
+                            {ct.active ? t("status.active") : t("status.inactive")}
                           </span>
                         </div>
                       </td>
@@ -225,7 +225,7 @@ export default function ClassTypesPage() {
       <ConfirmDialog
         open={!!deleteTarget}
         title={t("action.delete")}
-        description={`Are you sure you want to delete "${deleteTarget?.name}"? This action cannot be undone.`}
+        description={t("classTypes.confirmDelete").replace("{name}", deleteTarget?.name ?? "")}
         confirmLabel={t("action.delete")}
         cancelLabel={t("action.cancel")}
         variant="danger"

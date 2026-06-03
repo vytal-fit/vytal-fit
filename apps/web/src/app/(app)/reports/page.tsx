@@ -7,9 +7,11 @@ import {
   CalendarDays,
   Download,
   ArrowRight,
+  Clock,
 } from "lucide-react";
 import Link from "next/link";
 import { useI18n } from "@/lib/i18n";
+import { useToast } from "@/components/toast";
 
 interface ReportCardProps {
   title: string;
@@ -17,9 +19,16 @@ interface ReportCardProps {
   iconBg: string;
   metrics: Array<{ label: string; value: string }>;
   href?: string;
+  lastGenerated: string;
+  downloadLabel: string;
+  viewLabel: string;
+  onClickNoHref?: () => void;
 }
 
-function ReportCard({ title, icon, iconBg, metrics, href }: ReportCardProps) {
+function ReportCard({ title, icon, iconBg, metrics, href, lastGenerated, downloadLabel, viewLabel, onClickNoHref }: ReportCardProps) {
+  const Wrapper = href ? Link : "div";
+  const wrapperProps = href ? { href } : { onClick: onClickNoHref, className: "cursor-pointer" };
+
   return (
     <div className="rounded-xl border border-vytal-border bg-vytal-card p-6 transition-colors hover:border-[rgba(61,255,110,0.22)]">
       <div className="mb-5 flex items-center gap-3">
@@ -28,7 +37,13 @@ function ReportCard({ title, icon, iconBg, metrics, href }: ReportCardProps) {
         >
           {icon}
         </div>
-        <h3 className="text-lg font-semibold text-vytal-text">{title}</h3>
+        <div className="flex-1">
+          <h3 className="text-lg font-semibold text-vytal-text">{title}</h3>
+          <div className="flex items-center gap-1 text-[10px] text-vytal-muted">
+            <Clock className="h-2.5 w-2.5" />
+            {lastGenerated}
+          </div>
+        </div>
       </div>
 
       <div className="space-y-3">
@@ -45,16 +60,24 @@ function ReportCard({ title, icon, iconBg, metrics, href }: ReportCardProps) {
       <div className="mt-5 flex gap-2 border-t border-vytal-border pt-4">
         <button className="flex flex-1 items-center justify-center gap-2 rounded-lg border border-vytal-border bg-vytal-bg2 px-4 py-2 text-sm text-vytal-text transition-colors hover:bg-vytal-bg3">
           <Download className="h-4 w-4" />
-          Download PDF
+          {downloadLabel}
         </button>
-        {href && (
+        {href ? (
           <Link
             href={href}
             className="flex items-center justify-center gap-2 rounded-lg border border-vytal-border bg-vytal-bg2 px-4 py-2 text-sm text-vytal-text transition-colors hover:bg-vytal-bg3"
           >
             <ArrowRight className="h-4 w-4" />
-            View
+            {viewLabel}
           </Link>
+        ) : (
+          <button
+            onClick={onClickNoHref}
+            className="flex items-center justify-center gap-2 rounded-lg border border-vytal-border bg-vytal-bg2 px-4 py-2 text-sm text-vytal-text transition-colors hover:bg-vytal-bg3"
+          >
+            <ArrowRight className="h-4 w-4" />
+            {viewLabel}
+          </button>
         )}
       </div>
     </div>
@@ -63,6 +86,12 @@ function ReportCard({ title, icon, iconBg, metrics, href }: ReportCardProps) {
 
 export default function ReportsPage() {
   const { t } = useI18n();
+  const { toast } = useToast();
+
+  function handleComingSoon() {
+    toast(t("reports.comingSoon"), "info");
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -76,51 +105,66 @@ export default function ReportsPage() {
       {/* Report Cards */}
       <div className="grid gap-6 md:grid-cols-2">
         <ReportCard
-          title="Attendance Report"
+          title={t("reports.attendanceReport")}
           icon={<BarChart3 className="h-5 w-5 text-vytal-green" />}
           iconBg="bg-vytal-green/10"
           href="/reports/attendance"
+          lastGenerated={t("reports.lastGenerated").replace("{days}", "2")}
+          downloadLabel={t("reports.downloadPdf")}
+          viewLabel={t("reports.view")}
           metrics={[
-            { label: "Total check-ins this month", value: "1,240" },
-            { label: "Average per day", value: "41" },
-            { label: "Peak day", value: "Thursday" },
-            { label: "Peak time", value: "17:30 - 18:30" },
+            { label: t("reports.totalCheckInsMonth"), value: "1.240" },
+            { label: t("reports.avgPerDay"), value: "41" },
+            { label: t("reports.peakDay"), value: t("reports.thursday") },
+            { label: t("reports.peakTime"), value: "17:30 - 18:30" },
           ]}
         />
 
         <ReportCard
-          title="Revenue Report"
+          title={t("reports.revenueReport")}
           icon={<DollarSign className="h-5 w-5 text-vytal-blue" />}
           iconBg="bg-vytal-blue/10"
+          lastGenerated={t("reports.lastGenerated").replace("{days}", "1")}
+          downloadLabel={t("reports.downloadPdf")}
+          viewLabel={t("reports.view")}
+          onClickNoHref={handleComingSoon}
           metrics={[
-            { label: "Monthly revenue", value: "18,450 EUR" },
-            { label: "vs Last month", value: "+5.2%" },
-            { label: "Active subscriptions", value: "367" },
-            { label: "Avg revenue per member", value: "50.27 EUR" },
+            { label: t("reports.monthlyRevenueLabel"), value: "18.450 EUR" },
+            { label: t("reports.vsLastMonth"), value: "+5,2%" },
+            { label: t("reports.activeSubscriptions"), value: "367" },
+            { label: t("reports.avgRevenuePerMember"), value: "50,27 EUR" },
           ]}
         />
 
         <ReportCard
-          title="Member Report"
+          title={t("reports.memberReport")}
           icon={<Users className="h-5 w-5 text-vytal-purple" />}
           iconBg="bg-vytal-purple/10"
+          lastGenerated={t("reports.lastGenerated").replace("{days}", "3")}
+          downloadLabel={t("reports.downloadPdf")}
+          viewLabel={t("reports.view")}
+          onClickNoHref={handleComingSoon}
           metrics={[
-            { label: "New members this month", value: "14" },
-            { label: "Churn rate", value: "3.2%" },
-            { label: "At-risk members", value: "12" },
-            { label: "Retention rate", value: "96.8%" },
+            { label: t("reports.newMembersMonth"), value: "14" },
+            { label: t("reports.churnRate"), value: "3,2%" },
+            { label: t("reports.atRiskMembers"), value: "12" },
+            { label: t("reports.retentionRate"), value: "96,8%" },
           ]}
         />
 
         <ReportCard
-          title="Class Report"
+          title={t("reports.classReport")}
           icon={<CalendarDays className="h-5 w-5 text-vytal-amber" />}
           iconBg="bg-vytal-amber/10"
+          lastGenerated={t("reports.lastGenerated").replace("{days}", "2")}
+          downloadLabel={t("reports.downloadPdf")}
+          viewLabel={t("reports.view")}
+          onClickNoHref={handleComingSoon}
           metrics={[
-            { label: "Total classes this month", value: "180" },
-            { label: "Average attendance", value: "14.2" },
-            { label: "Most popular", value: "WOD" },
-            { label: "Least popular", value: "Mobility" },
+            { label: t("reports.totalClassesMonth"), value: "180" },
+            { label: t("reports.avgAttendance"), value: "14,2" },
+            { label: t("reports.mostPopular"), value: "WOD" },
+            { label: t("reports.leastPopular"), value: "Mobility" },
           ]}
         />
       </div>

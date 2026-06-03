@@ -98,8 +98,8 @@ export default function MembersPage() {
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
 
   function handleAdd() {
-    if (!addName.trim()) { toast("Name is required", "error"); return; }
-    if (!addEmail.trim()) { toast("Email is required", "error"); return; }
+    if (!addName.trim()) { toast(t("members.nameRequired"), "error"); return; }
+    if (!addEmail.trim()) { toast(t("members.emailRequired"), "error"); return; }
     const maxNum = storeMembers.reduce((max, m) => Math.max(max, m.memberNumber), 0);
     addMember({
       organizationId: "org-1",
@@ -113,7 +113,7 @@ export default function MembersPage() {
       streakWeeks: 0,
       totalCheckIns: 0,
     });
-    toast("Member added", "success");
+    toast(t("members.memberAdded"), "success");
     setAddName(""); setAddEmail(""); setAddPhone(""); setAddStatus("active");
     setShowAddForm(false);
   }
@@ -121,7 +121,7 @@ export default function MembersPage() {
   function handleConfirmDelete() {
     if (!deleteTarget) return;
     deleteMember(deleteTarget.id);
-    toast("Member deleted", "success");
+    toast(t("members.memberDeleted"), "success");
     setDeleteTarget(null);
   }
 
@@ -228,7 +228,7 @@ export default function MembersPage() {
           </Link>
           <button onClick={() => setShowAddForm((v) => !v)} className="flex items-center gap-2 rounded-lg bg-vytal-green px-4 py-2 text-sm font-semibold text-vytal-bg transition-colors hover:bg-vytal-green/90">
             {showAddForm ? <X className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
-            {showAddForm ? t("action.cancel") : "Add Member"}
+            {showAddForm ? t("action.cancel") : t("members.addMember")}
           </button>
         </div>
       </div>
@@ -236,26 +236,26 @@ export default function MembersPage() {
       {/* Add Form */}
       {showAddForm && (
         <div className="rounded-xl border border-vytal-green/20 bg-vytal-green/5 p-5">
-          <h3 className="mb-4 text-sm font-semibold text-vytal-text">Add Member</h3>
+          <h3 className="mb-4 text-sm font-semibold text-vytal-text">{t("members.addMemberTitle")}</h3>
           <div className="flex flex-wrap items-end gap-3">
             <div className="flex-1 min-w-[160px]">
-              <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">Name</label>
+              <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("members.name")}</label>
               <input type="text" value={addName} onChange={(e) => setAddName(e.target.value)} placeholder="Full name" className={inputClass} />
             </div>
             <div className="flex-1 min-w-[160px]">
-              <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">Email</label>
+              <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("members.email")}</label>
               <input type="email" value={addEmail} onChange={(e) => setAddEmail(e.target.value)} placeholder="email@example.com" className={inputClass} />
             </div>
             <div className="w-40">
-              <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">Phone</label>
+              <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("members.phone")}</label>
               <input type="text" value={addPhone} onChange={(e) => setAddPhone(e.target.value)} placeholder="+351..." className={inputClass} />
             </div>
             <div className="w-32">
-              <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">Status</label>
+              <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("members.status")}</label>
               <select value={addStatus} onChange={(e) => setAddStatus(e.target.value as MemberStatus)} className={inputClass}>
-                <option value="active">Active</option>
-                <option value="trial">Trial</option>
-                <option value="inactive">Inactive</option>
+                <option value="active">{t("members.active")}</option>
+                <option value="trial">{t("members.trial")}</option>
+                <option value="inactive">{t("members.inactive")}</option>
               </select>
             </div>
             <button onClick={handleAdd} className="flex items-center gap-2 rounded-lg bg-vytal-green px-5 py-2 text-sm font-semibold text-vytal-bg hover:bg-vytal-green/90">
@@ -353,10 +353,10 @@ export default function MembersPage() {
                 <td className="hidden px-4 py-3 text-right font-mono text-sm text-vytal-muted xl:table-cell">{member.totalCheckIns}</td>
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-1">
-                    <Link href={`/members/${member.id}`} className="flex h-7 w-7 items-center justify-center rounded-lg text-vytal-muted transition-colors hover:bg-vytal-bg3 hover:text-vytal-green" title="View member">
+                    <Link href={`/members/${member.id}`} className="flex h-7 w-7 items-center justify-center rounded-lg text-vytal-muted transition-colors hover:bg-vytal-bg3 hover:text-vytal-green" title={t("members.viewMember")}>
                       <Eye className="h-3.5 w-3.5" />
                     </Link>
-                    <button onClick={() => setDeleteTarget({ id: member.id, name: member.name })} className="flex h-7 w-7 items-center justify-center rounded-lg text-vytal-muted transition-colors hover:bg-vytal-red/10 hover:text-vytal-red" title="Delete member">
+                    <button onClick={() => setDeleteTarget({ id: member.id, name: member.name })} className="flex h-7 w-7 items-center justify-center rounded-lg text-vytal-muted transition-colors hover:bg-vytal-red/10 hover:text-vytal-red" title={t("members.deleteMember")}>
                       <Trash2 className="h-3.5 w-3.5" />
                     </button>
                   </div>
@@ -386,8 +386,8 @@ export default function MembersPage() {
 
       <ConfirmDialog
         open={!!deleteTarget}
-        title="Delete Member"
-        description={`Are you sure you want to delete "${deleteTarget?.name}"? This cannot be undone.`}
+        title={t("members.deleteMember")}
+        description={t("members.confirmDelete").replace("{name}", deleteTarget?.name ?? "")}
         confirmLabel={t("action.delete")}
         cancelLabel={t("action.cancel")}
         variant="danger"

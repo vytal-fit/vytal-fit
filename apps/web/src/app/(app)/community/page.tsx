@@ -257,7 +257,7 @@ export default function CommunityPage() {
       setFeedItems((prev) =>
         prev.map((item) => (item.id === id ? { ...item, hidden: !item.hidden } : item))
       );
-      toast("Post visibility toggled", "success");
+      toast(t("community.feed"), "success");
     },
     [toast]
   );
@@ -267,7 +267,7 @@ export default function CommunityPage() {
       setFeedItems((prev) =>
         prev.map((item) => (item.id === id ? { ...item, flagged: !item.flagged } : item))
       );
-      toast("Post flagged for review", "info");
+      toast(t("community.flagged"), "info");
     },
     [toast]
   );
@@ -276,7 +276,7 @@ export default function CommunityPage() {
   const handleApprove = useCallback(
     (id: string) => {
       setFlaggedItems((prev) => prev.filter((item) => item.id !== id));
-      toast("Content approved", "success");
+      toast(t("community.approve"), "success");
     },
     [toast]
   );
@@ -284,7 +284,7 @@ export default function CommunityPage() {
   const handleRemove = useCallback(
     (id: string) => {
       setFlaggedItems((prev) => prev.filter((item) => item.id !== id));
-      toast("Content removed", "success");
+      toast(t("community.remove"), "success");
     },
     [toast]
   );
@@ -292,7 +292,7 @@ export default function CommunityPage() {
   const handleWarnUser = useCallback(
     (id: string) => {
       setFlaggedItems((prev) => prev.filter((item) => item.id !== id));
-      toast("Warning sent to user", "info");
+      toast(t("community.warnUser"), "info");
     },
     [toast]
   );
@@ -300,7 +300,7 @@ export default function CommunityPage() {
   // Create challenge
   const handleCreateChallenge = useCallback(() => {
     if (!newChallenge.title.trim()) {
-      toast("Title is required", "error");
+      toast(t("classTypes.nameRequired"), "error");
       return;
     }
     const challenge: Challenge = {
@@ -316,7 +316,7 @@ export default function CommunityPage() {
     setChallenges((prev) => [challenge, ...prev]);
     setNewChallenge({ title: "", description: "", type: "challenge", startDate: "", endDate: "" });
     setShowCreateChallenge(false);
-    toast("Challenge created!", "success");
+    toast(t("community.createChallenge"), "success");
   }, [newChallenge, toast]);
 
   const tabs: { key: Tab; label: string; icon: React.ReactNode }[] = [
@@ -404,7 +404,7 @@ export default function CommunityPage() {
                   </span>
                   {item.flagged && (
                     <span className="rounded bg-vytal-amber/10 px-1.5 py-0.5 text-[10px] font-semibold text-vytal-amber">
-                      FLAGGED
+                      {t("community.flagged")}
                     </span>
                   )}
                 </div>
@@ -612,7 +612,7 @@ export default function CommunityPage() {
                       statusColors[ch.status].bg
                     )}
                   >
-                    {ch.status}
+                    {t(`community.status${ch.status.charAt(0).toUpperCase() + ch.status.slice(1)}`)}
                   </span>
                 </div>
                 <span
@@ -622,7 +622,7 @@ export default function CommunityPage() {
                     typeBadgeColors[ch.type].bg
                   )}
                 >
-                  {ch.type}
+                  {t(`community.${ch.type}Type`)}
                 </span>
                 <p className="mb-3 text-xs text-vytal-muted">{ch.description}</p>
                 <div className="flex items-center gap-4 text-xs text-vytal-muted">
