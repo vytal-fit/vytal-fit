@@ -6,14 +6,8 @@ import {
   Home,
   User,
 } from "lucide-react-native";
-
-const COLORS = {
-  background: "#080c0a",
-  surface: "#0f1610",
-  green: "#3dff6e",
-  muted: "#6b8c72",
-  text: "#dceee0",
-};
+import { colors } from "@/colors";
+import { t } from "@/i18n";
 
 export default function TabLayout() {
   return (
@@ -21,15 +15,15 @@ export default function TabLayout() {
       screenOptions={{
         headerShown: false,
         tabBarStyle: {
-          backgroundColor: COLORS.surface,
-          borderTopColor: "rgba(61,255,110,0.1)",
+          backgroundColor: colors.surface,
+          borderTopColor: colors.border,
           borderTopWidth: 1,
           height: 88,
           paddingBottom: 28,
           paddingTop: 10,
         },
-        tabBarActiveTintColor: COLORS.green,
-        tabBarInactiveTintColor: COLORS.muted,
+        tabBarActiveTintColor: colors.green,
+        tabBarInactiveTintColor: colors.muted,
         tabBarLabelStyle: {
           fontSize: 11,
           fontWeight: "600",
@@ -40,7 +34,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="classes"
         options={{
-          title: "Aulas",
+          title: t("tab.classes"),
           tabBarIcon: ({ color, size }) => (
             <CalendarDays size={size} color={color} strokeWidth={1.8} />
           ),
@@ -49,7 +43,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="wod"
         options={{
-          title: "WOD",
+          title: t("tab.wod"),
           tabBarIcon: ({ color, size }) => (
             <Dumbbell size={size} color={color} strokeWidth={1.8} />
           ),
@@ -58,7 +52,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="records"
         options={{
-          title: "Recordes",
+          title: t("tab.records"),
           tabBarIcon: ({ color, size }) => (
             <Trophy size={size} color={color} strokeWidth={1.8} />
           ),
@@ -67,7 +61,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="mybox"
         options={{
-          title: "My Box",
+          title: t("tab.mybox"),
           tabBarIcon: ({ color, size }) => (
             <Home size={size} color={color} strokeWidth={1.8} />
           ),
@@ -76,7 +70,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="profile"
         options={{
-          title: "Perfil",
+          title: t("tab.profile"),
           tabBarIcon: ({ color, size }) => (
             <User size={size} color={color} strokeWidth={1.8} />
           ),

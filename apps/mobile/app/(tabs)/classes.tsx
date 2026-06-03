@@ -12,21 +12,10 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { mockClasses } from "@vytal-fit/shared";
 import type { Class } from "@vytal-fit/shared";
+import { colors } from "@/colors";
+import { t } from "@/i18n";
 
-// ─── Colors ──────────────────────────────────────────────
-const C = {
-  bg: "#080c0a",
-  surface: "#0f1610",
-  surface2: "#162018",
-  green: "#3dff6e",
-  blue: "#00d4ff",
-  amber: "#ffb300",
-  red: "#ff4757",
-  text: "#dceee0",
-  muted: "#6b8c72",
-  cardBg: "rgba(22,32,24,0.9)",
-  border: "rgba(61,255,110,0.1)",
-};
+const C = colors;
 
 // ─── Helpers ─────────────────────────────────────────────
 function getWeekDays(): { key: string; label: string; dayNum: number; dateStr: string; isToday: boolean }[] {
@@ -178,11 +167,11 @@ function ClassCard({
       <View style={styles.enrollmentSection}>
         <View style={styles.enrollmentHeader}>
           <Text style={styles.enrollmentLabel}>
-            {adjustedEnrolled}/{cls.maxCapacity} inscritos
+            {adjustedEnrolled}/{cls.maxCapacity} {t("status.enrolled")}
           </Text>
           {cls.waitlistCount > 0 && (
             <Text style={styles.waitlistLabel}>
-              +{cls.waitlistCount} em espera
+              +{cls.waitlistCount} {t("status.waiting")}
             </Text>
           )}
         </View>
@@ -212,11 +201,11 @@ function ClassCard({
               onBook();
             }}
           >
-            <Text style={styles.bookedButtonText}>RESERVADO</Text>
+            <Text style={styles.bookedButtonText}>{t("btn.booked")}</Text>
           </TouchableOpacity>
         ) : isFull ? (
           <TouchableOpacity style={styles.waitlistButton}>
-            <Text style={styles.waitlistButtonText}>LISTA DE ESPERA</Text>
+            <Text style={styles.waitlistButtonText}>{t("btn.waitlist")}</Text>
           </TouchableOpacity>
         ) : (
           <TouchableOpacity
@@ -226,7 +215,7 @@ function ClassCard({
               onBook();
             }}
           >
-            <Text style={styles.bookButtonText}>RESERVAR</Text>
+            <Text style={styles.bookButtonText}>{t("btn.book")}</Text>
           </TouchableOpacity>
         )}
       </View>
@@ -250,10 +239,10 @@ export default function ClassesScreen() {
       const next = new Set(prev);
       if (next.has(classId)) {
         next.delete(classId);
-        Alert.alert("Reserva Cancelada", "A tua reserva foi cancelada.");
+        Alert.alert(t("alert.bookingCancelled"), t("alert.bookingCancelledMsg"));
       } else {
         next.add(classId);
-        Alert.alert("Reservado!", "A tua reserva foi confirmada com sucesso.");
+        Alert.alert(t("alert.booked"), t("alert.bookedMsg"));
       }
       return next;
     });
@@ -264,7 +253,7 @@ export default function ClassesScreen() {
       <View style={styles.container}>
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>Aulas</Text>
+          <Text style={styles.headerTitle}>{t("screen.classes")}</Text>
           <Text style={styles.headerDate}>{formatDateHeader()}</Text>
         </View>
 
@@ -294,7 +283,7 @@ export default function ClassesScreen() {
             <View style={styles.emptyState}>
               <Text style={styles.emptyIcon}>{"( )"}</Text>
               <Text style={styles.emptyText}>
-                Sem aulas para este dia
+                {t("label.noClasses")}
               </Text>
             </View>
           }
@@ -393,7 +382,7 @@ const styles = StyleSheet.create({
 
   // Card
   card: {
-    backgroundColor: C.cardBg,
+    backgroundColor: C.card,
     borderRadius: 16,
     borderWidth: 1,
     borderColor: C.border,

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   View,
   Text,
@@ -9,38 +9,25 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { ArrowLeft, Sun, Moon, Check } from "lucide-react-native";
+import { colors } from "@/colors";
+import { useAppStore } from "@/stores/app-store";
+import { t } from "@/i18n";
 
-// ─── Colors ──────────────────────────────────────────────
-const C = {
-  bg: "#080c0a",
-  surface: "#0f1610",
-  surface2: "#162018",
-  green: "#3dff6e",
-  blue: "#00d4ff",
-  amber: "#ffb300",
-  red: "#ff4757",
-  purple: "#c084fc",
-  orange: "#ff8c42",
-  text: "#dceee0",
-  muted: "#6b8c72",
-  cardBg: "rgba(22,32,24,0.9)",
-  border: "rgba(61,255,110,0.1)",
-};
+const C = colors;
 
 const accentColors = [
-  { name: "Verde", color: "#3dff6e" },
-  { name: "Azul", color: "#00d4ff" },
-  { name: "Vermelho", color: "#ff4757" },
-  { name: "Roxo", color: "#c084fc" },
-  { name: "Laranja", color: "#ff8c42" },
-  { name: "Amber", color: "#ffb300" },
+  { name: "color.green", color: "#22c55e" },
+  { name: "color.blue", color: "#00d4ff" },
+  { name: "color.red", color: "#ff4757" },
+  { name: "color.purple", color: "#c084fc" },
+  { name: "color.orange", color: "#ff8c42" },
+  { name: "color.amber", color: "#ffb300" },
 ];
 
 // ─── Screen ──────────────────────────────────────────────
 export default function ThemeScreen() {
   const router = useRouter();
-  const [mode, setMode] = useState<"dark" | "light">("dark");
-  const [accent, setAccent] = useState("#3dff6e");
+  const { theme: mode, accentColor: accent, setTheme, setAccentColor } = useAppStore();
 
   return (
     <SafeAreaView style={styles.safe} edges={["top"]}>
@@ -53,7 +40,7 @@ export default function ThemeScreen() {
           >
             <ArrowLeft size={22} color={C.text} strokeWidth={2} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Tema</Text>
+          <Text style={styles.headerTitle}>{t("screen.theme")}</Text>
           <View style={{ width: 44 }} />
         </View>
 
@@ -62,11 +49,11 @@ export default function ThemeScreen() {
           contentContainerStyle={styles.scrollContent}
         >
           {/* Background Mode */}
-          <Text style={styles.sectionTitle}>Fundo</Text>
+          <Text style={styles.sectionTitle}>{t("theme.background")}</Text>
           <View style={styles.modeRow}>
             <TouchableOpacity
               style={[styles.modeCard, mode === "dark" && styles.modeCardActive]}
-              onPress={() => setMode("dark")}
+              onPress={() => setTheme("dark")}
             >
               <View
                 style={[
@@ -86,7 +73,7 @@ export default function ThemeScreen() {
                   mode === "dark" && { color: accent },
                 ]}
               >
-                Escuro
+                {t("theme.dark")}
               </Text>
               {mode === "dark" && (
                 <View style={[styles.modeCheck, { backgroundColor: accent }]}>
@@ -100,7 +87,7 @@ export default function ThemeScreen() {
                 styles.modeCard,
                 mode === "light" && styles.modeCardActive,
               ]}
-              onPress={() => setMode("light")}
+              onPress={() => setTheme("light")}
             >
               <View
                 style={[
@@ -120,7 +107,7 @@ export default function ThemeScreen() {
                   mode === "light" && { color: accent },
                 ]}
               >
-                Claro
+                {t("theme.light")}
               </Text>
               {mode === "light" && (
                 <View style={[styles.modeCheck, { backgroundColor: accent }]}>
@@ -131,13 +118,13 @@ export default function ThemeScreen() {
           </View>
 
           {/* Accent Color */}
-          <Text style={styles.sectionTitle}>Cor de destaque</Text>
+          <Text style={styles.sectionTitle}>{t("theme.accentColor")}</Text>
           <View style={styles.colorRow}>
             {accentColors.map((c) => (
               <TouchableOpacity
                 key={c.color}
                 style={styles.colorOption}
-                onPress={() => setAccent(c.color)}
+                onPress={() => setAccentColor(c.color)}
               >
                 <View
                   style={[
@@ -156,14 +143,14 @@ export default function ThemeScreen() {
                     accent === c.color && { color: c.color },
                   ]}
                 >
-                  {c.name}
+                  {t(c.name)}
                 </Text>
               </TouchableOpacity>
             ))}
           </View>
 
           {/* Preview */}
-          <Text style={styles.sectionTitle}>Pre-visualizacao</Text>
+          <Text style={styles.sectionTitle}>{t("theme.preview")}</Text>
           <View
             style={[
               styles.previewCard,
@@ -193,11 +180,11 @@ export default function ThemeScreen() {
                 { backgroundColor: accent },
               ]}
             >
-              <Text style={styles.previewButtonText}>GUARDAR</Text>
+              <Text style={styles.previewButtonText}>{t("btn.save")}</Text>
             </View>
 
             <View style={styles.previewNav}>
-              {["Aulas", "WOD", "Recordes", "My Box", "Perfil"].map(
+              {[t("tab.classes"), t("tab.wod"), t("tab.records"), t("tab.mybox"), t("tab.profile")].map(
                 (tab, i) => (
                   <Text
                     key={tab}
@@ -278,7 +265,7 @@ const styles = StyleSheet.create({
   },
   modeCard: {
     flex: 1,
-    backgroundColor: C.cardBg,
+    backgroundColor: C.card,
     borderRadius: 16,
     borderWidth: 1.5,
     borderColor: C.border,
@@ -345,7 +332,7 @@ const styles = StyleSheet.create({
 
   // Preview
   previewCard: {
-    backgroundColor: C.cardBg,
+    backgroundColor: C.card,
     borderRadius: 16,
     borderWidth: 1,
     borderColor: C.border,

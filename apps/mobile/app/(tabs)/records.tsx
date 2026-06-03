@@ -9,23 +9,10 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { ChevronRight, Building2 } from "lucide-react-native";
+import { colors } from "@/colors";
+import { t } from "@/i18n";
 
-// ─── Colors ──────────────────────────────────────────────
-const C = {
-  bg: "#080c0a",
-  surface: "#0f1610",
-  surface2: "#162018",
-  green: "#3dff6e",
-  blue: "#00d4ff",
-  amber: "#ffb300",
-  red: "#ff4757",
-  purple: "#c084fc",
-  orange: "#ff8c42",
-  text: "#dceee0",
-  muted: "#6b8c72",
-  cardBg: "rgba(22,32,24,0.9)",
-  border: "rgba(61,255,110,0.1)",
-};
+const C = colors;
 
 // ─── Mock PR Data ────────────────────────────────────────
 const mockPRs = [
@@ -169,15 +156,15 @@ export default function RecordsScreen() {
         <View style={styles.header}>
           <View style={styles.headerRow}>
             <View>
-              <Text style={styles.headerTitle}>Recordes</Text>
-              <Text style={styles.headerSubtitle}>Os teus Personal Records</Text>
+              <Text style={styles.headerTitle}>{t("screen.records")}</Text>
+              <Text style={styles.headerSubtitle}>{t("screen.records.subtitle")}</Text>
             </View>
             <TouchableOpacity
               style={styles.boxRecordsButton}
               onPress={() => router.push("/box-records")}
             >
               <Building2 size={16} color={C.green} strokeWidth={2} />
-              <Text style={styles.boxRecordsText}>Box</Text>
+              <Text style={styles.boxRecordsText}>{t("misc.boxRecords")}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -186,19 +173,19 @@ export default function RecordsScreen() {
         <View style={styles.statsRow}>
           <View style={styles.statCard}>
             <Text style={styles.statValue}>{stats.totalPRs}</Text>
-            <Text style={styles.statLabel}>Total PRs</Text>
+            <Text style={styles.statLabel}>{t("label.totalPRs")}</Text>
           </View>
           <View style={styles.statCard}>
             <Text style={[styles.statValue, { color: C.green }]}>
               {stats.thisMonth}
             </Text>
-            <Text style={styles.statLabel}>Este Mes</Text>
+            <Text style={styles.statLabel}>{t("label.thisMonth")}</Text>
           </View>
           <View style={styles.statCard}>
             <Text style={[styles.statValue, { color: C.amber }]}>
               {stats.bestStreak}
             </Text>
-            <Text style={styles.statLabel}>Melhor Streak</Text>
+            <Text style={styles.statLabel}>{t("label.bestStreak")}</Text>
           </View>
         </View>
 
@@ -242,7 +229,7 @@ export default function RecordsScreen() {
                       <Text style={styles.prValue}>{pr.value}</Text>
                       {pr.previousValue && (
                         <Text style={styles.prPrevious}>
-                          anterior: {pr.previousValue}
+                          {t("label.previous")}: {pr.previousValue}
                         </Text>
                       )}
                     </View>
@@ -305,7 +292,7 @@ const styles = StyleSheet.create({
   },
   statCard: {
     flex: 1,
-    backgroundColor: C.cardBg,
+    backgroundColor: C.card,
     borderRadius: 14,
     borderWidth: 1,
     borderColor: C.border,
@@ -338,7 +325,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    backgroundColor: C.cardBg,
+    backgroundColor: C.card,
     borderRadius: 14,
     borderWidth: 1,
     borderColor: C.border,

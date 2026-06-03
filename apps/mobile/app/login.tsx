@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -11,16 +11,11 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import { Eye, EyeOff } from "lucide-react-native";
+import { colors } from "@/colors";
+import { useAuthStore } from "@/stores/auth-store";
+import { t } from "@/i18n";
 
-const COLORS = {
-  bg: "#080c0a",
-  bg2: "#0f1610",
-  bg3: "#162018",
-  green: "#3dff6e",
-  text: "#dceee0",
-  muted: "#6b8c72",
-  border: "rgba(61,255,110,0.1)",
-};
+const C = colors;
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -28,10 +23,18 @@ export default function LoginScreen() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const { login, isAuthenticated } = useAuthStore();
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.replace("/(tabs)/classes");
+    }
+  }, [isAuthenticated]);
 
   function handleLogin() {
     setLoading(true);
     setTimeout(() => {
+      login(email, password);
       router.replace("/(tabs)/classes");
     }, 600);
   }
@@ -48,20 +51,20 @@ export default function LoginScreen() {
         {/* Logo */}
         <View style={styles.logoContainer}>
           <Text style={styles.logo}>VYTAL</Text>
-          <Text style={styles.tagline}>O seu espaco fitness, na palma da mao</Text>
+          <Text style={styles.tagline}>{t("login.tagline")}</Text>
         </View>
 
         {/* Form */}
         <View style={styles.form}>
           {/* Email */}
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>EMAIL</Text>
+            <Text style={styles.label}>{t("label.email")}</Text>
             <TextInput
               style={styles.input}
               value={email}
               onChangeText={setEmail}
-              placeholder="voce@exemplo.com"
-              placeholderTextColor={`${COLORS.muted}80`}
+              placeholder={t("login.emailPlaceholder")}
+              placeholderTextColor={`${C.muted}80`}
               keyboardType="email-address"
               autoCapitalize="none"
               autoCorrect={false}
@@ -70,14 +73,14 @@ export default function LoginScreen() {
 
           {/* Password */}
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>PASSWORD</Text>
+            <Text style={styles.label}>{t("label.password")}</Text>
             <View style={styles.passwordContainer}>
               <TextInput
                 style={[styles.input, styles.passwordInput]}
                 value={password}
                 onChangeText={setPassword}
-                placeholder="A sua password"
-                placeholderTextColor={`${COLORS.muted}80`}
+                placeholder={t("login.passwordPlaceholder")}
+                placeholderTextColor={`${C.muted}80`}
                 secureTextEntry={!showPassword}
                 autoCapitalize="none"
               />
@@ -86,9 +89,9 @@ export default function LoginScreen() {
                 onPress={() => setShowPassword(!showPassword)}
               >
                 {showPassword ? (
-                  <EyeOff size={18} color={COLORS.muted} />
+                  <EyeOff size={18} color={C.muted} />
                 ) : (
-                  <Eye size={18} color={COLORS.muted} />
+                  <Eye size={18} color={C.muted} />
                 )}
               </TouchableOpacity>
             </View>
@@ -99,7 +102,7 @@ export default function LoginScreen() {
             style={styles.forgotButton}
             onPress={() => router.push("/forgot-password")}
           >
-            <Text style={styles.forgotText}>Esqueceu a password?</Text>
+            <Text style={styles.forgotText}>{t("btn.forgotPassword")}</Text>
           </TouchableOpacity>
 
           {/* Login button */}
@@ -110,15 +113,15 @@ export default function LoginScreen() {
             activeOpacity={0.8}
           >
             <Text style={styles.buttonText}>
-              {loading ? "A ENTRAR..." : "ENTRAR"}
+              {loading ? t("btn.loggingIn") : t("btn.login")}
             </Text>
           </TouchableOpacity>
 
           {/* Register link */}
           <View style={styles.registerContainer}>
-            <Text style={styles.registerText}>Nao tem conta? </Text>
+            <Text style={styles.registerText}>{t("login.noAccount")} </Text>
             <TouchableOpacity onPress={() => router.push("/register")}>
-              <Text style={styles.registerLink}>Criar conta</Text>
+              <Text style={styles.registerLink}>{t("btn.register")}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -130,7 +133,7 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.bg,
+    backgroundColor: C.bg,
   },
   scroll: {
     flexGrow: 1,
@@ -145,13 +148,13 @@ const styles = StyleSheet.create({
   logo: {
     fontSize: 40,
     fontWeight: "800",
-    color: COLORS.green,
+    color: C.green,
     letterSpacing: 4,
   },
   tagline: {
     marginTop: 8,
     fontSize: 14,
-    color: COLORS.muted,
+    color: C.muted,
     textAlign: "center",
   },
   form: {
@@ -163,18 +166,18 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 11,
     fontWeight: "600",
-    color: COLORS.muted,
+    color: C.muted,
     letterSpacing: 1.5,
   },
   input: {
-    backgroundColor: COLORS.bg2,
+    backgroundColor: C.surface,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: C.border,
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 14,
     fontSize: 15,
-    color: COLORS.text,
+    color: C.text,
   },
   passwordContainer: {
     position: "relative",
@@ -195,10 +198,10 @@ const styles = StyleSheet.create({
   },
   forgotText: {
     fontSize: 13,
-    color: COLORS.muted,
+    color: C.muted,
   },
   button: {
-    backgroundColor: COLORS.green,
+    backgroundColor: C.green,
     borderRadius: 12,
     paddingVertical: 16,
     alignItems: "center",
@@ -210,7 +213,7 @@ const styles = StyleSheet.create({
   buttonText: {
     fontSize: 15,
     fontWeight: "700",
-    color: COLORS.bg,
+    color: C.bg,
     letterSpacing: 1,
   },
   registerContainer: {
@@ -220,11 +223,11 @@ const styles = StyleSheet.create({
   },
   registerText: {
     fontSize: 14,
-    color: COLORS.muted,
+    color: C.muted,
   },
   registerLink: {
     fontSize: 14,
     fontWeight: "600",
-    color: COLORS.green,
+    color: C.green,
   },
 });

@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
-import { mockMembers, mockNotifications } from "@vytal-fit/shared";
+import { mockNotifications } from "@vytal-fit/shared";
 import {
   User as UserIcon,
   CreditCard,
@@ -29,26 +29,12 @@ import {
   MapPin,
   Mail,
 } from "lucide-react-native";
+import { colors } from "@/colors";
+import { useAuthStore } from "@/stores/auth-store";
+import { useAppStore } from "@/stores/app-store";
+import { t, setLanguage } from "@/i18n";
 
-// ─── Colors ──────────────────────────────────────────────
-const C = {
-  bg: "#080c0a",
-  surface: "#0f1610",
-  surface2: "#162018",
-  green: "#3dff6e",
-  blue: "#00d4ff",
-  amber: "#ffb300",
-  red: "#ff4757",
-  purple: "#c084fc",
-  orange: "#ff8c42",
-  text: "#dceee0",
-  muted: "#6b8c72",
-  cardBg: "rgba(22,32,24,0.9)",
-  border: "rgba(61,255,110,0.1)",
-};
-
-// Current user (first member in mock data)
-const currentUser = mockMembers[0];
+const C = colors;
 
 function getInitials(name: string): string {
   return name
@@ -93,116 +79,162 @@ function MenuItem({ item }: { item: MenuItemConfig }) {
   );
 }
 
+// Language labels for sublabel display
+const LANGUAGE_LABELS: Record<string, string> = {
+  pt: "Portugues",
+  en: "English",
+  es: "Espanol",
+};
+
+// Theme labels for sublabel display
+const THEME_LABELS: Record<string, string> = {
+  dark: "Escuro",
+  light: "Claro",
+};
+
 // ─── Screen ──────────────────────────────────────────────
 export default function ProfileScreen() {
   const router = useRouter();
+  const { user, logout } = useAuthStore();
+  const { theme, language, setLanguage: setAppLanguage } = useAppStore();
   const unreadCount = mockNotifications.filter((n) => !n.read).length;
+
+  // Get user info from auth store, fallback to defaults
+  const userName = user?.user.name ?? "Utilizador";
+  const userEmail = user?.user.email ?? "";
+  const memberNumber = user?.memberships[0]?.memberNumber ?? 0;
+  const totalCheckIns = 47; // POC static
+  const streakWeeks = 12;   // POC static
+  const joinedAt = user?.memberships[0]?.joinedAt ?? "2024-01-15";
+
+  function handleLanguageCycle() {
+    const langs: Array<"pt" | "en" | "es"> = ["pt", "en", "es"];
+    const currentIdx = langs.indexOf(language);
+    const nextLang = langs[(currentIdx + 1) % langs.length];
+    setAppLanguage(nextLang);
+    setLanguage(nextLang);
+  }
+
+  function handleLogout() {
+    Alert.alert(t("alert.logout"), t("alert.logoutConfirm"), [
+      { text: t("btn.cancel"), style: "cancel" },
+      {
+        text: t("btn.logout"),
+        style: "destructive",
+        onPress: () => {
+          logout();
+          router.replace("/login");
+        },
+      },
+    ]);
+  }
 
   const menuItems: MenuItemConfig[] = [
     {
       icon: <UserIcon size={20} color={C.blue} strokeWidth={1.8} />,
-      label: "Dados Pessoais",
-      sublabel: "Nome, email, contacto",
+      label: t("menu.personalData"),
+      sublabel: t("menu.personalData.sub"),
       color: C.blue,
       onPress: () => router.push("/settings/personal-data"),
     },
     {
       icon: <CreditCard size={20} color={C.green} strokeWidth={1.8} />,
-      label: "O Meu Plano",
-      sublabel: "Mensal Ilimitado",
+      label: t("menu.plan"),
+      sublabel: t("menu.plan.sub"),
       color: C.green,
       onPress: () => router.push("/plan-detail"),
     },
     {
       icon: <History size={20} color={C.orange} strokeWidth={1.8} />,
-      label: "Historico de Aulas",
-      sublabel: "Presencas e faltas",
+      label: t("menu.classHistory"),
+      sublabel: t("menu.classHistory.sub"),
       color: C.orange,
       onPress: () => router.push("/booking-history"),
     },
     {
       icon: <MapPin size={20} color={C.blue} strokeWidth={1.8} />,
-      label: "Drop-in",
-      sublabel: "Visitar outros espacos",
+      label: t("menu.dropin"),
+      sublabel: t("menu.dropin.sub"),
       color: C.blue,
       onPress: () => router.push("/dropin"),
     },
     {
       icon: <Bell size={20} color={C.amber} strokeWidth={1.8} />,
-      label: "Notificacoes",
-      sublabel: "Aulas, WODs, PRs",
+      label: t("menu.notifications"),
+      sublabel: t("menu.notifications.sub"),
       color: C.amber,
       onPress: () => router.push("/notifications"),
       badge: unreadCount,
     },
     {
       icon: <Timer size={20} color={C.orange} strokeWidth={1.8} />,
-      label: "Timer",
-      sublabel: "AMRAP, EMOM, Tabata",
+      label: t("menu.timer"),
+      sublabel: t("menu.timer.sub"),
       color: C.orange,
       onPress: () => router.push("/timer"),
     },
     {
       icon: <Calculator size={20} color={C.red} strokeWidth={1.8} />,
-      label: "Calculadora RM",
-      sublabel: "Percentagens e estimativas",
+      label: t("menu.calculator"),
+      sublabel: t("menu.calculator.sub"),
       color: C.red,
       onPress: () => router.push("/calculator"),
     },
     {
       icon: <BookOpen size={20} color={C.purple} strokeWidth={1.8} />,
-      label: "Exercicios",
-      sublabel: "Biblioteca de movimentos",
+      label: t("menu.exercises"),
+      sublabel: t("menu.exercises.sub"),
       color: C.purple,
       onPress: () => router.push("/exercises"),
     },
     {
       icon: <Heart size={20} color={C.red} strokeWidth={1.8} />,
-      label: "Fistbumps",
-      sublabel: "Reacoes e comentarios",
+      label: t("menu.fistbumps"),
+      sublabel: t("menu.fistbumps.sub"),
       color: C.red,
       onPress: () => router.push("/fistbumps"),
     },
     {
       icon: <QrCode size={20} color={C.green} strokeWidth={1.8} />,
-      label: "QR Check-in",
-      sublabel: "Check-in por QR code",
+      label: t("menu.qrCheckin"),
+      sublabel: t("menu.qrCheckin.sub"),
       color: C.green,
       onPress: () => router.push("/checkin"),
     },
     {
       icon: <Mail size={20} color={C.blue} strokeWidth={1.8} />,
-      label: "Mensagens",
-      sublabel: "Conversar com o box",
+      label: t("menu.messages"),
+      sublabel: t("menu.messages.sub"),
       color: C.blue,
       onPress: () => router.push("/chat"),
     },
     {
       icon: <MessageSquare size={20} color={C.amber} strokeWidth={1.8} />,
-      label: "Feedback",
-      sublabel: "Envia-nos a tua opiniao",
+      label: t("menu.feedback"),
+      sublabel: t("menu.feedback.sub"),
       color: C.amber,
       onPress: () => router.push("/feedback"),
     },
     {
       icon: <Shield size={20} color={C.purple} strokeWidth={1.8} />,
-      label: "Privacidade",
-      sublabel: "Visibilidade do perfil",
+      label: t("menu.privacy"),
+      sublabel: t("menu.privacy.sub"),
       color: C.purple,
       onPress: () => router.push("/settings/privacy"),
     },
     {
       icon: <Palette size={20} color={C.green} strokeWidth={1.8} />,
-      label: "Tema",
-      sublabel: "Escuro",
+      label: t("menu.theme"),
+      sublabel: THEME_LABELS[theme] || theme,
       color: C.green,
       onPress: () => router.push("/settings/theme"),
     },
     {
       icon: <Globe size={20} color={C.blue} strokeWidth={1.8} />,
-      label: "Idioma",
-      sublabel: "Portugues",
+      label: t("menu.language"),
+      sublabel: LANGUAGE_LABELS[language] || language,
       color: C.blue,
+      onPress: handleLanguageCycle,
     },
   ];
 
@@ -214,24 +246,24 @@ export default function ProfileScreen() {
       >
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>Perfil</Text>
+          <Text style={styles.headerTitle}>{t("screen.profile")}</Text>
         </View>
 
         {/* Avatar Section */}
         <View style={styles.avatarSection}>
           <View style={styles.avatarCircle}>
             <Text style={styles.avatarText}>
-              {getInitials(currentUser.name)}
+              {getInitials(userName)}
             </Text>
           </View>
-          <Text style={styles.userName}>{currentUser.name}</Text>
-          <Text style={styles.userEmail}>{currentUser.email}</Text>
+          <Text style={styles.userName}>{userName}</Text>
+          <Text style={styles.userEmail}>{userEmail}</Text>
           <TouchableOpacity
             style={styles.memberBadge}
             onPress={() => router.push("/org-switcher")}
           >
             <Text style={styles.memberBadgeText}>
-              Membro #{currentUser.memberNumber} {">"} Trocar espaco
+              {t("label.memberNumber")}{memberNumber} {">"} {t("label.switchSpace")}
             </Text>
           </TouchableOpacity>
         </View>
@@ -239,26 +271,26 @@ export default function ProfileScreen() {
         {/* Stats Row */}
         <View style={styles.statsRow}>
           <View style={[styles.statCard, styles.statCardLeft]}>
-            <Text style={styles.statValue}>{currentUser.totalCheckIns}</Text>
-            <Text style={styles.statLabel}>Check-ins</Text>
+            <Text style={styles.statValue}>{totalCheckIns}</Text>
+            <Text style={styles.statLabel}>{t("label.checkIns")}</Text>
           </View>
           <View style={[styles.statCard, styles.statCardCenter]}>
             <Text style={[styles.statValue, { color: C.amber }]}>
-              {currentUser.streakWeeks}
+              {streakWeeks}
             </Text>
-            <Text style={styles.statLabel}>Semanas</Text>
+            <Text style={styles.statLabel}>{t("label.weeks")}</Text>
           </View>
           <View style={[styles.statCard, styles.statCardRight]}>
             <Text style={[styles.statValue, { color: C.green }]}>8</Text>
-            <Text style={styles.statLabel}>PRs</Text>
+            <Text style={styles.statLabel}>{t("label.prs")}</Text>
           </View>
         </View>
 
         {/* Member Since */}
         <View style={styles.memberSince}>
-          <Text style={styles.memberSinceLabel}>Membro desde</Text>
+          <Text style={styles.memberSinceLabel}>{t("label.memberSince")}</Text>
           <Text style={styles.memberSinceValue}>
-            {new Date(currentUser.joinedAt).toLocaleDateString("pt-PT", {
+            {new Date(joinedAt).toLocaleDateString("pt-PT", {
               month: "long",
               year: "numeric",
             })}
@@ -275,19 +307,14 @@ export default function ProfileScreen() {
         {/* Logout Button */}
         <TouchableOpacity
           style={styles.logoutButton}
-          onPress={() =>
-            Alert.alert("Terminar Sessao", "Tens a certeza?", [
-              { text: "Cancelar", style: "cancel" },
-              { text: "Sair", style: "destructive" },
-            ])
-          }
+          onPress={handleLogout}
         >
           <LogOut size={20} color={C.red} strokeWidth={1.8} />
-          <Text style={styles.logoutText}>Terminar Sessao</Text>
+          <Text style={styles.logoutText}>{t("btn.logout")}</Text>
         </TouchableOpacity>
 
         {/* App Version */}
-        <Text style={styles.version}>Vytal v0.1.0</Text>
+        <Text style={styles.version}>{t("misc.version")}</Text>
       </ScrollView>
     </SafeAreaView>
   );
@@ -368,7 +395,7 @@ const styles = StyleSheet.create({
   },
   statCard: {
     flex: 1,
-    backgroundColor: C.cardBg,
+    backgroundColor: C.card,
     borderWidth: 1,
     borderColor: C.border,
     paddingVertical: 18,
@@ -411,7 +438,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
     marginTop: 10,
     marginBottom: 6,
-    backgroundColor: C.cardBg,
+    backgroundColor: C.card,
     borderRadius: 14,
     borderWidth: 1,
     borderColor: C.border,
@@ -432,7 +459,7 @@ const styles = StyleSheet.create({
   menuSection: {
     marginHorizontal: 16,
     marginTop: 10,
-    backgroundColor: C.cardBg,
+    backgroundColor: C.card,
     borderRadius: 14,
     borderWidth: 1,
     borderColor: C.border,

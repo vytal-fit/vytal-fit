@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   View,
   Text,
@@ -9,24 +9,12 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { ArrowLeft, Plus, Check } from "lucide-react-native";
-import { mockCurrentUser, ROLE_LABELS, ROLE_COLORS } from "@vytal-fit/shared";
+import { ROLE_LABELS, ROLE_COLORS } from "@vytal-fit/shared";
+import { colors } from "@/colors";
+import { useAuthStore } from "@/stores/auth-store";
+import { t } from "@/i18n";
 
-// ─── Colors ──────────────────────────────────────────────
-const C = {
-  bg: "#080c0a",
-  surface: "#0f1610",
-  surface2: "#162018",
-  green: "#3dff6e",
-  blue: "#00d4ff",
-  amber: "#ffb300",
-  red: "#ff4757",
-  purple: "#c084fc",
-  orange: "#ff8c42",
-  text: "#dceee0",
-  muted: "#6b8c72",
-  cardBg: "rgba(22,32,24,0.9)",
-  border: "rgba(61,255,110,0.1)",
-};
+const C = colors;
 
 // ─── Helpers ─────────────────────────────────────────────
 function getOrgTypeLabel(type: string): string {
@@ -63,9 +51,9 @@ function formatJoinedAt(dateStr: string): string {
 // ─── Screen ──────────────────────────────────────────────
 export default function OrgSwitcherScreen() {
   const router = useRouter();
-  const [activeOrgId, setActiveOrgId] = useState(mockCurrentUser.activeOrganizationId);
+  const { user, activeOrgId, switchOrg } = useAuthStore();
 
-  const memberships = mockCurrentUser.memberships;
+  const memberships = user?.memberships ?? [];
 
   return (
     <SafeAreaView style={styles.safe} edges={["top"]}>
@@ -75,7 +63,7 @@ export default function OrgSwitcherScreen() {
           <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
             <ArrowLeft size={22} color={C.text} strokeWidth={2} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Os teus espacos</Text>
+          <Text style={styles.headerTitle}>{t("screen.orgSwitcher")}</Text>
           <View style={{ width: 44 }} />
         </View>
 
@@ -92,7 +80,7 @@ export default function OrgSwitcherScreen() {
               <TouchableOpacity
                 key={membership.id}
                 style={[styles.orgCard, isActive && styles.orgCardActive]}
-                onPress={() => setActiveOrgId(membership.organizationId)}
+                onPress={() => switchOrg(membership.organizationId)}
                 activeOpacity={0.8}
               >
                 <View style={styles.orgCardTop}>
@@ -126,7 +114,7 @@ export default function OrgSwitcherScreen() {
                     </Text>
                   </View>
                   <Text style={styles.memberSince}>
-                    Desde {formatJoinedAt(membership.joinedAt)}
+                    {t("label.since")} {formatJoinedAt(membership.joinedAt)}
                   </Text>
                 </View>
               </TouchableOpacity>
@@ -136,7 +124,7 @@ export default function OrgSwitcherScreen() {
           {/* Add New Space */}
           <TouchableOpacity style={styles.addButton}>
             <Plus size={20} color={C.green} strokeWidth={2} />
-            <Text style={styles.addButtonText}>Adicionar novo espaco</Text>
+            <Text style={styles.addButtonText}>{t("btn.addSpace")}</Text>
           </TouchableOpacity>
 
           <View style={{ height: 30 }} />
@@ -189,7 +177,7 @@ const styles = StyleSheet.create({
 
   // Org Card
   orgCard: {
-    backgroundColor: C.cardBg,
+    backgroundColor: C.card,
     borderRadius: 16,
     borderWidth: 1,
     borderColor: C.border,
