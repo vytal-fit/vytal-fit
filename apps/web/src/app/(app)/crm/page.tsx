@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useCallback } from "react";
 import { mockLeads, mockCoaches } from "@vytal-fit/shared";
 import type { Lead, LeadStage } from "@vytal-fit/shared";
 import {
@@ -24,6 +24,7 @@ import {
   X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useToast } from "@/components/toast";
 
 const stageConfig: Record<
   LeadStage,
@@ -97,13 +98,36 @@ function formatRelative(dateStr: string): string {
   return date.toLocaleDateString("pt-PT", { day: "2-digit", month: "short" });
 }
 
-function LeadCard({ lead }: { lead: Lead }) {
+function LeadCard({
+  lead,
+  onCall,
+  onEmail,
+  onBookTrial,
+  onDragStart,
+  draggingId,
+}: {
+  lead: Lead;
+  onCall: () => void;
+  onEmail: () => void;
+  onBookTrial: () => void;
+  onDragStart: (e: React.DragEvent, id: string) => void;
+  draggingId: string | null;
+}) {
   const coach = lead.assignedCoachId
     ? mockCoaches.find((c) => c.id === lead.assignedCoachId)
     : null;
 
+  const isDragging = draggingId === lead.id;
+
   return (
-    <div className="group rounded-lg border border-vytal-border bg-vytal-card p-3 transition-colors hover:border-[rgba(61,255,110,0.22)]">
+    <div
+      draggable
+      onDragStart={(e) => onDragStart(e, lead.id)}
+      className={cn(
+        "group cursor-grab rounded-lg border border-vytal-border bg-vytal-card p-3 transition-all hover:border-[rgba(61,255,110,0.22)]",
+        isDragging && "opacity-40"
+      )}
+    >
       {/* Drag handle + Name and source */}
       <div className="mb-2 flex items-start justify-between">
         <div className="flex items-start gap-1.5">
@@ -149,18 +173,21 @@ function LeadCard({ lead }: { lead: Lead }) {
       {/* Quick Actions */}
       <div className="mt-2 flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
         <button
+          onClick={onCall}
           className="flex h-6 w-6 items-center justify-center rounded bg-vytal-bg3 text-vytal-muted transition-colors hover:bg-vytal-green/10 hover:text-vytal-green"
           title="Call"
         >
           <Phone className="h-3 w-3" />
         </button>
         <button
+          onClick={onEmail}
           className="flex h-6 w-6 items-center justify-center rounded bg-vytal-bg3 text-vytal-muted transition-colors hover:bg-vytal-blue/10 hover:text-vytal-blue"
           title="Email"
         >
           <Mail className="h-3 w-3" />
         </button>
         <button
+          onClick={onBookTrial}
           className="flex h-6 w-6 items-center justify-center rounded bg-vytal-bg3 text-vytal-muted transition-colors hover:bg-vytal-amber/10 hover:text-vytal-amber"
           title="Book Trial"
         >
@@ -189,9 +216,24 @@ function LeadCard({ lead }: { lead: Lead }) {
 
 function InlineAddLeadForm({
   onClose,
+  onAdd,
 }: {
   onClose: () => void;
+  onAdd: (name: string, phone: string, source: string) => void;
 }) {
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [source, setSource] = useState("");
+
+  function handleAdd() {
+    if (!name.trim()) return;
+    onAdd(name.trim(), phone.trim(), source);
+    setName("");
+    setPhone("");
+    setSource("");
+    onClose();
+  }
+
   return (
     <div className="rounded-lg border border-vytal-green/20 bg-vytal-green/5 p-3">
       <div className="mb-2 flex items-center justify-between">
@@ -209,14 +251,22 @@ function InlineAddLeadForm({
         <input
           type="text"
           placeholder="Name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
           className="w-full rounded border border-vytal-border bg-vytal-bg2 px-2 py-1.5 text-xs text-vytal-text placeholder:text-vytal-muted focus:border-vytal-green/30 focus:outline-none"
         />
         <input
           type="text"
           placeholder="Phone"
+          value={phone}
+          onChange={(e) => setPhone(e.target.value)}
           className="w-full rounded border border-vytal-border bg-vytal-bg2 px-2 py-1.5 text-xs text-vytal-text placeholder:text-vytal-muted focus:border-vytal-green/30 focus:outline-none"
         />
-        <select className="w-full rounded border border-vytal-border bg-vytal-bg2 px-2 py-1.5 text-xs text-vytal-text focus:border-vytal-green/30 focus:outline-none">
+        <select
+          value={source}
+          onChange={(e) => setSource(e.target.value)}
+          className="w-full rounded border border-vytal-border bg-vytal-bg2 px-2 py-1.5 text-xs text-vytal-text focus:border-vytal-green/30 focus:outline-none"
+        >
           <option value="">Source...</option>
           <option value="Instagram">Instagram</option>
           <option value="Facebook">Facebook</option>
@@ -225,7 +275,10 @@ function InlineAddLeadForm({
           <option value="Referral">Referral</option>
           <option value="Flyers">Flyers</option>
         </select>
-        <button className="w-full rounded bg-vytal-green px-3 py-1.5 text-xs font-semibold text-vytal-bg transition-colors hover:bg-vytal-green/90">
+        <button
+          onClick={handleAdd}
+          className="w-full rounded bg-vytal-green px-3 py-1.5 text-xs font-semibold text-vytal-bg transition-colors hover:bg-vytal-green/90"
+        >
           Add Lead
         </button>
       </div>
@@ -238,16 +291,48 @@ function PipelineColumn({
   leads,
   showAddForm,
   onToggleAdd,
+  onAddLead,
+  onDragStart,
+  onDragOver,
+  onDrop,
+  draggingId,
+  dropTarget,
+  onCall,
+  onEmail,
+  onBookTrial,
 }: {
   stage: LeadStage;
   leads: Lead[];
   showAddForm: boolean;
   onToggleAdd: () => void;
+  onAddLead: (name: string, phone: string, source: string) => void;
+  onDragStart: (e: React.DragEvent, id: string) => void;
+  onDragOver: (e: React.DragEvent, stage: LeadStage) => void;
+  onDrop: (e: React.DragEvent, stage: LeadStage) => void;
+  draggingId: string | null;
+  dropTarget: LeadStage | null;
+  onCall: (lead: Lead) => void;
+  onEmail: (lead: Lead) => void;
+  onBookTrial: (lead: Lead) => void;
 }) {
   const config = stageConfig[stage];
+  const isDropTarget = dropTarget === stage;
 
   return (
-    <div className="flex min-w-[260px] flex-col">
+    <div
+      className={cn(
+        "flex min-w-[260px] flex-col rounded-lg transition-all",
+        isDropTarget && "ring-2 ring-vytal-green/50"
+      )}
+      onDragOver={(e) => onDragOver(e, stage)}
+      onDrop={(e) => onDrop(e, stage)}
+      onDragLeave={(e) => {
+        // Only clear if leaving the column itself
+        if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+          // handled at parent level
+        }
+      }}
+    >
       {/* Column Header */}
       <div
         className={cn(
@@ -284,14 +369,22 @@ function PipelineColumn({
       {/* Inline Add Form */}
       {showAddForm && stage === "lead" && (
         <div className="mb-2">
-          <InlineAddLeadForm onClose={onToggleAdd} />
+          <InlineAddLeadForm onClose={onToggleAdd} onAdd={onAddLead} />
         </div>
       )}
 
       {/* Cards */}
       <div className="flex flex-1 flex-col gap-2">
         {leads.map((lead) => (
-          <LeadCard key={lead.id} lead={lead} />
+          <LeadCard
+            key={lead.id}
+            lead={lead}
+            onCall={() => onCall(lead)}
+            onEmail={() => onEmail(lead)}
+            onBookTrial={() => onBookTrial(lead)}
+            onDragStart={onDragStart}
+            draggingId={draggingId}
+          />
         ))}
         {leads.length === 0 && (
           <div className="rounded-lg border border-dashed border-vytal-border p-4 text-center">
@@ -305,6 +398,10 @@ function PipelineColumn({
 
 export default function CRMPage() {
   const [showAddForm, setShowAddForm] = useState(false);
+  const [leads, setLeads] = useState<Lead[]>(() => [...mockLeads]);
+  const [draggingId, setDraggingId] = useState<string | null>(null);
+  const [dropTarget, setDropTarget] = useState<LeadStage | null>(null);
+  const { toast } = useToast();
 
   const grouped = useMemo(() => {
     const map: Record<LeadStage, Lead[]> = {
@@ -315,28 +412,112 @@ export default function CRMPage() {
       subscribed: [],
       lost: [],
     };
-    for (const lead of mockLeads) {
+    for (const lead of leads) {
       map[lead.stage].push(lead);
     }
     return map;
-  }, []);
+  }, [leads]);
 
-  const totalLeads = mockLeads.length;
-  const activeLeads = mockLeads.filter(
+  const totalLeads = leads.length;
+  const activeLeads = leads.filter(
     (l) => l.stage !== "subscribed" && l.stage !== "lost"
   ).length;
   const subscribedCount = grouped.subscribed.length;
-  const lostCount = grouped.lost.length;
   const conversionRate =
     totalLeads > 0 ? ((subscribedCount / totalLeads) * 100).toFixed(1) : "0";
-
-  // Mock avg time in pipeline (days)
   const avgTimeInStage = 8.3;
-  // Mock total pipeline value
   const totalPipelineValue = activeLeads * 75;
 
+  const handleDragStart = useCallback((e: React.DragEvent, id: string) => {
+    setDraggingId(id);
+    e.dataTransfer.effectAllowed = "move";
+    e.dataTransfer.setData("text/plain", id);
+  }, []);
+
+  const handleDragOver = useCallback(
+    (e: React.DragEvent, stage: LeadStage) => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = "move";
+      setDropTarget(stage);
+    },
+    []
+  );
+
+  const handleDrop = useCallback(
+    (e: React.DragEvent, targetStage: LeadStage) => {
+      e.preventDefault();
+      const leadId = e.dataTransfer.getData("text/plain");
+      if (leadId) {
+        setLeads((prev) =>
+          prev.map((l) =>
+            l.id === leadId ? { ...l, stage: targetStage } : l
+          )
+        );
+        const lead = leads.find((l) => l.id === leadId);
+        if (lead) {
+          toast(
+            `Moved ${lead.name} to ${stageConfig[targetStage].label}`,
+            "success"
+          );
+        }
+      }
+      setDraggingId(null);
+      setDropTarget(null);
+    },
+    [leads, toast]
+  );
+
+  const handleAddLead = useCallback(
+    (name: string, phone: string, source: string) => {
+      const newLead: Lead = {
+        id: `lead-${Date.now()}`,
+        organizationId: "org-1",
+        name,
+        phone: phone || undefined,
+        stage: "lead",
+        source: source || undefined,
+        createdAt: new Date().toISOString(),
+      };
+      setLeads((prev) => [...prev, newLead]);
+      toast(`Added lead: ${name}`, "success");
+    },
+    [toast]
+  );
+
+  const handleCall = useCallback(
+    (lead: Lead) => {
+      toast(`Calling ${lead.name}...`, "info");
+    },
+    [toast]
+  );
+
+  const handleEmail = useCallback(
+    (lead: Lead) => {
+      toast(`Email sent to ${lead.name}`, "success");
+    },
+    [toast]
+  );
+
+  const handleBookTrial = useCallback(
+    (lead: Lead) => {
+      setLeads((prev) =>
+        prev.map((l) =>
+          l.id === lead.id ? { ...l, stage: "trial_booked" as LeadStage } : l
+        )
+      );
+      toast(`${lead.name} moved to Trial Booked`, "success");
+    },
+    [toast]
+  );
+
   return (
-    <div className="space-y-6">
+    <div
+      className="space-y-6"
+      onDragEnd={() => {
+        setDraggingId(null);
+        setDropTarget(null);
+      }}
+    >
       {/* Header */}
       <div className="flex items-end justify-between">
         <div>
@@ -419,6 +600,15 @@ export default function CRMPage() {
               leads={grouped[stage]}
               showAddForm={showAddForm && stage === "lead"}
               onToggleAdd={() => setShowAddForm((v) => !v)}
+              onAddLead={handleAddLead}
+              onDragStart={handleDragStart}
+              onDragOver={handleDragOver}
+              onDrop={handleDrop}
+              draggingId={draggingId}
+              dropTarget={dropTarget}
+              onCall={handleCall}
+              onEmail={handleEmail}
+              onBookTrial={handleBookTrial}
             />
           ))}
         </div>

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Monitor, Camera, QrCode, Save } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/lib/i18n";
 
 const timingOptions = [
   { value: "beginning", label: "At beginning" },
@@ -18,6 +19,7 @@ const themeColors = [
 ];
 
 export default function KioskConfigPage() {
+  const { t } = useI18n();
   const [images, setImages] = useState(Array(6).fill(""));
   const [overlays, setOverlays] = useState(Array(6).fill(""));
   const [timing, setTiming] = useState("15min");
@@ -56,9 +58,9 @@ export default function KioskConfigPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-vytal-text">Kiosk Configuration</h1>
+        <h1 className="text-2xl font-bold text-vytal-text">{t("kiosk.title")}</h1>
         <p className="mt-1 text-sm text-vytal-muted">
-          Configure check-in kiosk appearance and behavior
+          {t("kiosk.subtitle")}
         </p>
       </div>
 

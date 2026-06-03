@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -9,7 +9,9 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { mockLeaderboard } from "@vytal-fit/shared";
-import { ArrowLeft, Zap } from "lucide-react-native";
+import { ArrowLeft, Zap, Heart } from "lucide-react-native";
+
+const CURRENT_USER_NAME = "Jose Fonte";
 
 // ─── Colors ──────────────────────────────────────────────
 const C = {
@@ -92,6 +94,19 @@ function getInitials(name: string): string {
 // ─── Screen ──────────────────────────────────────────────
 export default function LeaderboardScreen() {
   const router = useRouter();
+  const [fistbumpedRanks, setFistbumpedRanks] = useState<Set<number>>(new Set());
+
+  function toggleFistbump(rank: number) {
+    setFistbumpedRanks((prev) => {
+      const next = new Set(prev);
+      if (next.has(rank)) {
+        next.delete(rank);
+      } else {
+        next.add(rank);
+      }
+      return next;
+    });
+  }
 
   return (
     <SafeAreaView style={styles.safe} edges={["top"]}>
@@ -166,21 +181,31 @@ export default function LeaderboardScreen() {
           renderItem={({ item }) => {
             const medalColor = getMedalColor(item.rank);
             const scaleColor = getScaleColor(item.scale);
+            const isCurrentUser = item.memberName === CURRENT_USER_NAME;
+            const isBumped = fistbumpedRanks.has(item.rank);
             return (
-              <View style={styles.entryCard}>
+              <View style={[
+                styles.entryCard,
+                isCurrentUser && styles.entryCardCurrentUser,
+              ]}>
                 <View style={styles.entryLeft}>
                   <View style={[styles.positionBadge, { backgroundColor: medalColor + "18" }]}>
                     <Text style={[styles.positionText, { color: medalColor }]}>
                       {item.rank}
                     </Text>
                   </View>
-                  <View style={styles.entryAvatar}>
+                  <View style={[
+                    styles.entryAvatar,
+                    isCurrentUser && { borderColor: C.green, borderWidth: 2 },
+                  ]}>
                     <Text style={styles.entryInitials}>
                       {getInitials(item.memberName)}
                     </Text>
                   </View>
                   <View style={styles.entryInfo}>
-                    <Text style={styles.entryName}>{item.memberName}</Text>
+                    <Text style={[styles.entryName, isCurrentUser && { color: C.green }]}>
+                      {item.memberName}{isCurrentUser ? " (Tu)" : ""}
+                    </Text>
                     <View style={styles.entryMeta}>
                       <View style={[styles.scaleBadge, { backgroundColor: scaleColor + "18" }]}>
                         <Text style={[styles.scaleText, { color: scaleColor }]}>
@@ -196,6 +221,19 @@ export default function LeaderboardScreen() {
                     <View style={styles.prIcon}>
                       <Zap size={14} color={C.amber} strokeWidth={2} />
                     </View>
+                  )}
+                  {!isCurrentUser && (
+                    <TouchableOpacity
+                      style={styles.fistbumpButton}
+                      onPress={() => toggleFistbump(item.rank)}
+                    >
+                      <Heart
+                        size={14}
+                        color={isBumped ? C.red : C.muted}
+                        strokeWidth={2}
+                        fill={isBumped ? C.red : "none"}
+                      />
+                    </TouchableOpacity>
                   )}
                 </View>
               </View>
@@ -408,6 +446,22 @@ const styles = StyleSheet.create({
     height: 28,
     borderRadius: 14,
     backgroundColor: C.amber + "18",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  // Current user highlight
+  entryCardCurrentUser: {
+    borderColor: C.green + "40",
+    backgroundColor: C.green + "08",
+  },
+
+  // Fistbump button
+  fistbumpButton: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: C.surface2,
     alignItems: "center",
     justifyContent: "center",
   },

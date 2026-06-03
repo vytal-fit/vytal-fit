@@ -1,6 +1,7 @@
 "use client";
 
 import { DollarSign, TrendingUp, AlertTriangle, Clock } from "lucide-react";
+import { useI18n } from "@/lib/i18n";
 import {
   LineChart,
   Line,
@@ -102,13 +103,14 @@ function CustomTooltip({ active, payload, label }: { active?: boolean; payload?:
 }
 
 export default function FinancialsPage() {
+  const { t } = useI18n();
   return (
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-vytal-text">Financials</h1>
+        <h1 className="text-2xl font-bold text-vytal-text">{t("financials.title")}</h1>
         <p className="mt-1 text-sm text-vytal-muted">
-          Revenue overview and payment management
+          {t("financials.subtitle")}
         </p>
       </div>
 

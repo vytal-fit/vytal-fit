@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { mockMembers, mockPlans } from "@vytal-fit/shared";
 import type { MemberStatus } from "@vytal-fit/shared";
 import { ArrowLeft, Save, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
+import { useToast } from "@/components/toast";
 
 const statuses: { value: MemberStatus; label: string }[] = [
   { value: "active", label: "Active" },
@@ -47,6 +48,7 @@ function Field({
 export default function MemberEditPage() {
   const params = useParams();
   const router = useRouter();
+  const { toast } = useToast();
   const id = params.id as string;
   const member = mockMembers.find((m) => m.id === id);
 
@@ -63,6 +65,70 @@ export default function MemberEditPage() {
   const [injuries, setInjuries] = useState("");
   const [parqNotes, setParqNotes] = useState("");
   const [medication, setMedication] = useState("");
+
+  // Track initial values for dirty state
+  const initialValues = useMemo(() => ({
+    name: member?.name ?? "",
+    email: member?.email ?? "",
+    phone: member?.phone ?? "",
+    nif: member?.nif ?? "234567890",
+    dob: member?.dateOfBirth ?? "1993-06-15",
+    gender: member?.gender ?? "male",
+    emergencyContact: member?.emergencyContact ?? "Maria Fonte - 911222333",
+    address: "Rua das Flores, 42, Lisboa 1200-100",
+    status: member?.status ?? "active",
+    planId: member?.planId ?? "plan-1",
+    injuries: "",
+    parqNotes: "",
+    medication: "",
+  }), [member]);
+
+  const isDirty = useMemo(() => {
+    return (
+      name !== initialValues.name ||
+      email !== initialValues.email ||
+      phone !== initialValues.phone ||
+      nif !== initialValues.nif ||
+      dob !== initialValues.dob ||
+      gender !== initialValues.gender ||
+      emergencyContact !== initialValues.emergencyContact ||
+      address !== initialValues.address ||
+      status !== initialValues.status ||
+      planId !== initialValues.planId ||
+      injuries !== initialValues.injuries ||
+      parqNotes !== initialValues.parqNotes ||
+      medication !== initialValues.medication
+    );
+  }, [name, email, phone, nif, dob, gender, emergencyContact, address, status, planId, injuries, parqNotes, medication, initialValues]);
+
+  // Warn on navigation with unsaved changes
+  useEffect(() => {
+    function handleBeforeUnload(e: BeforeUnloadEvent) {
+      if (isDirty) {
+        e.preventDefault();
+      }
+    }
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [isDirty]);
+
+  function handleSave() {
+    const plan = mockPlans.find((p) => p.id === planId);
+    toast(
+      `Saved ${name} - Status: ${status}, Plan: ${plan?.name ?? "N/A"}`,
+      "success"
+    );
+  }
+
+  function handleCancel() {
+    if (isDirty) {
+      const confirmed = window.confirm(
+        "You have unsaved changes. Are you sure you want to leave?"
+      );
+      if (!confirmed) return;
+    }
+    router.push(`/members/${id}`);
+  }
 
   if (!member) {
     return (
@@ -86,7 +152,14 @@ export default function MemberEditPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-vytal-text">Edit Member</h1>
+          <div className="flex items-center gap-3">
+            <h1 className="text-2xl font-bold text-vytal-text">Edit Member</h1>
+            {isDirty && (
+              <span className="rounded-full bg-vytal-amber/10 px-2.5 py-0.5 text-xs font-semibold text-vytal-amber">
+                Unsaved changes
+              </span>
+            )}
+          </div>
           <p className="mt-1 text-sm text-vytal-muted">
             Update {member.name}&apos;s profile
           </p>
@@ -221,13 +294,16 @@ export default function MemberEditPage() {
       {/* Action Buttons */}
       <div className="flex justify-end gap-3">
         <button
-          onClick={() => router.push(`/members/${id}`)}
+          onClick={handleCancel}
           className="flex items-center gap-2 rounded-lg border border-vytal-border bg-vytal-bg2 px-6 py-2.5 text-sm font-medium text-vytal-muted transition-colors hover:text-vytal-text"
         >
           <X className="h-4 w-4" />
           Cancel
         </button>
-        <button className="flex items-center gap-2 rounded-lg bg-vytal-green px-6 py-2.5 text-sm font-semibold text-vytal-bg transition-colors hover:bg-vytal-green/90">
+        <button
+          onClick={handleSave}
+          className="flex items-center gap-2 rounded-lg bg-vytal-green px-6 py-2.5 text-sm font-semibold text-vytal-bg transition-colors hover:bg-vytal-green/90"
+        >
           <Save className="h-4 w-4" />
           Save
         </button>

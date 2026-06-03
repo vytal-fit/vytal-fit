@@ -1,5 +1,8 @@
+"use client";
+
 import { Shield, Clock, Filter } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/lib/i18n";
 
 type ActionType = "create" | "update" | "delete" | "payment" | "settings" | "login" | "export";
 
@@ -41,13 +44,14 @@ const mockAuditLog: AuditEntry[] = [
 ];
 
 export default function AuditLogPage() {
+  const { t } = useI18n();
   return (
     <div className="space-y-6">
       <div className="flex items-end justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-vytal-text">Audit Log</h1>
+          <h1 className="text-2xl font-bold text-vytal-text">{t("auditLog.title")}</h1>
           <p className="mt-1 text-sm text-vytal-muted">
-            Track all system actions and changes
+            {t("auditLog.subtitle")}
           </p>
         </div>
         <div className="flex items-center gap-2">

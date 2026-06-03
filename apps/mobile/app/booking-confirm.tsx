@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
+  Animated,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
@@ -29,13 +30,31 @@ export default function BookingConfirmScreen() {
   const router = useRouter();
   const [confirmed, setConfirmed] = useState(false);
 
+  const scaleAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    if (confirmed) {
+      Animated.spring(scaleAnim, {
+        toValue: 1,
+        friction: 4,
+        tension: 60,
+        useNativeDriver: true,
+      }).start();
+
+      const timer = setTimeout(() => {
+        router.back();
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [confirmed]);
+
   if (confirmed) {
     return (
       <SafeAreaView style={styles.safe} edges={["top"]}>
         <View style={styles.successContainer}>
-          <View style={styles.checkCircle}>
+          <Animated.View style={[styles.checkCircle, { transform: [{ scale: scaleAnim }] }]}>
             <Check size={48} color="#080c0a" strokeWidth={3} />
-          </View>
+          </Animated.View>
           <Text style={styles.successTitle}>Reserva Confirmada!</Text>
           <View style={styles.successDetails}>
             <Text style={styles.successDetail}>WOD - 07:00 - 08:00</Text>

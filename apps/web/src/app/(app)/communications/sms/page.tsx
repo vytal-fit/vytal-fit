@@ -5,6 +5,7 @@ import { mockMembers, mockPlans, mockClassTypes } from "@vytal-fit/shared";
 import type { MemberStatus } from "@vytal-fit/shared";
 import { Smartphone, Send, Users, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/lib/i18n";
 
 const genderOptions = [
   { value: "all", label: "All" },
@@ -27,6 +28,7 @@ const recentSMS = [
 ];
 
 export default function SMSTargetingPage() {
+  const { t } = useI18n();
   const [gender, setGender] = useState("all");
   const [statusFilter, setStatusFilter] = useState<"all" | MemberStatus>("all");
   const [planFilter, setPlanFilter] = useState("all");
@@ -45,9 +47,9 @@ export default function SMSTargetingPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-vytal-text">SMS Targeting</h1>
+        <h1 className="text-2xl font-bold text-vytal-text">{t("sms.title")}</h1>
         <p className="mt-1 text-sm text-vytal-muted">
-          Send targeted SMS messages to members
+          {t("sms.subtitle")}
         </p>
       </div>
 
@@ -147,7 +149,7 @@ export default function SMSTargetingPage() {
               <div className="flex justify-end">
                 <button className="flex items-center gap-2 rounded-lg bg-vytal-green px-6 py-2.5 text-sm font-semibold text-vytal-bg transition-colors hover:bg-vytal-green/90">
                   <Send className="h-4 w-4" />
-                  Send
+                  {t("sms.send")}
                 </button>
               </div>
             </div>

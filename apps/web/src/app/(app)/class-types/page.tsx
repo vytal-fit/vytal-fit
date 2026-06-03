@@ -1,7 +1,11 @@
+"use client";
+
 import { mockClassTypes } from "@vytal-fit/shared";
 import { Plus } from "lucide-react";
+import { useI18n } from "@/lib/i18n";
 
 export default function ClassTypesPage() {
+  const { t } = useI18n();
   const classTypes = mockClassTypes;
 
   return (
@@ -9,14 +13,14 @@ export default function ClassTypesPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-vytal-text">Class Types</h1>
+          <h1 className="text-2xl font-bold text-vytal-text">{t("classTypes.title")}</h1>
           <p className="mt-1 text-sm text-vytal-muted">
-            Configure the types of classes your box offers
+            {t("classTypes.subtitle")}
           </p>
         </div>
         <button className="flex items-center gap-2 rounded-lg bg-vytal-green px-4 py-2.5 text-sm font-semibold text-vytal-bg transition-colors hover:bg-vytal-green/90">
           <Plus className="h-4 w-4" />
-          Add Class Type
+          {t("classTypes.addClassType")}
         </button>
       </div>
 

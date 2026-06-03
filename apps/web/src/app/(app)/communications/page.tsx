@@ -1,12 +1,22 @@
 "use client";
 
-import { useState } from "react";
-import { MessageSquare, Mail, Smartphone, Heart, Send } from "lucide-react";
+import { useState, useCallback } from "react";
+import { MessageSquare, Mail, Smartphone, Heart, Send, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useToast } from "@/components/toast";
 
 type Tab = "news" | "email" | "sms";
 
-const mockNews = [
+interface NewsItem {
+  id: number;
+  title: string;
+  body: string;
+  date: string;
+  author: string;
+  likes: number;
+}
+
+const initialNews: NewsItem[] = [
   {
     id: 1,
     title: "Summer Challenge 2026 Starts Next Week!",
@@ -35,11 +45,71 @@ const mockNews = [
 
 export default function CommunicationsPage() {
   const [activeTab, setActiveTab] = useState<Tab>("news");
+  const { toast } = useToast();
+
+  // News state
+  const [newsItems, setNewsItems] = useState<NewsItem[]>(initialNews);
+  const [showComposeNews, setShowComposeNews] = useState(false);
+  const [newsTitle, setNewsTitle] = useState("");
+  const [newsBody, setNewsBody] = useState("");
+
+  // Email state
   const [emailTo, setEmailTo] = useState("");
   const [emailSubject, setEmailSubject] = useState("");
   const [emailBody, setEmailBody] = useState("");
+
+  // SMS state
   const [smsTo, setSmsTo] = useState("");
   const [smsMessage, setSmsMessage] = useState("");
+
+  const handlePublishNews = useCallback(() => {
+    if (!newsTitle.trim() || !newsBody.trim()) {
+      toast("Title and body are required", "error");
+      return;
+    }
+    const newItem: NewsItem = {
+      id: Date.now(),
+      title: newsTitle.trim(),
+      body: newsBody.trim(),
+      date: new Date().toISOString().split("T")[0],
+      author: "You",
+      likes: 0,
+    };
+    setNewsItems((prev) => [newItem, ...prev]);
+    setNewsTitle("");
+    setNewsBody("");
+    setShowComposeNews(false);
+    toast("News published!", "success");
+  }, [newsTitle, newsBody, toast]);
+
+  const handleLike = useCallback((id: number) => {
+    setNewsItems((prev) =>
+      prev.map((item) =>
+        item.id === id ? { ...item, likes: item.likes + 1 } : item
+      )
+    );
+  }, []);
+
+  const handleSendEmail = useCallback(() => {
+    if (!emailTo.trim()) {
+      toast("Recipient is required", "error");
+      return;
+    }
+    toast(`Email sent to ${emailTo}`, "success");
+    setEmailTo("");
+    setEmailSubject("");
+    setEmailBody("");
+  }, [emailTo, toast]);
+
+  const handleSendSMS = useCallback(() => {
+    if (!smsTo.trim()) {
+      toast("Recipient is required", "error");
+      return;
+    }
+    toast(`SMS sent to ${smsTo}`, "success");
+    setSmsTo("");
+    setSmsMessage("");
+  }, [smsTo, toast]);
 
   const tabs: { key: Tab; label: string; icon: React.ReactNode }[] = [
     { key: "news", label: "News", icon: <MessageSquare className="h-4 w-4" /> },
@@ -79,7 +149,59 @@ export default function CommunicationsPage() {
       {/* News Tab */}
       {activeTab === "news" && (
         <div className="space-y-4">
-          {mockNews.map((item) => (
+          {/* Compose button / form */}
+          {!showComposeNews ? (
+            <button
+              onClick={() => setShowComposeNews(true)}
+              className="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-vytal-border py-4 text-sm text-vytal-muted transition-colors hover:border-vytal-green/30 hover:text-vytal-green"
+            >
+              <Plus className="h-4 w-4" />
+              Compose News
+            </button>
+          ) : (
+            <div className="rounded-xl border border-vytal-green/20 bg-vytal-green/5 p-5">
+              <h3 className="mb-4 text-sm font-semibold text-vytal-green">
+                New Post
+              </h3>
+              <div className="space-y-3">
+                <input
+                  type="text"
+                  placeholder="Title"
+                  value={newsTitle}
+                  onChange={(e) => setNewsTitle(e.target.value)}
+                  className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-2.5 text-sm text-vytal-text placeholder:text-vytal-muted focus:border-vytal-green/30 focus:outline-none focus:ring-1 focus:ring-vytal-green/20"
+                />
+                <textarea
+                  placeholder="Write your news..."
+                  value={newsBody}
+                  onChange={(e) => setNewsBody(e.target.value)}
+                  rows={4}
+                  className="w-full resize-none rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-2.5 text-sm text-vytal-text placeholder:text-vytal-muted focus:border-vytal-green/30 focus:outline-none focus:ring-1 focus:ring-vytal-green/20"
+                />
+                <div className="flex justify-end gap-2">
+                  <button
+                    onClick={() => {
+                      setShowComposeNews(false);
+                      setNewsTitle("");
+                      setNewsBody("");
+                    }}
+                    className="rounded-lg border border-vytal-border px-4 py-2 text-sm text-vytal-text transition-colors hover:bg-vytal-bg3"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handlePublishNews}
+                    className="flex items-center gap-2 rounded-lg bg-vytal-green px-4 py-2 text-sm font-semibold text-vytal-bg transition-colors hover:bg-vytal-green/90"
+                  >
+                    <Send className="h-4 w-4" />
+                    Publish
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {newsItems.map((item) => (
             <div
               key={item.id}
               className="rounded-xl border border-vytal-border bg-vytal-card p-5 transition-colors hover:border-[rgba(61,255,110,0.22)]"
@@ -99,10 +221,13 @@ export default function CommunicationsPage() {
                 <span className="text-xs text-vytal-muted">
                   By {item.author}
                 </span>
-                <div className="flex items-center gap-1 text-xs text-vytal-muted">
+                <button
+                  onClick={() => handleLike(item.id)}
+                  className="flex items-center gap-1 text-xs text-vytal-muted transition-colors hover:text-vytal-red"
+                >
                   <Heart className="h-3.5 w-3.5" />
                   {item.likes}
-                </div>
+                </button>
               </div>
             </div>
           ))}
@@ -153,7 +278,10 @@ export default function CommunicationsPage() {
               />
             </div>
             <div className="flex justify-end">
-              <button className="flex items-center gap-2 rounded-lg bg-vytal-green px-6 py-2.5 text-sm font-semibold text-vytal-bg transition-colors hover:bg-vytal-green/90">
+              <button
+                onClick={handleSendEmail}
+                className="flex items-center gap-2 rounded-lg bg-vytal-green px-6 py-2.5 text-sm font-semibold text-vytal-bg transition-colors hover:bg-vytal-green/90"
+              >
                 <Send className="h-4 w-4" />
                 Send Email
               </button>
@@ -210,7 +338,10 @@ export default function CommunicationsPage() {
               </div>
             </div>
             <div className="flex justify-end">
-              <button className="flex items-center gap-2 rounded-lg bg-vytal-green px-6 py-2.5 text-sm font-semibold text-vytal-bg transition-colors hover:bg-vytal-green/90">
+              <button
+                onClick={handleSendSMS}
+                className="flex items-center gap-2 rounded-lg bg-vytal-green px-6 py-2.5 text-sm font-semibold text-vytal-bg transition-colors hover:bg-vytal-green/90"
+              >
                 <Send className="h-4 w-4" />
                 Send SMS
               </button>

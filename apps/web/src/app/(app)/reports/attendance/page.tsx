@@ -1,6 +1,9 @@
+"use client";
+
 import Link from "next/link";
 import { ArrowLeft, BarChart3, Clock, Calendar, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/lib/i18n";
 
 const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 const TIME_SLOTS = [
@@ -55,6 +58,7 @@ function getTextColor(value: number, max: number): string {
 }
 
 export default function AttendanceHeatmapPage() {
+  const { t } = useI18n();
   const max = getMaxValue();
 
   return (
@@ -69,10 +73,10 @@ export default function AttendanceHeatmapPage() {
         </Link>
         <div>
           <h1 className="text-2xl font-bold text-vytal-text">
-            Attendance Heatmap
+            {t("attendance.title")}
           </h1>
           <p className="mt-1 text-sm text-vytal-muted">
-            Class attendance by day and time slot
+            {t("attendance.subtitle")}
           </p>
         </div>
       </div>
