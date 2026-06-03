@@ -167,8 +167,16 @@ export default function WODScreen() {
       <View style={styles.container}>
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>{t("screen.wod")}</Text>
-          <Text style={styles.headerDate}>{formatDateHeader()}</Text>
+          <View>
+            <Text style={styles.headerTitle}>{t("screen.wod")}</Text>
+            <Text style={styles.headerDate}>{formatDateHeader()}</Text>
+          </View>
+          <TouchableOpacity
+            style={styles.headerAction}
+            onPress={() => router.push("/timer")}
+          >
+            <Clock size={22} color={C.text} strokeWidth={1.8} />
+          </TouchableOpacity>
         </View>
 
         {/* WOD Title */}
@@ -237,9 +245,22 @@ const styles = StyleSheet.create({
 
   // Header
   header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
     paddingHorizontal: 20,
     paddingTop: 8,
     paddingBottom: 4,
+  },
+  headerAction: {
+    width: 44,
+    height: 44,
+    borderRadius: 14,
+    backgroundColor: C.surface,
+    borderWidth: 1,
+    borderColor: C.border,
+    alignItems: "center",
+    justifyContent: "center",
   },
   headerTitle: {
     fontSize: 28,
@@ -325,7 +346,7 @@ const styles = StyleSheet.create({
   typeBadge: {
     paddingHorizontal: 10,
     paddingVertical: 4,
-    borderRadius: 8,
+    borderRadius: 12,
   },
   typeBadgeText: {
     fontSize: 11,
@@ -362,7 +383,7 @@ const styles = StyleSheet.create({
   // Exercises
   exerciseList: {
     gap: 10,
-    paddingLeft: 13,
+    paddingLeft: 16,
   },
   exerciseRow: {
     flexDirection: "row",
@@ -416,7 +437,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     flexDirection: "row",
-    gap: 10,
+    gap: 8,
     paddingHorizontal: 16,
     paddingVertical: 16,
     paddingBottom: 32,

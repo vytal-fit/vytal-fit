@@ -40,7 +40,6 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ToastProvider } from "@/components/toast";
-import { mockNotifications } from "@vytal-fit/shared";
 import type { NotificationType } from "@vytal-fit/shared";
 import { ROLE_LABELS, ROLE_COLORS, ORGANIZATION_CONFIGS } from "@vytal-fit/shared";
 import { useAuthStore } from "@/stores/auth-store";
@@ -152,7 +151,10 @@ function NotificationsDropdown() {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const { t } = useI18n();
-  const unreadCount = mockNotifications.filter((n) => !n.read).length;
+  const notifications = useDataStore((s) => s.notifications);
+  const markNotificationRead = useDataStore((s) => s.markNotificationRead);
+  const markAllNotificationsRead = useDataStore((s) => s.markAllNotificationsRead);
+  const unreadCount = notifications.filter((n) => !n.read).length;
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -185,19 +187,32 @@ function NotificationsDropdown() {
               <h3 className="text-sm font-semibold text-vytal-text">
                 {t("ui.notifications")}
               </h3>
-              {unreadCount > 0 && (
-                <span className="rounded-full bg-vytal-green/10 px-2 py-0.5 text-[10px] font-semibold text-vytal-green">
-                  {unreadCount} {t("ui.new")}
-                </span>
-              )}
+              <div className="flex items-center gap-2">
+                {unreadCount > 0 && (
+                  <>
+                    <span className="rounded-full bg-vytal-green/10 px-2 py-0.5 text-[10px] font-semibold text-vytal-green">
+                      {unreadCount} {t("ui.new")}
+                    </span>
+                    <button
+                      onClick={() => markAllNotificationsRead()}
+                      className="text-[10px] font-medium text-vytal-muted transition-colors hover:text-vytal-green"
+                    >
+                      {t("ui.markAllRead")}
+                    </button>
+                  </>
+                )}
+              </div>
             </div>
           </div>
           <div className="max-h-80 overflow-y-auto">
-            {mockNotifications.map((notification) => (
+            {notifications.map((notification) => (
               <div
                 key={notification.id}
+                onClick={() => {
+                  if (!notification.read) markNotificationRead(notification.id);
+                }}
                 className={cn(
-                  "flex gap-3 border-b border-vytal-border px-4 py-3 transition-colors last:border-b-0 hover:bg-vytal-bg3",
+                  "flex cursor-pointer gap-3 border-b border-vytal-border px-4 py-3 transition-colors last:border-b-0 hover:bg-vytal-bg3",
                   !notification.read && "bg-vytal-green/[0.03]"
                 )}
               >
@@ -251,9 +266,9 @@ function LanguageSwitcher() {
           key={lang.code}
           onClick={() => setLanguage(lang.code)}
           className={cn(
-            "rounded-md px-2 py-1 text-[11px] font-semibold transition-colors",
+            "lang-pill-transition rounded-md px-2 py-1 text-[11px] font-semibold",
             language === lang.code
-              ? "bg-vytal-green text-vytal-bg"
+              ? "bg-vytal-green text-vytal-bg shadow-sm"
               : "text-vytal-muted hover:text-vytal-text"
           )}
         >
@@ -330,7 +345,7 @@ function OrgSwitcher() {
       </button>
 
       {open && (
-        <div className="absolute left-0 right-0 top-full z-50 mt-1 rounded-xl border border-vytal-border bg-vytal-bg2 shadow-2xl">
+        <div className="org-dropdown-shadow absolute left-0 right-0 top-full z-50 mt-1 rounded-xl border border-vytal-border bg-vytal-bg2">
           <div className="border-b border-vytal-border px-3 py-2">
             <span className="text-[10px] font-semibold uppercase tracking-widest text-vytal-muted">
               {t("ui.yourOrganizations")}
@@ -744,10 +759,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                   key={item.href}
                   href={item.href}
                   className={cn(
-                    "group flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                    "nav-item-transition group flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium",
                     isActive
                       ? "border-l-2 border-vytal-green bg-vytal-green/5 text-vytal-green"
-                      : "border-l-2 border-transparent text-vytal-muted hover:bg-vytal-bg3 hover:text-vytal-text"
+                      : "border-l-2 border-transparent text-vytal-muted hover:bg-vytal-bg3 hover:text-vytal-text hover:border-vytal-green/30"
                   )}
                 >
                   <Icon
@@ -846,7 +861,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             <UserMenu user={user} onLogout={handleLogout} />
           </div>
         </div>
-        <div className="p-4 lg:p-8">{children}</div>
+        <div className="page-enter p-4 lg:p-8">{children}</div>
       </main>
 
       {/* Floating Messenger-style chat widget */}

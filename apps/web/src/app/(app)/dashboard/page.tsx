@@ -1,8 +1,10 @@
 "use client";
 
+import { useState } from "react";
 import { mockDashboardStats } from "@vytal-fit/shared";
 import type { Class, DashboardStats } from "@vytal-fit/shared";
 import { useDataStore, formatCurrency } from "@/stores/data-store";
+import { useAuthStore } from "@/stores/auth-store";
 import {
   Users,
   UserCheck,
@@ -13,8 +15,15 @@ import {
   AlertTriangle,
   Trophy,
   ScanLine,
+  UserPlus,
+  Dumbbell,
+  MessageCircle,
+  ChevronDown,
+  ChevronUp,
+  ArrowUpRight,
 } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
+import Link from "next/link";
 import {
   ResponsiveContainer,
   LineChart,
@@ -42,9 +51,10 @@ interface StatCardProps {
   icon: React.ReactNode;
   color: "green" | "red" | "amber" | "blue" | "purple";
   subtitle?: string;
+  trend?: { value: string; up: boolean };
 }
 
-function StatCard({ label, value, icon, color, subtitle }: StatCardProps) {
+function StatCard({ label, value, icon, color, subtitle, trend }: StatCardProps) {
   const colorMap = {
     green: "text-vytal-green",
     red: "text-vytal-red",
@@ -62,16 +72,28 @@ function StatCard({ label, value, icon, color, subtitle }: StatCardProps) {
   };
 
   return (
-    <div className="rounded-xl border border-vytal-border bg-vytal-card p-5 transition-colors hover:border-[rgba(61,255,110,0.22)]">
+    <div className="stat-card-hover min-h-[120px] rounded-xl border border-vytal-border bg-vytal-card p-5 transition-colors hover:border-[rgba(61,255,110,0.22)]">
       <div className="flex items-start justify-between">
         <div className="flex flex-col gap-1">
           <span className="text-xs font-medium uppercase tracking-wider text-vytal-muted">
             {label}
           </span>
           <span className="text-2xl font-bold text-vytal-text">{value}</span>
-          {subtitle && (
-            <span className={`text-xs ${colorMap[color]}`}>{subtitle}</span>
-          )}
+          <div className="flex items-center gap-2">
+            {trend && (
+              <span
+                className={cn(
+                  "inline-flex items-center gap-0.5 text-xs font-medium",
+                  trend.up ? "text-vytal-green" : "text-vytal-red"
+                )}
+              >
+                {trend.up ? "\u2191" : "\u2193"} {trend.value}
+              </span>
+            )}
+            {subtitle && (
+              <span className={`text-xs ${colorMap[color]}`}>{subtitle}</span>
+            )}
+          </div>
         </div>
         <div
           className={`flex h-10 w-10 items-center justify-center rounded-lg ${bgMap[color]}`}
@@ -81,6 +103,43 @@ function StatCard({ label, value, icon, color, subtitle }: StatCardProps) {
       </div>
     </div>
   );
+}
+
+// ---------------------------------------------------------------------------
+// Quick Action Card
+// ---------------------------------------------------------------------------
+
+function QuickActionCard({
+  href,
+  icon,
+  label,
+}: {
+  href: string;
+  icon: React.ReactNode;
+  label: string;
+}) {
+  return (
+    <Link
+      href={href}
+      className="flex flex-col items-center gap-2 rounded-xl border border-vytal-border bg-vytal-card p-4 transition-all duration-200 hover:border-vytal-green/30 hover:bg-vytal-green/5"
+    >
+      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-vytal-green/10 text-vytal-green">
+        {icon}
+      </div>
+      <span className="text-xs font-medium text-vytal-text">{label}</span>
+    </Link>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Time-of-day greeting
+// ---------------------------------------------------------------------------
+
+function getGreeting(): string {
+  const hour = new Date().getHours();
+  if (hour < 12) return "Bom dia";
+  if (hour < 19) return "Boa tarde";
+  return "Boa noite";
 }
 
 // ---------------------------------------------------------------------------
@@ -234,7 +293,7 @@ function ClassScheduleRow({ cls }: { cls: Class }) {
   const isFull = cls.enrolledCount >= cls.maxCapacity;
 
   return (
-    <div className="flex items-center gap-4 rounded-lg border border-vytal-border bg-vytal-card px-4 py-3 transition-colors hover:border-[rgba(61,255,110,0.22)]">
+    <div className="schedule-row-hover flex items-center gap-4 rounded-lg border border-vytal-border bg-vytal-card px-4 py-3 hover:border-[rgba(61,255,110,0.22)] hover:bg-vytal-bg3/50">
       <div className="w-24 shrink-0">
         <span className="font-mono text-sm font-semibold text-vytal-text">
           {cls.startTime}
@@ -326,6 +385,7 @@ function RevenueTooltip({ active, payload, label }: RevenueTooltipProps) {
 
 export default function DashboardPage() {
   const { t } = useI18n();
+  const user = useAuthStore((s) => s.user);
   const storeClasses = useDataStore((s) => s.classes);
   const storeClassTypes = useDataStore((s) => s.classTypes);
   const classDistributionData = buildClassDistributionData(storeClassTypes);
@@ -336,24 +396,59 @@ export default function DashboardPage() {
     .sort((a, b) => a.startTime.localeCompare(b.startTime));
 
   const hMax = heatmapMax();
+  const [chartsOpen, setChartsOpen] = useState(true);
+
+  const firstName = user?.user.name.split(" ")[0] ?? "";
 
   return (
     <div className="space-y-8">
-      {/* Header */}
+      {/* Welcome Header */}
       <div>
-        <h1 className="text-2xl font-bold text-vytal-text">{t("dashboard.title")}</h1>
+        <h1 className="text-2xl font-bold text-vytal-text">
+          {getGreeting()}, {firstName}
+        </h1>
         <p className="mt-1 text-sm text-vytal-muted">
-          {t("dashboard.subtitle")}
+          {new Date().toLocaleDateString("pt-PT", {
+            weekday: "long",
+            day: "numeric",
+            month: "long",
+            year: "numeric",
+          })}
         </p>
       </div>
 
+      {/* Quick Action Buttons */}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <QuickActionCard
+          href="/members/import"
+          icon={<UserPlus className="h-5 w-5" />}
+          label={t("dashboard.addMember")}
+        />
+        <QuickActionCard
+          href="/classes/calendar"
+          icon={<CalendarDays className="h-5 w-5" />}
+          label={t("dashboard.createClass")}
+        />
+        <QuickActionCard
+          href="/wods/builder"
+          icon={<Dumbbell className="h-5 w-5" />}
+          label={t("dashboard.newWod")}
+        />
+        <QuickActionCard
+          href="/messages"
+          icon={<MessageCircle className="h-5 w-5" />}
+          label={t("dashboard.sendMessage")}
+        />
+      </div>
+
       {/* KPI Cards */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
         <StatCard
           label={t("dashboard.totalMembers")}
           value={stats.totalMembers}
           icon={<Users className="h-5 w-5" />}
           color="blue"
+          trend={{ value: "+3.2%", up: true }}
         />
         <StatCard
           label={t("dashboard.activeMembers")}
@@ -361,6 +456,7 @@ export default function DashboardPage() {
           icon={<UserCheck className="h-5 w-5" />}
           color="green"
           subtitle={`${Math.round((stats.activeMembers / stats.totalMembers) * 100)}% ${t("dashboard.ofTotal")}`}
+          trend={{ value: "+2.8%", up: true }}
         />
         <StatCard
           label={t("dashboard.todaysClasses")}
@@ -374,12 +470,14 @@ export default function DashboardPage() {
           icon={<TrendingUp className="h-5 w-5" />}
           color={stats.occupancyPercent >= 80 ? "green" : "amber"}
           subtitle={stats.occupancyPercent >= 80 ? t("dashboard.aboveTarget") : t("dashboard.belowTarget")}
+          trend={{ value: "+5.1%", up: true }}
         />
         <StatCard
           label={t("dashboard.monthlyRevenue")}
           value={formatCurrency(stats.monthlyRevenue)}
           icon={<DollarSign className="h-5 w-5" />}
           color="green"
+          trend={{ value: "+5.8%", up: true }}
         />
         <StatCard
           label={t("dashboard.churnRate")}
@@ -387,6 +485,7 @@ export default function DashboardPage() {
           icon={<TrendingDown className="h-5 w-5" />}
           color={stats.churnRate > 5 ? "red" : stats.churnRate > 3 ? "amber" : "green"}
           subtitle={stats.churnRate <= 3 ? t("dashboard.healthy") : t("dashboard.needsAttention")}
+          trend={{ value: "-0.4%", up: true }}
         />
         <StatCard
           label={t("dashboard.atRiskMembers")}
@@ -394,6 +493,7 @@ export default function DashboardPage() {
           icon={<AlertTriangle className="h-5 w-5" />}
           color={stats.atRiskMembers > 10 ? "red" : "amber"}
           subtitle={t("dashboard.noTraining7Days")}
+          trend={{ value: "+2", up: false }}
         />
         <StatCard
           label={t("dashboard.prsToday")}
@@ -406,10 +506,22 @@ export default function DashboardPage() {
           value={stats.checkInsToday}
           icon={<ScanLine className="h-5 w-5" />}
           color="green"
+          trend={{ value: "+12%", up: true }}
         />
       </div>
 
-      {/* Charts Grid */}
+      {/* Charts Section — Collapsible */}
+      <div>
+        <button
+          onClick={() => setChartsOpen((v) => !v)}
+          className="mb-4 flex items-center gap-2 text-sm font-semibold text-vytal-text transition-colors hover:text-vytal-green"
+        >
+          {chartsOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+          {t("dashboard.chartsSection")}
+        </button>
+      </div>
+
+      {chartsOpen && (
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Chart 1: Member Growth */}
         <ChartCard title={t("dashboard.memberGrowth")}>
@@ -505,7 +617,10 @@ export default function DashboardPage() {
         </ChartCard>
       </div>
 
+      )}
+
       {/* Chart 5: Attendance Heatmap */}
+      {chartsOpen && (
       <ChartCard title={t("dashboard.attendanceHeatmap")} className="col-span-full">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[600px]">
@@ -561,6 +676,7 @@ export default function DashboardPage() {
           <span className="text-[10px] font-medium uppercase tracking-wider text-vytal-muted">{t("dashboard.more")}</span>
         </div>
       </ChartCard>
+      )}
 
       {/* Today's Schedule */}
       <div>
@@ -568,14 +684,23 @@ export default function DashboardPage() {
           <h2 className="text-lg font-semibold text-vytal-text">
             {t("dashboard.todaysSchedule")}
           </h2>
-          <span className="text-xs text-vytal-muted">
-            {new Date().toLocaleDateString("pt-PT", {
-              weekday: "long",
-              year: "numeric",
-              month: "long",
-              day: "numeric",
-            })}
-          </span>
+          <div className="flex items-center gap-4">
+            <span className="text-xs text-vytal-muted">
+              {new Date().toLocaleDateString("pt-PT", {
+                weekday: "long",
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              })}
+            </span>
+            <Link
+              href="/classes"
+              className="flex items-center gap-1 text-xs font-medium text-vytal-green transition-colors hover:text-vytal-green/80"
+            >
+              {t("dashboard.viewAll")}
+              <ArrowUpRight className="h-3 w-3" />
+            </Link>
+          </div>
         </div>
         <div className="space-y-2">
           {todayClasses.length > 0 ? (

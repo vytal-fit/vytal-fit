@@ -111,14 +111,14 @@ export default function RegisterPage() {
         <div className="mb-6 flex gap-3">
           <button
             type="button"
-            className="flex flex-1 items-center justify-center gap-2.5 rounded-lg border border-vytal-border bg-vytal-bg2 px-4 py-2.5 text-sm font-medium text-vytal-text transition-colors hover:bg-vytal-bg3"
+            className="flex flex-1 items-center justify-center gap-2.5 rounded-lg border border-vytal-border bg-vytal-bg2 px-4 py-2.5 text-sm font-medium text-vytal-text transition-all hover:bg-vytal-bg3 hover:border-vytal-green/20 hover:shadow-sm active:scale-[0.98]"
           >
             <GoogleIcon />
             Google
           </button>
           <button
             type="button"
-            className="flex flex-1 items-center justify-center gap-2.5 rounded-lg border border-vytal-border bg-vytal-bg2 px-4 py-2.5 text-sm font-medium text-vytal-text transition-colors hover:bg-vytal-bg3"
+            className="flex flex-1 items-center justify-center gap-2.5 rounded-lg border border-vytal-border bg-vytal-bg2 px-4 py-2.5 text-sm font-medium text-vytal-text transition-all hover:bg-vytal-bg3 hover:border-vytal-green/20 hover:shadow-sm active:scale-[0.98]"
           >
             <AppleIcon />
             Apple

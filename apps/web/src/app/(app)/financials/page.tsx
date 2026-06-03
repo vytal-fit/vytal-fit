@@ -292,8 +292,8 @@ export default function FinancialsPage() {
         <h2 className="mb-4 text-lg font-semibold text-vytal-text">
           {t("financials.pendingPayments")}
         </h2>
-        <div className="overflow-hidden rounded-xl border border-vytal-border">
-          <table className="w-full">
+        <div className="overflow-x-auto rounded-xl border border-vytal-border">
+          <table className="zebra-table sticky-thead w-full min-w-[600px]">
             <thead>
               <tr className="border-b border-vytal-border bg-vytal-bg2">
                 <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-vytal-muted">
@@ -344,8 +344,8 @@ export default function FinancialsPage() {
         <h2 className="mb-4 text-lg font-semibold text-vytal-text">
           {t("financials.recentTransactions")}
         </h2>
-        <div className="overflow-hidden rounded-xl border border-vytal-border">
-          <table className="w-full">
+        <div className="overflow-x-auto rounded-xl border border-vytal-border">
+          <table className="zebra-table sticky-thead w-full min-w-[600px]">
             <thead>
               <tr className="border-b border-vytal-border bg-vytal-bg2">
                 <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-vytal-muted">

@@ -509,21 +509,21 @@ const styles = StyleSheet.create({
   },
   bookButton: {
     paddingHorizontal: 24,
-    paddingVertical: 10,
-    borderRadius: 10,
+    paddingVertical: 12,
+    borderRadius: 12,
     borderWidth: 1.5,
     borderColor: C.green,
   },
   bookButtonText: {
     fontSize: 13,
-    fontWeight: "800",
+    fontWeight: "700",
     color: C.green,
     letterSpacing: 1,
   },
   bookedButton: {
     paddingHorizontal: 24,
-    paddingVertical: 10,
-    borderRadius: 10,
+    paddingVertical: 12,
+    borderRadius: 12,
     backgroundColor: C.green,
   },
   bookedButtonContent: {
@@ -533,7 +533,7 @@ const styles = StyleSheet.create({
   },
   bookedButtonText: {
     fontSize: 13,
-    fontWeight: "800",
+    fontWeight: "700",
     color: "#080c0a",
     letterSpacing: 1,
   },

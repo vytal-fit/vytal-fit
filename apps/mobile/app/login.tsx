@@ -125,6 +125,9 @@ export default function LoginScreen() {
             </TouchableOpacity>
           </View>
         </View>
+
+        {/* Powered by footer */}
+        <Text style={styles.poweredBy}>Powered by Vytal</Text>
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -146,10 +149,10 @@ const styles = StyleSheet.create({
     marginBottom: 48,
   },
   logo: {
-    fontSize: 40,
+    fontSize: 36,
     fontWeight: "800",
     color: C.green,
-    letterSpacing: 4,
+    letterSpacing: 2,
   },
   tagline: {
     marginTop: 8,
@@ -175,7 +178,7 @@ const styles = StyleSheet.create({
     borderColor: C.border,
     borderRadius: 12,
     paddingHorizontal: 16,
-    paddingVertical: 14,
+    height: 50,
     fontSize: 15,
     color: C.text,
   },
@@ -203,7 +206,8 @@ const styles = StyleSheet.create({
   button: {
     backgroundColor: C.green,
     borderRadius: 12,
-    paddingVertical: 16,
+    height: 52,
+    justifyContent: "center",
     alignItems: "center",
     marginTop: 8,
   },
@@ -229,5 +233,15 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "600",
     color: C.green,
+  },
+  poweredBy: {
+    textAlign: "center",
+    fontSize: 10,
+    fontWeight: "600",
+    color: C.muted,
+    opacity: 0.4,
+    letterSpacing: 2,
+    textTransform: "uppercase",
+    marginTop: 32,
   },
 });
