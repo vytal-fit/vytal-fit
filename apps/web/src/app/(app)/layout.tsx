@@ -43,6 +43,8 @@ interface NavItem {
   href: string;
   labelKey: string;
   icon: React.ComponentType<{ className?: string }>;
+  /** Feature flag required — item hidden if feature is disabled for this org type */
+  requiresFeature?: keyof import("@vytal-fit/shared").OrganizationFeatures;
 }
 
 interface NavGroup {
@@ -50,13 +52,13 @@ interface NavGroup {
   items: NavItem[];
 }
 
-const navGroups: NavGroup[] = [
+const allNavGroups: NavGroup[] = [
   {
     items: [
       { href: "/dashboard", labelKey: "nav.dashboard", icon: LayoutDashboard },
       { href: "/members", labelKey: "nav.members", icon: Users },
-      { href: "/classes", labelKey: "nav.classes", icon: CalendarDays },
-      { href: "/wods", labelKey: "nav.wods", icon: Dumbbell },
+      { href: "/classes", labelKey: "nav.classes", icon: CalendarDays, requiresFeature: "groupClasses" },
+      { href: "/wods", labelKey: "nav.wods", icon: Dumbbell, requiresFeature: "wods" },
       { href: "/crm", labelKey: "nav.crm", icon: UserPlus },
     ],
   },
@@ -64,11 +66,11 @@ const navGroups: NavGroup[] = [
     titleKey: "nav.group.management",
     items: [
       { href: "/staff", labelKey: "nav.staff", icon: UserCog },
-      { href: "/class-types", labelKey: "nav.classTypes", icon: Tag },
+      { href: "/class-types", labelKey: "nav.classTypes", icon: Tag, requiresFeature: "groupClasses" },
       { href: "/locations", labelKey: "nav.locations", icon: MapPin },
-      { href: "/exercises", labelKey: "nav.exercises", icon: Dumbbell },
+      { href: "/exercises", labelKey: "nav.exercises", icon: Dumbbell, requiresFeature: "movementLibrary" },
       { href: "/plans", labelKey: "nav.plans", icon: CreditCard },
-      { href: "/dropins", labelKey: "nav.dropins", icon: Globe },
+      { href: "/dropins", labelKey: "nav.dropins", icon: Globe, requiresFeature: "dropins" },
     ],
   },
   {
@@ -87,6 +89,22 @@ const navGroups: NavGroup[] = [
     ],
   },
 ];
+
+/** Filter nav items based on the active org's feature flags */
+function getNavGroups(orgType: string): NavGroup[] {
+  const config = ORGANIZATION_CONFIGS[orgType];
+  if (!config) return allNavGroups;
+
+  return allNavGroups
+    .map((group) => ({
+      ...group,
+      items: group.items.filter((item) => {
+        if (!item.requiresFeature) return true;
+        return config.features[item.requiresFeature];
+      }),
+    }))
+    .filter((group) => group.items.length > 0);
+}
 
 const notificationIcon: Record<NotificationType, React.ReactNode> = {
   pr_achieved: <Trophy className="h-3.5 w-3.5 text-vytal-green" />,
@@ -366,6 +384,14 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const logout = useAuthStore((s) => s.logout);
 
+  // Get active org type for feature-based nav filtering
+  const activeOrg = user?.memberships.find(
+    (m) => m.organizationId === user.activeOrganizationId
+  );
+  const orgType = activeOrg?.organization.type ?? "other";
+  const orgConfig = ORGANIZATION_CONFIGS[orgType];
+  const navGroups = getNavGroups(orgType);
+
   useEffect(() => {
     if (!isAuthenticated) {
       router.replace("/login");
@@ -390,7 +416,19 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           <OrgSwitcher />
         </div>
 
-        {/* Navigation */}
+        {/* Org type badge */}
+        {orgConfig && (
+          <div className="border-b border-vytal-border px-4 py-2">
+            <span className="text-[9px] font-bold uppercase tracking-widest text-vytal-muted">
+              {orgConfig.label}
+            </span>
+            <span className="ml-2 text-[9px] text-vytal-muted">
+              · {orgConfig.terminology.memberPlural} · {orgConfig.terminology.instructorPlural}
+            </span>
+          </div>
+        )}
+
+        {/* Navigation — filtered by org type features */}
         <nav className="mt-4 flex flex-1 flex-col gap-1 overflow-y-auto px-3">
           {navGroups.map((group, gi) => (
             <div key={gi} className={gi > 0 ? "mt-4" : ""}>
