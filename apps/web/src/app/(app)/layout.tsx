@@ -23,6 +23,7 @@ import {
   MapPin,
   DollarSign,
   BarChart3,
+  TrendingUp,
   MessageSquare,
   Settings,
   Zap,
@@ -77,6 +78,7 @@ const allNavGroups: NavGroup[] = [
     titleKey: "nav.group.operations",
     items: [
       { href: "/financials", labelKey: "nav.financials", icon: DollarSign },
+      { href: "/analytics", labelKey: "nav.analytics", icon: TrendingUp },
       { href: "/reports", labelKey: "nav.reports", icon: BarChart3 },
       { href: "/communications", labelKey: "nav.communications", icon: MessageSquare },
       { href: "/automations", labelKey: "nav.automations", icon: Zap },
@@ -86,6 +88,7 @@ const allNavGroups: NavGroup[] = [
     titleKey: "nav.group.settings",
     items: [
       { href: "/settings", labelKey: "nav.settings", icon: Settings },
+      { href: "/profile", labelKey: "nav.profile", icon: Users },
     ],
   },
 ];

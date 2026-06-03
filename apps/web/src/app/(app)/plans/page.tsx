@@ -1,6 +1,18 @@
+"use client";
+
+import { useState, useMemo } from "react";
 import { mockPlans, mockClassTypes } from "@vytal-fit/shared";
 import type { SubscriptionPlan } from "@vytal-fit/shared";
-import { CreditCard, CheckCircle, XCircle, Tag, Dumbbell } from "lucide-react";
+import {
+  CreditCard,
+  CheckCircle,
+  XCircle,
+  Tag,
+  Dumbbell,
+  Users,
+  Star,
+  TrendingUp,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const typeLabels: Record<string, { label: string; className: string }> = {
@@ -34,6 +46,30 @@ const typeLabels: Record<string, { label: string; className: string }> = {
   },
 };
 
+// Mock subscriber counts
+const planSubscribers: Record<string, number> = {
+  "plan-1": 145,
+  "plan-2": 89,
+  "plan-3": 62,
+  "plan-4": 34,
+  "plan-5": 28,
+  "plan-6": 15,
+  "plan-7": 22,
+  "plan-8": 8,
+};
+
+// Mock monthly revenue per plan
+const planMonthlyRevenue: Record<string, number> = {
+  "plan-1": 10875,
+  "plan-2": 5340,
+  "plan-3": 3100,
+  "plan-4": 2210,
+  "plan-5": 2800,
+  "plan-6": 449,
+  "plan-7": 880,
+  "plan-8": 120,
+};
+
 function formatCurrency(value: number, currency: string): string {
   return new Intl.NumberFormat("pt-PT", {
     style: "currency",
@@ -42,7 +78,19 @@ function formatCurrency(value: number, currency: string): string {
   }).format(value);
 }
 
-function PlanCard({ plan }: { plan: SubscriptionPlan }) {
+function PlanCard({
+  plan,
+  isPopular,
+  subscriberCount,
+  monthlyRevenue,
+  maxSubscribers,
+}: {
+  plan: SubscriptionPlan;
+  isPopular: boolean;
+  subscriberCount: number;
+  monthlyRevenue: number;
+  maxSubscribers: number;
+}) {
   const typeConfig = typeLabels[plan.type] ?? {
     label: plan.type,
     className: "bg-vytal-muted/10 text-vytal-muted",
@@ -51,8 +99,23 @@ function PlanCard({ plan }: { plan: SubscriptionPlan }) {
     .map((ctId) => mockClassTypes.find((ct) => ct.id === ctId))
     .filter(Boolean);
 
+  const subscriberPct = maxSubscribers > 0 ? (subscriberCount / maxSubscribers) * 100 : 0;
+
   return (
-    <div className="group rounded-xl border border-vytal-border bg-vytal-card p-6 transition-colors hover:border-[rgba(61,255,110,0.22)]">
+    <div
+      className={cn(
+        "group relative rounded-xl border bg-vytal-card p-6 transition-colors hover:border-[rgba(61,255,110,0.22)]",
+        isPopular ? "border-vytal-green/30" : "border-vytal-border"
+      )}
+    >
+      {/* Popular badge */}
+      {isPopular && (
+        <div className="absolute -top-2.5 left-4 flex items-center gap-1 rounded-full bg-vytal-green px-2.5 py-0.5 text-[10px] font-bold text-vytal-bg">
+          <Star className="h-2.5 w-2.5" />
+          MOST POPULAR
+        </div>
+      )}
+
       {/* Header */}
       <div className="mb-4 flex items-start justify-between">
         <div>
@@ -100,6 +163,41 @@ function PlanCard({ plan }: { plan: SubscriptionPlan }) {
                   ? "/quarter"
                   : ""}
         </span>
+      </div>
+
+      {/* Subscriber & Revenue Stats */}
+      <div className="mb-4 grid grid-cols-2 gap-3">
+        <div className="rounded-lg bg-vytal-bg3 px-3 py-2">
+          <div className="flex items-center gap-1.5">
+            <Users className="h-3 w-3 text-vytal-blue" />
+            <span className="font-mono text-sm font-bold text-vytal-text">
+              {subscriberCount}
+            </span>
+          </div>
+          <p className="text-[10px] text-vytal-muted">Subscribers</p>
+        </div>
+        <div className="rounded-lg bg-vytal-bg3 px-3 py-2">
+          <div className="flex items-center gap-1.5">
+            <TrendingUp className="h-3 w-3 text-vytal-green" />
+            <span className="font-mono text-sm font-bold text-vytal-text">
+              {formatCurrency(monthlyRevenue, plan.currency)}
+            </span>
+          </div>
+          <p className="text-[10px] text-vytal-muted">Monthly Revenue</p>
+        </div>
+      </div>
+
+      {/* Subscriber Distribution Bar */}
+      <div className="mb-4">
+        <div className="h-2 w-full overflow-hidden rounded-full bg-vytal-bg3">
+          <div
+            className="h-full rounded-full bg-vytal-green transition-all"
+            style={{ width: `${subscriberPct}%` }}
+          />
+        </div>
+        <p className="mt-1 text-[10px] text-vytal-muted text-right">
+          {subscriberPct.toFixed(0)}% of subscribers
+        </p>
       </div>
 
       {/* Details */}
@@ -152,8 +250,28 @@ function PlanCard({ plan }: { plan: SubscriptionPlan }) {
 }
 
 export default function PlansPage() {
-  const activePlans = mockPlans.filter((p) => p.active);
-  const inactivePlans = mockPlans.filter((p) => !p.active);
+  const [showInactive, setShowInactive] = useState(false);
+
+  const plans = useMemo(() => {
+    return showInactive ? mockPlans : mockPlans.filter((p) => p.active);
+  }, [showInactive]);
+
+  const totalSubscribers = Object.values(planSubscribers).reduce(
+    (s, v) => s + v,
+    0
+  );
+  const totalMonthlyRevenue = Object.values(planMonthlyRevenue).reduce(
+    (s, v) => s + v,
+    0
+  );
+
+  // Find most popular plan
+  const mostPopularPlanId = Object.entries(planSubscribers).reduce(
+    (max, [id, count]) => (count > max[1] ? [id, count] : max),
+    ["", 0]
+  )[0];
+
+  const maxSubscribers = Math.max(...Object.values(planSubscribers));
 
   return (
     <div className="space-y-8">
@@ -169,40 +287,65 @@ export default function PlansPage() {
         </div>
         <div className="hidden items-center gap-4 sm:flex">
           <div className="text-right">
-            <p className="text-xs text-vytal-muted">Active Plans</p>
-            <p className="font-mono text-sm font-semibold text-vytal-green">
-              {activePlans.length}
+            <p className="text-xs text-vytal-muted">Total Subscribers</p>
+            <p className="font-mono text-sm font-semibold text-vytal-blue">
+              {totalSubscribers}
             </p>
           </div>
           <div className="text-right">
-            <p className="text-xs text-vytal-muted">Total Plans</p>
+            <p className="text-xs text-vytal-muted">Monthly Revenue</p>
+            <p className="font-mono text-sm font-semibold text-vytal-green">
+              {formatCurrency(totalMonthlyRevenue, "EUR")}
+            </p>
+          </div>
+          <div className="text-right">
+            <p className="text-xs text-vytal-muted">Active Plans</p>
             <p className="font-mono text-sm font-semibold text-vytal-text">
-              {mockPlans.length}
+              {mockPlans.filter((p) => p.active).length}
             </p>
           </div>
         </div>
+      </div>
+
+      {/* Active/Inactive Toggle */}
+      <div className="flex items-center gap-3">
+        <button
+          onClick={() => setShowInactive(false)}
+          className={cn(
+            "rounded-full px-4 py-1.5 text-sm font-medium transition-colors",
+            !showInactive
+              ? "bg-vytal-green/10 text-vytal-green"
+              : "bg-vytal-bg2 text-vytal-muted hover:text-vytal-text"
+          )}
+        >
+          Active Plans
+        </button>
+        <button
+          onClick={() => setShowInactive(true)}
+          className={cn(
+            "rounded-full px-4 py-1.5 text-sm font-medium transition-colors",
+            showInactive
+              ? "bg-vytal-green/10 text-vytal-green"
+              : "bg-vytal-bg2 text-vytal-muted hover:text-vytal-text"
+          )}
+        >
+          All Plans
+        </button>
       </div>
 
       {/* Plans Grid */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
-        {activePlans.map((plan) => (
-          <PlanCard key={plan.id} plan={plan} />
+        {plans.map((plan) => (
+          <PlanCard
+            key={plan.id}
+            plan={plan}
+            isPopular={plan.id === mostPopularPlanId}
+            subscriberCount={planSubscribers[plan.id] ?? 0}
+            monthlyRevenue={planMonthlyRevenue[plan.id] ?? 0}
+            maxSubscribers={maxSubscribers}
+          />
         ))}
       </div>
-
-      {/* Inactive Plans */}
-      {inactivePlans.length > 0 && (
-        <div>
-          <h2 className="mb-4 text-lg font-semibold text-vytal-text">
-            Inactive Plans
-          </h2>
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
-            {inactivePlans.map((plan) => (
-              <PlanCard key={plan.id} plan={plan} />
-            ))}
-          </div>
-        </div>
-      )}
     </div>
   );
 }
