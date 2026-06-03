@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/components/toast";
+import { useI18n } from "@/lib/i18n";
 
 const planTypes = [
   { value: "monthly", label: "Monthly" },
@@ -19,6 +20,7 @@ const planTypes = [
 ];
 
 export default function PlanCreatePage() {
+  const { t } = useI18n();
   const router = useRouter();
   const { toast } = useToast();
   const [name, setName] = useState("");
@@ -134,9 +136,9 @@ export default function PlanCreatePage() {
       </Link>
 
       <div>
-        <h1 className="text-2xl font-bold text-vytal-text">Create Plan</h1>
+        <h1 className="text-2xl font-bold text-vytal-text">{t("planCreate.title")}</h1>
         <p className="mt-1 text-sm text-vytal-muted">
-          Define a new subscription plan
+          {t("planCreate.subtitle")}
         </p>
       </div>
 

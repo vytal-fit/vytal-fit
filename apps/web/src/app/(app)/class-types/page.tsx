@@ -1,8 +1,9 @@
 "use client";
 
 import { mockClassTypes } from "@vytal-fit/shared";
-import { Plus } from "lucide-react";
+import { Plus, Dumbbell } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
+import { EmptyState } from "@/components/empty-state";
 
 export default function ClassTypesPage() {
   const { t } = useI18n();
@@ -25,6 +26,13 @@ export default function ClassTypesPage() {
       </div>
 
       {/* Table */}
+      {classTypes.length === 0 ? (
+        <EmptyState
+          icon={Dumbbell}
+          title={t("classTypes.noClassTypes")}
+          description={t("classTypes.noClassTypesDesc")}
+        />
+      ) : (
       <div className="overflow-hidden rounded-xl border border-vytal-border">
         <table className="w-full">
           <thead>
@@ -94,6 +102,7 @@ export default function ClassTypesPage() {
           </tbody>
         </table>
       </div>
+      )}
     </div>
   );
 }

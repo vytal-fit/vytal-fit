@@ -65,7 +65,7 @@ export default function AuditLogPage() {
         </div>
         <div className="flex items-center gap-2 rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-2">
           <Shield className="h-4 w-4 text-vytal-muted" />
-          <span className="text-xs font-medium text-vytal-muted">{mockAuditLog.length} entries</span>
+          <span className="text-xs font-medium text-vytal-muted">{mockAuditLog.length} {t("auditLog.entries")}</span>
         </div>
       </div>
 
@@ -73,11 +73,11 @@ export default function AuditLogPage() {
         <table className="w-full">
           <thead>
             <tr className="border-b border-vytal-border bg-vytal-bg2">
-              <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-vytal-muted">Timestamp</th>
-              <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-vytal-muted">User</th>
-              <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-vytal-muted">Action</th>
-              <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-vytal-muted">Resource</th>
-              <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-vytal-muted">Details</th>
+              <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("auditLog.timestamp")}</th>
+              <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("auditLog.user")}</th>
+              <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("auditLog.action")}</th>
+              <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("auditLog.resource")}</th>
+              <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("auditLog.details")}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-vytal-border">

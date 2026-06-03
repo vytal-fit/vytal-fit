@@ -15,6 +15,7 @@ import {
 import { useToast } from "@/components/toast";
 import { useAppStore } from "@/stores/app-store";
 import { useDataStore } from "@/stores/data-store";
+import { useI18n } from "@/lib/i18n";
 
 const businessTypes = ["Box", "Gym", "Studio", "Academy", "Training Center"];
 const timezones = [
@@ -40,6 +41,7 @@ const accentPresets = [
 ];
 
 export default function SettingsPage() {
+  const { t } = useI18n();
   const { toast } = useToast();
   const accentColor = useAppStore((s) => s.accentColor);
   const setAccentColor = useAppStore((s) => s.setAccentColor);
@@ -76,9 +78,9 @@ export default function SettingsPage() {
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-vytal-text">Settings</h1>
+        <h1 className="text-2xl font-bold text-vytal-text">{t("settings.title")}</h1>
         <p className="mt-1 text-sm text-vytal-muted">
-          Manage your box profile and preferences
+          {t("settings.subtitle")}
         </p>
       </div>
 
@@ -450,7 +452,7 @@ export default function SettingsPage() {
           className="flex items-center gap-2 rounded-lg bg-vytal-green px-6 py-2.5 text-sm font-semibold text-vytal-bg transition-colors hover:bg-vytal-green/90"
         >
           <Save className="h-4 w-4" />
-          Save Changes
+          {t("action.save")}
         </button>
       </div>
 

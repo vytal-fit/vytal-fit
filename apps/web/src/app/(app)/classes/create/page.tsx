@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/components/toast";
+import { useI18n } from "@/lib/i18n";
 
 function Field({
   label,
@@ -46,6 +47,7 @@ type WaitlistMode = "none" | "unlimited" | "max";
 type RegistrationRule = "before" | "after" | "custom";
 
 export default function ClassCreatePage() {
+  const { t } = useI18n();
   const router = useRouter();
   const { toast } = useToast();
   const [date, setDate] = useState("2026-06-05");
@@ -174,9 +176,9 @@ export default function ClassCreatePage() {
       </Link>
 
       <div>
-        <h1 className="text-2xl font-bold text-vytal-text">Create Class</h1>
+        <h1 className="text-2xl font-bold text-vytal-text">{t("classCreate.title")}</h1>
         <p className="mt-1 text-sm text-vytal-muted">
-          Schedule a new class session
+          {t("classCreate.subtitle")}
         </p>
       </div>
 

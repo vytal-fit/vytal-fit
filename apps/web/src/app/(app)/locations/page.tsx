@@ -3,6 +3,7 @@
 import { mockLocations } from "@vytal-fit/shared";
 import { Plus, MapPin, Pencil } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
+import { EmptyState } from "@/components/empty-state";
 
 export default function LocationsPage() {
   const { t } = useI18n();
@@ -38,6 +39,13 @@ export default function LocationsPage() {
       </div>
 
       {/* Table */}
+      {locations.length === 0 ? (
+        <EmptyState
+          icon={MapPin}
+          title={t("locations.noLocations")}
+          description={t("locations.noLocationsDesc")}
+        />
+      ) : (
       <div className="overflow-hidden rounded-xl border border-vytal-border">
         <table className="w-full">
           <thead>
@@ -83,6 +91,7 @@ export default function LocationsPage() {
           </tbody>
         </table>
       </div>
+      )}
     </div>
   );
 }

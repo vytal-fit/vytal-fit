@@ -482,8 +482,8 @@ export default function InvoicesPage() {
         {filtered.length === 0 && (
           <EmptyState
             icon={Inbox}
-            title="Sem faturas"
-            description="Nenhuma fatura encontrada para os filtros selecionados."
+            title={t("invoices.noInvoices")}
+            description={t("invoices.noInvoicesDesc")}
           />
         )}
       </div>

@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/components/toast";
+import { useI18n } from "@/lib/i18n";
 
 const stageConfig: Record<
   LeadStage,
@@ -397,6 +398,7 @@ function PipelineColumn({
 }
 
 export default function CRMPage() {
+  const { t } = useI18n();
   const [showAddForm, setShowAddForm] = useState(false);
   const [leads, setLeads] = useState<Lead[]>(() => [...mockLeads]);
   const [draggingId, setDraggingId] = useState<string | null>(null);
@@ -521,9 +523,9 @@ export default function CRMPage() {
       {/* Header */}
       <div className="flex items-end justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-vytal-text">CRM Pipeline</h1>
+          <h1 className="text-2xl font-bold text-vytal-text">{t("crm.title")}</h1>
           <p className="mt-1 text-sm text-vytal-muted">
-            Track leads from first contact to subscription
+            {t("crm.subtitle")}
           </p>
         </div>
         <button
@@ -531,7 +533,7 @@ export default function CRMPage() {
           className="flex items-center gap-2 rounded-lg bg-vytal-green px-4 py-2.5 text-sm font-semibold text-vytal-bg transition-colors hover:bg-vytal-green/90"
         >
           <Plus className="h-4 w-4" />
-          Add Lead
+          {t("crm.addLead")}
         </button>
       </div>
 

@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/components/toast";
+import { useI18n } from "@/lib/i18n";
 
 interface AutomationCardProps {
   title: string;
@@ -130,6 +131,7 @@ function ChannelCheckboxes({
 }
 
 export default function AutomationsPage() {
+  const { t } = useI18n();
   const { toast } = useToast();
 
   // No-show
@@ -222,9 +224,9 @@ export default function AutomationsPage() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-vytal-text">Automations</h1>
+        <h1 className="text-2xl font-bold text-vytal-text">{t("automations.title")}</h1>
         <p className="mt-1 text-sm text-vytal-muted">
-          Configure automated workflows and member communications
+          {t("automations.subtitle")}
         </p>
       </div>
 

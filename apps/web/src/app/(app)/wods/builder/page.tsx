@@ -21,6 +21,7 @@ import { mockExercises, mockClassTypes } from "@vytal-fit/shared";
 import type { WODType, Exercise } from "@vytal-fit/shared";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/components/toast";
+import { useI18n } from "@/lib/i18n";
 
 const PART_NAMES = ["Warm Up", "Skill", "Strength", "WOD", "Cool Down", "Custom"];
 
@@ -123,6 +124,7 @@ function ExerciseSearch({
 let partIdCounter = 0;
 
 export default function WODBuilderPage() {
+  const { t } = useI18n();
   const [title, setTitle] = useState("");
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
   const [classTypeId, setClassTypeId] = useState(mockClassTypes[0].id);
@@ -293,9 +295,9 @@ export default function WODBuilderPage() {
           <ArrowLeft className="h-4 w-4" />
         </Link>
         <div>
-          <h1 className="text-2xl font-bold text-vytal-text">WOD Builder</h1>
+          <h1 className="text-2xl font-bold text-vytal-text">{t("wodBuilder.title")}</h1>
           <p className="mt-1 text-sm text-vytal-muted">
-            Create and publish a new workout
+            {t("wodBuilder.subtitle")}
           </p>
         </div>
       </div>
@@ -570,14 +572,14 @@ export default function WODBuilderPage() {
               onClick={handlePublish}
               className="flex items-center gap-2 rounded-lg bg-vytal-green px-6 py-2.5 text-sm font-semibold text-vytal-bg transition-all hover:bg-vytal-green/90"
             >
-              Publish
+              {t("action.publish")}
             </button>
             <button
               type="button"
               onClick={handleSaveDraft}
               className="flex items-center gap-2 rounded-lg border border-vytal-border px-6 py-2.5 text-sm font-medium text-vytal-text transition-colors hover:bg-vytal-bg3"
             >
-              Save Draft
+              {t("action.saveDraft")}
             </button>
           </div>
         </div>

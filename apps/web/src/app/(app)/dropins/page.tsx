@@ -10,6 +10,7 @@ import {
   Image,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/lib/i18n";
 
 type Lang = "pt" | "en";
 
@@ -27,6 +28,7 @@ interface LangContent {
 }
 
 export default function DropInsPage() {
+  const { t } = useI18n();
   const [active, setActive] = useState(true);
   const [price, setPrice] = useState("15");
   const [description, setDescription] = useState(
@@ -74,10 +76,10 @@ export default function DropInsPage() {
       <div className="flex items-end justify-between">
         <div>
           <h1 className="text-2xl font-bold text-vytal-text">
-            Drop-in Configuration
+            {t("dropins.title")}
           </h1>
           <p className="mt-1 text-sm text-vytal-muted">
-            Configure drop-in sessions for visiting athletes
+            {t("dropins.subtitle")}
           </p>
         </div>
         <button
@@ -85,7 +87,7 @@ export default function DropInsPage() {
           className="flex items-center gap-2 rounded-lg bg-vytal-green px-5 py-2.5 text-sm font-semibold text-vytal-bg transition-all hover:bg-vytal-green/90"
         >
           <Save className="h-4 w-4" />
-          Save
+          {t("action.save")}
         </button>
       </div>
 

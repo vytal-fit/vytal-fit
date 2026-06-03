@@ -1,8 +1,12 @@
+"use client";
+
 import { mockCoaches, mockClasses } from "@vytal-fit/shared";
 import type { Coach } from "@vytal-fit/shared";
 import { Users, Plus, Calendar, TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { useI18n } from "@/lib/i18n";
+import { EmptyState } from "@/components/empty-state";
 
 const roleBadgeConfig: Record<Coach["role"], { label: string; className: string }> = {
   head_coach: {
@@ -137,6 +141,7 @@ function CoachCard({ coach }: { coach: Coach }) {
 }
 
 export default function StaffPage() {
+  const { t } = useI18n();
   const coaches = mockCoaches;
 
   const headCoaches = coaches.filter((c) => c.role === "head_coach").length;
@@ -148,14 +153,14 @@ export default function StaffPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-vytal-text">Staff</h1>
+          <h1 className="text-2xl font-bold text-vytal-text">{t("staff.title")}</h1>
           <p className="mt-1 text-sm text-vytal-muted">
-            Manage your coaching team
+            {t("staff.subtitle")}
           </p>
         </div>
         <button className="flex items-center gap-2 rounded-lg bg-vytal-green px-4 py-2.5 text-sm font-semibold text-vytal-bg transition-colors hover:bg-vytal-green/90">
           <Plus className="h-4 w-4" />
-          Add Coach
+          {t("staff.addCoach")}
         </button>
       </div>
 
@@ -200,11 +205,19 @@ export default function StaffPage() {
       </div>
 
       {/* Coach Grid */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        {coaches.map((coach) => (
-          <CoachCard key={coach.id} coach={coach} />
-        ))}
-      </div>
+      {coaches.length > 0 ? (
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {coaches.map((coach) => (
+            <CoachCard key={coach.id} coach={coach} />
+          ))}
+        </div>
+      ) : (
+        <EmptyState
+          icon={Users}
+          title={t("staff.noStaff")}
+          description={t("staff.noStaffDesc")}
+        />
+      )}
     </div>
   );
 }

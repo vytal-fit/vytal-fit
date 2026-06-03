@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useToast } from "@/components/toast";
+import { useI18n } from "@/lib/i18n";
 
 const statuses: { value: MemberStatus; label: string }[] = [
   { value: "active", label: "Active" },
@@ -46,6 +47,7 @@ function Field({
 }
 
 export default function MemberEditPage() {
+  const { t } = useI18n();
   const params = useParams();
   const router = useRouter();
   const { toast } = useToast();
@@ -153,7 +155,7 @@ export default function MemberEditPage() {
       <div className="flex items-center justify-between">
         <div>
           <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-bold text-vytal-text">Edit Member</h1>
+            <h1 className="text-2xl font-bold text-vytal-text">{t("memberEdit.title")}</h1>
             {isDirty && (
               <span className="rounded-full bg-vytal-amber/10 px-2.5 py-0.5 text-xs font-semibold text-vytal-amber">
                 Unsaved changes

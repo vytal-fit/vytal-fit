@@ -1,3 +1,5 @@
+"use client";
+
 import { mockCoaches, mockClasses } from "@vytal-fit/shared";
 import {
   ArrowLeft,
@@ -11,6 +13,8 @@ import {
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { useParams } from "next/navigation";
+import { useI18n } from "@/lib/i18n";
 
 const roleConfig: Record<string, { label: string; className: string }> = {
   head_coach: { label: "Head Coach", className: "bg-vytal-green/10 text-vytal-green" },
@@ -41,12 +45,10 @@ const coachBios: Record<string, string> = {
   "coach-4": "Certified youth fitness coach. Specializes in making fitness fun and accessible for teens and beginners. First aid and CPR certified.",
 };
 
-export default async function StaffDetailPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const { id } = await params;
+export default function StaffDetailPage() {
+  const { t } = useI18n();
+  const params = useParams();
+  const id = params.id as string;
   const coach = mockCoaches.find((c) => c.id === id);
 
   if (!coach) {
@@ -74,7 +76,7 @@ export default async function StaffDetailPage({
         className="inline-flex items-center gap-1.5 text-sm text-vytal-muted transition-colors hover:text-vytal-text"
       >
         <ArrowLeft className="h-4 w-4" />
-        Back to Staff
+        {t("staffDetail.backToStaff")}
       </Link>
 
       {/* Profile Header */}

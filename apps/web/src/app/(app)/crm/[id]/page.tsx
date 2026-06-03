@@ -1,3 +1,5 @@
+"use client";
+
 import { mockLeads, mockCoaches } from "@vytal-fit/shared";
 import type { LeadStage } from "@vytal-fit/shared";
 import {
@@ -15,6 +17,8 @@ import {
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { useParams } from "next/navigation";
+import { useI18n } from "@/lib/i18n";
 
 const stageConfig: Record<
   LeadStage,
@@ -42,12 +46,10 @@ function formatDate(dateStr: string): string {
   });
 }
 
-export default async function LeadDetailPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const { id } = await params;
+export default function LeadDetailPage() {
+  const { t } = useI18n();
+  const params = useParams();
+  const id = params.id as string;
   const lead = mockLeads.find((l) => l.id === id);
 
   if (!lead) {
@@ -72,7 +74,7 @@ export default async function LeadDetailPage({
         className="inline-flex items-center gap-1.5 text-sm text-vytal-muted transition-colors hover:text-vytal-text"
       >
         <ArrowLeft className="h-4 w-4" />
-        Back to CRM
+        {t("crmDetail.backToCrm")}
       </Link>
 
       {/* Profile Header */}

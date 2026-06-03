@@ -1,8 +1,11 @@
+"use client";
+
 import { mockWODs, mockClassTypes } from "@vytal-fit/shared";
 import type { WOD, WODPart, WODType } from "@vytal-fit/shared";
 import { Dumbbell, Clock, Flame, Zap, Timer, Repeat, ChevronRight, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { useI18n } from "@/lib/i18n";
 
 const wodTypeConfig: Record<
   WODType,
@@ -158,6 +161,7 @@ function WODCard({ wod }: { wod: WOD }) {
 }
 
 export default function WODsPage() {
+  const { t } = useI18n();
   const today = new Date().toISOString().split("T")[0];
   const todayWODs = mockWODs.filter((w) => w.date === today);
   const pastWODs = mockWODs.filter((w) => w.date !== today);
@@ -167,7 +171,7 @@ export default function WODsPage() {
       {/* Header */}
       <div className="flex items-end justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-vytal-text">WODs</h1>
+          <h1 className="text-2xl font-bold text-vytal-text">{t("wods.title")}</h1>
           <p className="mt-1 text-sm text-vytal-muted">
             Today&apos;s programming &mdash;{" "}
             {new Date().toLocaleDateString("pt-PT", {
@@ -182,7 +186,7 @@ export default function WODsPage() {
           className="flex items-center gap-2 rounded-lg bg-vytal-green px-4 py-2.5 text-sm font-semibold text-vytal-bg transition-all hover:bg-vytal-green/90"
         >
           <Plus className="h-4 w-4" />
-          Create WOD
+          {t("wods.createWod")}
         </Link>
       </div>
 
