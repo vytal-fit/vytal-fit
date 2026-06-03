@@ -537,7 +537,7 @@ export default function AnalyticsPage() {
         </div>
         {/* Legend */}
         <div className="mt-4 flex items-center gap-3">
-          <span className="text-[10px] font-medium uppercase tracking-wider text-vytal-muted">Less</span>
+          <span className="text-[10px] font-medium uppercase tracking-wider text-vytal-muted">{t("analytics.less")}</span>
           <div className="flex gap-1">
             {[0, 0.08, 0.18, 0.3, 0.45, 0.65, 0.85].map((opacity) => (
               <div
@@ -549,7 +549,7 @@ export default function AnalyticsPage() {
               />
             ))}
           </div>
-          <span className="text-[10px] font-medium uppercase tracking-wider text-vytal-muted">More</span>
+          <span className="text-[10px] font-medium uppercase tracking-wider text-vytal-muted">{t("analytics.more")}</span>
         </div>
       </ChartCard>
     </div>

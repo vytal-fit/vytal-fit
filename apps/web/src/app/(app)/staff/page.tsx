@@ -58,6 +58,7 @@ function getWeeklyClassCount(coachId: string): number {
 }
 
 function CoachCard({ coach }: { coach: Coach }) {
+  const { t } = useI18n();
   const initials = coach.name
     .split(" ")
     .map((n) => n[0])
@@ -100,7 +101,7 @@ function CoachCard({ coach }: { coach: Coach }) {
           <Calendar className="h-3 w-3" />
           <span>
             <span className="font-semibold text-vytal-text">{weeklyClasses}</span>{" "}
-            classes/week
+            {t("staff.classesPerWeek")}
           </span>
         </div>
         <div className="flex items-center gap-1.5 text-xs text-vytal-muted">
@@ -118,7 +119,7 @@ function CoachCard({ coach }: { coach: Coach }) {
             >
               {avgAttendance}%
             </span>{" "}
-            avg attendance
+            {t("staff.avgAttendance")}
           </span>
         </div>
       </div>
@@ -172,7 +173,7 @@ export default function StaffPage() {
           </div>
           <div>
             <p className="text-lg font-bold text-vytal-text">{coaches.length}</p>
-            <p className="text-xs text-vytal-muted">Total Staff</p>
+            <p className="text-xs text-vytal-muted">{t("staff.totalStaff")}</p>
           </div>
         </div>
         <div className="flex items-center gap-3 rounded-lg border border-vytal-border bg-vytal-card px-4 py-3">
@@ -181,7 +182,7 @@ export default function StaffPage() {
           </div>
           <div>
             <p className="text-lg font-bold text-vytal-text">{headCoaches}</p>
-            <p className="text-xs text-vytal-muted">Head Coaches</p>
+            <p className="text-xs text-vytal-muted">{t("staff.headCoaches")}</p>
           </div>
         </div>
         <div className="flex items-center gap-3 rounded-lg border border-vytal-border bg-vytal-card px-4 py-3">
@@ -190,7 +191,7 @@ export default function StaffPage() {
           </div>
           <div>
             <p className="text-lg font-bold text-vytal-text">{coachCount}</p>
-            <p className="text-xs text-vytal-muted">Coaches</p>
+            <p className="text-xs text-vytal-muted">{t("staff.coaches")}</p>
           </div>
         </div>
         <div className="flex items-center gap-3 rounded-lg border border-vytal-border bg-vytal-card px-4 py-3">
@@ -199,7 +200,7 @@ export default function StaffPage() {
           </div>
           <div>
             <p className="text-lg font-bold text-vytal-text">{assistants}</p>
-            <p className="text-xs text-vytal-muted">Assistants</p>
+            <p className="text-xs text-vytal-muted">{t("staff.assistants")}</p>
           </div>
         </div>
       </div>

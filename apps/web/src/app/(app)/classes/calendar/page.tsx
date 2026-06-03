@@ -8,6 +8,7 @@ import type { Class } from "@vytal-fit/shared";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/components/toast";
 import { useI18n } from "@/lib/i18n";
+import { Breadcrumbs } from "@/components/breadcrumbs";
 
 const TIME_SLOTS = [
   "06:00", "07:00", "08:00", "09:00", "10:00", "11:00",
@@ -537,6 +538,8 @@ export default function ClassCalendarPage() {
 
   return (
     <div className="space-y-6">
+      <Breadcrumbs items={[{ label: t("classes.title"), href: "/classes" }, { label: t("calendar.title") }]} />
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">

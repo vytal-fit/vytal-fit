@@ -9,12 +9,13 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useToast } from "@/components/toast";
 import { useI18n } from "@/lib/i18n";
+import { Breadcrumbs } from "@/components/breadcrumbs";
 
-const statuses: { value: MemberStatus; label: string }[] = [
-  { value: "active", label: "Active" },
-  { value: "inactive", label: "Inactive" },
-  { value: "suspended", label: "Suspended" },
-  { value: "trial", label: "Trial" },
+const statuses: { value: MemberStatus; labelKey: string }[] = [
+  { value: "active", labelKey: "members.active" },
+  { value: "inactive", labelKey: "members.inactive" },
+  { value: "suspended", labelKey: "members.suspended" },
+  { value: "trial", labelKey: "members.trial" },
 ];
 
 function Field({
@@ -125,7 +126,7 @@ export default function MemberEditPage() {
   function handleCancel() {
     if (isDirty) {
       const confirmed = window.confirm(
-        "You have unsaved changes. Are you sure you want to leave?"
+        t("memberEdit.unsavedConfirm")
       );
       if (!confirmed) return;
     }
@@ -135,20 +136,22 @@ export default function MemberEditPage() {
   if (!member) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <p className="text-vytal-muted">Member not found</p>
+        <p className="text-vytal-muted">{t("memberEdit.memberNotFound")}</p>
       </div>
     );
   }
 
   return (
     <div className="space-y-6">
+      <Breadcrumbs items={[{ label: t("members.title"), href: "/members" }, { label: t("memberEdit.title") }]} />
+
       {/* Back link */}
       <Link
         href={`/members/${id}`}
         className="inline-flex items-center gap-1.5 text-sm text-vytal-muted transition-colors hover:text-vytal-text"
       >
         <ArrowLeft className="h-4 w-4" />
-        Back to Member
+        {t("memberEdit.backToMember")}
       </Link>
 
       {/* Header */}
@@ -158,12 +161,12 @@ export default function MemberEditPage() {
             <h1 className="text-2xl font-bold text-vytal-text">{t("memberEdit.title")}</h1>
             {isDirty && (
               <span className="rounded-full bg-vytal-amber/10 px-2.5 py-0.5 text-xs font-semibold text-vytal-amber">
-                Unsaved changes
+                {t("memberEdit.unsavedChanges")}
               </span>
             )}
           </div>
           <p className="mt-1 text-sm text-vytal-muted">
-            Update {member.name}&apos;s profile
+            {t("memberEdit.update")} {member.name}&apos;s profile
           </p>
         </div>
         {/* Photo Placeholder */}
@@ -180,17 +183,17 @@ export default function MemberEditPage() {
         {/* Personal Information */}
         <div className="rounded-xl border border-vytal-border bg-vytal-card p-6">
           <h2 className="mb-5 text-lg font-semibold text-vytal-text">
-            Personal Information
+            {t("memberEdit.personalInfo")}
           </h2>
           <div className="space-y-4">
-            <Field label="Full Name" value={name} onChange={setName} />
-            <Field label="Email" value={email} onChange={setEmail} type="email" />
-            <Field label="Phone" value={phone} onChange={setPhone} />
-            <Field label="NIF" value={nif} onChange={setNif} />
-            <Field label="Date of Birth" value={dob} onChange={setDob} type="date" />
+            <Field label={t("memberEdit.fullName")} value={name} onChange={setName} />
+            <Field label={t("settings.email")} value={email} onChange={setEmail} type="email" />
+            <Field label={t("settings.phone")} value={phone} onChange={setPhone} />
+            <Field label={t("memberEdit.nif")} value={nif} onChange={setNif} />
+            <Field label={t("memberEdit.dateOfBirth")} value={dob} onChange={setDob} type="date" />
             <div>
               <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">
-                Gender
+                {t("memberEdit.gender")}
               </label>
               <div className="flex gap-3">
                 {(["male", "female"] as const).map((g) => (
@@ -205,13 +208,13 @@ export default function MemberEditPage() {
                         : "border-vytal-border text-vytal-muted hover:text-vytal-text"
                     )}
                   >
-                    {g === "male" ? "Male" : "Female"}
+                    {g === "male" ? t("memberEdit.male") : t("memberEdit.female")}
                   </button>
                 ))}
               </div>
             </div>
-            <Field label="Emergency Contact" value={emergencyContact} onChange={setEmergencyContact} />
-            <Field label="Address" value={address} onChange={setAddress} />
+            <Field label={t("memberEdit.emergencyContact")} value={emergencyContact} onChange={setEmergencyContact} />
+            <Field label={t("memberEdit.address")} value={address} onChange={setAddress} />
           </div>
         </div>
 
@@ -219,12 +222,12 @@ export default function MemberEditPage() {
         <div className="space-y-6">
           <div className="rounded-xl border border-vytal-border bg-vytal-card p-6">
             <h2 className="mb-5 text-lg font-semibold text-vytal-text">
-              Plan & Status
+              {t("memberEdit.planStatus")}
             </h2>
             <div className="space-y-4">
               <div>
                 <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">
-                  Plan
+                  {t("memberEdit.plan")}
                 </label>
                 <select
                   value={planId}
@@ -240,7 +243,7 @@ export default function MemberEditPage() {
               </div>
               <div>
                 <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">
-                  Status
+                  {t("members.status")}
                 </label>
                 <select
                   value={status}
@@ -249,7 +252,7 @@ export default function MemberEditPage() {
                 >
                   {statuses.map((s) => (
                     <option key={s.value} value={s.value}>
-                      {s.label}
+                      {t(s.labelKey)}
                     </option>
                   ))}
                 </select>
@@ -260,34 +263,34 @@ export default function MemberEditPage() {
           {/* Health Section */}
           <div className="rounded-xl border border-vytal-border bg-vytal-card p-6">
             <h2 className="mb-5 text-lg font-semibold text-vytal-text">
-              Health Information
+              {t("memberEdit.healthInfo")}
             </h2>
             <div className="space-y-4">
               <div>
                 <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">
-                  Injuries / Limitations
+                  {t("memberEdit.injuries")}
                 </label>
                 <textarea
                   value={injuries}
                   onChange={(e) => setInjuries(e.target.value)}
                   rows={3}
-                  placeholder="Any known injuries or physical limitations..."
+                  placeholder={t("memberEdit.injuriesPlaceholder")}
                   className="w-full resize-none rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-2.5 text-sm text-vytal-text placeholder:text-vytal-muted focus:border-vytal-green/30 focus:outline-none focus:ring-1 focus:ring-vytal-green/20"
                 />
               </div>
               <div>
                 <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">
-                  PAR-Q Notes
+                  {t("memberEdit.parqNotes")}
                 </label>
                 <textarea
                   value={parqNotes}
                   onChange={(e) => setParqNotes(e.target.value)}
                   rows={3}
-                  placeholder="Physical Activity Readiness Questionnaire notes..."
+                  placeholder={t("memberEdit.parqNotesPlaceholder")}
                   className="w-full resize-none rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-2.5 text-sm text-vytal-text placeholder:text-vytal-muted focus:border-vytal-green/30 focus:outline-none focus:ring-1 focus:ring-vytal-green/20"
                 />
               </div>
-              <Field label="Medication" value={medication} onChange={setMedication} placeholder="Any current medication..." />
+              <Field label={t("memberEdit.medication")} value={medication} onChange={setMedication} placeholder={t("memberEdit.medicationPlaceholder")} />
             </div>
           </div>
         </div>
@@ -300,14 +303,14 @@ export default function MemberEditPage() {
           className="flex items-center gap-2 rounded-lg border border-vytal-border bg-vytal-bg2 px-6 py-2.5 text-sm font-medium text-vytal-muted transition-colors hover:text-vytal-text"
         >
           <X className="h-4 w-4" />
-          Cancel
+          {t("action.cancel")}
         </button>
         <button
           onClick={handleSave}
           className="flex items-center gap-2 rounded-lg bg-vytal-green px-6 py-2.5 text-sm font-semibold text-vytal-bg transition-colors hover:bg-vytal-green/90"
         >
           <Save className="h-4 w-4" />
-          Save
+          {t("action.save")}
         </button>
       </div>
     </div>

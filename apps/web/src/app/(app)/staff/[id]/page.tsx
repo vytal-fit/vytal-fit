@@ -15,6 +15,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { useParams } from "next/navigation";
 import { useI18n } from "@/lib/i18n";
+import { Breadcrumbs } from "@/components/breadcrumbs";
 
 const roleConfig: Record<string, { label: string; className: string }> = {
   head_coach: { label: "Head Coach", className: "bg-vytal-green/10 text-vytal-green" },
@@ -71,6 +72,8 @@ export default function StaffDetailPage() {
 
   return (
     <div className="space-y-6">
+      <Breadcrumbs items={[{ label: t("staff.title"), href: "/staff" }, { label: t("ui.details") }]} />
+
       <Link
         href="/staff"
         className="inline-flex items-center gap-1.5 text-sm text-vytal-muted transition-colors hover:text-vytal-text"
@@ -114,8 +117,8 @@ export default function StaffDetailPage() {
               <Calendar className="h-4 w-4 text-vytal-green" />
             </div>
             <div>
-              <span className="text-xs font-medium uppercase tracking-wider text-vytal-muted">This Week</span>
-              <p className="text-lg font-bold text-vytal-text">{classesThisWeek} classes</p>
+              <span className="text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("staffDetail.thisWeek")}</span>
+              <p className="text-lg font-bold text-vytal-text">{classesThisWeek} {t("staffDetail.classes")}</p>
             </div>
           </div>
         </div>
@@ -125,7 +128,7 @@ export default function StaffDetailPage() {
               <TrendingUp className="h-4 w-4 text-vytal-blue" />
             </div>
             <div>
-              <span className="text-xs font-medium uppercase tracking-wider text-vytal-muted">Total Classes</span>
+              <span className="text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("staffDetail.totalClasses")}</span>
               <p className="text-lg font-bold text-vytal-text">{totalClasses}</p>
             </div>
           </div>
@@ -136,7 +139,7 @@ export default function StaffDetailPage() {
               <Users className="h-4 w-4 text-vytal-amber" />
             </div>
             <div>
-              <span className="text-xs font-medium uppercase tracking-wider text-vytal-muted">Avg Attendance</span>
+              <span className="text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("staffDetail.avgAttendance")}</span>
               <p className="text-lg font-bold text-vytal-text">{avgAttendance}%</p>
             </div>
           </div>
@@ -146,7 +149,7 @@ export default function StaffDetailPage() {
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Weekly Schedule */}
         <div className="rounded-xl border border-vytal-border bg-vytal-card p-6">
-          <h2 className="mb-4 text-lg font-semibold text-vytal-text">Weekly Schedule</h2>
+          <h2 className="mb-4 text-lg font-semibold text-vytal-text">{t("staffDetail.weeklySchedule")}</h2>
           <div className="space-y-2">
             {weekDays.map((day) => {
               const isActive = schedule.includes(day);
@@ -162,7 +165,7 @@ export default function StaffDetailPage() {
                     {day}
                   </span>
                   <span className={cn("text-xs", isActive ? "text-vytal-green" : "text-vytal-muted")}>
-                    {isActive ? "Active" : "Off"}
+                    {isActive ? t("staffDetail.active") : t("staffDetail.off")}
                   </span>
                 </div>
               );
@@ -172,9 +175,9 @@ export default function StaffDetailPage() {
 
         {/* Assigned Classes */}
         <div className="rounded-xl border border-vytal-border bg-vytal-card p-6">
-          <h2 className="mb-4 text-lg font-semibold text-vytal-text">Assigned Classes</h2>
+          <h2 className="mb-4 text-lg font-semibold text-vytal-text">{t("staffDetail.assignedClasses")}</h2>
           {assignedClasses.length === 0 ? (
-            <p className="text-sm text-vytal-muted">No classes assigned this week.</p>
+            <p className="text-sm text-vytal-muted">{t("staffDetail.noClasses")}</p>
           ) : (
             <div className="space-y-2">
               {assignedClasses.map((cls) => (
@@ -196,7 +199,7 @@ export default function StaffDetailPage() {
 
       {/* Bio */}
       <div className="rounded-xl border border-vytal-border bg-vytal-card p-6">
-        <h2 className="mb-4 text-lg font-semibold text-vytal-text">Bio</h2>
+        <h2 className="mb-4 text-lg font-semibold text-vytal-text">{t("staffDetail.bio")}</h2>
         <p className="text-sm leading-relaxed text-vytal-muted">{bio}</p>
       </div>
     </div>

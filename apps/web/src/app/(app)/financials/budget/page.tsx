@@ -173,7 +173,7 @@ export default function MonthlyBudgetPage() {
           </tbody>
           <tfoot>
             <tr className="border-t-2 border-vytal-green/30 bg-vytal-bg2">
-              <td className="px-4 py-3 text-sm font-bold text-vytal-green" colSpan={2}>Total</td>
+              <td className="px-4 py-3 text-sm font-bold text-vytal-green" colSpan={2}>{t("expenses.total")}</td>
               <td className="hidden px-4 py-3 text-right font-mono text-sm font-bold text-vytal-muted sm:table-cell">{formatEur(totalLastLimit)}</td>
               <td className="hidden px-4 py-3 text-right font-mono text-sm font-bold text-vytal-text sm:table-cell">{formatEur(totalLastActual)}</td>
               <td className="px-4 py-3 text-right font-mono text-sm font-bold text-vytal-green">{formatEur(totalThisLimit)}</td>

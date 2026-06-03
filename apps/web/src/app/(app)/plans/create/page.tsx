@@ -8,6 +8,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/components/toast";
 import { useI18n } from "@/lib/i18n";
+import { Breadcrumbs } from "@/components/breadcrumbs";
 
 const planTypes = [
   { value: "monthly", label: "Monthly" },
@@ -127,13 +128,7 @@ export default function PlanCreatePage() {
 
   return (
     <div className="space-y-6">
-      <Link
-        href="/plans"
-        className="inline-flex items-center gap-1.5 text-sm text-vytal-muted transition-colors hover:text-vytal-text"
-      >
-        <ArrowLeft className="h-4 w-4" />
-        Back to Plans
-      </Link>
+      <Breadcrumbs items={[{ label: t("plans.title"), href: "/plans" }, { label: t("planCreate.title") }]} />
 
       <div>
         <h1 className="text-2xl font-bold text-vytal-text">{t("planCreate.title")}</h1>

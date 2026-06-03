@@ -15,6 +15,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { useParams } from "next/navigation";
 import { useI18n } from "@/lib/i18n";
+import { Breadcrumbs } from "@/components/breadcrumbs";
 
 function getEnrollmentStatus(enrolled: number, capacity: number) {
   const pct = (enrolled / capacity) * 100;

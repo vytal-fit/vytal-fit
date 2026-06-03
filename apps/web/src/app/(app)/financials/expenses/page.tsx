@@ -101,7 +101,7 @@ export default function ExpenseTrackingPage() {
         ))}
         <div className="rounded-xl border border-vytal-green/20 bg-vytal-green/5 p-4">
           <span className="text-xs font-medium uppercase tracking-wider text-vytal-green">
-            Total
+            {t("expenses.total")}
           </span>
           <p className="mt-1 font-mono text-xl font-bold text-vytal-green">
             {formatEur(grandTotal)}
@@ -118,7 +118,7 @@ export default function ExpenseTrackingPage() {
           </div>
           <div className="space-y-4">
             <div>
-              <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">Date</label>
+              <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("expenses.date")}</label>
               <input type="date" value={newDate} onChange={(e) => setNewDate(e.target.value)} className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-2.5 text-sm text-vytal-text transition-colors focus:border-vytal-green/30 focus:outline-none focus:ring-1 focus:ring-vytal-green/20" />
             </div>
             <div>
@@ -132,17 +132,17 @@ export default function ExpenseTrackingPage() {
               <input type="text" value={newSubcategory} onChange={(e) => setNewSubcategory(e.target.value)} placeholder="e.g. Rent, Equipment..." className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-2.5 text-sm text-vytal-text placeholder:text-vytal-muted transition-colors focus:border-vytal-green/30 focus:outline-none focus:ring-1 focus:ring-vytal-green/20" />
             </div>
             <div>
-              <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">Amount (EUR)</label>
+              <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("expenses.amountEur")}</label>
               <input type="number" value={newAmount} onChange={(e) => setNewAmount(e.target.value)} placeholder="0.00" className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-2.5 text-sm text-vytal-text placeholder:text-vytal-muted transition-colors focus:border-vytal-green/30 focus:outline-none focus:ring-1 focus:ring-vytal-green/20" />
             </div>
             <div>
-              <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">Payment Method</label>
+              <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("expenses.paymentMethod")}</label>
               <select value={newMethod} onChange={(e) => setNewMethod(e.target.value)} className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-2.5 text-sm text-vytal-text transition-colors focus:border-vytal-green/30 focus:outline-none focus:ring-1 focus:ring-vytal-green/20">
                 {paymentMethods.map((m) => (<option key={m} value={m}>{m}</option>))}
               </select>
             </div>
             <div>
-              <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">Description</label>
+              <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("expenses.description")}</label>
               <input type="text" value={newDescription} onChange={(e) => setNewDescription(e.target.value)} placeholder="Brief description..." className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-2.5 text-sm text-vytal-text placeholder:text-vytal-muted transition-colors focus:border-vytal-green/30 focus:outline-none focus:ring-1 focus:ring-vytal-green/20" />
             </div>
             <div className="flex items-center justify-between rounded-lg bg-vytal-bg2 px-3 py-2.5">
@@ -173,20 +173,20 @@ export default function ExpenseTrackingPage() {
           {filtered.length === 0 ? (
             <EmptyState
               icon={Inbox}
-              title="Sem despesas"
-              description="Nenhuma despesa encontrada para esta categoria."
+              title={t("expenses.noExpenses")}
+              description={t("expenses.noExpensesDesc")}
             />
           ) : (
             <div className="overflow-hidden rounded-xl border border-vytal-border">
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-vytal-border bg-vytal-bg2">
-                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-vytal-muted">Date</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("expenses.date")}</th>
                     <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("budget.category")}</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-vytal-muted">Description</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-vytal-muted">Amount</th>
-                    <th className="hidden px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-vytal-muted sm:table-cell">Method</th>
-                    <th className="hidden px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-vytal-muted sm:table-cell">Receipt</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("expenses.description")}</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("expenses.amount")}</th>
+                    <th className="hidden px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-vytal-muted sm:table-cell">{t("expenses.method")}</th>
+                    <th className="hidden px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-vytal-muted sm:table-cell">{t("expenses.receipt")}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-vytal-border">

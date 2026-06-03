@@ -7,11 +7,11 @@ import { useI18n } from "@/lib/i18n";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 
 const timingOptions = [
-  { value: "beginning", label: "At beginning" },
-  { value: "5min", label: "5 min before" },
-  { value: "15min", label: "15 min before" },
-  { value: "30min", label: "30 min before" },
-  { value: "60min", label: "60 min before" },
+  { value: "beginning", labelKey: "kiosk.atBeginning" },
+  { value: "5min", labelKey: "kiosk.5minBefore" },
+  { value: "15min", labelKey: "kiosk.15minBefore" },
+  { value: "30min", labelKey: "kiosk.30minBefore" },
+  { value: "60min", labelKey: "kiosk.60minBefore" },
 ];
 
 const themeColors = [
@@ -78,7 +78,7 @@ export default function KioskConfigPage() {
         <div className="rounded-xl border border-vytal-border bg-vytal-card p-6 transition-all duration-200 hover:border-[rgba(61,255,110,0.22)] lg:col-span-2">
           <div className="mb-5 flex items-center gap-2">
             <Camera className="h-5 w-5 text-vytal-green" />
-            <h2 className="text-lg font-semibold text-vytal-text">Slideshow Images</h2>
+            <h2 className="text-lg font-semibold text-vytal-text">{t("kiosk.slideshowImages")}</h2>
           </div>
           <div className="grid grid-cols-3 gap-4">
             {images.map((_, i) => (
@@ -86,14 +86,14 @@ export default function KioskConfigPage() {
                 <div className="flex aspect-video items-center justify-center rounded-lg border-2 border-dashed border-vytal-border bg-vytal-bg2">
                   <div className="text-center">
                     <Camera className="mx-auto h-6 w-6 text-vytal-muted" />
-                    <p className="mt-1 text-[10px] text-vytal-muted">Image {i + 1}</p>
+                    <p className="mt-1 text-[10px] text-vytal-muted">{t("kiosk.imageN").replace("{n}", String(i + 1))}</p>
                   </div>
                 </div>
                 <input
                   type="text"
                   value={overlays[i]}
                   onChange={(e) => updateOverlay(i, e.target.value)}
-                  placeholder="Text overlay (max 30)"
+                  placeholder={t("kiosk.textOverlay")}
                   className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-1.5 text-xs text-vytal-text placeholder:text-vytal-muted focus:border-vytal-green/30 focus:outline-none"
                 />
                 <span className="text-[10px] text-vytal-muted">{overlays[i].length}/30</span>
@@ -106,26 +106,26 @@ export default function KioskConfigPage() {
         <div className="rounded-xl border border-vytal-border bg-vytal-card p-6 transition-all duration-200 hover:border-[rgba(61,255,110,0.22)]">
           <div className="mb-5 flex items-center gap-2">
             <Monitor className="h-5 w-5 text-vytal-green" />
-            <h2 className="text-lg font-semibold text-vytal-text">Check-in Settings</h2>
+            <h2 className="text-lg font-semibold text-vytal-text">{t("kiosk.checkInSettings")}</h2>
           </div>
           <div className="space-y-4">
             <div>
-              <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">Check-in Timing</label>
+              <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("kiosk.checkInTiming")}</label>
               <select
                 value={timing}
                 onChange={(e) => setTiming(e.target.value)}
                 className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-2.5 text-sm text-vytal-text focus:border-vytal-green/30 focus:outline-none focus:ring-1 focus:ring-vytal-green/20"
               >
                 {timingOptions.map((opt) => (
-                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                  <option key={opt.value} value={opt.value}>{t(opt.labelKey)}</option>
                 ))}
               </select>
             </div>
             <div className="space-y-3">
-              <Toggle enabled={newMemberReg} onToggle={() => setNewMemberReg(!newMemberReg)} label="New member registration" />
-              <Toggle enabled={digitalSignature} onToggle={() => setDigitalSignature(!digitalSignature)} label="Digital signature" />
-              <Toggle enabled={checkIn} onToggle={() => setCheckIn(!checkIn)} label="Check-in" />
-              <Toggle enabled={scoreLogging} onToggle={() => setScoreLogging(!scoreLogging)} label="Score logging" />
+              <Toggle enabled={newMemberReg} onToggle={() => setNewMemberReg(!newMemberReg)} label={t("kiosk.newMemberRegistration")} />
+              <Toggle enabled={digitalSignature} onToggle={() => setDigitalSignature(!digitalSignature)} label={t("kiosk.digitalSignature")} />
+              <Toggle enabled={checkIn} onToggle={() => setCheckIn(!checkIn)} label={t("kiosk.checkIn")} />
+              <Toggle enabled={scoreLogging} onToggle={() => setScoreLogging(!scoreLogging)} label={t("kiosk.scoreLogging")} />
             </div>
           </div>
         </div>
@@ -133,7 +133,7 @@ export default function KioskConfigPage() {
         {/* Theme & QR */}
         <div className="space-y-6">
           <div className="rounded-xl border border-vytal-border bg-vytal-card p-6 transition-all duration-200 hover:border-[rgba(61,255,110,0.22)]">
-            <h2 className="mb-5 text-lg font-semibold text-vytal-text">Theme Color</h2>
+            <h2 className="mb-5 text-lg font-semibold text-vytal-text">{t("kiosk.themeColor")}</h2>
             <div className="flex flex-wrap gap-3">
               {themeColors.map((color) => (
                 <button
@@ -153,13 +153,13 @@ export default function KioskConfigPage() {
           <div className="rounded-xl border border-vytal-border bg-vytal-card p-6 transition-all duration-200 hover:border-[rgba(61,255,110,0.22)]">
             <div className="mb-5 flex items-center gap-2">
               <QrCode className="h-5 w-5 text-vytal-green" />
-              <h2 className="text-lg font-semibold text-vytal-text">Tablet Launch</h2>
+              <h2 className="text-lg font-semibold text-vytal-text">{t("kiosk.tabletLaunch")}</h2>
             </div>
             <div className="flex items-center justify-center rounded-lg border-2 border-dashed border-vytal-border bg-vytal-bg2 p-8">
               <div className="text-center">
                 <QrCode className="mx-auto h-16 w-16 text-vytal-muted" />
                 <p className="mt-2 text-sm text-vytal-muted">QR Code</p>
-                <p className="text-xs text-vytal-muted">Scan to launch kiosk on tablet</p>
+                <p className="text-xs text-vytal-muted">{t("kiosk.scanToLaunch")}</p>
               </div>
             </div>
           </div>

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Bell, Mail, Smartphone } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/lib/i18n";
+import { Breadcrumbs } from "@/components/breadcrumbs";
 
 type TabKey = "w1_4" | "w5_8" | "w9_12" | "w13_16";
 
@@ -84,6 +85,8 @@ export default function RetentionMonitorPage() {
 
   return (
     <div className="space-y-6">
+      <Breadcrumbs items={[{ label: t("members.title"), href: "/members" }, { label: t("retention.title") }]} />
+
       <div>
         <h1 className="text-2xl font-bold text-vytal-text">{t("retention.title")}</h1>
         <p className="mt-1 text-sm text-vytal-muted">
@@ -112,10 +115,10 @@ export default function RetentionMonitorPage() {
       {/* Bulk Actions */}
       {selectedCount > 0 && (
         <div className="flex items-center gap-3 rounded-lg border border-vytal-green/20 bg-vytal-green/5 p-3">
-          <span className="text-sm text-vytal-green">{selectedCount} selected</span>
+          <span className="text-sm text-vytal-green">{selectedCount} {t("retention.selected")}</span>
           <div className="flex gap-2">
             <button className="flex items-center gap-1 rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-1.5 text-xs font-medium text-vytal-text transition-colors hover:bg-vytal-bg3">
-              <Bell className="h-3 w-3" /> Notification
+              <Bell className="h-3 w-3" /> {t("retention.notification")}
             </button>
             <button className="flex items-center gap-1 rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-1.5 text-xs font-medium text-vytal-text transition-colors hover:bg-vytal-bg3">
               <Mail className="h-3 w-3" /> Email
@@ -159,7 +162,7 @@ export default function RetentionMonitorPage() {
                 {/* Info */}
                 <div className="flex-1">
                   <p className="text-sm font-semibold text-vytal-text">{member.name}</p>
-                  <p className="text-xs text-vytal-muted">Coach: {member.coach}</p>
+                  <p className="text-xs text-vytal-muted">{t("retention.coach")}: {member.coach}</p>
                 </div>
 
                 {/* Attendance Dots */}
@@ -177,7 +180,7 @@ export default function RetentionMonitorPage() {
                   <span className={cn("text-lg font-bold", getAdvantageColor(member.advantageIndex))}>
                     {member.advantageIndex}%
                   </span>
-                  <p className="text-[10px] text-vytal-muted">Advantage</p>
+                  <p className="text-[10px] text-vytal-muted">{t("retention.advantage")}</p>
                 </div>
               </div>
             );
@@ -186,11 +189,11 @@ export default function RetentionMonitorPage() {
 
         {/* Thresholds */}
         <div className="rounded-xl border border-vytal-border bg-vytal-card p-6">
-          <h3 className="mb-4 text-sm font-semibold text-vytal-text">Thresholds</h3>
+          <h3 className="mb-4 text-sm font-semibold text-vytal-text">{t("retention.thresholds")}</h3>
           <div className="space-y-4">
             <div>
               <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">
-                Green (min sessions/week)
+                {t("retention.greenLabel")}
               </label>
               <div className="flex items-center gap-4">
                 <input
@@ -203,7 +206,7 @@ export default function RetentionMonitorPage() {
             </div>
             <div>
               <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">
-                Yellow (min sessions/week)
+                {t("retention.yellowLabel")}
               </label>
               <div className="flex items-center gap-4">
                 <input
@@ -215,12 +218,12 @@ export default function RetentionMonitorPage() {
               </div>
             </div>
             <div className="space-y-2 border-t border-vytal-border pt-4">
-              <p className="text-xs text-vytal-muted">Legend:</p>
-              <div className="flex items-center gap-2"><div className="h-3 w-6 rounded bg-vytal-green" /><span className="text-xs text-vytal-muted">On track</span></div>
-              <div className="flex items-center gap-2"><div className="h-3 w-6 rounded bg-vytal-amber" /><span className="text-xs text-vytal-muted">Below target</span></div>
-              <div className="flex items-center gap-2"><div className="h-3 w-6 rounded bg-vytal-orange" /><span className="text-xs text-vytal-muted">At risk</span></div>
-              <div className="flex items-center gap-2"><div className="h-3 w-6 rounded bg-vytal-red" /><span className="text-xs text-vytal-muted">Disengaging</span></div>
-              <div className="flex items-center gap-2"><div className="h-3 w-6 rounded bg-vytal-muted/40" /><span className="text-xs text-vytal-muted">No attendance</span></div>
+              <p className="text-xs text-vytal-muted">{t("retention.legend")}</p>
+              <div className="flex items-center gap-2"><div className="h-3 w-6 rounded bg-vytal-green" /><span className="text-xs text-vytal-muted">{t("retention.onTrack")}</span></div>
+              <div className="flex items-center gap-2"><div className="h-3 w-6 rounded bg-vytal-amber" /><span className="text-xs text-vytal-muted">{t("retention.belowTarget")}</span></div>
+              <div className="flex items-center gap-2"><div className="h-3 w-6 rounded bg-vytal-orange" /><span className="text-xs text-vytal-muted">{t("retention.atRisk")}</span></div>
+              <div className="flex items-center gap-2"><div className="h-3 w-6 rounded bg-vytal-red" /><span className="text-xs text-vytal-muted">{t("retention.disengaging")}</span></div>
+              <div className="flex items-center gap-2"><div className="h-3 w-6 rounded bg-vytal-muted/40" /><span className="text-xs text-vytal-muted">{t("retention.noAttendance")}</span></div>
             </div>
           </div>
         </div>

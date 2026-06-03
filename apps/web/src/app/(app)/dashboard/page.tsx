@@ -542,7 +542,7 @@ export default function DashboardPage() {
         </div>
         {/* Legend */}
         <div className="mt-4 flex items-center gap-3">
-          <span className="text-[10px] font-medium uppercase tracking-wider text-vytal-muted">Less</span>
+          <span className="text-[10px] font-medium uppercase tracking-wider text-vytal-muted">{t("dashboard.less")}</span>
           <div className="flex gap-1">
             {[0, 0.1, 0.2, 0.4, 0.6, 0.8].map((opacity) => (
               <div
@@ -554,7 +554,7 @@ export default function DashboardPage() {
               />
             ))}
           </div>
-          <span className="text-[10px] font-medium uppercase tracking-wider text-vytal-muted">More</span>
+          <span className="text-[10px] font-medium uppercase tracking-wider text-vytal-muted">{t("dashboard.more")}</span>
         </div>
       </ChartCard>
 

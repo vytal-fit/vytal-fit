@@ -34,7 +34,7 @@ export default function LocationsPage() {
           <p className="text-lg font-bold text-vytal-text">
             {locations.length}
           </p>
-          <p className="text-xs text-vytal-muted">Total Locations</p>
+          <p className="text-xs text-vytal-muted">{t("locations.totalLocations")}</p>
         </div>
       </div>
 
@@ -51,13 +51,13 @@ export default function LocationsPage() {
           <thead>
             <tr className="border-b border-vytal-border bg-vytal-bg2">
               <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-vytal-muted">
-                Name
+                {t("locations.name")}
               </th>
               <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-vytal-muted">
-                Capacity
+                {t("locations.capacity")}
               </th>
               <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-vytal-muted">
-                Actions
+                {t("locations.actions")}
               </th>
             </tr>
           </thead>
@@ -83,7 +83,7 @@ export default function LocationsPage() {
                 <td className="px-4 py-3 text-right">
                   <button className="inline-flex items-center gap-1.5 rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-1.5 text-xs text-vytal-text transition-colors hover:bg-vytal-bg3">
                     <Pencil className="h-3 w-3" />
-                    Edit
+                    {t("action.edit")}
                   </button>
                 </td>
               </tr>
