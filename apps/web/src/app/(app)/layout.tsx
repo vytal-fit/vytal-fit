@@ -95,7 +95,6 @@ const allNavGroups: NavGroup[] = [
     titleKey: "nav.group.settings",
     items: [
       { href: "/settings", labelKey: "nav.settings", icon: Settings },
-      { href: "/profile", labelKey: "nav.profile", icon: Users },
     ],
   },
 ];
@@ -485,21 +484,23 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           ))}
         </nav>
 
-        {/* User Area */}
+        {/* User Area — click name to open profile */}
         <div className="border-t border-vytal-border p-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-vytal-green/10 text-sm font-semibold text-vytal-green">
-              {user.user.name.split(" ").map((n) => n[0]).join("").slice(0, 2)}
-            </div>
-            <div className="flex flex-1 flex-col min-w-0">
-              <span className="text-sm font-medium text-vytal-text truncate">
-                {user.user.name}
-              </span>
-              <span className="text-xs text-vytal-muted truncate">{user.user.email}</span>
-            </div>
+            <Link href="/profile" className="flex flex-1 items-center gap-3 rounded-lg p-1 -m-1 transition-colors hover:bg-vytal-bg3">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-vytal-green/10 text-sm font-semibold text-vytal-green">
+                {user.user.name.split(" ").map((n) => n[0]).join("").slice(0, 2)}
+              </div>
+              <div className="flex flex-1 flex-col min-w-0">
+                <span className="text-sm font-medium text-vytal-text truncate">
+                  {user.user.name}
+                </span>
+                <span className="text-xs text-vytal-muted truncate">{user.user.email}</span>
+              </div>
+            </Link>
             <button
               onClick={handleLogout}
-              className="flex h-8 w-8 items-center justify-center rounded-lg text-vytal-muted transition-colors hover:bg-vytal-bg3 hover:text-vytal-red"
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-vytal-muted transition-colors hover:bg-vytal-bg3 hover:text-vytal-red"
               title={t("action.logout")}
             >
               <LogOut className="h-4 w-4" />
@@ -518,6 +519,18 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         </div>
         <div className="p-8">{children}</div>
       </main>
+
+      {/* Floating chat bubble — Messenger style */}
+      <Link
+        href="/messages"
+        className="fixed bottom-6 right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-vytal-green shadow-lg shadow-vytal-green/20 transition-all hover:scale-110 hover:shadow-xl hover:shadow-vytal-green/30 active:scale-95"
+        title={t("nav.messages")}
+      >
+        <MessageCircle className="h-6 w-6 text-vytal-bg" />
+        <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-vytal-red text-[10px] font-bold text-white">
+          3
+        </span>
+      </Link>
     </div>
     </ToastProvider>
   );
