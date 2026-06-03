@@ -3,27 +3,27 @@ import path from "node:path";
 
 const authFile = path.join(__dirname, ".auth/user.json");
 
-/**
- * Global setup: authenticate once, save storage state for all tests.
- *
- * This runs before all test projects. It registers a test user (or logs in
- * if the user already exists) and saves the authenticated session to
- * `e2e/.auth/user.json` so every test starts already logged in.
- *
- * Adjust the selectors and flow below once the auth UI is built.
- */
 setup("authenticate", async ({ page }) => {
-  // TODO: Replace with actual auth flow once login/register pages exist
-  //
-  // Example flow:
-  // await page.goto("/register");
-  // await page.getByLabel("Email").fill("test@vytal.fit");
-  // await page.getByLabel("Password").fill("testpassword123");
-  // await page.getByRole("button", { name: /register|criar conta/i }).click();
-  // await expect(page).toHaveURL(/dashboard|onboarding/);
-
-  await page.goto("/");
+  // Go to login page
+  await page.goto("/login");
   await expect(page).toHaveTitle(/vytal/i);
 
+  // Fill in credentials using input type selectors (more resilient than placeholder text)
+  await page.locator('input[type="email"]').fill("test@vytal.fit");
+  await page.locator('input[type="password"]').fill("testpassword123");
+
+  // Click the submit button (contains "Entrar" in PT or "Login" in EN)
+  await page.getByRole("button", { name: /entrar|login/i }).click();
+
+  // Wait for redirect to dashboard
+  await page.waitForURL(/dashboard/, { timeout: 10000 });
+  await expect(page).toHaveURL(/dashboard/);
+
+  // Wait for localStorage to be populated with auth state
+  await page.waitForFunction(() => {
+    return localStorage.getItem("vytal-auth") !== null;
+  });
+
+  // Save authenticated state (includes both cookies and localStorage)
   await page.context().storageState({ path: authFile });
 });

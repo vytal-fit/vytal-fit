@@ -6,9 +6,10 @@ test.describe("Admin Dashboard", () => {
   });
 
   test("displays KPI stat cards", async ({ page }) => {
-    await expect(page.getByText(/total members/i)).toBeVisible();
-    await expect(page.getByText(/active members/i)).toBeVisible();
-    await expect(page.getByText(/occupancy/i)).toBeVisible();
+    // PT: "Total de Membros", "Membros Ativos", "Ocupação"
+    await expect(page.getByText(/total.*memb|total members/i)).toBeVisible();
+    await expect(page.getByText(/membros ativos|active members/i)).toBeVisible();
+    await expect(page.getByText(/ocupa[çc]|occupancy/i)).toBeVisible();
   });
 
   test("shows member counts from mock data", async ({ page }) => {
@@ -17,7 +18,8 @@ test.describe("Admin Dashboard", () => {
   });
 
   test("displays today's class schedule", async ({ page }) => {
-    await expect(page.getByRole("heading", { name: /schedule/i })).toBeVisible();
+    // PT: "Agenda de Hoje", EN: "Today's Schedule"
+    await expect(page.getByRole("heading", { name: /schedule|agenda/i })).toBeVisible();
   });
 
   test("shows class types in schedule", async ({ page }) => {
@@ -28,7 +30,8 @@ test.describe("Admin Dashboard", () => {
   test("sidebar navigation is visible", async ({ page }) => {
     const sidebar = page.locator("aside, nav").first();
     await expect(sidebar.getByText(/dashboard/i).first()).toBeVisible();
-    await expect(sidebar.getByText(/members/i).first()).toBeVisible();
+    // PT: "Membros", EN: "Members"
+    await expect(sidebar.getByText(/membros|members/i).first()).toBeVisible();
   });
 
   test("sidebar shows active organization", async ({ page }) => {
@@ -36,13 +39,15 @@ test.describe("Admin Dashboard", () => {
   });
 
   test("navigates to members page", async ({ page }) => {
-    await page.getByRole("link", { name: /members/i }).click();
+    // PT: "Membros", EN: "Members"
+    await page.getByRole("link", { name: /membros|members/i }).click();
     await page.waitForURL(/members/);
     await expect(page).toHaveURL(/members/);
   });
 
   test("navigates to classes page", async ({ page }) => {
-    await page.getByRole("link", { name: /classes/i }).click();
+    // PT: "Aulas", EN: "Classes"
+    await page.getByRole("link", { name: /aulas|classes/i }).click();
     await page.waitForURL(/classes/);
     await expect(page).toHaveURL(/classes/);
   });

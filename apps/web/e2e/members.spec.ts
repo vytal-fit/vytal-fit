@@ -6,7 +6,8 @@ test.describe("Admin Members Page", () => {
   });
 
   test("displays members heading", async ({ page }) => {
-    await expect(page.getByRole("heading", { name: /members/i })).toBeVisible();
+    // PT: "Membros", EN: "Members"
+    await expect(page.getByRole("heading", { name: /membros|members/i })).toBeVisible();
   });
 
   test("shows member stats bar", async ({ page }) => {
@@ -21,25 +22,26 @@ test.describe("Admin Members Page", () => {
   });
 
   test("shows status badges", async ({ page }) => {
-    const main = page.locator("main");
-    const activeBadges = main.getByText(/^active$/i);
+    // PT: "Ativo", EN: "Active" — verify status text appears in the page
+    const activeBadges = page.locator("main td").getByText(/ativo|active/i);
     expect(await activeBadges.count()).toBeGreaterThan(0);
   });
 
   test("has a search bar", async ({ page }) => {
-    const search = page.getByPlaceholder(/search/i);
+    // PT: "Pesquisar...", EN: "Search..."
+    const search = page.getByPlaceholder(/pesquisar|search/i);
     await expect(search).toBeVisible();
   });
 
   test("search filters members by name", async ({ page }) => {
-    const search = page.getByPlaceholder(/search/i);
+    const search = page.getByPlaceholder(/pesquisar|search/i);
     const main = page.locator("main");
     await search.fill("Ana");
     await expect(main.locator("table, [role=table]").getByText("Ana Silva")).toBeVisible();
   });
 
   test("clearing search shows all members", async ({ page }) => {
-    const search = page.getByPlaceholder(/search/i);
+    const search = page.getByPlaceholder(/pesquisar|search/i);
     const main = page.locator("main");
     await search.fill("zzzzz");
     // Wait for filtering
