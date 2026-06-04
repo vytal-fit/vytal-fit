@@ -41,6 +41,8 @@ import {
   Monitor,
   Upload,
   Plug,
+  Sparkles,
+  Brain,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ToastProvider } from "@/components/toast";
@@ -83,6 +85,7 @@ const allNavGroups: NavGroup[] = [
         { href: "/classes", labelKey: "nav.classesOverview", icon: CalendarDays },
         { href: "/classes/calendar", labelKey: "nav.calendar", icon: CalendarDays },
         { href: "/classes/create", labelKey: "nav.createClass", icon: CalendarDays },
+        { href: "/classes/smart", labelKey: "nav.smartScheduling", icon: Brain },
         { href: "/classes/templates", labelKey: "nav.classTemplates", icon: CalendarDays },
         { href: "/classes/waitlist", labelKey: "nav.waitlist", icon: CalendarDays },
       ]},
@@ -122,6 +125,7 @@ const allNavGroups: NavGroup[] = [
         { href: "/financials/budget", labelKey: "nav.budget", icon: DollarSign },
       ]},
       { href: "/analytics", labelKey: "nav.analytics", icon: TrendingUp },
+      { href: "/ai", labelKey: "nav.aiInsights", icon: Sparkles },
       { href: "/reports", labelKey: "nav.reports", icon: BarChart3, children: [
         { href: "/reports", labelKey: "nav.reportsOverview", icon: BarChart3 },
         { href: "/reports/attendance", labelKey: "nav.attendanceReport", icon: BarChart3 },
