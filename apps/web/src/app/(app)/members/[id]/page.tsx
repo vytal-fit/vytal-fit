@@ -19,6 +19,8 @@ import {
   Activity,
   Heart,
   StickyNote,
+  Compass,
+  Scale,
   FileText,
   Download,
   Shield,
@@ -585,6 +587,20 @@ export default function MemberDetailPage() {
             >
               <CreditCard className="h-4 w-4" />
               {t("memberOverview.viewBilling") || "View Billing"}
+            </Link>
+            <Link
+              href={`/members/${member.id}/360`}
+              className="inline-flex items-center gap-2 rounded-lg border border-vytal-green/20 bg-vytal-green/5 px-4 py-2 text-sm font-medium text-vytal-green transition-colors hover:bg-vytal-green/10"
+            >
+              <Compass className="h-4 w-4" />
+              {t("memberOverview.view360") || "360\u00B0 View"}
+            </Link>
+            <Link
+              href={`/members/${member.id}/body`}
+              className="inline-flex items-center gap-2 rounded-lg border border-vytal-border px-4 py-2 text-sm font-medium text-vytal-text transition-colors hover:bg-vytal-bg3"
+            >
+              <Scale className="h-4 w-4" />
+              {t("memberOverview.bodyComposition") || "Body Composition"}
             </Link>
           </div>
 

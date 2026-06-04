@@ -1,8 +1,10 @@
 "use client";
 
+import { useState } from "react";
 import { useI18n } from "@/lib/i18n";
 import { formatCurrency } from "@/stores/data-store";
-import { TrendingUp, TrendingDown, DollarSign, Users, Clock, Repeat } from "lucide-react";
+import { TrendingUp, TrendingDown, DollarSign, Users, Clock, Repeat, Sparkles, Calculator } from "lucide-react";
+import { cn } from "@/lib/utils";
 import {
   ResponsiveContainer,
   AreaChart,
@@ -17,6 +19,8 @@ import {
   Tooltip,
   CartesianGrid,
   Legend,
+  Line,
+  LineChart,
 } from "recharts";
 
 // --- Mock Data ---
@@ -60,6 +64,40 @@ const monthlyBreakdown = [
   { month: "Apr 2026", memberships: 14800, services: 450, products: 400, total: 15650, growth: 2.3 },
   { month: "May 2026", memberships: 15000, services: 480, products: 270, total: 15750, growth: 0.6 },
   { month: "Jun 2026", memberships: 15200, services: 550, products: 350, total: 16100, growth: 2.2 },
+];
+
+// --- Forecast Data ---
+const forecastData = {
+  optimistic: [
+    { month: "Jun", value: 16100 },
+    { month: "Jul", value: 17200 },
+    { month: "Aug", value: 18100 },
+    { month: "Sep", value: 19200 },
+  ],
+  base: [
+    { month: "Jun", value: 16100 },
+    { month: "Jul", value: 16600 },
+    { month: "Aug", value: 17100 },
+    { month: "Sep", value: 17600 },
+  ],
+  conservative: [
+    { month: "Jun", value: 16100 },
+    { month: "Jul", value: 16200 },
+    { month: "Aug", value: 16300 },
+    { month: "Sep", value: 16400 },
+  ],
+};
+
+const forecastChartData = [
+  { month: "Jan", actual: 14200 },
+  { month: "Feb", actual: 14700 },
+  { month: "Mar", actual: 15300 },
+  { month: "Apr", actual: 15650 },
+  { month: "May", actual: 15750 },
+  { month: "Jun", actual: 16100, optimistic: 16100, base: 16100, conservative: 16100 },
+  { month: "Jul", optimistic: 17200, base: 16600, conservative: 16200 },
+  { month: "Aug", optimistic: 18100, base: 17100, conservative: 16300 },
+  { month: "Sep", optimistic: 19200, base: 17600, conservative: 16400 },
 ];
 
 function MetricCard({
@@ -122,6 +160,14 @@ function MrrTooltip({ active, payload, label }: { active?: boolean; payload?: Ar
 
 export default function RevenuePage() {
   const { t } = useI18n();
+  const [scenario, setScenario] = useState<"optimistic" | "base" | "conservative">("base");
+  const [whatIfMembers, setWhatIfMembers] = useState(10);
+  const [whatIfPrice, setWhatIfPrice] = useState(75);
+
+  const currentMRR = 16100;
+  const whatIfResult = currentMRR + whatIfMembers * whatIfPrice;
+  const scenarioData = forecastData[scenario];
+  const scenarioNextMonth = scenarioData[1].value;
 
   const totalBreakdown = monthlyBreakdown.reduce(
     (acc, row) => ({
@@ -292,6 +338,128 @@ export default function RevenuePage() {
               </tr>
             </tbody>
           </table>
+        </div>
+      </div>
+
+      {/* Revenue Forecast Section */}
+      <div className="rounded-xl border border-vytal-green/20 bg-gradient-to-r from-vytal-green/5 to-vytal-blue/5 p-6">
+        <div className="mb-6 flex items-center gap-2">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-vytal-green/10">
+            <Sparkles className="h-4 w-4 text-vytal-green" />
+          </div>
+          <h2 className="text-lg font-semibold text-vytal-text">{t("revenue.forecastTitle")}</h2>
+        </div>
+
+        {/* Scenario Toggle */}
+        <div className="mb-6 flex gap-2">
+          {(["optimistic", "base", "conservative"] as const).map((s) => (
+            <button
+              key={s}
+              onClick={() => setScenario(s)}
+              className={cn(
+                "rounded-lg border px-4 py-2 text-sm font-medium capitalize transition-colors",
+                scenario === s
+                  ? "border-vytal-green/30 bg-vytal-green/10 text-vytal-green"
+                  : "border-vytal-border bg-vytal-card text-vytal-text hover:bg-vytal-bg3"
+              )}
+            >
+              {t(`revenue.scenario.${s}`)}
+            </button>
+          ))}
+        </div>
+
+        {/* Forecast Chart */}
+        <div className="rounded-xl border border-vytal-border bg-vytal-card/80 p-6 backdrop-blur-sm">
+          <h3 className="mb-4 text-sm font-semibold text-vytal-text">{t("revenue.forecastChart")}</h3>
+          <div className="h-56">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={forecastChartData}>
+                <CartesianGrid stroke="rgba(34,197,94,0.08)" strokeDasharray="3 3" />
+                <XAxis dataKey="month" tick={{ fill: "#6b8c72", fontSize: 11 }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fill: "#6b8c72", fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={(v: number) => `${(v / 1000).toFixed(0)}k`} />
+                <Tooltip
+                  contentStyle={{ backgroundColor: "#0f1610", border: "1px solid rgba(34,197,94,0.2)", borderRadius: "8px", fontSize: 12, color: "#dceee0" }}
+                  formatter={(value, name) => [formatCurrency(Number(value)), name === "actual" ? t("revenue.actual") : t(`revenue.scenario.${String(name)}`)]}
+                />
+                <Line type="monotone" dataKey="actual" stroke="#22c55e" strokeWidth={2} dot={{ r: 3, fill: "#22c55e" }} name="actual" />
+                {scenario === "optimistic" && (
+                  <Line type="monotone" dataKey="optimistic" stroke="#00d4ff" strokeWidth={2} strokeDasharray="6 3" dot={{ r: 3, fill: "#00d4ff" }} name="optimistic" />
+                )}
+                {scenario === "base" && (
+                  <Line type="monotone" dataKey="base" stroke="#ffb300" strokeWidth={2} strokeDasharray="6 3" dot={{ r: 3, fill: "#ffb300" }} name="base" />
+                )}
+                {scenario === "conservative" && (
+                  <Line type="monotone" dataKey="conservative" stroke="#ff4757" strokeWidth={2} strokeDasharray="6 3" dot={{ r: 3, fill: "#ff4757" }} name="conservative" />
+                )}
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Assumptions + What-if */}
+        <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div className="rounded-xl border border-vytal-border bg-vytal-card p-5">
+            <h4 className="mb-3 text-sm font-semibold text-vytal-text">{t("revenue.assumptions")}</h4>
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-vytal-muted">{t("revenue.growthRate")}</span>
+                <span className="font-mono font-semibold text-vytal-text">
+                  {scenario === "optimistic" ? "5.2%" : scenario === "base" ? "3.1%" : "0.6%"}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-vytal-muted">{t("revenue.churnRateLabel")}</span>
+                <span className="font-mono font-semibold text-vytal-text">
+                  {scenario === "optimistic" ? "2.0%" : scenario === "base" ? "3.2%" : "4.5%"}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-vytal-muted">{t("revenue.avgTicket")}</span>
+                <span className="font-mono font-semibold text-vytal-text">{formatCurrency(50.3)}</span>
+              </div>
+              <div className="flex justify-between border-t border-vytal-border pt-2">
+                <span className="font-medium text-vytal-text">{t("revenue.nextMonthProjection")}</span>
+                <span className="font-mono font-bold text-vytal-green">{formatCurrency(scenarioNextMonth)}</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="rounded-xl border border-vytal-border bg-vytal-card p-5">
+            <div className="mb-3 flex items-center gap-2">
+              <Calculator className="h-4 w-4 text-vytal-green" />
+              <h4 className="text-sm font-semibold text-vytal-text">{t("revenue.whatIf")}</h4>
+            </div>
+            <p className="mb-4 text-xs text-vytal-muted">{t("revenue.whatIfDesc")}</p>
+            <div className="space-y-3">
+              <div>
+                <label className="mb-1 block text-xs font-medium text-vytal-muted">{t("revenue.newMembers")}</label>
+                <input
+                  type="number"
+                  value={whatIfMembers}
+                  onChange={(e) => setWhatIfMembers(Number(e.target.value))}
+                  className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-2 text-sm text-vytal-text focus:border-vytal-green/30 focus:outline-none focus:ring-1 focus:ring-vytal-green/20"
+                />
+              </div>
+              <div>
+                <label className="mb-1 block text-xs font-medium text-vytal-muted">{t("revenue.pricePerMember")}</label>
+                <input
+                  type="number"
+                  value={whatIfPrice}
+                  onChange={(e) => setWhatIfPrice(Number(e.target.value))}
+                  className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-2 text-sm text-vytal-text focus:border-vytal-green/30 focus:outline-none focus:ring-1 focus:ring-vytal-green/20"
+                />
+              </div>
+              <div className="rounded-lg bg-vytal-green/5 px-4 py-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-vytal-muted">{t("revenue.projectedRevenue")}</span>
+                  <span className="text-lg font-bold text-vytal-green">{formatCurrency(whatIfResult)}</span>
+                </div>
+                <p className="mt-1 text-[10px] text-vytal-muted">
+                  +{formatCurrency(whatIfMembers * whatIfPrice)} {t("revenue.fromNewMembers")}
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
