@@ -163,6 +163,11 @@ const translations: Record<Language, Record<string, string>> = {
     "analytics.services": "Serviços",
     "analytics.products": "Produtos",
     "analytics.percentage": "Percentagem",
+    "analytics.keyInsights": "Insights Principais",
+    "analytics.memberGrowth": "Crescimento de Membros",
+    "analytics.insight.busiest": "Quinta-feira 17:30 \u00e9 o hor\u00e1rio mais movimentado",
+    "analytics.insight.churn": "Taxa de churn caiu 0,4% este m\u00eas",
+    "analytics.insight.newMembers": "14 novos membros este m\u00eas",
 
     // Members
     "members.title": "Membros",
@@ -589,6 +594,9 @@ const translations: Record<Language, Record<string, string>> = {
     // WOD Builder
     "wodBuilder.title": "WOD Builder",
     "wodBuilder.subtitle": "Criar e publicar um novo treino",
+    "wodBuilder.date": "Data",
+    "wodBuilder.classType": "Tipo de Aula",
+    "wodBuilder.type": "Tipo",
     "wodBuilder.searchExercise": "Pesquisar exerc\u00edcio...",
     "wodBuilder.noExercisesFound": "Nenhum exerc\u00edcio encontrado",
     "wodBuilder.partName": "Nome da Parte",
@@ -1465,6 +1473,11 @@ const translations: Record<Language, Record<string, string>> = {
     "analytics.services": "Services",
     "analytics.products": "Products",
     "analytics.percentage": "Percentage",
+    "analytics.keyInsights": "Key Insights",
+    "analytics.memberGrowth": "Member Growth",
+    "analytics.insight.busiest": "Thursday 17:30 is your busiest time slot",
+    "analytics.insight.churn": "Churn rate dropped 0.4% this month",
+    "analytics.insight.newMembers": "14 new members joined this month",
 
     // Members
     "members.title": "Members",
@@ -1892,6 +1905,9 @@ const translations: Record<Language, Record<string, string>> = {
     // WOD Builder
     "wodBuilder.title": "WOD Builder",
     "wodBuilder.subtitle": "Create and publish a new workout",
+    "wodBuilder.date": "Date",
+    "wodBuilder.classType": "Class Type",
+    "wodBuilder.type": "Type",
     "wodBuilder.searchExercise": "Search exercise...",
     "wodBuilder.noExercisesFound": "No exercises found",
     "wodBuilder.partName": "Part Name",
@@ -2789,6 +2805,11 @@ const translations: Record<Language, Record<string, string>> = {
     "analytics.services": "Servicios",
     "analytics.products": "Productos",
     "analytics.percentage": "Porcentaje",
+    "analytics.keyInsights": "Insights Clave",
+    "analytics.memberGrowth": "Crecimiento de Miembros",
+    "analytics.insight.busiest": "Jueves 17:30 es el horario m\u00e1s concurrido",
+    "analytics.insight.churn": "Tasa de baja cay\u00f3 0,4% este mes",
+    "analytics.insight.newMembers": "14 nuevos miembros este mes",
 
     // Members
     "members.title": "Miembros",
@@ -3216,6 +3237,9 @@ const translations: Record<Language, Record<string, string>> = {
     // WOD Builder
     "wodBuilder.title": "WOD Builder",
     "wodBuilder.subtitle": "Crear y publicar un nuevo entrenamiento",
+    "wodBuilder.date": "Fecha",
+    "wodBuilder.classType": "Tipo de Clase",
+    "wodBuilder.type": "Tipo",
     "wodBuilder.searchExercise": "Buscar ejercicio...",
     "wodBuilder.noExercisesFound": "No se encontraron ejercicios",
     "wodBuilder.partName": "Nombre de la Parte",
