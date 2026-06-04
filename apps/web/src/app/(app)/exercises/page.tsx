@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import { useDataStore } from "@/stores/data-store";
 import type { ExerciseCategory } from "@vytal-fit/shared";
+import Link from "next/link";
 import { Search, Dumbbell, Plus, Pencil, Trash2, X, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/lib/i18n";
@@ -206,10 +207,10 @@ export default function ExercisesPage() {
           return (
             <div key={exercise.id} className="rounded-xl border border-vytal-border bg-vytal-card p-4 transition-colors hover:border-[rgba(61,255,110,0.22)]">
               <div className="mb-3 flex items-start justify-between">
-                <div className="flex items-center gap-2">
+                <Link href={`/exercises/${exercise.id}`} className="flex items-center gap-2 hover:opacity-80">
                   <Dumbbell className="h-4 w-4 text-vytal-green" />
                   <span className="text-sm font-semibold text-vytal-text">{exercise.name}</span>
-                </div>
+                </Link>
                 <div className="flex items-center gap-1">
                   <button onClick={() => startEdit(exercise)} className="rounded p-1 text-vytal-muted transition-colors hover:bg-vytal-bg3 hover:text-vytal-text">
                     <Pencil className="h-3 w-3" />

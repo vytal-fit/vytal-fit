@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
@@ -116,6 +116,7 @@ const allNavGroups: NavGroup[] = [
         { href: "/financials", labelKey: "nav.financialsOverview", icon: DollarSign },
         { href: "/financials/revenue", labelKey: "nav.revenue", icon: DollarSign },
         { href: "/financials/dunning", labelKey: "nav.dunning", icon: DollarSign },
+        { href: "/financials/sepa", labelKey: "nav.sepa", icon: DollarSign },
         { href: "/financials/invoices", labelKey: "nav.invoices", icon: DollarSign },
         { href: "/financials/expenses", labelKey: "nav.expenses", icon: DollarSign },
         { href: "/financials/budget", labelKey: "nav.budget", icon: DollarSign },
@@ -130,6 +131,7 @@ const allNavGroups: NavGroup[] = [
         { href: "/community/questionnaires", labelKey: "nav.questionnaires", icon: Heart },
         { href: "/community/events", labelKey: "nav.events", icon: Heart },
       ]},
+      { href: "/notifications", labelKey: "nav.notifications", icon: Bell },
       { href: "/messages", labelKey: "nav.messages", icon: MessageCircle, badge: 3 },
       { href: "/communications", labelKey: "nav.communications", icon: MessageSquare, children: [
         { href: "/communications", labelKey: "nav.commsOverview", icon: MessageSquare },
@@ -773,7 +775,18 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   );
   const orgType = activeOrg?.organization.type ?? "other";
   const orgConfig = ORGANIZATION_CONFIGS[orgType];
-  const navGroups = getNavGroups(orgType);
+  const notifications = useDataStore((s) => s.notifications);
+  const notifUnread = notifications.filter((n) => !n.read).length;
+  const navGroups = useMemo(() => {
+    const groups = getNavGroups(orgType);
+    // Inject dynamic unread badge on Notifications nav item
+    return groups.map((group) => ({
+      ...group,
+      items: group.items.map((item) =>
+        item.href === "/notifications" ? { ...item, badge: notifUnread } : item
+      ),
+    }));
+  }, [orgType, notifUnread]);
 
   // Close mobile sidebar on route change
   useEffect(() => {
