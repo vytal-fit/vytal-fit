@@ -2600,6 +2600,32 @@ const translations: Record<Language, Record<string, string>> = {
     "marketing.published": "Publicacao publicada!",
     "marketing.scheduled": "Publicacao agendada!",
     "marketing.fillRequired": "Preencha os campos obrigatorios.",
+
+    // Daily Briefing (Right Sidebar)
+    "briefing.today": "Hoje",
+    "briefing.classesToday": "aulas hoje",
+    "briefing.enrolled": "inscritos",
+    "briefing.pendingPayments": "pagamentos pendentes",
+    "briefing.newLeads": "leads novos",
+    "briefing.birthday": "aniversario",
+    "briefing.nextClass": "Proxima Aula",
+    "briefing.enrolledCount": "inscritos",
+    "briefing.coach": "Coach",
+    "briefing.in": "em",
+    "briefing.viewDetails": "Ver detalhes",
+    "briefing.quickActions": "Acoes Rapidas",
+    "briefing.messages": "mensagens",
+    "briefing.overdueTasks": "tasks atrasadas",
+    "briefing.overduePayments": "em atraso",
+    "briefing.dailyKpis": "KPIs do Dia",
+    "briefing.checkIns": "Check-ins",
+    "briefing.revenue": "Receita",
+    "briefing.prs": "PRs",
+    "briefing.newMembers": "Novos membros",
+    "briefing.toggleSidebar": "Painel diario",
+
+    // Store filter
+    "store.filterComingSoon": "Filtros em breve!",
   },
 
   en: {
@@ -5200,6 +5226,32 @@ const translations: Record<Language, Record<string, string>> = {
     "marketing.published": "Post published!",
     "marketing.scheduled": "Post scheduled!",
     "marketing.fillRequired": "Please fill required fields.",
+
+    // Daily Briefing (Right Sidebar)
+    "briefing.today": "Today",
+    "briefing.classesToday": "classes today",
+    "briefing.enrolled": "enrolled",
+    "briefing.pendingPayments": "pending payments",
+    "briefing.newLeads": "new leads",
+    "briefing.birthday": "birthday",
+    "briefing.nextClass": "Next Class",
+    "briefing.enrolledCount": "enrolled",
+    "briefing.coach": "Coach",
+    "briefing.in": "in",
+    "briefing.viewDetails": "View details",
+    "briefing.quickActions": "Quick Actions",
+    "briefing.messages": "messages",
+    "briefing.overdueTasks": "overdue tasks",
+    "briefing.overduePayments": "overdue",
+    "briefing.dailyKpis": "Daily KPIs",
+    "briefing.checkIns": "Check-ins",
+    "briefing.revenue": "Revenue",
+    "briefing.prs": "PRs",
+    "briefing.newMembers": "New members",
+    "briefing.toggleSidebar": "Daily panel",
+
+    // Store filter
+    "store.filterComingSoon": "Filters coming soon!",
   },
 
   es: {
@@ -7780,6 +7832,32 @@ const translations: Record<Language, Record<string, string>> = {
     "marketing.published": "Publicacion publicada!",
     "marketing.scheduled": "Publicacion programada!",
     "marketing.fillRequired": "Complete los campos obligatorios.",
+
+    // Daily Briefing (Right Sidebar)
+    "briefing.today": "Hoy",
+    "briefing.classesToday": "clases hoy",
+    "briefing.enrolled": "inscritos",
+    "briefing.pendingPayments": "pagos pendientes",
+    "briefing.newLeads": "leads nuevos",
+    "briefing.birthday": "cumpleanos",
+    "briefing.nextClass": "Proxima Clase",
+    "briefing.enrolledCount": "inscritos",
+    "briefing.coach": "Coach",
+    "briefing.in": "en",
+    "briefing.viewDetails": "Ver detalles",
+    "briefing.quickActions": "Acciones Rapidas",
+    "briefing.messages": "mensajes",
+    "briefing.overdueTasks": "tareas atrasadas",
+    "briefing.overduePayments": "en atraso",
+    "briefing.dailyKpis": "KPIs del Dia",
+    "briefing.checkIns": "Check-ins",
+    "briefing.revenue": "Ingresos",
+    "briefing.prs": "PRs",
+    "briefing.newMembers": "Nuevos miembros",
+    "briefing.toggleSidebar": "Panel diario",
+
+    // Store filter
+    "store.filterComingSoon": "Filtros proximamente!",
   },
 };
 

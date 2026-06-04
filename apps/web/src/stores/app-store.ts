@@ -3,6 +3,7 @@ import { mockOrgAccentColors } from "@vytal-fit/shared";
 
 const THEME_STORAGE_KEY = "vytal-theme";
 const SIDEBAR_STORAGE_KEY = "vytal-sidebar-collapsed";
+const RIGHT_SIDEBAR_STORAGE_KEY = "vytal-right-sidebar-open";
 const ACCENT_STORAGE_KEY = "vytal-accent-color";
 const ORG_ACCENT_COLORS_KEY = "vytal-org-accent-colors";
 
@@ -14,6 +15,9 @@ interface AppState {
   toggleTheme: () => void;
   sidebarCollapsed: boolean;
   toggleSidebar: () => void;
+  rightSidebarOpen: boolean;
+  toggleRightSidebar: () => void;
+  setRightSidebarOpen: (open: boolean) => void;
   accentColor: string;
   setAccentColor: (color: string) => void;
   orgAccentColors: Record<string, string>;
@@ -53,6 +57,7 @@ function persistOrgAccentColors(colors: Record<string, string>) {
 export const useAppStore = create<AppState>((set, get) => ({
   theme: "dark",
   sidebarCollapsed: false,
+  rightSidebarOpen: false,
   accentColor: "#22c55e",
   orgAccentColors: loadOrgAccentColors(),
 
@@ -83,6 +88,23 @@ export const useAppStore = create<AppState>((set, get) => ({
       }
       return { sidebarCollapsed: next };
     });
+  },
+
+  toggleRightSidebar: () => {
+    set((state) => {
+      const next = !state.rightSidebarOpen;
+      if (typeof window !== "undefined") {
+        localStorage.setItem(RIGHT_SIDEBAR_STORAGE_KEY, String(next));
+      }
+      return { rightSidebarOpen: next };
+    });
+  },
+
+  setRightSidebarOpen: (open: boolean) => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem(RIGHT_SIDEBAR_STORAGE_KEY, String(open));
+    }
+    set({ rightSidebarOpen: open });
   },
 
   setAccentColor: (color: string) => {
@@ -117,6 +139,7 @@ export const useAppStore = create<AppState>((set, get) => ({
     if (typeof window === "undefined") return;
     const storedTheme = localStorage.getItem(THEME_STORAGE_KEY) as Theme | null;
     const storedSidebar = localStorage.getItem(SIDEBAR_STORAGE_KEY);
+    const storedRightSidebar = localStorage.getItem(RIGHT_SIDEBAR_STORAGE_KEY);
     const storedAccent = localStorage.getItem(ACCENT_STORAGE_KEY);
     const theme = storedTheme === "light" ? "light" : "dark";
     const accentColor = storedAccent ?? "#22c55e";
@@ -126,6 +149,7 @@ export const useAppStore = create<AppState>((set, get) => ({
     set({
       theme,
       sidebarCollapsed: storedSidebar === "true",
+      rightSidebarOpen: storedRightSidebar === "true",
       accentColor,
       orgAccentColors,
     });
