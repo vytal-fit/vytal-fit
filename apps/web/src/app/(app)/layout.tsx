@@ -86,7 +86,10 @@ const allNavGroups: NavGroup[] = [
         { href: "/classes/templates", labelKey: "nav.classTemplates", icon: CalendarDays },
         { href: "/classes/waitlist", labelKey: "nav.waitlist", icon: CalendarDays },
       ]},
-      { href: "/wods", labelKey: "nav.wods", icon: Dumbbell, requiresFeature: "wods" },
+      { href: "/wods", labelKey: "nav.wods", icon: Dumbbell, requiresFeature: "wods", children: [
+        { href: "/wods", labelKey: "nav.wods", icon: Dumbbell },
+        { href: "/wods/programming", labelKey: "nav.programming", icon: Dumbbell },
+      ]},
       { href: "/crm", labelKey: "nav.crm", icon: UserPlus },
     ],
   },
@@ -96,6 +99,7 @@ const allNavGroups: NavGroup[] = [
       { href: "/staff", labelKey: "nav.staff", icon: UserCog, children: [
         { href: "/staff", labelKey: "nav.staffOverview", icon: UserCog },
         { href: "/staff/payroll", labelKey: "nav.payroll", icon: UserCog },
+        { href: "/staff/schedule", labelKey: "nav.schedule", icon: UserCog },
       ]},
       { href: "/class-types", labelKey: "nav.classTypes", icon: Tag, requiresFeature: "groupClasses" },
       { href: "/locations", labelKey: "nav.locations", icon: MapPin },
@@ -121,7 +125,11 @@ const allNavGroups: NavGroup[] = [
         { href: "/reports", labelKey: "nav.reportsOverview", icon: BarChart3 },
         { href: "/reports/attendance", labelKey: "nav.attendanceReport", icon: BarChart3 },
       ]},
-      { href: "/community", labelKey: "nav.community", icon: Heart },
+      { href: "/community", labelKey: "nav.community", icon: Heart, children: [
+        { href: "/community", labelKey: "nav.community", icon: Heart },
+        { href: "/community/questionnaires", labelKey: "nav.questionnaires", icon: Heart },
+        { href: "/community/events", labelKey: "nav.events", icon: Heart },
+      ]},
       { href: "/messages", labelKey: "nav.messages", icon: MessageCircle, badge: 3 },
       { href: "/communications", labelKey: "nav.communications", icon: MessageSquare, children: [
         { href: "/communications", labelKey: "nav.commsOverview", icon: MessageSquare },
@@ -140,6 +148,7 @@ const allNavGroups: NavGroup[] = [
         { href: "/settings/kiosk", labelKey: "nav.kiosk", icon: Settings },
         { href: "/settings/app-config", labelKey: "nav.appConfig", icon: Settings },
         { href: "/settings/audit-log", labelKey: "nav.auditLog", icon: Settings },
+        { href: "/settings/permissions", labelKey: "nav.permissions", icon: Settings },
       ]},
       { href: "/integrations", labelKey: "nav.integrations", icon: Plug },
       { href: "/help", labelKey: "nav.help", icon: HelpCircle },
