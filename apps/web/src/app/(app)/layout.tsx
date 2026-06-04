@@ -38,6 +38,8 @@ import {
   Search,
   HelpCircle,
   ChevronDown,
+  ChevronLeft,
+  ChevronRight,
   Monitor,
   Upload,
   Plug,
@@ -54,7 +56,6 @@ import {
   Newspaper,
   Rocket,
   LifeBuoy,
-  PanelRight,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ToastProvider } from "@/components/toast";
@@ -1103,20 +1104,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             </button>
           </div>
 
-          {/* Right: briefing toggle + lang + theme + notifications + user */}
+          {/* Right: lang + theme + notifications + user */}
           <div className="flex items-center gap-3">
-            <button
-              onClick={toggleRightSidebar}
-              className={cn(
-                "flex h-9 w-9 items-center justify-center rounded-lg transition-colors hover:bg-vytal-bg3",
-                rightSidebarOpen
-                  ? "text-vytal-green"
-                  : "text-vytal-muted hover:text-vytal-text"
-              )}
-              title={t("briefing.toggleSidebar")}
-            >
-              <PanelRight className="h-[18px] w-[18px]" />
-            </button>
             <LanguageSwitcher />
             <ThemeToggle />
             <NotificationsDropdown />
@@ -1131,11 +1120,28 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       </main>
 
       {/* Right Sidebar — Daily Briefing */}
-      {rightSidebarOpen && (
-        <aside className="hidden w-72 shrink-0 flex-col border-l border-vytal-border bg-vytal-bg2 md:flex">
-          <DailyBriefing />
-        </aside>
-      )}
+      <div className="relative hidden md:flex">
+        {/* Collapse/Expand toggle on the sidebar edge */}
+        <button
+          onClick={toggleRightSidebar}
+          className={cn(
+            "absolute top-1/2 -translate-y-1/2 z-40 flex h-6 w-6 items-center justify-center rounded-full border border-vytal-border bg-vytal-bg2 text-vytal-muted shadow-sm transition-all hover:bg-vytal-bg3 hover:text-vytal-text",
+            rightSidebarOpen ? "left-0 -translate-x-1/2" : "-left-3"
+          )}
+          title={t("briefing.toggleSidebar")}
+        >
+          {rightSidebarOpen ? (
+            <ChevronRight className="h-3.5 w-3.5" />
+          ) : (
+            <ChevronLeft className="h-3.5 w-3.5" />
+          )}
+        </button>
+        {rightSidebarOpen && (
+          <aside className="w-72 shrink-0 flex-col border-l border-vytal-border bg-vytal-bg2 flex transition-all duration-300">
+            <DailyBriefing />
+          </aside>
+        )}
+      </div>
       </div>
 
       {/* Floating Messenger-style chat widget */}
