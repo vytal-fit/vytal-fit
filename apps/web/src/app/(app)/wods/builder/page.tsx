@@ -66,6 +66,7 @@ function ExerciseSearch({
 }: {
   onSelect: (ex: Exercise) => void;
 }) {
+  const { t } = useI18n();
   const storeExercises = useDataStore((s) => s.exercises);
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
@@ -82,7 +83,7 @@ function ExerciseSearch({
         <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-vytal-muted" />
         <input
           type="text"
-          placeholder="Search exercise..."
+          placeholder={t("wodBuilder.searchExercise")}
           value={query}
           onChange={(e) => {
             setQuery(e.target.value);
@@ -114,7 +115,7 @@ function ExerciseSearch({
           ))}
           {filtered.length === 0 && (
             <div className="px-3 py-4 text-center text-xs text-vytal-muted">
-              No exercises found
+              {t("wodBuilder.noExercisesFound")}
             </div>
           )}
         </div>
@@ -312,7 +313,7 @@ export default function WODBuilderPage() {
           <div className="space-y-4 rounded-xl border border-vytal-border bg-vytal-card p-6">
             <div>
               <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">
-                Title
+                {t("wods.title")}
               </label>
               <input
                 type="text"
@@ -362,7 +363,7 @@ export default function WODBuilderPage() {
             >
               <div className="flex items-center justify-between">
                 <h3 className="text-sm font-semibold text-vytal-text">
-                  Part {partIdx + 1}
+                  {t("wodBuilder.partName")} {partIdx + 1}
                 </h3>
                 {parts.length > 1 && (
                   <button
@@ -565,7 +566,7 @@ export default function WODBuilderPage() {
             className="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-vytal-border py-4 text-sm text-vytal-muted transition-colors hover:border-vytal-green/30 hover:text-vytal-green"
           >
             <Plus className="h-4 w-4" />
-            Add Part
+            {t("wodBuilder.addPart")}
           </button>
 
           {/* Actions */}

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Monitor, Camera, QrCode, Save } from "lucide-react";
+import { Monitor, Camera, QrCode, Save, ScanLine } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/lib/i18n";
 import { Breadcrumbs } from "@/components/breadcrumbs";
@@ -19,9 +19,21 @@ const themeColors = [
   "#c084fc", "#ff8c42", "#ffffff", "#6b8c72",
 ];
 
+// Simple QR-like pattern (8x8 grid)
+const QR_PATTERN = [
+  [1,1,1,1,1,1,1,0],
+  [1,0,0,0,0,0,1,0],
+  [1,0,1,1,1,0,1,0],
+  [1,0,1,1,1,0,1,0],
+  [1,0,1,1,1,0,1,0],
+  [1,0,0,0,0,0,1,0],
+  [1,1,1,1,1,1,1,0],
+  [0,0,0,0,0,0,0,0],
+];
+
 export default function KioskConfigPage() {
   const { t } = useI18n();
-  const [images, setImages] = useState(Array(6).fill(""));
+  const [images] = useState(Array(6).fill(""));
   const [overlays, setOverlays] = useState(Array(6).fill(""));
   const [timing, setTiming] = useState("15min");
   const [themeColor, setThemeColor] = useState("#22c55e");
@@ -46,11 +58,11 @@ export default function KioskConfigPage() {
           type="button"
           onClick={onToggle}
           className={cn(
-            "relative h-6 w-11 shrink-0 rounded-full transition-colors duration-200",
+            "relative h-6 w-11 shrink-0 rounded-full transition-colors duration-300",
             enabled ? "bg-vytal-green" : "bg-vytal-bg3"
           )}
         >
-          <span className={cn("absolute top-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-transform duration-200", enabled ? "left-[22px]" : "left-0.5")} />
+          <span className={cn("absolute top-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-all duration-300", enabled ? "left-[22px]" : "left-0.5")} />
         </button>
       </div>
     );
@@ -83,10 +95,14 @@ export default function KioskConfigPage() {
           <div className="grid grid-cols-3 gap-4">
             {images.map((_, i) => (
               <div key={i} className="space-y-2">
-                <div className="flex aspect-video items-center justify-center rounded-lg border-2 border-dashed border-vytal-border bg-vytal-bg2">
+                <div className="group relative flex aspect-video items-center justify-center rounded-xl border-2 border-dashed border-vytal-border bg-gradient-to-br from-vytal-bg2 to-vytal-bg3 transition-all hover:border-vytal-green/30">
+                  {/* Number badge */}
+                  <span className="absolute left-2 top-2 flex h-6 w-6 items-center justify-center rounded-lg bg-vytal-bg font-mono text-xs font-bold text-vytal-muted">
+                    {i + 1}
+                  </span>
                   <div className="text-center">
-                    <Camera className="mx-auto h-6 w-6 text-vytal-muted" />
-                    <p className="mt-1 text-[10px] text-vytal-muted">{t("kiosk.imageN").replace("{n}", String(i + 1))}</p>
+                    <Camera className="mx-auto h-6 w-6 text-vytal-muted/40 transition-colors group-hover:text-vytal-green/60" />
+                    <p className="mt-1 text-[10px] text-vytal-muted/60">{t("kiosk.imageN").replace("{n}", String(i + 1))}</p>
                   </div>
                 </div>
                 <input
@@ -132,6 +148,7 @@ export default function KioskConfigPage() {
 
         {/* Theme & QR */}
         <div className="space-y-6">
+          {/* Theme Color + Button Preview */}
           <div className="rounded-xl border border-vytal-border bg-vytal-card p-6 transition-all duration-200 hover:border-[rgba(61,255,110,0.22)]">
             <h2 className="mb-5 text-lg font-semibold text-vytal-text">{t("kiosk.themeColor")}</h2>
             <div className="flex flex-wrap gap-3">
@@ -141,25 +158,64 @@ export default function KioskConfigPage() {
                   type="button"
                   onClick={() => setThemeColor(color)}
                   className={cn(
-                    "h-10 w-10 rounded-lg border-2 transition-transform",
-                    themeColor === color ? "scale-110 border-white" : "border-transparent"
+                    "h-10 w-10 rounded-lg border-2 transition-all duration-200",
+                    themeColor === color ? "scale-110 border-white shadow-lg" : "border-transparent hover:scale-105"
                   )}
                   style={{ backgroundColor: color }}
                 />
               ))}
             </div>
+            {/* Button Preview */}
+            <div className="mt-5 space-y-2">
+              <label className="text-xs font-medium uppercase tracking-wider text-vytal-muted">
+                {t("kiosk.buttonPreview")}
+              </label>
+              <div className="flex items-center justify-center rounded-xl border border-vytal-border bg-vytal-bg2 p-6">
+                <button
+                  className="flex items-center gap-3 rounded-xl px-8 py-4 text-lg font-bold shadow-lg transition-all duration-200 hover:scale-105"
+                  style={{
+                    backgroundColor: themeColor,
+                    color: themeColor === "#ffffff" ? "#080c0a" : "#ffffff",
+                    boxShadow: `0 4px 20px ${themeColor}40`,
+                  }}
+                >
+                  <ScanLine className="h-6 w-6" />
+                  {t("kiosk.checkInButton")}
+                </button>
+              </div>
+            </div>
           </div>
 
+          {/* QR Code */}
           <div className="rounded-xl border border-vytal-border bg-vytal-card p-6 transition-all duration-200 hover:border-[rgba(61,255,110,0.22)]">
             <div className="mb-5 flex items-center gap-2">
               <QrCode className="h-5 w-5 text-vytal-green" />
               <h2 className="text-lg font-semibold text-vytal-text">{t("kiosk.tabletLaunch")}</h2>
             </div>
-            <div className="flex items-center justify-center rounded-lg border-2 border-dashed border-vytal-border bg-vytal-bg2 p-8">
+            <div className="flex items-center justify-center rounded-xl border border-vytal-border bg-white p-6">
               <div className="text-center">
-                <QrCode className="mx-auto h-16 w-16 text-vytal-muted" />
-                <p className="mt-2 text-sm text-vytal-muted">QR Code</p>
-                <p className="text-xs text-vytal-muted">{t("kiosk.scanToLaunch")}</p>
+                {/* QR-like pattern */}
+                <div className="mx-auto inline-grid gap-0.5" style={{ gridTemplateColumns: "repeat(8, 1fr)" }}>
+                  {QR_PATTERN.flat().map((cell, idx) => (
+                    <div
+                      key={idx}
+                      className="h-3 w-3 rounded-[1px]"
+                      style={{ backgroundColor: cell ? "#080c0a" : "#ffffff" }}
+                    />
+                  ))}
+                </div>
+                {/* Bottom part of QR */}
+                <div className="mx-auto mt-0.5 inline-grid gap-0.5" style={{ gridTemplateColumns: "repeat(8, 1fr)" }}>
+                  {[0,1,0,1,1,0,1,0, 1,0,1,0,0,1,0,1, 0,1,1,1,1,1,0,0, 1,1,0,0,1,0,1,1,
+                    1,0,1,0,1,1,0,1, 0,0,1,1,0,1,1,0, 1,1,1,1,1,1,1,0, 1,0,0,1,0,0,1,0].map((cell, idx) => (
+                    <div
+                      key={idx}
+                      className="h-3 w-3 rounded-[1px]"
+                      style={{ backgroundColor: cell ? "#080c0a" : "#ffffff" }}
+                    />
+                  ))}
+                </div>
+                <p className="mt-3 text-xs font-medium text-gray-600">{t("kiosk.scanToLaunch")}</p>
               </div>
             </div>
           </div>

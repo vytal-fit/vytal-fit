@@ -121,7 +121,7 @@ function QuickActionCard({
   return (
     <Link
       href={href}
-      className="flex flex-col items-center gap-2 rounded-xl border border-vytal-border bg-vytal-card p-4 transition-all duration-200 hover:border-vytal-green/30 hover:bg-vytal-green/5"
+      className="flex flex-col items-center gap-2 rounded-xl border border-vytal-border bg-vytal-card p-4 transition-all duration-200 hover:border-vytal-green/30 hover:bg-vytal-green/5 hover:-translate-y-1 hover:shadow-lg hover:shadow-black/20"
     >
       <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-vytal-green/10 text-vytal-green">
         {icon}
@@ -179,9 +179,11 @@ const tooltipStyle = {
     borderRadius: "8px",
     fontSize: 12,
     color: "#dceee0",
+    boxShadow: "0 8px 24px rgba(0,0,0,0.4)",
+    padding: "10px 14px",
   },
   itemStyle: { color: "#dceee0" },
-  labelStyle: { color: "#6b8c72", marginBottom: 4 },
+  labelStyle: { color: "#6b8c72", marginBottom: 6, fontWeight: 600 as const },
 };
 
 // ---------------------------------------------------------------------------
@@ -365,13 +367,14 @@ function RevenueTooltip({ active, payload, label }: RevenueTooltipProps) {
         backgroundColor: "#0f1610",
         border: "1px solid rgba(34,197,94,0.2)",
         borderRadius: 8,
-        padding: "8px 12px",
+        padding: "10px 14px",
         fontSize: 12,
+        boxShadow: "0 8px 24px rgba(0,0,0,0.4)",
       }}
     >
-      <p style={{ color: "#6b8c72", marginBottom: 4 }}>{label}</p>
+      <p style={{ color: "#6b8c72", marginBottom: 6, fontWeight: 600 }}>{label}</p>
       {payload.map((entry) => (
-        <p key={entry.dataKey} style={{ color: "#dceee0" }}>
+        <p key={entry.dataKey} style={{ color: "#dceee0", fontWeight: 700, fontSize: 14 }}>
           {formatCurrency(entry.value)}
         </p>
       ))}
@@ -386,6 +389,7 @@ function RevenueTooltip({ active, payload, label }: RevenueTooltipProps) {
 export default function DashboardPage() {
   const { t } = useI18n();
   const user = useAuthStore((s) => s.user);
+  const orgSettings = useDataStore((s) => s.orgSettings);
   const storeClasses = useDataStore((s) => s.classes);
   const storeClassTypes = useDataStore((s) => s.classTypes);
   const classDistributionData = buildClassDistributionData(storeClassTypes);
@@ -408,12 +412,16 @@ export default function DashboardPage() {
           {getGreeting()}, {firstName}
         </h1>
         <p className="mt-1 text-sm text-vytal-muted">
+          {orgSettings.name} &mdash;{" "}
           {new Date().toLocaleDateString("pt-PT", {
             weekday: "long",
             day: "numeric",
             month: "long",
             year: "numeric",
           })}
+        </p>
+        <p className="mt-0.5 text-xs text-vytal-muted/60">
+          {t("dashboard.lastLogin").replace("{hours}", "2")}
         </p>
       </div>
 
