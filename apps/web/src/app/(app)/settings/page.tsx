@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { useToast } from "@/components/toast";
 import { useAppStore } from "@/stores/app-store";
+import { useAuthStore } from "@/stores/auth-store";
 import { useDataStore } from "@/stores/data-store";
 import { useI18n } from "@/lib/i18n";
 
@@ -45,6 +46,8 @@ export default function SettingsPage() {
   const { toast } = useToast();
   const accentColor = useAppStore((s) => s.accentColor);
   const setAccentColor = useAppStore((s) => s.setAccentColor);
+  const setOrgAccentColor = useAppStore((s) => s.setOrgAccentColor);
+  const activeOrgId = useAuthStore((s) => s.user?.activeOrganizationId) ?? "org-1";
   const orgSettings = useDataStore((s) => s.orgSettings);
   const updateOrgSettings = useDataStore((s) => s.updateOrgSettings);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -247,7 +250,7 @@ export default function SettingsPage() {
                       type="color"
                       value={accentColor}
                       onChange={(e) => {
-                        setAccentColor(e.target.value);
+                        setOrgAccentColor(activeOrgId, e.target.value);
                         update("brandColor", e.target.value);
                       }}
                       className="h-10 w-10 cursor-pointer rounded-lg border border-vytal-border bg-transparent"
@@ -256,7 +259,7 @@ export default function SettingsPage() {
                       type="text"
                       value={accentColor}
                       onChange={(e) => {
-                        setAccentColor(e.target.value);
+                        setOrgAccentColor(activeOrgId, e.target.value);
                         update("brandColor", e.target.value);
                       }}
                       className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-2.5 font-mono text-sm text-vytal-text focus:border-vytal-green/30 focus:outline-none focus:ring-1 focus:ring-vytal-green/20"
@@ -273,7 +276,7 @@ export default function SettingsPage() {
                       <button
                         key={preset.color}
                         onClick={() => {
-                          setAccentColor(preset.color);
+                          setOrgAccentColor(activeOrgId, preset.color);
                           update("brandColor", preset.color);
                         }}
                         className="group relative flex h-8 w-8 items-center justify-center rounded-full border-2 transition-all hover:scale-110"

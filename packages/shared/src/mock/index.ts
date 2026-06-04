@@ -11,4 +11,4 @@ export { mockLeaderboard } from "./leaderboard";
 export { mockPersonalRecords } from "./records";
 export { mockPlans, mockSubscriptions } from "./subscriptions";
 export { mockNotifications } from "./notifications";
-export { mockCurrentUser } from "./user";
+export { mockCurrentUser, mockOrgAccentColors } from "./user";

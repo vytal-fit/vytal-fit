@@ -48,6 +48,7 @@ import { useAppStore } from "@/stores/app-store";
 import { useDataStore } from "@/stores/data-store";
 import { useI18n, type Language } from "@/lib/i18n";
 import { CommandPalette } from "@/components/command-palette";
+import { CreateOrgWizard, type CreateOrgData } from "@/components/create-org-wizard";
 
 interface NavItem {
   href: string;
@@ -70,6 +71,8 @@ const allNavGroups: NavGroup[] = [
       { href: "/members", labelKey: "nav.members", icon: Users, children: [
         { href: "/members", labelKey: "nav.membersOverview", icon: Users },
         { href: "/members/analytics", labelKey: "nav.memberAnalytics", icon: Users },
+        { href: "/members/contracts", labelKey: "nav.contracts", icon: Users },
+        { href: "/members/groups", labelKey: "nav.groups", icon: Users },
         { href: "/members/import", labelKey: "nav.import", icon: Users },
         { href: "/members/retention", labelKey: "nav.retention", icon: Users },
       ]},
@@ -77,6 +80,8 @@ const allNavGroups: NavGroup[] = [
         { href: "/classes", labelKey: "nav.classesOverview", icon: CalendarDays },
         { href: "/classes/calendar", labelKey: "nav.calendar", icon: CalendarDays },
         { href: "/classes/create", labelKey: "nav.createClass", icon: CalendarDays },
+        { href: "/classes/templates", labelKey: "nav.classTemplates", icon: CalendarDays },
+        { href: "/classes/waitlist", labelKey: "nav.waitlist", icon: CalendarDays },
       ]},
       { href: "/wods", labelKey: "nav.wods", icon: Dumbbell, requiresFeature: "wods" },
       { href: "/crm", labelKey: "nav.crm", icon: UserPlus },
@@ -85,7 +90,10 @@ const allNavGroups: NavGroup[] = [
   {
     titleKey: "nav.group.management",
     items: [
-      { href: "/staff", labelKey: "nav.staff", icon: UserCog },
+      { href: "/staff", labelKey: "nav.staff", icon: UserCog, children: [
+        { href: "/staff", labelKey: "nav.staffOverview", icon: UserCog },
+        { href: "/staff/payroll", labelKey: "nav.payroll", icon: UserCog },
+      ]},
       { href: "/class-types", labelKey: "nav.classTypes", icon: Tag, requiresFeature: "groupClasses" },
       { href: "/locations", labelKey: "nav.locations", icon: MapPin },
       { href: "/exercises", labelKey: "nav.exercises", icon: Dumbbell, requiresFeature: "movementLibrary" },
@@ -99,6 +107,7 @@ const allNavGroups: NavGroup[] = [
       { href: "/financials", labelKey: "nav.financials", icon: DollarSign, children: [
         { href: "/financials", labelKey: "nav.financialsOverview", icon: DollarSign },
         { href: "/financials/revenue", labelKey: "nav.revenue", icon: DollarSign },
+        { href: "/financials/dunning", labelKey: "nav.dunning", icon: DollarSign },
         { href: "/financials/invoices", labelKey: "nav.invoices", icon: DollarSign },
         { href: "/financials/expenses", labelKey: "nav.expenses", icon: DollarSign },
         { href: "/financials/budget", labelKey: "nav.budget", icon: DollarSign },
@@ -324,7 +333,7 @@ function ThemeToggle() {
   );
 }
 
-function OrgSwitcher() {
+function OrgSwitcher({ onCreateOrg }: { onCreateOrg?: () => void }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const router = useRouter();
@@ -332,6 +341,7 @@ function OrgSwitcher() {
   const user = useAuthStore((s) => s.user);
   const switchOrg = useAuthStore((s) => s.switchOrg);
   const orgSettings = useDataStore((s) => s.orgSettings);
+  const applyOrgAccentColor = useAppStore((s) => s.applyOrgAccentColor);
 
   const memberships = user?.memberships ?? [];
   const activeOrgId = user?.activeOrganizationId ?? "";
@@ -386,6 +396,7 @@ function OrgSwitcher() {
                 key={mem.id}
                 onClick={() => {
                   switchOrg(mem.organizationId);
+                  applyOrgAccentColor(mem.organizationId);
                   setOpen(false);
                 }}
                 className={cn(
@@ -428,7 +439,11 @@ function OrgSwitcher() {
             <button
               onClick={() => {
                 setOpen(false);
-                router.push("/onboarding");
+                if (onCreateOrg) {
+                  onCreateOrg();
+                } else {
+                  router.push("/onboarding");
+                }
               }}
               className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-xs text-vytal-muted transition-colors hover:bg-vytal-bg3 hover:text-vytal-text"
             >
@@ -704,6 +719,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const logout = useAuthStore((s) => s.logout);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [showCreateOrgWizard, setShowCreateOrgWizard] = useState(false);
   const [expandedNavItems, setExpandedNavItems] = useState<Set<string>>(new Set());
 
   // Auto-expand parents whose children match the current pathname
@@ -783,7 +799,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     <>
       {/* Org Switcher */}
       <div className="border-b border-vytal-border px-3 py-3">
-        <OrgSwitcher />
+        <OrgSwitcher onCreateOrg={() => setShowCreateOrgWizard(true)} />
       </div>
 
       {/* Org type badge */}
@@ -1017,6 +1033,19 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
       {/* Command Palette */}
       <CommandPalette />
+
+      {/* Create Org Wizard Modal */}
+      {showCreateOrgWizard && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center overflow-y-auto bg-black/70 backdrop-blur-sm p-4">
+          <CreateOrgWizard
+            isModal
+            onComplete={(orgData: CreateOrgData) => {
+              setShowCreateOrgWizard(false);
+            }}
+            onCancel={() => setShowCreateOrgWizard(false)}
+          />
+        </div>
+      )}
     </div>
     </ToastProvider>
   );

@@ -1,5 +1,12 @@
 import type { UserWithOrgs } from "../types/user";
 
+/** Default accent colors per organization */
+export const mockOrgAccentColors: Record<string, string> = {
+  "org-1": "#22c55e", // CrossFit Aveiro — green
+  "org-2": "#8b5cf6", // Yoga Flow Porto — purple
+  "org-3": "#ef4444", // Iron Temple — red
+};
+
 /** Current logged-in user — belongs to 3 organizations with different roles */
 export const mockCurrentUser: UserWithOrgs = {
   user: {
