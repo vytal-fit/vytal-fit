@@ -306,3 +306,22 @@ html.light .zebra-table tbody tr:nth-child(even) {
   border-color: rgba(34, 197, 94, 0.4);
   box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
 }
+
+/* ── Detail Panel: Slide-in from right ────────────────────── */
+@keyframes detail-panel-slide-in {
+  from { transform: translateX(100%); }
+  to   { transform: translateX(0); }
+}
+
+@keyframes detail-panel-backdrop-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.detail-panel-slide {
+  animation: detail-panel-slide-in 0.3s ease-out both;
+}
+
+.detail-panel-backdrop {
+  animation: detail-panel-backdrop-in 0.2s ease-out both;
+}

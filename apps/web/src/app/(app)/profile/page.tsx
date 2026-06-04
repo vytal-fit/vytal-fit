@@ -38,6 +38,9 @@ export default function ProfilePage() {
   const { language, setLanguage, t } = useI18n();
 
   const [activeTab, setActiveTab] = useState<"profile" | "security" | "notifications" | "orgs" | "privacy">("profile");
+  const [showCreateOrg, setShowCreateOrg] = useState(false);
+  const [newOrgName, setNewOrgName] = useState("");
+  const [newOrgType, setNewOrgType] = useState("crossfit_box");
   const [name, setName] = useState(user?.user.name ?? "");
   const [email, setEmail] = useState(user?.user.email ?? "");
   const [phone, setPhone] = useState(user?.user.phone ?? "");
@@ -419,9 +422,67 @@ export default function ProfilePage() {
                     );
                   })}
                 </div>
-                <button className="mt-4 flex items-center gap-2 rounded-lg border border-dashed border-vytal-border px-4 py-3 text-sm text-vytal-muted transition-colors hover:border-vytal-green/30 hover:text-vytal-green w-full justify-center">
+                <button
+                  onClick={() => setShowCreateOrg(true)}
+                  className="mt-4 flex items-center gap-2 rounded-lg border border-dashed border-vytal-border px-4 py-3 text-sm text-vytal-muted transition-colors hover:border-vytal-green/30 hover:text-vytal-green w-full justify-center"
+                >
                   <Building2 className="h-4 w-4" /> {t("profile.createNewOrg")}
                 </button>
+
+                {/* Create Org Modal */}
+                {showCreateOrg && (
+                  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" onClick={() => setShowCreateOrg(false)}>
+                    <div className="w-full max-w-md rounded-2xl border border-vytal-border bg-vytal-bg2 p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+                      <div className="mb-6 flex items-center justify-between">
+                        <h3 className="text-lg font-bold text-vytal-text">{t("profile.createNewOrg")}</h3>
+                        <button onClick={() => setShowCreateOrg(false)} className="flex h-8 w-8 items-center justify-center rounded-lg text-vytal-muted hover:bg-vytal-bg3 hover:text-vytal-text">
+                          <span className="text-lg">×</span>
+                        </button>
+                      </div>
+                      <div className="space-y-4">
+                        <div>
+                          <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("members.name")}</label>
+                          <input
+                            value={newOrgName}
+                            onChange={(e) => setNewOrgName(e.target.value)}
+                            placeholder="e.g. CrossFit Porto"
+                            className="w-full rounded-lg border border-vytal-border bg-vytal-bg3 px-4 py-2.5 text-sm text-vytal-text outline-none focus:border-vytal-green/40"
+                          />
+                        </div>
+                        <div>
+                          <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("settings.businessType")}</label>
+                          <select
+                            value={newOrgType}
+                            onChange={(e) => setNewOrgType(e.target.value)}
+                            className="w-full rounded-lg border border-vytal-border bg-vytal-bg3 px-4 py-2.5 text-sm text-vytal-text outline-none focus:border-vytal-green/40"
+                          >
+                            {["crossfit_box","functional_training","gym","yoga_studio","pilates_studio","martial_arts","personal_training","swimming","dance_studio","health_club","sports_club","climbing_gym","cycling_studio","running_club","gymnastics_academy","rehabilitation","weightlifting_club","bootcamp","surf_water_sports","other"].map((type) => (
+                              <option key={type} value={type}>{t(`vertical.${type}`)}</option>
+                            ))}
+                          </select>
+                        </div>
+                        <div className="flex gap-3 pt-2">
+                          <button
+                            onClick={() => {
+                              if (!newOrgName.trim()) return;
+                              setShowCreateOrg(false);
+                              setNewOrgName("");
+                            }}
+                            className="flex-1 rounded-lg bg-vytal-green px-4 py-2.5 text-sm font-semibold text-vytal-bg transition-colors hover:bg-vytal-green/90"
+                          >
+                            {t("action.create")}
+                          </button>
+                          <button
+                            onClick={() => setShowCreateOrg(false)}
+                            className="rounded-lg border border-vytal-border px-4 py-2.5 text-sm font-medium text-vytal-muted hover:bg-vytal-bg3"
+                          >
+                            {t("action.cancel")}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           )}
