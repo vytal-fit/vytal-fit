@@ -104,6 +104,13 @@ export default function StaffDetailPage() {
                 <Pencil className="h-3 w-3" />
                 {t("action.edit")}
               </Link>
+              <Link
+                href={`/staff/${id}/performance`}
+                className="flex items-center gap-1.5 rounded-lg bg-vytal-green/10 border border-vytal-green/20 px-3 py-1.5 text-xs font-medium text-vytal-green transition-colors hover:bg-vytal-green/20"
+              >
+                <TrendingUp className="h-3 w-3" />
+                {t("staffDetail.viewPerformance")}
+              </Link>
             </div>
             <div className="mt-2 flex flex-wrap items-center gap-4 text-sm text-vytal-muted">
               <div className="flex items-center gap-1.5">

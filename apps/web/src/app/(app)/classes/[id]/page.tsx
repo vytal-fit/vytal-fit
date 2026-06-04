@@ -179,6 +179,17 @@ export default function ClassDetailPage() {
         </div>
       </div>
 
+      {/* View Attendance Button */}
+      <div>
+        <Link
+          href={`/classes/${cls.id}/attendance`}
+          className="inline-flex items-center gap-2 rounded-lg bg-vytal-green px-5 py-2.5 text-sm font-medium text-vytal-bg transition-all hover:bg-vytal-green/90"
+        >
+          <CheckCircle className="h-4 w-4" />
+          {t("classDetail.viewAttendance")}
+        </Link>
+      </div>
+
       {/* Enrolled Members */}
       <div>
         <h2 className="mb-4 text-lg font-semibold text-vytal-text">
