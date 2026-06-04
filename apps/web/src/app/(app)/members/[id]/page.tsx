@@ -602,6 +602,13 @@ export default function MemberDetailPage() {
               <Scale className="h-4 w-4" />
               {t("memberOverview.bodyComposition") || "Body Composition"}
             </Link>
+            <Link
+              href={`/members/${member.id}/assessments`}
+              className="inline-flex items-center gap-2 rounded-lg border border-vytal-border px-4 py-2 text-sm font-medium text-vytal-text transition-colors hover:bg-vytal-bg3"
+            >
+              <Activity className="h-4 w-4" />
+              {t("memberOverview.assessments") || "Assessments"}
+            </Link>
           </div>
 
           {/* Personal Records */}
