@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useCallback } from "react";
 import Link from "next/link";
-import { ChevronLeft, ChevronRight, ArrowLeft, X, Trash2, Users } from "lucide-react";
+import { ChevronLeft, ChevronRight, ArrowLeft, X, Trash2, Users, Copy, ClipboardPaste, Check } from "lucide-react";
 import { useDataStore } from "@/stores/data-store";
 import type { Class } from "@vytal-fit/shared";
 import { cn } from "@/lib/utils";
@@ -93,11 +93,13 @@ function ClassBlock({
   onClick,
   isDragging,
   onDragStart,
+  isPastePreview,
 }: {
   cls: Class;
   onClick: () => void;
   isDragging: boolean;
   onDragStart: (e: React.DragEvent) => void;
+  isPastePreview?: boolean;
 }) {
   const { t } = useI18n();
   const pct = (cls.enrolledCount / cls.maxCapacity) * 100;
@@ -111,11 +113,16 @@ function ClassBlock({
         e.stopPropagation();
         onClick();
       }}
-      className="group block w-full rounded-lg border border-transparent p-1.5 text-left transition-all hover:border-[rgba(61,255,110,0.22)] hover:shadow-lg"
+      className={cn(
+        "group block w-full rounded-lg p-1.5 text-left transition-all hover:shadow-lg",
+        isPastePreview
+          ? "border-2 border-dashed border-vytal-green/50"
+          : "border border-transparent hover:border-[rgba(61,255,110,0.22)]"
+      )}
       style={{
-        backgroundColor: `${cls.classType.color}15`,
-        opacity: isDragging ? 0.5 : 1,
-        cursor: "grab",
+        backgroundColor: isPastePreview ? `${cls.classType.color}08` : `${cls.classType.color}15`,
+        opacity: isDragging ? 0.5 : isPastePreview ? 0.7 : 1,
+        cursor: isPastePreview ? "default" : "grab",
       }}
     >
       <div className="mb-0.5 flex items-center gap-1.5">
@@ -404,22 +411,35 @@ export default function ClassCalendarPage() {
   const [extraClasses, setExtraClasses] = useState<Class[]>([]);
   const [deletedIds, setDeletedIds] = useState<Set<string>>(new Set());
 
+  // Copy/Paste state (declared before weekClasses so displayClasses can use them)
+  const [copiedClasses, setCopiedClasses] = useState<Class[] | null>(null);
+  const [pastedPreview, setPastedPreview] = useState<Class[]>([]);
+  const [showPastePreview, setShowPastePreview] = useState(false);
+
   const weekClasses = useMemo(() => {
     const base = generateWeekClasses(monday, classTypes, coaches, locations);
     return [...base, ...extraClasses].filter((c) => !deletedIds.has(c.id));
   }, [monday, extraClasses, deletedIds, classTypes, coaches, locations]);
 
+  // Combine weekClasses with paste preview for display
+  const displayClasses = useMemo(() => {
+    if (!showPastePreview) return weekClasses;
+    return [...weekClasses, ...pastedPreview];
+  }, [weekClasses, pastedPreview, showPastePreview]);
+
+  const pastedIds = useMemo(() => new Set(pastedPreview.map((c) => c.id)), [pastedPreview]);
+
   const today = new Date().toISOString().split("T")[0];
 
   const grid = useMemo(() => {
     const map: Record<string, Class[]> = {};
-    for (const cls of weekClasses) {
+    for (const cls of displayClasses) {
       const key = `${cls.date}|${cls.startTime}`;
       if (!map[key]) map[key] = [];
       map[key].push(cls);
     }
     return map;
-  }, [weekClasses]);
+  }, [displayClasses]);
 
   const weekDates = useMemo(() => {
     return Array.from({ length: 7 }, (_, i) => {
@@ -428,6 +448,50 @@ export default function ClassCalendarPage() {
       return d.toISOString().split("T")[0];
     });
   }, [monday]);
+
+  const handleCopyWeek = useCallback(() => {
+    setCopiedClasses([...weekClasses]);
+    setPastedPreview([]);
+    setShowPastePreview(false);
+    toast("Week copied! Navigate to target week and click Paste Week.", "success");
+  }, [weekClasses, toast]);
+
+  const handlePasteWeek = useCallback(() => {
+    if (!copiedClasses) return;
+    // Generate pasted classes for the current week by adjusting dates
+    const copiedMonday = getMonday(new Date(copiedClasses[0]?.date ?? new Date()));
+    const targetMonday = monday;
+
+    const pasted: Class[] = copiedClasses.map((cls) => {
+      const clsDate = new Date(cls.date + "T00:00:00");
+      const dayOfWeek = Math.round((clsDate.getTime() - copiedMonday.getTime()) / (1000 * 60 * 60 * 24));
+      const newDate = new Date(targetMonday);
+      newDate.setDate(newDate.getDate() + dayOfWeek);
+      const dateStr = newDate.toISOString().split("T")[0];
+
+      return {
+        ...cls,
+        id: `cal-paste-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+        date: dateStr,
+      };
+    });
+
+    setPastedPreview(pasted);
+    setShowPastePreview(true);
+  }, [copiedClasses, monday]);
+
+  const handleConfirmPaste = useCallback(() => {
+    setExtraClasses((prev) => [...prev, ...pastedPreview]);
+    setPastedPreview([]);
+    setShowPastePreview(false);
+    setCopiedClasses(null);
+    toast(`${pastedPreview.length} classes pasted into this week!`, "success");
+  }, [pastedPreview, toast]);
+
+  const handleCancelPaste = useCallback(() => {
+    setPastedPreview([]);
+    setShowPastePreview(false);
+  }, []);
 
   // Popup states
   const [selectedClass, setSelectedClass] = useState<Class | null>(null);
@@ -565,8 +629,48 @@ export default function ClassCalendarPage() {
           </div>
         </div>
 
-        {/* Week Navigation */}
+        {/* Week Navigation + Copy/Paste */}
         <div className="flex items-center gap-2">
+          <button
+            onClick={handleCopyWeek}
+            className={cn(
+              "flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors",
+              copiedClasses
+                ? "border-vytal-green/30 bg-vytal-green/10 text-vytal-green"
+                : "border-vytal-border text-vytal-muted hover:bg-vytal-bg3 hover:text-vytal-text"
+            )}
+          >
+            <Copy className="h-3.5 w-3.5" />
+            {copiedClasses ? "Copied!" : t("quickAction.copyWeek")}
+          </button>
+          {copiedClasses && !showPastePreview && (
+            <button
+              onClick={handlePasteWeek}
+              className="flex items-center gap-1.5 rounded-lg border border-vytal-amber/30 bg-vytal-amber/10 px-3 py-1.5 text-xs font-medium text-vytal-amber transition-colors hover:bg-vytal-amber/20"
+            >
+              <ClipboardPaste className="h-3.5 w-3.5" />
+              Paste Week
+            </button>
+          )}
+          {showPastePreview && (
+            <>
+              <button
+                onClick={handleConfirmPaste}
+                className="flex items-center gap-1.5 rounded-lg bg-vytal-green px-3 py-1.5 text-xs font-semibold text-vytal-bg transition-colors hover:bg-vytal-green/90"
+              >
+                <Check className="h-3.5 w-3.5" />
+                Confirm Paste
+              </button>
+              <button
+                onClick={handleCancelPaste}
+                className="flex items-center gap-1.5 rounded-lg border border-vytal-red/30 bg-vytal-red/10 px-3 py-1.5 text-xs font-medium text-vytal-red transition-colors hover:bg-vytal-red/20"
+              >
+                <X className="h-3.5 w-3.5" />
+                Cancel
+              </button>
+            </>
+          )}
+          <div className="mx-1 h-5 w-px bg-vytal-border" />
           <button
             onClick={() => setWeekOffset((o) => o - 1)}
             className="flex h-9 w-9 items-center justify-center rounded-lg border border-vytal-border text-vytal-muted transition-colors hover:bg-vytal-bg3 hover:text-vytal-text"
@@ -663,8 +767,11 @@ export default function ClassCalendarPage() {
                             cls={cls}
                             isDragging={draggedClassId === cls.id}
                             onDragStart={(e) => handleDragStart(e, cls.id)}
+                            isPastePreview={pastedIds.has(cls.id)}
                             onClick={() => {
-                              setSelectedClass(cls);
+                              if (!pastedIds.has(cls.id)) {
+                                setSelectedClass(cls);
+                              }
                             }}
                           />
                         ))}
