@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { mockDashboardStats } from "@vytal-fit/shared";
 import type { Class, DashboardStats } from "@vytal-fit/shared";
 import { useDataStore, formatCurrency, formatCurrencyCompact } from "@/stores/data-store";
@@ -21,6 +21,11 @@ import {
   ChevronDown,
   ChevronUp,
   ArrowUpRight,
+  SlidersHorizontal,
+  Eye,
+  EyeOff,
+  RotateCcw,
+  GripVertical,
 } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import Link from "next/link";
@@ -383,6 +388,43 @@ function RevenueTooltip({ active, payload, label }: RevenueTooltipProps) {
 }
 
 // ---------------------------------------------------------------------------
+// Dashboard Widget Customization
+// ---------------------------------------------------------------------------
+
+type WidgetKey = "kpi" | "quickActions" | "charts" | "schedule";
+
+interface DashboardLayout {
+  hidden: WidgetKey[];
+}
+
+const LAYOUT_STORAGE_KEY = "vytal-dashboard-layout";
+
+const widgetLabels: Record<WidgetKey, string> = {
+  kpi: "KPI Cards",
+  quickActions: "Quick Actions",
+  charts: "Charts & Analytics",
+  schedule: "Today's Schedule",
+};
+
+const defaultLayout: DashboardLayout = { hidden: [] };
+
+function loadLayout(): DashboardLayout {
+  if (typeof window === "undefined") return defaultLayout;
+  try {
+    const raw = localStorage.getItem(LAYOUT_STORAGE_KEY);
+    if (!raw) return defaultLayout;
+    return JSON.parse(raw) as DashboardLayout;
+  } catch {
+    return defaultLayout;
+  }
+}
+
+function saveLayout(layout: DashboardLayout) {
+  if (typeof window === "undefined") return;
+  localStorage.setItem(LAYOUT_STORAGE_KEY, JSON.stringify(layout));
+}
+
+// ---------------------------------------------------------------------------
 // Page
 // ---------------------------------------------------------------------------
 
@@ -401,31 +443,104 @@ export default function DashboardPage() {
 
   const hMax = heatmapMax();
   const [chartsOpen, setChartsOpen] = useState(true);
+  const [editMode, setEditMode] = useState(false);
+  const [layout, setLayout] = useState<DashboardLayout>(defaultLayout);
+
+  useEffect(() => {
+    setLayout(loadLayout());
+  }, []);
+
+  const toggleWidget = useCallback((key: WidgetKey) => {
+    setLayout((prev) => {
+      const hidden = prev.hidden.includes(key)
+        ? prev.hidden.filter((k) => k !== key)
+        : [...prev.hidden, key];
+      const next = { ...prev, hidden };
+      saveLayout(next);
+      return next;
+    });
+  }, []);
+
+  const resetLayout = useCallback(() => {
+    setLayout(defaultLayout);
+    saveLayout(defaultLayout);
+  }, []);
+
+  const isVisible = useCallback((key: WidgetKey) => !layout.hidden.includes(key), [layout]);
 
   const firstName = user?.user.name.split(" ")[0] ?? "";
 
   return (
     <div className="space-y-8">
       {/* Welcome Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-vytal-text">
-          {getGreeting()}, {firstName}
-        </h1>
-        <p className="mt-1 text-sm text-vytal-muted">
-          {orgSettings.name} &mdash;{" "}
-          {new Date().toLocaleDateString("pt-PT", {
-            weekday: "long",
-            day: "numeric",
-            month: "long",
-            year: "numeric",
-          })}
-        </p>
-        <p className="mt-0.5 text-xs text-vytal-muted/60">
-          {t("dashboard.lastLogin").replace("{hours}", "2")}
-        </p>
+      <div className="flex items-start justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-vytal-text">
+            {getGreeting()}, {firstName}
+          </h1>
+          <p className="mt-1 text-sm text-vytal-muted">
+            {orgSettings.name} &mdash;{" "}
+            {new Date().toLocaleDateString("pt-PT", {
+              weekday: "long",
+              day: "numeric",
+              month: "long",
+              year: "numeric",
+            })}
+          </p>
+          <p className="mt-0.5 text-xs text-vytal-muted/60">
+            {t("dashboard.lastLogin").replace("{hours}", "2")}
+          </p>
+        </div>
+        <button
+          onClick={() => setEditMode((v) => !v)}
+          className={cn(
+            "flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-semibold transition-colors",
+            editMode
+              ? "border-vytal-green/40 bg-vytal-green/10 text-vytal-green"
+              : "border-vytal-border bg-vytal-card text-vytal-muted hover:text-vytal-text"
+          )}
+        >
+          <SlidersHorizontal className="h-3.5 w-3.5" />
+          {t("dashboard.customize")}
+        </button>
       </div>
 
+      {/* Edit Mode Panel */}
+      {editMode && (
+        <div className="rounded-xl border border-vytal-green/20 bg-vytal-card p-4">
+          <div className="mb-3 flex items-center justify-between">
+            <p className="text-sm font-semibold text-vytal-text">{t("dashboard.customizeWidgets")}</p>
+            <button
+              onClick={resetLayout}
+              className="flex items-center gap-1 text-xs font-medium text-vytal-muted transition-colors hover:text-vytal-text"
+            >
+              <RotateCcw className="h-3 w-3" />
+              {t("dashboard.resetDefault")}
+            </button>
+          </div>
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+            {(["kpi", "quickActions", "charts", "schedule"] as WidgetKey[]).map((key) => (
+              <button
+                key={key}
+                onClick={() => toggleWidget(key)}
+                className={cn(
+                  "flex items-center gap-2 rounded-lg border px-3 py-2 text-xs font-medium transition-colors",
+                  isVisible(key)
+                    ? "border-vytal-green/20 bg-vytal-green/5 text-vytal-green"
+                    : "border-vytal-border bg-vytal-bg2 text-vytal-muted"
+                )}
+              >
+                <GripVertical className="h-3 w-3 opacity-40" />
+                {isVisible(key) ? <Eye className="h-3.5 w-3.5" /> : <EyeOff className="h-3.5 w-3.5" />}
+                {widgetLabels[key]}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Quick Actions Bar */}
+      {isVisible("quickActions") && (
       <div className="flex flex-wrap items-center gap-2">
         <Link href="/members/import" className="inline-flex items-center gap-1.5 rounded-full border border-vytal-green/20 bg-vytal-green/5 px-3.5 py-1.5 text-xs font-semibold text-vytal-green transition-colors hover:bg-vytal-green/10">
           <UserPlus className="h-3.5 w-3.5" />
@@ -444,8 +559,10 @@ export default function DashboardPage() {
           {t("quickAction.newLead")}
         </Link>
       </div>
+      )}
 
       {/* KPI Cards */}
+      {isVisible("kpi") && (
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
         <StatCard
           label={t("dashboard.totalMembers")}
@@ -513,8 +630,10 @@ export default function DashboardPage() {
           trend={{ value: "+12%", up: true }}
         />
       </div>
+      )}
 
       {/* Charts Section — Collapsible */}
+      {isVisible("charts") && (
       <div>
         <button
           onClick={() => setChartsOpen((v) => !v)}
@@ -524,8 +643,9 @@ export default function DashboardPage() {
           {t("dashboard.chartsSection")}
         </button>
       </div>
+      )}
 
-      {chartsOpen && (
+      {isVisible("charts") && chartsOpen && (
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Chart 1: Member Growth */}
         <ChartCard title={t("dashboard.memberGrowth")}>
@@ -624,7 +744,7 @@ export default function DashboardPage() {
       )}
 
       {/* Chart 5: Attendance Heatmap */}
-      {chartsOpen && (
+      {isVisible("charts") && chartsOpen && (
       <ChartCard title={t("dashboard.attendanceHeatmap")} className="col-span-full">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[600px]">
@@ -683,6 +803,7 @@ export default function DashboardPage() {
       )}
 
       {/* Today's Schedule */}
+      {isVisible("schedule") && (
       <div>
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-lg font-semibold text-vytal-text">
@@ -720,6 +841,7 @@ export default function DashboardPage() {
           )}
         </div>
       </div>
+      )}
     </div>
   );
 }

@@ -43,6 +43,9 @@ import {
   Plug,
   Sparkles,
   Brain,
+  ShoppingBag,
+  History,
+  Award,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ToastProvider } from "@/components/toast";
@@ -89,6 +92,7 @@ const allNavGroups: NavGroup[] = [
         { href: "/classes/smart", labelKey: "nav.smartScheduling", icon: Brain },
         { href: "/classes/templates", labelKey: "nav.classTemplates", icon: CalendarDays },
         { href: "/classes/waitlist", labelKey: "nav.waitlist", icon: CalendarDays },
+        { href: "/classes/history", labelKey: "nav.classHistory", icon: History },
       ]},
       { href: "/wods", labelKey: "nav.wods", icon: Dumbbell, requiresFeature: "wods", children: [
         { href: "/wods", labelKey: "nav.wods", icon: Dumbbell },
@@ -108,6 +112,7 @@ const allNavGroups: NavGroup[] = [
       { href: "/class-types", labelKey: "nav.classTypes", icon: Tag, requiresFeature: "groupClasses" },
       { href: "/locations", labelKey: "nav.locations", icon: MapPin },
       { href: "/exercises", labelKey: "nav.exercises", icon: Dumbbell, requiresFeature: "movementLibrary" },
+      { href: "/store", labelKey: "nav.store", icon: ShoppingBag },
       { href: "/plans", labelKey: "nav.plans", icon: CreditCard },
       { href: "/dropins", labelKey: "nav.dropins", icon: Globe, requiresFeature: "dropins" },
       { href: "/import", labelKey: "nav.importCenter", icon: Upload },
@@ -135,6 +140,7 @@ const allNavGroups: NavGroup[] = [
         { href: "/community", labelKey: "nav.community", icon: Heart },
         { href: "/community/questionnaires", labelKey: "nav.questionnaires", icon: Heart },
         { href: "/community/events", labelKey: "nav.events", icon: Heart },
+        { href: "/community/badges", labelKey: "nav.badges", icon: Award },
       ]},
       { href: "/notifications", labelKey: "nav.notifications", icon: Bell },
       { href: "/messages", labelKey: "nav.messages", icon: MessageCircle, badge: 3 },
