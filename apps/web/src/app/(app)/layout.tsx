@@ -46,6 +46,9 @@ import {
   ShoppingBag,
   History,
   Award,
+  CheckSquare,
+  Inbox,
+  Gift,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ToastProvider } from "@/components/toast";
@@ -112,7 +115,10 @@ const allNavGroups: NavGroup[] = [
       { href: "/class-types", labelKey: "nav.classTypes", icon: Tag, requiresFeature: "groupClasses" },
       { href: "/locations", labelKey: "nav.locations", icon: MapPin },
       { href: "/exercises", labelKey: "nav.exercises", icon: Dumbbell, requiresFeature: "movementLibrary" },
-      { href: "/store", labelKey: "nav.store", icon: ShoppingBag },
+      { href: "/store", labelKey: "nav.store", icon: ShoppingBag, children: [
+        { href: "/store", labelKey: "nav.store", icon: ShoppingBag },
+        { href: "/store/vouchers", labelKey: "nav.vouchers", icon: Gift },
+      ]},
       { href: "/plans", labelKey: "nav.plans", icon: CreditCard },
       { href: "/dropins", labelKey: "nav.dropins", icon: Globe, requiresFeature: "dropins" },
       { href: "/import", labelKey: "nav.importCenter", icon: Upload },
@@ -142,6 +148,8 @@ const allNavGroups: NavGroup[] = [
         { href: "/community/events", labelKey: "nav.events", icon: Heart },
         { href: "/community/badges", labelKey: "nav.badges", icon: Award },
       ]},
+      { href: "/tasks", labelKey: "nav.tasks", icon: CheckSquare },
+      { href: "/inbox", labelKey: "nav.inbox", icon: Inbox },
       { href: "/notifications", labelKey: "nav.notifications", icon: Bell },
       { href: "/messages", labelKey: "nav.messages", icon: MessageCircle, badge: 3 },
       { href: "/communications", labelKey: "nav.communications", icon: MessageSquare, children: [
@@ -149,7 +157,10 @@ const allNavGroups: NavGroup[] = [
         { href: "/communications/sms", labelKey: "nav.sms", icon: MessageSquare },
         { href: "/communications/templates", labelKey: "nav.templates", icon: MessageSquare },
       ]},
-      { href: "/automations", labelKey: "nav.automations", icon: Zap },
+      { href: "/automations", labelKey: "nav.automations", icon: Zap, children: [
+        { href: "/automations", labelKey: "nav.automations", icon: Zap },
+        { href: "/automations/milestones", labelKey: "nav.milestones", icon: Trophy },
+      ]},
       { href: "/screen", labelKey: "nav.tvScreen", icon: Monitor, requiresFeature: "tvDisplay" },
     ],
   },
