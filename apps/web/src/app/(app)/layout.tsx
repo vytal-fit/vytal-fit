@@ -1119,29 +1119,32 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         <div className="page-enter p-4 lg:p-8">{children}</div>
       </main>
 
-      {/* Right Sidebar — Daily Briefing */}
-      <div className="relative hidden md:flex">
-        {/* Collapse/Expand toggle on the sidebar edge */}
+      </div>
+
+      {/* Right Sidebar — Daily Briefing (overlay, doesn't squeeze content) */}
+      <div className="hidden md:block">
+        {/* Toggle button — always visible at right edge */}
         <button
           onClick={toggleRightSidebar}
-          className={cn(
-            "absolute top-1/2 -translate-y-1/2 z-40 flex h-6 w-6 items-center justify-center rounded-full border border-vytal-border bg-vytal-bg2 text-vytal-muted shadow-sm transition-all hover:bg-vytal-bg3 hover:text-vytal-text",
-            rightSidebarOpen ? "left-0 -translate-x-1/2" : "-left-3"
-          )}
+          className="fixed right-0 top-1/2 -translate-y-1/2 z-40 flex h-8 w-5 items-center justify-center rounded-l-lg border border-r-0 border-vytal-border bg-vytal-bg2 text-vytal-muted shadow-sm transition-all hover:bg-vytal-bg3 hover:text-vytal-text hover:w-6"
           title={t("briefing.toggleSidebar")}
         >
           {rightSidebarOpen ? (
-            <ChevronRight className="h-3.5 w-3.5" />
+            <ChevronRight className="h-3 w-3" />
           ) : (
-            <ChevronLeft className="h-3.5 w-3.5" />
+            <ChevronLeft className="h-3 w-3" />
           )}
         </button>
-        {rightSidebarOpen && (
-          <aside className="w-72 shrink-0 flex-col border-l border-vytal-border bg-vytal-bg2 flex transition-all duration-300">
-            <DailyBriefing />
-          </aside>
-        )}
-      </div>
+
+        {/* Sidebar panel — slides in from right, overlays content */}
+        <aside
+          className={cn(
+            "fixed right-0 top-16 bottom-0 z-30 w-80 border-l border-vytal-border bg-vytal-bg2 shadow-2xl shadow-black/10 transition-transform duration-300 ease-in-out overflow-y-auto",
+            rightSidebarOpen ? "translate-x-0" : "translate-x-full"
+          )}
+        >
+          <DailyBriefing />
+        </aside>
       </div>
 
       {/* Floating Messenger-style chat widget */}
