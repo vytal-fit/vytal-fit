@@ -1737,6 +1737,10 @@ const translations: Record<Language, Record<string, string>> = {
     "nav.events": "Eventos",
     "nav.schedule": "Horario",
     "nav.permissions": "Permissoes",
+    "nav.webhooks": "Webhooks",
+    "nav.apiKeys": "Chaves API",
+    "nav.branding": "Marca",
+    "nav.referrals": "Referências",
 
     // Programming
     "programming.title": "Programacao de WODs",
@@ -3817,6 +3821,10 @@ const translations: Record<Language, Record<string, string>> = {
     "nav.events": "Events",
     "nav.schedule": "Schedule",
     "nav.permissions": "Permissions",
+    "nav.webhooks": "Webhooks",
+    "nav.apiKeys": "API Keys",
+    "nav.branding": "Branding",
+    "nav.referrals": "Referrals",
 
     // Programming
     "programming.title": "WOD Programming",
@@ -5877,6 +5885,10 @@ const translations: Record<Language, Record<string, string>> = {
     "nav.events": "Eventos",
     "nav.schedule": "Horario",
     "nav.permissions": "Permisos",
+    "nav.webhooks": "Webhooks",
+    "nav.apiKeys": "Claves API",
+    "nav.branding": "Marca",
+    "nav.referrals": "Referencias",
 
     // Programming
     "programming.title": "Programacion de WODs",
