@@ -49,6 +49,9 @@ import {
   CheckSquare,
   Inbox,
   Gift,
+  Image,
+  Wrench,
+  Newspaper,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ToastProvider } from "@/components/toast";
@@ -113,7 +116,10 @@ const allNavGroups: NavGroup[] = [
         { href: "/staff/schedule", labelKey: "nav.schedule", icon: UserCog },
       ]},
       { href: "/class-types", labelKey: "nav.classTypes", icon: Tag, requiresFeature: "groupClasses" },
-      { href: "/locations", labelKey: "nav.locations", icon: MapPin },
+      { href: "/locations", labelKey: "nav.locations", icon: MapPin, children: [
+        { href: "/locations", labelKey: "nav.locations", icon: MapPin },
+        { href: "/locations/dashboard", labelKey: "nav.locationDashboard", icon: MapPin },
+      ]},
       { href: "/exercises", labelKey: "nav.exercises", icon: Dumbbell, requiresFeature: "movementLibrary" },
       { href: "/store", labelKey: "nav.store", icon: ShoppingBag, children: [
         { href: "/store", labelKey: "nav.store", icon: ShoppingBag },
@@ -121,6 +127,8 @@ const allNavGroups: NavGroup[] = [
       ]},
       { href: "/plans", labelKey: "nav.plans", icon: CreditCard },
       { href: "/dropins", labelKey: "nav.dropins", icon: Globe, requiresFeature: "dropins" },
+      { href: "/media", labelKey: "nav.media", icon: Image },
+      { href: "/equipment", labelKey: "nav.equipment", icon: Wrench },
       { href: "/import", labelKey: "nav.importCenter", icon: Upload },
     ],
   },
@@ -180,6 +188,7 @@ const allNavGroups: NavGroup[] = [
         { href: "/settings/branding", labelKey: "nav.branding", icon: Settings },
       ]},
       { href: "/integrations", labelKey: "nav.integrations", icon: Plug },
+      { href: "/changelog", labelKey: "nav.changelog", icon: Newspaper },
       { href: "/help", labelKey: "nav.help", icon: HelpCircle },
     ],
   },
@@ -1091,14 +1100,16 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
       {/* Create Org Wizard Modal */}
       {showCreateOrgWizard && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center overflow-y-auto bg-black/70 backdrop-blur-sm p-4">
-          <CreateOrgWizard
-            isModal
-            onComplete={(orgData: CreateOrgData) => {
-              setShowCreateOrgWizard(false);
-            }}
-            onCancel={() => setShowCreateOrgWizard(false)}
-          />
+        <div className="fixed inset-0 z-[60] overflow-y-auto bg-vytal-bg">
+          <div className="min-h-screen">
+            <CreateOrgWizard
+              isModal
+              onComplete={(orgData: CreateOrgData) => {
+                setShowCreateOrgWizard(false);
+              }}
+              onCancel={() => setShowCreateOrgWizard(false)}
+            />
+          </div>
         </div>
       )}
     </div>
