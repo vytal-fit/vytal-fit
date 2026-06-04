@@ -959,40 +959,54 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
       {/* Main Content */}
       <main className="flex-1 overflow-y-auto">
-        {/* Top bar */}
-        <div className="flex h-14 items-center justify-between gap-3 border-b border-vytal-border bg-vytal-bg2/50 px-4 lg:justify-end lg:px-8">
-          {/* Mobile: hamburger + org name */}
-          <div className="flex items-center gap-3 lg:hidden">
+        {/* Top bar — kloser-style */}
+        <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-vytal-border bg-vytal-bg2/80 backdrop-blur-xl px-4 md:px-6">
+          {/* Left: hamburger (mobile) + search */}
+          <div className="flex items-center gap-3">
             <button
               onClick={() => setMobileOpen(true)}
-              className="flex h-9 w-9 items-center justify-center rounded-lg text-vytal-muted transition-colors hover:bg-vytal-bg3 hover:text-vytal-text"
+              className="flex h-9 w-9 items-center justify-center rounded-lg text-vytal-muted transition-colors hover:bg-vytal-bg3 hover:text-vytal-text lg:hidden"
             >
               <Menu className="h-5 w-5" />
             </button>
-            <span className="text-sm font-semibold text-vytal-text truncate">
-              {activeOrg?.organization.name ?? "Vytal"}
-            </span>
-          </div>
-          <div className="flex items-center gap-3">
+
+            {/* Search — wide input style */}
             <button
               onClick={() => {
-                // Trigger Cmd+K programmatically
                 document.dispatchEvent(new KeyboardEvent("keydown", { key: "k", metaKey: true, bubbles: true }));
               }}
-              className="hidden items-center gap-2 rounded-lg border border-vytal-border bg-vytal-bg3/50 px-3 py-1.5 text-xs text-vytal-muted transition-colors hover:border-vytal-green/20 hover:text-vytal-text sm:flex"
+              className="hidden items-center gap-3 rounded-lg border border-vytal-border bg-vytal-bg3/50 px-4 py-2 text-sm text-vytal-muted transition-all duration-200 hover:border-vytal-green/20 hover:text-vytal-text sm:flex w-64 lg:w-80"
             >
-              <Search className="h-3.5 w-3.5" />
+              <Search className="h-4 w-4" />
               <span>{t("ui.searchPlaceholder")}</span>
-              <kbd className="rounded border border-vytal-border bg-vytal-bg3 px-1 py-0.5 text-[10px] font-semibold">
-                {typeof navigator !== "undefined" && /Mac/.test(navigator.userAgent) ? "\u2318K" : "Ctrl+K"}
+              <kbd className="ml-auto flex items-center gap-0.5 rounded border border-vytal-border bg-vytal-bg3 px-1.5 py-0.5 text-[10px] font-mono text-vytal-muted">
+                ⌘K
               </kbd>
             </button>
+
+            {/* Search icon — mobile */}
+            <button
+              onClick={() => {
+                document.dispatchEvent(new KeyboardEvent("keydown", { key: "k", metaKey: true, bubbles: true }));
+              }}
+              className="flex h-9 w-9 items-center justify-center rounded-lg text-vytal-muted transition-colors hover:bg-vytal-bg3 hover:text-vytal-text sm:hidden"
+            >
+              <Search className="h-5 w-5" />
+            </button>
+          </div>
+
+          {/* Right: lang + theme + notifications + user */}
+          <div className="flex items-center gap-3">
             <LanguageSwitcher />
             <ThemeToggle />
             <NotificationsDropdown />
-            <UserMenu user={user} onLogout={handleLogout} />
+
+            {/* User — separated with border */}
+            <div className="pl-3 border-l border-vytal-border">
+              <UserMenu user={user} onLogout={handleLogout} />
+            </div>
           </div>
-        </div>
+        </header>
         <div className="page-enter p-4 lg:p-8">{children}</div>
       </main>
 

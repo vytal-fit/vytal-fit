@@ -2,10 +2,12 @@
 
 import { useDataStore } from "@/stores/data-store";
 import type { WOD, WODPart, WODType } from "@vytal-fit/shared";
-import { Dumbbell, Clock, Flame, Zap, Timer, Repeat, ChevronRight, Plus } from "lucide-react";
+import { Dumbbell, Clock, Flame, Zap, Timer, Repeat, ChevronRight, Plus, Copy, Check, Pencil } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useI18n } from "@/lib/i18n";
+import { useToast } from "@/components/toast";
+import { useState, useCallback } from "react";
 
 const wodTypeConfig: Record<
   WODType,
@@ -56,6 +58,46 @@ function WODTypeBadge({ type }: { type: WODType }) {
       {config.label}
     </span>
   );
+}
+
+function estimateDuration(wod: WOD): number {
+  let totalMinutes = 0;
+  for (const part of wod.parts) {
+    if (part.timeCap) {
+      totalMinutes += part.timeCap;
+    } else if (part.type === "emom" && part.rounds && part.intervalSeconds) {
+      totalMinutes += Math.ceil((part.rounds * part.intervalSeconds) / 60);
+    } else if (part.exercises.length > 0) {
+      // Rough estimate: ~2 min per exercise for warm-ups/cool-downs
+      totalMinutes += part.exercises.length * 2;
+    } else {
+      totalMinutes += 5; // default for empty parts
+    }
+  }
+  return totalMinutes;
+}
+
+function wodToClipboardText(wod: WOD): string {
+  const lines: string[] = [];
+  if (wod.title) lines.push(wod.title);
+  if (wod.description) lines.push(wod.description);
+  lines.push("");
+  for (const part of wod.parts) {
+    let partHeader = part.name;
+    if (part.type !== "custom") partHeader += ` (${wodTypeConfig[part.type].label})`;
+    if (part.timeCap) partHeader += ` - ${part.timeCap} min`;
+    if (part.rounds) partHeader += ` - ${part.rounds} rounds`;
+    lines.push(partHeader);
+    for (const ex of part.exercises) {
+      let exLine = `  ${ex.exercise.name}`;
+      if (ex.reps) exLine += ` ${ex.reps}`;
+      if (ex.weight) exLine += ` @ ${ex.weight}`;
+      if (ex.notes) exLine += ` (${ex.notes})`;
+      lines.push(exLine);
+    }
+    lines.push("");
+  }
+  return lines.join("\n").trim();
 }
 
 function PartSection({ part }: { part: WODPart }) {
@@ -114,12 +156,29 @@ function PartSection({ part }: { part: WODPart }) {
 }
 
 function WODCard({ wod }: { wod: WOD }) {
+  const { t } = useI18n();
+  const { toast } = useToast();
   const storeClassTypes = useDataStore((s) => s.classTypes);
   const classType = storeClassTypes.find((ct: { id: string }) => ct.id === wod.classTypeId);
   const mainPart = wod.parts.find(
     (p) => p.type !== "custom" && p.name !== "Warm Up" && p.name !== "Cool Down"
   );
   const mainType = mainPart?.type ?? "custom";
+  const duration = estimateDuration(wod);
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = useCallback(() => {
+    const text = wodToClipboardText(wod);
+    navigator.clipboard.writeText(text).then(() => {
+      setCopied(true);
+      toast(t("wods.copied"), "success");
+      setTimeout(() => setCopied(false), 2000);
+    });
+  }, [wod, toast, t]);
+
+  const handleEdit = useCallback(() => {
+    toast(t("wods.editComingSoon"), "info");
+  }, [toast, t]);
 
   return (
     <div className="rounded-xl border border-vytal-border bg-vytal-card p-6 transition-colors hover:border-[rgba(61,255,110,0.22)]">
@@ -138,18 +197,53 @@ function WODCard({ wod }: { wod: WOD }) {
             <p className="mt-1 text-sm text-vytal-muted">{wod.description}</p>
           )}
         </div>
-        {classType && (
-          <div className="flex items-center gap-2 shrink-0">
+        <div className="flex items-center gap-2 shrink-0">
+          {/* Duration badge */}
+          <div className="flex items-center gap-1 rounded-full bg-vytal-bg2 px-2.5 py-1 text-[10px] font-medium text-vytal-muted">
+            <Clock className="h-3 w-3" />
+            {t("wods.minutes").replace("{min}", String(duration))}
+          </div>
+          {/* Copy button */}
+          <button
+            onClick={handleCopy}
+            className={cn(
+              "flex h-8 w-8 items-center justify-center rounded-lg border border-vytal-border transition-all",
+              copied
+                ? "border-vytal-green/30 bg-vytal-green/10 text-vytal-green"
+                : "bg-vytal-bg2 text-vytal-muted hover:text-vytal-text hover:bg-vytal-bg3"
+            )}
+            title={t("wods.copyClipboard")}
+          >
+            {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+          </button>
+          {/* Edit button */}
+          <button
+            onClick={handleEdit}
+            className="flex h-8 w-8 items-center justify-center rounded-lg border border-vytal-border bg-vytal-bg2 text-vytal-muted transition-all hover:text-vytal-text hover:bg-vytal-bg3"
+            title={t("wods.editWod")}
+          >
+            <Pencil className="h-3.5 w-3.5" />
+          </button>
+        </div>
+      </div>
+
+      {/* Class type assignment */}
+      {classType && (
+        <div className="mb-4 flex items-center gap-2">
+          <span className="text-[10px] font-medium uppercase tracking-wider text-vytal-muted">
+            {t("wods.assignedTo")}:
+          </span>
+          <div className="flex items-center gap-1.5">
             <div
               className="h-2.5 w-2.5 rounded-full"
               style={{ backgroundColor: classType.color }}
             />
-            <span className="text-xs font-medium text-vytal-muted">
+            <span className="text-xs font-medium text-vytal-text">
               {classType.name}
             </span>
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* Parts */}
       <div className="space-y-4">
