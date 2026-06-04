@@ -6,39 +6,39 @@ import { cn } from "@/lib/utils";
 import { useI18n } from "@/lib/i18n";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 
-interface SectionToggle {
+interface SectionDef {
   key: string;
-  label: string;
-  subOptions?: { key: string; label: string }[];
+  labelKey: string;
+  subOptions?: { key: string; labelKey: string }[];
 }
 
-const appSections: SectionToggle[] = [
-  { key: "classes", label: "Classes", subOptions: [
-    { key: "book_class", label: "Book class" },
-    { key: "drop_in", label: "Drop-in" },
-    { key: "covid_cert", label: "COVID certificate" },
+const appSectionDefs: SectionDef[] = [
+  { key: "classes", labelKey: "appConfig.classes", subOptions: [
+    { key: "book_class", labelKey: "appConfig.bookClass" },
+    { key: "drop_in", labelKey: "appConfig.dropIn" },
+    { key: "covid_cert", labelKey: "appConfig.covidCert" },
   ]},
-  { key: "workouts", label: "Workouts" },
-  { key: "records", label: "Records" },
-  { key: "physical_eval", label: "Physical Evaluation" },
-  { key: "dossiers", label: "Digital Dossiers" },
-  { key: "news", label: "News" },
-  { key: "store", label: "Store" },
-  { key: "challenge", label: "Challenge" },
-  { key: "ranking", label: "Ranking" },
-  { key: "best_results", label: "Best Results" },
-  { key: "fistbumps", label: "Fistbumps" },
-  { key: "my_box", label: "My Box" },
-  { key: "converters", label: "Converters" },
-  { key: "timers", label: "Timers" },
-  { key: "settings", label: "Settings" },
+  { key: "workouts", labelKey: "appConfig.workouts" },
+  { key: "records", labelKey: "appConfig.records" },
+  { key: "physical_eval", labelKey: "appConfig.physicalEval" },
+  { key: "dossiers", labelKey: "appConfig.digitalDossiers" },
+  { key: "news", labelKey: "appConfig.news" },
+  { key: "store", labelKey: "appConfig.store" },
+  { key: "challenge", labelKey: "appConfig.challenge" },
+  { key: "ranking", labelKey: "appConfig.ranking" },
+  { key: "best_results", labelKey: "appConfig.bestResults" },
+  { key: "fistbumps", labelKey: "appConfig.fistbumps" },
+  { key: "my_box", labelKey: "appConfig.myBox" },
+  { key: "converters", labelKey: "appConfig.converters" },
+  { key: "timers", labelKey: "appConfig.timers" },
+  { key: "settings", labelKey: "appConfig.settings" },
 ];
 
 export default function AppConfigPage() {
   const { t } = useI18n();
   const [toggles, setToggles] = useState<Record<string, boolean>>(() => {
     const initial: Record<string, boolean> = {};
-    for (const section of appSections) {
+    for (const section of appSectionDefs) {
       initial[section.key] = true;
       if (section.subOptions) {
         for (const sub of section.subOptions) {
@@ -123,17 +123,17 @@ export default function AppConfigPage() {
             <h2 className="text-lg font-semibold text-vytal-text">{t("appConfig.appSections")}</h2>
           </div>
           <div className="space-y-3">
-            {appSections.map((section) => (
+            {appSectionDefs.map((section) => (
               <div key={section.key}>
                 <div className="flex items-center justify-between rounded-lg px-3 py-2.5 hover:bg-vytal-bg2">
-                  <span className="text-sm font-medium text-vytal-text">{section.label}</span>
+                  <span className="text-sm font-medium text-vytal-text">{t(section.labelKey)}</span>
                   <ToggleSwitch enabled={toggles[section.key]} onToggle={() => toggle(section.key)} />
                 </div>
                 {section.subOptions && toggles[section.key] && (
                   <div className="ml-6 space-y-1 border-l border-vytal-border pl-4">
                     {section.subOptions.map((sub) => (
                       <div key={sub.key} className="flex items-center justify-between rounded-lg px-3 py-2 hover:bg-vytal-bg2">
-                        <span className="text-xs text-vytal-muted">{sub.label}</span>
+                        <span className="text-xs text-vytal-muted">{t(sub.labelKey)}</span>
                         <ToggleSwitch enabled={toggles[sub.key]} onToggle={() => toggle(sub.key)} />
                       </div>
                     ))}
@@ -152,19 +152,19 @@ export default function AppConfigPage() {
               <div>
                 <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("appConfig.background")}</label>
                 <div className="flex gap-3">
-                  {(["dark", "light"] as const).map((t) => (
+                  {(["dark", "light"] as const).map((theme) => (
                     <button
-                      key={t}
+                      key={theme}
                       type="button"
-                      onClick={() => setBgTheme(t)}
+                      onClick={() => setBgTheme(theme)}
                       className={cn(
                         "flex-1 rounded-lg border px-4 py-2.5 text-sm font-medium capitalize transition-colors",
-                        bgTheme === t
+                        bgTheme === theme
                           ? "border-vytal-green/30 bg-vytal-green/10 text-vytal-green"
                           : "border-vytal-border text-vytal-muted hover:text-vytal-text"
                       )}
                     >
-                      {t}
+                      {theme}
                     </button>
                   ))}
                 </div>

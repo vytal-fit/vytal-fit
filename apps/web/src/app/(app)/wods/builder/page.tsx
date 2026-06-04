@@ -327,7 +327,7 @@ export default function WODBuilderPage() {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">
-                  Date
+                  {t("wodBuilder.date")}
                 </label>
                 <input
                   type="date"
@@ -338,7 +338,7 @@ export default function WODBuilderPage() {
               </div>
               <div>
                 <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">
-                  Class Type
+                  {t("wodBuilder.classType")}
                 </label>
                 <select
                   value={classTypeId}
@@ -379,7 +379,7 @@ export default function WODBuilderPage() {
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                 <div>
                   <label className="mb-1 block text-[10px] font-medium uppercase tracking-wider text-vytal-muted">
-                    Part Name
+                    {t("wodBuilder.partName")}
                   </label>
                   <select
                     value={part.name}
@@ -397,7 +397,7 @@ export default function WODBuilderPage() {
                 </div>
                 <div>
                   <label className="mb-1 block text-[10px] font-medium uppercase tracking-wider text-vytal-muted">
-                    Type
+                    {t("wodBuilder.type")}
                   </label>
                   <select
                     value={part.type}
@@ -418,7 +418,7 @@ export default function WODBuilderPage() {
                 {showTimeCap(part.type) && (
                   <div>
                     <label className="mb-1 block text-[10px] font-medium uppercase tracking-wider text-vytal-muted">
-                      Time Cap (min)
+                      {t("wods.timeCap")} (min)
                     </label>
                     <input
                       type="number"
@@ -434,7 +434,7 @@ export default function WODBuilderPage() {
                 {showRounds(part.type) && (
                   <div>
                     <label className="mb-1 block text-[10px] font-medium uppercase tracking-wider text-vytal-muted">
-                      Rounds
+                      {t("wods.rounds")}
                     </label>
                     <input
                       type="number"
@@ -450,7 +450,7 @@ export default function WODBuilderPage() {
                 {!showTimeCap(part.type) && (
                   <div>
                     <label className="mb-1 block text-[10px] font-medium uppercase tracking-wider text-vytal-muted">
-                      Time Cap (min)
+                      {t("wods.timeCap")} (min)
                     </label>
                     <input
                       type="number"
@@ -466,7 +466,7 @@ export default function WODBuilderPage() {
                 {!showRounds(part.type) && (
                   <div>
                     <label className="mb-1 block text-[10px] font-medium uppercase tracking-wider text-vytal-muted">
-                      Rounds
+                      {t("wods.rounds")}
                     </label>
                     <input
                       type="number"
@@ -484,7 +484,7 @@ export default function WODBuilderPage() {
               {/* Exercises */}
               <div className="space-y-2">
                 <span className="text-[10px] font-medium uppercase tracking-wider text-vytal-muted">
-                  Exercises
+                  {t("wods.exercises")}
                 </span>
                 {part.exercises.map((ex, exIdx) => (
                   <div
@@ -595,7 +595,7 @@ export default function WODBuilderPage() {
               <div className="mb-5 flex items-center gap-2">
                 <Eye className="h-4 w-4 text-vytal-muted" />
                 <h3 className="text-sm font-semibold text-vytal-text">
-                  Preview
+                  {t("wodBuilder.preview")}
                 </h3>
               </div>
 
@@ -609,7 +609,7 @@ export default function WODBuilderPage() {
                   )}
                   {!title && (
                     <h4 className="text-lg font-bold italic text-vytal-muted">
-                      Untitled WOD
+                      {t("wodBuilder.untitledWod")}
                     </h4>
                   )}
                 </div>
@@ -691,7 +691,7 @@ export default function WODBuilderPage() {
                         ))}
                         {part.exercises.length === 0 && (
                           <p className="py-1 text-xs italic text-vytal-muted">
-                            No exercises added yet
+                            {t("wodBuilder.noExercisesAdded")}
                           </p>
                         )}
                       </div>

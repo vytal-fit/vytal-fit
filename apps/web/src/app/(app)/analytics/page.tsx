@@ -163,10 +163,10 @@ function RevenueBreakdownTooltip({ active, payload, label }: { active?: boolean;
 }
 
 // Key insights data
-const keyInsights = [
-  { icon: Clock, text: "Thursday 17:30 is your busiest time slot", color: "text-vytal-amber", bg: "bg-vytal-amber/10" },
-  { icon: TrendingDown, text: "Churn rate dropped 0.4% this month", color: "text-vytal-green", bg: "bg-vytal-green/10" },
-  { icon: Users, text: "14 new members joined this month", color: "text-vytal-blue", bg: "bg-vytal-blue/10" },
+const keyInsightDefs = [
+  { icon: Clock, textKey: "analytics.insight.busiest", color: "text-vytal-amber", bg: "bg-vytal-amber/10" },
+  { icon: TrendingDown, textKey: "analytics.insight.churn", color: "text-vytal-green", bg: "bg-vytal-green/10" },
+  { icon: Users, textKey: "analytics.insight.newMembers", color: "text-vytal-blue", bg: "bg-vytal-blue/10" },
 ];
 
 export default function AnalyticsPage() {
@@ -188,15 +188,15 @@ export default function AnalyticsPage() {
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-vytal-green/10">
             <Lightbulb className="h-4 w-4 text-vytal-green" />
           </div>
-          <h3 className="text-sm font-semibold text-vytal-text">Key Insights</h3>
+          <h3 className="text-sm font-semibold text-vytal-text">{t("analytics.keyInsights")}</h3>
         </div>
         <div className="grid gap-3 sm:grid-cols-3">
-          {keyInsights.map((insight, i) => (
+          {keyInsightDefs.map((insight, i) => (
             <div key={i} className="flex items-start gap-3 rounded-lg border border-vytal-border bg-vytal-card/60 px-4 py-3">
               <div className={cn("mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg", insight.bg)}>
                 <insight.icon className={cn("h-3.5 w-3.5", insight.color)} />
               </div>
-              <p className="text-sm text-vytal-text">{insight.text}</p>
+              <p className="text-sm text-vytal-text">{t(insight.textKey)}</p>
             </div>
           ))}
         </div>
@@ -262,7 +262,7 @@ export default function AnalyticsPage() {
       </div>
 
       {/* Member Growth Trend */}
-      <ChartCard title="Member Growth">
+      <ChartCard title={t("analytics.memberGrowth")}>
         <div className="h-48">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={memberGrowthData}>
