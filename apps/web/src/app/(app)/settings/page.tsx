@@ -45,7 +45,6 @@ export default function SettingsPage() {
   const { t } = useI18n();
   const { toast } = useToast();
   const accentColor = useAppStore((s) => s.accentColor);
-  const setAccentColor = useAppStore((s) => s.setAccentColor);
   const setOrgAccentColor = useAppStore((s) => s.setOrgAccentColor);
   const activeOrgId = useAuthStore((s) => s.user?.activeOrganizationId) ?? "org-1";
   const orgSettings = useDataStore((s) => s.orgSettings);

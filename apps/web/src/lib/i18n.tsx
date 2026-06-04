@@ -59,6 +59,9 @@ const translations: Record<Language, Record<string, string>> = {
     "nav.auditLog": "Registo de Atividade",
     "nav.reportsOverview": "Resumo",
     "nav.attendanceReport": "Presenças",
+    "nav.tvScreen": "TV Screen",
+    "nav.importCenter": "Importar",
+    "nav.integrations": "Integrações",
 
     // Nav group titles
     "nav.group.management": "Gestão",
@@ -1690,6 +1693,9 @@ const translations: Record<Language, Record<string, string>> = {
     "nav.auditLog": "Audit Log",
     "nav.reportsOverview": "Overview",
     "nav.attendanceReport": "Attendance",
+    "nav.tvScreen": "TV Screen",
+    "nav.importCenter": "Import",
+    "nav.integrations": "Integrations",
 
     // Nav group titles
     "nav.group.management": "Management",
@@ -3340,6 +3346,9 @@ const translations: Record<Language, Record<string, string>> = {
     "nav.auditLog": "Registro de Actividad",
     "nav.reportsOverview": "Resumen",
     "nav.attendanceReport": "Asistencia",
+    "nav.tvScreen": "TV Screen",
+    "nav.importCenter": "Importar",
+    "nav.integrations": "Integraciones",
 
     // Nav group titles
     "nav.group.management": "Gestión",
