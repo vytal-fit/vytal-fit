@@ -239,6 +239,13 @@ export default function ClassesPage() {
         </div>
         <div className="hidden items-center gap-4 sm:flex">
           <Link
+            href="/classes/waitlist"
+            className="flex items-center gap-2 rounded-lg border border-vytal-amber/30 bg-vytal-amber/5 px-4 py-2 text-sm font-medium text-vytal-amber transition-colors hover:bg-vytal-amber/10"
+          >
+            <Users className="h-4 w-4" />
+            {t("classes.waitlistBtn")}
+          </Link>
+          <Link
             href="/classes/calendar"
             className="flex items-center gap-2 rounded-lg border border-vytal-border px-4 py-2 text-sm font-medium text-vytal-text transition-colors hover:bg-vytal-bg3"
           >

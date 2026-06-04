@@ -69,6 +69,7 @@ const allNavGroups: NavGroup[] = [
       { href: "/dashboard", labelKey: "nav.dashboard", icon: LayoutDashboard },
       { href: "/members", labelKey: "nav.members", icon: Users, children: [
         { href: "/members", labelKey: "nav.membersOverview", icon: Users },
+        { href: "/members/analytics", labelKey: "nav.memberAnalytics", icon: Users },
         { href: "/members/import", labelKey: "nav.import", icon: Users },
         { href: "/members/retention", labelKey: "nav.retention", icon: Users },
       ]},
@@ -97,6 +98,7 @@ const allNavGroups: NavGroup[] = [
     items: [
       { href: "/financials", labelKey: "nav.financials", icon: DollarSign, children: [
         { href: "/financials", labelKey: "nav.financialsOverview", icon: DollarSign },
+        { href: "/financials/revenue", labelKey: "nav.revenue", icon: DollarSign },
         { href: "/financials/invoices", labelKey: "nav.invoices", icon: DollarSign },
         { href: "/financials/expenses", labelKey: "nav.expenses", icon: DollarSign },
         { href: "/financials/budget", labelKey: "nav.budget", icon: DollarSign },
