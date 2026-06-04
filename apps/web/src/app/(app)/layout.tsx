@@ -54,6 +54,7 @@ import {
   Newspaper,
   Rocket,
   LifeBuoy,
+  PanelRight,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ToastProvider } from "@/components/toast";
@@ -65,6 +66,7 @@ import { useDataStore } from "@/stores/data-store";
 import { useI18n, type Language } from "@/lib/i18n";
 import { CommandPalette } from "@/components/command-palette";
 import { CreateOrgWizard, type CreateOrgData } from "@/components/create-org-wizard";
+import { DailyBriefing } from "@/components/daily-briefing";
 
 interface NavItem {
   href: string;
@@ -782,6 +784,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const logout = useAuthStore((s) => s.logout);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const rightSidebarOpen = useAppStore((s) => s.rightSidebarOpen);
+  const toggleRightSidebar = useAppStore((s) => s.toggleRightSidebar);
+  const setRightSidebarOpen = useAppStore((s) => s.setRightSidebarOpen);
   const [showCreateOrgWizard, setShowCreateOrgWizard] = useState(false);
   const [expandedNavItems, setExpandedNavItems] = useState<Set<string>>(new Set());
 
@@ -858,6 +863,15 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   }, [mobileOpen]);
 
   const closeMobile = useCallback(() => setMobileOpen(false), []);
+
+  // Auto-show right sidebar on xl screens if not manually toggled
+  useEffect(() => {
+    const stored = typeof window !== "undefined" ? localStorage.getItem("vytal-right-sidebar-open") : null;
+    if (stored === null && typeof window !== "undefined") {
+      const mql = window.matchMedia("(min-width: 1280px)");
+      setRightSidebarOpen(mql.matches);
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!isAuthenticated || !user) {
     return null;
@@ -1049,6 +1063,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         {sidebarContent}
       </aside>
 
+      {/* Main + Right Sidebar wrapper */}
+      <div className="flex flex-1 overflow-hidden">
       {/* Main Content */}
       <main className="flex-1 overflow-y-auto">
         {/* Top bar — kloser-style */}
@@ -1087,8 +1103,20 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             </button>
           </div>
 
-          {/* Right: lang + theme + notifications + user */}
+          {/* Right: briefing toggle + lang + theme + notifications + user */}
           <div className="flex items-center gap-3">
+            <button
+              onClick={toggleRightSidebar}
+              className={cn(
+                "flex h-9 w-9 items-center justify-center rounded-lg transition-colors hover:bg-vytal-bg3",
+                rightSidebarOpen
+                  ? "text-vytal-green"
+                  : "text-vytal-muted hover:text-vytal-text"
+              )}
+              title={t("briefing.toggleSidebar")}
+            >
+              <PanelRight className="h-[18px] w-[18px]" />
+            </button>
             <LanguageSwitcher />
             <ThemeToggle />
             <NotificationsDropdown />
@@ -1101,6 +1129,14 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         </header>
         <div className="page-enter p-4 lg:p-8">{children}</div>
       </main>
+
+      {/* Right Sidebar — Daily Briefing */}
+      {rightSidebarOpen && (
+        <aside className="hidden w-72 shrink-0 flex-col border-l border-vytal-border bg-vytal-bg2 md:flex">
+          <DailyBriefing />
+        </aside>
+      )}
+      </div>
 
       {/* Floating Messenger-style chat widget */}
       <FloatingChat />
