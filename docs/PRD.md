@@ -1,7 +1,7 @@
 # Vytal -- Product Requirements Document
 
-**Version:** 2.0
-**Last updated:** 2026-06-03
+**Version:** 2.1
+**Last updated:** 2026-06-04
 **Status:** Active
 **Team:** vytal-fit
 **Repository:** github.com/vytal-fit/vytal-fit (private)
@@ -312,36 +312,85 @@ The admin web application lives at `apps/web/src/app/`. It uses Next.js 15 App R
 | 19 | `/(app)/settings` | Built (POC) | Organization settings | Org profile (name, logo, address, GPS, social links, timezone, currency), vertical type, billing config, kiosk settings, app content toggles | -- |
 | 20 | `/` (root) | Built (POC) | Landing / redirect | Redirects to `/login` or `/dashboard` based on auth state | -- |
 
-### 6.3 Remaining Admin Pages (24 pages -- not yet built)
+### 6.3 Extended Admin Pages (68 pages -- all built)
+
+All admin pages listed below have been built as POC (proof-of-concept) with full UI, mock data, and i18n support.
 
 | # | Route | Status | Purpose | Key Features | Stories |
 |---|---|---|---|---|---|
-| 21 | `/(app)/pos` | Not built | Point-of-sale counter | Product catalog, cart, payment methods (card/MBWay/cash), digital receipt, member credit management | G3-04 |
-| 22 | `/(app)/contracts` | Not built | Contracts & waivers | Template editor, e-signature flow, email delivery, document dashboard (signed/pending/expired), access block config | G2-05 |
-| 23 | `/(app)/automations` | Not built | Automation rules engine | No-show, birthday, win-back, dunning sequences; trigger/condition/action builder; enable/disable per rule | G4-03 |
-| 24 | `/(app)/kiosk` | Not built | Kiosk/tablet management | Rotating images, check-in timing, animation themes, button customization, multi-tablet configs | A1-02 |
-| 25 | `/(app)/activities` | Not built | Activities/events engine | Competitions, challenges, races, awards, tournaments; registration, scoring, leaderboards | NEW |
-| 26 | `/(app)/expenses` | Not built | Expense tracking | Fixed/variable/tax categories, payment methods, warranty tracking, Vendus-like categorization | G3-07 |
-| 27 | `/(app)/budget` | Not built | Monthly budget | Per-category spending limits, actual vs limit comparison, grouped by Fixed/Variable/Tax | G3-08 |
-| 28 | `/(app)/tv-display` | Not built | TV display / coachboard config | Theme selection, auto-mode settings, remote control pairing, preview | C2-04 |
-| 29 | `/(app)/groups` | Not built | Member groups/teams | Create groups, assign members, use for filtering across all modules | NEW |
-| 30 | `/(app)/integrations` | Not built | Embeddable forms & site integrations | 7 form types (contact, register, trial, voucher, plan sale, class sale, custom), style editor, embed code | G4-05 |
-| 31 | `/(app)/meetings` | Not built | Meeting scheduling | Schedule meetings with members, email notifications, reminders, calendar integration | G5-05 |
-| 32 | `/(app)/members/[id]/edit` | Not built | Member edit form | Inline edit of all member fields, plan assignment, health info, photo upload, save/cancel | G2-01 |
-| 33 | `/(app)/classes/create` | Not built | Class create/edit modal | Class type, coach, location, capacity, recurrence rules, time slot picker, save as draft or publish | C2-01 |
-| 34 | `/(app)/crm/[id]` | Not built | Lead detail with communication history | Lead profile, full interaction timeline (calls, emails, notes), stage transitions, conversion actions | G4-01 |
-| 35 | `/(app)/staff/[id]` | Not built | Staff detail with schedule | Staff profile, role & permissions, assigned classes calendar, shift history, payroll summary | G5-01, G5-02 |
-| 36 | `/(app)/plans/create` | Not built | Plan create/edit form | Plan type, pricing, billing cycle, included class types, session limits, time slot rules, trial config | G2-02 |
-| 37 | `/(app)/communications/templates` | Not built | Email template editor | Drag-and-drop template builder, variable placeholders (name, plan, date), preview, bilingual (PT/EN) | G4-02 |
-| 38 | `/(app)/communications/sms` | Not built | SMS targeting compose | Audience segment selector, message composer with character count, schedule send, delivery report | G4-02 |
-| 39 | `/(app)/financials/expenses` | Not built | Expense tracking CRUD | Expense list with filters, category assignment (Fixed/Variable/Tax), payment method, warranty tracking, totals view | G3-07 |
-| 40 | `/(app)/financials/budget` | Not built | Monthly budget per category | Per-subcategory spending limits, actual vs limit bars, month selector, grouped by Fixed/Variable/Tax | G3-08 |
-| 41 | `/(app)/settings/kiosk` | Not built | Tablet/kiosk configuration | Rotating image upload, check-in timing rules, animation theme picker, button customization, multi-tablet support | A1-02 |
-| 42 | `/(app)/settings/app-config` | Not built | Mobile app content toggles | Toggle on/off for 20+ app sections, sub-section toggles, birthday visibility, fistbumps/comments toggle | G-NEW-04 |
-| 43 | `/(app)/members/retention` | Not built | 16-week retention monitor | 4-phase monitoring board, color-coded attendance, advantage index scores, bulk communication actions | G2-06 |
-| 44 | `/(app)/settings/audit-log` | Not built | Audit log viewer | Searchable log of all admin actions, filter by user/module/date, action detail with before/after state | G5-01 |
+| 21 | `/(app)/members/[id]/edit` | Built (POC) | Member edit form | Inline edit of all member fields, plan assignment, health info, photo upload, save/cancel | G2-01 |
+| 22 | `/(app)/members/analytics` | Built (POC) | Member analytics | Attendance trends, churn analysis, engagement metrics, cohort analysis | G2-04 |
+| 23 | `/(app)/members/contracts` | Built (POC) | Digital contracts & waivers | Template editor, e-signature flow, document dashboard (signed/pending/expired) | G2-05 |
+| 24 | `/(app)/members/groups` | Built (POC) | Member groups/teams | Create groups, assign members, use for filtering across modules | G-NEW-06 |
+| 25 | `/(app)/members/referrals` | Built (POC) | Referral program | Referral tracking, reward tiers, invite links, performance stats | G2-09 |
+| 26 | `/(app)/members/import` | Built (POC) | Member import | CSV upload with column mapping, preview, duplicate detection | G2-04 |
+| 27 | `/(app)/members/retention` | Built (POC) | 16-week retention monitor | 4-phase monitoring board, color-coded attendance, advantage index | G2-06 |
+| 28 | `/(app)/members/[id]/360` | Built (POC) | Member 360 view | Complete member profile at a glance -- attendance, billing, health, notes | G2-01 |
+| 29 | `/(app)/members/[id]/body` | Built (POC) | Body composition tracking | Weight, body fat, muscle mass charts, goal tracking | P2-04 |
+| 30 | `/(app)/members/[id]/assessments` | Built (POC) | Physical assessments | FMS scores, mobility tests, benchmark tracking | P2-04 |
+| 31 | `/(app)/members/[id]/billing` | Built (POC) | Member billing detail | Payment history, invoices, plan changes, account balance | G3-01 |
+| 32 | `/(app)/members/[id]/nutrition` | Built (POC) | Nutrition tracking | Meal plans, macro tracking, calorie goals, food diary | P2-05 |
+| 33 | `/(app)/classes/create` | Built (POC) | Class create/edit | Class type, coach, location, capacity, recurrence rules, time slot picker | C2-01 |
+| 34 | `/(app)/classes/calendar` | Built (POC) | Visual class calendar | Weekly/monthly calendar view, drag-and-drop, copy week | C2-01 |
+| 35 | `/(app)/classes/smart` | Built (POC) | Smart scheduling | AI-powered class time optimization, demand prediction | G1-07 |
+| 36 | `/(app)/classes/templates` | Built (POC) | Class templates | Reusable class configurations, quick-apply to calendar | C2-01 |
+| 37 | `/(app)/classes/waitlist` | Built (POC) | Waitlist management | Queue positions, auto-promote rules, notification config | A1-01 |
+| 38 | `/(app)/classes/history` | Built (POC) | Class history | Historical class data, attendance records, coach performance | C2-01 |
+| 39 | `/(app)/classes/[id]/attendance` | Built (POC) | Class attendance | Real-time check-in, manual entry, attendance stats per class | C2-01 |
+| 40 | `/(app)/wods/builder` | Built (POC) | WOD builder | Structured parts, exercise selection, timer config, publish | C1-01 |
+| 41 | `/(app)/wods/programming` | Built (POC) | Multi-week programming | Periodization cycles, weekly/monthly planning, copy weeks | C1-05 |
+| 42 | `/(app)/crm/[id]` | Built (POC) | Lead detail | Full interaction timeline, stage transitions, conversion actions | G4-01 |
+| 43 | `/(app)/plans/create` | Built (POC) | Plan create/edit form | Plan type, pricing, billing cycle, class types, session limits | G2-02 |
+| 44 | `/(app)/staff/[id]` | Built (POC) | Staff detail | Staff profile, role/permissions, assigned classes, shift history | G5-01 |
+| 45 | `/(app)/staff/[id]/edit` | Built (POC) | Staff edit form | Edit staff fields, role assignment, certifications | G5-01 |
+| 46 | `/(app)/staff/[id]/performance` | Built (POC) | Staff performance | Class ratings, attendance stats, member feedback | G5-01 |
+| 47 | `/(app)/staff/payroll` | Built (POC) | Staff payroll | Hours tracking, pay calculation, payslip generation | G5-03 |
+| 48 | `/(app)/staff/schedule` | Built (POC) | Shift scheduling | Drag-and-drop shift calendar, swap requests, coverage gaps | G5-02 |
+| 49 | `/(app)/financials/revenue` | Built (POC) | Revenue forecasting | Trend analysis, projections, MRR/ARR, churn impact | G1-07 |
+| 50 | `/(app)/financials/dunning` | Built (POC) | Dunning management | Automated sequences, debtor list, payment reminders | G2-03 |
+| 51 | `/(app)/financials/sepa` | Built (POC) | SEPA direct debit | C2B file generation, mandate management, XML returns | G3-01 |
+| 52 | `/(app)/financials/invoices` | Built (POC) | Invoice management | Invoice list, SAF-T export, ATCUD, credit notes | G3-02 |
+| 53 | `/(app)/financials/expenses` | Built (POC) | Expense tracking | Category assignment, payment methods, warranty tracking | G3-07 |
+| 54 | `/(app)/financials/budget` | Built (POC) | Monthly budget | Per-category spending limits, actual vs limit bars | G3-08 |
+| 55 | `/(app)/communications/sms` | Built (POC) | SMS compose | Audience selector, character count, schedule send | G4-02 |
+| 56 | `/(app)/communications/templates` | Built (POC) | Email templates | Template builder, variable placeholders, preview | G4-02 |
+| 57 | `/(app)/settings/kiosk` | Built (POC) | Kiosk configuration | Rotating images, check-in timing, animation themes | A1-02 |
+| 58 | `/(app)/settings/app-config` | Built (POC) | Mobile app config | Toggle 20+ app sections, sub-section toggles | G-NEW-04 |
+| 59 | `/(app)/settings/audit-log` | Built (POC) | Audit trail | Searchable admin action log, before/after state | G5-01 |
+| 60 | `/(app)/settings/permissions` | Built (POC) | Permissions matrix | Granular RBAC, per-module view/edit/delete toggles | G5-01 |
+| 61 | `/(app)/settings/webhooks` | Built (POC) | Webhooks config | Endpoint management, event subscriptions, retry policy | NEW |
+| 62 | `/(app)/settings/api-keys` | Built (POC) | API keys | Key generation, scoping, rate limits, usage stats | NEW |
+| 63 | `/(app)/settings/branding` | Built (POC) | White-label branding | Custom colors, logo, domain, email templates | NEW |
+| 64 | `/(app)/settings/notifications` | Built (POC) | Notification rules | Per-event notification config, channels, templates | A1-04 |
+| 65 | `/(app)/settings/booking` | Built (POC) | Booking rules | Cancellation policies, advance booking limits, waitlist | A1-01 |
+| 66 | `/(app)/ai` | Built (POC) | AI insights | Churn prediction, recommendations, smart alerts | G1-07 |
+| 67 | `/(app)/analytics` | Built (POC) | Advanced analytics | Trend analysis, cohort views, custom date ranges | G1-04 |
+| 68 | `/(app)/reports/attendance` | Built (POC) | Attendance reports | Heatmaps, per-class stats, coach performance | G1-04 |
+| 69 | `/(app)/community` | Built (POC) | Community hub | Social feed, events, member engagement | S1-01 |
+| 70 | `/(app)/community/questionnaires` | Built (POC) | Questionnaires | Survey builder, response analytics, templates | G-NEW-10 |
+| 71 | `/(app)/community/events` | Built (POC) | Competition builder | Events, heats, scoring, registration | S1-05 |
+| 72 | `/(app)/community/badges` | Built (POC) | Achievement badges | 63+ badges, points, levels, streak tracking | S1-08 |
+| 73 | `/(app)/store` | Built (POC) | POS store | Product catalog, cart, payment, inventory | G3-04 |
+| 74 | `/(app)/store/vouchers` | Built (POC) | Gift cards & vouchers | Create, distribute, redeem, track balances | G-NEW-08 |
+| 75 | `/(app)/tasks` | Built (POC) | Task management | Kanban board, drag-and-drop, assignments, due dates | NEW |
+| 76 | `/(app)/inbox` | Built (POC) | Unified inbox | Aggregated conversations, filters, quick actions | NEW |
+| 77 | `/(app)/automations` | Built (POC) | Automation rules | Trigger/condition/action builder, enable/disable | G4-03 |
+| 78 | `/(app)/automations/milestones` | Built (POC) | Milestone automation | Auto-celebrate member achievements, configurable triggers | NEW |
+| 79 | `/(app)/exercises/[id]` | Built (POC) | Exercise detail | Video, description, variations, muscle groups | C1-02 |
+| 80 | `/(app)/dropins` | Built (POC) | Drop-in management | Visiting athlete tracking, pricing, GPS map | G-NEW-02 |
+| 81 | `/(app)/import` | Built (POC) | Import center | CSV/Excel import for members, plans, leads | G2-04 |
+| 82 | `/(app)/integrations` | Built (POC) | Integrations hub | Third-party connections, API status, sync config | G4-05 |
+| 83 | `/(app)/screen` | Built (POC) | TV display config | Theme selection, auto-mode, remote control pairing | C2-04 |
+| 84 | `/(app)/notifications` | Built (POC) | Notification center | All notification types, read/unread, actions | A1-04 |
+| 85 | `/(app)/messages` | Built (POC) | Staff messaging | 1:1 and group channels, persistent history | G5-04 |
+| 86 | `/(app)/profile` | Built (POC) | User profile | Personal info, preferences, security settings | -- |
+| 87 | `/(app)/help` | Built (POC) | Help center | FAQs, contact support, documentation links | -- |
+| 88 | `/(app)/locations/dashboard` | Built (POC) | Multi-location dashboard | Location cards, comparison charts, aggregate stats | NEW |
+| 89 | `/(app)/media` | Built (POC) | Media library | File grid, folders, upload, search, type filters | NEW |
+| 90 | `/(app)/equipment` | Built (POC) | Equipment inventory | Equipment table, condition tracking, maintenance log | G3-06 |
+| 91 | `/(app)/changelog` | Built (POC) | What's new | Release timeline, version badges, feature lists | NEW |
 
-**Total admin web pages: 41** (28 built + 13 remaining)
+**Total admin web pages: 92** (92 built + 0 remaining)
 
 ---
 
@@ -1376,25 +1425,62 @@ Core operations for all 4 personas plus competitive parity features:
 
 | Area | Built (POC) | Remaining | Total |
 |---|---|---|---|
-| Admin Web pages | 46 | 0 | 46 |
+| Admin Web pages | 92 | 0 | 92 |
 | Mobile Client screens | 48 | 0 | 48 |
-| **Total screens** | **94** | **0** | **94** |
-| Playwright E2E tests | 71 | -- | 71 |
+| **Total screens** | **140** | **0** | **140** |
+| Playwright E2E tests | 86 | -- | 86 |
 | Organization verticals | 20 | 0 | 20 |
+| i18n translation keys | 1000+ | -- | 1000+ x 3 languages |
+| Data store | Full CRUD | -- | localStorage |
 | Shared types (TypeScript) | Complete | -- | -- |
 | Mock data (packages/shared) | Complete | -- | -- |
 
 ### 14.2 What Is Built
 
-- 46 admin web pages: dashboard, members (list, detail, edit, import, retention), classes (list, detail, create, calendar), WODs (list, builder), CRM (pipeline, lead detail), plans (list, create), staff (list, detail), financials (overview, expenses, invoices, budget), communications (overview, SMS, templates), settings (general, kiosk, app-config, audit-log), reports (overview, attendance), community, exercises, locations, class-types, dropins, automations, analytics, messages, profile, help, plus 4 auth pages (login, register, onboarding, forgot-password) and root redirect
-- 48 mobile screens: 5 tab screens (classes, mybox, profile, records, wod) + 43 standalone screens (login, register, onboarding, forgot-password, org-switcher, class-detail, booking-confirm, booking-history, wod-detail, wod-history, wod-comments, score-entry, pr-entry, checkin, timer, exercises, box-records, calculator, converters, coach-profile, plan-detail, dropin, chat, news, notifications, notification-prefs, feedback, social-feed, fistbumps, fistbump-detail, leaderboard, photo-gallery, challenge-detail, athlete-of-month, birthdays, dossier-viewer, questionnaire, password-change, language-selector, waitlist-status, settings/personal-data, settings/privacy, settings/theme)
+**Admin Web (92 pages):**
+- **Dashboard & Core:** dashboard, profile, help, changelog
+- **Members (12):** list, detail, edit, 360 view, body composition, assessments, billing, nutrition, analytics, contracts, groups, referrals, import, retention
+- **Classes (9):** list, detail, create, calendar, smart scheduling, templates, waitlist, history, attendance
+- **WODs (3):** list, builder, multi-week programming
+- **CRM (2):** pipeline kanban, lead detail
+- **Plans (2):** list, create/edit
+- **Staff (6):** list, detail, edit, performance, payroll, shift schedule
+- **Financials (7):** overview, revenue forecasting, dunning, SEPA DD, invoices, expenses, budget
+- **Communications (3):** overview, SMS compose, email templates
+- **Community (4):** hub, questionnaires, competition builder, achievement badges
+- **Store (2):** POS store, gift cards & vouchers
+- **Operations:** AI insights, analytics, reports (overview + attendance), tasks, unified inbox, notifications, messages, automations (rules + milestones), TV display config, drop-ins, import center, integrations hub, media library, equipment inventory
+- **Settings (10):** general, notification rules, booking rules, kiosk, app-config, audit trail, permissions, webhooks, API keys, white-label branding
+- **Locations (2):** location management, multi-location dashboard
+- **Auth (4):** login, register, onboarding, forgot-password
+- **Root redirect (1)**
+
+**Key features built across all pages:**
+- AI Insights, Member 360, Body Composition, Smart Scheduling
+- Revenue Forecasting, Staff Payroll, Shift Scheduling
+- Dunning, SEPA DD, Digital Contracts, Referrals
+- POS Store, Vouchers, Physical Assessments
+- Task Management, Unified Inbox, Nutrition Tracking
+- Milestone Automation, Achievement Badges
+- Class Templates, Copy Week, Waitlist Management
+- Webhooks, API Keys, White-Label Branding, Permissions
+- Competition Builder, Questionnaires, Multi-week Programming
+- Notification Rules, Booking Rules, Import Center, Integrations
+- TV Display, Dashboard Customization, Audit Trail
+- Multi-Location Dashboard, Media Library, Equipment Inventory, Changelog
+
+**Mobile Client (48 screens):**
+- 5 tab screens (classes, mybox, profile, records, wod) + 43 standalone screens (login, register, onboarding, forgot-password, org-switcher, class-detail, booking-confirm, booking-history, wod-detail, wod-history, wod-comments, score-entry, pr-entry, checkin, timer, exercises, box-records, calculator, converters, coach-profile, plan-detail, dropin, chat, news, notifications, notification-prefs, feedback, social-feed, fistbumps, fistbump-detail, leaderboard, photo-gallery, challenge-detail, athlete-of-month, birthdays, dossier-viewer, questionnaire, password-change, language-selector, waitlist-status, settings/personal-data, settings/privacy, settings/theme)
+
+**Platform:**
 - 20 organization vertical configs with terminology + feature flags
 - Multi-org user model with org switcher in admin sidebar
 - Role hierarchy and permission helpers
 - Shared TypeScript types for all domain models (Member, Class, WOD, Booking, Lead, etc.)
 - Design system: dark theme, Space Grotesk font, green (#22c55e) accent, glassmorphism cards
-- i18n: PT/EN/ES with 1500+ translation keys
-- 71 Playwright E2E tests covering navigation, rendering, accessibility, i18n, theme switching
+- i18n: PT/EN/ES with 1000+ translation keys per language
+- Full CRUD data store with localStorage persistence
+- 86 Playwright E2E tests covering navigation, rendering, accessibility, i18n, theme switching
 - 10 E2E test spec files: smoke, home, dashboard, classes, members, navigation, admin-pages, a11y, i18n, theme
 
 ### 14.3 What Is NOT Built
@@ -1406,7 +1492,7 @@ Core operations for all 4 personas plus competitive parity features:
 - **Notifications:** No push/email/SMS -- UI only
 - **Real-time:** No WebSocket connections -- coachboard and timers are static
 - **Offline:** No offline sync implemented
-- **All UI screens are complete** -- no remaining pages/screens to build for POC
+- **All UI screens are complete** -- 140 total screens (92 admin + 48 mobile) built for POC
 
 ### 14.4 Test Coverage
 
