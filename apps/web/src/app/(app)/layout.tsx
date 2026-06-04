@@ -147,6 +147,8 @@ const allNavGroups: NavGroup[] = [
     items: [
       { href: "/settings", labelKey: "nav.settings", icon: Settings, children: [
         { href: "/settings", labelKey: "nav.settingsOverview", icon: Settings },
+        { href: "/settings/notifications", labelKey: "nav.notificationRules", icon: Settings },
+        { href: "/settings/booking", labelKey: "nav.bookingRules", icon: Settings },
         { href: "/settings/kiosk", labelKey: "nav.kiosk", icon: Settings },
         { href: "/settings/app-config", labelKey: "nav.appConfig", icon: Settings },
         { href: "/settings/audit-log", labelKey: "nav.auditLog", icon: Settings },
@@ -879,7 +881,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                             : "text-vytal-muted group-hover:text-vytal-text"
                         )}
                       />
-                      <span className="flex-1 text-left">{t(item.labelKey)}</span>
+                      <span className="flex-1 truncate text-left">{t(item.labelKey)}</span>
                       {item.badge != null && item.badge > 0 && (
                         <span className="flex h-5 w-5 items-center justify-center rounded-full bg-vytal-green text-[10px] font-bold text-vytal-bg">
                           {item.badge}
@@ -919,7 +921,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                             {isExactChild && (
                               <span className="mr-2 h-1.5 w-1.5 rounded-full bg-vytal-green" />
                             )}
-                            <span>{t(child.labelKey)}</span>
+                            <span className="truncate">{t(child.labelKey)}</span>
                           </Link>
                         );
                       })}
@@ -951,7 +953,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                         : "text-vytal-muted group-hover:text-vytal-text"
                     )}
                   />
-                  <span className="flex-1">{t(item.labelKey)}</span>
+                  <span className="flex-1 truncate">{t(item.labelKey)}</span>
                   {item.badge != null && item.badge > 0 && (
                     <span className="flex h-5 w-5 items-center justify-center rounded-full bg-vytal-green text-[10px] font-bold text-vytal-bg">
                       {item.badge}
@@ -972,7 +974,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     <ToastProvider>
     <div className="flex h-screen overflow-hidden bg-vytal-bg">
       {/* Desktop Sidebar */}
-      <aside className="hidden w-64 flex-col border-r border-vytal-border bg-vytal-bg2 lg:flex">
+      <aside className="hidden w-64 shrink-0 flex-col border-r border-vytal-border bg-vytal-bg2 lg:flex">
         {sidebarContent}
       </aside>
 

@@ -531,6 +531,22 @@ export default function CRMPage() {
         </button>
       </div>
 
+      {/* Quick Actions Bar */}
+      <div className="flex flex-wrap items-center gap-2">
+        <button onClick={() => setShowAddForm(true)} className="inline-flex items-center gap-1.5 rounded-full border border-vytal-green/20 bg-vytal-green/5 px-3.5 py-1.5 text-xs font-semibold text-vytal-green transition-colors hover:bg-vytal-green/10">
+          <Plus className="h-3.5 w-3.5" />
+          {t("quickAction.newLead")}
+        </button>
+        <button onClick={() => toast(t("quickAction.comingSoon"), "info")} className="inline-flex items-center gap-1.5 rounded-full border border-vytal-border bg-vytal-card px-3.5 py-1.5 text-xs font-semibold text-vytal-text transition-colors hover:bg-vytal-bg3">
+          <FileText className="h-3.5 w-3.5" />
+          {t("quickAction.import")}
+        </button>
+        <button onClick={() => toast(t("quickAction.comingSoon"), "info")} className="inline-flex items-center gap-1.5 rounded-full border border-vytal-border bg-vytal-card px-3.5 py-1.5 text-xs font-semibold text-vytal-text transition-colors hover:bg-vytal-bg3">
+          <TrendingUp className="h-3.5 w-3.5" />
+          {t("quickAction.statistics")}
+        </button>
+      </div>
+
       {/* Pipeline Stats Bar */}
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
         <div className="flex items-center gap-3 rounded-lg border border-vytal-border bg-vytal-card px-4 py-3">

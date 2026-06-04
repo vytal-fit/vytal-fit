@@ -425,28 +425,24 @@ export default function DashboardPage() {
         </p>
       </div>
 
-      {/* Quick Action Buttons */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <QuickActionCard
-          href="/members/import"
-          icon={<UserPlus className="h-5 w-5" />}
-          label={t("dashboard.addMember")}
-        />
-        <QuickActionCard
-          href="/classes/calendar"
-          icon={<CalendarDays className="h-5 w-5" />}
-          label={t("dashboard.createClass")}
-        />
-        <QuickActionCard
-          href="/wods/builder"
-          icon={<Dumbbell className="h-5 w-5" />}
-          label={t("dashboard.newWod")}
-        />
-        <QuickActionCard
-          href="/messages"
-          icon={<MessageCircle className="h-5 w-5" />}
-          label={t("dashboard.sendMessage")}
-        />
+      {/* Quick Actions Bar */}
+      <div className="flex flex-wrap items-center gap-2">
+        <Link href="/members/import" className="inline-flex items-center gap-1.5 rounded-full border border-vytal-green/20 bg-vytal-green/5 px-3.5 py-1.5 text-xs font-semibold text-vytal-green transition-colors hover:bg-vytal-green/10">
+          <UserPlus className="h-3.5 w-3.5" />
+          {t("quickAction.createMember")}
+        </Link>
+        <Link href="/classes/create" className="inline-flex items-center gap-1.5 rounded-full border border-vytal-green/20 bg-vytal-green/5 px-3.5 py-1.5 text-xs font-semibold text-vytal-green transition-colors hover:bg-vytal-green/10">
+          <CalendarDays className="h-3.5 w-3.5" />
+          {t("quickAction.createClass")}
+        </Link>
+        <Link href="/wods/builder" className="inline-flex items-center gap-1.5 rounded-full border border-vytal-green/20 bg-vytal-green/5 px-3.5 py-1.5 text-xs font-semibold text-vytal-green transition-colors hover:bg-vytal-green/10">
+          <Dumbbell className="h-3.5 w-3.5" />
+          {t("quickAction.newWod")}
+        </Link>
+        <Link href="/crm" className="inline-flex items-center gap-1.5 rounded-full border border-vytal-border bg-vytal-card px-3.5 py-1.5 text-xs font-semibold text-vytal-text transition-colors hover:bg-vytal-bg3">
+          <MessageCircle className="h-3.5 w-3.5" />
+          {t("quickAction.newLead")}
+        </Link>
       </div>
 
       {/* KPI Cards */}

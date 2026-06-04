@@ -2,14 +2,14 @@
 
 import { useDataStore } from "@/stores/data-store";
 import type { Class } from "@vytal-fit/shared";
-import { MapPin, User, Clock, Users, CalendarOff, CalendarDays } from "lucide-react";
+import { MapPin, User, Clock, Users, CalendarOff, CalendarDays, Plus, Copy, ListChecks } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useI18n } from "@/lib/i18n";
 
 function getEnrollmentStatus(enrolled: number, capacity: number) {
   const pct = (enrolled / capacity) * 100;
-  if (pct >= 100) return { color: "bg-vytal-red", textColor: "text-vytal-red", labelKey: "classes.full" } as const;
+  if (pct > 95) return { color: "bg-vytal-red", textColor: "text-vytal-red", labelKey: "classes.full" } as const;
   if (pct >= 80) return { color: "bg-vytal-amber", textColor: "text-vytal-amber", labelKey: "classes.fillingUp" } as const;
   return { color: "bg-vytal-green", textColor: "text-vytal-green", labelKey: "classes.available" } as const;
 }
@@ -237,21 +237,32 @@ export default function ClassesPage() {
             })}
           </p>
         </div>
+        <div className="hidden sm:block" />
+      </div>
+
+      {/* Quick Actions Bar */}
+      <div className="flex flex-wrap items-center gap-2">
+        <Link href="/classes/create" className="inline-flex items-center gap-1.5 rounded-full border border-vytal-green/20 bg-vytal-green/5 px-3.5 py-1.5 text-xs font-semibold text-vytal-green transition-colors hover:bg-vytal-green/10">
+          <Plus className="h-3.5 w-3.5" />
+          {t("quickAction.createClass")}
+        </Link>
+        <Link href="/classes/templates" className="inline-flex items-center gap-1.5 rounded-full border border-vytal-border bg-vytal-card px-3.5 py-1.5 text-xs font-semibold text-vytal-text transition-colors hover:bg-vytal-bg3">
+          <Copy className="h-3.5 w-3.5" />
+          {t("quickAction.copyWeek")}
+        </Link>
+        <Link href="/classes/calendar" className="inline-flex items-center gap-1.5 rounded-full border border-vytal-border bg-vytal-card px-3.5 py-1.5 text-xs font-semibold text-vytal-text transition-colors hover:bg-vytal-bg3">
+          <CalendarDays className="h-3.5 w-3.5" />
+          {t("quickAction.calendarView")}
+        </Link>
+        <Link href="/classes/waitlist" className="inline-flex items-center gap-1.5 rounded-full border border-vytal-border bg-vytal-card px-3.5 py-1.5 text-xs font-semibold text-vytal-text transition-colors hover:bg-vytal-bg3">
+          <ListChecks className="h-3.5 w-3.5" />
+          {t("quickAction.waitlist")}
+        </Link>
+      </div>
+
+      {/* Stats Bar */}
+      <div className="flex items-end justify-end">
         <div className="hidden items-center gap-4 sm:flex">
-          <Link
-            href="/classes/waitlist"
-            className="flex items-center gap-2 rounded-lg border border-vytal-amber/30 bg-vytal-amber/5 px-4 py-2 text-sm font-medium text-vytal-amber transition-colors hover:bg-vytal-amber/10"
-          >
-            <Users className="h-4 w-4" />
-            {t("classes.waitlistBtn")}
-          </Link>
-          <Link
-            href="/classes/calendar"
-            className="flex items-center gap-2 rounded-lg border border-vytal-border px-4 py-2 text-sm font-medium text-vytal-text transition-colors hover:bg-vytal-bg3"
-          >
-            <CalendarDays className="h-4 w-4" />
-            {t("classes.calendarViewBtn")}
-          </Link>
           <div className="text-right">
             <p className="text-xs text-vytal-muted">{t("classes.totalEnrolled")}</p>
             <p className="font-mono text-sm font-semibold text-vytal-text">
