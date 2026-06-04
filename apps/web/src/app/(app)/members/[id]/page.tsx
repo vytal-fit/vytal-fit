@@ -401,6 +401,13 @@ export default function MemberDetailPage() {
               <Send className="h-4 w-4" />
               {t("memberOverview.sendMessage")}
             </button>
+            <Link
+              href={`/members/${member.id}/billing`}
+              className="inline-flex items-center gap-2 rounded-lg border border-vytal-border px-4 py-2 text-sm font-medium text-vytal-text transition-colors hover:bg-vytal-bg3"
+            >
+              <CreditCard className="h-4 w-4" />
+              {t("memberOverview.viewBilling") || "View Billing"}
+            </Link>
           </div>
 
           {/* Personal Records */}
