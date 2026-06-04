@@ -30,6 +30,7 @@ import {
   Pencil,
   RefreshCw,
   Send,
+  Bell,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
@@ -98,7 +99,7 @@ function formatRelative(dateStr?: string): string {
   });
 }
 
-type Tab = "overview" | "activity" | "payments" | "health" | "notes";
+type Tab = "overview" | "activity" | "payments" | "communications" | "health" | "notes";
 
 // Mock payment data
 const mockPayments = [
@@ -137,6 +138,182 @@ const mockStaffNotes = [
   { id: "sn-3", date: "2026-02-15", author: "Ricardo Ribeiro", text: "Upgraded from 8x to Livre plan. Very happy with programming." },
 ];
 
+// ---------------------------------------------------------------------------
+// Mock communication entries
+// ---------------------------------------------------------------------------
+
+const mockCommunications = [
+  { id: "comm-1", type: "email" as const, subject: "Confirmacao de reserva - WOD 17:30", date: "2026-06-03T14:22:00Z", status: "opened" as const },
+  { id: "comm-2", type: "push" as const, subject: "Lembrete: Aula amanha as 09:00", date: "2026-06-02T18:00:00Z", status: "delivered" as const },
+  { id: "comm-3", type: "email" as const, subject: "Recibo de pagamento - Junho 2026", date: "2026-06-01T09:15:00Z", status: "opened" as const },
+  { id: "comm-4", type: "sms" as const, subject: "O seu plano foi renovado com sucesso", date: "2026-06-01T09:00:00Z", status: "delivered" as const },
+  { id: "comm-5", type: "email" as const, subject: "Novo PR! Parabens pelo recorde em Back Squat", date: "2026-05-28T17:45:00Z", status: "sent" as const },
+  { id: "comm-6", type: "push" as const, subject: "Desafio semanal: 5 treinos esta semana", date: "2026-05-26T08:00:00Z", status: "delivered" as const },
+];
+
+function CommunicationsTab({ memberName, memberEmail }: { memberName: string; memberEmail: string }) {
+  const { t } = useI18n();
+  const { toast } = useToast();
+  const [showEmailForm, setShowEmailForm] = useState(false);
+  const [showSmsForm, setShowSmsForm] = useState(false);
+  const [emailSubject, setEmailSubject] = useState("");
+  const [emailBody, setEmailBody] = useState("");
+  const [smsBody, setSmsBody] = useState("");
+
+  const typeIcons: Record<string, React.ReactNode> = {
+    email: <Mail className="h-4 w-4 text-vytal-blue" />,
+    sms: <Phone className="h-4 w-4 text-vytal-green" />,
+    push: <Bell className="h-4 w-4 text-vytal-amber" />,
+  };
+
+  const statusConfig: Record<string, { label: string; className: string }> = {
+    sent: { label: t("memberComms.status.sent"), className: "bg-vytal-muted/10 text-vytal-muted" },
+    delivered: { label: t("memberComms.status.delivered"), className: "bg-vytal-blue/10 text-vytal-blue" },
+    opened: { label: t("memberComms.status.opened"), className: "bg-vytal-green/10 text-vytal-green" },
+  };
+
+  function handleSendEmail() {
+    if (!emailSubject.trim() || !emailBody.trim()) return;
+    toast(t("memberComms.emailSent"), "success");
+    setShowEmailForm(false);
+    setEmailSubject("");
+    setEmailBody("");
+  }
+
+  function handleSendSms() {
+    if (!smsBody.trim()) return;
+    toast(t("memberComms.smsSent"), "success");
+    setShowSmsForm(false);
+    setSmsBody("");
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-semibold text-vytal-text">{t("memberComms.title")}</h2>
+        <div className="flex gap-2">
+          <button
+            onClick={() => { setShowEmailForm((v) => !v); setShowSmsForm(false); }}
+            className="inline-flex items-center gap-2 rounded-lg border border-vytal-border px-4 py-2 text-sm font-medium text-vytal-text transition-colors hover:bg-vytal-bg3"
+          >
+            <Mail className="h-4 w-4" />
+            {t("memberComms.sendEmail")}
+          </button>
+          <button
+            onClick={() => { setShowSmsForm((v) => !v); setShowEmailForm(false); }}
+            className="inline-flex items-center gap-2 rounded-lg border border-vytal-border px-4 py-2 text-sm font-medium text-vytal-text transition-colors hover:bg-vytal-bg3"
+          >
+            <Phone className="h-4 w-4" />
+            {t("memberComms.sendSms")}
+          </button>
+        </div>
+      </div>
+
+      {/* Email Compose */}
+      {showEmailForm && (
+        <div className="rounded-xl border border-vytal-green/20 bg-vytal-green/5 p-5 space-y-3">
+          <div className="flex items-center gap-2 text-sm text-vytal-muted">
+            <span className="font-medium">{t("memberComms.composeTo")}:</span>
+            <span className="text-vytal-text">{memberName} ({memberEmail})</span>
+          </div>
+          <input
+            type="text"
+            value={emailSubject}
+            onChange={(e) => setEmailSubject(e.target.value)}
+            placeholder={t("memberComms.composeSubject")}
+            className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-2.5 text-sm text-vytal-text placeholder:text-vytal-muted focus:border-vytal-green/30 focus:outline-none focus:ring-1 focus:ring-vytal-green/20"
+          />
+          <textarea
+            value={emailBody}
+            onChange={(e) => setEmailBody(e.target.value)}
+            placeholder={t("memberComms.composeBody")}
+            rows={4}
+            className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-2.5 text-sm text-vytal-text placeholder:text-vytal-muted focus:border-vytal-green/30 focus:outline-none focus:ring-1 focus:ring-vytal-green/20 resize-none"
+          />
+          <div className="flex justify-end gap-2">
+            <button onClick={() => setShowEmailForm(false)} className="rounded-lg border border-vytal-border px-4 py-2 text-sm text-vytal-text hover:bg-vytal-bg3">
+              {t("memberComms.cancel")}
+            </button>
+            <button
+              onClick={handleSendEmail}
+              disabled={!emailSubject.trim() || !emailBody.trim()}
+              className="flex items-center gap-2 rounded-lg bg-vytal-green px-4 py-2 text-sm font-semibold text-vytal-bg hover:bg-vytal-green/90 disabled:opacity-30 disabled:cursor-not-allowed"
+            >
+              <Send className="h-4 w-4" />
+              {t("memberComms.send")}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* SMS Compose */}
+      {showSmsForm && (
+        <div className="rounded-xl border border-vytal-green/20 bg-vytal-green/5 p-5 space-y-3">
+          <div className="flex items-center gap-2 text-sm text-vytal-muted">
+            <span className="font-medium">{t("memberComms.composeTo")}:</span>
+            <span className="text-vytal-text">{memberName}</span>
+          </div>
+          <textarea
+            value={smsBody}
+            onChange={(e) => setSmsBody(e.target.value)}
+            placeholder={t("memberComms.composeBody")}
+            rows={3}
+            maxLength={160}
+            className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-2.5 text-sm text-vytal-text placeholder:text-vytal-muted focus:border-vytal-green/30 focus:outline-none focus:ring-1 focus:ring-vytal-green/20 resize-none"
+          />
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] text-vytal-muted">{smsBody.length}/160</span>
+            <div className="flex gap-2">
+              <button onClick={() => setShowSmsForm(false)} className="rounded-lg border border-vytal-border px-4 py-2 text-sm text-vytal-text hover:bg-vytal-bg3">
+                {t("memberComms.cancel")}
+              </button>
+              <button
+                onClick={handleSendSms}
+                disabled={!smsBody.trim()}
+                className="flex items-center gap-2 rounded-lg bg-vytal-green px-4 py-2 text-sm font-semibold text-vytal-bg hover:bg-vytal-green/90 disabled:opacity-30 disabled:cursor-not-allowed"
+              >
+                <Send className="h-4 w-4" />
+                {t("memberComms.send")}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Communication Timeline */}
+      <div className="space-y-3">
+        {mockCommunications.map((comm) => {
+          const cfg = statusConfig[comm.status];
+          return (
+            <div
+              key={comm.id}
+              className="flex items-center gap-4 rounded-xl border border-vytal-border bg-vytal-card px-5 py-4 transition-colors hover:border-[rgba(61,255,110,0.22)]"
+            >
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-vytal-bg3">
+                {typeIcons[comm.type]}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <span className="rounded bg-vytal-bg3 px-1.5 py-0.5 text-[10px] font-semibold uppercase text-vytal-muted">
+                    {t(`memberComms.type.${comm.type}`)}
+                  </span>
+                  <p className="text-sm font-medium text-vytal-text truncate">{comm.subject}</p>
+                </div>
+                <p className="mt-0.5 text-xs text-vytal-muted">
+                  {new Date(comm.date).toLocaleDateString("pt-PT", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}
+                </p>
+              </div>
+              <span className={cn("inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-semibold", cfg.className)}>
+                {cfg.label}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 export default function MemberDetailPage() {
   const { t } = useI18n();
   const { toast } = useToast();
@@ -168,6 +345,7 @@ export default function MemberDetailPage() {
     { key: "overview", label: t("memberTabs.overview"), icon: <User className="h-4 w-4" /> },
     { key: "activity", label: t("memberTabs.activity"), icon: <Activity className="h-4 w-4" /> },
     { key: "payments", label: t("memberTabs.payments"), icon: <CreditCard className="h-4 w-4" /> },
+    { key: "communications", label: t("memberTabs.communications"), icon: <MessageSquare className="h-4 w-4" /> },
     { key: "health", label: t("memberTabs.health"), icon: <Heart className="h-4 w-4" /> },
     { key: "notes", label: t("memberTabs.notes"), icon: <StickyNote className="h-4 w-4" /> },
   ];
@@ -601,6 +779,11 @@ export default function MemberDetailPage() {
             </table>
           </div>
         </div>
+      )}
+
+      {/* ─────────── COMMUNICATIONS TAB ─────────── */}
+      {activeTab === "communications" && (
+        <CommunicationsTab memberName={member.name} memberEmail={member.email} />
       )}
 
       {/* ─────────── HEALTH TAB ─────────── */}

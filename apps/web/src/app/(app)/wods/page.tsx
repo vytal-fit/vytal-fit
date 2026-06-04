@@ -286,6 +286,22 @@ export default function WODsPage() {
         </Link>
       </div>
 
+      {/* Quick Actions Bar */}
+      <div className="flex flex-wrap items-center gap-2">
+        <Link href="/wods/builder" className="inline-flex items-center gap-1.5 rounded-full border border-vytal-green/20 bg-vytal-green/5 px-3.5 py-1.5 text-xs font-semibold text-vytal-green transition-colors hover:bg-vytal-green/10">
+          <Plus className="h-3.5 w-3.5" />
+          {t("quickAction.newWod")}
+        </Link>
+        <Link href="/wods/programming" className="inline-flex items-center gap-1.5 rounded-full border border-vytal-border bg-vytal-card px-3.5 py-1.5 text-xs font-semibold text-vytal-text transition-colors hover:bg-vytal-bg3">
+          <Pencil className="h-3.5 w-3.5" />
+          {t("quickAction.programming")}
+        </Link>
+        <Link href="/wods" className="inline-flex items-center gap-1.5 rounded-full border border-vytal-border bg-vytal-card px-3.5 py-1.5 text-xs font-semibold text-vytal-text transition-colors hover:bg-vytal-bg3">
+          <Copy className="h-3.5 w-3.5" />
+          {t("quickAction.copyLast")}
+        </Link>
+      </div>
+
       {/* Today's WODs */}
       <div>
         <div className="mb-4 flex items-center gap-2">

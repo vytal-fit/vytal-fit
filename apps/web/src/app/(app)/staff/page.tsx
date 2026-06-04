@@ -156,6 +156,22 @@ export default function StaffPage() {
         </button>
       </div>
 
+      {/* Quick Actions Bar */}
+      <div className="flex flex-wrap items-center gap-2">
+        <button onClick={() => setShowAddForm(true)} className="inline-flex items-center gap-1.5 rounded-full border border-vytal-green/20 bg-vytal-green/5 px-3.5 py-1.5 text-xs font-semibold text-vytal-green transition-colors hover:bg-vytal-green/10">
+          <Plus className="h-3.5 w-3.5" />
+          {t("quickAction.addCoach")}
+        </button>
+        <Link href="/staff/schedule" className="inline-flex items-center gap-1.5 rounded-full border border-vytal-border bg-vytal-card px-3.5 py-1.5 text-xs font-semibold text-vytal-text transition-colors hover:bg-vytal-bg3">
+          <Calendar className="h-3.5 w-3.5" />
+          {t("quickAction.schedule")}
+        </Link>
+        <Link href="/staff/payroll" className="inline-flex items-center gap-1.5 rounded-full border border-vytal-border bg-vytal-card px-3.5 py-1.5 text-xs font-semibold text-vytal-text transition-colors hover:bg-vytal-bg3">
+          <TrendingUp className="h-3.5 w-3.5" />
+          {t("quickAction.payroll")}
+        </Link>
+      </div>
+
       {/* Add Form */}
       {showAddForm && (
         <div className="rounded-xl border border-vytal-green/20 bg-vytal-green/5 p-5">

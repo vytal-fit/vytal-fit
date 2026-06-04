@@ -96,6 +96,22 @@ export default function FinancialsPage() {
         <p className="mt-1 text-sm text-vytal-muted">{t("financials.subtitle")}</p>
       </div>
 
+      {/* Quick Actions Bar */}
+      <div className="flex flex-wrap items-center gap-2">
+        <button onClick={() => toast(t("quickAction.comingSoon"), "info")} className="inline-flex items-center gap-1.5 rounded-full border border-vytal-green/20 bg-vytal-green/5 px-3.5 py-1.5 text-xs font-semibold text-vytal-green transition-colors hover:bg-vytal-green/10">
+          <DollarSign className="h-3.5 w-3.5" />
+          {t("quickAction.newInvoice")}
+        </button>
+        <button onClick={() => toast(t("quickAction.comingSoon"), "info")} className="inline-flex items-center gap-1.5 rounded-full border border-vytal-border bg-vytal-card px-3.5 py-1.5 text-xs font-semibold text-vytal-text transition-colors hover:bg-vytal-bg3">
+          <Send className="h-3.5 w-3.5" />
+          {t("quickAction.sepa")}
+        </button>
+        <button onClick={() => toast(t("quickAction.comingSoon"), "info")} className="inline-flex items-center gap-1.5 rounded-full border border-vytal-border bg-vytal-card px-3.5 py-1.5 text-xs font-semibold text-vytal-text transition-colors hover:bg-vytal-bg3">
+          <AlertTriangle className="h-3.5 w-3.5" />
+          {t("quickAction.dunning")}
+        </button>
+      </div>
+
       {/* Top Stats - 3 Column Premium Grid */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {/* Revenue This Month vs Last Month */}

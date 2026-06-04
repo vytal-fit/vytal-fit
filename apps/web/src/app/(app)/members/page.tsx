@@ -360,6 +360,26 @@ export default function MembersPage() {
         </div>
       </div>
 
+      {/* Quick Actions Bar */}
+      <div className="flex flex-wrap items-center gap-2">
+        <button onClick={() => setShowAddForm(true)} className="inline-flex items-center gap-1.5 rounded-full border border-vytal-green/20 bg-vytal-green/5 px-3.5 py-1.5 text-xs font-semibold text-vytal-green transition-colors hover:bg-vytal-green/10">
+          <Plus className="h-3.5 w-3.5" />
+          {t("quickAction.addMember")}
+        </button>
+        <Link href="/members/import" className="inline-flex items-center gap-1.5 rounded-full border border-vytal-border bg-vytal-card px-3.5 py-1.5 text-xs font-semibold text-vytal-text transition-colors hover:bg-vytal-bg3">
+          <Upload className="h-3.5 w-3.5" />
+          {t("quickAction.import")}
+        </Link>
+        <button onClick={handleExportCSV} className="inline-flex items-center gap-1.5 rounded-full border border-vytal-border bg-vytal-card px-3.5 py-1.5 text-xs font-semibold text-vytal-text transition-colors hover:bg-vytal-bg3">
+          <Download className="h-3.5 w-3.5" />
+          {t("quickAction.exportCsv")}
+        </button>
+        <button onClick={handleExportPDF} className="inline-flex items-center gap-1.5 rounded-full border border-vytal-border bg-vytal-card px-3.5 py-1.5 text-xs font-semibold text-vytal-text transition-colors hover:bg-vytal-bg3">
+          <FileText className="h-3.5 w-3.5" />
+          {t("quickAction.exportPdf")}
+        </button>
+      </div>
+
       {/* Add Form */}
       {showAddForm && (
         <div className="rounded-xl border border-vytal-green/20 bg-vytal-green/5 p-5">
