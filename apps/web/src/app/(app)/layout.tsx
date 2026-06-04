@@ -38,6 +38,9 @@ import {
   Search,
   HelpCircle,
   ChevronDown,
+  Monitor,
+  Upload,
+  Plug,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ToastProvider } from "@/components/toast";
@@ -99,6 +102,7 @@ const allNavGroups: NavGroup[] = [
       { href: "/exercises", labelKey: "nav.exercises", icon: Dumbbell, requiresFeature: "movementLibrary" },
       { href: "/plans", labelKey: "nav.plans", icon: CreditCard },
       { href: "/dropins", labelKey: "nav.dropins", icon: Globe, requiresFeature: "dropins" },
+      { href: "/import", labelKey: "nav.importCenter", icon: Upload },
     ],
   },
   {
@@ -125,6 +129,7 @@ const allNavGroups: NavGroup[] = [
         { href: "/communications/templates", labelKey: "nav.templates", icon: MessageSquare },
       ]},
       { href: "/automations", labelKey: "nav.automations", icon: Zap },
+      { href: "/screen", labelKey: "nav.tvScreen", icon: Monitor, requiresFeature: "tvDisplay" },
     ],
   },
   {
@@ -136,6 +141,7 @@ const allNavGroups: NavGroup[] = [
         { href: "/settings/app-config", labelKey: "nav.appConfig", icon: Settings },
         { href: "/settings/audit-log", labelKey: "nav.auditLog", icon: Settings },
       ]},
+      { href: "/integrations", labelKey: "nav.integrations", icon: Plug },
       { href: "/help", labelKey: "nav.help", icon: HelpCircle },
     ],
   },
