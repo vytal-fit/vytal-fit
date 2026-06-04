@@ -52,6 +52,8 @@ import {
   Image,
   Wrench,
   Newspaper,
+  Rocket,
+  LifeBuoy,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ToastProvider } from "@/components/toast";
@@ -81,6 +83,7 @@ interface NavGroup {
 const allNavGroups: NavGroup[] = [
   {
     items: [
+      { href: "/setup", labelKey: "nav.setup", icon: Rocket },
       { href: "/dashboard", labelKey: "nav.dashboard", icon: LayoutDashboard },
       { href: "/members", labelKey: "nav.members", icon: Users, children: [
         { href: "/members", labelKey: "nav.membersOverview", icon: Users },
@@ -88,6 +91,7 @@ const allNavGroups: NavGroup[] = [
         { href: "/members/contracts", labelKey: "nav.contracts", icon: Users },
         { href: "/members/groups", labelKey: "nav.groups", icon: Users },
         { href: "/members/referrals", labelKey: "nav.referrals", icon: Users },
+        { href: "/members/ltv", labelKey: "nav.ltv", icon: Users },
         { href: "/members/import", labelKey: "nav.import", icon: Users },
         { href: "/members/retention", labelKey: "nav.retention", icon: Users },
       ]},
@@ -114,6 +118,8 @@ const allNavGroups: NavGroup[] = [
         { href: "/staff", labelKey: "nav.staffOverview", icon: UserCog },
         { href: "/staff/payroll", labelKey: "nav.payroll", icon: UserCog },
         { href: "/staff/schedule", labelKey: "nav.schedule", icon: UserCog },
+        { href: "/staff/certifications", labelKey: "nav.certifications", icon: UserCog },
+        { href: "/staff/revenue", labelKey: "nav.coachRevenue", icon: UserCog },
       ]},
       { href: "/class-types", labelKey: "nav.classTypes", icon: Tag, requiresFeature: "groupClasses" },
       { href: "/locations", labelKey: "nav.locations", icon: MapPin, children: [
@@ -168,8 +174,11 @@ const allNavGroups: NavGroup[] = [
       { href: "/automations", labelKey: "nav.automations", icon: Zap, children: [
         { href: "/automations", labelKey: "nav.automations", icon: Zap },
         { href: "/automations/milestones", labelKey: "nav.milestones", icon: Trophy },
+        { href: "/automations/campaigns", labelKey: "nav.campaigns", icon: Zap },
       ]},
       { href: "/screen", labelKey: "nav.tvScreen", icon: Monitor, requiresFeature: "tvDisplay" },
+      { href: "/support", labelKey: "nav.support", icon: LifeBuoy },
+      { href: "/marketing", labelKey: "nav.marketing", icon: Megaphone },
     ],
   },
   {
@@ -186,6 +195,7 @@ const allNavGroups: NavGroup[] = [
         { href: "/settings/webhooks", labelKey: "nav.webhooks", icon: Settings },
         { href: "/settings/api-keys", labelKey: "nav.apiKeys", icon: Settings },
         { href: "/settings/branding", labelKey: "nav.branding", icon: Settings },
+        { href: "/settings/backup", labelKey: "nav.backup", icon: Settings },
       ]},
       { href: "/integrations", labelKey: "nav.integrations", icon: Plug },
       { href: "/changelog", labelKey: "nav.changelog", icon: Newspaper },
