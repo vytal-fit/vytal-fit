@@ -180,7 +180,7 @@ export default function AuditLogPage() {
   }
 
   function handleExport() {
-    toast("Audit log exported as CSV", "success");
+    toast(t("toast.auditLogExported"), "success");
   }
 
   return (
@@ -202,7 +202,7 @@ export default function AuditLogPage() {
           className="flex items-center gap-2 rounded-lg border border-vytal-border bg-vytal-bg2 px-4 py-2.5 text-sm font-medium text-vytal-text transition-colors hover:bg-vytal-bg3"
         >
           <Download className="h-4 w-4" />
-          Export CSV
+          {t("auditLog.exportCsv")}
         </button>
       </div>
 
@@ -211,21 +211,21 @@ export default function AuditLogPage() {
         <div className="rounded-xl border border-vytal-border bg-vytal-card p-4">
           <div className="flex items-center gap-2 mb-1">
             <Activity className="h-4 w-4 text-vytal-green" />
-            <span className="text-xs text-vytal-muted">Events Today</span>
+            <span className="text-xs text-vytal-muted">{t("auditLog.eventsToday")}</span>
           </div>
           <p className="text-2xl font-bold text-vytal-text">{eventsToday}</p>
         </div>
         <div className="rounded-xl border border-vytal-border bg-vytal-card p-4">
           <div className="flex items-center gap-2 mb-1">
             <Users className="h-4 w-4 text-vytal-blue" />
-            <span className="text-xs text-vytal-muted">Users Active Today</span>
+            <span className="text-xs text-vytal-muted">{t("auditLog.usersActiveToday")}</span>
           </div>
           <p className="text-2xl font-bold text-vytal-text">{activeUsersToday}</p>
         </div>
         <div className="rounded-xl border border-vytal-border bg-vytal-card p-4">
           <div className="flex items-center gap-2 mb-1">
             <Shield className="h-4 w-4 text-vytal-purple" />
-            <span className="text-xs text-vytal-muted">Most Active User</span>
+            <span className="text-xs text-vytal-muted">{t("auditLog.mostActiveUser")}</span>
           </div>
           <p className="text-lg font-bold text-vytal-text truncate">{mostActiveUser}</p>
         </div>
@@ -235,14 +235,14 @@ export default function AuditLogPage() {
       <div className="rounded-xl border border-vytal-border bg-vytal-card p-4">
         <div className="flex items-center gap-2 mb-3">
           <Filter className="h-4 w-4 text-vytal-green" />
-          <span className="text-xs font-semibold uppercase tracking-wider text-vytal-muted">Filters</span>
+          <span className="text-xs font-semibold uppercase tracking-wider text-vytal-muted">{t("auditLog.filters")}</span>
           {hasFilters && (
             <button
               onClick={clearFilters}
               className="ml-auto flex items-center gap-1 rounded-md bg-vytal-bg3 px-2 py-1 text-[10px] font-medium text-vytal-muted transition-colors hover:text-vytal-text"
             >
               <XIcon className="h-3 w-3" />
-              Clear All
+              {t("auditLog.clearAll")}
             </button>
           )}
         </div>
@@ -254,7 +254,7 @@ export default function AuditLogPage() {
               type="text"
               value={search}
               onChange={(e) => { setSearch(e.target.value); setCurrentPage(1); }}
-              placeholder="Search details..."
+              placeholder={t("auditLog.searchPlaceholder")}
               className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 pl-9 pr-3 py-2 text-xs text-vytal-text placeholder:text-vytal-muted focus:border-vytal-green/30 focus:outline-none focus:ring-1 focus:ring-vytal-green/20"
             />
           </div>
@@ -282,7 +282,7 @@ export default function AuditLogPage() {
             className="rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-2 text-xs text-vytal-text focus:border-vytal-green/30 focus:outline-none focus:ring-1 focus:ring-vytal-green/20"
           >
             {allUsers.map((u) => (
-              <option key={u} value={u}>{u}</option>
+              <option key={u} value={u}>{u === "All Users" ? t("auditLog.allUsers") : u}</option>
             ))}
           </select>
 
@@ -292,7 +292,7 @@ export default function AuditLogPage() {
             onChange={(e) => { setSelectedAction(e.target.value as ActionType | "all"); setCurrentPage(1); }}
             className="rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-2 text-xs text-vytal-text focus:border-vytal-green/30 focus:outline-none focus:ring-1 focus:ring-vytal-green/20"
           >
-            <option value="all">All Actions</option>
+            <option value="all">{t("auditLog.allActions")}</option>
             {allActionTypes.map((a) => (
               <option key={a} value={a}>{a}</option>
             ))}
@@ -304,7 +304,7 @@ export default function AuditLogPage() {
             onChange={(e) => { setSelectedResource(e.target.value as ResourceType | "all"); setCurrentPage(1); }}
             className="rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-2 text-xs text-vytal-text focus:border-vytal-green/30 focus:outline-none focus:ring-1 focus:ring-vytal-green/20"
           >
-            <option value="all">All Resources</option>
+            <option value="all">{t("auditLog.allResources")}</option>
             {allResourceTypes.map((r) => (
               <option key={r} value={r}>{r}</option>
             ))}
@@ -317,7 +317,7 @@ export default function AuditLogPage() {
         <Shield className="h-4 w-4 text-vytal-muted" />
         <span className="text-xs font-medium text-vytal-muted">
           {filtered.length} {t("auditLog.entries")}
-          {hasFilters && " (filtered)"}
+          {hasFilters && ` ${t("auditLog.filtered")}`}
         </span>
       </div>
 
@@ -405,7 +405,7 @@ export default function AuditLogPage() {
                     <td colSpan={6} className="px-4 py-3">
                       <div className="ml-8 rounded-lg border border-vytal-border bg-vytal-bg2 p-3">
                         <span className="text-[10px] font-medium uppercase tracking-wider text-vytal-muted">
-                          Details
+                          {t("auditLog.expandedDetails")}
                         </span>
                         <p className="mt-1 text-xs text-vytal-text">{entry.expandedDetails}</p>
                       </div>
@@ -421,7 +421,7 @@ export default function AuditLogPage() {
       {/* Pagination */}
       <div className="flex items-center justify-between">
         <span className="text-xs text-vytal-muted">
-          Page {currentPage} of {totalPages} ({filtered.length} entries)
+          {t("auditLog.page")} {currentPage} {t("auditLog.of")} {totalPages} ({filtered.length} {t("auditLog.entries")})
         </span>
         <div className="flex items-center gap-2">
           <button

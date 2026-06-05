@@ -189,7 +189,7 @@ export default function SettingsPage() {
                 const file = e.target.files?.[0];
                 if (file) {
                   setLogoFileName(file.name);
-                  toast(`Logo selected: ${file.name}`, "success");
+                  toast(t("toast.logoSelected").replace("{name}", file.name), "success");
                 }
               }}
             />

@@ -12,7 +12,6 @@ import {
   Check,
   Clock,
   CheckCircle,
-  XCircle,
   RefreshCw,
   Eye,
   EyeOff,
@@ -175,21 +174,21 @@ export default function WebhooksPage() {
           : wh
       )
     );
-    toast("Webhook status updated", "success");
+    toast(t("webhooks.toastStatusUpdated"), "success");
   }
 
   function handleTest(name: string) {
-    toast(`Test payload sent to "${name}"`, "success");
+    toast(t("webhooks.toastTestSent").replace("{name}", name), "success");
   }
 
   function handleDelete(id: string) {
     setWebhooks((prev) => prev.filter((wh) => wh.id !== id));
-    toast("Webhook deleted", "success");
+    toast(t("webhooks.toastDeleted"), "success");
   }
 
   function handleCreate() {
     if (!newUrl || !newName || selectedEvents.length === 0) {
-      toast("Please fill in all fields and select at least one event", "error");
+      toast(t("webhooks.toastFillFields"), "error");
       return;
     }
     const newWebhook: WebhookEntry = {
@@ -206,7 +205,7 @@ export default function WebhooksPage() {
     setNewUrl("");
     setNewName("");
     setSelectedEvents([]);
-    toast("Webhook created successfully", "success");
+    toast(t("webhooks.toastCreated"), "success");
   }
 
   function toggleEvent(event: string) {
@@ -218,7 +217,7 @@ export default function WebhooksPage() {
   function handleCopySecret() {
     navigator.clipboard.writeText(generatedSecret);
     setCopiedSecret(true);
-    toast("Secret copied to clipboard", "success");
+    toast(t("webhooks.toastSecretCopied"), "success");
     setTimeout(() => setCopiedSecret(false), 2000);
   }
 
@@ -227,15 +226,15 @@ export default function WebhooksPage() {
       <Breadcrumbs
         items={[
           { label: t("nav.settings"), href: "/settings" },
-          { label: "Webhooks" },
+          { label: t("webhooks.title") },
         ]}
       />
 
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-vytal-text">Webhooks</h1>
+          <h1 className="text-2xl font-bold text-vytal-text">{t("webhooks.title")}</h1>
           <p className="mt-1 text-sm text-vytal-muted">
-            Connect external systems via real-time event notifications.
+            {t("webhooks.subtitle")}
           </p>
         </div>
         <button
@@ -243,7 +242,7 @@ export default function WebhooksPage() {
           className="flex items-center gap-2 rounded-lg bg-vytal-green px-4 py-2.5 text-sm font-semibold text-vytal-bg transition-colors hover:bg-vytal-green/90"
         >
           <Plus className="h-4 w-4" />
-          Create Webhook
+          {t("webhooks.createBtn")}
         </button>
       </div>
 
@@ -252,31 +251,31 @@ export default function WebhooksPage() {
         <div className="rounded-xl border border-vytal-green/30 bg-vytal-card p-6 space-y-5">
           <div className="flex items-center gap-2 mb-2">
             <Webhook className="h-5 w-5 text-vytal-green" />
-            <h2 className="text-lg font-semibold text-vytal-text">Create Webhook</h2>
+            <h2 className="text-lg font-semibold text-vytal-text">{t("webhooks.createFormTitle")}</h2>
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
               <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">
-                Name
+                {t("webhooks.nameLabel")}
               </label>
               <input
                 type="text"
                 value={newName}
                 onChange={(e) => setNewName(e.target.value)}
-                placeholder="e.g. Zapier -- New Member"
+                placeholder={t("webhooks.namePlaceholder")}
                 className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-2.5 text-sm text-vytal-text placeholder:text-vytal-muted focus:border-vytal-green/30 focus:outline-none focus:ring-1 focus:ring-vytal-green/20"
               />
             </div>
             <div>
               <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">
-                Endpoint URL
+                {t("webhooks.urlLabel")}
               </label>
               <input
                 type="url"
                 value={newUrl}
                 onChange={(e) => setNewUrl(e.target.value)}
-                placeholder="https://example.com/webhook"
+                placeholder={t("webhooks.urlPlaceholder")}
                 className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-2.5 text-sm text-vytal-text placeholder:text-vytal-muted focus:border-vytal-green/30 focus:outline-none focus:ring-1 focus:ring-vytal-green/20"
               />
             </div>
@@ -284,7 +283,7 @@ export default function WebhooksPage() {
 
           <div>
             <label className="mb-2 block text-xs font-medium uppercase tracking-wider text-vytal-muted">
-              Events
+              {t("webhooks.eventsLabel")}
             </label>
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
               {availableEvents.map((event) => (
@@ -323,7 +322,7 @@ export default function WebhooksPage() {
 
           <div>
             <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">
-              Signing Secret (auto-generated)
+              {t("webhooks.signingSecretLabel")}
             </label>
             <div className="flex items-center gap-2">
               <code className="flex-1 rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-2.5 font-mono text-xs text-vytal-text">
@@ -334,9 +333,9 @@ export default function WebhooksPage() {
                 className="flex items-center gap-1.5 rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-2.5 text-xs text-vytal-muted transition-colors hover:bg-vytal-bg3 hover:text-vytal-text"
               >
                 {copiedSecret ? (
-                  <><Check className="h-3 w-3" /> Copied</>
+                  <><Check className="h-3 w-3" /> {t("webhooks.copied")}</>
                 ) : (
-                  <><Copy className="h-3 w-3" /> Copy</>
+                  <><Copy className="h-3 w-3" /> {t("webhooks.copy")}</>
                 )}
               </button>
             </div>
@@ -348,13 +347,13 @@ export default function WebhooksPage() {
               className="flex items-center gap-2 rounded-lg bg-vytal-green px-5 py-2.5 text-sm font-semibold text-vytal-bg transition-colors hover:bg-vytal-green/90"
             >
               <Plus className="h-4 w-4" />
-              Create
+              {t("action.create")}
             </button>
             <button
               onClick={() => setShowCreate(false)}
               className="rounded-lg border border-vytal-border px-4 py-2.5 text-sm text-vytal-text transition-colors hover:bg-vytal-bg3"
             >
-              Cancel
+              {t("action.cancel")}
             </button>
           </div>
         </div>
@@ -366,25 +365,25 @@ export default function WebhooksPage() {
           <thead>
             <tr className="border-b border-vytal-border bg-vytal-bg2">
               <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-vytal-muted">
-                Webhook
+                {t("webhooks.colWebhook")}
               </th>
               <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-vytal-muted">
-                URL
+                {t("webhooks.colUrl")}
               </th>
               <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-vytal-muted">
-                Events
+                {t("webhooks.colEvents")}
               </th>
               <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-vytal-muted">
-                Status
+                {t("webhooks.colStatus")}
               </th>
               <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-vytal-muted">
-                Last Triggered
+                {t("webhooks.colLastTriggered")}
               </th>
               <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-vytal-muted">
-                Success Rate
+                {t("webhooks.colSuccessRate")}
               </th>
               <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-vytal-muted">
-                Actions
+                {t("webhooks.colActions")}
               </th>
             </tr>
           </thead>
@@ -428,7 +427,7 @@ export default function WebhooksPage() {
                     ) : (
                       <Pause className="h-3 w-3" />
                     )}
-                    {wh.status === "active" ? "Active" : "Paused"}
+                    {wh.status === "active" ? t("webhooks.statusActive") : t("webhooks.statusPaused")}
                   </span>
                 </td>
                 <td className="px-4 py-3">
@@ -461,7 +460,7 @@ export default function WebhooksPage() {
                           ? "text-vytal-amber hover:bg-vytal-amber/10"
                           : "text-vytal-green hover:bg-vytal-green/10"
                       )}
-                      title={wh.status === "active" ? "Pause" : "Resume"}
+                      title={wh.status === "active" ? t("webhooks.titlePause") : t("webhooks.titleResume")}
                     >
                       {wh.status === "active" ? (
                         <Pause className="h-3.5 w-3.5" />
@@ -472,14 +471,14 @@ export default function WebhooksPage() {
                     <button
                       onClick={() => handleTest(wh.name)}
                       className="flex h-8 w-8 items-center justify-center rounded-lg text-vytal-blue transition-colors hover:bg-vytal-blue/10"
-                      title="Send test payload"
+                      title={t("webhooks.titleTest")}
                     >
                       <Send className="h-3.5 w-3.5" />
                     </button>
                     <button
                       onClick={() => handleDelete(wh.id)}
                       className="flex h-8 w-8 items-center justify-center rounded-lg text-vytal-red transition-colors hover:bg-vytal-red/10"
-                      title="Delete"
+                      title={t("webhooks.titleDelete")}
                     >
                       <Trash2 className="h-3.5 w-3.5" />
                     </button>
@@ -495,7 +494,7 @@ export default function WebhooksPage() {
       <div className="rounded-xl border border-vytal-border bg-vytal-card p-6">
         <div className="mb-4 flex items-center gap-2">
           <RefreshCw className="h-5 w-5 text-vytal-green" />
-          <h2 className="text-lg font-semibold text-vytal-text">Recent Deliveries</h2>
+          <h2 className="text-lg font-semibold text-vytal-text">{t("webhooks.recentDeliveries")}</h2>
         </div>
         <div className="space-y-2">
           {mockDeliveries.map((dl) => (
@@ -531,7 +530,7 @@ export default function WebhooksPage() {
               {expandedDelivery === dl.id && (
                 <div className="border-t border-vytal-border px-4 py-3">
                   <label className="mb-1 block text-[10px] font-medium uppercase tracking-wider text-vytal-muted">
-                    Payload
+                    {t("webhooks.payload")}
                   </label>
                   <code className="block rounded-lg bg-vytal-bg3 p-3 font-mono text-xs text-vytal-text whitespace-pre-wrap break-all">
                     {JSON.stringify(JSON.parse(dl.payload), null, 2)}

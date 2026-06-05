@@ -92,7 +92,7 @@ export default function ClassCreatePage() {
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
-      toast("Please fill in all required fields", "error");
+      toast(t("toast.requiredFields"), "error");
       return;
     }
 
@@ -119,7 +119,7 @@ export default function ClassCreatePage() {
     });
 
     setSuccess(true);
-    toast("Class created successfully!", "success");
+    toast(t("toast.classCreated"), "success");
   }
 
   function handleReset() {

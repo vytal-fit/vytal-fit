@@ -66,7 +66,7 @@ export default function CommunicationsPage() {
 
   const handlePublishNews = useCallback(() => {
     if (!newsTitle.trim() || !newsBody.trim()) {
-      toast("Title and body are required", "error");
+      toast(t("communications.titleRequired"), "error");
       return;
     }
     const newItem: NewsItem = {
@@ -81,8 +81,8 @@ export default function CommunicationsPage() {
     setNewsTitle("");
     setNewsBody("");
     setShowComposeNews(false);
-    toast("News published!", "success");
-  }, [newsTitle, newsBody, toast]);
+    toast(t("communications.newsPublished"), "success");
+  }, [newsTitle, newsBody, toast, t]);
 
   const handleLike = useCallback((id: number) => {
     setNewsItems((prev) =>
@@ -94,29 +94,29 @@ export default function CommunicationsPage() {
 
   const handleSendEmail = useCallback(() => {
     if (!emailTo.trim()) {
-      toast("Recipient is required", "error");
+      toast(t("communications.recipientRequired"), "error");
       return;
     }
-    toast(`Email sent to ${emailTo}`, "success");
+    toast(`${t("communications.emailSentTo")} ${emailTo}`, "success");
     setEmailTo("");
     setEmailSubject("");
     setEmailBody("");
-  }, [emailTo, toast]);
+  }, [emailTo, toast, t]);
 
   const handleSendSMS = useCallback(() => {
     if (!smsTo.trim()) {
-      toast("Recipient is required", "error");
+      toast(t("communications.recipientRequired"), "error");
       return;
     }
-    toast(`SMS sent to ${smsTo}`, "success");
+    toast(`${t("communications.smsSentTo")} ${smsTo}`, "success");
     setSmsTo("");
     setSmsMessage("");
-  }, [smsTo, toast]);
+  }, [smsTo, toast, t]);
 
   const tabs: { key: Tab; label: string; icon: React.ReactNode }[] = [
-    { key: "news", label: "News", icon: <MessageSquare className="h-4 w-4" /> },
-    { key: "email", label: "Email", icon: <Mail className="h-4 w-4" /> },
-    { key: "sms", label: "SMS", icon: <Smartphone className="h-4 w-4" /> },
+    { key: "news", label: t("communications.tabNews"), icon: <MessageSquare className="h-4 w-4" /> },
+    { key: "email", label: t("communications.tabEmail"), icon: <Mail className="h-4 w-4" /> },
+    { key: "sms", label: t("communications.tabSms"), icon: <Smartphone className="h-4 w-4" /> },
   ];
 
   return (
@@ -158,23 +158,23 @@ export default function CommunicationsPage() {
               className="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-vytal-border py-4 text-sm text-vytal-muted transition-colors hover:border-vytal-green/30 hover:text-vytal-green"
             >
               <Plus className="h-4 w-4" />
-              Compose News
+              {t("communications.composeNews")}
             </button>
           ) : (
             <div className="rounded-xl border border-vytal-green/20 bg-vytal-green/5 p-5">
               <h3 className="mb-4 text-sm font-semibold text-vytal-green">
-                New Post
+                {t("communications.newPost")}
               </h3>
               <div className="space-y-3">
                 <input
                   type="text"
-                  placeholder="Title"
+                  placeholder={t("communications.titlePlaceholder")}
                   value={newsTitle}
                   onChange={(e) => setNewsTitle(e.target.value)}
                   className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-2.5 text-sm text-vytal-text placeholder:text-vytal-muted focus:border-vytal-green/30 focus:outline-none focus:ring-1 focus:ring-vytal-green/20"
                 />
                 <textarea
-                  placeholder="Write your news..."
+                  placeholder={t("communications.bodyPlaceholder")}
                   value={newsBody}
                   onChange={(e) => setNewsBody(e.target.value)}
                   rows={4}
@@ -189,14 +189,14 @@ export default function CommunicationsPage() {
                     }}
                     className="rounded-lg border border-vytal-border px-4 py-2 text-sm text-vytal-text transition-colors hover:bg-vytal-bg3"
                   >
-                    Cancel
+                    {t("action.cancel")}
                   </button>
                   <button
                     onClick={handlePublishNews}
                     className="flex items-center gap-2 rounded-lg bg-vytal-green px-4 py-2 text-sm font-semibold text-vytal-bg transition-colors hover:bg-vytal-green/90"
                   >
                     <Send className="h-4 w-4" />
-                    Publish
+                    {t("action.publish")}
                   </button>
                 </div>
               </div>
@@ -221,7 +221,7 @@ export default function CommunicationsPage() {
               </p>
               <div className="flex items-center justify-between">
                 <span className="text-xs text-vytal-muted">
-                  By {item.author}
+                  {t("communications.byAuthor")} {item.author}
                 </span>
                 <button
                   onClick={() => handleLike(item.id)}
@@ -240,16 +240,16 @@ export default function CommunicationsPage() {
       {activeTab === "email" && (
         <div className="rounded-xl border border-vytal-border bg-vytal-card p-6">
           <h3 className="mb-5 text-lg font-semibold text-vytal-text">
-            Compose Email
+            {t("communications.composeEmail")}
           </h3>
           <div className="space-y-4">
             <div>
               <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">
-                To
+                {t("communications.labelTo")}
               </label>
               <input
                 type="text"
-                placeholder="Select member or enter email..."
+                placeholder={t("communications.emailToPlaceholder")}
                 value={emailTo}
                 onChange={(e) => setEmailTo(e.target.value)}
                 className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-2.5 text-sm text-vytal-text placeholder:text-vytal-muted focus:border-vytal-green/30 focus:outline-none focus:ring-1 focus:ring-vytal-green/20"
@@ -257,11 +257,11 @@ export default function CommunicationsPage() {
             </div>
             <div>
               <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">
-                Subject
+                {t("communications.labelSubject")}
               </label>
               <input
                 type="text"
-                placeholder="Email subject..."
+                placeholder={t("communications.emailSubjectPlaceholder")}
                 value={emailSubject}
                 onChange={(e) => setEmailSubject(e.target.value)}
                 className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-2.5 text-sm text-vytal-text placeholder:text-vytal-muted focus:border-vytal-green/30 focus:outline-none focus:ring-1 focus:ring-vytal-green/20"
@@ -269,10 +269,10 @@ export default function CommunicationsPage() {
             </div>
             <div>
               <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">
-                Body
+                {t("communications.labelBody")}
               </label>
               <textarea
-                placeholder="Write your email..."
+                placeholder={t("communications.emailBodyPlaceholder")}
                 value={emailBody}
                 onChange={(e) => setEmailBody(e.target.value)}
                 rows={8}
@@ -285,7 +285,7 @@ export default function CommunicationsPage() {
                 className="flex items-center gap-2 rounded-lg bg-vytal-green px-6 py-2.5 text-sm font-semibold text-vytal-bg transition-colors hover:bg-vytal-green/90"
               >
                 <Send className="h-4 w-4" />
-                Send Email
+                {t("communications.sendEmail")}
               </button>
             </div>
           </div>
@@ -296,16 +296,16 @@ export default function CommunicationsPage() {
       {activeTab === "sms" && (
         <div className="rounded-xl border border-vytal-border bg-vytal-card p-6">
           <h3 className="mb-5 text-lg font-semibold text-vytal-text">
-            Compose SMS
+            {t("communications.composeSms")}
           </h3>
           <div className="space-y-4">
             <div>
               <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">
-                To
+                {t("communications.labelTo")}
               </label>
               <input
                 type="text"
-                placeholder="Select member or enter phone number..."
+                placeholder={t("communications.smsToPlaceholder")}
                 value={smsTo}
                 onChange={(e) => setSmsTo(e.target.value)}
                 className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-2.5 text-sm text-vytal-text placeholder:text-vytal-muted focus:border-vytal-green/30 focus:outline-none focus:ring-1 focus:ring-vytal-green/20"
@@ -313,10 +313,10 @@ export default function CommunicationsPage() {
             </div>
             <div>
               <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">
-                Message
+                {t("communications.labelMessage")}
               </label>
               <textarea
-                placeholder="Write your SMS..."
+                placeholder={t("communications.smsMessagePlaceholder")}
                 value={smsMessage}
                 onChange={(e) => {
                   if (e.target.value.length <= 160) {
@@ -345,7 +345,7 @@ export default function CommunicationsPage() {
                 className="flex items-center gap-2 rounded-lg bg-vytal-green px-6 py-2.5 text-sm font-semibold text-vytal-bg transition-colors hover:bg-vytal-green/90"
               >
                 <Send className="h-4 w-4" />
-                Send SMS
+                {t("communications.sendSms")}
               </button>
             </div>
           </div>
