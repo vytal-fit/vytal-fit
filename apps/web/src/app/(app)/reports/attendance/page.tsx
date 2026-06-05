@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import Link from "next/link";
 import { ArrowLeft, BarChart3, Clock, Calendar, Users, Download } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -88,6 +88,25 @@ export default function AttendanceHeatmapPage() {
   const [period, setPeriod] = useState<Period>("thisMonth");
   const [hoveredCell, setHoveredCell] = useState<{ dayIdx: number; timeIdx: number } | null>(null);
 
+  const handleExportCsv = useCallback(() => {
+    const headers = ["Day", "Time Slot", "Check-ins"];
+    const rows: string[][] = [];
+    for (let d = 0; d < DAY_NAMES_PT.length; d++) {
+      for (let s = 0; s < TIME_SLOTS.length; s++) {
+        rows.push([DAY_NAMES_PT[d], TIME_SLOTS[s], String(HEATMAP_DATA[d][s])]);
+      }
+    }
+    const csv = [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `attendance-${period}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast(t("attendance.exportedCsv"), "success");
+  }, [period, toast, t]);
+
   const periodOptions: { value: Period; labelKey: string }[] = [
     { value: "thisWeek", labelKey: "attendance.period.thisWeek" },
     { value: "thisMonth", labelKey: "attendance.period.thisMonth" },
@@ -137,7 +156,7 @@ export default function AttendanceHeatmapPage() {
           </div>
           {/* Export */}
           <button
-            onClick={() => toast(t("reports.comingSoon"), "info")}
+            onClick={handleExportCsv}
             className="flex items-center gap-2 rounded-lg bg-vytal-green px-4 py-2 text-sm font-semibold text-vytal-bg transition-all hover:bg-vytal-green/90"
           >
             <Download className="h-4 w-4" />

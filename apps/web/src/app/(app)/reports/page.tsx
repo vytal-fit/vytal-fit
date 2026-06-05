@@ -13,6 +13,7 @@ import {
   TrendingUp,
 } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useI18n } from "@/lib/i18n";
 import { useToast } from "@/components/toast";
 import { cn } from "@/lib/utils";
@@ -57,6 +58,7 @@ interface ReportCardProps {
   downloadLabel: string;
   viewLabel: string;
   onClickNoHref?: () => void;
+  onDownload?: () => void;
 }
 
 function ReportCard({
@@ -74,6 +76,7 @@ function ReportCard({
   downloadLabel,
   viewLabel,
   onClickNoHref,
+  onDownload,
 }: ReportCardProps) {
   return (
     <div className="rounded-xl border border-vytal-border bg-vytal-card p-6 transition-all duration-200 hover:border-[rgba(61,255,110,0.22)] hover:-translate-y-0.5 hover:shadow-lg hover:shadow-black/20">
@@ -142,7 +145,10 @@ function ReportCard({
       </div>
 
       <div className="mt-5 flex gap-2 border-t border-vytal-border pt-4">
-        <button className="flex flex-1 items-center justify-center gap-2 rounded-lg border border-vytal-border bg-vytal-bg2 px-4 py-2 text-sm text-vytal-text transition-colors hover:bg-vytal-bg3">
+        <button
+          onClick={onDownload}
+          className="flex flex-1 items-center justify-center gap-2 rounded-lg border border-vytal-border bg-vytal-bg2 px-4 py-2 text-sm text-vytal-text transition-colors hover:bg-vytal-bg3"
+        >
           <Download className="h-4 w-4" />
           {downloadLabel}
         </button>
@@ -171,6 +177,7 @@ function ReportCard({
 export default function ReportsPage() {
   const { t } = useI18n();
   const { toast } = useToast();
+  const router = useRouter();
   const [dateRange, setDateRange] = useState<DateRange>("thisMonth");
 
   const dateRangeOptions: { value: DateRange; labelKey: string }[] = [
@@ -180,12 +187,20 @@ export default function ReportsPage() {
     { value: "thisYear", labelKey: "reports.dateRange.thisYear" },
   ];
 
-  function handleComingSoon() {
-    toast(t("reports.comingSoon"), "info");
+  function handleDownloadReport(reportName: string) {
+    const csv = `Report: ${reportName}\nGenerated: ${new Date().toISOString()}\nPeriod: ${dateRange}\n\nData,Value\nTotal,—\n`;
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${reportName.toLowerCase().replace(/\s+/g, "-")}-${dateRange}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast(t("reports.downloadStarted"), "success");
   }
 
   function handleExportAll() {
-    toast(t("reports.comingSoon"), "info");
+    handleDownloadReport("all-reports");
   }
 
   return (
@@ -243,6 +258,7 @@ export default function ReportsPage() {
           lastGenerated={t("reports.lastGenerated").replace("{days}", "2")}
           downloadLabel={t("reports.downloadPdf")}
           viewLabel={t("reports.view")}
+          onDownload={() => handleDownloadReport("attendance")}
           metrics={[
             { label: t("reports.avgPerDay"), value: "41" },
             { label: t("reports.peakDay"), value: t("reports.thursday") },
@@ -262,7 +278,8 @@ export default function ReportsPage() {
           lastGenerated={t("reports.lastGenerated").replace("{days}", "1")}
           downloadLabel={t("reports.downloadPdf")}
           viewLabel={t("reports.view")}
-          onClickNoHref={handleComingSoon}
+          onClickNoHref={() => router.push("/financials/revenue")}
+          onDownload={() => handleDownloadReport("revenue")}
           metrics={[
             { label: t("reports.vsLastMonth"), value: "+5,2%" },
             { label: t("reports.activeSubscriptions"), value: "367" },
@@ -282,7 +299,8 @@ export default function ReportsPage() {
           lastGenerated={t("reports.lastGenerated").replace("{days}", "3")}
           downloadLabel={t("reports.downloadPdf")}
           viewLabel={t("reports.view")}
-          onClickNoHref={handleComingSoon}
+          onClickNoHref={() => router.push("/members/analytics")}
+          onDownload={() => handleDownloadReport("members")}
           metrics={[
             { label: t("reports.churnRate"), value: "3,2%" },
             { label: t("reports.atRiskMembers"), value: "12" },
@@ -302,7 +320,8 @@ export default function ReportsPage() {
           lastGenerated={t("reports.lastGenerated").replace("{days}", "2")}
           downloadLabel={t("reports.downloadPdf")}
           viewLabel={t("reports.view")}
-          onClickNoHref={handleComingSoon}
+          onClickNoHref={() => router.push("/reports/attendance")}
+          onDownload={() => handleDownloadReport("classes")}
           metrics={[
             { label: t("reports.avgAttendance"), value: "14,2" },
             { label: t("reports.mostPopular"), value: "WOD" },

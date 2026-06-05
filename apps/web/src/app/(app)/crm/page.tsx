@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useCallback } from "react";
+import { useMemo, useState, useCallback, useRef } from "react";
 import { useDataStore } from "@/stores/data-store";
 import type { Lead, LeadStage } from "@vytal-fit/shared";
 import {
@@ -829,6 +829,38 @@ export default function CRMPage() {
     [toast, storeMoveLead]
   );
 
+  const importInputRef = useRef<HTMLInputElement>(null);
+
+  const handleImportFile = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const text = ev.target?.result as string;
+        const lines = text.trim().split("\n").filter(Boolean);
+        // Skip header row, parse name from first column
+        const dataLines = lines.slice(1);
+        let added = 0;
+        for (const line of dataLines) {
+          const cols = line.split(",");
+          const name = cols[0]?.replace(/"/g, "").trim();
+          const phone = cols[1]?.replace(/"/g, "").trim() || undefined;
+          const source = cols[2]?.replace(/"/g, "").trim() || undefined;
+          if (name) {
+            storeAddLead({ organizationId: "org-1", name, phone, stage: "lead", source });
+            added++;
+          }
+        }
+        toast(t("crm.importStarted").replace("{count}", String(added)), "success");
+      };
+      reader.readAsText(file);
+      // Reset so same file can be re-imported
+      e.target.value = "";
+    },
+    [toast, storeAddLead, t]
+  );
+
   return (
     <div
       className="space-y-6"
@@ -837,6 +869,15 @@ export default function CRMPage() {
         setDropTarget(null);
       }}
     >
+      {/* Hidden CSV import input */}
+      <input
+        ref={importInputRef}
+        type="file"
+        accept=".csv"
+        className="hidden"
+        onChange={handleImportFile}
+      />
+
       {/* Header */}
       <div className="flex items-end justify-between">
         <div>
@@ -902,7 +943,7 @@ export default function CRMPage() {
               <Plus className="h-3.5 w-3.5" />
               {t("quickAction.newLead")}
             </button>
-            <button onClick={() => toast(t("quickAction.comingSoon"), "info")} className="inline-flex items-center gap-1.5 rounded-full border border-vytal-border bg-vytal-card px-3.5 py-1.5 text-xs font-semibold text-vytal-text transition-colors hover:bg-vytal-bg3">
+            <button onClick={() => importInputRef.current?.click()} className="inline-flex items-center gap-1.5 rounded-full border border-vytal-border bg-vytal-card px-3.5 py-1.5 text-xs font-semibold text-vytal-text transition-colors hover:bg-vytal-bg3">
               <FileText className="h-3.5 w-3.5" />
               {t("quickAction.import")}
             </button>

@@ -135,14 +135,18 @@ export default function StorePage() {
 
   // Sales filters
   const [salesSearch, setSalesSearch] = useState("");
+  const [salesStatusFilter, setSalesStatusFilter] = useState<SaleStatus | "all">("all");
+  const [showStatusDropdown, setShowStatusDropdown] = useState(false);
 
   const filteredProducts = products.filter((p) =>
     p.name.toLowerCase().includes(search.toLowerCase())
   );
 
-  const filteredSales = sales.filter((s) =>
-    s.memberName.toLowerCase().includes(salesSearch.toLowerCase())
-  );
+  const filteredSales = sales.filter((s) => {
+    const matchesSearch = s.memberName.toLowerCase().includes(salesSearch.toLowerCase());
+    const matchesStatus = salesStatusFilter === "all" || s.status === salesStatusFilter;
+    return matchesSearch && matchesStatus;
+  });
 
   const totalRevenueThisMonth = sales
     .filter((s) => s.status === "completed" && s.date >= "2026-06-01")
@@ -466,13 +470,38 @@ export default function StorePage() {
                 className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 py-2 pl-10 pr-4 text-sm text-vytal-text placeholder:text-vytal-muted focus:border-vytal-green/30 focus:outline-none focus:ring-1 focus:ring-vytal-green/20"
               />
             </div>
-            <button
-              onClick={() => toast(t("store.filterComingSoon"), "info")}
-              className="flex items-center gap-2 rounded-lg border border-vytal-border bg-vytal-card px-3 py-2 text-sm text-vytal-muted transition-colors hover:text-vytal-text"
-            >
-              <Filter className="h-4 w-4" />
-              {t("action.filter")}
-            </button>
+            <div className="relative">
+              <button
+                onClick={() => setShowStatusDropdown((v) => !v)}
+                className={cn(
+                  "flex items-center gap-2 rounded-lg border px-3 py-2 text-sm transition-colors",
+                  salesStatusFilter !== "all"
+                    ? "border-vytal-green/30 bg-vytal-green/5 text-vytal-green"
+                    : "border-vytal-border bg-vytal-card text-vytal-muted hover:text-vytal-text"
+                )}
+              >
+                <Filter className="h-4 w-4" />
+                {salesStatusFilter === "all"
+                  ? t("action.filter")
+                  : t(`store.filter${salesStatusFilter.charAt(0).toUpperCase() + salesStatusFilter.slice(1)}` as Parameters<typeof t>[0])}
+              </button>
+              {showStatusDropdown && (
+                <div className="absolute right-0 top-full z-20 mt-1 w-44 rounded-lg border border-vytal-border bg-vytal-card shadow-lg">
+                  {(["all", "completed", "refunded", "pending"] as const).map((status) => (
+                    <button
+                      key={status}
+                      onClick={() => { setSalesStatusFilter(status); setShowStatusDropdown(false); }}
+                      className={cn(
+                        "flex w-full items-center gap-2 px-3 py-2 text-left text-sm transition-colors first:rounded-t-lg last:rounded-b-lg hover:bg-vytal-bg3",
+                        salesStatusFilter === status ? "text-vytal-green" : "text-vytal-text"
+                      )}
+                    >
+                      {status === "all" ? t("store.filterAll") : t(`store.filter${status.charAt(0).toUpperCase() + status.slice(1)}` as Parameters<typeof t>[0])}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Sales Table */}

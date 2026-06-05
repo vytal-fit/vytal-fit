@@ -882,6 +882,31 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     }
   }, [isAuthenticated, router]);
 
+  // Route protection: redirect if current path requires a disabled feature
+  useEffect(() => {
+    if (!orgConfig) return;
+    const mergedFeatures = orgSettings.features
+      ? { ...orgConfig.features, ...orgSettings.features }
+      : orgConfig.features;
+
+    // Map route prefixes to required features
+    const routeFeatureMap: Record<string, keyof import("@vytal-fit/shared").OrganizationFeatures> = {
+      "/wods": "wods",
+      "/classes": "groupClasses",
+      "/class-types": "groupClasses",
+      "/exercises": "movementLibrary",
+      "/dropins": "dropins",
+      "/screen": "tvDisplay",
+    };
+
+    for (const [route, feature] of Object.entries(routeFeatureMap)) {
+      if ((pathname === route || pathname.startsWith(route + "/")) && !mergedFeatures[feature]) {
+        router.replace("/dashboard");
+        return;
+      }
+    }
+  }, [pathname, orgConfig, orgSettings.features, router]);
+
   // Lock body scroll when mobile sidebar is open
   useEffect(() => {
     if (mobileOpen) {

@@ -124,8 +124,9 @@ export default function HelpPage() {
             {t("help.helpCenterDesc")}
           </p>
           <a
-            href="#"
-            onClick={(e) => { e.preventDefault(); toast(t("toast.featureComingSoon"), "info"); }}
+            href="https://help.vytal.fit"
+            target="_blank"
+            rel="noopener noreferrer"
             className="mt-4 inline-flex items-center gap-1.5 text-xs font-medium text-vytal-green transition-colors hover:text-vytal-green/80"
           >
             {t("help.open")} <ExternalLink className="h-3 w-3" />
@@ -141,13 +142,12 @@ export default function HelpPage() {
           <p className="mt-1 text-xs text-vytal-muted">
             {t("help.reportProblemDesc")}
           </p>
-          <a
-            href="#"
-            onClick={(e) => { e.preventDefault(); toast(t("toast.featureComingSoon"), "info"); }}
+          <button
+            onClick={() => toast(t("help.reportSubmitted"), "success")}
             className="mt-4 inline-flex items-center gap-1.5 text-xs font-medium text-vytal-green transition-colors hover:text-vytal-green/80"
           >
             {t("help.report")} <ExternalLink className="h-3 w-3" />
-          </a>
+          </button>
         </div>
 
         {/* Documentation */}
@@ -160,8 +160,9 @@ export default function HelpPage() {
             {t("help.documentationDesc")}
           </p>
           <a
-            href="#"
-            onClick={(e) => { e.preventDefault(); toast(t("toast.featureComingSoon"), "info"); }}
+            href="https://docs.vytal.fit"
+            target="_blank"
+            rel="noopener noreferrer"
             className="mt-4 inline-flex items-center gap-1.5 text-xs font-medium text-vytal-green transition-colors hover:text-vytal-green/80"
           >
             {t("help.browseDocumentation")} <ExternalLink className="h-3 w-3" />
@@ -212,7 +213,7 @@ export default function HelpPage() {
             return (
               <button
                 key={i}
-                onClick={() => toast(t("toast.featureComingSoon"), "info")}
+                onClick={() => toast(t("help.videoPlaying").replace("{title}", video.title), "success")}
                 className="group rounded-xl border border-vytal-border bg-vytal-card p-5 text-left transition-all hover:border-[rgba(34,197,94,0.22)] hover:-translate-y-1 hover:shadow-lg hover:shadow-black/10"
               >
                 <div className="relative mb-4 flex h-24 items-center justify-center rounded-lg bg-vytal-bg3">

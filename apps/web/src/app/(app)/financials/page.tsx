@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
-import { DollarSign, TrendingUp, TrendingDown, AlertTriangle, Clock, ArrowUpRight, ArrowDownRight, Target, Send, ChevronDown, ChevronUp } from "lucide-react";
+import { useState, useCallback } from "react";
+import { useRouter } from "next/navigation";
+import { DollarSign, TrendingUp, TrendingDown, AlertTriangle, Clock, ArrowUpRight, ArrowDownRight, Target, Send, ChevronDown, ChevronUp, Download } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { useToast } from "@/components/toast";
 import { formatCurrency } from "@/stores/data-store";
@@ -86,7 +87,37 @@ function CustomTooltip({ active, payload, label }: { active?: boolean; payload?:
 export default function FinancialsPage() {
   const { t } = useI18n();
   const { toast } = useToast();
+  const router = useRouter();
   const [expandedTxId, setExpandedTxId] = useState<number | null>(null);
+
+  const handleNewInvoice = useCallback(() => {
+    const nextRef = `INV-2026-${String(recentTransactions.length + 143).padStart(4, "0")}`;
+    const headers = ["Reference", "Date", "Member", "Amount", "Method", "Status"];
+    const rows = recentTransactions.map((tx) => [tx.ref, tx.date, tx.member, tx.amount.toString(), tx.method, tx.status]);
+    const csv = [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${nextRef}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast(t("financials.invoiceCreated").replace("{ref}", nextRef), "success");
+  }, [toast, t]);
+
+  const handleExportCsv = useCallback(() => {
+    const headers = ["Reference", "Date", "Member", "Amount (EUR)", "Method", "Plan", "Status"];
+    const rows = recentTransactions.map((tx) => [tx.ref, tx.date, tx.member, tx.amount.toString(), tx.method, tx.plan, tx.status]);
+    const csv = [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "transactions.csv";
+    a.click();
+    URL.revokeObjectURL(url);
+    toast(t("financials.exportedCsv"), "success");
+  }, [toast, t]);
 
   return (
     <div className="space-y-8">
@@ -98,17 +129,21 @@ export default function FinancialsPage() {
 
       {/* Quick Actions Bar */}
       <div className="flex flex-wrap items-center gap-2">
-        <button onClick={() => toast(t("quickAction.comingSoon"), "info")} className="inline-flex items-center gap-1.5 rounded-full border border-vytal-green/20 bg-vytal-green/5 px-3.5 py-1.5 text-xs font-semibold text-vytal-green transition-colors hover:bg-vytal-green/10">
+        <button onClick={handleNewInvoice} className="inline-flex items-center gap-1.5 rounded-full border border-vytal-green/20 bg-vytal-green/5 px-3.5 py-1.5 text-xs font-semibold text-vytal-green transition-colors hover:bg-vytal-green/10">
           <DollarSign className="h-3.5 w-3.5" />
           {t("quickAction.newInvoice")}
         </button>
-        <button onClick={() => toast(t("quickAction.comingSoon"), "info")} className="inline-flex items-center gap-1.5 rounded-full border border-vytal-border bg-vytal-card px-3.5 py-1.5 text-xs font-semibold text-vytal-text transition-colors hover:bg-vytal-bg3">
+        <button onClick={() => router.push("/financials/sepa")} className="inline-flex items-center gap-1.5 rounded-full border border-vytal-border bg-vytal-card px-3.5 py-1.5 text-xs font-semibold text-vytal-text transition-colors hover:bg-vytal-bg3">
           <Send className="h-3.5 w-3.5" />
           {t("quickAction.sepa")}
         </button>
-        <button onClick={() => toast(t("quickAction.comingSoon"), "info")} className="inline-flex items-center gap-1.5 rounded-full border border-vytal-border bg-vytal-card px-3.5 py-1.5 text-xs font-semibold text-vytal-text transition-colors hover:bg-vytal-bg3">
+        <button onClick={() => router.push("/financials/dunning")} className="inline-flex items-center gap-1.5 rounded-full border border-vytal-border bg-vytal-card px-3.5 py-1.5 text-xs font-semibold text-vytal-text transition-colors hover:bg-vytal-bg3">
           <AlertTriangle className="h-3.5 w-3.5" />
           {t("quickAction.dunning")}
+        </button>
+        <button onClick={handleExportCsv} className="inline-flex items-center gap-1.5 rounded-full border border-vytal-border bg-vytal-card px-3.5 py-1.5 text-xs font-semibold text-vytal-text transition-colors hover:bg-vytal-bg3">
+          <Download className="h-3.5 w-3.5" />
+          {t("quickAction.exportCsv")}
         </button>
       </div>
 

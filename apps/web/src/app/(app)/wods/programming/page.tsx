@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { useRouter } from "next/navigation";
 import { useDataStore } from "@/stores/data-store";
 import { useI18n } from "@/lib/i18n";
 import { useToast } from "@/components/toast";
@@ -60,6 +61,7 @@ interface CreateWodForm {
 export default function WodProgrammingPage() {
   const { t } = useI18n();
   const { toast } = useToast();
+  const router = useRouter();
   const storeWODs = useDataStore((s) => s.wods);
   const storeClassTypes = useDataStore((s) => s.classTypes);
 
@@ -508,7 +510,7 @@ export default function WodProgrammingPage() {
             <div className="mt-5 flex justify-end">
               <button
                 onClick={() => {
-                  toast(t("programming.editComingSoon"), "info");
+                  router.push("/wods");
                 }}
                 className="rounded-lg bg-vytal-green px-6 py-2 text-sm font-semibold text-vytal-bg transition-colors hover:bg-vytal-green/90"
               >
