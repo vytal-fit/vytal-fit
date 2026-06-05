@@ -6,6 +6,7 @@ import {
   ORGANIZATION_TYPE_LIST,
   type OrganizationType,
   type OrganizationTypeConfig,
+  type OrganizationFeatures,
 } from "@vytal-fit/shared";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/lib/i18n";
@@ -24,6 +25,7 @@ export interface CreateOrgData {
   country: string;
   currency: string;
   timezone: string;
+  features?: OrganizationFeatures;
 }
 
 export interface CreateOrgWizardProps {
@@ -156,6 +158,13 @@ export function CreateOrgWizard({
   });
   const [slugEdited, setSlugEdited] = useState(false);
 
+  // Step 3 — feature toggles
+  const [features, setFeatures] = useState<OrganizationFeatures | null>(null);
+
+  const toggleFeature = useCallback((key: keyof OrganizationFeatures) => {
+    setFeatures((prev) => prev ? { ...prev, [key]: !prev[key] } : prev);
+  }, []);
+
   useEffect(() => {
     setDetails((prev) => ({ ...prev, timezone: detectTimezone() }));
   }, []);
@@ -173,6 +182,13 @@ export function CreateOrgWizard({
     if (!selectedType) return null;
     return ORGANIZATION_TYPE_LIST.find((c) => c.type === selectedType) ?? null;
   }, [selectedType]);
+
+  // Initialize features from selected vertical
+  useEffect(() => {
+    if (selectedConfig) {
+      setFeatures({ ...selectedConfig.features });
+    }
+  }, [selectedConfig]);
 
   const visibleTypes = useMemo(() => {
     if (!typeSearch.trim()) return ORGANIZATION_TYPE_LIST;
@@ -202,7 +218,7 @@ export function CreateOrgWizard({
   }
 
   function handleNext() {
-    if (step < 3) {
+    if (step < 4) {
       stepKey.current += 1;
       setStep(step + 1);
     } else {
@@ -220,6 +236,7 @@ export function CreateOrgWizard({
           country: details.country,
           currency: details.currency,
           timezone: details.timezone,
+          features: features ?? undefined,
         });
         setLoading(false);
       }, 400);
@@ -233,7 +250,7 @@ export function CreateOrgWizard({
     }
   }
 
-  const progressPercent = ((step - 1) / 2) * 100;
+  const progressPercent = ((step - 1) / 3) * 100;
 
   return (
     <div
@@ -500,8 +517,85 @@ export function CreateOrgWizard({
               </div>
             )}
 
-            {/* ── STEP 3: You're ready ── */}
-            {step === 3 && selectedConfig && (
+            {/* ── STEP 3: Feature Configuration ── */}
+            {step === 3 && selectedConfig && features && (
+              <div>
+                <h1 className="text-center text-[28px] font-bold leading-tight text-vytal-text">
+                  {t("onboarding.step3FeaturesTitle")}
+                </h1>
+                <p className="mx-auto mt-2 max-w-md text-center text-sm text-vytal-muted">
+                  {t("onboarding.step3FeaturesSubtitle")}
+                </p>
+
+                <div className="mx-auto mt-8 max-w-lg space-y-3">
+                  {(Object.keys(features) as Array<keyof OrganizationFeatures>).map((key) => {
+                    const isOn = features[key];
+                    const isDefault = selectedConfig.features[key];
+                    return (
+                      <button
+                        key={key}
+                        type="button"
+                        onClick={() => toggleFeature(key)}
+                        className={cn(
+                          "flex w-full items-center justify-between rounded-lg border px-4 py-3 text-left transition-all duration-200",
+                          isOn
+                            ? "border-vytal-green/30 bg-vytal-green/[0.04]"
+                            : "border-vytal-border bg-vytal-bg2 opacity-60",
+                        )}
+                      >
+                        <div className="flex items-center gap-3">
+                          <div
+                            className={cn(
+                              "flex h-5 w-5 items-center justify-center rounded border transition-colors",
+                              isOn
+                                ? "border-vytal-green bg-vytal-green"
+                                : "border-vytal-muted/40 bg-transparent",
+                            )}
+                          >
+                            {isOn && <Check className="h-3 w-3 text-vytal-bg" strokeWidth={3} />}
+                          </div>
+                          <div>
+                            <span className="text-sm font-medium text-vytal-text">
+                              {t(`feature.${key}`)}
+                            </span>
+                            {isOn !== isDefault && (
+                              <span className="ml-2 rounded-full bg-vytal-amber/10 px-2 py-0.5 text-[9px] font-bold text-vytal-amber">
+                                {t("onboarding.customized")}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Reset to defaults link */}
+                <div className="mx-auto mt-4 max-w-lg text-right">
+                  <button
+                    type="button"
+                    onClick={() => setFeatures({ ...selectedConfig.features })}
+                    className="text-xs text-vytal-muted transition-colors hover:text-vytal-green"
+                  >
+                    {t("onboarding.resetDefaults")}
+                  </button>
+                </div>
+
+                {/* Continue button */}
+                <div className="mx-auto mt-8 flex max-w-lg justify-end">
+                  <button
+                    type="button"
+                    onClick={handleNext}
+                    className="rounded-lg bg-vytal-green px-6 py-2.5 text-sm font-semibold text-vytal-bg transition-all duration-200 hover:bg-vytal-green/90"
+                  >
+                    {t("onboarding.next")}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* ── STEP 4: You're ready ── */}
+            {step === 4 && selectedConfig && (
               <div className="text-center">
                 {/* Simple green checkmark */}
                 <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full border-2 border-vytal-green/30 bg-vytal-green/10">

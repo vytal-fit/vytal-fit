@@ -27,6 +27,7 @@ import type {
   PersonalRecord,
   Subscription,
   WOD,
+  OrganizationFeatures,
 } from "@vytal-fit/shared";
 
 // ---------------------------------------------------------------------------
@@ -67,6 +68,7 @@ export interface OrgSettings {
   youtube: string;
   slogan: string;
   businessType: string;
+  features?: Partial<OrganizationFeatures>;
 }
 
 // ---------------------------------------------------------------------------
