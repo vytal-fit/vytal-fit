@@ -365,6 +365,7 @@ const translations: Record<Language, Record<string, string>> = {
     "onboarding.noName": "Sem nome",
     "onboarding.back": "Voltar",
     "onboarding.next": "Seguinte",
+    "onboarding.seeAll": "Ver todos os tipos",
 
     // Admin pages
     "automations.title": "Automa\u00e7\u00f5es",
@@ -3000,6 +3001,7 @@ const translations: Record<Language, Record<string, string>> = {
     "onboarding.noName": "No name",
     "onboarding.back": "Back",
     "onboarding.next": "Next",
+    "onboarding.seeAll": "See all types",
 
     // Admin pages
     "automations.title": "Automations",
@@ -5653,6 +5655,7 @@ const translations: Record<Language, Record<string, string>> = {
     "onboarding.noName": "Sin nombre",
     "onboarding.back": "Volver",
     "onboarding.next": "Siguiente",
+    "onboarding.seeAll": "Ver todos los tipos",
 
     // Admin pages
     "automations.title": "Automatizaciones",

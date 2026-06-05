@@ -430,18 +430,14 @@ export default function ProfilePage() {
 
                 {/* Create Org Wizard Modal */}
                 {showCreateOrg && (
-                  <div className="fixed inset-0 z-50 overflow-y-auto bg-vytal-bg">
-                    <div className="min-h-screen">
-                      <CreateOrgWizard
-                        isModal
-                        onComplete={(orgData: CreateOrgData) => {
-                          setShowCreateOrg(false);
-                          toast(`${orgData.name} criada com sucesso!`, "success");
-                        }}
-                        onCancel={() => setShowCreateOrg(false)}
-                      />
-                    </div>
-                  </div>
+                  <CreateOrgWizard
+                    isModal
+                    onComplete={(orgData: CreateOrgData) => {
+                      setShowCreateOrg(false);
+                      toast(`${orgData.name} criada com sucesso!`, "success");
+                    }}
+                    onCancel={() => setShowCreateOrg(false)}
+                  />
                 )}
               </div>
             </div>
