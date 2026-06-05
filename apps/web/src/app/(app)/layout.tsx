@@ -86,7 +86,6 @@ interface NavGroup {
 const allNavGroups: NavGroup[] = [
   {
     items: [
-      { href: "/setup", labelKey: "nav.setup", icon: Rocket },
       { href: "/dashboard", labelKey: "nav.dashboard", icon: LayoutDashboard },
       { href: "/members", labelKey: "nav.members", icon: Users, children: [
         { href: "/members", labelKey: "nav.membersOverview", icon: Users },
@@ -1182,17 +1181,19 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
       {/* Right Sidebar — Daily Briefing (overlay, doesn't squeeze content) */}
       <div className="hidden md:block">
-        {/* Toggle button — always visible at right edge */}
+        {/* Toggle tab — visible vertical tab on right edge */}
         <button
           onClick={toggleRightSidebar}
-          className="fixed right-0 top-1/2 -translate-y-1/2 z-40 flex h-8 w-5 items-center justify-center rounded-l-lg border border-r-0 border-vytal-border bg-vytal-bg2 text-vytal-muted shadow-sm transition-all hover:bg-vytal-bg3 hover:text-vytal-text hover:w-6"
+          className={cn(
+            "fixed z-40 top-1/2 -translate-y-1/2 flex flex-col items-center justify-center gap-1.5 rounded-l-lg border border-r-0 border-vytal-border bg-vytal-bg3 text-vytal-muted shadow-md transition-all duration-300 hover:bg-vytal-bg2 hover:text-vytal-text",
+            rightSidebarOpen ? "right-80 w-10 h-20" : "right-0 w-10 h-20"
+          )}
           title={t("briefing.toggleSidebar")}
         >
-          {rightSidebarOpen ? (
-            <ChevronRight className="h-3 w-3" />
-          ) : (
-            <ChevronLeft className="h-3 w-3" />
-          )}
+          <BarChart3 className="h-4 w-4" />
+          <span className="text-[9px] font-bold uppercase tracking-wider [writing-mode:vertical-lr] rotate-180">
+            Painel
+          </span>
         </button>
 
         {/* Sidebar panel — slides in from right, overlays content */}

@@ -75,7 +75,7 @@ const templates: VoucherTemplate[] = [
     name: "Custom Amount",
     type: "variable",
     value: 0,
-    description: "Custom gift card with a chosen amount. Minimum EUR 10.",
+    description: `Custom gift card with a chosen amount. Minimum ${formatCurrency(10)}.`,
   },
 ];
 

@@ -2,7 +2,7 @@
 
 import { useParams } from "next/navigation";
 import { notFound } from "next/navigation";
-import { useDataStore } from "@/stores/data-store";
+import { useDataStore, formatCurrency } from "@/stores/data-store";
 import { useI18n } from "@/lib/i18n";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { cn } from "@/lib/utils";
@@ -77,7 +77,7 @@ const timelineEntries = [
   { type: "checkin", icon: ScanLine, description: "Checked in to WOD 09:00", time: "Yesterday", color: "text-vytal-green" },
   { type: "fistbump", icon: Heart, description: "Received 3 fistbumps on WOD result", time: "Yesterday", color: "text-vytal-purple" },
   { type: "cancellation", icon: XCircle, description: "Cancelled class Open Box 10:00", time: "3 days ago", color: "text-vytal-red" },
-  { type: "payment", icon: CreditCard, description: "Payment processed: EUR 75.00 (Stripe)", time: "5 days ago", color: "text-vytal-green" },
+  { type: "payment", icon: CreditCard, description: `Payment processed: ${formatCurrency(75)} (Stripe)`, time: "5 days ago", color: "text-vytal-green" },
   { type: "checkin", icon: ScanLine, description: "Checked in to Hyrox 18:00", time: "5 days ago", color: "text-vytal-green" },
   { type: "pr", icon: Trophy, description: "New PR: Deadlift 180kg (+10kg)", time: "1 week ago", color: "text-vytal-amber" },
   { type: "plan", icon: RefreshCw, description: "Plan renewed: Livre (monthly)", time: "1 week ago", color: "text-vytal-blue" },

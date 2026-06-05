@@ -31,6 +31,11 @@ import {
   CreditCard,
   Target,
   Sparkles,
+  Rocket,
+  CheckCircle,
+  Circle,
+  ArrowRight,
+  X as XIcon,
 } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import Link from "next/link";
@@ -439,14 +444,14 @@ const MOCK_ACTIVITY = [
   { icon: ScanLine, text: "Ana Silva checked in to WOD 17:30", time: "5m ago", iconColor: "text-vytal-green", bgColor: "bg-vytal-green/10" },
   { icon: Trophy, text: "Pedro Almeida achieved PR: Back Squat 140kg", time: "1h ago", iconColor: "text-vytal-amber", bgColor: "bg-vytal-amber/10" },
   { icon: UserPlus, text: "New lead: Carlos Mendes (Instagram)", time: "2h ago", iconColor: "text-vytal-blue", bgColor: "bg-vytal-blue/10" },
-  { icon: CreditCard, text: "Payment processed: Sofia Santos EUR 75", time: "3h ago", iconColor: "text-vytal-green", bgColor: "bg-vytal-green/10" },
+  { icon: CreditCard, text: `Payment processed: Sofia Santos ${formatCurrency(75)}`, time: "3h ago", iconColor: "text-vytal-green", bgColor: "bg-vytal-green/10" },
   { icon: CalendarDays, text: "Joana Ribeiro booked WOD 18:30", time: "3h ago", iconColor: "text-vytal-blue", bgColor: "bg-vytal-blue/10" },
   { icon: Dumbbell, text: "WOD published: Fran + Accessory Work", time: "4h ago", iconColor: "text-vytal-green", bgColor: "bg-vytal-green/10" },
   { icon: TrendingDown, text: "Miguel Costa cancelled membership", time: "5h ago", iconColor: "text-vytal-red", bgColor: "bg-vytal-red/10" },
   { icon: Trophy, text: "Rita Ferreira achieved PR: Clean & Jerk 75kg", time: "6h ago", iconColor: "text-vytal-amber", bgColor: "bg-vytal-amber/10" },
   { icon: UserPlus, text: "New member: Tiago Martins (Referral)", time: "8h ago", iconColor: "text-vytal-green", bgColor: "bg-vytal-green/10" },
   { icon: MessageCircle, text: "Diogo Lopes sent a message", time: "10h ago", iconColor: "text-vytal-blue", bgColor: "bg-vytal-blue/10" },
-] as const;
+];
 
 // ---------------------------------------------------------------------------
 // Mock Upcoming Events data
@@ -457,6 +462,163 @@ const MOCK_EVENTS = [
   { title: "Nutrition Workshop", date: "Sat, Jun 7 - 10:00", participants: "12 registered", badge: "Workshop", badgeClass: "bg-vytal-blue/10 text-vytal-blue" },
   { title: "Summer Challenge Kick-off", date: "Mon, Jun 9 - 07:00", participants: "48 registered", badge: "Event", badgeClass: "bg-vytal-green/10 text-vytal-green" },
 ];
+
+// ---------------------------------------------------------------------------
+// Setup Banner — dismissable, shows progress + next steps
+// ---------------------------------------------------------------------------
+
+const SETUP_STORAGE_KEY = "vytal-setup-checklist";
+const SETUP_DISMISSED_KEY = "vytal-setup-dismissed";
+
+interface SetupStep {
+  id: string;
+  label: string;
+  href: string;
+  defaultCompleted: boolean;
+}
+
+const setupSteps: SetupStep[] = [
+  { id: "create-org", label: "Criar organizacao", href: "/settings", defaultCompleted: true },
+  { id: "complete-profile", label: "Completar perfil", href: "/settings", defaultCompleted: true },
+  { id: "add-team", label: "Adicionar equipa", href: "/staff", defaultCompleted: false },
+  { id: "setup-locations", label: "Configurar espacos", href: "/locations", defaultCompleted: false },
+  { id: "create-class-types", label: "Criar tipos de aula", href: "/class-types", defaultCompleted: false },
+  { id: "build-schedule", label: "Construir horario", href: "/classes/create", defaultCompleted: false },
+  { id: "add-members", label: "Adicionar membros", href: "/members", defaultCompleted: false },
+  { id: "setup-billing", label: "Configurar pagamentos", href: "/settings", defaultCompleted: false },
+  { id: "configure-app", label: "Configurar app", href: "/settings/app-config", defaultCompleted: false },
+  { id: "publish-wod", label: "Publicar primeiro WOD", href: "/wods/builder", defaultCompleted: false },
+];
+
+function loadSetupChecked(): Record<string, boolean> {
+  if (typeof window === "undefined") return {};
+  try {
+    const raw = localStorage.getItem(SETUP_STORAGE_KEY);
+    if (!raw) return {};
+    return JSON.parse(raw);
+  } catch {
+    return {};
+  }
+}
+
+function isSetupDismissed(): boolean {
+  if (typeof window === "undefined") return false;
+  return localStorage.getItem(SETUP_DISMISSED_KEY) === "true";
+}
+
+function SetupBanner() {
+  const [checked, setChecked] = useState<Record<string, boolean>>({});
+  const [dismissed, setDismissed] = useState(true);
+  const [collapsed, setCollapsed] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    const stored = loadSetupChecked();
+    const merged: Record<string, boolean> = {};
+    for (const step of setupSteps) {
+      merged[step.id] = stored[step.id] ?? step.defaultCompleted;
+    }
+    setChecked(merged);
+    setDismissed(isSetupDismissed());
+    setMounted(true);
+  }, []);
+
+  if (!mounted || dismissed) return null;
+
+  const completedCount = Object.values(checked).filter(Boolean).length;
+  const totalCount = setupSteps.length;
+  const progressPercent = Math.round((completedCount / totalCount) * 100);
+
+  if (completedCount >= totalCount) return null;
+
+  const nextSteps = setupSteps.filter((s) => !checked[s.id]).slice(0, 4);
+
+  function handleDismiss() {
+    localStorage.setItem(SETUP_DISMISSED_KEY, "true");
+    setDismissed(true);
+  }
+
+  const progressColor =
+    progressPercent >= 70
+      ? "from-vytal-green to-emerald-400"
+      : progressPercent >= 40
+        ? "from-vytal-amber to-yellow-400"
+        : "from-vytal-blue to-cyan-400";
+
+  return (
+    <div
+      className={cn(
+        "rounded-xl border border-vytal-green/20 bg-vytal-card overflow-hidden transition-all duration-300 ease-in-out",
+        collapsed ? "max-h-[72px]" : "max-h-[500px]"
+      )}
+    >
+      {/* Header — always visible */}
+      <div className="flex items-center gap-4 px-5 py-4">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-vytal-green/10">
+          <Rocket className="h-5 w-5 text-vytal-green" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-3">
+            <h3 className="text-sm font-bold text-vytal-text">
+              Configure o seu espaco
+            </h3>
+            <span className="text-xs font-semibold text-vytal-muted">
+              {completedCount}/{totalCount} passos completos
+            </span>
+          </div>
+          <div className="mt-1.5 h-2 w-full max-w-xs overflow-hidden rounded-full bg-vytal-bg3">
+            <div
+              className={cn("h-full rounded-full bg-gradient-to-r transition-all duration-500", progressColor)}
+              style={{ width: `${progressPercent}%` }}
+            />
+          </div>
+        </div>
+        <div className="flex items-center gap-2 shrink-0">
+          <button
+            onClick={() => setCollapsed((v) => !v)}
+            className="text-xs font-medium text-vytal-muted hover:text-vytal-text transition-colors"
+          >
+            {collapsed ? "Expandir" : "Minimizar"}
+          </button>
+          <button
+            onClick={handleDismiss}
+            className="flex h-7 w-7 items-center justify-center rounded-lg text-vytal-muted transition-colors hover:bg-vytal-bg3 hover:text-vytal-text"
+            title="Dismiss"
+          >
+            <XIcon className="h-4 w-4" />
+          </button>
+        </div>
+      </div>
+
+      {/* Steps — collapsible */}
+      {!collapsed && (
+        <div className="border-t border-vytal-border px-5 py-4">
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+            {nextSteps.map((step) => (
+              <Link
+                key={step.id}
+                href={step.href}
+                className="flex items-center gap-3 rounded-lg border border-vytal-border px-3 py-2.5 transition-colors hover:border-vytal-green/30 hover:bg-vytal-green/[0.03]"
+              >
+                <Circle className="h-4 w-4 text-vytal-muted/40 shrink-0" />
+                <span className="text-sm text-vytal-text flex-1">{step.label}</span>
+                <ArrowRight className="h-3.5 w-3.5 text-vytal-muted shrink-0" />
+              </Link>
+            ))}
+          </div>
+          <div className="mt-3 flex justify-center">
+            <Link
+              href="/setup"
+              className="text-xs font-semibold text-vytal-green transition-colors hover:text-vytal-green/80"
+            >
+              Ver todos os passos
+            </Link>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 // ---------------------------------------------------------------------------
 // Page
@@ -506,6 +668,9 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-8">
+      {/* Setup Banner */}
+      <SetupBanner />
+
       {/* Welcome Header */}
       <div className="flex items-start justify-between">
         <div>
