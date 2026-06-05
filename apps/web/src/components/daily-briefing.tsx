@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import Link from "next/link";
 import {
   CalendarDays,
@@ -15,7 +16,7 @@ import {
   UserCheck,
 } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
-import { formatCurrency } from "@/stores/data-store";
+import { useDataStore, formatCurrency } from "@/stores/data-store";
 
 function formatDateLocale(lang: string): string {
   const now = new Date();
@@ -29,6 +30,31 @@ function formatDateLocale(lang: string): string {
 
 export function DailyBriefing() {
   const { t, language } = useI18n();
+  const classes = useDataStore((s) => s.classes);
+  const leads = useDataStore((s) => s.leads);
+  const totalUnread = useDataStore((s) => s.totalUnread)();
+
+  const today = new Date().toISOString().split("T")[0];
+
+  const todayClasses = useMemo(
+    () => classes.filter((c) => c.date === today),
+    [classes, today]
+  );
+
+  const totalEnrolled = useMemo(
+    () => todayClasses.reduce((sum, c) => sum + c.enrolledCount, 0),
+    [todayClasses]
+  );
+  const totalCapacity = useMemo(
+    () => todayClasses.reduce((sum, c) => sum + c.maxCapacity, 0),
+    [todayClasses]
+  );
+  const enrollmentPct = totalCapacity > 0 ? Math.round((totalEnrolled / totalCapacity) * 100) : 0;
+
+  const recentLeads = useMemo(() => {
+    const oneDayAgo = Date.now() - 86400000;
+    return leads.filter((l) => new Date(l.createdAt).getTime() > oneDayAgo);
+  }, [leads]);
 
   const dateLabel = formatDateLocale(language);
 
@@ -46,18 +72,18 @@ export function DailyBriefing() {
           <div className="flex items-center gap-2.5">
             <CalendarDays className="h-3.5 w-3.5 text-vytal-blue" />
             <span className="text-xs text-vytal-text">
-              8 {t("briefing.classesToday")}
+              {todayClasses.length} {t("briefing.classesToday")}
             </span>
           </div>
           <div className="flex items-center gap-2.5">
             <Users className="h-3.5 w-3.5 text-vytal-green" />
             <span className="text-xs text-vytal-text">
-              106/137 {t("briefing.enrolled")} (77%)
+              {totalEnrolled}/{totalCapacity} {t("briefing.enrolled")} ({enrollmentPct}%)
             </span>
             <div className="ml-auto h-1.5 w-16 rounded-full bg-vytal-bg3 overflow-hidden">
               <div
                 className="h-full rounded-full bg-vytal-green"
-                style={{ width: "77%" }}
+                style={{ width: `${enrollmentPct}%` }}
               />
             </div>
           </div>
@@ -70,7 +96,7 @@ export function DailyBriefing() {
           <div className="flex items-center gap-2.5">
             <UserPlus className="h-3.5 w-3.5 text-vytal-green" />
             <span className="text-xs text-vytal-green font-medium">
-              2 {t("briefing.newLeads")}
+              {recentLeads.length} {t("briefing.newLeads")}
             </span>
           </div>
           <div className="flex items-center gap-2.5">
@@ -132,12 +158,14 @@ export function DailyBriefing() {
           >
             <div className="relative">
               <MessageCircle className="h-4 w-4 text-vytal-blue" />
-              <span className="absolute -right-1 -top-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-vytal-red text-[8px] font-bold text-white">
-                3
-              </span>
+              {totalUnread > 0 && (
+                <span className="absolute -right-1 -top-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-vytal-red text-[8px] font-bold text-white">
+                  {totalUnread}
+                </span>
+              )}
             </div>
             <span className="text-xs text-vytal-text">
-              3 {t("briefing.messages")}
+              {totalUnread} {t("briefing.messages")}
             </span>
           </Link>
           <Link

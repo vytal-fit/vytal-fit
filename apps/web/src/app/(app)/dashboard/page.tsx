@@ -26,6 +26,11 @@ import {
   EyeOff,
   RotateCcw,
   GripVertical,
+  Activity,
+  Calendar,
+  CreditCard,
+  Target,
+  Sparkles,
 } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import Link from "next/link";
@@ -391,7 +396,7 @@ function RevenueTooltip({ active, payload, label }: RevenueTooltipProps) {
 // Dashboard Widget Customization
 // ---------------------------------------------------------------------------
 
-type WidgetKey = "kpi" | "quickActions" | "charts" | "schedule";
+type WidgetKey = "kpi" | "quickActions" | "charts" | "schedule" | "activity" | "events";
 
 interface DashboardLayout {
   hidden: WidgetKey[];
@@ -404,6 +409,8 @@ const widgetLabels: Record<WidgetKey, string> = {
   quickActions: "Quick Actions",
   charts: "Charts & Analytics",
   schedule: "Today's Schedule",
+  activity: "Recent Activity",
+  events: "Upcoming Events",
 };
 
 const defaultLayout: DashboardLayout = { hidden: [] };
@@ -423,6 +430,33 @@ function saveLayout(layout: DashboardLayout) {
   if (typeof window === "undefined") return;
   localStorage.setItem(LAYOUT_STORAGE_KEY, JSON.stringify(layout));
 }
+
+// ---------------------------------------------------------------------------
+// Mock Recent Activity data
+// ---------------------------------------------------------------------------
+
+const MOCK_ACTIVITY = [
+  { icon: ScanLine, text: "Ana Silva checked in to WOD 17:30", time: "5m ago", iconColor: "text-vytal-green", bgColor: "bg-vytal-green/10" },
+  { icon: Trophy, text: "Pedro Almeida achieved PR: Back Squat 140kg", time: "1h ago", iconColor: "text-vytal-amber", bgColor: "bg-vytal-amber/10" },
+  { icon: UserPlus, text: "New lead: Carlos Mendes (Instagram)", time: "2h ago", iconColor: "text-vytal-blue", bgColor: "bg-vytal-blue/10" },
+  { icon: CreditCard, text: "Payment processed: Sofia Santos EUR 75", time: "3h ago", iconColor: "text-vytal-green", bgColor: "bg-vytal-green/10" },
+  { icon: CalendarDays, text: "Joana Ribeiro booked WOD 18:30", time: "3h ago", iconColor: "text-vytal-blue", bgColor: "bg-vytal-blue/10" },
+  { icon: Dumbbell, text: "WOD published: Fran + Accessory Work", time: "4h ago", iconColor: "text-vytal-green", bgColor: "bg-vytal-green/10" },
+  { icon: TrendingDown, text: "Miguel Costa cancelled membership", time: "5h ago", iconColor: "text-vytal-red", bgColor: "bg-vytal-red/10" },
+  { icon: Trophy, text: "Rita Ferreira achieved PR: Clean & Jerk 75kg", time: "6h ago", iconColor: "text-vytal-amber", bgColor: "bg-vytal-amber/10" },
+  { icon: UserPlus, text: "New member: Tiago Martins (Referral)", time: "8h ago", iconColor: "text-vytal-green", bgColor: "bg-vytal-green/10" },
+  { icon: MessageCircle, text: "Diogo Lopes sent a message", time: "10h ago", iconColor: "text-vytal-blue", bgColor: "bg-vytal-blue/10" },
+] as const;
+
+// ---------------------------------------------------------------------------
+// Mock Upcoming Events data
+// ---------------------------------------------------------------------------
+
+const MOCK_EVENTS = [
+  { title: "Friday Night Lights", date: "Fri, Jun 6 - 19:00", participants: "24 registered", badge: "Competition", badgeClass: "bg-vytal-amber/10 text-vytal-amber" },
+  { title: "Nutrition Workshop", date: "Sat, Jun 7 - 10:00", participants: "12 registered", badge: "Workshop", badgeClass: "bg-vytal-blue/10 text-vytal-blue" },
+  { title: "Summer Challenge Kick-off", date: "Mon, Jun 9 - 07:00", participants: "48 registered", badge: "Event", badgeClass: "bg-vytal-green/10 text-vytal-green" },
+];
 
 // ---------------------------------------------------------------------------
 // Page
@@ -519,7 +553,7 @@ export default function DashboardPage() {
             </button>
           </div>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-            {(["kpi", "quickActions", "charts", "schedule"] as WidgetKey[]).map((key) => (
+            {(["kpi", "quickActions", "charts", "schedule", "activity", "events"] as WidgetKey[]).map((key) => (
               <button
                 key={key}
                 onClick={() => toggleWidget(key)}
@@ -842,6 +876,85 @@ export default function DashboardPage() {
         </div>
       </div>
       )}
+
+      {/* Recent Activity + Upcoming Events */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        {/* Recent Activity Feed */}
+        {isVisible("activity") && (
+        <div className="lg:col-span-2">
+          <div className="mb-4 flex items-center gap-2">
+            <Activity className="h-5 w-5 text-vytal-green" />
+            <h2 className="text-lg font-semibold text-vytal-text">{t("dashboard.recentActivity")}</h2>
+          </div>
+          <div className="rounded-xl border border-vytal-border bg-vytal-card/80 backdrop-blur-sm">
+            {MOCK_ACTIVITY.map((activity, i) => (
+              <div
+                key={i}
+                className={cn(
+                  "flex items-start gap-3 px-5 py-3.5 transition-colors hover:bg-vytal-bg3/50",
+                  i < MOCK_ACTIVITY.length - 1 && "border-b border-vytal-border"
+                )}
+              >
+                <div className={cn("mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg", activity.bgColor)}>
+                  <activity.icon className={cn("h-4 w-4", activity.iconColor)} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm text-vytal-text">{activity.text}</p>
+                  <p className="mt-0.5 text-[11px] text-vytal-muted">{activity.time}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+        )}
+
+        {/* Upcoming Events */}
+        {isVisible("events") && (
+        <div className="lg:col-span-1">
+          <div className="mb-4 flex items-center gap-2">
+            <Calendar className="h-5 w-5 text-vytal-blue" />
+            <h2 className="text-lg font-semibold text-vytal-text">{t("dashboard.upcomingEvents")}</h2>
+          </div>
+          <div className="space-y-3">
+            {MOCK_EVENTS.length > 0 ? (
+              MOCK_EVENTS.map((event, i) => (
+                <div
+                  key={i}
+                  className="rounded-xl border border-vytal-border bg-vytal-card/80 p-4 backdrop-blur-sm transition-colors hover:border-[rgba(61,255,110,0.22)]"
+                >
+                  <div className="flex items-start justify-between gap-2 mb-2">
+                    <h3 className="text-sm font-semibold text-vytal-text">{event.title}</h3>
+                    <span className={cn("shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold", event.badgeClass)}>
+                      {event.badge}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs text-vytal-muted">
+                    <Calendar className="h-3 w-3" />
+                    <span>{event.date}</span>
+                  </div>
+                  <div className="mt-1 flex items-center gap-2 text-xs text-vytal-muted">
+                    <Users className="h-3 w-3" />
+                    <span>{event.participants}</span>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="rounded-xl border border-vytal-border bg-vytal-card p-8 text-center">
+                <Calendar className="mx-auto mb-2 h-8 w-8 text-vytal-muted/30" />
+                <p className="text-sm text-vytal-muted">{t("dashboard.noUpcomingEvents")}</p>
+              </div>
+            )}
+            <Link
+              href="/community/events"
+              className="flex items-center justify-center gap-1 text-xs font-medium text-vytal-green transition-colors hover:text-vytal-green/80"
+            >
+              {t("dashboard.viewAll")}
+              <ArrowUpRight className="h-3 w-3" />
+            </Link>
+          </div>
+        </div>
+        )}
+      </div>
     </div>
   );
 }
