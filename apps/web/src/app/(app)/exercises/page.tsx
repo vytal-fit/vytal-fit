@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 import { useI18n } from "@/lib/i18n";
 import { useToast } from "@/components/toast";
 import { ConfirmDialog } from "@/components/confirm-dialog";
+import { EmptyState } from "@/components/empty-state";
 
 const categoryConfig: Record<ExerciseCategory, { labelKey: string; className: string }> = {
   weightlifting: { labelKey: "exercises.category.weightlifting", className: "bg-vytal-amber/10 text-vytal-amber" },
@@ -96,8 +97,16 @@ export default function ExercisesPage() {
 
   function handleConfirmDelete() {
     if (!deleteTarget) return;
+    const removed = storeExercises.find((e) => e.id === deleteTarget.id);
     deleteExercise(deleteTarget.id);
-    toast(t("exercises.exerciseDeleted"), "success");
+    toast(t("exercises.exerciseDeleted"), "success", {
+      action: removed
+        ? {
+            label: t("action.undo"),
+            onClick: () => addExercise({ name: removed.name, category: removed.category, equipment: removed.equipment, muscleGroups: removed.muscleGroups }),
+          }
+        : undefined,
+    });
     setDeleteTarget(null);
   }
 
@@ -107,7 +116,7 @@ export default function ExercisesPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="mb-8 flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-vytal-text">{t("exercises.title")}</h1>
           <p className="mt-1 text-sm text-vytal-muted">{t("exercises.subtitle")} ({storeExercises.length})</p>
@@ -205,7 +214,7 @@ export default function ExercisesPage() {
           }
 
           return (
-            <div key={exercise.id} className="rounded-xl border border-vytal-border bg-vytal-card p-4 transition-colors hover:border-[rgba(61,255,110,0.22)]">
+            <div key={exercise.id} className="rounded-xl border border-vytal-border bg-vytal-card p-4 transition-colors hover:border-[rgba(34,197,94,0.22)]">
               <div className="mb-3 flex items-start justify-between">
                 <Link href={`/exercises/${exercise.id}`} className="flex items-center gap-2 hover:opacity-80">
                   <Dumbbell className="h-4 w-4 text-vytal-green" />
@@ -248,18 +257,16 @@ export default function ExercisesPage() {
       </div>
 
       {exercises.length === 0 && (
-        <div className="rounded-xl border border-vytal-border bg-vytal-card p-12 text-center">
-          <Dumbbell className="mx-auto h-8 w-8 text-vytal-muted" />
-          <p className="mt-3 text-sm font-medium text-vytal-text">{t("exercises.noResults")}</p>
-          <p className="mt-1 text-xs text-vytal-muted">
-            {search ? t("exercises.noResultsFor").replace("{query}", search) : t("exercises.noResultsInCategory")}
-          </p>
-          {(search || activeCategory !== "all") && (
-            <button onClick={() => { setSearch(""); setActiveCategory("all"); }} className="mt-4 rounded-lg border border-vytal-border px-4 py-2 text-xs font-medium text-vytal-text transition-colors hover:bg-vytal-bg3">
-              {t("exercises.clearFilters")}
-            </button>
-          )}
-        </div>
+        <EmptyState
+          icon={Dumbbell}
+          title={t("exercises.noResults")}
+          description={search ? t("exercises.noResultsFor").replace("{query}", search) : t("exercises.noResultsInCategory")}
+          action={
+            search || activeCategory !== "all"
+              ? { label: t("exercises.clearFilters"), onClick: () => { setSearch(""); setActiveCategory("all"); } }
+              : undefined
+          }
+        />
       )}
 
       <ConfirmDialog

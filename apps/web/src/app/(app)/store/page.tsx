@@ -18,6 +18,7 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { ConfirmDialog } from "@/components/confirm-dialog";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -129,6 +130,9 @@ export default function StorePage() {
   const [formStock, setFormStock] = useState("");
   const [formCategory, setFormCategory] = useState<ProductCategory>("apparel");
 
+  // Delete confirmation
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
+
   // Sales filters
   const [salesSearch, setSalesSearch] = useState("");
 
@@ -188,10 +192,20 @@ export default function StorePage() {
     resetForm();
   }, [formName, formPrice, formStock, formCategory, editingId, resetForm, toast, t]);
 
-  const handleDelete = useCallback((id: string) => {
-    setProducts((prev) => prev.filter((p) => p.id !== id));
-    toast(t("store.productDeleted"), "success");
-  }, [toast, t]);
+  const handleConfirmDelete = useCallback(() => {
+    if (!deleteTarget) return;
+    const removed = products.find((p) => p.id === deleteTarget.id);
+    setProducts((prev) => prev.filter((p) => p.id !== deleteTarget.id));
+    toast(t("store.productDeleted"), "success", {
+      action: removed
+        ? {
+            label: t("action.undo"),
+            onClick: () => setProducts((prev) => [...prev, removed]),
+          }
+        : undefined,
+    });
+    setDeleteTarget(null);
+  }, [deleteTarget, products, toast, t]);
 
   const handleToggleActive = useCallback((id: string) => {
     setProducts((prev) =>
@@ -203,11 +217,9 @@ export default function StorePage() {
     <div className="space-y-6">
       <Breadcrumbs items={[{ label: t("nav.store"), href: "/store" }]} />
 
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-vytal-text">{t("store.title")}</h1>
-          <p className="mt-1 text-sm text-vytal-muted">{t("store.subtitle")}</p>
-        </div>
+      <div className="mb-8">
+        <h1 className="text-2xl font-bold text-vytal-text">{t("store.title")}</h1>
+        <p className="mt-1 text-sm text-vytal-muted">{t("store.subtitle")}</p>
       </div>
 
       {/* Tabs */}
@@ -250,7 +262,7 @@ export default function StorePage() {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder={t("store.searchProducts")}
-                className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 py-2 pl-10 pr-4 text-sm text-vytal-text placeholder:text-vytal-muted focus:border-vytal-green/40 focus:outline-none"
+                className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 py-2 pl-10 pr-4 text-sm text-vytal-text placeholder:text-vytal-muted focus:border-vytal-green/30 focus:outline-none focus:ring-1 focus:ring-vytal-green/20"
               />
             </div>
             <button
@@ -275,38 +287,38 @@ export default function StorePage() {
               </div>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 <div>
-                  <label className="mb-1 block text-xs font-medium text-vytal-muted">{t("store.productName")}</label>
+                  <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("store.productName")}</label>
                   <input
                     type="text"
                     value={formName}
                     onChange={(e) => setFormName(e.target.value)}
-                    className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-2 text-sm text-vytal-text focus:border-vytal-green/40 focus:outline-none"
+                    className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-2 text-sm text-vytal-text focus:border-vytal-green/30 focus:outline-none focus:ring-1 focus:ring-vytal-green/20"
                   />
                 </div>
                 <div>
-                  <label className="mb-1 block text-xs font-medium text-vytal-muted">{t("store.price")}</label>
+                  <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("store.price")}</label>
                   <input
                     type="number"
                     value={formPrice}
                     onChange={(e) => setFormPrice(e.target.value)}
-                    className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-2 text-sm text-vytal-text focus:border-vytal-green/40 focus:outline-none"
+                    className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-2 text-sm text-vytal-text focus:border-vytal-green/30 focus:outline-none focus:ring-1 focus:ring-vytal-green/20"
                   />
                 </div>
                 <div>
-                  <label className="mb-1 block text-xs font-medium text-vytal-muted">{t("store.stock")}</label>
+                  <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("store.stock")}</label>
                   <input
                     type="number"
                     value={formStock}
                     onChange={(e) => setFormStock(e.target.value)}
-                    className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-2 text-sm text-vytal-text focus:border-vytal-green/40 focus:outline-none"
+                    className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-2 text-sm text-vytal-text focus:border-vytal-green/30 focus:outline-none focus:ring-1 focus:ring-vytal-green/20"
                   />
                 </div>
                 <div>
-                  <label className="mb-1 block text-xs font-medium text-vytal-muted">{t("store.category")}</label>
+                  <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("store.category")}</label>
                   <select
                     value={formCategory}
                     onChange={(e) => setFormCategory(e.target.value as ProductCategory)}
-                    className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-2 text-sm text-vytal-text focus:border-vytal-green/40 focus:outline-none"
+                    className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-2 text-sm text-vytal-text focus:border-vytal-green/30 focus:outline-none focus:ring-1 focus:ring-vytal-green/20"
                   >
                     {(Object.keys(categoryConfig) as ProductCategory[]).map((cat) => (
                       <option key={cat} value={cat}>{categoryConfig[cat].label}</option>
@@ -387,7 +399,7 @@ export default function StorePage() {
                           <Pencil className="h-3.5 w-3.5" />
                         </button>
                         <button
-                          onClick={() => handleDelete(product.id)}
+                          onClick={() => setDeleteTarget({ id: product.id, name: product.name })}
                           className="rounded-lg p-1.5 text-vytal-muted transition-colors hover:bg-vytal-red/10 hover:text-vytal-red"
                         >
                           <Trash2 className="h-3.5 w-3.5" />
@@ -451,7 +463,7 @@ export default function StorePage() {
                 value={salesSearch}
                 onChange={(e) => setSalesSearch(e.target.value)}
                 placeholder={t("store.searchSales")}
-                className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 py-2 pl-10 pr-4 text-sm text-vytal-text placeholder:text-vytal-muted focus:border-vytal-green/40 focus:outline-none"
+                className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 py-2 pl-10 pr-4 text-sm text-vytal-text placeholder:text-vytal-muted focus:border-vytal-green/30 focus:outline-none focus:ring-1 focus:ring-vytal-green/20"
               />
             </div>
             <button
@@ -504,6 +516,17 @@ export default function StorePage() {
           </div>
         </div>
       )}
+
+      <ConfirmDialog
+        open={!!deleteTarget}
+        title={t("action.delete")}
+        description={`${t("store.confirmDelete")} "${deleteTarget?.name}"?`}
+        confirmLabel={t("action.delete")}
+        cancelLabel={t("action.cancel")}
+        variant="danger"
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setDeleteTarget(null)}
+      />
     </div>
   );
 }

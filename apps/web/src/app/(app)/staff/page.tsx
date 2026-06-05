@@ -48,7 +48,7 @@ function CoachCard({ coach, onDelete }: { coach: Coach; onDelete: (id: string, n
   const roleConfig = roleBadgeConfig[coach.role];
 
   return (
-    <div className="group relative rounded-xl border border-vytal-border bg-vytal-card p-5 transition-colors hover:border-[rgba(61,255,110,0.22)]">
+    <div className="group relative rounded-xl border border-vytal-border bg-vytal-card p-5 transition-colors hover:border-[rgba(34,197,94,0.22)]">
       {/* Delete button */}
       <button
         onClick={(e) => { e.preventDefault(); onDelete(coach.id, coach.name); }}
@@ -131,8 +131,16 @@ export default function StaffPage() {
 
   function handleConfirmDelete() {
     if (!deleteTarget) return;
+    const removed = storeCoaches.find((c) => c.id === deleteTarget.id);
     deleteCoach(deleteTarget.id);
-    toast(t("staff.coachDeleted"), "success");
+    toast(t("staff.coachDeleted"), "success", {
+      action: removed
+        ? {
+            label: t("action.undo"),
+            onClick: () => addCoach({ organizationId: removed.organizationId, name: removed.name, email: removed.email, role: removed.role }),
+          }
+        : undefined,
+    });
     setDeleteTarget(null);
   }
 
@@ -142,7 +150,7 @@ export default function StaffPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="mb-8 flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-vytal-text">{t("staff.title")}</h1>
           <p className="mt-1 text-sm text-vytal-muted">{t("staff.subtitle")}</p>

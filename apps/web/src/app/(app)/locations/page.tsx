@@ -60,8 +60,16 @@ export default function LocationsPage() {
 
   function handleConfirmDelete() {
     if (!deleteTarget) return;
+    const removed = locations.find((l) => l.id === deleteTarget.id);
     deleteLocation(deleteTarget.id);
-    toast(t("locations.locationDeleted"), "success");
+    toast(t("locations.locationDeleted"), "success", {
+      action: removed
+        ? {
+            label: t("action.undo"),
+            onClick: () => addLocation({ organizationId: removed.organizationId, name: removed.name, capacity: removed.capacity }),
+          }
+        : undefined,
+    });
     setDeleteTarget(null);
   }
 
@@ -71,7 +79,7 @@ export default function LocationsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="mb-8 flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-vytal-text">{t("locations.title")}</h1>
           <p className="mt-1 text-sm text-vytal-muted">

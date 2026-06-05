@@ -101,6 +101,8 @@ const translations: Record<Language, Record<string, string>> = {
     "media.searchPlaceholder": "Pesquisar multimédia...",
     "media.allTypes": "Todos os Tipos",
     "media.noResults": "Nenhum ficheiro encontrado.",
+    "media.deleted": "Ficheiro eliminado",
+    "media.confirmDelete": "Tem a certeza que deseja eliminar",
 
     // Equipment Inventory
     "equipment.title": "Inventário de Equipamento",
@@ -139,6 +141,7 @@ const translations: Record<Language, Record<string, string>> = {
     "action.delete": "Eliminar",
     "action.search": "Pesquisar",
     "action.filter": "Filtrar",
+    "action.undo": "Desfazer",
     "action.export": "Exportar",
     "action.import": "Importar",
     "action.back": "Voltar",
@@ -652,6 +655,9 @@ const translations: Record<Language, Record<string, string>> = {
     "planCreate.success": "Plano Criado com Sucesso!",
     "planCreate.createAnother": "Criar Outro",
     "planCreate.active": "Ativo",
+    "planCreate.price": "Preco (EUR)",
+    "planCreate.nameRequired": "Nome do plano e obrigatorio",
+    "planCreate.priceRequired": "Preco e obrigatorio",
     "crm.sourceWebsite": "Website",
     "crm.sourceWalkIn": "Presencial",
     "crm.sourceReferral": "Referência",
@@ -1788,6 +1794,7 @@ const translations: Record<Language, Record<string, string>> = {
     "groups.nameRequired": "O nome do grupo é obrigatório",
     "groups.created": "Grupo criado com sucesso",
     "groups.deleted": "Grupo eliminado",
+    "groups.confirmDelete": "Tem a certeza que deseja eliminar o grupo",
 
     // Class Templates
     "classTemplates.title": "Templates de Aula",
@@ -2182,6 +2189,7 @@ const translations: Record<Language, Record<string, string>> = {
     "store.productAdded": "Produto adicionado",
     "store.productUpdated": "Produto atualizado",
     "store.productDeleted": "Produto eliminado",
+    "store.confirmDelete": "Tem a certeza que deseja eliminar",
     "store.revenueThisMonth": "Receita Este Mes",
     "store.totalSales": "Total de Vendas",
     "store.activeProducts": "Produtos Ativos",
@@ -2729,6 +2737,8 @@ const translations: Record<Language, Record<string, string>> = {
     "media.searchPlaceholder": "Search media...",
     "media.allTypes": "All Types",
     "media.noResults": "No files found.",
+    "media.deleted": "File deleted",
+    "media.confirmDelete": "Are you sure you want to delete",
 
     // Equipment Inventory
     "equipment.title": "Equipment Inventory",
@@ -2767,6 +2777,7 @@ const translations: Record<Language, Record<string, string>> = {
     "action.delete": "Delete",
     "action.search": "Search",
     "action.filter": "Filter",
+    "action.undo": "Undo",
     "action.export": "Export",
     "action.import": "Import",
     "action.back": "Back",
@@ -3278,6 +3289,9 @@ const translations: Record<Language, Record<string, string>> = {
     "planCreate.success": "Plan Created Successfully!",
     "planCreate.createAnother": "Create Another",
     "planCreate.active": "Active",
+    "planCreate.price": "Price (EUR)",
+    "planCreate.nameRequired": "Plan name is required",
+    "planCreate.priceRequired": "Price is required",
     "crm.sourceWebsite": "Website",
     "crm.sourceWalkIn": "Walk-in",
     "crm.sourceReferral": "Referral",
@@ -4435,6 +4449,7 @@ const translations: Record<Language, Record<string, string>> = {
     "groups.nameRequired": "Group name is required",
     "groups.created": "Group created successfully",
     "groups.deleted": "Group deleted",
+    "groups.confirmDelete": "Are you sure you want to delete the group",
 
     // Class Templates
     "classTemplates.title": "Class Templates",
@@ -4826,6 +4841,7 @@ const translations: Record<Language, Record<string, string>> = {
     "store.productAdded": "Product added",
     "store.productUpdated": "Product updated",
     "store.productDeleted": "Product deleted",
+    "store.confirmDelete": "Are you sure you want to delete",
     "store.revenueThisMonth": "Revenue This Month",
     "store.totalSales": "Total Sales",
     "store.activeProducts": "Active Products",
@@ -5373,6 +5389,8 @@ const translations: Record<Language, Record<string, string>> = {
     "media.searchPlaceholder": "Buscar multimedia...",
     "media.allTypes": "Todos los Tipos",
     "media.noResults": "No se encontraron archivos.",
+    "media.deleted": "Archivo eliminado",
+    "media.confirmDelete": "Esta seguro de que desea eliminar",
 
     // Equipment Inventory
     "equipment.title": "Inventario de Equipamiento",
@@ -5411,6 +5429,7 @@ const translations: Record<Language, Record<string, string>> = {
     "action.delete": "Eliminar",
     "action.search": "Buscar",
     "action.filter": "Filtrar",
+    "action.undo": "Deshacer",
     "action.export": "Exportar",
     "action.import": "Importar",
     "action.back": "Volver",
@@ -5922,6 +5941,9 @@ const translations: Record<Language, Record<string, string>> = {
     "planCreate.success": "\u00a1Plan Creado Exitosamente!",
     "planCreate.createAnother": "Crear Otro",
     "planCreate.active": "Activo",
+    "planCreate.price": "Precio (EUR)",
+    "planCreate.nameRequired": "El nombre del plan es obligatorio",
+    "planCreate.priceRequired": "El precio es obligatorio",
     "crm.sourceWebsite": "Sitio web",
     "crm.sourceWalkIn": "Presencial",
     "crm.sourceReferral": "Referencia",
@@ -7059,6 +7081,7 @@ const translations: Record<Language, Record<string, string>> = {
     "groups.nameRequired": "El nombre del grupo es obligatorio",
     "groups.created": "Grupo creado con éxito",
     "groups.deleted": "Grupo eliminado",
+    "groups.confirmDelete": "Esta seguro de que desea eliminar el grupo",
 
     // Class Templates
     "classTemplates.title": "Plantillas de Clase",
@@ -7450,6 +7473,7 @@ const translations: Record<Language, Record<string, string>> = {
     "store.productAdded": "Producto agregado",
     "store.productUpdated": "Producto actualizado",
     "store.productDeleted": "Producto eliminado",
+    "store.confirmDelete": "Esta seguro de que desea eliminar",
     "store.revenueThisMonth": "Ingresos Este Mes",
     "store.totalSales": "Total de Ventas",
     "store.activeProducts": "Productos Activos",

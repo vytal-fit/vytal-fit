@@ -52,7 +52,7 @@ function PlanCard({
   const subscriberPct = maxSubscribers > 0 ? (subscriberCount / maxSubscribers) * 100 : 0;
 
   return (
-    <div className={cn("group relative rounded-xl border bg-vytal-card p-6 transition-colors hover:border-[rgba(61,255,110,0.22)]", isPopular ? "border-vytal-green/30" : "border-vytal-border")}>
+    <div className={cn("group relative rounded-xl border bg-vytal-card p-6 transition-colors hover:border-[rgba(34,197,94,0.22)]", isPopular ? "border-vytal-green/30" : "border-vytal-border")}>
       {isPopular && (
         <div className="absolute -top-2.5 left-4 flex items-center gap-1 rounded-full bg-vytal-green px-2.5 py-0.5 text-[10px] font-bold text-vytal-bg">
           <Star className="h-2.5 w-2.5" /> {t("plans.mostPopular")}
@@ -153,6 +153,7 @@ export default function PlansPage() {
   const { t } = useI18n();
   const { toast } = useToast();
   const storePlans = useDataStore((s) => s.plans);
+  const addPlan = useDataStore((s) => s.addPlan);
   const updatePlan = useDataStore((s) => s.updatePlan);
   const deletePlan = useDataStore((s) => s.deletePlan);
   const [showInactive, setShowInactive] = useState(false);
@@ -174,15 +175,23 @@ export default function PlansPage() {
 
   function handleConfirmDelete() {
     if (!deleteTarget) return;
+    const removed = storePlans.find((p) => p.id === deleteTarget.id);
     deletePlan(deleteTarget.id);
-    toast(t("plans.planDeleted"), "success");
+    toast(t("plans.planDeleted"), "success", {
+      action: removed
+        ? {
+            label: t("action.undo"),
+            onClick: () => addPlan({ organizationId: removed.organizationId, name: removed.name, type: removed.type, price: removed.price, currency: removed.currency, maxSessions: removed.maxSessions, allowedClassTypes: removed.allowedClassTypes, active: removed.active }),
+          }
+        : undefined,
+    });
     setDeleteTarget(null);
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-end justify-between">
+      <div className="mb-8 flex items-end justify-between">
         <div>
           <h1 className="text-2xl font-bold text-vytal-text">{t("plans.title")}</h1>
           <p className="mt-1 text-sm text-vytal-muted">{t("plans.subtitle")}</p>

@@ -17,6 +17,8 @@ import {
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/lib/i18n";
 import { useToast } from "@/components/toast";
+import { ConfirmDialog } from "@/components/confirm-dialog";
+import { EmptyState } from "@/components/empty-state";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -83,6 +85,7 @@ export default function MediaLibraryPage() {
   const [activeFolder, setActiveFolder] = useState("All");
   const [showUpload, setShowUpload] = useState(false);
   const [dragOver, setDragOver] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
 
   // Filter
   const filteredMedia = useMemo(() => {
@@ -101,14 +104,20 @@ export default function MediaLibraryPage() {
   const docCount = media.filter((m) => m.type === "document").length;
 
   // Actions
-  const handleDelete = useCallback(
-    (id: string) => {
-      const item = media.find((m) => m.id === id);
-      setMedia((prev) => prev.filter((m) => m.id !== id));
-      if (item) toast(`"${item.name}" deleted`, "success");
-    },
-    [media, toast]
-  );
+  const handleConfirmDelete = useCallback(() => {
+    if (!deleteTarget) return;
+    const removed = media.find((m) => m.id === deleteTarget.id);
+    setMedia((prev) => prev.filter((m) => m.id !== deleteTarget.id));
+    toast(t("media.deleted"), "success", {
+      action: removed
+        ? {
+            label: t("action.undo"),
+            onClick: () => setMedia((prev) => [...prev, removed]),
+          }
+        : undefined,
+    });
+    setDeleteTarget(null);
+  }, [deleteTarget, media, toast, t]);
 
   const handleCopyLink = useCallback(
     (item: MediaItem) => {
@@ -127,12 +136,10 @@ export default function MediaLibraryPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
+      <div className="mb-8 flex items-center justify-between">
+        <div>
           <h1 className="text-2xl font-bold text-vytal-text">{t("media.title")}</h1>
-          <span className="flex h-7 items-center rounded-full bg-vytal-green/10 px-3 text-xs font-semibold text-vytal-green">
-            {totalCount}
-          </span>
+          <p className="mt-1 text-sm text-vytal-muted">{totalCount} {t("media.totalFiles").toLowerCase()}</p>
         </div>
         <button
           onClick={() => setShowUpload(!showUpload)}
@@ -240,7 +247,7 @@ export default function MediaLibraryPage() {
           return (
             <div
               key={item.id}
-              className="group rounded-xl border border-vytal-border bg-vytal-bg2 overflow-hidden transition-colors hover:border-vytal-green/20"
+              className="group rounded-xl border border-vytal-border bg-vytal-bg2 overflow-hidden transition-colors hover:border-[rgba(34,197,94,0.22)]"
             >
               {/* Thumbnail placeholder */}
               <div className={cn("flex h-32 items-center justify-center", config.bg)}>
@@ -275,9 +282,9 @@ export default function MediaLibraryPage() {
                     <Link2 className="h-3.5 w-3.5" />
                   </button>
                   <button
-                    onClick={() => handleDelete(item.id)}
+                    onClick={() => setDeleteTarget({ id: item.id, name: item.name })}
                     className="rounded p-1.5 text-vytal-muted hover:bg-vytal-red/10 hover:text-vytal-red"
-                    title="Delete"
+                    title={t("action.delete")}
                   >
                     <Trash2 className="h-3.5 w-3.5" />
                   </button>
@@ -289,11 +296,22 @@ export default function MediaLibraryPage() {
       </div>
 
       {filteredMedia.length === 0 && (
-        <div className="rounded-xl border border-vytal-border bg-vytal-bg2 p-12 text-center">
-          <ImageIcon className="mx-auto h-10 w-10 text-vytal-muted" />
-          <p className="mt-3 text-sm text-vytal-muted">{t("media.noResults")}</p>
-        </div>
+        <EmptyState
+          icon={ImageIcon}
+          title={t("media.noResults")}
+        />
       )}
+
+      <ConfirmDialog
+        open={!!deleteTarget}
+        title={t("action.delete")}
+        description={`${t("media.confirmDelete")} "${deleteTarget?.name}"?`}
+        confirmLabel={t("action.delete")}
+        cancelLabel={t("action.cancel")}
+        variant="danger"
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setDeleteTarget(null)}
+      />
     </div>
   );
 }

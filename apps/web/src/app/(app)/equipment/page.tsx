@@ -137,12 +137,12 @@ export default function EquipmentInventoryPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
+      <div className="mb-8 flex items-center justify-between">
+        <div>
           <h1 className="text-2xl font-bold text-vytal-text">{t("equipment.title")}</h1>
-          <span className="flex h-7 items-center rounded-full bg-vytal-green/10 px-3 text-xs font-semibold text-vytal-green">
+          <p className="mt-1 text-sm text-vytal-muted">
             {equipment.length} {t("equipment.types")}
-          </span>
+          </p>
         </div>
         <button
           onClick={() => setShowAddForm(true)}
@@ -199,21 +199,21 @@ export default function EquipmentInventoryPage() {
           </div>
           <div className="grid grid-cols-3 gap-4">
             <div>
-              <label className="mb-1 block text-xs text-vytal-muted">{t("equipment.name")}</label>
+              <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("equipment.name")}</label>
               <input
                 type="text"
                 value={newName}
                 onChange={(e) => setNewName(e.target.value)}
-                className="w-full rounded-lg border border-vytal-border bg-vytal-bg px-3 py-2 text-sm text-vytal-text focus:border-vytal-green/30 focus:outline-none"
+                className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-2 text-sm text-vytal-text placeholder:text-vytal-muted focus:border-vytal-green/30 focus:outline-none focus:ring-1 focus:ring-vytal-green/20"
                 placeholder="e.g. Wall Balls"
               />
             </div>
             <div>
-              <label className="mb-1 block text-xs text-vytal-muted">{t("equipment.category")}</label>
+              <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("equipment.category")}</label>
               <select
                 value={newCategory}
                 onChange={(e) => setNewCategory(e.target.value)}
-                className="w-full rounded-lg border border-vytal-border bg-vytal-bg px-3 py-2 text-sm text-vytal-text focus:border-vytal-green/30 focus:outline-none"
+                className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-2 text-sm text-vytal-text placeholder:text-vytal-muted focus:border-vytal-green/30 focus:outline-none focus:ring-1 focus:ring-vytal-green/20"
               >
                 {categories.filter((c) => c !== "All").map((c) => (
                   <option key={c} value={c}>{c}</option>
@@ -221,22 +221,22 @@ export default function EquipmentInventoryPage() {
               </select>
             </div>
             <div>
-              <label className="mb-1 block text-xs text-vytal-muted">{t("equipment.quantity")}</label>
+              <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("equipment.quantity")}</label>
               <input
                 type="number"
                 value={newQuantity}
                 onChange={(e) => setNewQuantity(e.target.value)}
-                className="w-full rounded-lg border border-vytal-border bg-vytal-bg px-3 py-2 text-sm text-vytal-text focus:border-vytal-green/30 focus:outline-none"
+                className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-2 text-sm text-vytal-text placeholder:text-vytal-muted focus:border-vytal-green/30 focus:outline-none focus:ring-1 focus:ring-vytal-green/20"
                 placeholder="1"
                 min="1"
               />
             </div>
             <div>
-              <label className="mb-1 block text-xs text-vytal-muted">{t("equipment.condition")}</label>
+              <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("equipment.condition")}</label>
               <select
                 value={newCondition}
                 onChange={(e) => setNewCondition(e.target.value as Condition)}
-                className="w-full rounded-lg border border-vytal-border bg-vytal-bg px-3 py-2 text-sm text-vytal-text focus:border-vytal-green/30 focus:outline-none"
+                className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-2 text-sm text-vytal-text placeholder:text-vytal-muted focus:border-vytal-green/30 focus:outline-none focus:ring-1 focus:ring-vytal-green/20"
               >
                 <option value="excellent">Excellent</option>
                 <option value="good">Good</option>
@@ -245,21 +245,21 @@ export default function EquipmentInventoryPage() {
               </select>
             </div>
             <div>
-              <label className="mb-1 block text-xs text-vytal-muted">{t("equipment.purchaseDate")}</label>
+              <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("equipment.purchaseDate")}</label>
               <input
                 type="date"
                 value={newPurchaseDate}
                 onChange={(e) => setNewPurchaseDate(e.target.value)}
-                className="w-full rounded-lg border border-vytal-border bg-vytal-bg px-3 py-2 text-sm text-vytal-text focus:border-vytal-green/30 focus:outline-none"
+                className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-2 text-sm text-vytal-text placeholder:text-vytal-muted focus:border-vytal-green/30 focus:outline-none focus:ring-1 focus:ring-vytal-green/20"
               />
             </div>
             <div>
-              <label className="mb-1 block text-xs text-vytal-muted">{t("equipment.nextMaintenance")}</label>
+              <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("equipment.nextMaintenance")}</label>
               <input
                 type="date"
                 value={newNextMaintenance}
                 onChange={(e) => setNewNextMaintenance(e.target.value)}
-                className="w-full rounded-lg border border-vytal-border bg-vytal-bg px-3 py-2 text-sm text-vytal-text focus:border-vytal-green/30 focus:outline-none"
+                className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-2 text-sm text-vytal-text placeholder:text-vytal-muted focus:border-vytal-green/30 focus:outline-none focus:ring-1 focus:ring-vytal-green/20"
               />
             </div>
           </div>

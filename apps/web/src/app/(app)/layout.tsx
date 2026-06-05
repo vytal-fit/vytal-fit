@@ -431,7 +431,7 @@ function OrgSwitcher({ onCreateOrg, collapsed }: { onCreateOrg?: () => void; col
 
   if (collapsed) {
     return (
-      <div className="flex justify-center">
+      <div className="flex justify-center overflow-hidden">
         <button
           onClick={() => {
             if (sidebarCollapsed) {
@@ -439,7 +439,7 @@ function OrgSwitcher({ onCreateOrg, collapsed }: { onCreateOrg?: () => void; col
             }
           }}
           title={orgSettings.name || activeOrg?.organization.name || t("ui.selectOrg")}
-          className="flex h-10 w-10 items-center justify-center rounded-lg bg-vytal-green/10 text-sm font-bold text-vytal-green transition-colors hover:bg-vytal-green/20"
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-vytal-green/10 text-sm font-bold text-vytal-green transition-colors hover:bg-vytal-green/20"
         >
           {orgInitial}
         </button>
@@ -1075,7 +1075,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       {/* Desktop Sidebar — collapsible to icons */}
       <aside
         className={cn(
-          "hidden flex-col border-r border-vytal-border bg-vytal-bg2 lg:flex transition-all duration-300 ease-in-out relative",
+          "hidden flex-col border-r border-vytal-border bg-vytal-bg2 lg:flex transition-all duration-300 ease-in-out relative overflow-hidden",
           sidebarCollapsed && !isHovered ? "w-[72px]" : "w-64",
           sidebarCollapsed && isHovered && "absolute left-0 top-0 bottom-0 z-50 shadow-2xl shadow-black/20"
         )}
