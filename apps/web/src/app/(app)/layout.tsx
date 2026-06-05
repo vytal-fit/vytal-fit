@@ -1075,17 +1075,17 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       {/* Desktop Sidebar — collapsible to icons */}
       <aside
         className={cn(
-          "hidden flex-col border-r border-vytal-border bg-vytal-bg2 lg:flex transition-all duration-300 ease-in-out relative overflow-hidden",
+          "group hidden flex-col border-r border-vytal-border bg-vytal-bg2 lg:flex transition-all duration-300 ease-in-out relative overflow-hidden",
           sidebarCollapsed && !isHovered ? "w-[72px]" : "w-64",
           sidebarCollapsed && isHovered && "absolute left-0 top-0 bottom-0 z-50 shadow-2xl shadow-black/20"
         )}
         onMouseEnter={() => sidebarCollapsed && setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
-        {/* Collapse toggle */}
+        {/* Collapse toggle — only visible on sidebar hover */}
         <button
           onClick={toggleSidebar}
-          className="absolute -right-3 top-20 z-50 flex h-6 w-6 items-center justify-center rounded-full border border-vytal-border bg-vytal-bg2 text-vytal-muted shadow-sm transition-all hover:bg-vytal-bg3 hover:text-vytal-text"
+          className="absolute -right-3 top-20 z-50 flex h-6 w-6 items-center justify-center rounded-full border border-vytal-border bg-vytal-bg2 text-vytal-muted shadow-sm transition-all opacity-0 group-hover:opacity-100 hover:bg-vytal-bg3 hover:text-vytal-text"
           title={sidebarCollapsed ? "Expand" : "Collapse"}
         >
           {sidebarCollapsed ? <ChevronRight className="h-3 w-3" /> : <ChevronLeft className="h-3 w-3" />}
