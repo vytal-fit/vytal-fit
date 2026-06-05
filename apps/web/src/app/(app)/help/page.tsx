@@ -115,7 +115,7 @@ export default function HelpPage() {
       {/* Top Cards */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {/* Help Center */}
-        <div className="rounded-xl border border-vytal-border bg-vytal-card p-6 transition-colors hover:border-[rgba(34,197,94,0.22)]">
+        <div className="rounded-xl border border-vytal-border bg-vytal-card p-6 card-interactive transition-colors hover:border-[rgba(34,197,94,0.22)]">
           <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-vytal-blue/10">
             <HelpCircle className="h-5 w-5 text-vytal-blue" />
           </div>
@@ -133,7 +133,7 @@ export default function HelpPage() {
         </div>
 
         {/* Report Problem */}
-        <div className="rounded-xl border border-vytal-border bg-vytal-card p-6 transition-colors hover:border-[rgba(34,197,94,0.22)]">
+        <div className="rounded-xl border border-vytal-border bg-vytal-card p-6 card-interactive transition-colors hover:border-[rgba(34,197,94,0.22)]">
           <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-vytal-red/10">
             <Bug className="h-5 w-5 text-vytal-red" />
           </div>
@@ -151,7 +151,7 @@ export default function HelpPage() {
         </div>
 
         {/* Documentation */}
-        <div className="rounded-xl border border-vytal-border bg-vytal-card p-6 transition-colors hover:border-[rgba(34,197,94,0.22)]">
+        <div className="rounded-xl border border-vytal-border bg-vytal-card p-6 card-interactive transition-colors hover:border-[rgba(34,197,94,0.22)]">
           <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-vytal-green/10">
             <BookOpen className="h-5 w-5 text-vytal-green" />
           </div>
@@ -182,7 +182,7 @@ export default function HelpPage() {
             return (
               <div
                 key={i}
-                className="rounded-xl border border-vytal-border bg-vytal-card p-5 transition-colors hover:border-[rgba(34,197,94,0.22)]"
+                className="rounded-xl border border-vytal-border bg-vytal-card p-5 card-interactive transition-colors hover:border-[rgba(34,197,94,0.22)]"
               >
                 <div className="mb-3 flex items-center gap-3">
                   <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-vytal-green/10">
@@ -233,7 +233,7 @@ export default function HelpPage() {
 
       {/* System Status + What's New */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <div className="rounded-xl border border-vytal-border bg-vytal-card p-6 transition-colors hover:border-[rgba(34,197,94,0.22)]">
+        <div className="rounded-xl border border-vytal-border bg-vytal-card p-6 card-interactive transition-colors hover:border-[rgba(34,197,94,0.22)]">
           <div className="mb-3 flex items-center gap-2">
             <CheckCircle2 className="h-5 w-5 text-vytal-green" />
             <h3 className="text-sm font-bold text-vytal-text">{t("help.systemStatus")}</h3>
@@ -264,7 +264,7 @@ export default function HelpPage() {
       </div>
 
       {/* Keyboard Shortcuts */}
-      <div className="rounded-xl border border-vytal-border bg-vytal-card p-6 transition-colors hover:border-[rgba(34,197,94,0.22)]">
+      <div className="rounded-xl border border-vytal-border bg-vytal-card p-6 card-interactive transition-colors hover:border-[rgba(34,197,94,0.22)]">
         <div className="mb-4 flex items-center gap-2">
           <Keyboard className="h-5 w-5 text-vytal-amber" />
           <h2 className="text-lg font-semibold text-vytal-text">{t("help.keyboardShortcuts")}</h2>

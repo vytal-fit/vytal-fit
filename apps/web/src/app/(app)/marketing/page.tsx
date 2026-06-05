@@ -53,10 +53,16 @@ const mockPosts: ScheduledPost[] = [
   { id: "post-8", platform: "facebook", content: "Obrigado a todos que vieram ao evento de aniversario! 3 anos de CrossFit Aveiro!", scheduledDate: "2026-06-01", scheduledTime: "20:00", status: "published", imageLabel: "Anniversary" },
 ];
 
-const statusBadge: Record<PostStatus, { label: string; className: string }> = {
-  scheduled: { label: "Scheduled", className: "bg-vytal-blue/10 text-vytal-blue" },
-  published: { label: "Published", className: "bg-vytal-green/10 text-vytal-green" },
-  draft: { label: "Draft", className: "bg-vytal-muted/10 text-vytal-muted" },
+const statusBadgeClass: Record<PostStatus, string> = {
+  scheduled: "bg-vytal-blue/10 text-vytal-blue",
+  published: "bg-vytal-green/10 text-vytal-green",
+  draft: "bg-vytal-muted/10 text-vytal-muted",
+};
+
+const statusBadgeKey: Record<PostStatus, string> = {
+  scheduled: "status.scheduled",
+  published: "status.published",
+  draft: "status.draft",
 };
 
 function getDaysInMonth(year: number, month: number): number {
@@ -253,18 +259,17 @@ export default function MarketingPage() {
           {posts.map((post) => {
             const pc = platformConfig[post.platform];
             const PIcon = pc.icon;
-            const sb = statusBadge[post.status];
 
             return (
-              <div key={post.id} className="flex items-start gap-4 rounded-lg border border-vytal-border p-4 transition-colors hover:bg-vytal-bg3/30">
+              <div key={post.id} className="flex items-start gap-4 rounded-lg border border-vytal-border p-4 row-interactive transition-colors hover:bg-vytal-bg3/30">
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-vytal-bg3">
                   <PIcon className={cn("h-5 w-5", pc.color)} />
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
                     <span className="text-xs font-semibold text-vytal-muted">{pc.label}</span>
-                    <span className={cn("rounded-full px-2 py-0.5 text-[10px] font-semibold", sb.className)}>
-                      {sb.label}
+                    <span className={cn("rounded-full px-2 py-0.5 text-[10px] font-semibold", statusBadgeClass[post.status])}>
+                      {t(statusBadgeKey[post.status])}
                     </span>
                   </div>
                   <p className="text-sm text-vytal-text line-clamp-2">{post.content}</p>

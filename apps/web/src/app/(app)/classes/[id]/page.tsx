@@ -23,18 +23,18 @@ function getEnrollmentStatus(enrolled: number, capacity: number) {
     return {
       color: "bg-vytal-red",
       textColor: "text-vytal-red",
-      label: "Full",
+      labelKey: "classes.full",
     } as const;
   if (pct >= 80)
     return {
       color: "bg-vytal-amber",
       textColor: "text-vytal-amber",
-      label: "Filling up",
+      labelKey: "classes.fillingUp",
     } as const;
   return {
     color: "bg-vytal-green",
     textColor: "text-vytal-green",
-    label: "Available",
+    labelKey: "classes.available",
   } as const;
 }
 
@@ -68,13 +68,15 @@ export default function ClassDetailPage() {
 
   return (
     <div className="space-y-6">
-      {/* Back link */}
+      {/* Navigation */}
+      <Breadcrumbs items={[{ label: t("classes.title"), href: "/classes" }, { label: t("ui.details") }]} />
+
       <Link
         href="/classes"
         className="inline-flex items-center gap-1.5 text-sm text-vytal-muted transition-colors hover:text-vytal-text"
       >
         <ArrowLeft className="h-4 w-4" />
-        Back to Classes
+        {t("classCreate.backToClasses")}
       </Link>
 
       {/* Class Header */}
@@ -135,7 +137,7 @@ export default function ClassDetailPage() {
                   : "bg-vytal-green/10 text-vytal-green"
             )}
           >
-            {status.label}
+            {t(status.labelKey)}
           </span>
         </div>
       </div>

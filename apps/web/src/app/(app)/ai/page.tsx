@@ -123,7 +123,7 @@ function InsightCard({
   const c = colorMap[severity];
 
   return (
-    <div className={cn("rounded-xl border p-5 transition-colors hover:border-opacity-40", c.border, c.bg)}>
+    <div className={cn("rounded-xl border p-5 card-interactive transition-colors hover:border-opacity-40", c.border, c.bg)}>
       <div className="mb-3 flex items-center gap-2">
         <div className={cn("h-2.5 w-2.5 rounded-full", c.dot)} />
         <span className="text-sm font-semibold text-vytal-text">{title}</span>
@@ -307,7 +307,7 @@ export default function AIInsightsPage() {
                   </thead>
                   <tbody className="divide-y divide-vytal-border">
                     {churnRiskMembers.map((m) => (
-                      <tr key={m.name} className="transition-colors hover:bg-vytal-bg3/50">
+                      <tr key={m.name} className="row-interactive transition-colors hover:bg-vytal-bg3/50">
                         <td className="px-3 py-3 text-sm font-medium text-vytal-text">{m.name}</td>
                         <td className="px-3 py-3"><RiskBar risk={m.risk} /></td>
                         <td className="px-3 py-3 text-sm text-vytal-muted">{m.lastVisit}</td>
@@ -522,21 +522,21 @@ export default function AIInsightsPage() {
       <div>
         <h2 className="mb-4 text-lg font-semibold text-vytal-text">{t("ai.smartRecommendations")}</h2>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-          <div className="rounded-xl border border-vytal-border bg-vytal-card p-5 transition-colors hover:border-[rgba(61,255,110,0.22)]">
+          <div className="rounded-xl border border-vytal-border bg-vytal-card p-5 card-interactive transition-colors hover:border-[rgba(61,255,110,0.22)]">
             <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-lg bg-vytal-purple/10">
               <Target className="h-4 w-4 text-vytal-purple" />
             </div>
             <h4 className="text-sm font-semibold text-vytal-text">{t("ai.hyroxRecommendation")}</h4>
             <p className="mt-1 text-xs text-vytal-muted">{t("ai.hyroxRecommendationDesc")}</p>
           </div>
-          <div className="rounded-xl border border-vytal-border bg-vytal-card p-5 transition-colors hover:border-[rgba(61,255,110,0.22)]">
+          <div className="rounded-xl border border-vytal-border bg-vytal-card p-5 card-interactive transition-colors hover:border-[rgba(61,255,110,0.22)]">
             <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-lg bg-vytal-blue/10">
               <Mail className="h-4 w-4 text-vytal-blue" />
             </div>
             <h4 className="text-sm font-semibold text-vytal-text">{t("ai.emailTiming")}</h4>
             <p className="mt-1 text-xs text-vytal-muted">{t("ai.emailTimingDesc")}</p>
           </div>
-          <div className="rounded-xl border border-vytal-border bg-vytal-card p-5 transition-colors hover:border-[rgba(61,255,110,0.22)]">
+          <div className="rounded-xl border border-vytal-border bg-vytal-card p-5 card-interactive transition-colors hover:border-[rgba(61,255,110,0.22)]">
             <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-lg bg-vytal-green/10">
               <UserCheck className="h-4 w-4 text-vytal-green" />
             </div>

@@ -163,7 +163,7 @@ export default function NotificationsPage() {
                   if (!notification.read) markNotificationRead(notification.id);
                 }}
                 className={cn(
-                  "flex cursor-pointer items-start gap-4 px-6 py-4 transition-colors hover:bg-vytal-bg3",
+                  "flex cursor-pointer items-start gap-4 px-6 py-4 row-interactive transition-colors hover:bg-vytal-bg3",
                   !notification.read && "bg-vytal-green/[0.03]"
                 )}
               >

@@ -256,7 +256,7 @@ export default function EmailTemplatesPage() {
                   )}
                 >
                   {showPreview ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
-                  {showPreview ? "Edit" : "Preview"}
+                  {showPreview ? t("action.edit") : t("action.preview")}
                 </button>
                 <div className="mx-1 h-5 w-px bg-vytal-border" />
                 {/* Language tabs */}

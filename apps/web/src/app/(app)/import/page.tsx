@@ -33,40 +33,40 @@ interface ImportType {
 const IMPORT_TYPES: ImportType[] = [
   {
     id: "members",
-    title: "Members",
-    description: "Import members from CSV/Excel file",
+    title: "importCenter.members",
+    description: "importCenter.membersDesc",
     icon: Users,
     templateColumns: ["Name", "Email", "Phone", "Date of Birth", "Plan", "Start Date", "Status"],
     color: "#22c55e",
   },
   {
     id: "classes",
-    title: "Classes",
-    description: "Import class schedule from CSV",
+    title: "importCenter.classes",
+    description: "importCenter.classesDesc",
     icon: CalendarDays,
     templateColumns: ["Class Name", "Type", "Day", "Start Time", "End Time", "Coach", "Max Capacity"],
     color: "#00d4ff",
   },
   {
     id: "exercises",
-    title: "Exercises",
-    description: "Import exercise library from CSV",
+    title: "importCenter.exercises",
+    description: "importCenter.exercisesDesc",
     icon: Dumbbell,
     templateColumns: ["Name", "Category", "Equipment", "Description", "Video URL"],
     color: "#8b5cf6",
   },
   {
     id: "leads",
-    title: "Leads",
-    description: "Import leads from CSV file",
+    title: "importCenter.leads",
+    description: "importCenter.leadsDesc",
     icon: UserPlus,
     templateColumns: ["Name", "Email", "Phone", "Source", "Stage", "Notes"],
     color: "#ff8c42",
   },
   {
     id: "wods",
-    title: "WODs",
-    description: "Import workout history from CSV",
+    title: "importCenter.wods",
+    description: "importCenter.wodsDesc",
     icon: Activity,
     templateColumns: ["Date", "Title", "Type", "Exercises", "Time Cap", "Description"],
     color: "#ef4444",
@@ -135,11 +135,11 @@ export default function ImportPage() {
     a.download = `${type.id}_template.csv`;
     a.click();
     URL.revokeObjectURL(url);
-    toast(`Template downloaded: ${type.id}_template.csv`, "success");
+    toast(t("importCenter.templateDownloaded").replace("{file}", `${type.id}_template.csv`), "success");
   }
 
   function handleImport() {
-    toast("Import started! Processing records...", "success");
+    toast(t("importCenter.importStarted"), "success");
     setSelectedType(null);
     setUploadedFile(null);
     setMappingStep(false);
@@ -158,9 +158,9 @@ export default function ImportPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-vytal-text">Import Center</h1>
+        <h1 className="text-2xl font-bold text-vytal-text">{t("importCenter.title")}</h1>
         <p className="mt-1 text-sm text-vytal-muted">
-          Import data from CSV or Excel files into your organization.
+          {t("importCenter.subtitle")}
         </p>
       </div>
 
@@ -183,8 +183,8 @@ export default function ImportPage() {
                     <Icon className="h-7 w-7" />
                   </div>
                   <div>
-                    <h3 className="text-sm font-semibold text-vytal-text">{type.title}</h3>
-                    <p className="mt-1 text-xs text-vytal-muted">{type.description}</p>
+                    <h3 className="text-sm font-semibold text-vytal-text">{t(type.title)}</h3>
+                    <p className="mt-1 text-xs text-vytal-muted">{t(type.description)}</p>
                   </div>
                 </button>
               );
@@ -195,7 +195,7 @@ export default function ImportPage() {
           <div className="rounded-xl border border-vytal-border bg-vytal-card p-6">
             <h2 className="mb-4 flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-vytal-muted">
               <Clock className="h-4 w-4" />
-              Recent Imports
+              {t("importCenter.recentImports")}
             </h2>
 
             <div className="space-y-3">
@@ -209,7 +209,7 @@ export default function ImportPage() {
                     <div>
                       <p className="text-sm font-medium text-vytal-text">{imp.fileName}</p>
                       <p className="text-xs text-vytal-muted">
-                        {imp.type} &middot; {imp.count} records &middot; {new Date(imp.date).toLocaleDateString("pt-PT")}
+                        {imp.type} &middot; {imp.count} {t("importCenter.records")} &middot; {new Date(imp.date).toLocaleDateString("pt-PT")}
                       </p>
                     </div>
                   </div>
@@ -224,7 +224,7 @@ export default function ImportPage() {
                     {imp.status === "completed" && <CheckCircle className="h-3 w-3" />}
                     {imp.status === "failed" && <AlertCircle className="h-3 w-3" />}
                     {imp.status === "processing" && <Clock className="h-3 w-3" />}
-                    {imp.status.charAt(0).toUpperCase() + imp.status.slice(1)}
+                    {t(`status.${imp.status}`)}
                   </span>
                 </div>
               ))}
@@ -240,7 +240,7 @@ export default function ImportPage() {
               className="mb-4 flex items-center gap-2 text-sm text-vytal-muted transition-colors hover:text-vytal-text"
             >
               <ArrowLeft className="h-4 w-4" />
-              {mappingStep ? "Back to upload" : "Back to import types"}
+              {mappingStep ? t("importCenter.backToUpload") : t("importCenter.backToTypes")}
             </button>
 
             <div className="flex items-center gap-4 mb-6">
@@ -251,8 +251,8 @@ export default function ImportPage() {
                 <selectedType.icon className="h-6 w-6" />
               </div>
               <div>
-                <h2 className="text-lg font-bold text-vytal-text">Import {selectedType.title}</h2>
-                <p className="text-sm text-vytal-muted">{selectedType.description}</p>
+                <h2 className="text-lg font-bold text-vytal-text">{t("importCenter.importType").replace("{type}", t(selectedType.title))}</h2>
+                <p className="text-sm text-vytal-muted">{t(selectedType.description)}</p>
               </div>
             </div>
 
@@ -274,10 +274,10 @@ export default function ImportPage() {
                   <Upload className="h-10 w-10 text-vytal-muted" />
                   <div className="text-center">
                     <p className="text-sm font-medium text-vytal-text">
-                      Drag & drop your CSV or Excel file here
+                      {t("importCenter.dragDrop")}
                     </p>
                     <p className="mt-1 text-xs text-vytal-muted">
-                      or click to browse (.csv, .xlsx, .xls)
+                      {t("importCenter.orClickBrowse")}
                     </p>
                   </div>
                   <label className="cursor-pointer">
@@ -288,7 +288,7 @@ export default function ImportPage() {
                       onChange={handleFileInput}
                     />
                     <span className="rounded-lg bg-vytal-green px-6 py-2.5 text-sm font-semibold text-vytal-bg transition-colors hover:bg-vytal-green/90">
-                      Choose File
+                      {t("importCenter.chooseFile")}
                     </span>
                   </label>
                 </div>
@@ -297,9 +297,9 @@ export default function ImportPage() {
                 <div className="rounded-xl border border-vytal-border bg-vytal-card p-5">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h3 className="text-sm font-semibold text-vytal-text">Download Template</h3>
+                      <h3 className="text-sm font-semibold text-vytal-text">{t("importCenter.downloadTemplate")}</h3>
                       <p className="mt-0.5 text-xs text-vytal-muted">
-                        Use our template with pre-configured columns for {selectedType.title.toLowerCase()}.
+                        {t("importCenter.useTemplate").replace("{type}", t(selectedType.title).toLowerCase())}
                       </p>
                     </div>
                     <button
@@ -307,7 +307,7 @@ export default function ImportPage() {
                       className="flex items-center gap-2 rounded-lg border border-vytal-border px-4 py-2 text-sm text-vytal-text transition-colors hover:bg-vytal-bg3"
                     >
                       <Download className="h-4 w-4" />
-                      Download CSV
+                      {t("importCenter.downloadCsv")}
                     </button>
                   </div>
                   <div className="mt-4 flex flex-wrap gap-2">
@@ -329,7 +329,7 @@ export default function ImportPage() {
                   <File className="h-5 w-5 text-vytal-green" />
                   <div className="flex-1">
                     <p className="text-sm font-medium text-vytal-text">{uploadedFile}</p>
-                    <p className="text-xs text-vytal-muted">File ready for mapping</p>
+                    <p className="text-xs text-vytal-muted">{t("importCenter.fileReady")}</p>
                   </div>
                   <button
                     onClick={() => { setUploadedFile(null); setMappingStep(false); }}
@@ -342,10 +342,10 @@ export default function ImportPage() {
                 {/* Column mapping */}
                 <div className="rounded-xl border border-vytal-border bg-vytal-card p-6">
                   <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-vytal-muted">
-                    Column Mapping
+                    {t("importCenter.columnMapping")}
                   </h3>
                   <p className="mb-6 text-xs text-vytal-muted">
-                    Map columns from your file to the corresponding fields.
+                    {t("importCenter.mapColumnsDesc")}
                   </p>
 
                   <div className="space-y-3">
@@ -358,8 +358,8 @@ export default function ImportPage() {
                           onChange={(e) => setColumnMappings((prev) => ({ ...prev, [col]: e.target.value }))}
                           className="w-48 rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-2 text-sm text-vytal-text outline-none focus:border-vytal-green/40"
                         >
-                          <option value={`column_${i}`}>Column {String.fromCharCode(65 + i)} (auto)</option>
-                          <option value="skip">Skip this field</option>
+                          <option value={`column_${i}`}>{t("importCenter.columnAuto").replace("{letter}", String.fromCharCode(65 + i))}</option>
+                          <option value="skip">{t("importCenter.skipField")}</option>
                           {selectedType.templateColumns.map((c, j) => (
                             <option key={c} value={`col_${j}`}>{c}</option>
                           ))}
@@ -372,14 +372,14 @@ export default function ImportPage() {
                 {/* Import button */}
                 <div className="flex items-center justify-between">
                   <p className="text-xs text-vytal-muted">
-                    Ready to import {selectedType.title.toLowerCase()} from {uploadedFile}
+                    {t("importCenter.readyToImport").replace("{type}", t(selectedType.title).toLowerCase()).replace("{file}", uploadedFile ?? "")}
                   </p>
                   <button
                     onClick={handleImport}
                     className="flex items-center gap-2 rounded-lg bg-vytal-green px-6 py-2.5 text-sm font-semibold text-vytal-bg transition-colors hover:bg-vytal-green/90"
                   >
                     <Upload className="h-4 w-4" />
-                    Start Import
+                    {t("importCenter.startImport")}
                   </button>
                 </div>
               </div>

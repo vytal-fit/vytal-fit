@@ -241,13 +241,13 @@ export default function BodyCompositionPage() {
       <div>
         <h2 className="mb-4 text-lg font-semibold text-vytal-text">{t("body.progressPhotos")}</h2>
         <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-          {["Front", "Back", "Left", "Right"].map((view) => (
+          {(["front", "back", "left", "right"] as const).map((view) => (
             <div
               key={view}
               className="flex aspect-[3/4] flex-col items-center justify-center rounded-xl border-2 border-dashed border-vytal-border bg-vytal-card/50 transition-colors hover:border-vytal-green/30"
             >
               <Camera className="h-8 w-8 text-vytal-muted/40" />
-              <span className="mt-2 text-xs font-medium text-vytal-muted">{view}</span>
+              <span className="mt-2 text-xs font-medium text-vytal-muted">{t(`body.${view}`)}</span>
               <button className="mt-3 rounded-lg border border-vytal-border px-3 py-1 text-[10px] font-medium text-vytal-muted transition-colors hover:bg-vytal-bg3 hover:text-vytal-text">
                 {t("body.upload")}
               </button>

@@ -43,21 +43,22 @@ import { Breadcrumbs } from "@/components/breadcrumbs";
 import { useToast } from "@/components/toast";
 
 function StatusBadge({ status }: { status: MemberStatus }) {
-  const config: Record<MemberStatus, { label: string; className: string }> = {
+  const { t } = useI18n();
+  const config: Record<MemberStatus, { labelKey: string; className: string }> = {
     active: {
-      label: "Active",
+      labelKey: "members.active",
       className: "bg-vytal-green/10 text-vytal-green",
     },
     inactive: {
-      label: "Inactive",
+      labelKey: "members.inactive",
       className: "bg-vytal-red/10 text-vytal-red",
     },
     trial: {
-      label: "Trial",
+      labelKey: "members.trial",
       className: "bg-vytal-amber/10 text-vytal-amber",
     },
     suspended: {
-      label: "Suspended",
+      labelKey: "members.suspended",
       className: "bg-vytal-purple/10 text-vytal-purple",
     },
   };
@@ -71,13 +72,13 @@ function StatusBadge({ status }: { status: MemberStatus }) {
         c.className
       )}
     >
-      {c.label}
+      {t(c.labelKey)}
     </span>
   );
 }
 
 function formatDate(dateStr?: string): string {
-  if (!dateStr) return "Never";
+  if (!dateStr) return "--";
   return new Date(dateStr).toLocaleDateString("pt-PT", {
     day: "2-digit",
     month: "long",
@@ -86,15 +87,15 @@ function formatDate(dateStr?: string): string {
 }
 
 function formatRelative(dateStr?: string): string {
-  if (!dateStr) return "Never";
+  if (!dateStr) return "--";
   const date = new Date(dateStr);
   const now = new Date();
   const diffMs = now.getTime() - date.getTime();
   const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
 
-  if (diffDays === 0) return "Today";
-  if (diffDays === 1) return "Yesterday";
-  if (diffDays < 7) return `${diffDays} days ago`;
+  if (diffDays === 0) return "Hoje";
+  if (diffDays === 1) return "Ontem";
+  if (diffDays < 7) return `${diffDays}d`;
   return date.toLocaleDateString("pt-PT", {
     day: "2-digit",
     month: "short",

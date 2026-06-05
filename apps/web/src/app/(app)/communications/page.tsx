@@ -206,7 +206,7 @@ export default function CommunicationsPage() {
           {newsItems.map((item) => (
             <div
               key={item.id}
-              className="rounded-xl border border-vytal-border bg-vytal-card p-5 transition-colors hover:border-[rgba(61,255,110,0.22)]"
+              className="rounded-xl border border-vytal-border bg-vytal-card p-5 card-interactive transition-colors hover:border-[rgba(61,255,110,0.22)]"
             >
               <div className="mb-2 flex items-start justify-between">
                 <h3 className="text-sm font-semibold text-vytal-text">

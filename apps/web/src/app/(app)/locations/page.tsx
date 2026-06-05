@@ -177,7 +177,7 @@ export default function LocationsPage() {
               {locations.map((loc) => (
                 <tr
                   key={loc.id}
-                  className="bg-vytal-card transition-colors hover:bg-vytal-bg3"
+                  className="bg-vytal-card row-interactive transition-colors hover:bg-vytal-bg3"
                 >
                   {editingId === loc.id ? (
                     <>

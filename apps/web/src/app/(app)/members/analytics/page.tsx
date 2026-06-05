@@ -3,6 +3,7 @@
 import { useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import { Users, TrendingUp, TrendingDown, UserPlus, UserMinus, ArrowRight } from "lucide-react";
+import { Breadcrumbs } from "@/components/breadcrumbs";
 import {
   ResponsiveContainer,
   LineChart,
@@ -88,6 +89,8 @@ export default function MemberAnalyticsPage() {
 
   return (
     <div className="space-y-8">
+      <Breadcrumbs items={[{ label: t("nav.members"), href: "/members" }, { label: t("memberAnalytics.title") }]} />
+
       {/* Header */}
       <div>
         <h1 className="text-2xl font-bold text-vytal-text">{t("memberAnalytics.title")}</h1>

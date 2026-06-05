@@ -223,3 +223,28 @@ html.light .zebra-table tbody tr:nth-child(even) {
 .detail-panel-backdrop {
   animation: detail-panel-backdrop-in 0.2s ease-out both;
 }
+
+/* ── Polish: Clickable card hover ────────────────────────── */
+.card-interactive {
+  transition: all 0.2s ease;
+}
+.card-interactive:hover {
+  border-color: rgba(34, 197, 94, 0.22);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* ── Polish: Clickable row hover ─────────────────────────── */
+.row-interactive {
+  transition: background-color 0.15s ease;
+}
+.row-interactive:hover {
+  background-color: rgba(22, 32, 24, 0.5);
+}
+
+/* ── Polish: Link hover effect ───────────────────────────── */
+.link-hover {
+  transition: color 0.15s ease;
+}
+.link-hover:hover {
+  color: var(--color-vytal-green);
+}

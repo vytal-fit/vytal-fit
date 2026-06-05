@@ -214,7 +214,7 @@ export default function ExercisesPage() {
           }
 
           return (
-            <div key={exercise.id} className="rounded-xl border border-vytal-border bg-vytal-card p-4 transition-colors hover:border-[rgba(34,197,94,0.22)]">
+            <div key={exercise.id} className="rounded-xl border border-vytal-border bg-vytal-card p-4 card-interactive transition-colors hover:border-[rgba(34,197,94,0.22)]">
               <div className="mb-3 flex items-start justify-between">
                 <Link href={`/exercises/${exercise.id}`} className="flex items-center gap-2 hover:opacity-80">
                   <Dumbbell className="h-4 w-4 text-vytal-green" />

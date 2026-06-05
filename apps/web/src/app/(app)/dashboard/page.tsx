@@ -801,7 +801,7 @@ export default function DashboardPage() {
       {/* Quick Actions Bar */}
       {isVisible("quickActions") && (
       <div className="flex flex-wrap items-center gap-2">
-        <Link href="/members/import" className="inline-flex items-center gap-1.5 rounded-full border border-vytal-green/20 bg-vytal-green/5 px-3.5 py-1.5 text-xs font-semibold text-vytal-green transition-colors hover:bg-vytal-green/10">
+        <Link href="/members" className="inline-flex items-center gap-1.5 rounded-full border border-vytal-green/20 bg-vytal-green/5 px-3.5 py-1.5 text-xs font-semibold text-vytal-green transition-colors hover:bg-vytal-green/10">
           <UserPlus className="h-3.5 w-3.5" />
           {t("quickAction.createMember")}
         </Link>

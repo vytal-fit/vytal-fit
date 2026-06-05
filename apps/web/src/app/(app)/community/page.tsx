@@ -383,7 +383,7 @@ export default function CommunityPage() {
             <div
               key={item.id}
               className={cn(
-                "flex items-start gap-4 rounded-xl border border-vytal-border bg-vytal-card p-4 transition-colors hover:border-[rgba(61,255,110,0.22)]",
+                "flex items-start gap-4 rounded-xl border border-vytal-border bg-vytal-card p-4 card-interactive transition-colors hover:border-[rgba(61,255,110,0.22)]",
                 item.hidden && "opacity-40",
                 item.flagged && "border-vytal-amber/30"
               )}
@@ -460,7 +460,7 @@ export default function CommunityPage() {
             flaggedItems.map((item) => (
               <div
                 key={item.id}
-                className="rounded-xl border border-vytal-border bg-vytal-card p-5 transition-colors hover:border-[rgba(61,255,110,0.22)]"
+                className="rounded-xl border border-vytal-border bg-vytal-card p-5 card-interactive transition-colors hover:border-[rgba(61,255,110,0.22)]"
               >
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
@@ -599,7 +599,7 @@ export default function CommunityPage() {
             {challenges.map((ch) => (
               <div
                 key={ch.id}
-                className="rounded-xl border border-vytal-border bg-vytal-card p-5 transition-colors hover:border-[rgba(61,255,110,0.22)]"
+                className="rounded-xl border border-vytal-border bg-vytal-card p-5 card-interactive transition-colors hover:border-[rgba(61,255,110,0.22)]"
               >
                 <div className="mb-3 flex items-start justify-between">
                   <h3 className="text-sm font-semibold text-vytal-text">
