@@ -142,7 +142,7 @@ export function CreateOrgWizard({
   const [selectedType, setSelectedType] = useState<OrganizationType | null>(
     null,
   );
-  const [showAllTypes, setShowAllTypes] = useState(false);
+  const [typeSearch, setTypeSearch] = useState("");
 
   // Step 2
   const [details, setDetails] = useState({
@@ -175,9 +175,12 @@ export function CreateOrgWizard({
   }, [selectedType]);
 
   const visibleTypes = useMemo(() => {
-    if (showAllTypes) return ORGANIZATION_TYPE_LIST;
-    return ORGANIZATION_TYPE_LIST.filter((c) => TOP_TYPES.includes(c.type));
-  }, [showAllTypes]);
+    if (!typeSearch.trim()) return ORGANIZATION_TYPE_LIST;
+    const q = typeSearch.toLowerCase();
+    return ORGANIZATION_TYPE_LIST.filter((c) =>
+      t(`vertical.${c.type}`).toLowerCase().includes(q) || c.type.includes(q)
+    );
+  }, [typeSearch, t]);
 
   const updateDetail = useCallback(
     (field: string, value: string) => {
@@ -298,7 +301,18 @@ export function CreateOrgWizard({
                   {t("onboarding.step1Subtitle")}
                 </p>
 
-                <div className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-4">
+                {/* Search bar */}
+                <div className="mt-6">
+                  <input
+                    type="text"
+                    value={typeSearch}
+                    onChange={(e) => setTypeSearch(e.target.value)}
+                    placeholder={t("ui.searchPlaceholder") || "Pesquisar..."}
+                    className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 px-4 py-2.5 text-sm text-vytal-text placeholder:text-vytal-muted/50 outline-none focus:border-vytal-green/40"
+                  />
+                </div>
+
+                <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
                   {visibleTypes.map((config) => {
                     const isSelected = selectedType === config.type;
                     const emoji = EMOJI_MAP[config.type] ?? "\u2795";
@@ -336,16 +350,10 @@ export function CreateOrgWizard({
                   })}
                 </div>
 
-                {!showAllTypes && (
-                  <div className="mt-4 text-center">
-                    <button
-                      type="button"
-                      onClick={() => setShowAllTypes(true)}
-                      className="text-sm text-vytal-muted transition-colors hover:text-vytal-green"
-                    >
-                      {t("onboarding.seeAll") ?? "See all types"} ({ORGANIZATION_TYPE_LIST.length})
-                    </button>
-                  </div>
+                {visibleTypes.length === 0 && (
+                  <p className="mt-4 text-center text-sm text-vytal-muted">
+                    {t("ui.noData")}
+                  </p>
                 )}
 
                 {/* Continue button */}

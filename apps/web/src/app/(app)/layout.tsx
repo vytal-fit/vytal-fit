@@ -811,8 +811,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const setRightSidebarOpen = useAppStore((s) => s.setRightSidebarOpen);
   const sidebarCollapsed = useAppStore((s) => s.sidebarCollapsed);
   const toggleSidebar = useAppStore((s) => s.toggleSidebar);
-  const [isHovered, setIsHovered] = useState(false);
-  const isEffectivelyExpanded = !sidebarCollapsed || isHovered;
+  const isEffectivelyExpanded = !sidebarCollapsed;
   const [showCreateOrgWizard, setShowCreateOrgWizard] = useState(false);
   const [expandedNavItems, setExpandedNavItems] = useState<Set<string>>(new Set());
 
@@ -1066,7 +1065,18 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         ))}
       </nav>
 
-      {/* User area moved to topbar */}
+      {/* Expand button when collapsed */}
+      {sidebarCollapsed && (
+        <div className="border-t border-vytal-border p-3 flex justify-center">
+          <button
+            onClick={toggleSidebar}
+            className="flex h-8 w-8 items-center justify-center rounded-lg text-vytal-muted transition-colors hover:bg-vytal-bg3 hover:text-vytal-green"
+            title="Expand"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </button>
+        </div>
+      )}
     </>
   );
 
@@ -1077,20 +1087,20 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       <aside
         className={cn(
           "group hidden flex-col border-r border-vytal-border bg-vytal-bg2 lg:flex transition-all duration-300 ease-in-out relative",
-          sidebarCollapsed && !isHovered ? "w-[72px]" : "w-64",
-          sidebarCollapsed && isHovered && "absolute left-0 top-0 bottom-0 z-50 shadow-2xl shadow-black/20"
+          sidebarCollapsed ? "w-[72px]" : "w-64",
         )}
-        onMouseEnter={() => sidebarCollapsed && setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
+
       >
-        {/* Collapse toggle — inside aside like kloser, absolute positioned */}
-        <button
-          onClick={toggleSidebar}
-          className="absolute -right-3 top-20 z-50 flex h-6 w-6 items-center justify-center rounded-full border border-vytal-border bg-vytal-bg2 text-vytal-muted shadow-sm transition-colors duration-200 hover:text-vytal-green hover:border-vytal-green/50"
-          title={sidebarCollapsed ? "Expand" : "Collapse"}
-        >
-          {sidebarCollapsed ? <ChevronRight className="h-3 w-3" /> : <ChevronLeft className="h-3 w-3" />}
-        </button>
+        {/* Collapse toggle — only visible when sidebar is expanded */}
+        {!sidebarCollapsed && (
+          <button
+            onClick={toggleSidebar}
+            className="absolute -right-3 top-20 z-50 flex h-6 w-6 items-center justify-center rounded-full border border-vytal-border bg-vytal-bg2 text-vytal-muted shadow-sm transition-colors duration-200 hover:text-vytal-green hover:border-vytal-green/50"
+            title="Collapse"
+          >
+            <ChevronLeft className="h-3 w-3" />
+          </button>
+        )}
         {sidebarContent}
       </aside>
       {/* Spacer when sidebar is collapsed + hovered (absolute) */}
