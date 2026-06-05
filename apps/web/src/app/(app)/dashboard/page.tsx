@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { mockDashboardStats } from "@vytal-fit/shared";
 import type { Class, DashboardStats } from "@vytal-fit/shared";
 import { useDataStore, formatCurrency, formatCurrencyCompact } from "@/stores/data-store";
 import { useAuthStore } from "@/stores/auth-store";
@@ -630,12 +629,73 @@ export default function DashboardPage() {
   const orgSettings = useDataStore((s) => s.orgSettings);
   const storeClasses = useDataStore((s) => s.classes);
   const storeClassTypes = useDataStore((s) => s.classTypes);
+  const storeMembers = useDataStore((s) => s.members);
+  const storeLeads = useDataStore((s) => s.leads);
+  const storeSubscriptions = useDataStore((s) => s.subscriptions);
+  const storePersonalRecords = useDataStore((s) => s.personalRecords);
   const classDistributionData = buildClassDistributionData(storeClassTypes);
-  const stats: DashboardStats = mockDashboardStats;
   const today = new Date().toISOString().split("T")[0];
   const todayClasses = storeClasses
     .filter((c) => c.date === today)
     .sort((a, b) => a.startTime.localeCompare(b.startTime));
+
+  // Compute real KPI stats from the data store
+  const totalMembers = storeMembers.length;
+  const activeMembers = storeMembers.filter((m) => m.status === "active").length;
+  const inactiveMembers = storeMembers.filter((m) => m.status === "inactive").length;
+  const todayClassesCount = todayClasses.length;
+
+  // Occupancy: average enrollment percentage across today's classes
+  const occupancyPercent = todayClasses.length > 0
+    ? Math.round(todayClasses.reduce((sum, c) => sum + (c.enrolledCount / c.maxCapacity) * 100, 0) / todayClasses.length)
+    : 0;
+
+  // Monthly revenue: sum of active subscription plan prices
+  const monthlyRevenue = storeSubscriptions
+    .filter((s) => s.status === "active")
+    .reduce((sum, s) => sum + (s.plan?.price ?? 0), 0);
+
+  // Churn rate: inactive / total * 100
+  const churnRate = totalMembers > 0 ? Math.round((inactiveMembers / totalMembers) * 100 * 10) / 10 : 0;
+
+  // At risk: active members with streak <= 1 who have checked in before
+  const atRiskMembers = storeMembers.filter(
+    (m) => m.status === "active" && m.streakWeeks <= 1 && m.lastCheckIn !== undefined
+  ).length;
+
+  // Pending payments: subscriptions that are expired or about to expire
+  const pendingPayments = storeSubscriptions.filter(
+    (s) => s.status === "expired" || (s.nextBillingDate && s.nextBillingDate <= today)
+  ).length;
+
+  // New members this month
+  const monthStart = new Date();
+  monthStart.setDate(1);
+  monthStart.setHours(0, 0, 0, 0);
+  const newMembersThisMonth = storeMembers.filter(
+    (m) => new Date(m.joinedAt) >= monthStart
+  ).length;
+
+  // Check-ins today: members whose lastCheckIn is today
+  const checkInsToday = storeMembers.filter((m) => m.lastCheckIn?.startsWith(today)).length;
+
+  // PRs today
+  const prsToday = storePersonalRecords.filter((pr) => pr.achievedAt?.startsWith(today)).length;
+
+  const stats: DashboardStats = {
+    totalMembers,
+    activeMembers,
+    inactiveMembers,
+    todayClasses: todayClassesCount,
+    occupancyPercent,
+    monthlyRevenue,
+    churnRate,
+    atRiskMembers,
+    pendingPayments,
+    newMembersThisMonth,
+    checkInsToday,
+    prsToday,
+  };
 
   const hMax = heatmapMax();
   const [chartsOpen, setChartsOpen] = useState(true);
