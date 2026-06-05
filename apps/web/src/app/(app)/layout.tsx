@@ -1076,24 +1076,23 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       {/* Desktop Sidebar — collapsible to icons */}
       <aside
         className={cn(
-          "group hidden flex-col border-r border-vytal-border bg-vytal-bg2 lg:flex transition-all duration-300 ease-in-out relative overflow-hidden",
+          "group hidden flex-col border-r border-vytal-border bg-vytal-bg2 lg:flex transition-all duration-300 ease-in-out relative",
           sidebarCollapsed && !isHovered ? "w-[72px]" : "w-64",
           sidebarCollapsed && isHovered && "absolute left-0 top-0 bottom-0 z-50 shadow-2xl shadow-black/20"
         )}
         onMouseEnter={() => sidebarCollapsed && setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
+        {/* Collapse toggle — inside aside like kloser, absolute positioned */}
+        <button
+          onClick={toggleSidebar}
+          className="absolute -right-3 top-20 z-50 flex h-6 w-6 items-center justify-center rounded-full border border-vytal-border bg-vytal-bg2 text-vytal-muted shadow-sm transition-colors duration-200 hover:text-vytal-green hover:border-vytal-green/50"
+          title={sidebarCollapsed ? "Expand" : "Collapse"}
+        >
+          {sidebarCollapsed ? <ChevronRight className="h-3 w-3" /> : <ChevronLeft className="h-3 w-3" />}
+        </button>
         {sidebarContent}
       </aside>
-      {/* Collapse toggle — clean circle on sidebar edge, aligned with nav */}
-      <button
-        onClick={toggleSidebar}
-        style={{ left: sidebarCollapsed && !isHovered ? 59 : 245 }}
-        className="hidden lg:flex fixed top-28 z-[60] h-7 w-7 items-center justify-center rounded-full border border-vytal-border bg-vytal-bg2 text-vytal-muted shadow-md transition-all duration-300 hover:bg-vytal-bg3 hover:text-vytal-green hover:shadow-lg"
-        title={sidebarCollapsed ? "Expand" : "Collapse"}
-      >
-        {sidebarCollapsed ? <ChevronRight className="h-3.5 w-3.5" /> : <ChevronLeft className="h-3.5 w-3.5" />}
-      </button>
       {/* Spacer when sidebar is collapsed + hovered (absolute) */}
       {sidebarCollapsed && <div className="hidden lg:block w-[72px] shrink-0" />}
 
