@@ -788,6 +788,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const rightSidebarOpen = useAppStore((s) => s.rightSidebarOpen);
   const toggleRightSidebar = useAppStore((s) => s.toggleRightSidebar);
   const setRightSidebarOpen = useAppStore((s) => s.setRightSidebarOpen);
+  const sidebarCollapsed = useAppStore((s) => s.sidebarCollapsed);
+  const toggleSidebar = useAppStore((s) => s.toggleSidebar);
+  const [isHovered, setIsHovered] = useState(false);
+  const isEffectivelyExpanded = !sidebarCollapsed || isHovered;
   const [showCreateOrgWizard, setShowCreateOrgWizard] = useState(false);
   const [expandedNavItems, setExpandedNavItems] = useState<Set<string>>(new Set());
 
@@ -892,7 +896,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       </div>
 
       {/* Org type badge */}
-      {orgConfig && (
+      {orgConfig && isEffectivelyExpanded && (
         <div className="border-b border-vytal-border px-4 py-2">
           <span className="text-[9px] font-bold uppercase tracking-widest text-vytal-muted">
             {t(`vertical.${orgType}`)}
@@ -907,7 +911,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       <nav className="mt-4 flex flex-1 flex-col gap-1 overflow-y-auto px-3 pb-6">
         {navGroups.map((group, gi) => (
           <div key={gi} className={gi > 0 ? "mt-4" : ""}>
-            {group.titleKey && (
+            {group.titleKey && isEffectivelyExpanded && (
               <span className="mb-1 block px-3 text-[10px] font-semibold uppercase tracking-widest text-vytal-muted">
                 {t(group.titleKey)}
               </span>
@@ -1032,10 +1036,28 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <ToastProvider>
     <div className="flex h-screen overflow-hidden bg-vytal-bg">
-      {/* Desktop Sidebar */}
-      <aside className="hidden w-64 shrink-0 flex-col border-r border-vytal-border bg-vytal-bg2 lg:flex">
+      {/* Desktop Sidebar — collapsible to icons */}
+      <aside
+        className={cn(
+          "hidden flex-col border-r border-vytal-border bg-vytal-bg2 lg:flex transition-all duration-300 ease-in-out relative",
+          sidebarCollapsed && !isHovered ? "w-[72px]" : "w-64",
+          sidebarCollapsed && isHovered && "absolute left-0 top-0 bottom-0 z-50 shadow-2xl shadow-black/20"
+        )}
+        onMouseEnter={() => sidebarCollapsed && setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+      >
+        {/* Collapse toggle */}
+        <button
+          onClick={toggleSidebar}
+          className="absolute -right-3 top-20 z-50 flex h-6 w-6 items-center justify-center rounded-full border border-vytal-border bg-vytal-bg2 text-vytal-muted shadow-sm transition-all hover:bg-vytal-bg3 hover:text-vytal-text"
+          title={sidebarCollapsed ? "Expand" : "Collapse"}
+        >
+          {sidebarCollapsed ? <ChevronRight className="h-3 w-3" /> : <ChevronLeft className="h-3 w-3" />}
+        </button>
         {sidebarContent}
       </aside>
+      {/* Spacer when sidebar is collapsed + hovered (absolute) */}
+      {sidebarCollapsed && <div className="hidden lg:block w-[72px] shrink-0" />}
 
       {/* Mobile Sidebar Overlay */}
       {mobileOpen && (
