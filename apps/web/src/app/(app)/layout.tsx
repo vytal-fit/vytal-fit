@@ -1082,16 +1082,19 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         onMouseEnter={() => sidebarCollapsed && setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
-        {/* Collapse toggle — only visible on sidebar hover */}
-        <button
-          onClick={toggleSidebar}
-          className="absolute -right-3 top-20 z-50 flex h-6 w-6 items-center justify-center rounded-full border border-vytal-border bg-vytal-bg2 text-vytal-muted shadow-sm transition-all opacity-0 group-hover:opacity-100 hover:bg-vytal-bg3 hover:text-vytal-text"
-          title={sidebarCollapsed ? "Expand" : "Collapse"}
-        >
-          {sidebarCollapsed ? <ChevronRight className="h-3 w-3" /> : <ChevronLeft className="h-3 w-3" />}
-        </button>
         {sidebarContent}
       </aside>
+      {/* Collapse toggle — positioned OUTSIDE the sidebar to avoid overflow clip */}
+      <button
+        onClick={toggleSidebar}
+        className={cn(
+          "hidden lg:flex fixed top-20 z-[60] h-6 w-6 items-center justify-center rounded-full border border-vytal-border bg-vytal-bg2 text-vytal-muted shadow-md transition-all hover:bg-vytal-bg3 hover:text-vytal-text hover:scale-110",
+          sidebarCollapsed && !isHovered ? "left-[60px]" : "left-[249px]"
+        )}
+        title={sidebarCollapsed ? "Expand" : "Collapse"}
+      >
+        {sidebarCollapsed ? <ChevronRight className="h-3 w-3" /> : <ChevronLeft className="h-3 w-3" />}
+      </button>
       {/* Spacer when sidebar is collapsed + hovered (absolute) */}
       {sidebarCollapsed && <div className="hidden lg:block w-[72px] shrink-0" />}
 
