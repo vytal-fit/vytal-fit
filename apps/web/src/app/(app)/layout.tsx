@@ -207,16 +207,21 @@ const allNavGroups: NavGroup[] = [
 ];
 
 /** Filter nav items based on the active org's feature flags */
-function getNavGroups(orgType: string): NavGroup[] {
+function getNavGroups(orgType: string, featureOverrides?: Partial<import("@vytal-fit/shared").OrganizationFeatures>): NavGroup[] {
   const config = ORGANIZATION_CONFIGS[orgType];
   if (!config) return allNavGroups;
+
+  // Merge static vertical defaults with any user overrides
+  const features = featureOverrides
+    ? { ...config.features, ...featureOverrides }
+    : config.features;
 
   return allNavGroups
     .map((group) => ({
       ...group,
       items: group.items.filter((item) => {
         if (!item.requiresFeature) return true;
-        return config.features[item.requiresFeature];
+        return features[item.requiresFeature];
       }),
     }))
     .filter((group) => group.items.length > 0);
@@ -852,10 +857,11 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const orgType = activeOrg?.organization.type ?? "other";
   const orgConfig = ORGANIZATION_CONFIGS[orgType];
   const notifications = useDataStore((s) => s.notifications);
+  const orgSettings = useDataStore((s) => s.orgSettings);
   const updateOrgSettings = useDataStore((s) => s.updateOrgSettings);
   const notifUnread = notifications.filter((n) => !n.read).length;
   const navGroups = useMemo(() => {
-    const groups = getNavGroups(orgType);
+    const groups = getNavGroups(orgType, orgSettings.features);
     // Inject dynamic unread badge on Notifications nav item
     return groups.map((group) => ({
       ...group,
@@ -863,7 +869,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         item.href === "/notifications" ? { ...item, badge: notifUnread } : item
       ),
     }));
-  }, [orgType, notifUnread]);
+  }, [orgType, notifUnread, orgSettings.features]);
 
   // Close mobile sidebar on route change
   useEffect(() => {
@@ -1250,6 +1256,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               currency: orgData.currency,
               country: orgData.country,
               businessType: orgData.type,
+              features: orgData.features,
             });
           }}
           onCancel={() => setShowCreateOrgWizard(false)}
