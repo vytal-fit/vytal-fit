@@ -5,6 +5,7 @@ import { useI18n } from "@/lib/i18n";
 import { formatCurrency } from "@/stores/data-store";
 import { TrendingUp, TrendingDown, DollarSign, Users, Clock, Repeat, Sparkles, Calculator } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Breadcrumbs } from "@/components/breadcrumbs";
 import {
   ResponsiveContainer,
   AreaChart,
@@ -181,6 +182,8 @@ export default function RevenuePage() {
 
   return (
     <div className="space-y-8">
+      <Breadcrumbs items={[{ label: t("nav.financials"), href: "/financials" }, { label: t("revenue.title") }]} />
+
       {/* Header */}
       <div>
         <h1 className="text-2xl font-bold text-vytal-text">{t("revenue.title")}</h1>

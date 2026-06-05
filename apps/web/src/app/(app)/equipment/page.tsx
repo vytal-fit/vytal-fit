@@ -292,7 +292,7 @@ export default function EquipmentInventoryPage() {
               const cond = conditionConfig[eq.condition];
               const isOverdue = new Date(eq.nextMaintenance) <= new Date();
               return (
-                <tr key={eq.id} className="border-b border-vytal-border/50 last:border-0 hover:bg-vytal-bg3/50 transition-colors">
+                <tr key={eq.id} className="border-b border-vytal-border/50 last:border-0 row-interactive hover:bg-vytal-bg3/50 transition-colors">
                   <td className="px-4 py-3">
                     <span className="text-sm font-medium text-vytal-text">{eq.name}</span>
                   </td>

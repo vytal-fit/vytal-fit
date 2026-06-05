@@ -108,15 +108,17 @@ const sourceIcons: Record<string, React.ReactNode> = {
   Flyers: <FileText className="h-2.5 w-2.5" />,
 };
 
+// formatRelative is used outside component scope, so it uses a simple approach.
+// The i18n-aware version is inlined where `t` is available.
 function formatRelative(dateStr: string): string {
   const date = new Date(dateStr);
   const now = new Date();
   const diffMs = now.getTime() - date.getTime();
   const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
 
-  if (diffDays === 0) return "Today";
-  if (diffDays === 1) return "Yesterday";
-  if (diffDays < 7) return `${diffDays}d ago`;
+  if (diffDays === 0) return "Hoje";
+  if (diffDays === 1) return "Ontem";
+  if (diffDays < 7) return `${diffDays}d`;
   return date.toLocaleDateString("pt-PT", { day: "2-digit", month: "short" });
 }
 
@@ -209,36 +211,37 @@ const activityTypeIcons: Record<ActivityType, React.ReactNode> = {
 // ─── Statistics View ─────────────────────────────────────
 
 function StatisticsView() {
+  const { t } = useI18n();
   return (
     <div className="space-y-6">
       {/* Stats Cards */}
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <div className="rounded-xl border border-vytal-border bg-vytal-card p-5">
-          <p className="text-xs font-medium uppercase tracking-wider text-vytal-muted">Avg Days to Convert</p>
+        <div className="rounded-xl border border-vytal-border bg-vytal-card p-5 card-interactive">
+          <p className="text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("crm.stats.avgDaysToConvert")}</p>
           <p className="mt-2 text-2xl font-bold text-vytal-text">12.4</p>
-          <p className="mt-1 text-xs text-vytal-green">-2.1 vs last month</p>
+          <p className="mt-1 text-xs text-vytal-green">-2.1 {t("crm.stats.vsLastMonth")}</p>
         </div>
-        <div className="rounded-xl border border-vytal-border bg-vytal-card p-5">
-          <p className="text-xs font-medium uppercase tracking-wider text-vytal-muted">Best Source</p>
-          <p className="mt-2 text-2xl font-bold text-vytal-text">Referral</p>
-          <p className="mt-1 text-xs text-vytal-green">65% conversion</p>
+        <div className="rounded-xl border border-vytal-border bg-vytal-card p-5 card-interactive">
+          <p className="text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("crm.stats.bestSource")}</p>
+          <p className="mt-2 text-2xl font-bold text-vytal-text">{t("crm.sourceReferral")}</p>
+          <p className="mt-1 text-xs text-vytal-green">65% {t("crm.stats.conversion")}</p>
         </div>
-        <div className="rounded-xl border border-vytal-border bg-vytal-card p-5">
-          <p className="text-xs font-medium uppercase tracking-wider text-vytal-muted">Converted This Month</p>
+        <div className="rounded-xl border border-vytal-border bg-vytal-card p-5 card-interactive">
+          <p className="text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("crm.stats.convertedThisMonth")}</p>
           <p className="mt-2 text-2xl font-bold text-vytal-green">8</p>
-          <p className="mt-1 text-xs text-vytal-green">+3 vs last month</p>
+          <p className="mt-1 text-xs text-vytal-green">+3 {t("crm.stats.vsLastMonth")}</p>
         </div>
-        <div className="rounded-xl border border-vytal-border bg-vytal-card p-5">
-          <p className="text-xs font-medium uppercase tracking-wider text-vytal-muted">Pipeline Value</p>
+        <div className="rounded-xl border border-vytal-border bg-vytal-card p-5 card-interactive">
+          <p className="text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("crm.stats.pipelineValueLabel")}</p>
           <p className="mt-2 text-2xl font-bold text-vytal-text">1,125 EUR</p>
-          <p className="mt-1 text-xs text-vytal-amber">15 active leads</p>
+          <p className="mt-1 text-xs text-vytal-amber">15 {t("crm.stats.activeLeads")}</p>
         </div>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Leads per Month Line Chart */}
         <div className="rounded-xl border border-vytal-border bg-vytal-card p-6">
-          <h3 className="mb-4 text-sm font-semibold text-vytal-text">Leads per Month</h3>
+          <h3 className="mb-4 text-sm font-semibold text-vytal-text">{t("crm.stats.leadsPerMonth")}</h3>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={leadsPerMonthData}>
@@ -258,7 +261,7 @@ function StatisticsView() {
 
         {/* Lead Sources Donut */}
         <div className="rounded-xl border border-vytal-border bg-vytal-card p-6">
-          <h3 className="mb-4 text-sm font-semibold text-vytal-text">Lead Sources Breakdown</h3>
+          <h3 className="mb-4 text-sm font-semibold text-vytal-text">{t("crm.stats.leadSourcesBreakdown")}</h3>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
@@ -287,7 +290,7 @@ function StatisticsView() {
 
         {/* Conversion by Source Bar Chart */}
         <div className="rounded-xl border border-vytal-border bg-vytal-card p-6 lg:col-span-2">
-          <h3 className="mb-4 text-sm font-semibold text-vytal-text">Conversion Rate by Source</h3>
+          <h3 className="mb-4 text-sm font-semibold text-vytal-text">{t("crm.stats.conversionRateBySource")}</h3>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={conversionBySourceData}>
@@ -432,6 +435,7 @@ function LeadCard({
   onDragStart: (e: React.DragEvent, id: string) => void;
   draggingId: string | null;
 }) {
+  const { t } = useI18n();
   const coaches = useDataStore((s) => s.coaches);
   const coach = lead.assignedCoachId
     ? coaches.find((c) => c.id === lead.assignedCoachId)
@@ -444,7 +448,7 @@ function LeadCard({
       draggable
       onDragStart={(e) => onDragStart(e, lead.id)}
       className={cn(
-        "group cursor-grab rounded-lg border border-vytal-border bg-vytal-card p-3 transition-all hover:border-[rgba(61,255,110,0.22)]",
+        "group cursor-grab rounded-lg border border-vytal-border bg-vytal-card p-3 card-interactive transition-all hover:border-[rgba(61,255,110,0.22)]",
         isDragging && "opacity-40"
       )}
     >
@@ -518,11 +522,11 @@ function LeadCard({
       {/* Footer */}
       <div className="mt-2 border-t border-vytal-border pt-2">
         <span className="text-[10px] text-vytal-muted">
-          Created {formatRelative(lead.createdAt)}
+          {t("crm.created")} {formatRelative(lead.createdAt)}
           {lead.lastContactAt && (
             <>
               {" "}
-              · Last contact{" "}
+              · {t("crm.lastContact")}{" "}
               <span className="text-vytal-text">
                 {formatRelative(lead.lastContactAt)}
               </span>
@@ -559,7 +563,7 @@ function InlineAddLeadForm({
     <div className="rounded-lg border border-vytal-green/20 bg-vytal-green/5 p-3">
       <div className="mb-2 flex items-center justify-between">
         <span className="text-xs font-semibold text-vytal-green">
-          New Lead
+          {t("crm.newLead")}
         </span>
         <button
           onClick={onClose}
@@ -571,14 +575,14 @@ function InlineAddLeadForm({
       <div className="space-y-2">
         <input
           type="text"
-          placeholder="Name"
+          placeholder={t("crm.namePlaceholder")}
           value={name}
           onChange={(e) => setName(e.target.value)}
           className="w-full rounded border border-vytal-border bg-vytal-bg2 px-2 py-1.5 text-xs text-vytal-text placeholder:text-vytal-muted focus:border-vytal-green/30 focus:outline-none"
         />
         <input
           type="text"
-          placeholder="Phone"
+          placeholder={t("crm.phonePlaceholder")}
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
           className="w-full rounded border border-vytal-border bg-vytal-bg2 px-2 py-1.5 text-xs text-vytal-text placeholder:text-vytal-muted focus:border-vytal-green/30 focus:outline-none"
@@ -600,7 +604,7 @@ function InlineAddLeadForm({
           onClick={handleAdd}
           className="w-full rounded bg-vytal-green px-3 py-1.5 text-xs font-semibold text-vytal-bg transition-colors hover:bg-vytal-green/90"
         >
-          Add Lead
+          {t("crm.addLeadBtn")}
         </button>
       </div>
     </div>
@@ -710,7 +714,7 @@ function PipelineColumn({
         ))}
         {leads.length === 0 && (
           <div className="rounded-lg border border-dashed border-vytal-border p-4 text-center">
-            <p className="text-xs text-vytal-muted">No leads</p>
+            <p className="text-xs text-vytal-muted">{t("crm.noLeads")}</p>
           </div>
         )}
       </div>
@@ -798,21 +802,21 @@ export default function CRMPage() {
         stage: "lead",
         source: source || undefined,
       });
-      toast(`Added lead: ${name}`, "success");
+      toast(t("crm.leadAdded").replace("{name}", name), "success");
     },
     [toast, storeAddLead]
   );
 
   const handleCall = useCallback(
     (lead: Lead) => {
-      toast(`Calling ${lead.name}...`, "info");
+      toast(t("crm.calling").replace("{name}", lead.name), "info");
     },
     [toast]
   );
 
   const handleEmail = useCallback(
     (lead: Lead) => {
-      toast(`Email sent to ${lead.name}`, "success");
+      toast(t("crm.emailSentTo").replace("{name}", lead.name), "success");
     },
     [toast]
   );
@@ -820,7 +824,7 @@ export default function CRMPage() {
   const handleBookTrial = useCallback(
     (lead: Lead) => {
       storeMoveLead(lead.id, "trial_booked");
-      toast(`${lead.name} moved to Trial Booked`, "success");
+      toast(t("crm.movedTo").replace("{name}", lead.name).replace("{stage}", t("crm.stage.trial_booked")), "success");
     },
     [toast, storeMoveLead]
   );

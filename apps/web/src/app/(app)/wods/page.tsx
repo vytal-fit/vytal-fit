@@ -181,7 +181,7 @@ function WODCard({ wod }: { wod: WOD }) {
   }, [toast, t]);
 
   return (
-    <div className="rounded-xl border border-vytal-border bg-vytal-card p-6 transition-colors hover:border-[rgba(61,255,110,0.22)]">
+    <div className="rounded-xl border border-vytal-border bg-vytal-card p-6 card-interactive transition-colors hover:border-[rgba(61,255,110,0.22)]">
       {/* Header */}
       <div className="mb-5 flex items-start justify-between">
         <div>

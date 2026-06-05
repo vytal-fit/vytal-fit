@@ -276,9 +276,9 @@ export default function TasksPage() {
 
   // Stats
   const totalTasks = tasks.length;
-  const overdueTasks = tasks.filter((t) => t.overdue && t.status !== "done").length;
-  const dueTodayTasks = tasks.filter((t) => t.dueDateLabel === "Today" && t.status !== "done").length;
-  const completedThisWeek = tasks.filter((t) => t.status === "done").length;
+  const overdueTasks = tasks.filter((tk) => tk.overdue && tk.status !== "done").length;
+  const dueTodayTasks = tasks.filter((tk) => tk.dueDateLabel === "Today" && tk.status !== "done").length;
+  const completedThisWeek = tasks.filter((tk) => tk.status === "done").length;
 
   // Filtered tasks
   const filteredTasks = useMemo(() => {
@@ -321,21 +321,21 @@ export default function TasksPage() {
       const taskId = e.dataTransfer.getData("text/plain");
       if (taskId) {
         setTasks((prev) =>
-          prev.map((t) =>
-            t.id === taskId
-              ? { ...t, status: targetStatus, overdue: targetStatus === "done" ? false : t.overdue }
-              : t
+          prev.map((tk) =>
+            tk.id === taskId
+              ? { ...tk, status: targetStatus, overdue: targetStatus === "done" ? false : tk.overdue }
+              : tk
           )
         );
-        const task = tasks.find((t) => t.id === taskId);
+        const task = tasks.find((tk) => tk.id === taskId);
         if (task) {
-          toast(`"${task.title}" moved to ${statusConfig[targetStatus].label}`, "success");
+          toast(t("tasks.taskMoved").replace("{title}", task.title).replace("{status}", statusConfig[targetStatus].label), "success");
         }
       }
       setDraggingId(null);
       setDropTarget(null);
     },
-    [tasks, toast]
+    [tasks, toast, t]
   );
 
   // Add task

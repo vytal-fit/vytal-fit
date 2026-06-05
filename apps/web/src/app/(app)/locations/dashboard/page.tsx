@@ -10,11 +10,11 @@ import {
   DollarSign,
   TrendingUp,
   Activity,
-  ChevronRight,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/lib/i18n";
 import { useToast } from "@/components/toast";
+import { Breadcrumbs } from "@/components/breadcrumbs";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -113,14 +113,7 @@ export default function MultiLocationDashboardPage() {
 
   return (
     <div className="space-y-6">
-      {/* Breadcrumbs */}
-      <div className="flex items-center gap-2 text-sm text-vytal-muted">
-        <Link href="/locations" className="hover:text-vytal-text transition-colors">
-          {t("nav.locations")}
-        </Link>
-        <ChevronRight className="h-3.5 w-3.5" />
-        <span className="text-vytal-text">{t("locations.dashboard.title")}</span>
-      </div>
+      <Breadcrumbs items={[{ label: t("nav.locations"), href: "/locations" }, { label: t("locations.dashboard.title") }]} />
 
       {/* Header */}
       <div className="flex items-center justify-between">

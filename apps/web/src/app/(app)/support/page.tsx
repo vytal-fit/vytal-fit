@@ -345,9 +345,9 @@ export default function SupportPage() {
       {/* Ticket list */}
       <div className="rounded-xl border border-vytal-border bg-vytal-bg2 overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+          <table className="zebra-table w-full text-sm">
             <thead>
-              <tr className="border-b border-vytal-border bg-vytal-bg3/50 text-left">
+              <tr className="border-b border-vytal-border bg-vytal-bg2 text-left">
                 <th className="px-5 py-3 font-semibold text-vytal-muted">#</th>
                 <th className="px-5 py-3 font-semibold text-vytal-muted">{t("support.subject")}</th>
                 <th className="px-5 py-3 font-semibold text-vytal-muted">{t("support.member")}</th>

@@ -217,7 +217,7 @@ export default function StorePage() {
     <div className="space-y-6">
       <Breadcrumbs items={[{ label: t("nav.store"), href: "/store" }]} />
 
-      <div className="mb-8">
+      <div>
         <h1 className="text-2xl font-bold text-vytal-text">{t("store.title")}</h1>
         <p className="mt-1 text-sm text-vytal-muted">{t("store.subtitle")}</p>
       </div>
@@ -340,9 +340,9 @@ export default function StorePage() {
 
           {/* Products Table */}
           <div className="overflow-x-auto rounded-xl border border-vytal-border bg-vytal-card">
-            <table className="w-full">
+            <table className="zebra-table w-full">
               <thead>
-                <tr className="border-b border-vytal-border">
+                <tr className="border-b border-vytal-border bg-vytal-bg2">
                   <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("store.productName")}</th>
                   <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("store.price")}</th>
                   <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("store.stock")}</th>
@@ -353,7 +353,7 @@ export default function StorePage() {
               </thead>
               <tbody>
                 {filteredProducts.map((product) => (
-                  <tr key={product.id} className="border-b border-vytal-border/50 hover:bg-vytal-bg3/30">
+                  <tr key={product.id} className="border-b border-vytal-border/50 row-interactive hover:bg-vytal-bg3/30">
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-3">
                         <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-vytal-bg3 text-vytal-muted">
@@ -477,9 +477,9 @@ export default function StorePage() {
 
           {/* Sales Table */}
           <div className="overflow-x-auto rounded-xl border border-vytal-border bg-vytal-card">
-            <table className="w-full">
+            <table className="zebra-table w-full">
               <thead>
-                <tr className="border-b border-vytal-border">
+                <tr className="border-b border-vytal-border bg-vytal-bg2">
                   <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("table.date")}</th>
                   <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("table.member")}</th>
                   <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("store.products")}</th>
@@ -490,7 +490,7 @@ export default function StorePage() {
               </thead>
               <tbody>
                 {filteredSales.map((sale) => (
-                  <tr key={sale.id} className="border-b border-vytal-border/50 hover:bg-vytal-bg3/30">
+                  <tr key={sale.id} className="border-b border-vytal-border/50 row-interactive hover:bg-vytal-bg3/30">
                     <td className="px-4 py-3 text-sm text-vytal-muted">{sale.date}</td>
                     <td className="px-4 py-3 text-sm font-medium text-vytal-text">{sale.memberName}</td>
                     <td className="px-4 py-3">

@@ -490,7 +490,7 @@ export default function MembersPage() {
                 key={member.id}
                 onClick={(e) => handleRowClick(member.id, e)}
                 className={cn(
-                  "cursor-pointer transition-colors",
+                  "cursor-pointer row-interactive transition-colors",
                   selectedIds.has(member.id) ? "bg-vytal-green/5" : "bg-vytal-card hover:bg-vytal-bg3"
                 )}
               >
