@@ -853,6 +853,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const orgType = activeOrg?.organization.type ?? "other";
   const orgConfig = ORGANIZATION_CONFIGS[orgType];
   const notifications = useDataStore((s) => s.notifications);
+  const updateOrgSettings = useDataStore((s) => s.updateOrgSettings);
   const notifUnread = notifications.filter((n) => !n.read).length;
   const navGroups = useMemo(() => {
     const groups = getNavGroups(orgType);
@@ -1088,7 +1089,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       <button
         onClick={toggleSidebar}
         style={{ left: sidebarCollapsed && !isHovered ? 59 : 245 }}
-        className="hidden lg:flex fixed top-1/2 -translate-y-1/2 z-[60] h-7 w-7 items-center justify-center rounded-full border border-vytal-border bg-vytal-bg2 text-vytal-muted shadow-md transition-all duration-300 hover:bg-vytal-bg3 hover:text-vytal-green hover:shadow-lg"
+        className="hidden lg:flex fixed top-28 z-[60] h-7 w-7 items-center justify-center rounded-full border border-vytal-border bg-vytal-bg2 text-vytal-muted shadow-md transition-all duration-300 hover:bg-vytal-bg3 hover:text-vytal-green hover:shadow-lg"
         title={sidebarCollapsed ? "Expand" : "Collapse"}
       >
         {sidebarCollapsed ? <ChevronRight className="h-3.5 w-3.5" /> : <ChevronLeft className="h-3.5 w-3.5" />}
@@ -1235,6 +1236,14 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           isModal
           onComplete={(orgData: CreateOrgData) => {
             setShowCreateOrgWizard(false);
+            updateOrgSettings({
+              name: orgData.name,
+              slug: orgData.slug,
+              email: orgData.email,
+              currency: orgData.currency,
+              country: orgData.country,
+              businessType: orgData.type,
+            });
           }}
           onCancel={() => setShowCreateOrgWizard(false)}
         />
