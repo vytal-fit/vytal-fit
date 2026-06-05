@@ -1065,6 +1065,18 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         ))}
       </nav>
 
+      {/* Footer expand hint when collapsed */}
+      {sidebarCollapsed && (
+        <div className="border-t border-vytal-border p-2 flex justify-center">
+          <button
+            onClick={toggleSidebar}
+            className="flex h-8 w-8 items-center justify-center rounded-lg text-vytal-muted transition-colors hover:bg-vytal-bg3 hover:text-vytal-green"
+            title="Expand sidebar"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </button>
+        </div>
+      )}
     </>
   );
 
