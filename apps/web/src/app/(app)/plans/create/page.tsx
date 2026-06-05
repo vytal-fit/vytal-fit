@@ -55,11 +55,11 @@ export default function PlanCreatePage() {
 
   function handleCreate() {
     if (!name.trim()) {
-      toast("Plan name is required", "error");
+      toast(t("planCreate.nameRequired"), "error");
       return;
     }
     if (!price) {
-      toast("Price is required", "error");
+      toast(t("planCreate.priceRequired"), "error");
       return;
     }
     storeAddPlan({
@@ -73,7 +73,7 @@ export default function PlanCreatePage() {
       active,
     });
     setSuccess(true);
-    toast("Plan created successfully!", "success");
+    toast(t("planCreate.success"), "success");
   }
 
   function handleReset() {
@@ -96,7 +96,7 @@ export default function PlanCreatePage() {
           className="inline-flex items-center gap-1.5 text-sm text-vytal-muted transition-colors hover:text-vytal-text"
         >
           <ArrowLeft className="h-4 w-4" />
-          Back to Plans
+          {t("planCreate.backToPlans")}
         </Link>
 
         <div className="mx-auto max-w-lg rounded-xl border border-vytal-green/20 bg-vytal-green/5 p-8 text-center">
@@ -104,18 +104,18 @@ export default function PlanCreatePage() {
             <CheckCircle className="h-8 w-8 text-vytal-green" />
           </div>
           <h2 className="mb-2 text-xl font-bold text-vytal-text">
-            Plan Created Successfully!
+            {t("planCreate.success")}
           </h2>
           <div className="mb-6 space-y-1 text-sm text-vytal-muted">
             <p>
               <span className="font-medium text-vytal-text">{name}</span> -{" "}
               <span className="font-medium text-vytal-text">{price} EUR</span>
             </p>
-            <p>Type: {planTypes.find((pt) => pt.value === type)?.label}</p>
-            {hasSessionLimit && <p>Max sessions: {maxSessions}</p>}
-            <p>Status: {active ? "Active" : "Inactive"}</p>
+            <p>{t("planCreate.type")}: {planTypes.find((pt) => pt.value === type)?.label}</p>
+            {hasSessionLimit && <p>{t("planCreate.maxSessions")}: {maxSessions}</p>}
+            <p>{t("table.status")}: {active ? t("plans.active") : t("plans.inactive")}</p>
             {selectedCTs.length > 0 && (
-              <p>Class types: {selectedCTs.map((ct) => ct.name).join(", ")}</p>
+              <p>{t("planCreate.allowedClassTypes")}: {selectedCTs.map((ct) => ct.name).join(", ")}</p>
             )}
           </div>
           <div className="flex justify-center gap-3">
@@ -124,13 +124,13 @@ export default function PlanCreatePage() {
               className="flex items-center gap-2 rounded-lg bg-vytal-green px-6 py-2.5 text-sm font-semibold text-vytal-bg transition-colors hover:bg-vytal-green/90"
             >
               <Plus className="h-4 w-4" />
-              Create Another
+              {t("planCreate.createAnother")}
             </button>
             <Link
               href="/plans"
               className="rounded-lg border border-vytal-border px-6 py-2.5 text-sm font-medium text-vytal-text transition-colors hover:bg-vytal-bg3"
             >
-              Back to Plans
+              {t("planCreate.backToPlans")}
             </Link>
           </div>
         </div>
@@ -142,7 +142,7 @@ export default function PlanCreatePage() {
     <div className="space-y-6">
       <Breadcrumbs items={[{ label: t("plans.title"), href: "/plans" }, { label: t("planCreate.title") }]} />
 
-      <div>
+      <div className="mb-8">
         <h1 className="text-2xl font-bold text-vytal-text">{t("planCreate.title")}</h1>
         <p className="mt-1 text-sm text-vytal-muted">
           {t("planCreate.subtitle")}
@@ -156,7 +156,7 @@ export default function PlanCreatePage() {
           <div className="space-y-4">
             <div>
               <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">
-                Plan Name
+                {t("planCreate.planName")}
               </label>
               <input
                 type="text"
@@ -168,7 +168,7 @@ export default function PlanCreatePage() {
             </div>
             <div>
               <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">
-                Type
+                {t("planCreate.type")}
               </label>
               <select
                 value={type}
@@ -182,7 +182,7 @@ export default function PlanCreatePage() {
             </div>
             <div>
               <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">
-                Price (EUR)
+                {t("planCreate.price")}
               </label>
               <input
                 type="number"
@@ -214,7 +214,7 @@ export default function PlanCreatePage() {
             {hasSessionLimit && (
               <div>
                 <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">
-                  Max Sessions
+                  {t("planCreate.maxSessions")}
                 </label>
                 <input
                   type="number"
@@ -289,14 +289,14 @@ export default function PlanCreatePage() {
           className="flex items-center gap-2 rounded-lg border border-vytal-border bg-vytal-bg2 px-6 py-2.5 text-sm font-medium text-vytal-muted transition-colors hover:text-vytal-text"
         >
           <X className="h-4 w-4" />
-          Cancel
+          {t("action.cancel")}
         </button>
         <button
           onClick={handleCreate}
           className="flex items-center gap-2 rounded-lg bg-vytal-green px-6 py-2.5 text-sm font-semibold text-vytal-bg transition-colors hover:bg-vytal-green/90"
         >
           <Save className="h-4 w-4" />
-          Create
+          {t("action.create")}
         </button>
       </div>
     </div>

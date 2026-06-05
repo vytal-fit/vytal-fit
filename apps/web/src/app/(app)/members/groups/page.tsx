@@ -14,6 +14,7 @@ import {
   X,
   Check,
 } from "lucide-react";
+import { ConfirmDialog } from "@/components/confirm-dialog";
 
 interface GroupMember {
   id: string;
@@ -103,6 +104,7 @@ export default function GroupsPage() {
   const [newName, setNewName] = useState("");
   const [newDescription, setNewDescription] = useState("");
   const [newColor, setNewColor] = useState(colorOptions[0]);
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
 
   function handleCreateGroup() {
     if (!newName.trim()) {
@@ -124,9 +126,19 @@ export default function GroupsPage() {
     toast(t("groups.created"), "success");
   }
 
-  function handleDeleteGroup(id: string) {
-    setGroups((prev) => prev.filter((g) => g.id !== id));
-    toast(t("groups.deleted"), "success");
+  function handleConfirmDelete() {
+    if (!deleteTarget) return;
+    const removed = groups.find((g) => g.id === deleteTarget.id);
+    setGroups((prev) => prev.filter((g) => g.id !== deleteTarget.id));
+    toast(t("groups.deleted"), "success", {
+      action: removed
+        ? {
+            label: t("action.undo"),
+            onClick: () => setGroups((prev) => [...prev, removed]),
+          }
+        : undefined,
+    });
+    setDeleteTarget(null);
   }
 
   const inputClass =
@@ -142,7 +154,7 @@ export default function GroupsPage() {
       />
 
       {/* Header */}
-      <div className="flex flex-wrap items-center justify-between gap-4">
+      <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-vytal-text">{t("groups.title")}</h1>
           <p className="mt-1 text-sm text-vytal-muted">{t("groups.subtitle")}</p>
@@ -226,7 +238,7 @@ export default function GroupsPage() {
           return (
             <div
               key={group.id}
-              className="rounded-xl border border-vytal-border bg-vytal-card p-5 transition-colors hover:border-[rgba(61,255,110,0.22)]"
+              className="rounded-xl border border-vytal-border bg-vytal-card p-5 transition-colors hover:border-[rgba(34,197,94,0.22)]"
             >
               <div className="flex items-start justify-between">
                 <div className="flex items-start gap-3">
@@ -265,7 +277,7 @@ export default function GroupsPage() {
                   {t("action.edit")}
                 </button>
                 <button
-                  onClick={() => handleDeleteGroup(group.id)}
+                  onClick={() => setDeleteTarget({ id: group.id, name: group.name })}
                   className="inline-flex items-center gap-1.5 rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-1.5 text-xs font-medium text-vytal-muted transition-colors hover:bg-vytal-red/10 hover:text-vytal-red"
                 >
                   <Trash2 className="h-3 w-3" />
@@ -297,6 +309,17 @@ export default function GroupsPage() {
           );
         })}
       </div>
+
+      <ConfirmDialog
+        open={!!deleteTarget}
+        title={t("action.delete")}
+        description={`${t("groups.confirmDelete")} "${deleteTarget?.name}"?`}
+        confirmLabel={t("action.delete")}
+        cancelLabel={t("action.cancel")}
+        variant="danger"
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setDeleteTarget(null)}
+      />
     </div>
   );
 }

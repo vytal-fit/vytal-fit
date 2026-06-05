@@ -72,8 +72,16 @@ export default function ClassTypesPage() {
 
   function handleConfirmDelete() {
     if (!deleteTarget) return;
+    const removed = classTypes.find((ct) => ct.id === deleteTarget.id);
     deleteClassType(deleteTarget.id);
-    toast(t("classTypes.classTypeDeleted"), "success");
+    toast(t("classTypes.classTypeDeleted"), "success", {
+      action: removed
+        ? {
+            label: t("action.undo"),
+            onClick: () => addClassType({ organizationId: removed.organizationId, name: removed.name, abbreviation: removed.abbreviation, color: removed.color, active: removed.active }),
+          }
+        : undefined,
+    });
     setDeleteTarget(null);
   }
 
@@ -83,7 +91,7 @@ export default function ClassTypesPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="mb-8 flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-vytal-text">{t("classTypes.title")}</h1>
           <p className="mt-1 text-sm text-vytal-muted">
