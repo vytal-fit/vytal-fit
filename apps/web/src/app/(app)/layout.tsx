@@ -399,7 +399,7 @@ function ThemeToggle() {
   );
 }
 
-function OrgSwitcher({ onCreateOrg }: { onCreateOrg?: () => void }) {
+function OrgSwitcher({ onCreateOrg, collapsed }: { onCreateOrg?: () => void; collapsed?: boolean }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const router = useRouter();
@@ -408,6 +408,8 @@ function OrgSwitcher({ onCreateOrg }: { onCreateOrg?: () => void }) {
   const switchOrg = useAuthStore((s) => s.switchOrg);
   const orgSettings = useDataStore((s) => s.orgSettings);
   const applyOrgAccentColor = useAppStore((s) => s.applyOrgAccentColor);
+  const setSidebarCollapsed = useAppStore((s) => s.toggleSidebar);
+  const sidebarCollapsed = useAppStore((s) => s.sidebarCollapsed);
 
   const memberships = user?.memberships ?? [];
   const activeOrgId = user?.activeOrganizationId ?? "";
@@ -426,6 +428,26 @@ function OrgSwitcher({ onCreateOrg }: { onCreateOrg?: () => void }) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  const orgInitial = orgSettings.name.charAt(0) || activeOrg?.organization.name.charAt(0) || "V";
+
+  if (collapsed) {
+    return (
+      <div className="flex justify-center">
+        <button
+          onClick={() => {
+            if (sidebarCollapsed) {
+              setSidebarCollapsed();
+            }
+          }}
+          title={orgSettings.name || activeOrg?.organization.name || t("ui.selectOrg")}
+          className="flex h-10 w-10 items-center justify-center rounded-lg bg-vytal-green/10 text-sm font-bold text-vytal-green transition-colors hover:bg-vytal-green/20"
+        >
+          {orgInitial}
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className="relative" ref={ref}>
       <button
@@ -433,7 +455,7 @@ function OrgSwitcher({ onCreateOrg }: { onCreateOrg?: () => void }) {
         className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left transition-colors hover:bg-vytal-bg3"
       >
         <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-vytal-green/10 text-sm font-bold text-vytal-green">
-          {orgSettings.name.charAt(0) || activeOrg?.organization.name.charAt(0) || "V"}
+          {orgInitial}
         </div>
         <div className="flex flex-1 flex-col min-w-0">
           <span className="text-sm font-semibold text-vytal-text truncate">
@@ -892,7 +914,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     <>
       {/* Org Switcher */}
       <div className="border-b border-vytal-border px-3 py-3">
-        <OrgSwitcher onCreateOrg={() => setShowCreateOrgWizard(true)} />
+        <OrgSwitcher onCreateOrg={() => setShowCreateOrgWizard(true)} collapsed={!isEffectivelyExpanded} />
       </div>
 
       {/* Org type badge */}
@@ -928,9 +950,18 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 return (
                   <div key={item.href}>
                     <button
-                      onClick={() => toggleNavExpand(item.href)}
+                      onClick={() => {
+                        if (!isEffectivelyExpanded) {
+                          // When collapsed, navigate to parent route
+                          router.push(item.href);
+                          return;
+                        }
+                        toggleNavExpand(item.href);
+                      }}
+                      title={t(item.labelKey)}
                       className={cn(
-                        "nav-item-transition group flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium",
+                        "nav-item-transition group flex w-full items-center rounded-lg py-2 text-sm font-medium",
+                        isEffectivelyExpanded ? "gap-3 px-3" : "justify-center px-0",
                         isParentActive
                           ? "border-l-2 border-vytal-green bg-vytal-green/5 text-vytal-green"
                           : "border-l-2 border-transparent text-vytal-muted hover:bg-vytal-bg3 hover:text-vytal-text hover:border-vytal-green/30"
@@ -944,19 +975,22 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                             : "text-vytal-muted group-hover:text-vytal-text"
                         )}
                       />
-                      <span className="flex-1 truncate text-left">{t(item.labelKey)}</span>
-                      {item.badge != null && item.badge > 0 && (
+                      {isEffectivelyExpanded && <span className="flex-1 truncate text-left">{t(item.labelKey)}</span>}
+                      {isEffectivelyExpanded && item.badge != null && item.badge > 0 && (
                         <span className="flex h-5 w-5 items-center justify-center rounded-full bg-vytal-green text-[10px] font-bold text-vytal-bg">
                           {item.badge}
                         </span>
                       )}
-                      <ChevronDown
-                        className={cn(
-                          "h-3.5 w-3.5 shrink-0 text-vytal-muted/60 transition-transform duration-200",
-                          isExpanded ? "rotate-0" : "-rotate-90"
-                        )}
-                      />
+                      {isEffectivelyExpanded && (
+                        <ChevronDown
+                          className={cn(
+                            "h-3.5 w-3.5 shrink-0 text-vytal-muted/60 transition-transform duration-200",
+                            isExpanded ? "rotate-0" : "-rotate-90"
+                          )}
+                        />
+                      )}
                     </button>
+                    {isEffectivelyExpanded && (
                     <div
                       className={cn(
                         "overflow-hidden transition-all duration-200 ease-in-out",
@@ -990,6 +1024,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                       })}
                       </div>
                     </div>
+                    )}
                   </div>
                 );
               }
@@ -1001,8 +1036,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 <Link
                   key={item.href}
                   href={item.href}
+                  title={t(item.labelKey)}
                   className={cn(
-                    "nav-item-transition group flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium",
+                    "nav-item-transition group flex items-center rounded-lg py-2 text-sm font-medium",
+                    isEffectivelyExpanded ? "gap-3 px-3" : "justify-center px-0",
                     isActive
                       ? "border-l-2 border-vytal-green bg-vytal-green/5 text-vytal-green"
                       : "border-l-2 border-transparent text-vytal-muted hover:bg-vytal-bg3 hover:text-vytal-text hover:border-vytal-green/30"
@@ -1016,8 +1053,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                         : "text-vytal-muted group-hover:text-vytal-text"
                     )}
                   />
-                  <span className="flex-1 truncate">{t(item.labelKey)}</span>
-                  {item.badge != null && item.badge > 0 && (
+                  {isEffectivelyExpanded && <span className="flex-1 truncate">{t(item.labelKey)}</span>}
+                  {isEffectivelyExpanded && item.badge != null && item.badge > 0 && (
                     <span className="flex h-5 w-5 items-center justify-center rounded-full bg-vytal-green text-[10px] font-bold text-vytal-bg">
                       {item.badge}
                     </span>

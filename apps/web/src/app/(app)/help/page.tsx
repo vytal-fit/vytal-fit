@@ -19,7 +19,15 @@ import {
   Building2,
   Search,
   MessageCircle,
+  Play,
+  CheckCircle2,
+  Sparkles,
+  PanelLeft,
+  PanelRight,
+  Sun,
+  Command,
 } from "lucide-react";
+import Link from "next/link";
 import { useI18n } from "@/lib/i18n";
 import { useToast } from "@/components/toast";
 import { cn } from "@/lib/utils";
@@ -66,6 +74,15 @@ export default function HelpPage() {
     { label: t("action.search"), keys: "Cmd+/" },
     { label: t("help.toggleTheme"), keys: t("help.viaTopBar") },
     { label: t("help.quickNav"), keys: "Cmd+J" },
+    { label: t("help.collapseSidebar"), keys: t("help.viaSidebarToggle") },
+    { label: t("help.rightSidebarToggle"), keys: t("help.viaEdgeButton") },
+  ];
+
+  const videoTutorials = [
+    { title: t("help.videoGettingStarted"), duration: "4:30", icon: Rocket },
+    { title: t("help.videoManagingMembers"), duration: "6:15", icon: Users },
+    { title: t("help.videoCreatingWods"), duration: "5:45", icon: CalendarDays },
+    { title: t("help.videoFinancialReports"), duration: "7:20", icon: Search },
   ];
 
   const steps = [
@@ -183,6 +200,69 @@ export default function HelpPage() {
         </div>
       </div>
 
+      {/* Video Tutorials */}
+      <div>
+        <div className="mb-4 flex items-center gap-2">
+          <Play className="h-5 w-5 text-vytal-blue" />
+          <h2 className="text-lg font-semibold text-vytal-text">{t("help.videoTutorials")}</h2>
+        </div>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {videoTutorials.map((video, i) => {
+            const VIcon = video.icon;
+            return (
+              <button
+                key={i}
+                onClick={() => toast(t("toast.featureComingSoon"), "info")}
+                className="group rounded-xl border border-vytal-border bg-vytal-card p-5 text-left transition-all hover:border-[rgba(34,197,94,0.22)] hover:-translate-y-1 hover:shadow-lg hover:shadow-black/10"
+              >
+                <div className="relative mb-4 flex h-24 items-center justify-center rounded-lg bg-vytal-bg3">
+                  <VIcon className="h-8 w-8 text-vytal-muted/40" />
+                  <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-black/0 transition-colors group-hover:bg-black/20">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-vytal-green/90 text-vytal-bg opacity-0 transition-opacity group-hover:opacity-100">
+                      <Play className="h-4 w-4 ml-0.5" />
+                    </div>
+                  </div>
+                </div>
+                <h3 className="text-sm font-semibold text-vytal-text">{video.title}</h3>
+                <p className="mt-1 text-xs text-vytal-muted">{video.duration}</p>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* System Status + What's New */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div className="rounded-xl border border-vytal-border bg-vytal-card p-6 transition-colors hover:border-[rgba(34,197,94,0.22)]">
+          <div className="mb-3 flex items-center gap-2">
+            <CheckCircle2 className="h-5 w-5 text-vytal-green" />
+            <h3 className="text-sm font-bold text-vytal-text">{t("help.systemStatus")}</h3>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="relative flex h-2.5 w-2.5">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-vytal-green opacity-75" />
+              <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-vytal-green" />
+            </span>
+            <span className="text-sm text-vytal-green font-medium">{t("help.allOperational")}</span>
+          </div>
+          <p className="mt-2 text-[11px] text-vytal-muted">{t("help.statusDesc")}</p>
+        </div>
+
+        <Link
+          href="/changelog"
+          className="rounded-xl border border-vytal-border bg-vytal-card p-6 transition-all hover:border-[rgba(34,197,94,0.22)] hover:-translate-y-1 hover:shadow-lg hover:shadow-black/10"
+        >
+          <div className="mb-3 flex items-center gap-2">
+            <Sparkles className="h-5 w-5 text-vytal-amber" />
+            <h3 className="text-sm font-bold text-vytal-text">{t("help.whatsNew")}</h3>
+          </div>
+          <p className="text-xs text-vytal-muted">{t("help.whatsNewDesc")}</p>
+          <span className="mt-3 inline-flex items-center gap-1.5 text-xs font-medium text-vytal-green">
+            {t("help.viewChangelog")} <ExternalLink className="h-3 w-3" />
+          </span>
+        </Link>
+      </div>
+
       {/* Keyboard Shortcuts */}
       <div className="rounded-xl border border-vytal-border bg-vytal-card p-6 transition-colors hover:border-[rgba(34,197,94,0.22)]">
         <div className="mb-4 flex items-center gap-2">
@@ -190,7 +270,7 @@ export default function HelpPage() {
           <h2 className="text-lg font-semibold text-vytal-text">{t("help.keyboardShortcuts")}</h2>
         </div>
         <p className="mb-4 text-xs text-vytal-muted">{t("help.keyboardShortcutsDesc")}</p>
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {shortcuts.map((shortcut, i) => (
             <div key={i} className="flex items-center justify-between rounded-lg bg-vytal-bg3 px-4 py-3">
               <span className="text-sm text-vytal-text">{shortcut.label}</span>
