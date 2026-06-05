@@ -31,6 +31,11 @@
     font-family: var(--font-sans);
   }
 
+  /* All interactive elements get pointer cursor */
+  button, [role="button"], a[href], select, input[type="checkbox"], input[type="radio"], label[for] {
+    cursor: pointer;
+  }
+
   /* Better focus ring */
   *:focus-visible {
     outline: 2px solid var(--color-vytal-green);
