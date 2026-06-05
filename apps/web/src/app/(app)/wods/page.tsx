@@ -2,7 +2,7 @@
 
 import { useDataStore } from "@/stores/data-store";
 import type { WOD, WODPart, WODType } from "@vytal-fit/shared";
-import { Dumbbell, Clock, Flame, Zap, Timer, Repeat, ChevronRight, Plus, Copy, Check, Pencil } from "lucide-react";
+import { Dumbbell, Clock, Flame, Zap, Timer, Repeat, ChevronRight, Plus, Copy, Check, Pencil, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useI18n } from "@/lib/i18n";
@@ -155,10 +155,18 @@ function PartSection({ part }: { part: WODPart }) {
   );
 }
 
+interface EditWODForm {
+  title: string;
+  description: string;
+  type: WODType;
+  timeCap: string;
+}
+
 function WODCard({ wod }: { wod: WOD }) {
   const { t } = useI18n();
   const { toast } = useToast();
   const storeClassTypes = useDataStore((s) => s.classTypes);
+  const updateWOD = useDataStore((s) => s.updateWOD);
   const classType = storeClassTypes.find((ct: { id: string }) => ct.id === wod.classTypeId);
   const mainPart = wod.parts.find(
     (p) => p.type !== "custom" && p.name !== "Warm Up" && p.name !== "Cool Down"
@@ -166,6 +174,13 @@ function WODCard({ wod }: { wod: WOD }) {
   const mainType = mainPart?.type ?? "custom";
   const duration = estimateDuration(wod);
   const [copied, setCopied] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
+  const [editForm, setEditForm] = useState<EditWODForm>({
+    title: wod.title ?? "",
+    description: wod.description ?? "",
+    type: mainType,
+    timeCap: mainPart?.timeCap ? String(mainPart.timeCap) : "",
+  });
 
   const handleCopy = useCallback(() => {
     const text = wodToClipboardText(wod);
@@ -176,82 +191,223 @@ function WODCard({ wod }: { wod: WOD }) {
     });
   }, [wod, toast, t]);
 
-  const handleEdit = useCallback(() => {
-    toast(t("wods.editComingSoon"), "info");
-  }, [toast, t]);
+  const handleEditOpen = useCallback(() => {
+    setEditForm({
+      title: wod.title ?? "",
+      description: wod.description ?? "",
+      type: mainType,
+      timeCap: mainPart?.timeCap ? String(mainPart.timeCap) : "",
+    });
+    setEditOpen(true);
+  }, [wod, mainType, mainPart]);
+
+  const handleEditSave = useCallback(() => {
+    const timeCap = editForm.timeCap ? parseInt(editForm.timeCap, 10) : undefined;
+    const updatedParts = wod.parts.map((part) => {
+      const isMainPart =
+        part.type !== "custom" &&
+        part.name !== "Warm Up" &&
+        part.name !== "Cool Down";
+      if (isMainPart) {
+        return {
+          ...part,
+          type: editForm.type,
+          timeCap: timeCap && !isNaN(timeCap) ? timeCap : part.timeCap,
+        };
+      }
+      return part;
+    });
+    updateWOD(wod.id, {
+      title: editForm.title.trim() || undefined,
+      description: editForm.description.trim() || undefined,
+      parts: updatedParts,
+    });
+    toast(t("wods.wodSaved"), "success");
+    setEditOpen(false);
+  }, [wod, editForm, updateWOD, toast, t]);
 
   return (
-    <div className="rounded-xl border border-vytal-border bg-vytal-card p-6 card-interactive transition-colors hover:border-[rgba(61,255,110,0.22)]">
-      {/* Header */}
-      <div className="mb-5 flex items-start justify-between">
-        <div>
-          <div className="flex items-center gap-3 mb-1">
-            {wod.title && (
-              <h3 className="text-lg font-bold text-vytal-text">
-                {wod.title}
-              </h3>
+    <>
+      <div className="rounded-xl border border-vytal-border bg-vytal-card p-6 card-interactive transition-colors hover:border-[rgba(61,255,110,0.22)]">
+        {/* Header */}
+        <div className="mb-5 flex items-start justify-between">
+          <div>
+            <div className="flex items-center gap-3 mb-1">
+              {wod.title && (
+                <h3 className="text-lg font-bold text-vytal-text">
+                  {wod.title}
+                </h3>
+              )}
+              <WODTypeBadge type={mainType} />
+            </div>
+            {wod.description && (
+              <p className="mt-1 text-sm text-vytal-muted">{wod.description}</p>
             )}
-            <WODTypeBadge type={mainType} />
           </div>
-          {wod.description && (
-            <p className="mt-1 text-sm text-vytal-muted">{wod.description}</p>
-          )}
+          <div className="flex items-center gap-2 shrink-0">
+            {/* Duration badge */}
+            <div className="flex items-center gap-1 rounded-full bg-vytal-bg2 px-2.5 py-1 text-[10px] font-medium text-vytal-muted">
+              <Clock className="h-3 w-3" />
+              {t("wods.minutes").replace("{min}", String(duration))}
+            </div>
+            {/* Copy button */}
+            <button
+              onClick={handleCopy}
+              className={cn(
+                "flex h-8 w-8 items-center justify-center rounded-lg border border-vytal-border transition-all",
+                copied
+                  ? "border-vytal-green/30 bg-vytal-green/10 text-vytal-green"
+                  : "bg-vytal-bg2 text-vytal-muted hover:text-vytal-text hover:bg-vytal-bg3"
+              )}
+              title={t("wods.copyClipboard")}
+            >
+              {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+            </button>
+            {/* Edit button */}
+            <button
+              onClick={handleEditOpen}
+              className="flex h-8 w-8 items-center justify-center rounded-lg border border-vytal-border bg-vytal-bg2 text-vytal-muted transition-all hover:text-vytal-text hover:bg-vytal-bg3"
+              title={t("wods.editWod")}
+            >
+              <Pencil className="h-3.5 w-3.5" />
+            </button>
+          </div>
         </div>
-        <div className="flex items-center gap-2 shrink-0">
-          {/* Duration badge */}
-          <div className="flex items-center gap-1 rounded-full bg-vytal-bg2 px-2.5 py-1 text-[10px] font-medium text-vytal-muted">
-            <Clock className="h-3 w-3" />
-            {t("wods.minutes").replace("{min}", String(duration))}
+
+        {/* Class type assignment */}
+        {classType && (
+          <div className="mb-4 flex items-center gap-2">
+            <span className="text-[10px] font-medium uppercase tracking-wider text-vytal-muted">
+              {t("wods.assignedTo")}:
+            </span>
+            <div className="flex items-center gap-1.5">
+              <div
+                className="h-2.5 w-2.5 rounded-full"
+                style={{ backgroundColor: classType.color }}
+              />
+              <span className="text-xs font-medium text-vytal-text">
+                {classType.name}
+              </span>
+            </div>
           </div>
-          {/* Copy button */}
-          <button
-            onClick={handleCopy}
-            className={cn(
-              "flex h-8 w-8 items-center justify-center rounded-lg border border-vytal-border transition-all",
-              copied
-                ? "border-vytal-green/30 bg-vytal-green/10 text-vytal-green"
-                : "bg-vytal-bg2 text-vytal-muted hover:text-vytal-text hover:bg-vytal-bg3"
-            )}
-            title={t("wods.copyClipboard")}
-          >
-            {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
-          </button>
-          {/* Edit button */}
-          <button
-            onClick={handleEdit}
-            className="flex h-8 w-8 items-center justify-center rounded-lg border border-vytal-border bg-vytal-bg2 text-vytal-muted transition-all hover:text-vytal-text hover:bg-vytal-bg3"
-            title={t("wods.editWod")}
-          >
-            <Pencil className="h-3.5 w-3.5" />
-          </button>
+        )}
+
+        {/* Parts */}
+        <div className="space-y-4">
+          {wod.parts.map((part, i) => (
+            <PartSection key={i} part={part} />
+          ))}
         </div>
       </div>
 
-      {/* Class type assignment */}
-      {classType && (
-        <div className="mb-4 flex items-center gap-2">
-          <span className="text-[10px] font-medium uppercase tracking-wider text-vytal-muted">
-            {t("wods.assignedTo")}:
-          </span>
-          <div className="flex items-center gap-1.5">
-            <div
-              className="h-2.5 w-2.5 rounded-full"
-              style={{ backgroundColor: classType.color }}
-            />
-            <span className="text-xs font-medium text-vytal-text">
-              {classType.name}
-            </span>
+      {/* Edit WOD Modal */}
+      {editOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-xl border border-vytal-border bg-vytal-card p-6 shadow-2xl">
+            <div className="mb-5 flex items-center justify-between">
+              <div>
+                <h3 className="text-lg font-semibold text-vytal-text">
+                  {t("wods.editWodTitle")}
+                </h3>
+                <p className="text-xs text-vytal-muted">{wod.date}</p>
+              </div>
+              <button
+                onClick={() => setEditOpen(false)}
+                className="text-vytal-muted transition-colors hover:text-vytal-text"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <div className="space-y-4">
+              {/* Title */}
+              <div>
+                <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">
+                  {t("wods.wodTitle")}
+                </label>
+                <input
+                  type="text"
+                  value={editForm.title}
+                  onChange={(e) =>
+                    setEditForm((prev) => ({ ...prev, title: e.target.value }))
+                  }
+                  placeholder="e.g., FRAN, MURPH..."
+                  className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-2.5 text-sm text-vytal-text placeholder:text-vytal-muted focus:border-vytal-green/30 focus:outline-none focus:ring-1 focus:ring-vytal-green/20"
+                />
+              </div>
+              {/* Description */}
+              <div>
+                <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">
+                  {t("wods.wodDescription")}
+                </label>
+                <textarea
+                  value={editForm.description}
+                  onChange={(e) =>
+                    setEditForm((prev) => ({ ...prev, description: e.target.value }))
+                  }
+                  rows={2}
+                  placeholder="Notes, scaling options..."
+                  className="w-full resize-none rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-2.5 text-sm text-vytal-text placeholder:text-vytal-muted focus:border-vytal-green/30 focus:outline-none focus:ring-1 focus:ring-vytal-green/20"
+                />
+              </div>
+              {/* Type */}
+              <div>
+                <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">
+                  {t("wods.wodType")}
+                </label>
+                <select
+                  value={editForm.type}
+                  onChange={(e) =>
+                    setEditForm((prev) => ({
+                      ...prev,
+                      type: e.target.value as WODType,
+                    }))
+                  }
+                  className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-2.5 text-sm text-vytal-text focus:border-vytal-green/30 focus:outline-none focus:ring-1 focus:ring-vytal-green/20"
+                >
+                  <option value="amrap">AMRAP</option>
+                  <option value="emom">EMOM</option>
+                  <option value="for_time">For Time</option>
+                  <option value="tabata">Tabata</option>
+                  <option value="strength">Strength</option>
+                  <option value="custom">Custom</option>
+                </select>
+              </div>
+              {/* Time Cap */}
+              <div>
+                <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">
+                  {t("wods.timeCap")} (min)
+                </label>
+                <input
+                  type="number"
+                  min={1}
+                  max={120}
+                  value={editForm.timeCap}
+                  onChange={(e) =>
+                    setEditForm((prev) => ({ ...prev, timeCap: e.target.value }))
+                  }
+                  placeholder="e.g., 20"
+                  className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-2.5 text-sm text-vytal-text placeholder:text-vytal-muted focus:border-vytal-green/30 focus:outline-none focus:ring-1 focus:ring-vytal-green/20"
+                />
+              </div>
+              <div className="flex justify-end gap-3 pt-1">
+                <button
+                  onClick={() => setEditOpen(false)}
+                  className="rounded-lg border border-vytal-border px-4 py-2 text-sm text-vytal-text transition-colors hover:bg-vytal-bg3"
+                >
+                  {t("action.cancel")}
+                </button>
+                <button
+                  onClick={handleEditSave}
+                  className="rounded-lg bg-vytal-green px-6 py-2 text-sm font-semibold text-vytal-bg transition-colors hover:bg-vytal-green/90"
+                >
+                  {t("wods.saveChanges")}
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}
-
-      {/* Parts */}
-      <div className="space-y-4">
-        {wod.parts.map((part, i) => (
-          <PartSection key={i} part={part} />
-        ))}
-      </div>
-    </div>
+    </>
   );
 }
 

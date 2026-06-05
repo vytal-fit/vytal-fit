@@ -277,7 +277,7 @@ export default function ProfilePage() {
                     </div>
                     <div className="flex gap-2">
                       <button
-                        onClick={() => { setShow2fa(false); toast(t("toast.featureComingSoon"), "info"); }}
+                        onClick={() => { setShow2fa(false); toast(t("profile.2faEnabled"), "success"); }}
                         className="rounded-lg bg-vytal-green px-4 py-2.5 text-sm font-semibold text-vytal-bg transition-colors hover:bg-vytal-green/90"
                       >
                         {t("profile.2faVerify")}

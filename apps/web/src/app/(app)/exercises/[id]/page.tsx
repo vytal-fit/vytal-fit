@@ -148,16 +148,25 @@ export default function ExerciseDetailPage() {
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Left Column */}
         <div className="space-y-6 lg:col-span-2">
-          {/* Video Placeholder */}
-          <div className="flex h-64 items-center justify-center rounded-xl border border-vytal-border bg-vytal-card">
+          {/* Video Placeholder — opens YouTube search for this exercise */}
+          <a
+            href={`https://www.youtube.com/results?search_query=${encodeURIComponent(exercise.name + " CrossFit movement demo")}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group flex h-64 items-center justify-center rounded-xl border border-vytal-border bg-vytal-card transition-colors hover:border-vytal-red/30 hover:bg-vytal-red/5"
+          >
             <div className="text-center">
-              <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-vytal-bg3">
-                <Play className="h-8 w-8 text-vytal-muted" />
+              <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-vytal-red/10 transition-colors group-hover:bg-vytal-red/20">
+                <Play className="h-8 w-8 text-vytal-red" />
               </div>
-              <p className="text-sm font-medium text-vytal-text">YouTube video coming soon</p>
-              <p className="mt-1 text-xs text-vytal-muted">Movement demo for {exercise.name}</p>
+              <p className="text-sm font-medium text-vytal-text">{t("exercises.videoPlaceholder") || "YouTube movement demo"}</p>
+              <p className="mt-1 text-xs text-vytal-muted">{(t("exercises.videoSubtitle") || "Click to search demo for {name}").replace("{name}", exercise.name)}</p>
+              <span className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-vytal-red/20 bg-vytal-red/10 px-3 py-1 text-xs font-semibold text-vytal-red">
+                <Play className="h-3 w-3" />
+                {t("exercises.watchOnYouTube") || "Watch on YouTube"}
+              </span>
             </div>
-          </div>
+          </a>
 
           {/* Description */}
           <div className="rounded-xl border border-vytal-border bg-vytal-card p-6">

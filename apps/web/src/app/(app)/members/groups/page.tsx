@@ -105,6 +105,10 @@ export default function GroupsPage() {
   const [newDescription, setNewDescription] = useState("");
   const [newColor, setNewColor] = useState(colorOptions[0]);
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
+  const [editingGroup, setEditingGroup] = useState<MemberGroup | null>(null);
+  const [editName, setEditName] = useState("");
+  const [editDescription, setEditDescription] = useState("");
+  const [editColor, setEditColor] = useState(colorOptions[0]);
 
   function handleCreateGroup() {
     if (!newName.trim()) {
@@ -124,6 +128,35 @@ export default function GroupsPage() {
     setNewColor(colorOptions[0]);
     setShowCreateForm(false);
     toast(t("groups.created"), "success");
+  }
+
+  function handleStartEdit(group: MemberGroup) {
+    setEditingGroup(group);
+    setEditName(group.name);
+    setEditDescription(group.description);
+    setEditColor(group.color);
+    setShowCreateForm(false);
+  }
+
+  function handleSaveEdit() {
+    if (!editingGroup) return;
+    if (!editName.trim()) {
+      toast(t("groups.nameRequired"), "error");
+      return;
+    }
+    setGroups((prev) =>
+      prev.map((g) =>
+        g.id === editingGroup.id
+          ? { ...g, name: editName.trim(), description: editDescription.trim(), color: editColor }
+          : g
+      )
+    );
+    setEditingGroup(null);
+    toast(t("groups.updated"), "success");
+  }
+
+  function handleCancelEdit() {
+    setEditingGroup(null);
   }
 
   function handleConfirmDelete() {
@@ -167,6 +200,77 @@ export default function GroupsPage() {
           {showCreateForm ? t("action.cancel") : t("groups.createGroup")}
         </button>
       </div>
+
+      {/* Edit Form */}
+      {editingGroup && (
+        <div className="rounded-xl border border-vytal-blue/20 bg-vytal-blue/5 p-5">
+          <h3 className="mb-4 text-sm font-semibold text-vytal-text">
+            {t("groups.editGroupTitle")}: <span className="text-vytal-muted">{editingGroup.name}</span>
+          </h3>
+          <div className="space-y-4">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div>
+                <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">
+                  {t("groups.groupName")}
+                </label>
+                <input
+                  type="text"
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
+                  placeholder={t("groups.groupNamePlaceholder")}
+                  className={inputClass}
+                  autoFocus
+                />
+              </div>
+              <div>
+                <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">
+                  {t("groups.description")}
+                </label>
+                <input
+                  type="text"
+                  value={editDescription}
+                  onChange={(e) => setEditDescription(e.target.value)}
+                  placeholder={t("groups.descriptionPlaceholder")}
+                  className={inputClass}
+                />
+              </div>
+            </div>
+            <div>
+              <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">
+                {t("groups.color")}
+              </label>
+              <div className="flex gap-2">
+                {colorOptions.map((c) => (
+                  <button
+                    key={c}
+                    onClick={() => setEditColor(c)}
+                    className={`h-8 w-8 rounded-full border-2 transition-all ${
+                      editColor === c ? "border-vytal-text scale-110" : "border-transparent"
+                    }`}
+                    style={{ backgroundColor: c }}
+                  />
+                ))}
+              </div>
+            </div>
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={handleCancelEdit}
+                className="flex items-center gap-2 rounded-lg border border-vytal-border bg-vytal-bg2 px-4 py-2 text-sm font-medium text-vytal-text hover:bg-vytal-bg3"
+              >
+                <X className="h-4 w-4" />
+                {t("action.cancel")}
+              </button>
+              <button
+                onClick={handleSaveEdit}
+                className="flex items-center gap-2 rounded-lg bg-vytal-green px-5 py-2 text-sm font-semibold text-vytal-bg hover:bg-vytal-green/90"
+              >
+                <Check className="h-4 w-4" />
+                {t("action.save")}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Create Form */}
       {showCreateForm && (
@@ -270,7 +374,7 @@ export default function GroupsPage() {
                   {t("groups.viewMembers")}
                 </button>
                 <button
-                  onClick={() => toast(t("groups.editComingSoon"), "info")}
+                  onClick={() => handleStartEdit(group)}
                   className="inline-flex items-center gap-1.5 rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-1.5 text-xs font-medium text-vytal-text transition-colors hover:bg-vytal-bg3"
                 >
                   <Pencil className="h-3 w-3" />

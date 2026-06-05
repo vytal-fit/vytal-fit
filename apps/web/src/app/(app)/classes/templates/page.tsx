@@ -92,6 +92,15 @@ export default function ClassTemplatesPage() {
   const [newCapacity, setNewCapacity] = useState(20);
   const [newLocation, setNewLocation] = useState("Main Box");
   const [newDays, setNewDays] = useState("");
+  const [editingTemplate, setEditingTemplate] = useState<ClassTemplate | null>(null);
+  const [editName, setEditName] = useState("");
+  const [editClassType, setEditClassType] = useState("WOD");
+  const [editTime, setEditTime] = useState("07:00");
+  const [editDuration, setEditDuration] = useState("60 min");
+  const [editCoach, setEditCoach] = useState("");
+  const [editCapacity, setEditCapacity] = useState(20);
+  const [editLocation, setEditLocation] = useState("Main Box");
+  const [editDays, setEditDays] = useState("");
 
   function handleCreate() {
     if (!newName.trim()) {
@@ -120,6 +129,50 @@ export default function ClassTemplatesPage() {
     setNewDays("");
     setShowCreateForm(false);
     toast(t("classTemplates.created"), "success");
+  }
+
+  function handleStartEdit(tpl: ClassTemplate) {
+    setEditingTemplate(tpl);
+    setEditName(tpl.name);
+    setEditClassType(tpl.classType);
+    setEditTime(tpl.time);
+    setEditDuration(tpl.duration);
+    setEditCoach(tpl.coach);
+    setEditCapacity(tpl.capacity);
+    setEditLocation(tpl.location);
+    setEditDays(tpl.days);
+    setShowCreateForm(false);
+  }
+
+  function handleSaveEdit() {
+    if (!editingTemplate) return;
+    if (!editName.trim()) {
+      toast(t("classTemplates.nameRequired"), "error");
+      return;
+    }
+    setTemplates((prev) =>
+      prev.map((tpl) =>
+        tpl.id === editingTemplate.id
+          ? {
+              ...tpl,
+              name: editName.trim(),
+              classType: editClassType,
+              time: editTime,
+              duration: editDuration,
+              coach: editCoach || "TBD",
+              capacity: editCapacity,
+              location: editLocation,
+              days: editDays || "Mon-Fri",
+            }
+          : tpl
+      )
+    );
+    setEditingTemplate(null);
+    toast(t("classTemplates.updated"), "success");
+  }
+
+  function handleCancelEdit() {
+    setEditingTemplate(null);
   }
 
   function handleDelete(id: string) {
@@ -284,6 +337,127 @@ export default function ClassTemplatesPage() {
         </div>
       )}
 
+      {/* Edit Template Form */}
+      {editingTemplate && (
+        <div className="rounded-xl border border-vytal-blue/20 bg-vytal-blue/5 p-5">
+          <h3 className="mb-4 text-sm font-semibold text-vytal-text">
+            {t("classTemplates.editTemplateTitle")}: <span className="text-vytal-muted">{editingTemplate.name}</span>
+          </h3>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div>
+              <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">
+                {t("classTemplates.templateName")}
+              </label>
+              <input
+                type="text"
+                value={editName}
+                onChange={(e) => setEditName(e.target.value)}
+                className={inputClass}
+                autoFocus
+              />
+            </div>
+            <div>
+              <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">
+                {t("classTemplates.classType")}
+              </label>
+              <select
+                value={editClassType}
+                onChange={(e) => setEditClassType(e.target.value)}
+                className={inputClass}
+              >
+                <option value="WOD">WOD</option>
+                <option value="Strength">Strength</option>
+                <option value="Open Box">Open Box</option>
+                <option value="Mobility">Mobility</option>
+                <option value="Endurance">Endurance</option>
+              </select>
+            </div>
+            <div>
+              <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">
+                {t("classTemplates.time")}
+              </label>
+              <input
+                type="time"
+                value={editTime}
+                onChange={(e) => setEditTime(e.target.value)}
+                className={inputClass}
+              />
+            </div>
+            <div>
+              <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">
+                {t("classTemplates.duration")}
+              </label>
+              <input
+                type="text"
+                value={editDuration}
+                onChange={(e) => setEditDuration(e.target.value)}
+                className={inputClass}
+              />
+            </div>
+            <div>
+              <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">
+                {t("classTemplates.coach")}
+              </label>
+              <input
+                type="text"
+                value={editCoach}
+                onChange={(e) => setEditCoach(e.target.value)}
+                className={inputClass}
+              />
+            </div>
+            <div>
+              <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">
+                {t("classTemplates.capacity")}
+              </label>
+              <input
+                type="number"
+                value={editCapacity}
+                onChange={(e) => setEditCapacity(Number(e.target.value))}
+                className={inputClass}
+              />
+            </div>
+            <div>
+              <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">
+                {t("classTemplates.location")}
+              </label>
+              <input
+                type="text"
+                value={editLocation}
+                onChange={(e) => setEditLocation(e.target.value)}
+                className={inputClass}
+              />
+            </div>
+            <div>
+              <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">
+                {t("classTemplates.days")}
+              </label>
+              <input
+                type="text"
+                value={editDays}
+                onChange={(e) => setEditDays(e.target.value)}
+                className={inputClass}
+              />
+            </div>
+          </div>
+          <div className="mt-4 flex justify-end gap-2">
+            <button
+              onClick={handleCancelEdit}
+              className="flex items-center gap-2 rounded-lg border border-vytal-border bg-vytal-bg2 px-4 py-2 text-sm font-medium text-vytal-text hover:bg-vytal-bg3"
+            >
+              <X className="h-4 w-4" />
+              {t("action.cancel")}
+            </button>
+            <button
+              onClick={handleSaveEdit}
+              className="flex items-center gap-2 rounded-lg bg-vytal-green px-5 py-2 text-sm font-semibold text-vytal-bg hover:bg-vytal-green/90"
+            >
+              <Check className="h-4 w-4" />
+              {t("action.save")}
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Template Cards */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-2">
         {templates.map((tpl) => (
@@ -335,7 +509,7 @@ export default function ClassTemplatesPage() {
                 {t("classTemplates.applyToWeek")}
               </button>
               <button
-                onClick={() => toast(t("classTemplates.editComingSoon"), "info")}
+                onClick={() => handleStartEdit(tpl)}
                 className="inline-flex items-center gap-1.5 rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-1.5 text-xs font-medium text-vytal-text transition-colors hover:bg-vytal-bg3"
               >
                 <Pencil className="h-3 w-3" />

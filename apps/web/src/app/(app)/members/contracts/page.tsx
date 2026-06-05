@@ -13,6 +13,8 @@ import {
   Plus,
   Pencil,
   RefreshCw,
+  Check,
+  X,
 } from "lucide-react";
 
 interface ContractTemplate {
@@ -58,6 +60,38 @@ export default function ContractsPage() {
   const { toast } = useToast();
 
   const [contracts] = useState(mockContracts);
+  const [templates, setTemplates] = useState(mockTemplates);
+  const [editingTemplate, setEditingTemplate] = useState<ContractTemplate | null>(null);
+  const [editName, setEditName] = useState("");
+  const [editRequired, setEditRequired] = useState(false);
+
+  function handleStartEdit(tpl: ContractTemplate) {
+    setEditingTemplate(tpl);
+    setEditName(tpl.name);
+    setEditRequired(tpl.required);
+  }
+
+  function handleSaveEdit() {
+    if (!editingTemplate) return;
+    if (!editName.trim()) return;
+    const today = new Date().toISOString().split("T")[0];
+    setTemplates((prev) =>
+      prev.map((tpl) =>
+        tpl.id === editingTemplate.id
+          ? { ...tpl, name: editName.trim(), required: editRequired, lastUpdated: today }
+          : tpl
+      )
+    );
+    setEditingTemplate(null);
+    toast(t("contracts.editTemplateSaved"), "success");
+  }
+
+  function handleCancelEdit() {
+    setEditingTemplate(null);
+  }
+
+  const inputClass =
+    "w-full rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-2 text-sm text-vytal-text placeholder:text-vytal-muted focus:border-vytal-green/30 focus:outline-none focus:ring-1 focus:ring-vytal-green/20";
 
   const statusConfig = {
     signed: {
@@ -146,40 +180,91 @@ export default function ContractsPage() {
           </button>
         </div>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {mockTemplates.map((tpl) => (
-            <div
-              key={tpl.id}
-              className="rounded-xl border border-vytal-border bg-vytal-card p-5 transition-colors hover:border-[rgba(61,255,110,0.22)]"
-            >
-              <div className="flex items-start justify-between">
-                <div className="flex items-start gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-vytal-blue/10">
-                    <FileText className="h-5 w-5 text-vytal-blue" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold text-vytal-text">{tpl.name}</p>
-                    <p className="mt-0.5 text-xs text-vytal-muted">
-                      {t("contracts.lastUpdated")}: {tpl.lastUpdated}
+          {templates.map((tpl) => {
+            const isEditing = editingTemplate?.id === tpl.id;
+            return (
+              <div
+                key={tpl.id}
+                className={`rounded-xl border bg-vytal-card p-5 transition-colors ${isEditing ? "border-vytal-green/30 bg-vytal-green/5" : "border-vytal-border hover:border-[rgba(61,255,110,0.22)]"}`}
+              >
+                {isEditing ? (
+                  <div className="space-y-3">
+                    <p className="text-xs font-semibold uppercase tracking-wider text-vytal-muted">
+                      {t("contracts.editTemplateTitle")}
                     </p>
+                    <div>
+                      <label className="mb-1 block text-xs font-medium text-vytal-muted">
+                        {t("contracts.templateNameLabel")}
+                      </label>
+                      <input
+                        type="text"
+                        value={editName}
+                        onChange={(e) => setEditName(e.target.value)}
+                        placeholder={t("contracts.templateNamePlaceholder")}
+                        className={inputClass}
+                        autoFocus
+                      />
+                    </div>
+                    <label className="flex cursor-pointer items-center gap-2 text-sm text-vytal-text">
+                      <input
+                        type="checkbox"
+                        checked={editRequired}
+                        onChange={(e) => setEditRequired(e.target.checked)}
+                        className="rounded accent-vytal-green"
+                      />
+                      {t("contracts.required")}
+                    </label>
+                    <div className="flex gap-2 pt-1">
+                      <button
+                        onClick={handleSaveEdit}
+                        className="flex items-center gap-1.5 rounded-lg bg-vytal-green px-3 py-1.5 text-xs font-semibold text-vytal-bg hover:bg-vytal-green/90"
+                      >
+                        <Check className="h-3 w-3" />
+                        {t("action.save")}
+                      </button>
+                      <button
+                        onClick={handleCancelEdit}
+                        className="flex items-center gap-1.5 rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-1.5 text-xs font-medium text-vytal-text hover:bg-vytal-bg3"
+                      >
+                        <X className="h-3 w-3" />
+                        {t("action.cancel")}
+                      </button>
+                    </div>
                   </div>
-                </div>
-                {tpl.required && (
-                  <span className="rounded-full bg-vytal-green/10 px-2 py-0.5 text-[10px] font-semibold text-vytal-green">
-                    {t("contracts.required")}
-                  </span>
+                ) : (
+                  <>
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-start gap-3">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-vytal-blue/10">
+                          <FileText className="h-5 w-5 text-vytal-blue" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-semibold text-vytal-text">{tpl.name}</p>
+                          <p className="mt-0.5 text-xs text-vytal-muted">
+                            {t("contracts.lastUpdated")}: {tpl.lastUpdated}
+                          </p>
+                        </div>
+                      </div>
+                      {tpl.required && (
+                        <span className="rounded-full bg-vytal-green/10 px-2 py-0.5 text-[10px] font-semibold text-vytal-green">
+                          {t("contracts.required")}
+                        </span>
+                      )}
+                    </div>
+                    <div className="mt-4">
+                      <button
+                        onClick={() => handleStartEdit(tpl)}
+                        className="inline-flex items-center gap-1.5 rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-1.5 text-xs font-medium text-vytal-text transition-colors hover:bg-vytal-bg3"
+                      >
+                        <Pencil className="h-3 w-3" />
+                        {t("contracts.editTemplate")}
+                      </button>
+                    </div>
+                  </>
                 )}
               </div>
-              <div className="mt-4">
-                <button
-                  onClick={() => toast(t("contracts.editComingSoon"), "info")}
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-1.5 text-xs font-medium text-vytal-text transition-colors hover:bg-vytal-bg3"
-                >
-                  <Pencil className="h-3 w-3" />
-                  {t("contracts.editTemplate")}
-                </button>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 

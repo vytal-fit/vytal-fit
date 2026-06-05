@@ -439,6 +439,7 @@ interface DataStore {
 
   // WODs
   wods: WOD[];
+  updateWOD: (id: string, partial: Partial<WOD>) => void;
 
   // Reset all data
   resetAllData: () => void;
@@ -832,6 +833,17 @@ export const useDataStore = create<DataStore>((set, get) => ({
 
   // ---- WODs ----
   wods: initialData.wods,
+
+  updateWOD: (id, partial) => {
+    set((state) => {
+      const updated = state.wods.map((w) =>
+        w.id === id ? { ...w, ...partial } : w
+      );
+      const newState = { ...state, wods: updated };
+      persistData(snapshotData(newState as unknown as DataStore));
+      return { wods: updated };
+    });
+  },
 
   // ---- Reset ----
   resetAllData: () => {

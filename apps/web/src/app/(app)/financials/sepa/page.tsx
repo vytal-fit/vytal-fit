@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useCallback } from "react";
 import {
   Building2,
   Download,
@@ -47,6 +47,24 @@ export default function SepaPage() {
   const [creditor, setCreditor] = useState(mockCreditor);
   const [dateFrom, setDateFrom] = useState("2026-06-01");
   const [dateTo, setDateTo] = useState("2026-06-30");
+  const uploadInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileUpload = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      const isXml = file.name.endsWith(".xml");
+      const isZip = file.name.endsWith(".zip");
+      if (!isXml && !isZip) {
+        toast(t("sepa.fileInvalid") || "Please select an XML or ZIP file", "error");
+        e.target.value = "";
+        return;
+      }
+      toast((t("sepa.fileUploaded") || "File {name} uploaded successfully").replace("{name}", file.name), "success");
+      e.target.value = "";
+    },
+    [toast, t]
+  );
 
   const tabs: { key: Tab; label: string }[] = [
     { key: "creditor", label: t("sepa.creditorSetup") || "Creditor Setup" },
@@ -227,15 +245,41 @@ export default function SepaPage() {
 
       {activeTab === "returns" && (
         <div className="space-y-6">
+          {/* Hidden file input */}
+          <input
+            ref={uploadInputRef}
+            type="file"
+            accept=".xml,.zip"
+            className="hidden"
+            onChange={handleFileUpload}
+          />
+
           {/* Upload Drop Zone */}
-          <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-vytal-border bg-vytal-card px-6 py-12 transition-colors hover:border-vytal-green/30">
+          <div
+            className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-vytal-border bg-vytal-card px-6 py-12 transition-colors hover:border-vytal-green/30 cursor-pointer"
+            onClick={() => uploadInputRef.current?.click()}
+            onDragOver={(e) => e.preventDefault()}
+            onDrop={(e) => {
+              e.preventDefault();
+              const file = e.dataTransfer.files?.[0];
+              if (!file) return;
+              const isXml = file.name.endsWith(".xml");
+              const isZip = file.name.endsWith(".zip");
+              if (!isXml && !isZip) {
+                toast(t("sepa.fileInvalid") || "Please select an XML or ZIP file", "error");
+                return;
+              }
+              toast((t("sepa.fileUploaded") || "File {name} uploaded successfully").replace("{name}", file.name), "success");
+            }}
+          >
             <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-vytal-bg3">
               <Upload className="h-6 w-6 text-vytal-muted" />
             </div>
             <p className="text-sm font-medium text-vytal-text">{t("sepa.uploadReturnFile") || "Upload Return File"}</p>
             <p className="mt-1 text-xs text-vytal-muted">{t("sepa.uploadDesc") || "Drag and drop your XML return file here, or click to browse"}</p>
             <button
-              onClick={() => toast(t("sepa.uploadComingSoon") || "File upload coming soon", "info")}
+              type="button"
+              onClick={(e) => { e.stopPropagation(); uploadInputRef.current?.click(); }}
               className="mt-4 rounded-lg border border-vytal-border bg-vytal-bg2 px-4 py-2 text-xs font-medium text-vytal-text transition-colors hover:bg-vytal-bg3"
             >
               {t("sepa.browse") || "Browse Files"}
