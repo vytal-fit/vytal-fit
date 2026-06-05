@@ -1088,7 +1088,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       <button
         onClick={toggleSidebar}
         style={{ left: sidebarCollapsed && !isHovered ? 59 : 245 }}
-        className="hidden lg:flex fixed top-[8.5rem] z-[60] h-7 w-7 items-center justify-center rounded-full border border-vytal-border bg-vytal-bg2 text-vytal-muted shadow-md transition-all duration-300 hover:bg-vytal-bg3 hover:text-vytal-green hover:shadow-lg"
+        className="hidden lg:flex fixed top-1/2 -translate-y-1/2 z-[60] h-7 w-7 items-center justify-center rounded-full border border-vytal-border bg-vytal-bg2 text-vytal-muted shadow-md transition-all duration-300 hover:bg-vytal-bg3 hover:text-vytal-green hover:shadow-lg"
         title={sidebarCollapsed ? "Expand" : "Collapse"}
       >
         {sidebarCollapsed ? <ChevronRight className="h-3.5 w-3.5" /> : <ChevronLeft className="h-3.5 w-3.5" />}
