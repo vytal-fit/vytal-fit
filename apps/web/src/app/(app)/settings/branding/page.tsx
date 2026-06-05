@@ -81,13 +81,13 @@ export default function BrandingPage() {
   }
 
   function handleSave() {
-    toast("Branding settings saved successfully", "success");
+    toast(t("toast.brandingSettingsSaved"), "success");
   }
 
   function handleCopyDns() {
     navigator.clipboard.writeText("CNAME app.crossfitaveiro.pt -> cname.vytal.fit");
     setCopiedDns(true);
-    toast("DNS record copied to clipboard", "success");
+    toast(t("toast.dnsCopied"), "success");
     setTimeout(() => setCopiedDns(false), 2000);
   }
 
@@ -96,14 +96,14 @@ export default function BrandingPage() {
       <Breadcrumbs
         items={[
           { label: t("nav.settings"), href: "/settings" },
-          { label: "Branding" },
+          { label: t("branding.breadcrumb") },
         ]}
       />
 
       <div>
-        <h1 className="text-2xl font-bold text-vytal-text">White-Label & Branding</h1>
+        <h1 className="text-2xl font-bold text-vytal-text">{t("branding.title")}</h1>
         <p className="mt-1 text-sm text-vytal-muted">
-          Customize your platform appearance, emails, and mobile app branding.
+          {t("branding.subtitle")}
         </p>
       </div>
 
@@ -112,13 +112,13 @@ export default function BrandingPage() {
         <div className="rounded-xl border border-vytal-border bg-vytal-card p-6 lg:col-span-2">
           <div className="mb-5 flex items-center gap-2">
             <Image className="h-5 w-5 text-vytal-green" />
-            <h2 className="text-lg font-semibold text-vytal-text">Logos</h2>
+            <h2 className="text-lg font-semibold text-vytal-text">{t("branding.logos")}</h2>
           </div>
           <div className="grid gap-6 sm:grid-cols-3">
             {/* Primary Logo */}
             <div>
               <label className="mb-2 block text-xs font-medium uppercase tracking-wider text-vytal-muted">
-                Primary Logo
+                {t("branding.primaryLogo")}
               </label>
               <input
                 ref={primaryLogoRef}
@@ -129,7 +129,7 @@ export default function BrandingPage() {
                   const file = e.target.files?.[0];
                   if (file) {
                     setPrimaryLogoName(file.name);
-                    toast(`Primary logo selected: ${file.name}`, "success");
+                    toast(t("toast.primaryLogoSelected").replace("{name}", file.name), "success");
                   }
                 }}
               />
@@ -143,7 +143,7 @@ export default function BrandingPage() {
                 {primaryLogoName ? (
                   <p className="text-xs font-medium text-vytal-green">{primaryLogoName}</p>
                 ) : (
-                  <p className="text-xs text-vytal-muted">Click to upload</p>
+                  <p className="text-xs text-vytal-muted">{t("branding.clickToUpload")}</p>
                 )}
                 <button
                   type="button"
@@ -154,7 +154,7 @@ export default function BrandingPage() {
                   className="flex items-center gap-1.5 rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-1.5 text-xs text-vytal-text transition-colors hover:bg-vytal-bg3"
                 >
                   <Upload className="h-3 w-3" />
-                  Upload
+                  {t("branding.upload")}
                 </button>
               </div>
             </div>
@@ -162,7 +162,7 @@ export default function BrandingPage() {
             {/* Icon Logo */}
             <div>
               <label className="mb-2 block text-xs font-medium uppercase tracking-wider text-vytal-muted">
-                Icon Logo (Mobile)
+                {t("branding.iconLogo")}
               </label>
               <input
                 ref={iconLogoRef}
@@ -173,7 +173,7 @@ export default function BrandingPage() {
                   const file = e.target.files?.[0];
                   if (file) {
                     setIconLogoName(file.name);
-                    toast(`Icon logo selected: ${file.name}`, "success");
+                    toast(t("toast.iconLogoSelected").replace("{name}", file.name), "success");
                   }
                 }}
               />
@@ -187,7 +187,7 @@ export default function BrandingPage() {
                 {iconLogoName ? (
                   <p className="text-xs font-medium text-vytal-green">{iconLogoName}</p>
                 ) : (
-                  <p className="text-xs text-vytal-muted">Click to upload</p>
+                  <p className="text-xs text-vytal-muted">{t("branding.clickToUpload")}</p>
                 )}
                 <button
                   type="button"
@@ -198,7 +198,7 @@ export default function BrandingPage() {
                   className="flex items-center gap-1.5 rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-1.5 text-xs text-vytal-text transition-colors hover:bg-vytal-bg3"
                 >
                   <Upload className="h-3 w-3" />
-                  Upload
+                  {t("branding.upload")}
                 </button>
               </div>
             </div>
@@ -206,7 +206,7 @@ export default function BrandingPage() {
             {/* Favicon */}
             <div>
               <label className="mb-2 block text-xs font-medium uppercase tracking-wider text-vytal-muted">
-                Favicon
+                {t("branding.favicon")}
               </label>
               <input
                 ref={faviconRef}
@@ -217,7 +217,7 @@ export default function BrandingPage() {
                   const file = e.target.files?.[0];
                   if (file) {
                     setFaviconName(file.name);
-                    toast(`Favicon selected: ${file.name}`, "success");
+                    toast(t("toast.faviconSelected").replace("{name}", file.name), "success");
                   }
                 }}
               />
@@ -231,7 +231,7 @@ export default function BrandingPage() {
                 {faviconName ? (
                   <p className="text-xs font-medium text-vytal-green">{faviconName}</p>
                 ) : (
-                  <p className="text-xs text-vytal-muted">Click to upload</p>
+                  <p className="text-xs text-vytal-muted">{t("branding.clickToUpload")}</p>
                 )}
                 <button
                   type="button"
@@ -242,7 +242,7 @@ export default function BrandingPage() {
                   className="flex items-center gap-1.5 rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-1.5 text-xs text-vytal-text transition-colors hover:bg-vytal-bg3"
                 >
                   <Upload className="h-3 w-3" />
-                  Upload
+                  {t("branding.upload")}
                 </button>
               </div>
             </div>
@@ -253,15 +253,15 @@ export default function BrandingPage() {
         <div className="rounded-xl border border-vytal-border bg-vytal-card p-6">
           <div className="mb-5 flex items-center gap-2">
             <Palette className="h-5 w-5 text-vytal-green" />
-            <h2 className="text-lg font-semibold text-vytal-text">Colors</h2>
+            <h2 className="text-lg font-semibold text-vytal-text">{t("branding.colors")}</h2>
           </div>
           <div className="space-y-4">
             {(
               [
-                { key: "primary", label: "Primary Color" },
-                { key: "secondary", label: "Secondary Color" },
-                { key: "background", label: "Background Color" },
-                { key: "text", label: "Text Color" },
+                { key: "primary", label: t("branding.primaryColor") },
+                { key: "secondary", label: t("branding.secondaryColor") },
+                { key: "background", label: t("branding.backgroundColor") },
+                { key: "text", label: t("branding.textColor") },
               ] as const
             ).map(({ key, label }) => (
               <div key={key}>
@@ -296,11 +296,11 @@ export default function BrandingPage() {
           <div className="rounded-xl border border-vytal-border bg-vytal-card p-6">
             <div className="mb-5 flex items-center gap-2">
               <Type className="h-5 w-5 text-vytal-green" />
-              <h2 className="text-lg font-semibold text-vytal-text">Typography</h2>
+              <h2 className="text-lg font-semibold text-vytal-text">{t("branding.typography")}</h2>
             </div>
             <div>
               <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">
-                Font Family
+                {t("branding.fontFamily")}
               </label>
               <select
                 value={font}
@@ -328,7 +328,7 @@ export default function BrandingPage() {
           <div className="rounded-xl border border-vytal-border bg-vytal-card p-6">
             <div className="mb-4 flex items-center gap-2">
               <Smartphone className="h-5 w-5 text-vytal-green" />
-              <h2 className="text-lg font-semibold text-vytal-text">Mobile App Preview</h2>
+              <h2 className="text-lg font-semibold text-vytal-text">{t("branding.mobilePreview")}</h2>
             </div>
             <div className="flex justify-center">
               <div className="w-40 rounded-2xl border-2 border-vytal-border bg-vytal-bg p-2.5" style={{ fontFamily: font }}>
@@ -345,7 +345,7 @@ export default function BrandingPage() {
                     className="mt-3 flex h-5 items-center justify-center rounded-lg text-[7px] font-bold text-white"
                     style={{ backgroundColor: colors.primary }}
                   >
-                    Book Class
+                    {t("settings.bookClass")}
                   </div>
                   <div className="h-2.5 rounded bg-vytal-bg3" />
                   <div className="h-2.5 w-2/3 rounded bg-vytal-bg3" />
@@ -365,12 +365,12 @@ export default function BrandingPage() {
         <div className="rounded-xl border border-vytal-border bg-vytal-card p-6">
           <div className="mb-5 flex items-center gap-2">
             <Globe className="h-5 w-5 text-vytal-green" />
-            <h2 className="text-lg font-semibold text-vytal-text">Custom Domain</h2>
+            <h2 className="text-lg font-semibold text-vytal-text">{t("branding.customDomain")}</h2>
           </div>
           <div className="space-y-4">
             <div>
               <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">
-                Domain
+                {t("branding.domain")}
               </label>
               <input
                 type="text"
@@ -383,7 +383,7 @@ export default function BrandingPage() {
 
             <div>
               <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">
-                SSL Status
+                {t("branding.sslStatus")}
               </label>
               <div className="flex items-center gap-2">
                 {domain.sslStatus === "active" ? (
@@ -400,21 +400,21 @@ export default function BrandingPage() {
                   )}
                 >
                   {domain.sslStatus === "active"
-                    ? "SSL Active"
+                    ? t("branding.sslActive")
                     : domain.sslStatus === "pending"
-                    ? "SSL Pending"
-                    : "SSL Error"}
+                    ? t("branding.sslPending")
+                    : t("branding.sslError")}
                 </span>
               </div>
             </div>
 
             <div>
               <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">
-                DNS Instructions
+                {t("branding.dnsInstructions")}
               </label>
               <div className="rounded-lg border border-vytal-border bg-vytal-bg2 p-3">
                 <p className="mb-2 text-xs text-vytal-muted">
-                  Add the following CNAME record to your DNS provider:
+                  {t("branding.dnsAddCname")}
                 </p>
                 <div className="flex items-center gap-2">
                   <code className="flex-1 rounded bg-vytal-bg3 px-3 py-2 font-mono text-xs text-vytal-text">
@@ -436,12 +436,12 @@ export default function BrandingPage() {
         <div className="rounded-xl border border-vytal-border bg-vytal-card p-6">
           <div className="mb-5 flex items-center gap-2">
             <Mail className="h-5 w-5 text-vytal-green" />
-            <h2 className="text-lg font-semibold text-vytal-text">Email Branding</h2>
+            <h2 className="text-lg font-semibold text-vytal-text">{t("branding.emailBranding")}</h2>
           </div>
           <div className="space-y-4">
             <div>
               <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">
-                From Name
+                {t("branding.fromName")}
               </label>
               <input
                 type="text"
@@ -454,7 +454,7 @@ export default function BrandingPage() {
             </div>
             <div>
               <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">
-                From Email
+                {t("branding.fromEmail")}
               </label>
               <input
                 type="email"
@@ -467,7 +467,7 @@ export default function BrandingPage() {
             </div>
             <div>
               <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">
-                Reply-To Email
+                {t("branding.replyTo")}
               </label>
               <input
                 type="email"
@@ -480,7 +480,7 @@ export default function BrandingPage() {
             </div>
             <div>
               <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">
-                Footer Text
+                {t("branding.footerText")}
               </label>
               <textarea
                 value={emailBranding.footerText}
@@ -498,12 +498,12 @@ export default function BrandingPage() {
         <div className="rounded-xl border border-vytal-border bg-vytal-card p-6 lg:col-span-2">
           <div className="mb-5 flex items-center gap-2">
             <Smartphone className="h-5 w-5 text-vytal-green" />
-            <h2 className="text-lg font-semibold text-vytal-text">Mobile App Branding</h2>
+            <h2 className="text-lg font-semibold text-vytal-text">{t("branding.mobileAppBranding")}</h2>
           </div>
           <div className="grid gap-4 sm:grid-cols-3">
             <div>
               <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">
-                App Name
+                {t("branding.appName")}
               </label>
               <input
                 type="text"
@@ -516,7 +516,7 @@ export default function BrandingPage() {
             </div>
             <div>
               <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">
-                Splash Screen Color
+                {t("branding.splashColor")}
               </label>
               <div className="flex items-center gap-3">
                 <input
@@ -539,7 +539,7 @@ export default function BrandingPage() {
             </div>
             <div>
               <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">
-                App Icon Preview
+                {t("branding.appIconPreview")}
               </label>
               <div
                 className="flex h-16 w-16 items-center justify-center rounded-2xl text-xl font-bold text-white shadow-lg"
@@ -559,7 +559,7 @@ export default function BrandingPage() {
           className="flex items-center gap-2 rounded-lg bg-vytal-green px-6 py-2.5 text-sm font-semibold text-vytal-bg transition-colors hover:bg-vytal-green/90"
         >
           <Save className="h-4 w-4" />
-          Save Branding
+          {t("branding.saveBranding")}
         </button>
       </div>
     </div>

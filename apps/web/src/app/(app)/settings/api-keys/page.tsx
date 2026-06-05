@@ -30,22 +30,6 @@ interface ApiKey {
   status: "active" | "revoked";
 }
 
-const allPermissions = [
-  { id: "read_members", label: "Read Members" },
-  { id: "write_members", label: "Write Members" },
-  { id: "read_classes", label: "Read Classes" },
-  { id: "write_classes", label: "Write Classes" },
-  { id: "read_financials", label: "Read Financials" },
-  { id: "read_analytics", label: "Read Analytics" },
-];
-
-const expiryOptions = [
-  { label: "Never", value: "never" },
-  { label: "30 days", value: "30" },
-  { label: "90 days", value: "90" },
-  { label: "1 year", value: "365" },
-];
-
 const initialKeys: ApiKey[] = [
   {
     id: "ak-1",
@@ -84,6 +68,22 @@ export default function ApiKeysPage() {
   const { t } = useI18n();
   const { toast } = useToast();
 
+  const allPermissions = [
+    { id: "read_members", label: t("apiKeys.permReadMembers") },
+    { id: "write_members", label: t("apiKeys.permWriteMembers") },
+    { id: "read_classes", label: t("apiKeys.permReadClasses") },
+    { id: "write_classes", label: t("apiKeys.permWriteClasses") },
+    { id: "read_financials", label: t("apiKeys.permReadFinancials") },
+    { id: "read_analytics", label: t("apiKeys.permReadAnalytics") },
+  ];
+
+  const expiryOptions = [
+    { label: t("apiKeys.expiryNever"), value: "never" },
+    { label: t("apiKeys.expiry30"), value: "30" },
+    { label: t("apiKeys.expiry90"), value: "90" },
+    { label: t("apiKeys.expiry365"), value: "365" },
+  ];
+
   const [keys, setKeys] = useState<ApiKey[]>(initialKeys);
   const [showCreate, setShowCreate] = useState(false);
   const [showRevoke, setShowRevoke] = useState<string | null>(null);
@@ -97,11 +97,11 @@ export default function ApiKeysPage() {
 
   function handleCreate() {
     if (!newName) {
-      toast("Please enter a name for the API key", "error");
+      toast(t("apiKeys.toastNoName"), "error");
       return;
     }
     if (newPermissions.length === 0) {
-      toast("Please select at least one permission", "error");
+      toast(t("apiKeys.toastNoPermissions"), "error");
       return;
     }
 
@@ -140,13 +140,13 @@ export default function ApiKeysPage() {
       prev.map((k) => (k.id === id ? { ...k, status: "revoked" as const } : k))
     );
     setShowRevoke(null);
-    toast("API key revoked", "success");
+    toast(t("apiKeys.toastRevoked"), "success");
   }
 
   function handleCopyKey(key: string) {
     navigator.clipboard.writeText(key);
     setCopiedKey(true);
-    toast("API key copied to clipboard", "success");
+    toast(t("apiKeys.toastCopied"), "success");
     setTimeout(() => setCopiedKey(false), 2000);
   }
 
@@ -161,15 +161,15 @@ export default function ApiKeysPage() {
       <Breadcrumbs
         items={[
           { label: t("nav.settings"), href: "/settings" },
-          { label: "API Keys" },
+          { label: t("apiKeys.title") },
         ]}
       />
 
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-vytal-text">API Keys</h1>
+          <h1 className="text-2xl font-bold text-vytal-text">{t("apiKeys.title")}</h1>
           <p className="mt-1 text-sm text-vytal-muted">
-            Manage API keys for programmatic access to your Vytal data.
+            {t("apiKeys.subtitle")}
           </p>
         </div>
         <button
@@ -180,7 +180,7 @@ export default function ApiKeysPage() {
           className="flex items-center gap-2 rounded-lg bg-vytal-green px-4 py-2.5 text-sm font-semibold text-vytal-bg transition-colors hover:bg-vytal-green/90"
         >
           <Plus className="h-4 w-4" />
-          Create API Key
+          {t("apiKeys.createBtn")}
         </button>
       </div>
 
@@ -189,14 +189,14 @@ export default function ApiKeysPage() {
         <div className="flex items-center gap-2">
           <Zap className="h-4 w-4 text-vytal-amber" />
           <span className="text-sm text-vytal-muted">
-            Rate limits: <span className="font-semibold text-vytal-text">1,000 requests/hour</span>
+            {t("apiKeys.rateLimits")} <span className="font-semibold text-vytal-text">{t("apiKeys.rateLimitsValue")}</span>
           </span>
         </div>
         <div className="h-4 w-px bg-vytal-border" />
         <div className="flex items-center gap-2">
           <Shield className="h-4 w-4 text-vytal-blue" />
           <span className="text-sm text-vytal-muted">
-            Daily limit: <span className="font-semibold text-vytal-text">10,000 requests/day</span>
+            {t("apiKeys.dailyLimit")} <span className="font-semibold text-vytal-text">{t("apiKeys.dailyLimitValue")}</span>
           </span>
         </div>
       </div>
@@ -207,7 +207,7 @@ export default function ApiKeysPage() {
           <div className="flex items-center gap-2">
             <AlertTriangle className="h-5 w-5 text-vytal-amber" />
             <h3 className="font-semibold text-vytal-amber">
-              Store this key safely -- it will only be shown once!
+              {t("apiKeys.newKeyWarning")}
             </h3>
           </div>
           <div className="flex items-center gap-2">
@@ -219,9 +219,9 @@ export default function ApiKeysPage() {
               className="flex items-center gap-1.5 rounded-lg border border-vytal-border bg-vytal-bg2 px-4 py-3 text-sm text-vytal-muted transition-colors hover:bg-vytal-bg3 hover:text-vytal-text"
             >
               {copiedKey ? (
-                <><Check className="h-4 w-4" /> Copied</>
+                <><Check className="h-4 w-4" /> {t("apiKeys.copied")}</>
               ) : (
-                <><Copy className="h-4 w-4" /> Copy</>
+                <><Copy className="h-4 w-4" /> {t("apiKeys.copy")}</>
               )}
             </button>
           </div>
@@ -229,7 +229,7 @@ export default function ApiKeysPage() {
             onClick={() => setNewlyCreatedKey(null)}
             className="text-xs text-vytal-muted hover:text-vytal-text"
           >
-            Dismiss
+            {t("apiKeys.dismiss")}
           </button>
         </div>
       )}
@@ -239,25 +239,25 @@ export default function ApiKeysPage() {
         <div className="rounded-xl border border-vytal-green/30 bg-vytal-card p-6 space-y-5">
           <div className="flex items-center gap-2 mb-2">
             <Key className="h-5 w-5 text-vytal-green" />
-            <h2 className="text-lg font-semibold text-vytal-text">Create API Key</h2>
+            <h2 className="text-lg font-semibold text-vytal-text">{t("apiKeys.createFormTitle")}</h2>
           </div>
 
           <div>
             <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">
-              Name
+              {t("apiKeys.nameLabel")}
             </label>
             <input
               type="text"
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
-              placeholder="e.g. Production API Key"
+              placeholder={t("apiKeys.namePlaceholder")}
               className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-2.5 text-sm text-vytal-text placeholder:text-vytal-muted focus:border-vytal-green/30 focus:outline-none focus:ring-1 focus:ring-vytal-green/20"
             />
           </div>
 
           <div>
             <label className="mb-2 block text-xs font-medium uppercase tracking-wider text-vytal-muted">
-              Permissions
+              {t("apiKeys.permissionsLabel")}
             </label>
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
               {allPermissions.map((perm) => (
@@ -296,7 +296,7 @@ export default function ApiKeysPage() {
 
           <div>
             <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">
-              Expiry
+              {t("apiKeys.expiryLabel")}
             </label>
             <div className="flex gap-2">
               {expiryOptions.map((opt) => (
@@ -322,13 +322,13 @@ export default function ApiKeysPage() {
               className="flex items-center gap-2 rounded-lg bg-vytal-green px-5 py-2.5 text-sm font-semibold text-vytal-bg transition-colors hover:bg-vytal-green/90"
             >
               <Plus className="h-4 w-4" />
-              Create
+              {t("action.create")}
             </button>
             <button
               onClick={() => setShowCreate(false)}
               className="rounded-lg border border-vytal-border px-4 py-2.5 text-sm text-vytal-text transition-colors hover:bg-vytal-bg3"
             >
-              Cancel
+              {t("action.cancel")}
             </button>
           </div>
         </div>
@@ -340,25 +340,25 @@ export default function ApiKeysPage() {
           <thead>
             <tr className="border-b border-vytal-border bg-vytal-bg2">
               <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-vytal-muted">
-                Name
+                {t("apiKeys.colName")}
               </th>
               <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-vytal-muted">
-                Key
+                {t("apiKeys.colKey")}
               </th>
               <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-vytal-muted">
-                Permissions
+                {t("apiKeys.colPermissions")}
               </th>
               <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-vytal-muted">
-                Created
+                {t("apiKeys.colCreated")}
               </th>
               <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-vytal-muted">
-                Last Used
+                {t("apiKeys.colLastUsed")}
               </th>
               <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-vytal-muted">
-                Status
+                {t("apiKeys.colStatus")}
               </th>
               <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-vytal-muted">
-                Actions
+                {t("apiKeys.colActions")}
               </th>
             </tr>
           </thead>
@@ -390,7 +390,7 @@ export default function ApiKeysPage() {
                     ) : (
                       <>
                         <span className="rounded-full bg-vytal-bg3 px-2 py-0.5 text-[10px] text-vytal-muted">
-                          {k.permissions.length} permissions
+                          {t("apiKeys.permissionsCount").replace("{count}", String(k.permissions.length))}
                         </span>
                       </>
                     )}
@@ -414,7 +414,7 @@ export default function ApiKeysPage() {
                         : "bg-vytal-red/10 text-vytal-red"
                     )}
                   >
-                    {k.status === "active" ? "Active" : "Revoked"}
+                    {k.status === "active" ? t("apiKeys.statusActive") : t("apiKeys.statusRevoked")}
                   </span>
                 </td>
                 <td className="px-4 py-3">
@@ -423,18 +423,18 @@ export default function ApiKeysPage() {
                       <>
                         {showRevoke === k.id ? (
                           <div className="flex items-center gap-2">
-                            <span className="text-xs text-vytal-red">Confirm?</span>
+                            <span className="text-xs text-vytal-red">{t("apiKeys.confirmRevoke")}</span>
                             <button
                               onClick={() => handleRevoke(k.id)}
                               className="rounded-lg bg-vytal-red px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-vytal-red/90"
                             >
-                              Revoke
+                              {t("apiKeys.revokeBtn")}
                             </button>
                             <button
                               onClick={() => setShowRevoke(null)}
                               className="rounded-lg border border-vytal-border px-3 py-1.5 text-xs text-vytal-text transition-colors hover:bg-vytal-bg3"
                             >
-                              Cancel
+                              {t("action.cancel")}
                             </button>
                           </div>
                         ) : (
@@ -443,7 +443,7 @@ export default function ApiKeysPage() {
                             className="flex items-center gap-1.5 rounded-lg border border-vytal-red/30 bg-vytal-red/5 px-3 py-1.5 text-xs font-semibold text-vytal-red transition-colors hover:bg-vytal-red/10"
                           >
                             <Trash2 className="h-3 w-3" />
-                            Revoke
+                            {t("apiKeys.revokeBtn")}
                           </button>
                         )}
                       </>
@@ -464,9 +464,9 @@ export default function ApiKeysPage() {
               <ExternalLink className="h-5 w-5 text-vytal-blue" />
             </div>
             <div>
-              <h3 className="text-sm font-semibold text-vytal-text">API Documentation</h3>
+              <h3 className="text-sm font-semibold text-vytal-text">{t("apiKeys.docsTitle")}</h3>
               <p className="text-xs text-vytal-muted">
-                Learn how to integrate with the Vytal API
+                {t("apiKeys.docsSubtitle")}
               </p>
             </div>
           </div>
@@ -474,12 +474,12 @@ export default function ApiKeysPage() {
             href="#"
             onClick={(e) => {
               e.preventDefault();
-              toast("API documentation would open in a new tab", "info");
+              toast(t("apiKeys.docsToast"), "info");
             }}
             className="flex items-center gap-2 rounded-lg border border-vytal-border bg-vytal-bg2 px-4 py-2.5 text-sm font-medium text-vytal-text transition-colors hover:bg-vytal-bg3"
           >
             <ExternalLink className="h-4 w-4" />
-            View API Docs
+            {t("apiKeys.docsBtn")}
           </a>
         </div>
       </div>
