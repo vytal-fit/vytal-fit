@@ -2628,6 +2628,7 @@ const translations: Record<Language, Record<string, string>> = {
     "marketing.fillRequired": "Preencha os campos obrigatórios.",
 
     // Daily Briefing (Right Sidebar)
+    "briefing.title": "Briefing Diário",
     "briefing.today": "Hoje",
     "briefing.classesToday": "aulas hoje",
     "briefing.enrolled": "inscritos",
@@ -5280,6 +5281,7 @@ const translations: Record<Language, Record<string, string>> = {
     "marketing.fillRequired": "Please fill required fields.",
 
     // Daily Briefing (Right Sidebar)
+    "briefing.title": "Daily Briefing",
     "briefing.today": "Today",
     "briefing.classesToday": "classes today",
     "briefing.enrolled": "enrolled",
@@ -7912,6 +7914,7 @@ const translations: Record<Language, Record<string, string>> = {
     "marketing.fillRequired": "Complete los campos obligatorios.",
 
     // Daily Briefing (Right Sidebar)
+    "briefing.title": "Briefing Diario",
     "briefing.today": "Hoy",
     "briefing.classesToday": "clases hoy",
     "briefing.enrolled": "inscritos",

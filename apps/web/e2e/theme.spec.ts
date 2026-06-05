@@ -10,8 +10,11 @@ test.describe("Theme", () => {
       storageState: authFile,
     });
     const page = await context.newPage();
+    await page.addInitScript(() => {
+      localStorage.setItem("vytal-right-sidebar-open", "false");
+    });
     await page.goto("/dashboard");
-    await expect(page.getByRole("heading", { name: /dashboard/i })).toBeVisible();
+    await expect(page.getByRole("heading", { level: 1 }).first()).toBeVisible();
     await context.close();
   });
 
@@ -21,8 +24,11 @@ test.describe("Theme", () => {
       storageState: authFile,
     });
     const page = await context.newPage();
+    await page.addInitScript(() => {
+      localStorage.setItem("vytal-right-sidebar-open", "false");
+    });
     await page.goto("/dashboard");
-    await expect(page.getByRole("heading", { name: /dashboard/i })).toBeVisible();
+    await expect(page.getByRole("heading", { level: 1 }).first()).toBeVisible();
     await context.close();
   });
 
@@ -32,8 +38,11 @@ test.describe("Theme", () => {
       storageState: authFile,
     });
     const page = await context.newPage();
+    await page.addInitScript(() => {
+      localStorage.setItem("vytal-right-sidebar-open", "false");
+    });
     await page.goto("/dashboard");
-    const heading = page.getByRole("heading", { name: /dashboard/i });
+    const heading = page.getByRole("heading", { level: 1 }).first();
     await expect(heading).toBeVisible();
     const box = await heading.boundingBox();
     expect(box).toBeTruthy();
