@@ -19,6 +19,7 @@ import {
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/lib/i18n";
 import { useToast } from "@/components/toast";
+import { formatCurrency } from "@/stores/data-store";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -86,8 +87,8 @@ const initialMessages: InboxMessage[] = [
     fromInitials: "SY",
     to: "CrossFit Aveiro",
     subject: "Payment failed - Miguel Costa",
-    preview: "Monthly payment of EUR 75.00 failed for member Miguel Costa...",
-    body: "Monthly payment of EUR 75.00 failed for member Miguel Costa.\n\nReason: Insufficient funds\nCard ending: 4521\n\nPlease contact the member to update their payment method.",
+    preview: `Monthly payment of ${formatCurrency(75)} failed for member Miguel Costa...`,
+    body: `Monthly payment of ${formatCurrency(75)} failed for member Miguel Costa.\n\nReason: Insufficient funds\nCard ending: 4521\n\nPlease contact the member to update their payment method.`,
     timestamp: "2026-06-04T08:45:00",
     timeLabel: "8:45 AM",
     read: false,
@@ -327,7 +328,7 @@ const initialMessages: InboxMessage[] = [
     to: "CrossFit Aveiro",
     subject: "Monthly report ready",
     preview: "Your May 2026 performance report is ready to view",
-    body: "Your monthly performance report for May 2026 is ready.\n\nHighlights:\n- Total check-ins: 1,245\n- New members: 14\n- Revenue: EUR 12,450\n- Avg. class attendance: 82%\n\nView the full report in Analytics.",
+    body: `Your monthly performance report for May 2026 is ready.\n\nHighlights:\n- Total check-ins: 1,245\n- New members: 14\n- Revenue: ${formatCurrency(12450)}\n- Avg. class attendance: 82%\n\nView the full report in Analytics.`,
     timestamp: "2026-06-01T07:00:00",
     timeLabel: "3 days ago",
     read: true,
