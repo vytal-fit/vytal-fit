@@ -1166,6 +1166,18 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           <div className="flex items-center gap-3">
             <LanguageSwitcher />
             <ThemeToggle />
+            <button
+              onClick={toggleRightSidebar}
+              className={cn(
+                "hidden md:flex h-9 w-9 items-center justify-center rounded-lg transition-colors",
+                rightSidebarOpen
+                  ? "bg-vytal-green/10 text-vytal-green"
+                  : "text-vytal-muted hover:bg-vytal-bg3 hover:text-vytal-text"
+              )}
+              title={t("briefing.title")}
+            >
+              <BarChart3 className="h-[18px] w-[18px]" />
+            </button>
             <NotificationsDropdown />
 
             {/* User — separated with border */}
@@ -1179,33 +1191,36 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
       </div>
 
-      {/* Right Sidebar — Daily Briefing (overlay, doesn't squeeze content) */}
-      <div className="hidden md:block">
-        {/* Toggle tab — visible vertical tab on right edge */}
-        <button
-          onClick={toggleRightSidebar}
-          className={cn(
-            "fixed z-40 top-1/2 -translate-y-1/2 flex flex-col items-center justify-center gap-1.5 rounded-l-lg border border-r-0 border-vytal-border bg-vytal-bg3 text-vytal-muted shadow-md transition-all duration-300 hover:bg-vytal-bg2 hover:text-vytal-text",
-            rightSidebarOpen ? "right-80 w-10 h-20" : "right-0 w-10 h-20"
-          )}
-          title={t("briefing.toggleSidebar")}
-        >
-          <BarChart3 className="h-4 w-4" />
-          <span className="text-[9px] font-bold uppercase tracking-wider [writing-mode:vertical-lr] rotate-180">
-            Painel
-          </span>
-        </button>
-
-        {/* Sidebar panel — slides in from right, overlays content */}
-        <aside
-          className={cn(
-            "fixed right-0 top-16 bottom-0 z-30 w-80 border-l border-vytal-border bg-vytal-bg2 shadow-2xl shadow-black/10 transition-transform duration-300 ease-in-out overflow-y-auto",
-            rightSidebarOpen ? "translate-x-0" : "translate-x-full"
-          )}
-        >
+      {/* Right Panel — Daily Briefing (elegant drawer) */}
+      {rightSidebarOpen && (
+        <div className="fixed inset-0 z-30 hidden md:block" onClick={toggleRightSidebar}>
+          <div className="absolute inset-0 bg-black/20 backdrop-blur-[2px]" />
+        </div>
+      )}
+      <aside
+        className={cn(
+          "fixed right-0 top-0 bottom-0 z-40 hidden w-80 flex-col border-l border-vytal-border bg-vytal-bg2 shadow-2xl transition-transform duration-300 ease-in-out md:flex",
+          rightSidebarOpen ? "translate-x-0" : "translate-x-full"
+        )}
+      >
+        {/* Panel header */}
+        <div className="flex h-16 items-center justify-between border-b border-vytal-border px-5">
+          <div className="flex items-center gap-2">
+            <BarChart3 className="h-4 w-4 text-vytal-green" />
+            <span className="text-sm font-semibold text-vytal-text">{t("briefing.title")}</span>
+          </div>
+          <button
+            onClick={toggleRightSidebar}
+            className="flex h-7 w-7 items-center justify-center rounded-lg text-vytal-muted transition-colors hover:bg-vytal-bg3 hover:text-vytal-text"
+          >
+            <XIcon className="h-4 w-4" />
+          </button>
+        </div>
+        {/* Panel content */}
+        <div className="flex-1 overflow-y-auto">
           <DailyBriefing />
-        </aside>
-      </div>
+        </div>
+      </aside>
 
       {/* Floating Messenger-style chat widget */}
       <FloatingChat />
