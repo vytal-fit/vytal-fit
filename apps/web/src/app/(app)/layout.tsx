@@ -1065,18 +1065,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         ))}
       </nav>
 
-      {/* Expand button when collapsed */}
-      {sidebarCollapsed && (
-        <div className="border-t border-vytal-border p-3 flex justify-center">
-          <button
-            onClick={toggleSidebar}
-            className="flex h-8 w-8 items-center justify-center rounded-lg text-vytal-muted transition-colors hover:bg-vytal-bg3 hover:text-vytal-green"
-            title="Expand"
-          >
-            <ChevronRight className="h-4 w-4" />
-          </button>
-        </div>
-      )}
     </>
   );
 
@@ -1091,16 +1079,14 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         )}
 
       >
-        {/* Collapse toggle — only visible when sidebar is expanded */}
-        {!sidebarCollapsed && (
-          <button
-            onClick={toggleSidebar}
-            className="absolute -right-3 top-20 z-50 flex h-6 w-6 items-center justify-center rounded-full border border-vytal-border bg-vytal-bg2 text-vytal-muted shadow-sm transition-colors duration-200 hover:text-vytal-green hover:border-vytal-green/50"
-            title="Collapse"
-          >
-            <ChevronLeft className="h-3 w-3" />
-          </button>
-        )}
+        {/* Collapse/Expand toggle — ALWAYS visible like kloser */}
+        <button
+          onClick={toggleSidebar}
+          className="absolute -right-3 top-20 z-50 flex h-6 w-6 items-center justify-center rounded-full border border-vytal-border bg-vytal-bg2 text-vytal-muted shadow-sm transition-colors duration-200 hover:text-vytal-green hover:border-vytal-green/50"
+          title={sidebarCollapsed ? "Expand" : "Collapse"}
+        >
+          {sidebarCollapsed ? <ChevronRight className="h-3 w-3" /> : <ChevronLeft className="h-3 w-3" />}
+        </button>
         {sidebarContent}
       </aside>
       {/* Spacer when sidebar is collapsed + hovered (absolute) */}
@@ -1153,7 +1139,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               onClick={() => {
                 document.dispatchEvent(new KeyboardEvent("keydown", { key: "k", metaKey: true, bubbles: true }));
               }}
-              className="hidden items-center gap-3 rounded-lg border border-vytal-border bg-vytal-bg3/50 px-4 py-2 text-sm text-vytal-muted transition-all duration-200 hover:border-vytal-green/20 hover:text-vytal-text sm:flex w-64 lg:w-80"
+              className="hidden items-center gap-3 rounded-lg border border-vytal-border bg-vytal-bg3/50 px-4 py-2 text-sm text-vytal-muted transition-all duration-200 hover:border-vytal-green/20 hover:text-vytal-text sm:flex w-48 lg:w-72"
             >
               <Search className="h-4 w-4" />
               <span>{t("ui.searchPlaceholder")}</span>
