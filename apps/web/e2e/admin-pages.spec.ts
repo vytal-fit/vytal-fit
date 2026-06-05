@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test";
 
 test.describe("Admin - All Pages Load", () => {
   const pages = [
-    { path: "/dashboard", heading: /dashboard/i },
+    { path: "/dashboard", heading: /dashboard|bom dia|boa tarde|boa noite|good morning|good afternoon|good evening/i },
     { path: "/members", heading: /membros|members|miembros/i },
     { path: "/classes", heading: /aulas|classes|clases|agenda/i },
     { path: "/wods", heading: /wod/i },

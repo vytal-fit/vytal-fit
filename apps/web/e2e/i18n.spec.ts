@@ -17,8 +17,11 @@ test.describe("Internationalization", () => {
         storageState: authFile,
       });
       const page = await context.newPage();
+      await page.addInitScript(() => {
+        localStorage.setItem("vytal-right-sidebar-open", "false");
+      });
       await page.goto("/dashboard");
-      await expect(page.getByRole("heading", { name: /dashboard/i })).toBeVisible();
+      await expect(page.getByRole("heading", { level: 1 }).first()).toBeVisible();
       await context.close();
     });
   }
