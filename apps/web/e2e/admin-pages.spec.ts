@@ -77,7 +77,7 @@ test.describe("Admin - Financials", () => {
 test.describe("Admin - Communications", () => {
   test("shows tabs for News, Email, SMS", async ({ page }) => {
     await page.goto("/communications");
-    await expect(page.getByText(/news/i).first()).toBeVisible();
+    await expect(page.getByText(/news|notícias|noticias/i).first()).toBeVisible();
     await expect(page.getByText(/email/i).first()).toBeVisible();
     await expect(page.getByText(/sms/i).first()).toBeVisible();
   });
