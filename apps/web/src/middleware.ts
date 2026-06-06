@@ -12,6 +12,9 @@ const ADMIN_ROUTES = new Set([
   "changelog", "help", "profile", "setup", "onboarding",
 ]);
 
+// Member console routes (athlete-facing portal)
+const CONSOLE_ROUTES = new Set(["console"]);
+
 // Public org page routes (not admin)
 const PUBLIC_ORG_ROUTES = new Set([
   "schedule", "pricing", "shop", "team", "contact",
@@ -62,6 +65,11 @@ export function middleware(request: NextRequest) {
         url.pathname = `/org/${orgSlug}${pathname}`;
         return NextResponse.rewrite(url);
       }
+      // Console routes on custom domain → rewrite directly to /console/...
+      if (CONSOLE_ROUTES.has(firstSegment)) {
+        url.pathname = pathname;
+        return NextResponse.rewrite(url);
+      }
       // Admin routes on custom domain → redirect to vytal.fit/@slug/admin-route
       if (ADMIN_ROUTES.has(firstSegment)) {
         url.hostname = "vytal.fit";
@@ -93,6 +101,13 @@ export function middleware(request: NextRequest) {
 
     if (ADMIN_ROUTES.has(firstSegment)) {
       // /@org/dashboard → /dashboard
+      const url = request.nextUrl.clone();
+      url.pathname = subpath;
+      return NextResponse.rewrite(url);
+    }
+
+    if (CONSOLE_ROUTES.has(firstSegment)) {
+      // /@org/console → /console (member portal, rewrite without org prefix)
       const url = request.nextUrl.clone();
       url.pathname = subpath;
       return NextResponse.rewrite(url);

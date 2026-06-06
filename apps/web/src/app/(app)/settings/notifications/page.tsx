@@ -68,9 +68,18 @@ export default function NotificationRulesPage() {
         ]}
       />
 
-      <div>
-        <h1 className="text-2xl font-bold text-vytal-text">{t("notifRules.title")}</h1>
-        <p className="mt-1 text-sm text-vytal-muted">{t("notifRules.subtitle")}</p>
+      <div className="flex items-end justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-vytal-text">{t("notifRules.title")}</h1>
+          <p className="mt-1 text-sm text-vytal-muted">{t("notifRules.subtitle")}</p>
+        </div>
+        <button
+          onClick={() => toast(t("notifRules.saved"), "success")}
+          className="flex items-center gap-2 rounded-lg bg-vytal-green px-5 py-2.5 text-sm font-semibold text-vytal-bg transition-colors hover:bg-vytal-green/90"
+        >
+          <Save className="h-4 w-4" />
+          {t("action.save")}
+        </button>
       </div>
 
       {/* Rules */}
@@ -142,16 +151,6 @@ export default function NotificationRulesPage() {
         ))}
       </div>
 
-      {/* Save */}
-      <div className="flex justify-end">
-        <button
-          onClick={() => toast(t("notifRules.saved"), "success")}
-          className="flex items-center gap-2 rounded-lg bg-vytal-green px-6 py-2.5 text-sm font-semibold text-vytal-bg transition-colors hover:bg-vytal-green/90"
-        >
-          <Save className="h-4 w-4" />
-          {t("notifRules.save")}
-        </button>
-      </div>
     </div>
   );
 }
