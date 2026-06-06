@@ -1051,15 +1051,15 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
   /** Sidebar inner content — shared between desktop and mobile */
   const sidebarContent = (
-    <>
+    <div className="flex h-full flex-col overflow-hidden">
       {/* Org Switcher */}
-      <div className="border-b border-vytal-border px-3 py-3">
+      <div className="shrink-0 border-b border-vytal-border px-3 py-3">
         <OrgSwitcher onCreateOrg={() => setShowCreateOrgWizard(true)} collapsed={!isEffectivelyExpanded} />
       </div>
 
       {/* Org type badge */}
       {orgConfig && isEffectivelyExpanded && (
-        <div className="border-b border-vytal-border px-4 py-2">
+        <div className="shrink-0 border-b border-vytal-border px-4 py-2">
           <span className="text-[9px] font-bold uppercase tracking-widest text-vytal-muted">
             {t(`vertical.${orgType}`)}
           </span>
@@ -1218,7 +1218,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           </button>
         </div>
       )}
-    </>
+    </div>
   );
 
   return (
