@@ -121,9 +121,18 @@ export default function BookingRulesPage() {
         ]}
       />
 
-      <div>
-        <h1 className="text-2xl font-bold text-vytal-text">{t("bookingRules.title")}</h1>
-        <p className="mt-1 text-sm text-vytal-muted">{t("bookingRules.subtitle")}</p>
+      <div className="flex items-end justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-vytal-text">{t("bookingRules.title")}</h1>
+          <p className="mt-1 text-sm text-vytal-muted">{t("bookingRules.subtitle")}</p>
+        </div>
+        <button
+          onClick={() => toast(t("bookingRules.saved"), "success")}
+          className="flex items-center gap-2 rounded-lg bg-vytal-green px-5 py-2.5 text-sm font-semibold text-vytal-bg transition-colors hover:bg-vytal-green/90"
+        >
+          <Save className="h-4 w-4" />
+          {t("action.save")}
+        </button>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
@@ -277,16 +286,6 @@ export default function BookingRulesPage() {
         </RuleCard>
       </div>
 
-      {/* Save */}
-      <div className="flex justify-end">
-        <button
-          onClick={() => toast(t("bookingRules.saved"), "success")}
-          className="flex items-center gap-2 rounded-lg bg-vytal-green px-6 py-2.5 text-sm font-semibold text-vytal-bg transition-colors hover:bg-vytal-green/90"
-        >
-          <Save className="h-4 w-4" />
-          {t("bookingRules.save")}
-        </button>
-      </div>
     </div>
   );
 }

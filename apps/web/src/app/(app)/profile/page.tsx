@@ -23,6 +23,7 @@ import {
   EyeOff,
   ChevronRight,
   Check,
+  Save,
   AlertTriangle,
 } from "lucide-react";
 import { useAuthStore } from "@/stores/auth-store";
@@ -79,9 +80,18 @@ export default function ProfilePage() {
 
   return (
     <div>
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-vytal-text">{t("profile.title")}</h1>
-        <p className="mt-1 text-sm text-vytal-muted">{t("profile.subtitle")}</p>
+      <div className="mb-8 flex items-end justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-vytal-text">{t("profile.title")}</h1>
+          <p className="mt-1 text-sm text-vytal-muted">{t("profile.subtitle")}</p>
+        </div>
+        <button
+          onClick={handleSave}
+          className="flex items-center gap-2 rounded-lg bg-vytal-green px-5 py-2.5 text-sm font-semibold text-vytal-bg transition-colors hover:bg-vytal-green/90"
+        >
+          <Save className="h-4 w-4" />
+          {t("action.save")}
+        </button>
       </div>
 
       <div className="flex gap-6">
@@ -199,12 +209,6 @@ export default function ProfilePage() {
                     </div>
                   </div>
                 </div>
-                <button
-                  onClick={handleSave}
-                  className="mt-6 flex items-center gap-2 rounded-lg bg-vytal-green px-4 py-2.5 text-sm font-semibold text-vytal-bg transition-colors hover:bg-vytal-green/90"
-                >
-                  {saved ? <><Check className="h-4 w-4" /> {t("profile.saved")}</> : t("profile.saveChanges")}
-                </button>
               </div>
             </div>
           )}

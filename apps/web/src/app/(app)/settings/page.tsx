@@ -76,14 +76,45 @@ export default function SettingsPage() {
   const update = (key: string, value: string) =>
     setForm((prev) => ({ ...prev, [key]: value }));
 
+  function handleSave() {
+    updateOrgSettings({
+      name: form.name,
+      slug: form.name.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, ""),
+      slogan: form.slogan,
+      email: form.email,
+      phone: form.phone,
+      businessType: form.businessType,
+      timezone: form.timezone,
+      currency: form.currency,
+      website: form.website,
+      facebook: form.facebook,
+      instagram: form.instagram,
+      youtube: form.youtube,
+      address: form.address,
+      city: form.city,
+      zipCode: form.zipCode,
+      country: form.country,
+    });
+    toast(t("toast.settingsSaved"), "success");
+  }
+
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-vytal-text">{t("settings.title")}</h1>
-        <p className="mt-1 text-sm text-vytal-muted">
-          {t("settings.subtitle")}
-        </p>
+      <div className="flex items-end justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-vytal-text">{t("settings.title")}</h1>
+          <p className="mt-1 text-sm text-vytal-muted">
+            {t("settings.subtitle")}
+          </p>
+        </div>
+        <button
+          onClick={handleSave}
+          className="flex items-center gap-2 rounded-lg bg-vytal-green px-5 py-2.5 text-sm font-semibold text-vytal-bg transition-colors hover:bg-vytal-green/90"
+        >
+          <Save className="h-4 w-4" />
+          {t("action.save")}
+        </button>
       </div>
 
       <div className="grid gap-8 lg:grid-cols-2">
@@ -425,37 +456,6 @@ export default function SettingsPage() {
             </div>
           </div>
         </div>
-      </div>
-
-      {/* Save Button */}
-      <div className="flex justify-end">
-        <button
-          onClick={() => {
-            updateOrgSettings({
-              name: form.name,
-              slug: form.name.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, ""),
-              slogan: form.slogan,
-              email: form.email,
-              phone: form.phone,
-              businessType: form.businessType,
-              timezone: form.timezone,
-              currency: form.currency,
-              website: form.website,
-              facebook: form.facebook,
-              instagram: form.instagram,
-              youtube: form.youtube,
-              address: form.address,
-              city: form.city,
-              zipCode: form.zipCode,
-              country: form.country,
-            });
-            toast(t("toast.settingsSaved"), "success");
-          }}
-          className="flex items-center gap-2 rounded-lg bg-vytal-green px-6 py-2.5 text-sm font-semibold text-vytal-bg transition-colors hover:bg-vytal-green/90"
-        >
-          <Save className="h-4 w-4" />
-          {t("action.save")}
-        </button>
       </div>
 
       {/* Danger Zone */}

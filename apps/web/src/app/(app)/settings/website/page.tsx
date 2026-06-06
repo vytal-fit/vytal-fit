@@ -302,7 +302,7 @@ export default function WebsiteConfigPage() {
       />
 
       {/* Header */}
-      <div className="flex items-start justify-between gap-4">
+      <div className="flex items-end justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-vytal-text">{t("website.title")}</h1>
           <p className="mt-1 text-sm text-vytal-muted">
@@ -315,14 +315,24 @@ export default function WebsiteConfigPage() {
             </span>
           </div>
         </div>
-        <button
-          type="button"
-          onClick={handlePreview}
-          className="flex shrink-0 items-center gap-2 rounded-lg border border-vytal-border bg-vytal-bg2 px-4 py-2.5 text-sm font-medium text-vytal-text transition-colors hover:bg-vytal-bg3"
-        >
-          <ExternalLink className="h-4 w-4" />
-          {t("website.preview")}
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={handlePreview}
+            className="flex shrink-0 items-center gap-2 rounded-lg border border-vytal-border bg-vytal-bg2 px-4 py-2.5 text-sm font-medium text-vytal-text transition-colors hover:bg-vytal-bg3"
+          >
+            <ExternalLink className="h-4 w-4" />
+            {t("website.preview")}
+          </button>
+          <button
+            type="button"
+            onClick={handleSave}
+            className="flex items-center gap-2 rounded-lg bg-vytal-green px-5 py-2.5 text-sm font-semibold text-vytal-bg transition-colors hover:bg-vytal-green/90"
+          >
+            <Save className="h-4 w-4" />
+            {t("action.save")}
+          </button>
+        </div>
       </div>
 
       {/* Section cards */}
@@ -626,25 +636,6 @@ export default function WebsiteConfigPage() {
         </SectionCard>
       </div>
 
-      {/* Save */}
-      <div className="flex items-center justify-between border-t border-vytal-border pt-6">
-        <button
-          type="button"
-          onClick={handlePreview}
-          className="flex items-center gap-2 rounded-lg border border-vytal-border bg-vytal-bg2 px-5 py-2.5 text-sm font-medium text-vytal-text transition-colors hover:bg-vytal-bg3"
-        >
-          <ExternalLink className="h-4 w-4" />
-          {t("website.preview")}
-        </button>
-        <button
-          type="button"
-          onClick={handleSave}
-          className="flex items-center gap-2 rounded-lg bg-vytal-green px-6 py-2.5 text-sm font-semibold text-vytal-bg transition-colors hover:bg-vytal-green/90"
-        >
-          <Save className="h-4 w-4" />
-          {t("website.save")}
-        </button>
-      </div>
     </div>
   );
 }

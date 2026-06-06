@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Monitor, Camera, QrCode, Save, ScanLine } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/lib/i18n";
+import { useToast } from "@/components/toast";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 
 const timingOptions = [
@@ -33,6 +34,7 @@ const QR_PATTERN = [
 
 export default function KioskConfigPage() {
   const { t } = useI18n();
+  const { toast } = useToast();
   const [images] = useState(Array(6).fill(""));
   const [overlays, setOverlays] = useState(Array(6).fill(""));
   const [timing, setTiming] = useState("15min");
@@ -78,11 +80,20 @@ export default function KioskConfigPage() {
         ]}
       />
 
-      <div>
-        <h1 className="text-2xl font-bold text-vytal-text">{t("kiosk.title")}</h1>
-        <p className="mt-1 text-sm text-vytal-muted">
-          {t("kiosk.subtitle")}
-        </p>
+      <div className="flex items-end justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-vytal-text">{t("kiosk.title")}</h1>
+          <p className="mt-1 text-sm text-vytal-muted">
+            {t("kiosk.subtitle")}
+          </p>
+        </div>
+        <button
+          onClick={() => toast(t("action.save"), "success")}
+          className="flex items-center gap-2 rounded-lg bg-vytal-green px-5 py-2.5 text-sm font-semibold text-vytal-bg transition-colors hover:bg-vytal-green/90"
+        >
+          <Save className="h-4 w-4" />
+          {t("action.save")}
+        </button>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
@@ -222,12 +233,6 @@ export default function KioskConfigPage() {
         </div>
       </div>
 
-      <div className="flex justify-end">
-        <button className="flex items-center gap-2 rounded-lg bg-vytal-green px-6 py-2.5 text-sm font-semibold text-vytal-bg transition-colors hover:bg-vytal-green/90">
-          <Save className="h-4 w-4" />
-          {t("action.save")}
-        </button>
-      </div>
     </div>
   );
 }

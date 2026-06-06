@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Check, RotateCcw, ToggleLeft, ToggleRight } from "lucide-react";
+import { Check, Save, RotateCcw, ToggleLeft, ToggleRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/lib/i18n";
 import { useToast } from "@/components/toast";
@@ -121,7 +121,7 @@ export default function SettingsFeaturesPage() {
           onClick={handleSave}
           className="flex items-center gap-2 rounded-lg bg-vytal-green px-5 py-2.5 text-sm font-semibold text-vytal-bg transition-colors hover:bg-vytal-green/90"
         >
-          <Check className="h-4 w-4" />
+          <Save className="h-4 w-4" />
           {t("action.save")}
         </button>
       </div>

@@ -173,7 +173,7 @@ export default function AppConfigPage() {
         ]}
       />
 
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+      <div className="flex items-end justify-between">
         <div>
           <h1 className="text-2xl font-bold text-vytal-text">{t("appConfig.title")}</h1>
           <p className="mt-1 text-sm text-vytal-muted">
@@ -189,6 +189,13 @@ export default function AppConfigPage() {
           </button>
           <button onClick={deselectAll} className="rounded-lg border border-vytal-border bg-vytal-bg2 px-4 py-2 text-xs font-medium text-vytal-muted transition-colors hover:text-vytal-text">
             {t("appConfig.deselectAll")}
+          </button>
+          <button
+            onClick={handleSave}
+            className="flex items-center gap-2 rounded-lg bg-vytal-green px-5 py-2.5 text-sm font-semibold text-vytal-bg transition-colors hover:bg-vytal-green/90"
+          >
+            <Save className="h-4 w-4" />
+            {t("action.save")}
           </button>
         </div>
       </div>
@@ -293,15 +300,6 @@ export default function AppConfigPage() {
         </div>
       </div>
 
-      <div className="flex justify-end">
-        <button
-          onClick={handleSave}
-          className="flex items-center gap-2 rounded-lg bg-vytal-green px-6 py-2.5 text-sm font-semibold text-vytal-bg transition-colors hover:bg-vytal-green/90"
-        >
-          <Save className="h-4 w-4" />
-          {t("action.save")}
-        </button>
-      </div>
     </div>
   );
 }

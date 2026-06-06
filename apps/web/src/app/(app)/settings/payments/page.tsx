@@ -278,31 +278,17 @@ export default function PaymentsSettingsPage() {
       />
 
       {/* Page Header */}
-      <div className="flex items-start justify-between gap-4">
+      <div className="flex items-end justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-vytal-text">{t("payments.title")}</h1>
           <p className="mt-1 text-sm text-vytal-muted">{t("payments.subtitle")}</p>
         </div>
         <button
           onClick={handleSave}
-          className={cn(
-            "inline-flex shrink-0 items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all",
-            saved
-              ? "bg-vytal-green/10 text-vytal-green"
-              : "bg-vytal-green text-black hover:bg-vytal-green/90"
-          )}
+          className="flex items-center gap-2 rounded-lg bg-vytal-green px-5 py-2.5 text-sm font-semibold text-vytal-bg transition-colors hover:bg-vytal-green/90"
         >
-          {saved ? (
-            <>
-              <CheckCircle className="h-4 w-4" />
-              {t("payments.saved").split(".")[0]}
-            </>
-          ) : (
-            <>
-              <Save className="h-4 w-4" />
-              {t("payments.saveBtn")}
-            </>
-          )}
+          <Save className="h-4 w-4" />
+          {t("action.save")}
         </button>
       </div>
 
@@ -497,30 +483,6 @@ export default function PaymentsSettingsPage() {
         </MethodCard>
       </div>
 
-      {/* Bottom save */}
-      <div className="flex justify-end border-t border-vytal-border pt-4">
-        <button
-          onClick={handleSave}
-          className={cn(
-            "inline-flex items-center gap-2 rounded-xl px-6 py-2.5 text-sm font-semibold transition-all",
-            saved
-              ? "bg-vytal-green/10 text-vytal-green"
-              : "bg-vytal-green text-black hover:bg-vytal-green/90"
-          )}
-        >
-          {saved ? (
-            <>
-              <CheckCircle className="h-4 w-4" />
-              {t("payments.saved").split(".")[0]}
-            </>
-          ) : (
-            <>
-              <Save className="h-4 w-4" />
-              {t("payments.saveBtn")}
-            </>
-          )}
-        </button>
-      </div>
     </div>
   );
 }
