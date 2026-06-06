@@ -12,6 +12,7 @@ import {
   mockPersonalRecords,
   mockSubscriptions,
   mockWODs,
+  ORGANIZATION_CONFIGS,
 } from "@vytal-fit/shared";
 import type {
   Member,
@@ -94,6 +95,7 @@ const defaultOrgSettings: OrgSettings = {
   youtube: "",
   slogan: "Stronger Every Day",
   businessType: "crossfit_box",
+  features: ORGANIZATION_CONFIGS.crossfit_box?.features as OrganizationFeatures,
 };
 
 function loadOrgSettings(): OrgSettings {

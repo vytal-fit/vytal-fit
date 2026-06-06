@@ -433,7 +433,9 @@ function OrgSwitcher({ onCreateOrg, collapsed }: { onCreateOrg?: () => void; col
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const orgInitial = orgSettings.name.charAt(0) || activeOrg?.organization.name.charAt(0) || "V";
+  // Use active org name from memberships as source of truth
+  const displayOrgName = activeOrg?.organization.name || orgSettings.name || t("ui.selectOrg");
+  const orgInitial = displayOrgName.charAt(0);
 
   if (collapsed) {
     return (
@@ -444,7 +446,7 @@ function OrgSwitcher({ onCreateOrg, collapsed }: { onCreateOrg?: () => void; col
               setSidebarCollapsed();
             }
           }}
-          title={orgSettings.name || activeOrg?.organization.name || t("ui.selectOrg")}
+          title={displayOrgName}
           className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-vytal-green/10 text-sm font-bold text-vytal-green transition-colors hover:bg-vytal-green/20"
         >
           {orgInitial}
@@ -464,7 +466,7 @@ function OrgSwitcher({ onCreateOrg, collapsed }: { onCreateOrg?: () => void; col
         </div>
         <div className="flex flex-1 flex-col min-w-0">
           <span className="text-sm font-semibold text-vytal-text truncate">
-            {orgSettings.name || activeOrg?.organization.name || t("ui.selectOrg")}
+            {displayOrgName}
           </span>
           <span className="text-[10px] text-vytal-muted">
             {activeOrg ? ROLE_LABELS[activeOrg.role] : ""}
@@ -1284,17 +1286,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           isModal
           onComplete={(orgData: CreateOrgData) => {
             setShowCreateOrgWizard(false);
-            // Update org settings (persisted)
-            updateOrgSettings({
-              name: orgData.name,
-              slug: orgData.slug,
-              email: orgData.email,
-              currency: orgData.currency,
-              country: orgData.country,
-              businessType: orgData.type,
-              features: orgData.features,
-            });
-            // Add new org to user memberships so it shows in the dropdown
+            // Add new org to user memberships (don't overwrite current org settings)
             if (user) {
               const newOrgId = `org-${Date.now()}`;
               const newMembership = {
@@ -1315,11 +1307,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               const updatedUser = {
                 ...user,
                 memberships: [...user.memberships, newMembership],
-                activeOrganizationId: newOrgId,
+                // Stay on current org — don't auto-switch
               };
-              // Persist to auth store via localStorage
               localStorage.setItem("vytal-auth", JSON.stringify(updatedUser));
-              // Trigger re-render
+              // Hydrate auth store
               window.location.reload();
             }
           }}
