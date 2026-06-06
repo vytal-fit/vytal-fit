@@ -453,8 +453,8 @@ export default function ClassCalendarPage() {
     setCopiedClasses([...weekClasses]);
     setPastedPreview([]);
     setShowPastePreview(false);
-    toast("Week copied! Navigate to target week and click Paste Week.", "success");
-  }, [weekClasses, toast]);
+    toast(t("toast.weekCopied"), "success");
+  }, [weekClasses, toast, t]);
 
   const handlePasteWeek = useCallback(() => {
     if (!copiedClasses) return;
@@ -485,8 +485,8 @@ export default function ClassCalendarPage() {
     setPastedPreview([]);
     setShowPastePreview(false);
     setCopiedClasses(null);
-    toast(`${pastedPreview.length} classes pasted into this week!`, "success");
-  }, [pastedPreview, toast]);
+    toast(t("toast.classesPasted").replace("{count}", String(pastedPreview.length)), "success");
+  }, [pastedPreview, toast, t]);
 
   const handleCancelPaste = useCallback(() => {
     setPastedPreview([]);
@@ -641,7 +641,7 @@ export default function ClassCalendarPage() {
             )}
           >
             <Copy className="h-3.5 w-3.5" />
-            {copiedClasses ? "Copied!" : t("quickAction.copyWeek")}
+            {copiedClasses ? t("calendar.copied") : t("quickAction.copyWeek")}
           </button>
           {copiedClasses && !showPastePreview && (
             <button
@@ -649,7 +649,7 @@ export default function ClassCalendarPage() {
               className="flex items-center gap-1.5 rounded-lg border border-vytal-amber/30 bg-vytal-amber/10 px-3 py-1.5 text-xs font-medium text-vytal-amber transition-colors hover:bg-vytal-amber/20"
             >
               <ClipboardPaste className="h-3.5 w-3.5" />
-              Paste Week
+              {t("calendar.pasteWeek")}
             </button>
           )}
           {showPastePreview && (
@@ -659,14 +659,14 @@ export default function ClassCalendarPage() {
                 className="flex items-center gap-1.5 rounded-lg bg-vytal-green px-3 py-1.5 text-xs font-semibold text-vytal-bg transition-colors hover:bg-vytal-green/90"
               >
                 <Check className="h-3.5 w-3.5" />
-                Confirm Paste
+                {t("calendar.confirmPaste")}
               </button>
               <button
                 onClick={handleCancelPaste}
                 className="flex items-center gap-1.5 rounded-lg border border-vytal-red/30 bg-vytal-red/10 px-3 py-1.5 text-xs font-medium text-vytal-red transition-colors hover:bg-vytal-red/20"
               >
                 <X className="h-3.5 w-3.5" />
-                Cancel
+                {t("action.cancel")}
               </button>
             </>
           )}

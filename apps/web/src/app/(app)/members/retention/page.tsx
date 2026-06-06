@@ -178,19 +178,19 @@ export default function RetentionMonitorPage() {
   const selectedNames = members.filter((m) => m.selected).map((m) => m.name);
 
   const handleBulkNotification = useCallback(() => {
-    toast(`Push notification sent to ${selectedCount} members: ${selectedNames.join(", ")}`, "success");
+    toast(t("toast.pushSent").replace("{count}", String(selectedCount)).replace("{names}", selectedNames.join(", ")), "success");
     deselectAll();
-  }, [selectedCount, selectedNames, toast]);
+  }, [selectedCount, selectedNames, toast, t]);
 
   const handleBulkEmail = useCallback(() => {
-    toast(`Email sent to ${selectedCount} members: ${selectedNames.join(", ")}`, "success");
+    toast(t("toast.emailSentMembers").replace("{count}", String(selectedCount)).replace("{names}", selectedNames.join(", ")), "success");
     deselectAll();
-  }, [selectedCount, selectedNames, toast]);
+  }, [selectedCount, selectedNames, toast, t]);
 
   const handleBulkSMS = useCallback(() => {
-    toast(`SMS sent to ${selectedCount} members: ${selectedNames.join(", ")}`, "success");
+    toast(t("toast.smsSentMembers").replace("{count}", String(selectedCount)).replace("{names}", selectedNames.join(", ")), "success");
     deselectAll();
-  }, [selectedCount, selectedNames, toast]);
+  }, [selectedCount, selectedNames, toast, t]);
 
   // Filter members below advantage threshold (for highlighting)
   const atRiskCount = useMemo(() => {
@@ -210,7 +210,7 @@ export default function RetentionMonitorPage() {
         </div>
         <div className="flex items-center gap-2 text-sm">
           <span className="rounded-full bg-vytal-red/10 px-3 py-1 text-xs font-medium text-vytal-red">
-            {atRiskCount} at risk
+            {t("retention.atRiskCount").replace("{count}", String(atRiskCount))}
           </span>
         </div>
       </div>
@@ -248,13 +248,13 @@ export default function RetentionMonitorPage() {
               onClick={handleBulkEmail}
               className="flex items-center gap-1 rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-1.5 text-xs font-medium text-vytal-text transition-colors hover:bg-vytal-bg3"
             >
-              <Mail className="h-3 w-3" /> Email
+              <Mail className="h-3 w-3" /> {t("retention.email")}
             </button>
             <button
               onClick={handleBulkSMS}
               className="flex items-center gap-1 rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-1.5 text-xs font-medium text-vytal-text transition-colors hover:bg-vytal-bg3"
             >
-              <Smartphone className="h-3 w-3" /> SMS
+              <Smartphone className="h-3 w-3" /> {t("retention.sms")}
             </button>
           </div>
           <div className="ml-auto flex gap-2">
@@ -262,13 +262,13 @@ export default function RetentionMonitorPage() {
               onClick={selectAll}
               className="text-xs text-vytal-muted underline hover:text-vytal-text"
             >
-              Select All
+              {t("retention.selectAll")}
             </button>
             <button
               onClick={deselectAll}
               className="text-xs text-vytal-muted underline hover:text-vytal-text"
             >
-              Deselect All
+              {t("retention.deselectAll")}
             </button>
           </div>
         </div>
@@ -378,7 +378,7 @@ export default function RetentionMonitorPage() {
               </div>
               <div>
                 <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">
-                  Advantage Index Threshold
+                  {t("retention.advantageThreshold")}
                 </label>
                 <div className="flex items-center gap-4">
                   <input
@@ -389,7 +389,7 @@ export default function RetentionMonitorPage() {
                   <span className="w-8 text-right font-mono text-sm font-semibold text-vytal-red">{advantageThreshold}%</span>
                 </div>
                 <p className="mt-1 text-[10px] text-vytal-muted">
-                  Members below {advantageThreshold}% are flagged as at risk
+                  {t("retention.membersBelow").replace("{threshold}", String(advantageThreshold))}
                 </p>
               </div>
               <div className="space-y-2 border-t border-vytal-border pt-4">

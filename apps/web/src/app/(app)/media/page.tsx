@@ -63,12 +63,21 @@ const mockMedia: MediaItem[] = [
   { id: "m-20", name: "Staff Handbook.pdf", type: "document", size: "480 KB", uploadedDate: "2026-02-20", uploadedBy: "Owner", folder: "Documents" },
 ];
 
-const folders = ["All", "Exercises", "Events", "Documents", "Marketing"];
+const FOLDER_KEYS = ["all", "exercises", "events", "documents", "marketing"] as const;
+type FolderKey = typeof FOLDER_KEYS[number];
 
-const typeConfig: Record<MediaType, { icon: typeof ImageIcon; color: string; bg: string; label: string }> = {
-  image: { icon: ImageIcon, color: "text-vytal-blue", bg: "bg-vytal-blue/10", label: "Image" },
-  video: { icon: Video, color: "text-vytal-purple", bg: "bg-vytal-purple/10", label: "Video" },
-  document: { icon: FileText, color: "text-vytal-amber", bg: "bg-vytal-amber/10", label: "Document" },
+const FOLDER_VALUES: Record<FolderKey, string> = {
+  all: "All",
+  exercises: "Exercises",
+  events: "Events",
+  documents: "Documents",
+  marketing: "Marketing",
+};
+
+const typeConfig: Record<MediaType, { icon: typeof ImageIcon; color: string; bg: string; labelKey: string }> = {
+  image: { icon: ImageIcon, color: "text-vytal-blue", bg: "bg-vytal-blue/10", labelKey: "media.type.image" },
+  video: { icon: Video, color: "text-vytal-purple", bg: "bg-vytal-purple/10", labelKey: "media.type.video" },
+  document: { icon: FileText, color: "text-vytal-amber", bg: "bg-vytal-amber/10", labelKey: "media.type.document" },
 };
 
 // ---------------------------------------------------------------------------
@@ -82,7 +91,10 @@ export default function MediaLibraryPage() {
   const [media, setMedia] = useState<MediaItem[]>(mockMedia);
   const [filterType, setFilterType] = useState<"all" | MediaType>("all");
   const [search, setSearch] = useState("");
-  const [activeFolder, setActiveFolder] = useState("All");
+  const [activeFolderKey, setActiveFolderKey] = useState<FolderKey>("all");
+
+  // Derive the raw folder value used in data for filtering (always English)
+  const activeFolder = FOLDER_VALUES[activeFolderKey];
   const [showUpload, setShowUpload] = useState(false);
   const [dragOver, setDragOver] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
@@ -121,16 +133,16 @@ export default function MediaLibraryPage() {
 
   const handleCopyLink = useCallback(
     (item: MediaItem) => {
-      toast(`Link copied for "${item.name}"`, "success");
+      toast(t("toast.linkCopied").replace("{name}", item.name), "success");
     },
-    [toast]
+    [toast, t]
   );
 
   const handleDownload = useCallback(
     (item: MediaItem) => {
-      toast(`Downloading "${item.name}"...`, "success");
+      toast(t("toast.downloading").replace("{name}", item.name), "success");
     },
-    [toast]
+    [toast, t]
   );
 
   return (
@@ -222,19 +234,19 @@ export default function MediaLibraryPage() {
 
       {/* Folders */}
       <div className="flex items-center gap-2">
-        {folders.map((folder) => (
+        {FOLDER_KEYS.map((folderKey) => (
           <button
-            key={folder}
-            onClick={() => setActiveFolder(folder)}
+            key={folderKey}
+            onClick={() => setActiveFolderKey(folderKey)}
             className={cn(
               "flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors",
-              activeFolder === folder
+              activeFolderKey === folderKey
                 ? "bg-vytal-green/10 text-vytal-green border border-vytal-green/30"
                 : "bg-vytal-bg2 text-vytal-muted border border-vytal-border hover:text-vytal-text"
             )}
           >
             <FolderOpen className="h-3.5 w-3.5" />
-            {folder}
+            {t(`media.folder.${folderKey}`)}
           </button>
         ))}
       </div>
@@ -258,7 +270,7 @@ export default function MediaLibraryPage() {
                 <p className="truncate text-sm font-medium text-vytal-text">{item.name}</p>
                 <div className="mt-1 flex items-center gap-2">
                   <span className={cn("rounded-full px-2 py-0.5 text-[10px] font-semibold", config.bg, config.color)}>
-                    {config.label}
+                    {t(config.labelKey)}
                   </span>
                   <span className="text-[10px] text-vytal-muted">{item.size}</span>
                 </div>
@@ -270,14 +282,14 @@ export default function MediaLibraryPage() {
                   <button
                     onClick={() => handleDownload(item)}
                     className="rounded p-1.5 text-vytal-muted hover:bg-vytal-bg3 hover:text-vytal-text"
-                    title="Download"
+                    title={t("action.download")}
                   >
                     <Download className="h-3.5 w-3.5" />
                   </button>
                   <button
                     onClick={() => handleCopyLink(item)}
                     className="rounded p-1.5 text-vytal-muted hover:bg-vytal-bg3 hover:text-vytal-text"
-                    title="Copy Link"
+                    title={t("media.copyLink")}
                   >
                     <Link2 className="h-3.5 w-3.5" />
                   </button>

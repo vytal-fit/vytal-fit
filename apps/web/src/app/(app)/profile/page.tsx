@@ -229,14 +229,14 @@ export default function ProfilePage() {
                     <label className="mb-1.5 block text-xs font-medium text-vytal-muted">{t("profile.newPassword")}</label>
                     <div className="relative">
                       <Key className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-vytal-muted" />
-                      <input type="password" placeholder="Mínimo 10 caracteres" className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 py-2.5 pl-10 pr-4 text-sm text-vytal-text outline-none focus:border-vytal-green/40" />
+                      <input type="password" placeholder={t("auth.minChars")} className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 py-2.5 pl-10 pr-4 text-sm text-vytal-text outline-none focus:border-vytal-green/40" />
                     </div>
                   </div>
                   <div>
                     <label className="mb-1.5 block text-xs font-medium text-vytal-muted">{t("profile.confirmNewPassword")}</label>
                     <div className="relative">
                       <Key className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-vytal-muted" />
-                      <input type="password" placeholder="Repita a password" className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 py-2.5 pl-10 pr-4 text-sm text-vytal-text outline-none focus:border-vytal-green/40" />
+                      <input type="password" placeholder={t("auth.confirmPlaceholder")} className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 py-2.5 pl-10 pr-4 text-sm text-vytal-text outline-none focus:border-vytal-green/40" />
                     </div>
                   </div>
                 </div>
@@ -297,7 +297,7 @@ export default function ProfilePage() {
                 <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-vytal-muted">{t("profile.activeSessions")}</h2>
                 <div className="space-y-3">
                   {[
-                    { device: "MacBook Pro — Chrome", location: "Aveiro, Portugal", current: true, time: "Agora", icon: Laptop },
+                    { device: "MacBook Pro — Chrome", location: "Aveiro, Portugal", current: true, time: t("profile.sessionNow"), icon: Laptop },
                     { device: "iPhone 15 — Safari", location: "Aveiro, Portugal", current: false, time: "2h", icon: Smartphone },
                     { device: "iPad — Chrome", location: "Porto, Portugal", current: false, time: "3d", icon: Tablet },
                   ].map((session, i) => {
@@ -336,33 +336,33 @@ export default function ProfilePage() {
                 {
                   title: t("profile.notifClassesTraining"),
                   items: [
-                    { key: "classReminder" as const, label: "Lembrete de aula (1h antes)", desc: "Receber notificação antes de cada aula reservada" },
-                    { key: "wodPublished" as const, label: "WOD publicado", desc: "Quando um novo treino é publicado" },
-                    { key: "prAchieved" as const, label: "PR alcançado", desc: "Quando um membro atinge um novo recorde pessoal" },
-                    { key: "bookingCancelled" as const, label: "Reserva cancelada", desc: "Quando um membro cancela uma reserva" },
+                    { key: "classReminder" as const, label: t("profile.notif.classReminder"), desc: t("profile.notif.classReminderDesc") },
+                    { key: "wodPublished" as const, label: t("profile.notif.wodPublished"), desc: t("profile.notif.wodPublishedDesc") },
+                    { key: "prAchieved" as const, label: t("profile.notif.prAchieved"), desc: t("profile.notif.prAchievedDesc") },
+                    { key: "bookingCancelled" as const, label: t("profile.notif.bookingCancelled"), desc: t("profile.notif.bookingCancelledDesc") },
                   ],
                 },
                 {
                   title: t("profile.notifPayments"),
                   items: [
-                    { key: "paymentSuccess" as const, label: "Pagamento bem-sucedido", desc: "Confirmação de cobrança" },
-                    { key: "paymentFailed" as const, label: "Pagamento falhado", desc: "Quando uma cobrança falha" },
+                    { key: "paymentSuccess" as const, label: t("profile.notif.paymentSuccess"), desc: t("profile.notif.paymentSuccessDesc") },
+                    { key: "paymentFailed" as const, label: t("profile.notif.paymentFailed"), desc: t("profile.notif.paymentFailedDesc") },
                   ],
                 },
                 {
                   title: t("profile.notifCommunity"),
                   items: [
-                    { key: "streakMilestone" as const, label: "Marco de sequência", desc: "Quando um membro atinge uma nova sequência" },
-                    { key: "newMember" as const, label: "Novo membro", desc: "Quando um novo membro se regista" },
-                    { key: "atRiskMember" as const, label: "Membro em risco", desc: "Quando um membro fica inativo" },
+                    { key: "streakMilestone" as const, label: t("profile.notif.streakMilestone"), desc: t("profile.notif.streakMilestoneDesc") },
+                    { key: "newMember" as const, label: t("profile.notif.newMember"), desc: t("profile.notif.newMemberDesc") },
+                    { key: "atRiskMember" as const, label: t("profile.notif.atRiskMember"), desc: t("profile.notif.atRiskMemberDesc") },
                   ],
                 },
                 {
                   title: t("profile.notifReports"),
                   items: [
-                    { key: "weeklyReport" as const, label: "Relatório semanal", desc: "Resumo semanal por email" },
-                    { key: "monthlyReport" as const, label: "Relatório mensal", desc: "Resumo mensal por email" },
-                    { key: "leadAssigned" as const, label: "Lead atribuído", desc: "Quando um lead é atribuído a si" },
+                    { key: "weeklyReport" as const, label: t("profile.notif.weeklyReport"), desc: t("profile.notif.weeklyReportDesc") },
+                    { key: "monthlyReport" as const, label: t("profile.notif.monthlyReport"), desc: t("profile.notif.monthlyReportDesc") },
+                    { key: "leadAssigned" as const, label: t("profile.notif.leadAssigned"), desc: t("profile.notif.leadAssignedDesc") },
                   ],
                 },
               ].map((section) => (
@@ -409,7 +409,7 @@ export default function ProfilePage() {
                             <div className="flex items-center gap-2 mt-0.5">
                               <span className="text-[10px] font-semibold" style={{ color: ROLE_COLORS[mem.role] }}>{ROLE_LABELS[mem.role]}</span>
                               <span className="text-[10px] text-vytal-muted">· {config?.label}</span>
-                              <span className="text-[10px] text-vytal-muted">· Desde {new Date(mem.joinedAt).toLocaleDateString("pt-PT", { month: "short", year: "numeric" })}</span>
+                              <span className="text-[10px] text-vytal-muted">· {t("profile.memberSince")} {new Date(mem.joinedAt).toLocaleDateString("pt-PT", { month: "short", year: "numeric" })}</span>
                             </div>
                           </div>
                         </div>
@@ -434,7 +434,7 @@ export default function ProfilePage() {
                     isModal
                     onComplete={(orgData: CreateOrgData) => {
                       setShowCreateOrg(false);
-                      toast(`${orgData.name} criada com sucesso!`, "success");
+                      toast(t("toast.orgCreated").replace("{name}", orgData.name), "success");
                     }}
                     onCancel={() => setShowCreateOrg(false)}
                   />

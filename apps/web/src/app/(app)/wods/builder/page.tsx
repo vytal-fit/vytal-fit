@@ -271,11 +271,11 @@ export default function WODBuilderPage() {
   );
 
   function handlePublish() {
-    toast(`WOD published for ${date}!`, "success");
+    toast(t("toast.wodPublished").replace("{date}", date), "success");
   }
 
   function handleSaveDraft() {
-    toast("Draft saved", "info");
+    toast(t("toast.draftSaved"), "info");
   }
 
   const selectedClassType = storeClassTypes.find((ct) => ct.id === classTypeId);
@@ -319,7 +319,7 @@ export default function WODBuilderPage() {
                 type="text"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                placeholder="e.g., FRAN, MURPH, HEAVY DAY..."
+                placeholder={t("wodBuilder.titlePlaceholder")}
                 className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 px-4 py-2.5 text-sm text-vytal-text placeholder:text-vytal-muted focus:border-vytal-green/30 focus:outline-none focus:ring-1 focus:ring-vytal-green/20"
               />
             </div>
@@ -515,7 +515,7 @@ export default function WODBuilderPage() {
                               reps: e.target.value,
                             })
                           }
-                          placeholder="Reps"
+                          placeholder={t("wodBuilder.reps")}
                           className="rounded border border-vytal-border bg-vytal-bg px-2 py-1 text-xs text-vytal-text placeholder:text-vytal-muted focus:border-vytal-green/30 focus:outline-none"
                         />
                         <input
@@ -526,7 +526,7 @@ export default function WODBuilderPage() {
                               weight: e.target.value,
                             })
                           }
-                          placeholder="Weight"
+                          placeholder={t("wodBuilder.weight")}
                           className="rounded border border-vytal-border bg-vytal-bg px-2 py-1 text-xs text-vytal-text placeholder:text-vytal-muted focus:border-vytal-green/30 focus:outline-none"
                         />
                         <input
@@ -537,7 +537,7 @@ export default function WODBuilderPage() {
                               notes: e.target.value,
                             })
                           }
-                          placeholder="Notes"
+                          placeholder={t("wodBuilder.notes")}
                           className="rounded border border-vytal-border bg-vytal-bg px-2 py-1 text-xs text-vytal-text placeholder:text-vytal-muted focus:border-vytal-green/30 focus:outline-none"
                         />
                       </div>
@@ -653,13 +653,13 @@ export default function WODBuilderPage() {
                         {part.timeCap && (
                           <span className="flex items-center gap-1 text-[10px] text-vytal-muted">
                             <Clock className="h-3 w-3" />
-                            {part.timeCap} min
+                            {t("wodBuilder.minLabel").replace("{timeCap}", part.timeCap)}
                           </span>
                         )}
                         {part.rounds && (
                           <span className="flex items-center gap-1 text-[10px] text-vytal-muted">
                             <Repeat className="h-3 w-3" />
-                            {part.rounds} rds
+                            {t("wodBuilder.rdsLabel").replace("{rounds}", part.rounds)}
                           </span>
                         )}
                       </div>

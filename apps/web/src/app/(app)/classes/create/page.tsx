@@ -151,7 +151,7 @@ export default function ClassCreatePage() {
           className="inline-flex items-center gap-1.5 text-sm text-vytal-muted transition-colors hover:text-vytal-text"
         >
           <ArrowLeft className="h-4 w-4" />
-          Back to Classes
+          {t("classCreate.backToClasses2")}
         </Link>
 
         <div className="mx-auto max-w-lg rounded-xl border border-vytal-green/20 bg-vytal-green/5 p-8 text-center">
@@ -159,21 +159,21 @@ export default function ClassCreatePage() {
             <CheckCircle className="h-8 w-8 text-vytal-green" />
           </div>
           <h2 className="mb-2 text-xl font-bold text-vytal-text">
-            Class Created Successfully!
+            {t("classCreate.createdTitle")}
           </h2>
           <div className="mb-6 space-y-1 text-sm text-vytal-muted">
             <p>
-              <span className="font-medium text-vytal-text">{ct?.name}</span> on{" "}
+              <span className="font-medium text-vytal-text">{ct?.name}</span> {t("classCreate.on")}{" "}
               <span className="font-medium text-vytal-text">{date}</span>
             </p>
             <p>
-              {startTime} - {endTime} at {loc?.name}
+              {startTime} - {endTime} {t("classCreate.on")} {loc?.name}
             </p>
             {coaches.length > 0 && (
-              <p>Coaches: {coaches.map((c) => c.name).join(", ")}</p>
+              <p>{t("classCreate.coachesLabel")} {coaches.map((c) => c.name).join(", ")}</p>
             )}
             <p>
-              Capacity: {hasCapacity ? maxCapacity : "Unlimited"}
+              {t("classCreate.capacityLabel")} {hasCapacity ? maxCapacity : t("classCreate.unlimitedCapacity")}
             </p>
           </div>
           <div className="flex justify-center gap-3">
@@ -182,13 +182,13 @@ export default function ClassCreatePage() {
               className="flex items-center gap-2 rounded-lg bg-vytal-green px-6 py-2.5 text-sm font-semibold text-vytal-bg transition-colors hover:bg-vytal-green/90"
             >
               <Plus className="h-4 w-4" />
-              Create Another
+              {t("classCreate.createAnother")}
             </button>
             <Link
               href="/classes"
               className="rounded-lg border border-vytal-border px-6 py-2.5 text-sm font-medium text-vytal-text transition-colors hover:bg-vytal-bg3"
             >
-              Back to Classes
+              {t("classCreate.backToClasses2")}
             </Link>
           </div>
         </div>
@@ -212,14 +212,14 @@ export default function ClassCreatePage() {
         <div className="rounded-xl border border-vytal-border bg-vytal-card p-6">
           <h2 className="mb-5 text-lg font-semibold text-vytal-text">{t("classCreate.schedule")}</h2>
           <div className="space-y-4">
-            <Field label="Date" value={date} onChange={setDate} type="date" error={errors.date} />
+            <Field label={t("classCreate.date")} value={date} onChange={setDate} type="date" error={errors.date} />
             <div className="grid grid-cols-2 gap-4">
-              <Field label="Start Time" value={startTime} onChange={setStartTime} type="time" error={errors.startTime} />
-              <Field label="End Time" value={endTime} onChange={setEndTime} type="time" error={errors.endTime} />
+              <Field label={t("classCreate.startTime")} value={startTime} onChange={setStartTime} type="time" error={errors.startTime} />
+              <Field label={t("classCreate.endTime")} value={endTime} onChange={setEndTime} type="time" error={errors.endTime} />
             </div>
             <div>
               <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">
-                Location
+                {t("classCreate.location")}
               </label>
               <select
                 value={locationId}
@@ -235,7 +235,7 @@ export default function ClassCreatePage() {
             </div>
             <div>
               <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">
-                Class Type
+                {t("classCreate.classType")}
               </label>
               <select
                 value={classTypeId}
@@ -276,7 +276,7 @@ export default function ClassCreatePage() {
                 </button>
               </div>
               {hasCapacity && (
-                <Field label="Max Capacity" value={maxCapacity} onChange={setMaxCapacity} type="number" />
+                <Field label={t("classCreate.maxCapacity")} value={maxCapacity} onChange={setMaxCapacity} type="number" />
               )}
             </div>
           </div>
