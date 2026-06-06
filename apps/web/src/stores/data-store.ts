@@ -59,29 +59,68 @@ export interface WebsiteTestimonial {
   rating: number;
 }
 
+export interface WebsiteFaqEntry {
+  question: string;
+  answer: string;
+}
+
 export interface WebsiteConfig {
-  // Hero
+  // ── Pages ──────────────────────────────────────────────────────────────────
+  // Hero (always enabled)
   hero: {
     enabled: boolean;
     slogan: string;
     showCoverImage: boolean;
     ctaText: string;
+    ctaLink: string;
+    showStats: boolean;
+    showQuickLinks: boolean;
   };
-  // About
+  // About (legacy, kept for backward compat)
   about: {
     enabled: boolean;
     description: string;
     foundingYear: string;
   };
-  // Schedule
+  // Schedule page
   schedule: {
     enabled: boolean;
     classTypeIds: string[];
+    showBookingButton: boolean;
+    showOpeningHours: boolean;
+    headerText: string;
   };
-  // Pricing
+  // Pricing page
   pricing: {
     enabled: boolean;
     planIds: string[];
+    showComparisonTable: boolean;
+    showFaq: boolean;
+    faqEntries: WebsiteFaqEntry[];
+  };
+  // Shop page
+  shop: {
+    enabled: boolean;
+    showCategories: boolean;
+    currencyFormat: string;
+    headerText: string;
+  };
+  // Team page
+  team: {
+    enabled: boolean;
+    coachIds: string[];
+    showCertifications: boolean;
+    showBio: boolean;
+    headerText: string;
+  };
+  // Contact page
+  contact: {
+    enabled: boolean;
+    showForm: boolean;
+    showMap: boolean;
+    showOpeningHours: boolean;
+    successMessage: string;
+    submissionsEmail: string;
   };
   // Gallery
   gallery: {
@@ -92,13 +131,46 @@ export interface WebsiteConfig {
     enabled: boolean;
     items: WebsiteTestimonial[];
   };
-  // SEO
+  // ── Design ────────────────────────────────────────────────────────────────
+  design: {
+    theme: "dark" | "light";
+    primaryColor: string;
+    logoFileName: string;
+    faviconFileName: string;
+    font: "Inter" | "Plus Jakarta Sans" | "DM Sans";
+    borderRadius: number;
+    navStyle: "topbar" | "sidebar";
+    footerText: string;
+    showSocialLinks: boolean;
+    showPoweredBy: boolean;
+  };
+  // ── Domain ────────────────────────────────────────────────────────────────
+  domain: {
+    customDomain: string;
+    wwwRedirect: boolean;
+  };
+  // ── SEO ───────────────────────────────────────────────────────────────────
   seo: {
     metaTitle: string;
     metaDescription: string;
     showOgImage: boolean;
+    gaTrackingId: string;
+    fbPixelId: string;
+    allowIndexing: boolean;
+    autoSitemap: boolean;
   };
-  // Contact Form
+  // ── Content ───────────────────────────────────────────────────────────────
+  content: {
+    aboutText: string;
+    announcementBar: boolean;
+    announcementText: string;
+    announcementColor: string;
+    cookieConsent: boolean;
+    cookieText: string;
+    privacyPolicyUrl: string;
+    termsUrl: string;
+  };
+  // Contact Form (legacy alias)
   contactForm: {
     enabled: boolean;
   };
