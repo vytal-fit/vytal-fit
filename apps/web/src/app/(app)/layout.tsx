@@ -110,7 +110,7 @@ const allNavGroups: NavGroup[] = [
         { href: "/wods", labelKey: "nav.wods", icon: Dumbbell },
         { href: "/wods/programming", labelKey: "nav.programming", icon: Dumbbell },
       ]},
-      { href: "/crm", labelKey: "nav.crm", icon: UserPlus },
+      { href: "/crm", labelKey: "nav.crm", icon: UserPlus, requiresFeature: "crm" },
     ],
   },
   {
@@ -129,7 +129,7 @@ const allNavGroups: NavGroup[] = [
         { href: "/locations/dashboard", labelKey: "nav.locationDashboard", icon: MapPin },
       ]},
       { href: "/exercises", labelKey: "nav.exercises", icon: Dumbbell, requiresFeature: "movementLibrary" },
-      { href: "/store", labelKey: "nav.store", icon: ShoppingBag, children: [
+      { href: "/store", labelKey: "nav.store", icon: ShoppingBag, requiresFeature: "store", children: [
         { href: "/store", labelKey: "nav.store", icon: ShoppingBag },
         { href: "/store/vouchers", labelKey: "nav.vouchers", icon: Gift },
       ]},
@@ -143,7 +143,7 @@ const allNavGroups: NavGroup[] = [
   {
     titleKey: "nav.group.operations",
     items: [
-      { href: "/financials", labelKey: "nav.financials", icon: DollarSign, children: [
+      { href: "/financials", labelKey: "nav.financials", icon: DollarSign, requiresFeature: "financials", children: [
         { href: "/financials", labelKey: "nav.financialsOverview", icon: DollarSign },
         { href: "/financials/revenue", labelKey: "nav.revenue", icon: DollarSign },
         { href: "/financials/dunning", labelKey: "nav.dunning", icon: DollarSign },
@@ -154,7 +154,7 @@ const allNavGroups: NavGroup[] = [
       ]},
       { href: "/analytics", labelKey: "nav.analytics", icon: TrendingUp },
       { href: "/ai", labelKey: "nav.aiInsights", icon: Sparkles },
-      { href: "/reports", labelKey: "nav.reports", icon: BarChart3, children: [
+      { href: "/reports", labelKey: "nav.reports", icon: BarChart3, requiresFeature: "reports", children: [
         { href: "/reports", labelKey: "nav.reportsOverview", icon: BarChart3 },
         { href: "/reports/attendance", labelKey: "nav.attendanceReport", icon: BarChart3 },
       ]},
@@ -164,23 +164,23 @@ const allNavGroups: NavGroup[] = [
         { href: "/community/events", labelKey: "nav.events", icon: Heart },
         { href: "/community/badges", labelKey: "nav.badges", icon: Award },
       ]},
-      { href: "/tasks", labelKey: "nav.tasks", icon: CheckSquare },
+      { href: "/tasks", labelKey: "nav.tasks", icon: CheckSquare, requiresFeature: "tasks" },
       { href: "/inbox", labelKey: "nav.inbox", icon: Inbox },
       { href: "/notifications", labelKey: "nav.notifications", icon: Bell },
       { href: "/messages", labelKey: "nav.messages", icon: MessageCircle, badge: 3 },
-      { href: "/communications", labelKey: "nav.communications", icon: MessageSquare, children: [
+      { href: "/communications", labelKey: "nav.communications", icon: MessageSquare, requiresFeature: "communications", children: [
         { href: "/communications", labelKey: "nav.commsOverview", icon: MessageSquare },
         { href: "/communications/sms", labelKey: "nav.sms", icon: MessageSquare },
         { href: "/communications/templates", labelKey: "nav.templates", icon: MessageSquare },
       ]},
-      { href: "/automations", labelKey: "nav.automations", icon: Zap, children: [
+      { href: "/automations", labelKey: "nav.automations", icon: Zap, requiresFeature: "automations", children: [
         { href: "/automations", labelKey: "nav.automations", icon: Zap },
         { href: "/automations/milestones", labelKey: "nav.milestones", icon: Trophy },
         { href: "/automations/campaigns", labelKey: "nav.campaigns", icon: Zap },
       ]},
       { href: "/screen", labelKey: "nav.tvScreen", icon: Monitor, requiresFeature: "tvDisplay" },
-      { href: "/support", labelKey: "nav.support", icon: LifeBuoy },
-      { href: "/marketing", labelKey: "nav.marketing", icon: Megaphone },
+      { href: "/support", labelKey: "nav.support", icon: LifeBuoy, requiresFeature: "support" },
+      { href: "/marketing", labelKey: "nav.marketing", icon: Megaphone, requiresFeature: "marketing" },
     ],
   },
   {
@@ -188,6 +188,7 @@ const allNavGroups: NavGroup[] = [
     items: [
       { href: "/settings", labelKey: "nav.settings", icon: Settings, children: [
         { href: "/settings", labelKey: "nav.settingsOverview", icon: Settings },
+        { href: "/settings/features", labelKey: "nav.features", icon: Settings },
         { href: "/settings/notifications", labelKey: "nav.notificationRules", icon: Settings },
         { href: "/settings/booking", labelKey: "nav.bookingRules", icon: Settings },
         { href: "/settings/kiosk", labelKey: "nav.kiosk", icon: Settings },
@@ -897,6 +898,15 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       "/exercises": "movementLibrary",
       "/dropins": "dropins",
       "/screen": "tvDisplay",
+      "/crm": "crm",
+      "/store": "store",
+      "/financials": "financials",
+      "/reports": "reports",
+      "/tasks": "tasks",
+      "/communications": "communications",
+      "/automations": "automations",
+      "/support": "support",
+      "/marketing": "marketing",
     };
 
     for (const [route, feature] of Object.entries(routeFeatureMap)) {

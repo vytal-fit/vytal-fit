@@ -59,6 +59,35 @@ const EMOJI_MAP: Record<string, string> = {
   other: "\u2795",
 };
 
+// ---- Feature groups for onboarding ----
+
+interface FeatureGroup {
+  titleKey: string;
+  keys: Array<keyof OrganizationFeatures>;
+}
+
+const FEATURE_GROUPS: FeatureGroup[] = [
+  {
+    titleKey: "onboarding.categoryTraining",
+    keys: ["groupClasses", "wods", "personalTraining", "openGym", "movementLibrary", "personalRecords", "leaderboard", "rxScaled", "timers", "rmCalculator"],
+  },
+  {
+    titleKey: "onboarding.categoryCommunity",
+    keys: ["gamification", "fistbumps", "dropins", "beltSystem"],
+  },
+  {
+    titleKey: "onboarding.categoryHealth",
+    keys: ["nutritionTracking", "bodyComposition"],
+  },
+  {
+    titleKey: "onboarding.categoryOperations",
+    keys: ["financials", "payroll", "crm", "reports", "store", "communications", "automations", "tasks", "support", "marketing", "tvDisplay"],
+  },
+];
+
+// Required features that can't be disabled
+const REQUIRED_FEATURES: Set<keyof OrganizationFeatures> = new Set(["financials", "reports", "communications"]);
+
 // ---- Constants ----
 
 const TOP_TYPES = [
@@ -527,51 +556,131 @@ export function CreateOrgWizard({
                   {t("onboarding.step3FeaturesSubtitle")}
                 </p>
 
-                <div className="mx-auto mt-8 max-w-lg space-y-3">
-                  {(Object.keys(features) as Array<keyof OrganizationFeatures>).map((key) => {
-                    const isOn = features[key];
-                    const isDefault = selectedConfig.features[key];
+                <div className="mx-auto mt-8 max-w-lg space-y-6">
+                  {FEATURE_GROUPS.map((group) => {
+                    const groupFeatures = group.keys.filter((k) => k in features);
+                    const allOn = groupFeatures.every((k) => features[k]);
+                    const someOn = groupFeatures.some((k) => features[k]);
+
                     return (
-                      <button
-                        key={key}
-                        type="button"
-                        onClick={() => toggleFeature(key)}
-                        className={cn(
-                          "flex w-full items-center justify-between rounded-lg border px-4 py-3 text-left transition-all duration-200",
-                          isOn
-                            ? "border-vytal-green/30 bg-vytal-green/[0.04]"
-                            : "border-vytal-border bg-vytal-bg2 opacity-60",
-                        )}
-                      >
-                        <div className="flex items-center gap-3">
+                      <div key={group.titleKey} className="rounded-xl border border-vytal-border bg-vytal-bg2 overflow-hidden">
+                        {/* Group header with toggle */}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const newVal = !allOn;
+                            setFeatures((prev) => {
+                              if (!prev) return prev;
+                              const next = { ...prev };
+                              groupFeatures.forEach((k) => { next[k] = newVal; });
+                              return next;
+                            });
+                          }}
+                          className="flex w-full items-center justify-between px-4 py-3 text-left transition-colors hover:bg-vytal-bg3/50"
+                        >
+                          <span className="text-xs font-bold uppercase tracking-wider text-vytal-muted">
+                            {t(group.titleKey)}
+                          </span>
                           <div
                             className={cn(
-                              "flex h-5 w-5 items-center justify-center rounded border transition-colors",
-                              isOn
-                                ? "border-vytal-green bg-vytal-green"
-                                : "border-vytal-muted/40 bg-transparent",
+                              "relative h-5 w-9 rounded-full transition-colors",
+                              allOn ? "bg-vytal-green" : someOn ? "bg-vytal-green/40" : "bg-vytal-muted/30",
                             )}
                           >
-                            {isOn && <Check className="h-3 w-3 text-vytal-bg" strokeWidth={3} />}
+                            <div
+                              className={cn(
+                                "absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-all",
+                                allOn ? "left-[18px]" : "left-0.5",
+                              )}
+                            />
                           </div>
-                          <div>
-                            <span className="text-sm font-medium text-vytal-text">
-                              {t(`feature.${key}`)}
-                            </span>
-                            {isOn !== isDefault && (
-                              <span className="ml-2 rounded-full bg-vytal-amber/10 px-2 py-0.5 text-[9px] font-bold text-vytal-amber">
-                                {t("onboarding.customized")}
-                              </span>
-                            )}
-                          </div>
+                        </button>
+
+                        {/* Individual features */}
+                        <div className="border-t border-vytal-border/50">
+                          {groupFeatures.map((key) => {
+                            const isOn = features[key];
+                            const isDefault = selectedConfig.features[key];
+                            const isRequired = REQUIRED_FEATURES.has(key);
+                            return (
+                              <button
+                                key={key}
+                                type="button"
+                                onClick={() => !isRequired && toggleFeature(key)}
+                                disabled={isRequired}
+                                className={cn(
+                                  "flex w-full items-center gap-3 px-4 py-2.5 text-left transition-colors",
+                                  isRequired ? "cursor-default" : "hover:bg-vytal-bg3/30",
+                                  !isOn && !isRequired && "opacity-50",
+                                )}
+                              >
+                                <div
+                                  className={cn(
+                                    "flex h-4 w-4 shrink-0 items-center justify-center rounded border transition-colors",
+                                    isOn
+                                      ? "border-vytal-green bg-vytal-green"
+                                      : "border-vytal-muted/40 bg-transparent",
+                                  )}
+                                >
+                                  {isOn && <Check className="h-2.5 w-2.5 text-vytal-bg" strokeWidth={3} />}
+                                </div>
+                                <span className="text-sm text-vytal-text">
+                                  {t(`feature.${key}`)}
+                                </span>
+                                {isRequired && (
+                                  <span className="rounded-full bg-vytal-muted/10 px-1.5 py-0.5 text-[8px] font-bold text-vytal-muted">
+                                    {t("onboarding.required")}
+                                  </span>
+                                )}
+                                {!isRequired && isOn !== isDefault && (
+                                  <span className="rounded-full bg-vytal-amber/10 px-1.5 py-0.5 text-[8px] font-bold text-vytal-amber">
+                                    {t("onboarding.customized")}
+                                  </span>
+                                )}
+                              </button>
+                            );
+                          })}
                         </div>
-                      </button>
+                      </div>
                     );
                   })}
                 </div>
 
-                {/* Reset to defaults link */}
-                <div className="mx-auto mt-4 max-w-lg text-right">
+                {/* Action buttons */}
+                <div className="mx-auto mt-4 flex max-w-lg items-center justify-between">
+                  <div className="flex gap-3">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setFeatures((prev) => {
+                          if (!prev) return prev;
+                          const next = { ...prev };
+                          (Object.keys(next) as Array<keyof OrganizationFeatures>).forEach((k) => { next[k] = true; });
+                          return next;
+                        });
+                      }}
+                      className="text-xs text-vytal-muted transition-colors hover:text-vytal-green"
+                    >
+                      {t("onboarding.enableAll")}
+                    </button>
+                    <span className="text-vytal-border">·</span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setFeatures((prev) => {
+                          if (!prev) return prev;
+                          const next = { ...prev };
+                          (Object.keys(next) as Array<keyof OrganizationFeatures>).forEach((k) => {
+                            next[k] = REQUIRED_FEATURES.has(k) ? true : false;
+                          });
+                          return next;
+                        });
+                      }}
+                      className="text-xs text-vytal-muted transition-colors hover:text-vytal-red"
+                    >
+                      {t("onboarding.disableAll")}
+                    </button>
+                  </div>
                   <button
                     type="button"
                     onClick={() => setFeatures({ ...selectedConfig.features })}

@@ -25,8 +25,9 @@ test.describe("Admin Members Page", () => {
   });
 
   test("shows status badges", async ({ page }) => {
-    // PT: "Ativo", EN: "Active" — verify status badge text appears in the member list
-    const activeBadges = page.locator("main").getByText(/ativo|active/i);
+    // Wait for the table to render, then check for status badges
+    await expect(page.locator("table").first()).toBeVisible();
+    const activeBadges = page.locator("table").getByText(/ativo|active|activo/i);
     expect(await activeBadges.count()).toBeGreaterThan(0);
   });
 
