@@ -51,7 +51,7 @@ export default function ConsolePage() {
   const prCount = (personalRecords ?? []).length;
 
   return (
-    <div className="px-4 py-6 max-w-lg mx-auto space-y-6">
+    <div className="px-4 py-6 max-w-lg mx-auto md:max-w-5xl space-y-6">
       {/* Greeting */}
       <div>
         <p className="text-sm" style={{ color: "var(--color-vytal-muted)" }}>
@@ -61,6 +61,11 @@ export default function ConsolePage() {
           {firstName}
         </h1>
       </div>
+
+      {/* Desktop: two-column grid wrapper */}
+      <div className="md:grid md:grid-cols-2 md:gap-6 md:items-start space-y-6 md:space-y-0">
+      {/* Left column on desktop */}
+      <div className="space-y-6">
 
       {/* Stats strip */}
       <div className="grid grid-cols-3 gap-3">

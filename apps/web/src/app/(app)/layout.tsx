@@ -1056,7 +1056,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       <div className="shrink-0 border-b border-vytal-border px-4 py-3">
         {isEffectivelyExpanded ? (
           <span className="text-lg font-bold tracking-tight">
-            <span className="text-vytal-muted/60">control</span><span className="text-vytal-green">VYTAL</span>
+            <span className="text-xs font-medium text-vytal-muted/50">control</span><span className="text-vytal-green">VYTAL</span>
           </span>
         ) : (
           <span className="flex justify-center text-sm font-bold text-vytal-green">V</span>
