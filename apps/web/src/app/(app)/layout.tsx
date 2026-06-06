@@ -74,6 +74,8 @@ interface NavItem {
   labelKey: string;
   icon: React.ComponentType<{ className?: string }>;
   requiresFeature?: keyof import("@vytal-fit/shared").OrganizationFeatures;
+  /** Minimum role required to see this item. undefined = visible to all roles (incl. athlete) */
+  requiresRole?: "owner" | "coach";
   badge?: number;
   children?: NavItem[];
 }
@@ -86,8 +88,10 @@ interface NavGroup {
 const allNavGroups: NavGroup[] = [
   {
     items: [
+      // dashboard — all roles
       { href: "/dashboard", labelKey: "nav.dashboard", icon: LayoutDashboard },
-      { href: "/members", labelKey: "nav.members", icon: Users, children: [
+      // members — coach (read-only access), owner full access
+      { href: "/members", labelKey: "nav.members", icon: Users, requiresRole: "coach", children: [
         { href: "/members", labelKey: "nav.membersOverview", icon: Users },
         { href: "/members/analytics", labelKey: "nav.memberAnalytics", icon: Users },
         { href: "/members/contracts", labelKey: "nav.contracts", icon: Users },
@@ -97,7 +101,8 @@ const allNavGroups: NavGroup[] = [
         { href: "/members/import", labelKey: "nav.import", icon: Users },
         { href: "/members/retention", labelKey: "nav.retention", icon: Users },
       ]},
-      { href: "/classes", labelKey: "nav.classes", icon: CalendarDays, requiresFeature: "groupClasses", children: [
+      // classes — coach can see
+      { href: "/classes", labelKey: "nav.classes", icon: CalendarDays, requiresFeature: "groupClasses", requiresRole: "coach", children: [
         { href: "/classes", labelKey: "nav.classesOverview", icon: CalendarDays },
         { href: "/classes/calendar", labelKey: "nav.calendar", icon: CalendarDays },
         { href: "/classes/create", labelKey: "nav.createClass", icon: CalendarDays },
@@ -106,44 +111,57 @@ const allNavGroups: NavGroup[] = [
         { href: "/classes/waitlist", labelKey: "nav.waitlist", icon: CalendarDays },
         { href: "/classes/history", labelKey: "nav.classHistory", icon: History },
       ]},
-      { href: "/wods", labelKey: "nav.wods", icon: Dumbbell, requiresFeature: "wods", children: [
+      // wods — coach can see
+      { href: "/wods", labelKey: "nav.wods", icon: Dumbbell, requiresFeature: "wods", requiresRole: "coach", children: [
         { href: "/wods", labelKey: "nav.wods", icon: Dumbbell },
         { href: "/wods/programming", labelKey: "nav.programming", icon: Dumbbell },
       ]},
-      { href: "/crm", labelKey: "nav.crm", icon: UserPlus, requiresFeature: "crm" },
+      // crm — owner only
+      { href: "/crm", labelKey: "nav.crm", icon: UserPlus, requiresFeature: "crm", requiresRole: "owner" },
     ],
   },
   {
     titleKey: "nav.group.management",
     items: [
-      { href: "/staff", labelKey: "nav.staff", icon: UserCog, children: [
+      // staff — coach can see own profile
+      { href: "/staff", labelKey: "nav.staff", icon: UserCog, requiresRole: "coach", children: [
         { href: "/staff", labelKey: "nav.staffOverview", icon: UserCog },
         { href: "/staff/payroll", labelKey: "nav.payroll", icon: UserCog },
         { href: "/staff/schedule", labelKey: "nav.schedule", icon: UserCog },
         { href: "/staff/certifications", labelKey: "nav.certifications", icon: UserCog },
         { href: "/staff/revenue", labelKey: "nav.coachRevenue", icon: UserCog },
       ]},
-      { href: "/class-types", labelKey: "nav.classTypes", icon: Tag, requiresFeature: "groupClasses" },
-      { href: "/locations", labelKey: "nav.locations", icon: MapPin, children: [
+      // class-types — owner only
+      { href: "/class-types", labelKey: "nav.classTypes", icon: Tag, requiresFeature: "groupClasses", requiresRole: "owner" },
+      // locations — owner only
+      { href: "/locations", labelKey: "nav.locations", icon: MapPin, requiresRole: "owner", children: [
         { href: "/locations", labelKey: "nav.locations", icon: MapPin },
         { href: "/locations/dashboard", labelKey: "nav.locationDashboard", icon: MapPin },
       ]},
-      { href: "/exercises", labelKey: "nav.exercises", icon: Dumbbell, requiresFeature: "movementLibrary" },
-      { href: "/store", labelKey: "nav.store", icon: ShoppingBag, requiresFeature: "store", children: [
+      // exercises — coach can see
+      { href: "/exercises", labelKey: "nav.exercises", icon: Dumbbell, requiresFeature: "movementLibrary", requiresRole: "coach" },
+      // store — owner only
+      { href: "/store", labelKey: "nav.store", icon: ShoppingBag, requiresFeature: "store", requiresRole: "owner", children: [
         { href: "/store", labelKey: "nav.store", icon: ShoppingBag },
         { href: "/store/vouchers", labelKey: "nav.vouchers", icon: Gift },
       ]},
-      { href: "/plans", labelKey: "nav.plans", icon: CreditCard },
-      { href: "/dropins", labelKey: "nav.dropins", icon: Globe, requiresFeature: "dropins" },
-      { href: "/media", labelKey: "nav.media", icon: Image },
-      { href: "/equipment", labelKey: "nav.equipment", icon: Wrench },
-      { href: "/import", labelKey: "nav.importCenter", icon: Upload },
+      // plans — owner only
+      { href: "/plans", labelKey: "nav.plans", icon: CreditCard, requiresRole: "owner" },
+      // dropins — owner only
+      { href: "/dropins", labelKey: "nav.dropins", icon: Globe, requiresFeature: "dropins", requiresRole: "owner" },
+      // media — owner only
+      { href: "/media", labelKey: "nav.media", icon: Image, requiresRole: "owner" },
+      // equipment — owner only
+      { href: "/equipment", labelKey: "nav.equipment", icon: Wrench, requiresRole: "owner" },
+      // import — owner only
+      { href: "/import", labelKey: "nav.importCenter", icon: Upload, requiresRole: "owner" },
     ],
   },
   {
     titleKey: "nav.group.operations",
     items: [
-      { href: "/financials", labelKey: "nav.financials", icon: DollarSign, requiresFeature: "financials", children: [
+      // financials — owner only
+      { href: "/financials", labelKey: "nav.financials", icon: DollarSign, requiresFeature: "financials", requiresRole: "owner", children: [
         { href: "/financials", labelKey: "nav.financialsOverview", icon: DollarSign },
         { href: "/financials/revenue", labelKey: "nav.revenue", icon: DollarSign },
         { href: "/financials/dunning", labelKey: "nav.dunning", icon: DollarSign },
@@ -152,41 +170,55 @@ const allNavGroups: NavGroup[] = [
         { href: "/financials/expenses", labelKey: "nav.expenses", icon: DollarSign },
         { href: "/financials/budget", labelKey: "nav.budget", icon: DollarSign },
       ]},
-      { href: "/analytics", labelKey: "nav.analytics", icon: TrendingUp },
-      { href: "/ai", labelKey: "nav.aiInsights", icon: Sparkles },
-      { href: "/reports", labelKey: "nav.reports", icon: BarChart3, requiresFeature: "reports", children: [
+      // analytics — owner only
+      { href: "/analytics", labelKey: "nav.analytics", icon: TrendingUp, requiresRole: "owner" },
+      // ai insights — owner only
+      { href: "/ai", labelKey: "nav.aiInsights", icon: Sparkles, requiresRole: "owner" },
+      // reports — owner only
+      { href: "/reports", labelKey: "nav.reports", icon: BarChart3, requiresFeature: "reports", requiresRole: "owner", children: [
         { href: "/reports", labelKey: "nav.reportsOverview", icon: BarChart3 },
         { href: "/reports/attendance", labelKey: "nav.attendanceReport", icon: BarChart3 },
       ]},
+      // community — coach + athlete can see
       { href: "/community", labelKey: "nav.community", icon: Heart, children: [
         { href: "/community", labelKey: "nav.community", icon: Heart },
         { href: "/community/questionnaires", labelKey: "nav.questionnaires", icon: Heart },
         { href: "/community/events", labelKey: "nav.events", icon: Heart },
         { href: "/community/badges", labelKey: "nav.badges", icon: Award },
       ]},
-      { href: "/tasks", labelKey: "nav.tasks", icon: CheckSquare, requiresFeature: "tasks" },
-      { href: "/inbox", labelKey: "nav.inbox", icon: Inbox },
+      // tasks — owner only
+      { href: "/tasks", labelKey: "nav.tasks", icon: CheckSquare, requiresFeature: "tasks", requiresRole: "owner" },
+      // inbox — owner only
+      { href: "/inbox", labelKey: "nav.inbox", icon: Inbox, requiresRole: "owner" },
+      // notifications — all roles
       { href: "/notifications", labelKey: "nav.notifications", icon: Bell },
+      // messages — all roles
       { href: "/messages", labelKey: "nav.messages", icon: MessageCircle, badge: 3 },
-      { href: "/communications", labelKey: "nav.communications", icon: MessageSquare, requiresFeature: "communications", children: [
+      // communications — owner only
+      { href: "/communications", labelKey: "nav.communications", icon: MessageSquare, requiresFeature: "communications", requiresRole: "owner", children: [
         { href: "/communications", labelKey: "nav.commsOverview", icon: MessageSquare },
         { href: "/communications/sms", labelKey: "nav.sms", icon: MessageSquare },
         { href: "/communications/templates", labelKey: "nav.templates", icon: MessageSquare },
       ]},
-      { href: "/automations", labelKey: "nav.automations", icon: Zap, requiresFeature: "automations", children: [
+      // automations — owner only
+      { href: "/automations", labelKey: "nav.automations", icon: Zap, requiresFeature: "automations", requiresRole: "owner", children: [
         { href: "/automations", labelKey: "nav.automations", icon: Zap },
         { href: "/automations/milestones", labelKey: "nav.milestones", icon: Trophy },
         { href: "/automations/campaigns", labelKey: "nav.campaigns", icon: Zap },
       ]},
-      { href: "/screen", labelKey: "nav.tvScreen", icon: Monitor, requiresFeature: "tvDisplay" },
-      { href: "/support", labelKey: "nav.support", icon: LifeBuoy, requiresFeature: "support" },
-      { href: "/marketing", labelKey: "nav.marketing", icon: Megaphone, requiresFeature: "marketing" },
+      // tv screen — owner only
+      { href: "/screen", labelKey: "nav.tvScreen", icon: Monitor, requiresFeature: "tvDisplay", requiresRole: "owner" },
+      // support — owner only
+      { href: "/support", labelKey: "nav.support", icon: LifeBuoy, requiresFeature: "support", requiresRole: "owner" },
+      // marketing — owner only
+      { href: "/marketing", labelKey: "nav.marketing", icon: Megaphone, requiresFeature: "marketing", requiresRole: "owner" },
     ],
   },
   {
     titleKey: "nav.group.settings",
     items: [
-      { href: "/settings", labelKey: "nav.settings", icon: Settings, children: [
+      // settings — owner only
+      { href: "/settings", labelKey: "nav.settings", icon: Settings, requiresRole: "owner", children: [
         { href: "/settings", labelKey: "nav.settingsOverview", icon: Settings },
         { href: "/settings/features", labelKey: "nav.features", icon: Settings },
         { href: "/settings/notifications", labelKey: "nav.notificationRules", icon: Settings },
@@ -200,15 +232,32 @@ const allNavGroups: NavGroup[] = [
         { href: "/settings/branding", labelKey: "nav.branding", icon: Settings },
         { href: "/settings/backup", labelKey: "nav.backup", icon: Settings },
       ]},
-      { href: "/integrations", labelKey: "nav.integrations", icon: Plug },
+      // integrations — owner only
+      { href: "/integrations", labelKey: "nav.integrations", icon: Plug, requiresRole: "owner" },
+      // changelog — all roles
       { href: "/changelog", labelKey: "nav.changelog", icon: Newspaper },
+      // help — all roles
       { href: "/help", labelKey: "nav.help", icon: HelpCircle },
     ],
   },
 ];
 
-/** Filter nav items based on the active org's feature flags */
-function getNavGroups(orgType: string, featureOverrides?: Partial<import("@vytal-fit/shared").OrganizationFeatures>): NavGroup[] {
+type OrgRole = "owner" | "coach" | "athlete";
+
+/** Returns true when the user's role satisfies the item's requiresRole constraint */
+function roleCanSee(userRole: OrgRole, requiresRole?: "owner" | "coach"): boolean {
+  if (!requiresRole) return true; // visible to all roles including athlete
+  if (userRole === "owner") return true; // owner sees everything
+  if (requiresRole === "coach" && userRole === "coach") return true;
+  return false;
+}
+
+/** Filter nav items based on the active org's feature flags and the user's role */
+function getNavGroups(
+  orgType: string,
+  userRole: OrgRole,
+  featureOverrides?: Partial<import("@vytal-fit/shared").OrganizationFeatures>,
+): NavGroup[] {
   const config = ORGANIZATION_CONFIGS[orgType];
   if (!config) return allNavGroups;
 
@@ -221,8 +270,9 @@ function getNavGroups(orgType: string, featureOverrides?: Partial<import("@vytal
     .map((group) => ({
       ...group,
       items: group.items.filter((item) => {
-        if (!item.requiresFeature) return true;
-        return features[item.requiresFeature];
+        if (item.requiresFeature && !features[item.requiresFeature]) return false;
+        if (!roleCanSee(userRole, item.requiresRole)) return false;
+        return true;
       }),
     }))
     .filter((group) => group.items.length > 0);
@@ -412,6 +462,7 @@ function OrgSwitcher({ onCreateOrg, collapsed }: { onCreateOrg?: () => void; col
   const user = useAuthStore((s) => s.user);
   const switchOrg = useAuthStore((s) => s.switchOrg);
   const orgSettings = useDataStore((s) => s.orgSettings);
+  const switchOrgData = useDataStore((s) => s.switchOrgData);
   const applyOrgAccentColor = useAppStore((s) => s.applyOrgAccentColor);
   const setSidebarCollapsed = useAppStore((s) => s.toggleSidebar);
   const sidebarCollapsed = useAppStore((s) => s.sidebarCollapsed);
@@ -491,6 +542,7 @@ function OrgSwitcher({ onCreateOrg, collapsed }: { onCreateOrg?: () => void; col
                 key={mem.id}
                 onClick={() => {
                   switchOrg(mem.organizationId);
+                  switchOrgData(mem.organizationId);
                   applyOrgAccentColor(mem.organizationId);
                   setOpen(false);
                 }}
@@ -853,18 +905,19 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     });
   }, []);
 
-  // Get active org type for feature-based nav filtering
+  // Get active org type and role for feature/role-based nav filtering
   const activeOrg = user?.memberships.find(
     (m) => m.organizationId === user.activeOrganizationId
   );
   const orgType = activeOrg?.organization.type ?? "other";
+  const userRole: OrgRole = (activeOrg?.role as OrgRole) ?? "athlete";
   const orgConfig = ORGANIZATION_CONFIGS[orgType];
   const notifications = useDataStore((s) => s.notifications);
   const orgSettings = useDataStore((s) => s.orgSettings);
   const updateOrgSettings = useDataStore((s) => s.updateOrgSettings);
   const notifUnread = notifications.filter((n) => !n.read).length;
   const navGroups = useMemo(() => {
-    const groups = getNavGroups(orgType, orgSettings.features);
+    const groups = getNavGroups(orgType, userRole, orgSettings.features);
     // Inject dynamic unread badge on Notifications nav item
     return groups.map((group) => ({
       ...group,
@@ -872,7 +925,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         item.href === "/notifications" ? { ...item, badge: notifUnread } : item
       ),
     }));
-  }, [orgType, notifUnread, orgSettings.features]);
+  }, [orgType, userRole, notifUnread, orgSettings.features]);
 
   // Close mobile sidebar on route change
   useEffect(() => {
@@ -885,7 +938,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     }
   }, [isAuthenticated, router]);
 
-  // Route protection: redirect if current path requires a disabled feature
+  // Route protection: redirect if current path requires a disabled feature OR insufficient role
   useEffect(() => {
     if (!orgConfig) return;
     const mergedFeatures = orgSettings.features
@@ -917,7 +970,50 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         return;
       }
     }
-  }, [pathname, orgConfig, orgSettings.features, router]);
+
+    // Map route prefixes to minimum required roles
+    // Routes not listed here are accessible to all roles (including athlete)
+    const routeRoleMap: Record<string, "owner" | "coach"> = {
+      // owner-only routes
+      "/crm": "owner",
+      "/class-types": "owner",
+      "/locations": "owner",
+      "/store": "owner",
+      "/plans": "owner",
+      "/dropins": "owner",
+      "/media": "owner",
+      "/equipment": "owner",
+      "/import": "owner",
+      "/financials": "owner",
+      "/analytics": "owner",
+      "/ai": "owner",
+      "/reports": "owner",
+      "/tasks": "owner",
+      "/inbox": "owner",
+      "/communications": "owner",
+      "/automations": "owner",
+      "/screen": "owner",
+      "/support": "owner",
+      "/marketing": "owner",
+      "/settings": "owner",
+      "/integrations": "owner",
+      // coach-accessible routes (also accessible to owner)
+      "/members": "coach",
+      "/classes": "coach",
+      "/wods": "coach",
+      "/staff": "coach",
+      "/exercises": "coach",
+    };
+
+    for (const [route, requiredRole] of Object.entries(routeRoleMap)) {
+      if (pathname === route || pathname.startsWith(route + "/")) {
+        if (!roleCanSee(userRole, requiredRole)) {
+          router.replace("/dashboard");
+          return;
+        }
+      }
+    }
+  }, [pathname, orgConfig, orgSettings.features, userRole, router]);
 
   // Lock body scroll when mobile sidebar is open
   useEffect(() => {
