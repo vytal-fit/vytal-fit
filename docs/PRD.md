@@ -1,10 +1,10 @@
 # Vytal -- Product Requirements Document
 
-**Version:** 2.1
-**Last updated:** 2026-06-04
+**Version:** 3.0
+**Last updated:** 2026-06-06
 **Status:** Active
 **Team:** vytal-fit
-**Repository:** github.com/vytal-fit/vytal-fit (private)
+**Repository:** github.com/vytal-fit/vytal-fit (public)
 
 > This document is the **single source of truth** for the Vytal product. All design, engineering, and business decisions reference this PRD.
 
@@ -1423,76 +1423,93 @@ Core operations for all 4 personas plus competitive parity features:
 
 ### 14.1 Summary
 
-| Area | Built (POC) | Remaining | Total |
+| Area | Built (POC) | Total |
+|---|---|---|
+| Admin Web pages | 100+ | 100+ |
+| Public Website pages | 6 | 6 |
+| Member Console pages | 6 | 6 |
+| Mobile Client screens | 48 | 48 |
+| **Total screens** | **160+** | **160+** |
+| Playwright E2E tests | 89 | 89 |
+| Organization verticals | 20 | 20 |
+| Feature flags | 27 | 27 |
+| i18n translation keys | 1500+ | 1500+ x 3 languages |
+| Data store | Full CRUD | Per-org localStorage |
+| Payment methods | 6 | 6 |
+
+### 14.2 Product Architecture
+
+| Product | Domain | Purpose | Status |
 |---|---|---|---|
-| Admin Web pages | 92 | 0 | 92 |
-| Mobile Client screens | 48 | 0 | 48 |
-| **Total screens** | **140** | **0** | **140** |
-| Playwright E2E tests | 86 | -- | 86 |
-| Organization verticals | 20 | 0 | 20 |
-| i18n translation keys | 1000+ | -- | 1000+ x 3 languages |
-| Data store | Full CRUD | -- | localStorage |
-| Shared types (TypeScript) | Complete | -- | -- |
-| Mock data (packages/shared) | Complete | -- | -- |
+| **Admin** | `admin.vytal.fit/@org` | Gym management backoffice | Built (100+ pages) |
+| **Console** | `console.vytal.fit/@org` | Member portal (web) | Built (6 pages) |
+| **Public Site** | `vytal.fit/@org` or custom domain | Marketing website | Built (6 pages) |
+| **Mobile App** | iOS/Android (Expo) | Athlete app | Built (48 screens) |
 
-### 14.2 What Is Built
+### 14.3 What Is Built
 
-**Admin Web (92 pages):**
+**Admin Web (100+ pages):**
 - **Dashboard & Core:** dashboard, profile, help, changelog
 - **Members (12):** list, detail, edit, 360 view, body composition, assessments, billing, nutrition, analytics, contracts, groups, referrals, import, retention
-- **Classes (9):** list, detail, create, calendar, smart scheduling, templates, waitlist, history, attendance
-- **WODs (3):** list, builder, multi-week programming
+- **Classes (9):** list, detail (with check-in flow), create, calendar, smart scheduling, templates, waitlist, history, attendance
+- **WODs (3):** list (with edit modal), builder, multi-week programming
 - **CRM (2):** pipeline kanban, lead detail
 - **Plans (2):** list, create/edit
 - **Staff (6):** list, detail, edit, performance, payroll, shift schedule
-- **Financials (7):** overview, revenue forecasting, dunning, SEPA DD, invoices, expenses, budget
+- **Financials (7):** overview (with payment registration), revenue forecasting, dunning, SEPA DD, invoices, expenses, budget
 - **Communications (3):** overview, SMS compose, email templates
 - **Community (4):** hub, questionnaires, competition builder, achievement badges
-- **Store (2):** POS store, gift cards & vouchers
-- **Operations:** AI insights, analytics, reports (overview + attendance), tasks, unified inbox, notifications, messages, automations (rules + milestones), TV display config, drop-ins, import center, integrations hub, media library, equipment inventory
-- **Settings (10):** general, notification rules, booking rules, kiosk, app-config, audit trail, permissions, webhooks, API keys, white-label branding
+- **Store (2):** POS store (with filtering), gift cards & vouchers
+- **Operations:** AI insights, analytics, reports (overview + attendance), tasks, unified inbox, notifications, messages, automations (rules + milestones + campaigns), TV display config, drop-ins, import center, integrations hub, media library, equipment inventory, marketing (social media scheduling), support tickets
+- **Settings (14):** general, features (27 flags with groups), notification rules, booking rules, kiosk, app-config, audit trail, permissions, webhooks, API keys, branding, website config, payment methods, backup
 - **Locations (2):** location management, multi-location dashboard
-- **Auth (4):** login, register, onboarding, forgot-password
-- **Root redirect (1)**
+- **Auth (4):** login, register, onboarding (4-step wizard with feature config), forgot-password
 
-**Key features built across all pages:**
-- AI Insights, Member 360, Body Composition, Smart Scheduling
-- Revenue Forecasting, Staff Payroll, Shift Scheduling
-- Dunning, SEPA DD, Digital Contracts, Referrals
-- POS Store, Vouchers, Physical Assessments
-- Task Management, Unified Inbox, Nutrition Tracking
-- Milestone Automation, Achievement Badges
-- Class Templates, Copy Week, Waitlist Management
-- Webhooks, API Keys, White-Label Branding, Permissions
-- Competition Builder, Questionnaires, Multi-week Programming
-- Notification Rules, Booking Rules, Import Center, Integrations
-- TV Display, Dashboard Customization, Audit Trail
-- Multi-Location Dashboard, Media Library, Equipment Inventory, Changelog
+**Public Website (6 pages, at /@orgslug):**
+- Homepage (hero, stats, schedule, CTA)
+- Schedule (weekly timetable, booking modal)
+- Pricing (plan cards, comparison table, FAQ)
+- Shop (product grid, category filter, working cart)
+- Team (coach cards, bio, certifications)
+- Contact (form, map, social links)
+
+**Member Console (6 pages, at /console):**
+- Home (next class, WOD preview, streak, quick actions)
+- Schedule (weekly view, book/cancel, my bookings)
+- WOD (today's WOD, score logging, timer)
+- Records (PR list, add PR, progress)
+- Profile (subscription, payment history, settings)
 
 **Mobile Client (48 screens):**
-- 5 tab screens (classes, mybox, profile, records, wod) + 43 standalone screens (login, register, onboarding, forgot-password, org-switcher, class-detail, booking-confirm, booking-history, wod-detail, wod-history, wod-comments, score-entry, pr-entry, checkin, timer, exercises, box-records, calculator, converters, coach-profile, plan-detail, dropin, chat, news, notifications, notification-prefs, feedback, social-feed, fistbumps, fistbump-detail, leaderboard, photo-gallery, challenge-detail, athlete-of-month, birthdays, dossier-viewer, questionnaire, password-change, language-selector, waitlist-status, settings/personal-data, settings/privacy, settings/theme)
+- 5 tab screens + 43 standalone screens covering the full athlete experience
 
-**Platform:**
-- 20 organization vertical configs with terminology + feature flags
-- Multi-org user model with org switcher in admin sidebar
-- Role hierarchy and permission helpers
-- Shared TypeScript types for all domain models (Member, Class, WOD, Booking, Lead, etc.)
-- Design system: dark theme, Space Grotesk font, green (#22c55e) accent, glassmorphism cards
-- i18n: PT/EN/ES with 1000+ translation keys per language
-- Full CRUD data store with localStorage persistence
-- 86 Playwright E2E tests covering navigation, rendering, accessibility, i18n, theme switching
-- 10 E2E test spec files: smoke, home, dashboard, classes, members, navigation, admin-pages, a11y, i18n, theme
+**Key Platform Features:**
+- 27 feature flags in 4 categories (Training, Community, Health, Operations)
+- 3 required features (Financials, Reports, Communications)
+- Role-based access: Owner (full), Coach (limited), Athlete (minimal)
+- Per-org data isolation (separate localStorage per org)
+- 3 mock orgs: CrossFit Aveiro, Yoga Flow Porto, Iron Temple
+- 6 payment methods: MB Way, Multibanco, SEPA, Card, Cash, Transfer
+- Custom domain routing (crossfit-aveiro.pt → org public pages)
+- Smart onboarding: 4-step wizard with vertical-specific feature defaults
+- Route protection: disabled features redirect to dashboard
+- Sidebar filtering: nav items hidden by feature flags + role
+- Class check-in: individual, bulk, QR scan, walk-in
+- i18n: PT/EN/ES with 1500+ keys per language
+- 89 Playwright E2E tests
+- Design system: dark theme, Inter font, green (#22c55e) accent
 
-### 14.3 What Is NOT Built
+### 14.4 What Is NOT Built (Next Phase)
 
-- **Backend:** No real API wired -- all data is mock (next step: connect tRPC + Drizzle + PostgreSQL)
-- **Auth:** Better Auth not integrated -- login/register are UI-only (Zustand + localStorage pseudo-auth)
-- **Payments:** No Stripe/MBWay/SEPA integration
+- **Backend:** No real API -- all data is mock (next: tRPC + Drizzle + PostgreSQL)
+- **Auth:** Better Auth not integrated -- login is UI-only (localStorage pseudo-auth)
+- **Real Payments:** No Stripe/MBWay/SEPA processing -- config UI only
 - **Fiscal:** No SAF-T/ATCUD generation
-- **Notifications:** No push/email/SMS -- UI only
-- **Real-time:** No WebSocket connections -- coachboard and timers are static
-- **Offline:** No offline sync implemented
-- **All UI screens are complete** -- 140 total screens (92 admin + 48 mobile) built for POC
+- **Notifications:** No push/email/SMS delivery -- UI only
+- **Real-time:** No WebSocket connections
+- **Offline:** No offline sync
+- **Search:** No full-text search (Cmd+K is client-side only)
+- **File uploads:** No real file storage (simulated)
 
 ### 14.4 Test Coverage
 
