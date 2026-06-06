@@ -29,23 +29,67 @@ const CUSTOM_DOMAIN_MAP: Record<string, string> = {
   "irontemple.pt": "iron-temple",
 };
 
-// The main Vytal domains (not custom)
-const VYTAL_DOMAINS = new Set([
-  "vytal.fit",
-  "vytal-fit-iota.vercel.app",
-  "localhost",
-  "localhost:3000",
-]);
+// Vytal subdomains
+const ADMIN_SUBDOMAINS = ["admin"];
+const CONSOLE_SUBDOMAINS = ["console"];
+
+function getSubdomain(hostname: string): string | null {
+  const host = hostname.split(":")[0];
+  // Check for vytal.fit subdomains
+  if (host.endsWith(".vytal.fit")) {
+    return host.replace(".vytal.fit", "");
+  }
+  // Check for vercel preview subdomains (ignore these)
+  if (host.endsWith(".vercel.app")) return null;
+  // localhost doesn't have subdomains in dev
+  if (host === "localhost" || host.startsWith("localhost:")) return null;
+  return null;
+}
 
 function isVytalDomain(hostname: string): boolean {
-  // Strip port for comparison
   const host = hostname.split(":")[0];
-  return VYTAL_DOMAINS.has(hostname) || VYTAL_DOMAINS.has(host) || hostname.endsWith(".vercel.app");
+  return host === "vytal.fit"
+    || host.endsWith(".vytal.fit")
+    || host.endsWith(".vercel.app")
+    || host === "localhost"
+    || host.startsWith("localhost:");
 }
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const hostname = request.headers.get("host") ?? "";
+  const subdomain = getSubdomain(hostname);
+
+  // ─── Subdomain Handling (admin.vytal.fit, console.vytal.fit) ───
+  if (subdomain && ADMIN_SUBDOMAINS.includes(subdomain)) {
+    // admin.vytal.fit → serve admin app (same as root, just the (app) layout)
+    // All paths pass through directly — the (app) layout handles auth
+    return NextResponse.next();
+  }
+
+  if (subdomain && CONSOLE_SUBDOMAINS.includes(subdomain)) {
+    // console.vytal.fit → serve console app
+    // Rewrite all paths to /console/...
+    if (pathname === "/" || pathname === "") {
+      const url = request.nextUrl.clone();
+      url.pathname = "/console";
+      return NextResponse.rewrite(url);
+    }
+    // /schedule → /console/schedule, /wod → /console/wod, etc.
+    if (!pathname.startsWith("/console")) {
+      const url = request.nextUrl.clone();
+      url.pathname = `/console${pathname}`;
+      return NextResponse.rewrite(url);
+    }
+    return NextResponse.next();
+  }
+
+  if (subdomain === "www") {
+    // www.vytal.fit → redirect to vytal.fit
+    const url = request.nextUrl.clone();
+    url.host = "vytal.fit";
+    return NextResponse.redirect(url, 301);
+  }
 
   // ─── Custom Domain Handling ───
   // If the request is on a custom domain (not vytal.fit), route to that org's public pages

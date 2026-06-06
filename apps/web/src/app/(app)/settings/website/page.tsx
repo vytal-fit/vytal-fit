@@ -29,44 +29,20 @@ import { cn } from "@/lib/utils";
 
 function defaultWebsiteConfig(orgSettings: { slogan: string; name: string }): WebsiteConfig {
   return {
-    hero: {
-      enabled: true,
-      slogan: orgSettings.slogan || "",
-      showCoverImage: true,
-      ctaText: "Começar Agora",
-    },
-    about: {
-      enabled: true,
-      description: "",
-      foundingYear: "",
-    },
-    schedule: {
-      enabled: true,
-      classTypeIds: [],
-    },
-    pricing: {
-      enabled: true,
-      planIds: [],
-    },
-    gallery: {
-      enabled: false,
-    },
-    testimonials: {
-      enabled: false,
-      items: [
-        { name: "", text: "", rating: 5 },
-        { name: "", text: "", rating: 5 },
-        { name: "", text: "", rating: 5 },
-      ],
-    },
-    seo: {
-      metaTitle: orgSettings.name || "",
-      metaDescription: "",
-      showOgImage: true,
-    },
-    contactForm: {
-      enabled: true,
-    },
+    hero: { enabled: true, slogan: orgSettings.slogan || "", showCoverImage: true, ctaText: "Começar Agora", ctaLink: "/login", showStats: true, showQuickLinks: true },
+    about: { enabled: true, description: "", foundingYear: "" },
+    schedule: { enabled: true, classTypeIds: [], showBookingButton: true, showOpeningHours: true, headerText: "" },
+    pricing: { enabled: true, planIds: [], showComparisonTable: true, showFaq: true, faqEntries: [] },
+    shop: { enabled: true, showCategories: true, currencyFormat: "EUR", headerText: "" },
+    team: { enabled: true, coachIds: [], showCertifications: true, showBio: true, headerText: "" },
+    contact: { enabled: true, showForm: true, showMap: true, showOpeningHours: true, successMessage: "", submissionsEmail: "" },
+    gallery: { enabled: false },
+    testimonials: { enabled: false, items: [{ name: "", text: "", rating: 5 }, { name: "", text: "", rating: 5 }, { name: "", text: "", rating: 5 }] },
+    design: { theme: "dark", primaryColor: "#22c55e", logoFileName: "", faviconFileName: "", font: "Inter", borderRadius: 12, navStyle: "topbar", footerText: "", showSocialLinks: true, showPoweredBy: true },
+    domain: { customDomain: "", wwwRedirect: true },
+    seo: { metaTitle: orgSettings.name || "", metaDescription: "", showOgImage: true, gaTrackingId: "", fbPixelId: "", allowIndexing: true, autoSitemap: true },
+    content: { aboutText: "", announcementBar: false, announcementText: "", announcementColor: "#22c55e", cookieConsent: false, cookieText: "", privacyPolicyUrl: "", termsUrl: "" },
+    contactForm: { enabled: true },
   };
 }
 
