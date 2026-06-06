@@ -167,7 +167,7 @@ export default function ClassCreatePage() {
               <span className="font-medium text-vytal-text">{date}</span>
             </p>
             <p>
-              {startTime} - {endTime} {t("classCreate.on")} {loc?.name}
+              {startTime} - {endTime} · {loc?.name}
             </p>
             {coaches.length > 0 && (
               <p>{t("classCreate.coachesLabel")} {coaches.map((c) => c.name).join(", ")}</p>
@@ -321,13 +321,13 @@ export default function ClassCreatePage() {
           <h2 className="mb-5 text-lg font-semibold text-vytal-text">{t("classCreate.registrationRules")}</h2>
           <div className="space-y-4">
             <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">
-              Registration Opens
+              {t("classCreate.registrationOpens")}
             </label>
             <div className="flex gap-2">
               {([
-                { value: "before", label: "Before class" },
-                { value: "after", label: "After previous" },
-                { value: "custom", label: "Custom time" },
+                { value: "before", label: t("classCreate.beforeClass") },
+                { value: "after", label: t("classCreate.afterPrevious") },
+                { value: "custom", label: t("classCreate.customTime") },
               ] as const).map((opt) => (
                 <button
                   key={opt.value}
@@ -345,7 +345,7 @@ export default function ClassCreatePage() {
               ))}
             </div>
             {registrationRule === "custom" && (
-              <Field label="Minutes before class" value={customMinutes} onChange={setCustomMinutes} type="number" />
+              <Field label={t("classCreate.minutesBefore")} value={customMinutes} onChange={setCustomMinutes} type="number" />
             )}
           </div>
         </div>
@@ -356,9 +356,9 @@ export default function ClassCreatePage() {
           <div className="space-y-4">
             <div className="flex gap-2">
               {([
-                { value: "none", label: "None" },
-                { value: "unlimited", label: "Unlimited" },
-                { value: "max", label: "Max N" },
+                { value: "none", label: t("classCreate.noLimit") },
+                { value: "unlimited", label: t("classCreate.unlimited2") },
+                { value: "max", label: t("classCreate.maxN2") },
               ] as const).map((opt) => (
                 <button
                   key={opt.value}
@@ -376,7 +376,7 @@ export default function ClassCreatePage() {
               ))}
             </div>
             {waitlistMode === "max" && (
-              <Field label="Max waitlist size" value={waitlistMax} onChange={setWaitlistMax} type="number" />
+              <Field label={t("classCreate.maxWaitlistSize2")} value={waitlistMax} onChange={setWaitlistMax} type="number" />
             )}
           </div>
         </div>
@@ -389,14 +389,14 @@ export default function ClassCreatePage() {
           className="flex items-center gap-2 rounded-lg border border-vytal-border bg-vytal-bg2 px-6 py-2.5 text-sm font-medium text-vytal-muted transition-colors hover:text-vytal-text"
         >
           <X className="h-4 w-4" />
-          Cancel
+          {t("action.cancel")}
         </button>
         <button
           onClick={handleCreate}
           className="flex items-center gap-2 rounded-lg bg-vytal-green px-6 py-2.5 text-sm font-semibold text-vytal-bg transition-colors hover:bg-vytal-green/90"
         >
           <Save className="h-4 w-4" />
-          Create
+          {t("action.create")}
         </button>
       </div>
     </div>
