@@ -2,10 +2,11 @@
 
 import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { DollarSign, TrendingUp, TrendingDown, AlertTriangle, Clock, ArrowUpRight, ArrowDownRight, Target, Send, ChevronDown, ChevronUp, Download } from "lucide-react";
+import { DollarSign, TrendingUp, TrendingDown, AlertTriangle, Clock, ArrowUpRight, ArrowDownRight, Target, Send, ChevronDown, ChevronUp, Download, X, Smartphone, CreditCard, Building2, Banknote, ArrowLeftRight, CheckCircle } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { useToast } from "@/components/toast";
-import { formatCurrency } from "@/stores/data-store";
+import { formatCurrency, useDataStore } from "@/stores/data-store";
+import { cn } from "@/lib/utils";
 import {
   LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell,
 } from "recharts";
@@ -55,6 +56,195 @@ const revenueProgress = (currentMonthRevenue / revenueTarget) * 100;
 const overdueTotal = pendingPayments.filter((p) => p.status === "overdue").reduce((s, p) => s + p.amount, 0);
 const dso = 12;
 
+// ---------------------------------------------------------------------------
+// Payment method icons map
+// ---------------------------------------------------------------------------
+
+const METHOD_ICONS: Record<string, React.ReactNode> = {
+  mbway: <Smartphone className="h-4 w-4" />,
+  multibanco: <Building2 className="h-4 w-4" />,
+  sepa: <ArrowLeftRight className="h-4 w-4" />,
+  card: <CreditCard className="h-4 w-4" />,
+  cash: <Banknote className="h-4 w-4" />,
+  transfer: <Building2 className="h-4 w-4" />,
+};
+
+const METHOD_LABELS: Record<string, string> = {
+  mbway: "MB Way",
+  multibanco: "Multibanco",
+  sepa: "SEPA DD",
+  card: "Cartão",
+  cash: "Numerário",
+  transfer: "Transferência",
+};
+
+// ---------------------------------------------------------------------------
+// Register Payment Dialog
+// ---------------------------------------------------------------------------
+
+function RegisterPaymentDialog({
+  open,
+  onClose,
+}: {
+  open: boolean;
+  onClose: () => void;
+}) {
+  const { t } = useI18n();
+  const { toast } = useToast();
+  const paymentMethods = useDataStore((s) => s.orgSettings.paymentMethods);
+
+  const enabledMethods = Object.entries(paymentMethods ?? {}).filter(
+    ([, cfg]) => (cfg as { enabled?: boolean })?.enabled
+  );
+
+  const [selectedMethod, setSelectedMethod] = useState<string>("");
+  const [amount, setAmount] = useState("");
+  const [reference, setReference] = useState(
+    `INV-2026-${String(recentTransactions.length + 143).padStart(4, "0")}`
+  );
+
+  function handleSubmit() {
+    if (!selectedMethod || !amount) return;
+    const label = METHOD_LABELS[selectedMethod] ?? selectedMethod;
+    toast(
+      t("payments.registered")
+        .replace("{amount}", formatCurrency(parseFloat(amount) || 0))
+        .replace("{method}", label),
+      "success"
+    );
+    onClose();
+    setSelectedMethod("");
+    setAmount("");
+  }
+
+  if (!open) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      {/* Backdrop */}
+      <div
+        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+        onClick={onClose}
+      />
+
+      {/* Modal */}
+      <div className="relative z-10 w-full max-w-md rounded-2xl border border-vytal-border bg-vytal-card shadow-2xl">
+        {/* Header */}
+        <div className="flex items-center justify-between border-b border-vytal-border px-6 py-4">
+          <div className="flex items-center gap-2">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-vytal-green/10">
+              <DollarSign className="h-4 w-4 text-vytal-green" />
+            </div>
+            <h2 className="text-sm font-semibold text-vytal-text">
+              {t("payments.registerPayment")}
+            </h2>
+          </div>
+          <button
+            onClick={onClose}
+            className="flex h-7 w-7 items-center justify-center rounded-lg text-vytal-muted transition-colors hover:bg-vytal-bg3 hover:text-vytal-text"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+
+        {/* Body */}
+        <div className="space-y-5 px-6 py-5">
+          {/* Payment method selector */}
+          <div className="flex flex-col gap-2">
+            <label className="text-xs font-medium text-vytal-muted">
+              {t("payments.selectMethod")}
+            </label>
+
+            {enabledMethods.length === 0 ? (
+              <p className="rounded-lg border border-vytal-border bg-vytal-bg2 px-4 py-3 text-xs text-vytal-muted">
+                {t("payments.noMethodsEnabled")}
+              </p>
+            ) : (
+              <div className="grid grid-cols-2 gap-2">
+                {enabledMethods.map(([key]) => (
+                  <button
+                    key={key}
+                    onClick={() => setSelectedMethod(key)}
+                    className={cn(
+                      "flex items-center gap-2.5 rounded-xl border px-3.5 py-3 text-sm font-medium transition-all",
+                      selectedMethod === key
+                        ? "border-vytal-green/40 bg-vytal-green/10 text-vytal-green"
+                        : "border-vytal-border bg-vytal-bg2 text-vytal-text hover:border-vytal-border/80 hover:bg-vytal-bg3"
+                    )}
+                  >
+                    <span
+                      className={cn(
+                        selectedMethod === key ? "text-vytal-green" : "text-vytal-muted"
+                      )}
+                    >
+                      {METHOD_ICONS[key]}
+                    </span>
+                    {METHOD_LABELS[key] ?? key}
+                    {selectedMethod === key && (
+                      <CheckCircle className="ml-auto h-3.5 w-3.5 text-vytal-green" />
+                    )}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Amount */}
+          <div className="flex flex-col gap-1.5">
+            <label className="text-xs font-medium text-vytal-muted">
+              {t("payments.amount")}
+            </label>
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-vytal-muted">€</span>
+              <input
+                type="number"
+                min="0"
+                step="0.01"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                placeholder="0.00"
+                className="w-full rounded-lg border border-vytal-border bg-vytal-bg pl-7 pr-3 py-2.5 text-sm font-mono text-vytal-text placeholder:text-vytal-muted/50 focus:border-vytal-green/50 focus:outline-none focus:ring-1 focus:ring-vytal-green/30"
+              />
+            </div>
+          </div>
+
+          {/* Reference */}
+          <div className="flex flex-col gap-1.5">
+            <label className="text-xs font-medium text-vytal-muted">
+              {t("payments.reference")}
+            </label>
+            <input
+              type="text"
+              value={reference}
+              onChange={(e) => setReference(e.target.value)}
+              placeholder={t("payments.referencePlaceholder")}
+              className="w-full rounded-lg border border-vytal-border bg-vytal-bg px-3 py-2.5 text-sm font-mono text-vytal-text placeholder:text-vytal-muted/50 focus:border-vytal-green/50 focus:outline-none focus:ring-1 focus:ring-vytal-green/30"
+            />
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="flex items-center justify-end gap-3 border-t border-vytal-border px-6 py-4">
+          <button
+            onClick={onClose}
+            className="rounded-lg border border-vytal-border bg-vytal-bg2 px-4 py-2 text-sm font-medium text-vytal-text transition-colors hover:bg-vytal-bg3"
+          >
+            {t("action.cancel")}
+          </button>
+          <button
+            onClick={handleSubmit}
+            disabled={!selectedMethod || !amount}
+            className="inline-flex items-center gap-2 rounded-lg bg-vytal-green px-4 py-2 text-sm font-semibold text-black transition-colors hover:bg-vytal-green/90 disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            <DollarSign className="h-3.5 w-3.5" />
+            {t("payments.registerBtn")}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function StatusBadge({ status }: { status: "paid" | "pending" | "failed" | "overdue" }) {
   const { t } = useI18n();
   const config = {
@@ -89,6 +279,7 @@ export default function FinancialsPage() {
   const { toast } = useToast();
   const router = useRouter();
   const [expandedTxId, setExpandedTxId] = useState<number | null>(null);
+  const [showRegisterPayment, setShowRegisterPayment] = useState(false);
 
   const handleNewInvoice = useCallback(() => {
     const nextRef = `INV-2026-${String(recentTransactions.length + 143).padStart(4, "0")}`;
@@ -120,6 +311,11 @@ export default function FinancialsPage() {
   }, [toast, t]);
 
   return (
+    <>
+    <RegisterPaymentDialog
+      open={showRegisterPayment}
+      onClose={() => setShowRegisterPayment(false)}
+    />
     <div className="space-y-8">
       {/* Header */}
       <div>
@@ -129,7 +325,11 @@ export default function FinancialsPage() {
 
       {/* Quick Actions Bar */}
       <div className="flex flex-wrap items-center gap-2">
-        <button onClick={handleNewInvoice} className="inline-flex items-center gap-1.5 rounded-full border border-vytal-green/20 bg-vytal-green/5 px-3.5 py-1.5 text-xs font-semibold text-vytal-green transition-colors hover:bg-vytal-green/10">
+        <button onClick={() => setShowRegisterPayment(true)} className="inline-flex items-center gap-1.5 rounded-full border border-vytal-green/20 bg-vytal-green/5 px-3.5 py-1.5 text-xs font-semibold text-vytal-green transition-colors hover:bg-vytal-green/10">
+          <DollarSign className="h-3.5 w-3.5" />
+          {t("payments.registerPayment")}
+        </button>
+        <button onClick={handleNewInvoice} className="inline-flex items-center gap-1.5 rounded-full border border-vytal-border bg-vytal-card px-3.5 py-1.5 text-xs font-semibold text-vytal-text transition-colors hover:bg-vytal-bg3">
           <DollarSign className="h-3.5 w-3.5" />
           {t("quickAction.newInvoice")}
         </button>
