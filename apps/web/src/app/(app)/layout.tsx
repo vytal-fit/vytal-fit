@@ -1134,7 +1134,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                     <div
                       className={cn(
                         "overflow-hidden transition-all duration-200 ease-in-out",
-                        isExpanded ? "max-h-96 opacity-100 mt-0.5" : "max-h-0 opacity-0"
+                        isExpanded ? "max-h-[600px] opacity-100 mt-0.5" : "max-h-0 opacity-0"
                       )}
                     >
                       <div className="ml-[29px] space-y-0.5 py-1">
@@ -1227,7 +1227,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       {/* Desktop Sidebar — collapsible to icons */}
       <aside
         className={cn(
-          "group hidden flex-col border-r border-vytal-border bg-vytal-bg2 lg:flex transition-all duration-300 ease-in-out relative",
+          "group hidden h-full flex-col border-r border-vytal-border bg-vytal-bg2 lg:flex transition-all duration-300 ease-in-out relative overflow-hidden",
           sidebarCollapsed ? "w-[72px]" : "w-64",
         )}
 
