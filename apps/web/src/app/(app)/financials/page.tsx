@@ -599,5 +599,6 @@ export default function FinancialsPage() {
         </div>
       </div>
     </div>
+    </>
   );
 }
