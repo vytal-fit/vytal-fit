@@ -572,7 +572,7 @@ export function CreateOrgWizard({
                             setFeatures((prev) => {
                               if (!prev) return prev;
                               const next = { ...prev };
-                              groupFeatures.forEach((k) => { next[k] = newVal; });
+                              groupFeatures.forEach((k) => { next[k] = REQUIRED_FEATURES.has(k) ? true : newVal; });
                               return next;
                             });
                           }}

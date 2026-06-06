@@ -1284,6 +1284,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           isModal
           onComplete={(orgData: CreateOrgData) => {
             setShowCreateOrgWizard(false);
+            // Update org settings (persisted)
             updateOrgSettings({
               name: orgData.name,
               slug: orgData.slug,
@@ -1293,6 +1294,34 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               businessType: orgData.type,
               features: orgData.features,
             });
+            // Add new org to user memberships so it shows in the dropdown
+            if (user) {
+              const newOrgId = `org-${Date.now()}`;
+              const newMembership = {
+                id: `mem-${Date.now()}`,
+                userId: user.user.id,
+                organizationId: newOrgId,
+                role: "owner" as const,
+                status: "active" as const,
+                memberNumber: 1,
+                joinedAt: new Date().toISOString().split("T")[0],
+                organization: {
+                  id: newOrgId,
+                  name: orgData.name,
+                  type: orgData.type as import("@vytal-fit/shared").OrganizationType,
+                  slug: orgData.slug,
+                },
+              };
+              const updatedUser = {
+                ...user,
+                memberships: [...user.memberships, newMembership],
+                activeOrganizationId: newOrgId,
+              };
+              // Persist to auth store via localStorage
+              localStorage.setItem("vytal-auth", JSON.stringify(updatedUser));
+              // Trigger re-render
+              window.location.reload();
+            }
           }}
           onCancel={() => setShowCreateOrgWizard(false)}
         />
