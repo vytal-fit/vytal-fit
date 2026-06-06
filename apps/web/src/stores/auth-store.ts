@@ -33,6 +33,22 @@ function loadAuth(): UserWithOrgs | null {
   }
 }
 
+function setOrgSlugCookie(user: UserWithOrgs) {
+  const activeOrg = user.memberships.find(
+    (m) => m.organizationId === user.activeOrganizationId
+  );
+  const slug = activeOrg?.organization.slug ?? "";
+  if (slug && typeof document !== "undefined") {
+    document.cookie = `vytal-org-slug=${slug};path=/;max-age=${60 * 60 * 24 * 365}`;
+  }
+}
+
+function clearOrgSlugCookie() {
+  if (typeof document !== "undefined") {
+    document.cookie = "vytal-org-slug=;path=/;max-age=0";
+  }
+}
+
 export const useAuthStore = create<AuthState>((set) => ({
   isAuthenticated: false,
   user: null,
@@ -40,12 +56,14 @@ export const useAuthStore = create<AuthState>((set) => ({
   login: (_email: string, _password: string) => {
     const user = { ...mockCurrentUser };
     persistAuth(user);
+    setOrgSlugCookie(user);
     set({ isAuthenticated: true, user });
     return true;
   },
 
   logout: () => {
     persistAuth(null);
+    clearOrgSlugCookie();
     set({ isAuthenticated: false, user: null });
   },
 
@@ -54,6 +72,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       if (!state.user) return state;
       const updated = { ...state.user, activeOrganizationId: orgId };
       persistAuth(updated);
+      setOrgSlugCookie(updated);
       return { user: updated };
     });
   },
@@ -61,6 +80,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   hydrate: () => {
     const user = loadAuth();
     if (user) {
+      setOrgSlugCookie(user);
       set({ isAuthenticated: true, user });
     }
   },
