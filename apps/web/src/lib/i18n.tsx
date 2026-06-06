@@ -2119,7 +2119,7 @@ const translations: Record<Language, Record<string, string>> = {
     "nav.webhooks": "Webhooks",
     "nav.apiKeys": "Chaves API",
     "nav.branding": "Marca",
-    "nav.website": "Website Público",
+    "nav.website": "Website",
     "nav.referrals": "Referências",
 
     // Website Config page
@@ -5274,7 +5274,7 @@ const translations: Record<Language, Record<string, string>> = {
     "nav.webhooks": "Webhooks",
     "nav.apiKeys": "API Keys",
     "nav.branding": "Branding",
-    "nav.website": "Public Website",
+    "nav.website": "Website",
     "nav.referrals": "Referrals",
 
     // Website Config page
@@ -8406,7 +8406,7 @@ const translations: Record<Language, Record<string, string>> = {
     "nav.webhooks": "Webhooks",
     "nav.apiKeys": "Claves API",
     "nav.branding": "Marca",
-    "nav.website": "Sitio Web Público",
+    "nav.website": "Website",
     "nav.referrals": "Referencias",
 
     // Website Config page
