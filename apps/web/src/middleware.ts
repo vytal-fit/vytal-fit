@@ -12,8 +12,8 @@ const ADMIN_ROUTES = new Set([
   "changelog", "help", "profile", "setup", "onboarding",
 ]);
 
-// Member console routes (athlete-facing portal)
-const CONSOLE_ROUTES = new Set(["console"]);
+// Member portal routes (athlete-facing)
+const MEMBER_ROUTES = new Set(["console"]);
 
 // Public org page routes (not admin)
 const PUBLIC_ORG_ROUTES = new Set([
@@ -31,7 +31,7 @@ const CUSTOM_DOMAIN_MAP: Record<string, string> = {
 
 // Vytal subdomains
 const ADMIN_SUBDOMAINS = ["admin"];
-const CONSOLE_SUBDOMAINS = ["console"];
+const MEMBER_SUBDOMAINS = ["my"];
 
 function getSubdomain(hostname: string): string | null {
   const host = hostname.split(":")[0];
@@ -67,8 +67,8 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  if (subdomain && CONSOLE_SUBDOMAINS.includes(subdomain)) {
-    // console.vytal.fit → serve console app
+  if (subdomain && MEMBER_SUBDOMAINS.includes(subdomain)) {
+    // my.vytal.fit → serve member portal
     // Rewrite all paths to /console/...
     if (pathname === "/" || pathname === "") {
       const url = request.nextUrl.clone();
@@ -110,7 +110,7 @@ export function middleware(request: NextRequest) {
         return NextResponse.rewrite(url);
       }
       // Console routes on custom domain → rewrite directly to /console/...
-      if (CONSOLE_ROUTES.has(firstSegment)) {
+      if (MEMBER_ROUTES.has(firstSegment)) {
         url.pathname = pathname;
         return NextResponse.rewrite(url);
       }
@@ -150,7 +150,7 @@ export function middleware(request: NextRequest) {
       return NextResponse.rewrite(url);
     }
 
-    if (CONSOLE_ROUTES.has(firstSegment)) {
+    if (MEMBER_ROUTES.has(firstSegment)) {
       // /@org/console → /console (member portal, rewrite without org prefix)
       const url = request.nextUrl.clone();
       url.pathname = subpath;
