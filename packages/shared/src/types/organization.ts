@@ -58,24 +58,37 @@ export interface OrganizationTerminology {
 
 /** Feature flags per vertical */
 export interface OrganizationFeatures {
+  // Training & Programming
   wods: boolean;              // WOD builder, daily workouts
   leaderboard: boolean;       // Competition rankings
   personalRecords: boolean;   // PR tracking
   rxScaled: boolean;          // Rx/Scaled scoring
   timers: boolean;            // Workout timers (AMRAP, EMOM, etc.)
   rmCalculator: boolean;      // RM percentage calculator
+  movementLibrary: boolean;   // Exercise video library
+  groupClasses: boolean;      // Group class booking
+  openGym: boolean;           // Open gym / free practice slots
+  personalTraining: boolean;  // PT scheduling
+  // Community & Engagement
   gamification: boolean;      // Streaks, medals, points
   fistbumps: boolean;         // Social reactions
   dropins: boolean;           // Cross-gym visits
-  tvDisplay: boolean;         // Gym screen/coachboard
-  movementLibrary: boolean;   // Exercise video library
   beltSystem: boolean;        // Graduations / belt ranks
-  personalTraining: boolean;  // PT scheduling
+  // Health & Wellness
   nutritionTracking: boolean; // Nutrition plans
   bodyComposition: boolean;   // Physical assessments
-  groupClasses: boolean;      // Group class booking
-  openGym: boolean;           // Open gym / free practice slots
+  // Operations & Management
+  financials: boolean;        // Invoices, payments, revenue tracking
+  payroll: boolean;           // Staff salaries & payroll
+  crm: boolean;               // Lead management pipeline
+  reports: boolean;           // Analytics & reports
   store: boolean;             // In-app store / POS
+  communications: boolean;    // Email, SMS, push notifications
+  automations: boolean;       // Automated workflows & campaigns
+  tvDisplay: boolean;         // Gym screen/coachboard
+  tasks: boolean;             // Task management
+  support: boolean;           // Support tickets
+  marketing: boolean;         // Social media scheduling
 }
 
 export interface Organization {
