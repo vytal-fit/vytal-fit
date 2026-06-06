@@ -30,7 +30,7 @@ const CUSTOM_DOMAIN_MAP: Record<string, string> = {
 };
 
 // Vytal subdomains
-const ADMIN_SUBDOMAINS = ["admin"];
+const ADMIN_SUBDOMAINS = ["admin", "control"];
 const MEMBER_SUBDOMAINS = ["my"];
 
 function getSubdomain(hostname: string): string | null {
