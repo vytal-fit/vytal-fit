@@ -1052,6 +1052,17 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   /** Sidebar inner content — shared between desktop and mobile */
   const sidebarContent = (
     <div className="flex h-full flex-col overflow-hidden">
+      {/* Brand logo */}
+      <div className="shrink-0 border-b border-vytal-border px-4 py-3">
+        {isEffectivelyExpanded ? (
+          <span className="text-lg font-bold tracking-tight">
+            <span className="text-vytal-muted/60">control</span><span className="text-vytal-green">VYTAL</span>
+          </span>
+        ) : (
+          <span className="flex justify-center text-sm font-bold text-vytal-green">V</span>
+        )}
+      </div>
+
       {/* Org Switcher */}
       <div className="shrink-0 border-b border-vytal-border px-3 py-3">
         <OrgSwitcher onCreateOrg={() => setShowCreateOrgWizard(true)} collapsed={!isEffectivelyExpanded} />

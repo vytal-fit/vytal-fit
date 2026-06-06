@@ -52,8 +52,8 @@ export default function LoginPage() {
       <div className="rounded-2xl border border-vytal-border bg-vytal-card backdrop-blur-xl p-8">
         {/* Logo */}
         <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold tracking-tight text-vytal-green">
-            VYTAL
+          <h1 className="text-3xl font-bold tracking-tight">
+            <span className="text-vytal-muted/70">control</span><span className="text-vytal-green">VYTAL</span>
           </h1>
           <p className="mt-2 text-sm text-vytal-muted">
             {t("auth.subtitle")}
