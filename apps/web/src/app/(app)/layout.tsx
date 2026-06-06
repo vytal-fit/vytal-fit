@@ -230,6 +230,8 @@ const allNavGroups: NavGroup[] = [
         { href: "/settings/webhooks", labelKey: "nav.webhooks", icon: Settings },
         { href: "/settings/api-keys", labelKey: "nav.apiKeys", icon: Settings },
         { href: "/settings/branding", labelKey: "nav.branding", icon: Settings },
+        { href: "/settings/website", labelKey: "nav.website", icon: Settings },
+        { href: "/settings/payments", labelKey: "nav.payments", icon: Settings },
         { href: "/settings/backup", labelKey: "nav.backup", icon: Settings },
       ]},
       // integrations — owner only

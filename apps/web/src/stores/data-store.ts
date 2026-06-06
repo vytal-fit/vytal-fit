@@ -53,6 +53,66 @@ export interface Conversation {
   lastMessageTime: string;
 }
 
+export interface WebsiteTestimonial {
+  name: string;
+  text: string;
+  rating: number;
+}
+
+export interface WebsiteConfig {
+  // Hero
+  hero: {
+    enabled: boolean;
+    slogan: string;
+    showCoverImage: boolean;
+    ctaText: string;
+  };
+  // About
+  about: {
+    enabled: boolean;
+    description: string;
+    foundingYear: string;
+  };
+  // Schedule
+  schedule: {
+    enabled: boolean;
+    classTypeIds: string[];
+  };
+  // Pricing
+  pricing: {
+    enabled: boolean;
+    planIds: string[];
+  };
+  // Gallery
+  gallery: {
+    enabled: boolean;
+  };
+  // Testimonials
+  testimonials: {
+    enabled: boolean;
+    items: WebsiteTestimonial[];
+  };
+  // SEO
+  seo: {
+    metaTitle: string;
+    metaDescription: string;
+    showOgImage: boolean;
+  };
+  // Contact Form
+  contactForm: {
+    enabled: boolean;
+  };
+}
+
+export interface PaymentMethodConfig {
+  mbway?: { enabled: boolean; phone?: string; merchantId?: string };
+  multibanco?: { enabled: boolean; entity?: string; subEntity?: string };
+  sepa?: { enabled: boolean; iban?: string; bic?: string; creditorId?: string };
+  card?: { enabled: boolean; processor?: string };
+  cash?: { enabled: boolean };
+  transfer?: { enabled: boolean; iban?: string; bankName?: string; accountHolder?: string };
+}
+
 export interface OrgSettings {
   name: string;
   slug: string;
@@ -71,6 +131,8 @@ export interface OrgSettings {
   slogan: string;
   businessType: string;
   features?: Partial<OrganizationFeatures>;
+  websiteConfig?: WebsiteConfig;
+  paymentMethods?: PaymentMethodConfig;
 }
 
 // ---------------------------------------------------------------------------
