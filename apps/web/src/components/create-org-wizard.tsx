@@ -449,8 +449,7 @@ export function CreateOrgWizard({
                     />
                     {details.slug && (
                       <p className="mt-1.5 text-xs text-vytal-muted">
-                        vytal.fit/
-                        <span className="text-vytal-text">{details.slug}</span>
+                        vytal.fit/@<span className="text-vytal-text">{details.slug}</span>
                       </p>
                     )}
                   </div>
