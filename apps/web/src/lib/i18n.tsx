@@ -2123,9 +2123,9 @@ const translations: Record<Language, Record<string, string>> = {
     "nav.referrals": "Referências",
 
     // Website Config page
-    "website.title": "Website Público",
+    "website.title": "Website",
     "website.subtitle": "Configure o que é mostrado na sua página pública em vytal.fit/@slug.",
-    "website.breadcrumb": "Website Público",
+    "website.breadcrumb": "Website",
     "website.preview": "Pré-visualizar",
     "website.save": "Guardar Configuração",
     "website.saved": "Configuração do website guardada com sucesso",
@@ -5278,9 +5278,9 @@ const translations: Record<Language, Record<string, string>> = {
     "nav.referrals": "Referrals",
 
     // Website Config page
-    "website.title": "Public Website",
+    "website.title": "Website",
     "website.subtitle": "Configure what is shown on your public page at vytal.fit/@slug.",
-    "website.breadcrumb": "Public Website",
+    "website.breadcrumb": "Website",
     "website.preview": "Preview",
     "website.save": "Save Configuration",
     "website.saved": "Website configuration saved successfully",
@@ -8410,9 +8410,9 @@ const translations: Record<Language, Record<string, string>> = {
     "nav.referrals": "Referencias",
 
     // Website Config page
-    "website.title": "Sitio Web Público",
+    "website.title": "Website",
     "website.subtitle": "Configure qué se muestra en su página pública en vytal.fit/@slug.",
-    "website.breadcrumb": "Sitio Web Público",
+    "website.breadcrumb": "Website",
     "website.preview": "Vista Previa",
     "website.save": "Guardar Configuración",
     "website.saved": "Configuración del sitio web guardada exitosamente",
