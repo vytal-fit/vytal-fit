@@ -514,7 +514,67 @@ export default function ConsolePage() {
         </div>
       </div>
 
-      {/* ── Community/achievements teaser ── */}
+      {/* ── Community teaser ── */}
+      <Link
+        href="/console/community"
+        className="block rounded-2xl p-4 transition-all duration-200 hover:scale-[1.01]"
+        style={{
+          background: "linear-gradient(135deg, rgba(0,212,255,0.07) 0%, rgba(34,197,94,0.05) 100%)",
+          border: "1px solid rgba(0,212,255,0.2)",
+        }}
+      >
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div
+              className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
+              style={{ background: "rgba(0,212,255,0.1)", border: "1px solid rgba(0,212,255,0.2)" }}
+            >
+              <Users size={16} style={{ color: "var(--color-vytal-blue)" }} strokeWidth={1.8} />
+            </div>
+            <div>
+              <p className="text-sm font-bold" style={{ color: "var(--color-vytal-text)" }}>
+                Comunidade
+              </p>
+              <p className="text-xs" style={{ color: "var(--color-vytal-muted)" }}>
+                3 fistbumps recebidos hoje
+              </p>
+            </div>
+          </div>
+          <ArrowRight size={15} style={{ color: "var(--color-vytal-blue)" }} />
+        </div>
+      </Link>
+
+      {/* ── Workout suggestion teaser ── */}
+      <Link
+        href="/console/workouts"
+        className="block rounded-2xl p-4 transition-all duration-200 hover:scale-[1.01]"
+        style={{
+          background: "linear-gradient(135deg, rgba(192,132,252,0.08) 0%, rgba(34,197,94,0.04) 100%)",
+          border: "1px solid rgba(192,132,252,0.2)",
+        }}
+      >
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div
+              className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
+              style={{ background: "rgba(192,132,252,0.1)", border: "1px solid rgba(192,132,252,0.2)" }}
+            >
+              <Dumbbell size={16} style={{ color: "var(--color-vytal-purple)" }} strokeWidth={1.8} />
+            </div>
+            <div>
+              <p className="text-sm font-bold" style={{ color: "var(--color-vytal-text)" }}>
+                Treino sugerido
+              </p>
+              <p className="text-xs" style={{ color: "var(--color-vytal-muted)" }}>
+                Mobilidade Matinal · 15 min
+              </p>
+            </div>
+          </div>
+          <ArrowRight size={15} style={{ color: "var(--color-vytal-purple)" }} />
+        </div>
+      </Link>
+
+      {/* ── Achievements ── */}
       <div
         className="rounded-2xl p-4"
         style={{
