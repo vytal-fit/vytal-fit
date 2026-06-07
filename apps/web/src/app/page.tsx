@@ -1199,12 +1199,12 @@ function SocialProof({ t }: { t: (k: string) => string }) {
 const FEATURE_ICONS = [Users, Calendar, Dumbbell, TrendingUp, CreditCard, Globe];
 const FEATURE_COLORS = ["#22c55e", "#00d4ff", "#c084fc", "#ffb300", "#ff8c42", "#22c55e"];
 const FEATURE_KEYS = [
-  { title: "feat1", desc: "feat1d", href: "/@crossfit-aveiro" },
-  { title: "feat2", desc: "feat2d", href: "/@crossfit-aveiro/schedule" },
-  { title: "feat3", desc: "feat3d", href: "/@crossfit-aveiro" },
+  { title: "feat1", desc: "feat1d", href: "/signup" },
+  { title: "feat2", desc: "feat2d", href: "/signup" },
+  { title: "feat3", desc: "feat3d", href: "/signup" },
   { title: "feat4", desc: "feat4d", href: "/signup" },
   { title: "feat5", desc: "feat5d", href: "/signup" },
-  { title: "feat6", desc: "feat6d", href: "/@crossfit-aveiro/shop" },
+  { title: "feat6", desc: "feat6d", href: "/signup" },
 ];
 
 function Features({ t }: { t: (k: string) => string }) {
