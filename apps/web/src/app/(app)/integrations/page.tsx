@@ -312,7 +312,7 @@ export default function IntegrationsPage() {
                   {/* Link to preview */}
                   <div className="flex items-center gap-3">
                     <a
-                      href="#"
+                      href="/integrations"
                       onClick={(e) => { e.preventDefault(); toast("Preview would open in a new tab", "info"); }}
                       className="flex items-center gap-2 text-xs text-vytal-green transition-colors hover:text-vytal-green/80"
                     >
