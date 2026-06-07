@@ -49,6 +49,18 @@ const LANDING_KEYFRAMES = `
   0%, 100% { box-shadow: 0 0 4px rgba(34,197,94,0.4); }
   50% { box-shadow: 0 0 12px rgba(34,197,94,0.8); }
 }
+@keyframes marquee-scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee-scroll 32s linear infinite;
+}
+.marquee-track:hover {
+  animation-play-state: paused;
+}
 .scroll-reveal {
   opacity: 0;
   transform: translateY(24px);
@@ -242,6 +254,93 @@ const LANDING_COPY: Record<Lang, Record<string, string>> = {
     tabMobileTitle: "App para iOS e Android",
     tabMobileDesc: "Os atletas levam o ginásio no bolso. Check-in, treinos, resultados e comunicações — tudo na app Vytal.",
     tabMobileI1: "Today's WOD", tabMobileI2: "Check-in", tabMobileI3: "Leaderboard", tabMobileI4: "Treinos", tabMobileI5: "Mensagens", tabMobileI6: "Progresso",
+    // Verticals
+    verticalsTitle: "Um produto.",
+    verticalsTitleHighlight: "20 verticais.",
+    verticalsSubtitle: "Da box de CrossFit ao estúdio de dança — o Vytal adapta-se ao seu negócio.",
+    v_crossfit_box: "CrossFit Box",
+    v_functional_training: "Treino Funcional",
+    v_gym: "Ginásio",
+    v_yoga_studio: "Estúdio de Yoga",
+    v_pilates_studio: "Estúdio de Pilates",
+    v_martial_arts: "Artes Marciais",
+    v_personal_training: "Personal Training",
+    v_swimming: "Natação",
+    v_dance_studio: "Estúdio de Dança",
+    v_health_club: "Health Club",
+    v_sports_club: "Clube Desportivo",
+    v_climbing_gym: "Ginásio de Escalada",
+    v_cycling_studio: "Estúdio de Cycling",
+    v_running_club: "Clube de Corrida",
+    v_gymnastics_academy: "Academia de Ginástica",
+    v_rehabilitation: "Reabilitação",
+    v_weightlifting_club: "Clube de Halterofilia",
+    v_bootcamp: "Bootcamp",
+    v_surf_water_sports: "Surf & Desportos Aquáticos",
+    v_other: "Outro",
+    // Feature Deep Dive
+    deepDiveBadge: "Funcionalidades em detalhe",
+    deepDiveCheckinTitle: "Check-in inteligente",
+    deepDiveCheckinDesc: "Elimine as filas e o papel. O check-in é instantâneo, preciso e integrado com presenças e pagamentos.",
+    deepDiveCheckinB1: "QR Code único por atleta",
+    deepDiveCheckinB2: "Check-in em massa para coaches",
+    deepDiveCheckinB3: "Walk-in sem reserva prévia",
+    deepDiveCheckinB4: "Tracking de no-shows automático",
+    deepDiveCrmTitle: "CRM & Pipeline de vendas",
+    deepDiveCrmDesc: "Converta mais leads em membros pagantes com um pipeline visual e follow-ups automáticos.",
+    deepDiveCrmB1: "Kanban drag-and-drop intuitivo",
+    deepDiveCrmB2: "Lead scoring automático",
+    deepDiveCrmB3: "Rastreio de fonte (Facebook, Google...)",
+    deepDiveCrmB4: "Follow-up automático por email/SMS",
+    deepDiveWebsiteTitle: "Website builder completo",
+    deepDiveWebsiteDesc: "O seu espaço merece uma presença digital profissional. Configure em minutos, sem código.",
+    deepDiveWebsiteB1: "Domínio próprio incluído",
+    deepDiveWebsiteB2: "6 páginas: Home, Horários, Planos, Equipa, Loja, Contacto",
+    deepDiveWebsiteB3: "Loja online com carrinho de compras",
+    deepDiveWebsiteB4: "SEO, analytics e testemunhos integrados",
+    deepDiveAnalyticsTitle: "Relatórios & Analytics",
+    deepDiveAnalyticsDesc: "Tome decisões baseadas em dados reais. Veja o que funciona e corrija o que não funciona.",
+    deepDiveAnalyticsB1: "Heatmap de presenças por hora/dia",
+    deepDiveAnalyticsB2: "Gráficos de receita e crescimento",
+    deepDiveAnalyticsB3: "Previsão de churn com IA",
+    deepDiveAnalyticsB4: "Análise de retenção de membros",
+    // Payments
+    paymentsTitle: "Pagamentos",
+    paymentsTitleHighlight: "Portugal",
+    paymentsBadge: "Pagamentos",
+    paymentsSubtitle: "Todos os métodos de pagamento que os seus clientes utilizam — integrados de raiz.",
+    paymentsMbway: "MB Way",
+    paymentsMultibanco: "Multibanco",
+    paymentsSepa: "SEPA",
+    paymentsVisa: "Visa / MC",
+    paymentsCash: "Numerário",
+    paymentsTransfer: "Transferência",
+    // Automations & AI
+    autoTitle: "Automações &",
+    autoTitleHighlight: "Inteligência Artificial",
+    autoBadge: "Automações & AI",
+    autoSubtitle: "Poupe horas por semana com automações inteligentes e insights gerados por IA.",
+    autoColLeft: "Automações",
+    autoColRight: "AI Insights",
+    autoA1Title: "Emails de milestone", autoA1Desc: "Parabéns automáticos ao 1º mês, 6 meses, 1 ano de membro.",
+    autoA2Title: "Campanhas anti-churn", autoA2Desc: "Detecta membros em risco e envia ofertas personalizadas.",
+    autoA3Title: "Onboarding sequenciado", autoA3Desc: "Sequência automática de boas-vindas para novos membros.",
+    autoA4Title: "Mensagens de aniversário", autoA4Desc: "Felicita automaticamente no dia de aniversário do membro.",
+    autoB1Title: "Previsão de churn", autoB1Desc: "IA identifica membros que podem cancelar nas próximas semanas.",
+    autoB2Title: "Agendamento inteligente", autoB2Desc: "Sugere os melhores horários com base na procura histórica.",
+    autoB3Title: "Sugestão de WODs", autoB3Desc: "Recomenda treinos adaptados ao nível e histórico de cada atleta.",
+    autoB4Title: "Readiness scoring", autoB4Desc: "Avalia a prontidão do atleta com base em treinos e recuperação.",
+    // Compliance
+    complianceTitle: "Compliance &",
+    complianceTitleHighlight: "Segurança",
+    complianceBadge: "Segurança",
+    complianceSubtitle: "Construído para cumprir as exigências legais portuguesas e europeias.",
+    complianceRgpd: "RGPD Compliant",
+    complianceSaft: "SAF-T / ATCUD Ready",
+    complianceSsl: "SSL Encriptado",
+    complianceUptime: "99.9% Uptime",
+    complianceIso: "ISO 27001 (planeado)",
+    complianceBackup: "Backups Diários",
   },
   en: {
     badge: "The #1 platform for fitness spaces in Portugal",
@@ -366,6 +465,93 @@ const LANDING_COPY: Record<Lang, Record<string, string>> = {
     tabMobileTitle: "App for iOS and Android",
     tabMobileDesc: "Athletes take the gym in their pocket. Check-in, workouts, results and communications — all in the Vytal app.",
     tabMobileI1: "Today's WOD", tabMobileI2: "Check-in", tabMobileI3: "Leaderboard", tabMobileI4: "Workouts", tabMobileI5: "Messages", tabMobileI6: "Progress",
+    // Verticals
+    verticalsTitle: "One product.",
+    verticalsTitleHighlight: "20 verticals.",
+    verticalsSubtitle: "From CrossFit box to dance studio — Vytal adapts to your business.",
+    v_crossfit_box: "CrossFit Box",
+    v_functional_training: "Functional Training",
+    v_gym: "Gym",
+    v_yoga_studio: "Yoga Studio",
+    v_pilates_studio: "Pilates Studio",
+    v_martial_arts: "Martial Arts",
+    v_personal_training: "Personal Training",
+    v_swimming: "Swimming",
+    v_dance_studio: "Dance Studio",
+    v_health_club: "Health Club",
+    v_sports_club: "Sports Club",
+    v_climbing_gym: "Climbing Gym",
+    v_cycling_studio: "Cycling Studio",
+    v_running_club: "Running Club",
+    v_gymnastics_academy: "Gymnastics Academy",
+    v_rehabilitation: "Rehabilitation",
+    v_weightlifting_club: "Weightlifting Club",
+    v_bootcamp: "Bootcamp",
+    v_surf_water_sports: "Surf & Water Sports",
+    v_other: "Other",
+    // Feature Deep Dive
+    deepDiveBadge: "Features in detail",
+    deepDiveCheckinTitle: "Smart check-in",
+    deepDiveCheckinDesc: "Eliminate queues and paperwork. Check-in is instant, accurate and integrated with attendance and payments.",
+    deepDiveCheckinB1: "Unique QR Code per athlete",
+    deepDiveCheckinB2: "Bulk check-in for coaches",
+    deepDiveCheckinB3: "Walk-in without prior booking",
+    deepDiveCheckinB4: "Automatic no-show tracking",
+    deepDiveCrmTitle: "CRM & Sales pipeline",
+    deepDiveCrmDesc: "Convert more leads into paying members with a visual pipeline and automatic follow-ups.",
+    deepDiveCrmB1: "Intuitive drag-and-drop kanban",
+    deepDiveCrmB2: "Automatic lead scoring",
+    deepDiveCrmB3: "Source tracking (Facebook, Google...)",
+    deepDiveCrmB4: "Automatic email/SMS follow-up",
+    deepDiveWebsiteTitle: "Complete website builder",
+    deepDiveWebsiteDesc: "Your space deserves a professional digital presence. Set up in minutes, no code needed.",
+    deepDiveWebsiteB1: "Own domain included",
+    deepDiveWebsiteB2: "6 pages: Home, Schedule, Plans, Team, Shop, Contact",
+    deepDiveWebsiteB3: "Online store with shopping cart",
+    deepDiveWebsiteB4: "SEO, analytics and testimonials built in",
+    deepDiveAnalyticsTitle: "Reports & Analytics",
+    deepDiveAnalyticsDesc: "Make decisions based on real data. See what works and fix what doesn't.",
+    deepDiveAnalyticsB1: "Attendance heatmap by hour/day",
+    deepDiveAnalyticsB2: "Revenue and growth charts",
+    deepDiveAnalyticsB3: "AI-powered churn prediction",
+    deepDiveAnalyticsB4: "Member retention analysis",
+    // Payments
+    paymentsTitle: "Payments for",
+    paymentsTitleHighlight: "Portugal",
+    paymentsBadge: "Payments",
+    paymentsSubtitle: "All payment methods your clients use — integrated from the ground up.",
+    paymentsMbway: "MB Way",
+    paymentsMultibanco: "Multibanco",
+    paymentsSepa: "SEPA",
+    paymentsVisa: "Visa / MC",
+    paymentsCash: "Cash",
+    paymentsTransfer: "Transfer",
+    // Automations & AI
+    autoTitle: "Automations &",
+    autoTitleHighlight: "Artificial Intelligence",
+    autoBadge: "Automations & AI",
+    autoSubtitle: "Save hours per week with smart automations and AI-generated insights.",
+    autoColLeft: "Automations",
+    autoColRight: "AI Insights",
+    autoA1Title: "Milestone emails", autoA1Desc: "Automatic congratulations at 1st month, 6 months, 1 year as a member.",
+    autoA2Title: "Anti-churn campaigns", autoA2Desc: "Detects at-risk members and sends personalized offers.",
+    autoA3Title: "Sequenced onboarding", autoA3Desc: "Automatic welcome sequence for new members.",
+    autoA4Title: "Birthday messages", autoA4Desc: "Automatically greets members on their birthday.",
+    autoB1Title: "Churn prediction", autoB1Desc: "AI identifies members likely to cancel in the coming weeks.",
+    autoB2Title: "Smart scheduling", autoB2Desc: "Suggests the best time slots based on historical demand.",
+    autoB3Title: "WOD suggestions", autoB3Desc: "Recommends workouts tailored to each athlete's level and history.",
+    autoB4Title: "Readiness scoring", autoB4Desc: "Evaluates athlete readiness based on training and recovery data.",
+    // Compliance
+    complianceTitle: "Compliance &",
+    complianceTitleHighlight: "Security",
+    complianceBadge: "Security",
+    complianceSubtitle: "Built to meet Portuguese and European legal requirements.",
+    complianceRgpd: "GDPR Compliant",
+    complianceSaft: "SAF-T / ATCUD Ready",
+    complianceSsl: "SSL Encrypted",
+    complianceUptime: "99.9% Uptime",
+    complianceIso: "ISO 27001 (planned)",
+    complianceBackup: "Daily Backups",
   },
   es: {
     badge: "La plataforma #1 para espacios fitness en Portugal",
@@ -490,6 +676,93 @@ const LANDING_COPY: Record<Lang, Record<string, string>> = {
     tabMobileTitle: "App para iOS y Android",
     tabMobileDesc: "Los atletas llevan el gimnasio en el bolsillo. Check-in, entrenamientos, resultados y comunicaciones — todo en la app Vytal.",
     tabMobileI1: "WOD de Hoy", tabMobileI2: "Check-in", tabMobileI3: "Leaderboard", tabMobileI4: "Entrenamientos", tabMobileI5: "Mensajes", tabMobileI6: "Progreso",
+    // Verticals
+    verticalsTitle: "Un producto.",
+    verticalsTitleHighlight: "20 verticales.",
+    verticalsSubtitle: "De la box de CrossFit al estudio de danza — Vytal se adapta a tu negocio.",
+    v_crossfit_box: "CrossFit Box",
+    v_functional_training: "Entrenamiento Funcional",
+    v_gym: "Gimnasio",
+    v_yoga_studio: "Estudio de Yoga",
+    v_pilates_studio: "Estudio de Pilates",
+    v_martial_arts: "Artes Marciales",
+    v_personal_training: "Entrenamiento Personal",
+    v_swimming: "Natación",
+    v_dance_studio: "Estudio de Danza",
+    v_health_club: "Health Club",
+    v_sports_club: "Club Deportivo",
+    v_climbing_gym: "Gimnasio de Escalada",
+    v_cycling_studio: "Estudio de Cycling",
+    v_running_club: "Club de Running",
+    v_gymnastics_academy: "Academia de Gimnasia",
+    v_rehabilitation: "Rehabilitación",
+    v_weightlifting_club: "Club de Halterofilia",
+    v_bootcamp: "Bootcamp",
+    v_surf_water_sports: "Surf & Deportes Acuáticos",
+    v_other: "Otro",
+    // Feature Deep Dive
+    deepDiveBadge: "Funcionalidades en detalle",
+    deepDiveCheckinTitle: "Check-in inteligente",
+    deepDiveCheckinDesc: "Elimina las colas y el papel. El check-in es instantáneo, preciso e integrado con asistencia y pagos.",
+    deepDiveCheckinB1: "Código QR único por atleta",
+    deepDiveCheckinB2: "Check-in masivo para coaches",
+    deepDiveCheckinB3: "Walk-in sin reserva previa",
+    deepDiveCheckinB4: "Seguimiento automático de no-shows",
+    deepDiveCrmTitle: "CRM & Pipeline de ventas",
+    deepDiveCrmDesc: "Convierte más leads en miembros de pago con un pipeline visual y seguimientos automáticos.",
+    deepDiveCrmB1: "Kanban drag-and-drop intuitivo",
+    deepDiveCrmB2: "Lead scoring automático",
+    deepDiveCrmB3: "Rastreo de fuente (Facebook, Google...)",
+    deepDiveCrmB4: "Seguimiento automático por email/SMS",
+    deepDiveWebsiteTitle: "Website builder completo",
+    deepDiveWebsiteDesc: "Tu espacio merece una presencia digital profesional. Configúralo en minutos, sin código.",
+    deepDiveWebsiteB1: "Dominio propio incluido",
+    deepDiveWebsiteB2: "6 páginas: Inicio, Horarios, Planes, Equipo, Tienda, Contacto",
+    deepDiveWebsiteB3: "Tienda online con carrito de compras",
+    deepDiveWebsiteB4: "SEO, analytics y testimonios integrados",
+    deepDiveAnalyticsTitle: "Informes & Analytics",
+    deepDiveAnalyticsDesc: "Toma decisiones basadas en datos reales. Ve qué funciona y corrige lo que no.",
+    deepDiveAnalyticsB1: "Heatmap de asistencia por hora/día",
+    deepDiveAnalyticsB2: "Gráficos de ingresos y crecimiento",
+    deepDiveAnalyticsB3: "Predicción de churn con IA",
+    deepDiveAnalyticsB4: "Análisis de retención de miembros",
+    // Payments
+    paymentsTitle: "Pagos para",
+    paymentsTitleHighlight: "Portugal",
+    paymentsBadge: "Pagos",
+    paymentsSubtitle: "Todos los métodos de pago que usan tus clientes — integrados desde el inicio.",
+    paymentsMbway: "MB Way",
+    paymentsMultibanco: "Multibanco",
+    paymentsSepa: "SEPA",
+    paymentsVisa: "Visa / MC",
+    paymentsCash: "Efectivo",
+    paymentsTransfer: "Transferencia",
+    // Automations & AI
+    autoTitle: "Automatizaciones &",
+    autoTitleHighlight: "Inteligencia Artificial",
+    autoBadge: "Automatizaciones & IA",
+    autoSubtitle: "Ahorra horas por semana con automatizaciones inteligentes e insights generados por IA.",
+    autoColLeft: "Automatizaciones",
+    autoColRight: "AI Insights",
+    autoA1Title: "Emails de hito", autoA1Desc: "Felicitaciones automáticas al 1.er mes, 6 meses, 1 año como miembro.",
+    autoA2Title: "Campañas anti-churn", autoA2Desc: "Detecta miembros en riesgo y envía ofertas personalizadas.",
+    autoA3Title: "Onboarding secuenciado", autoA3Desc: "Secuencia automática de bienvenida para nuevos miembros.",
+    autoA4Title: "Mensajes de cumpleaños", autoA4Desc: "Felicita automáticamente en el día de cumpleaños del miembro.",
+    autoB1Title: "Predicción de churn", autoB1Desc: "La IA identifica miembros que pueden cancelar en las próximas semanas.",
+    autoB2Title: "Agendamiento inteligente", autoB2Desc: "Sugiere los mejores horarios basándose en la demanda histórica.",
+    autoB3Title: "Sugerencia de WODs", autoB3Desc: "Recomienda entrenamientos adaptados al nivel e historial de cada atleta.",
+    autoB4Title: "Readiness scoring", autoB4Desc: "Evalúa la disposición del atleta en base a entrenamientos y recuperación.",
+    // Compliance
+    complianceTitle: "Compliance &",
+    complianceTitleHighlight: "Seguridad",
+    complianceBadge: "Seguridad",
+    complianceSubtitle: "Construido para cumplir los requisitos legales portugueses y europeos.",
+    complianceRgpd: "RGPD Compliant",
+    complianceSaft: "SAF-T / ATCUD Ready",
+    complianceSsl: "SSL Encriptado",
+    complianceUptime: "99.9% Uptime",
+    complianceIso: "ISO 27001 (planificado)",
+    complianceBackup: "Backups Diarios",
   },
 };
 
@@ -926,12 +1199,12 @@ function SocialProof({ t }: { t: (k: string) => string }) {
 const FEATURE_ICONS = [Users, Calendar, Dumbbell, TrendingUp, CreditCard, Globe];
 const FEATURE_COLORS = ["#22c55e", "#00d4ff", "#c084fc", "#ffb300", "#ff8c42", "#22c55e"];
 const FEATURE_KEYS = [
-  { title: "feat1", desc: "feat1d" },
-  { title: "feat2", desc: "feat2d" },
-  { title: "feat3", desc: "feat3d" },
-  { title: "feat4", desc: "feat4d" },
-  { title: "feat5", desc: "feat5d" },
-  { title: "feat6", desc: "feat6d" },
+  { title: "feat1", desc: "feat1d", href: "/@crossfit-aveiro" },
+  { title: "feat2", desc: "feat2d", href: "/@crossfit-aveiro/schedule" },
+  { title: "feat3", desc: "feat3d", href: "/@crossfit-aveiro" },
+  { title: "feat4", desc: "feat4d", href: "/signup" },
+  { title: "feat5", desc: "feat5d", href: "/signup" },
+  { title: "feat6", desc: "feat6d", href: "/@crossfit-aveiro/shop" },
 ];
 
 function Features({ t }: { t: (k: string) => string }) {
@@ -995,15 +1268,87 @@ function Features({ t }: { t: (k: string) => string }) {
                 </div>
                 <h3 className="font-semibold text-[#dceee0] mb-2 text-sm">{t(keys.title)}</h3>
                 <p className="text-xs text-[#6b8c72] leading-relaxed">{t(keys.desc)}</p>
-                <div
+                <Link
+                  href={keys.href}
                   className="mt-4 inline-flex items-center gap-1 text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-200"
                   style={{ color }}
                 >
                   {t("featLearnMore")} <ArrowRight size={12} />
-                </div>
+                </Link>
               </div>
             );
           })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ── Verticals Marquee ────────────────────────────────────────────────────────
+const VERTICALS = [
+  { emoji: "🏋️", key: "crossfit_box" },
+  { emoji: "💪", key: "functional_training" },
+  { emoji: "💪", key: "gym" },
+  { emoji: "🧘", key: "yoga_studio" },
+  { emoji: "🎓", key: "pilates_studio" },
+  { emoji: "🥊", key: "martial_arts" },
+  { emoji: "🎯", key: "personal_training" },
+  { emoji: "🏊", key: "swimming" },
+  { emoji: "🩰", key: "dance_studio" },
+  { emoji: "🏢", key: "health_club" },
+  { emoji: "⚽", key: "sports_club" },
+  { emoji: "🧗", key: "climbing_gym" },
+  { emoji: "🚴", key: "cycling_studio" },
+  { emoji: "🏃", key: "running_club" },
+  { emoji: "🤸", key: "gymnastics_academy" },
+  { emoji: "🏥", key: "rehabilitation" },
+  { emoji: "🏆", key: "weightlifting_club" },
+  { emoji: "☀️", key: "bootcamp" },
+  { emoji: "🏄", key: "surf_water_sports" },
+  { emoji: "➕", key: "other" },
+];
+
+function VerticalsMarquee({ t }: { t: (k: string) => string }) {
+  const ref = useScrollReveal();
+  const pills = VERTICALS.map((v) => ({ emoji: v.emoji, label: t(`v_${v.key}`) }));
+  const doubled = [...pills, ...pills];
+
+  return (
+    <section className="py-20 border-t border-[rgba(34,197,94,0.08)] overflow-hidden">
+      <WaveDivider color="rgba(34,197,94,0.03)" />
+      <div ref={ref} className="scroll-reveal">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center mb-10">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[rgba(34,197,94,0.2)] bg-[rgba(34,197,94,0.05)] mb-4">
+            <span className="text-xs font-medium text-[#22c55e]">Verticais</span>
+          </div>
+          <h2 className="text-3xl sm:text-4xl font-bold text-[#dceee0] mb-3">
+            {t("verticalsTitle")}{" "}
+            <span className="bg-gradient-to-r from-[#22c55e] to-[#00d4ff] bg-clip-text text-transparent">
+              {t("verticalsTitleHighlight")}
+            </span>
+          </h2>
+          <p className="text-[#6b8c72] text-sm max-w-lg mx-auto">{t("verticalsSubtitle")}</p>
+        </div>
+
+        {/* Marquee */}
+        <div className="relative w-full overflow-hidden">
+          {/* Left fade */}
+          <div className="absolute left-0 top-0 bottom-0 w-24 z-10 pointer-events-none"
+            style={{ background: "linear-gradient(to right, #080c0a, transparent)" }} />
+          {/* Right fade */}
+          <div className="absolute right-0 top-0 bottom-0 w-24 z-10 pointer-events-none"
+            style={{ background: "linear-gradient(to left, #080c0a, transparent)" }} />
+          <div className="marquee-track gap-3 py-2">
+            {doubled.map((pill, i) => (
+              <div
+                key={i}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-[rgba(34,197,94,0.15)] bg-[rgba(22,32,24,0.6)] backdrop-blur-sm shrink-0 mx-1.5 hover:border-[rgba(34,197,94,0.4)] hover:bg-[rgba(34,197,94,0.07)] transition-all duration-150 cursor-default"
+              >
+                <span className="text-base leading-none">{pill.emoji}</span>
+                <span className="text-xs font-medium text-[#dceee0] whitespace-nowrap">{pill.label}</span>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </section>
@@ -1130,6 +1475,578 @@ function ProductShowcase({ t }: { t: (k: string) => string }) {
               <ArrowRight size={14} />
             </Link>
           </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ── Feature Deep Dive ────────────────────────────────────────────────────────
+function CheckinMockup() {
+  const members = [
+    { name: "Ana Costa", status: "checked" },
+    { name: "João Silva", status: "checked" },
+    { name: "Maria Santos", status: "noshow" },
+  ];
+  return (
+    <div className="rounded-2xl border border-[rgba(34,197,94,0.15)] bg-[rgba(8,12,10,0.9)] p-5 shadow-xl shadow-black/40">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <div className="text-xs font-semibold text-[#dceee0]">CrossFit 09:00</div>
+          <div className="text-[10px] text-[#6b8c72]">12/15 atletas</div>
+        </div>
+        <div className="w-9 h-9 rounded-xl bg-[rgba(34,197,94,0.12)] flex items-center justify-center border border-[rgba(34,197,94,0.2)]">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2">
+            <rect x="3" y="3" width="18" height="18" rx="2" /><path d="M3 9h18M9 21V9" />
+          </svg>
+        </div>
+      </div>
+      {/* Member rows */}
+      <div className="space-y-2 mb-4">
+        {members.map((m) => (
+          <div key={m.name} className="flex items-center gap-3 p-2.5 rounded-xl bg-[rgba(22,32,24,0.6)] border border-[rgba(34,197,94,0.07)]">
+            <div className="w-7 h-7 rounded-full bg-[rgba(34,197,94,0.15)] flex items-center justify-center text-[10px] font-bold text-[#22c55e]">
+              {m.name.split(" ").map((n) => n[0]).join("")}
+            </div>
+            <span className="text-xs text-[#dceee0] flex-1">{m.name}</span>
+            {m.status === "checked" ? (
+              <div className="w-5 h-5 rounded-full bg-[rgba(34,197,94,0.2)] flex items-center justify-center">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="3"><path d="M5 12l5 5L19 7" /></svg>
+              </div>
+            ) : (
+              <div className="w-5 h-5 rounded-full bg-[rgba(255,71,87,0.15)] flex items-center justify-center">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#ff4757" strokeWidth="3"><path d="M18 6L6 18M6 6l12 12" /></svg>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+      {/* QR Button */}
+      <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-[rgba(34,197,94,0.1)] border border-[rgba(34,197,94,0.2)] cursor-pointer hover:bg-[rgba(34,197,94,0.15)] transition-colors">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2">
+          <rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" /><rect x="3" y="14" width="7" height="7" />
+          <path d="M14 14h.01M14 17h3M17 14v3M20 14h.01M20 20h.01" />
+        </svg>
+        <span className="text-xs font-medium text-[#22c55e]">Scan QR Code</span>
+      </div>
+    </div>
+  );
+}
+
+function CRMMockup() {
+  const columns = [
+    { title: "Lead", color: "#6b8c72", cards: ["Sara M.", "Pedro F."] },
+    { title: "Contactado", color: "#00d4ff", cards: ["Bruno A."] },
+    { title: "Trial", color: "#ffb300", cards: ["Inês R.", "Rui C."] },
+    { title: "Subscrito", color: "#22c55e", cards: ["Ana P."] },
+  ];
+  return (
+    <div className="rounded-2xl border border-[rgba(34,197,94,0.15)] bg-[rgba(8,12,10,0.9)] p-4 shadow-xl shadow-black/40">
+      <div className="text-xs font-semibold text-[#dceee0] mb-3">Pipeline de Vendas</div>
+      <div className="grid grid-cols-4 gap-2">
+        {columns.map((col) => (
+          <div key={col.title} className="flex flex-col gap-1.5">
+            <div className="flex items-center gap-1.5 mb-1">
+              <div className="w-1.5 h-1.5 rounded-full" style={{ background: col.color }} />
+              <span className="text-[9px] font-semibold uppercase tracking-wider" style={{ color: col.color }}>{col.title}</span>
+            </div>
+            {col.cards.map((card) => (
+              <div key={card} className="px-2 py-2 rounded-lg border text-[9px] text-[#dceee0] bg-[rgba(22,32,24,0.8)] cursor-grab active:cursor-grabbing hover:border-opacity-50 transition-colors"
+                style={{ borderColor: `${col.color}30` }}>
+                {card}
+              </div>
+            ))}
+            <div className="px-2 py-1.5 rounded-lg border border-dashed border-[rgba(34,197,94,0.1)] text-[9px] text-[#6b8c72] text-center">+ Add</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function WebsiteMockup() {
+  return (
+    <div className="rounded-2xl border border-[rgba(34,197,94,0.15)] bg-[rgba(8,12,10,0.9)] overflow-hidden shadow-xl shadow-black/40">
+      {/* Browser chrome */}
+      <div className="flex items-center gap-2 px-3 py-2 bg-[rgba(22,32,24,0.8)] border-b border-[rgba(34,197,94,0.08)]">
+        <div className="flex gap-1">
+          <div className="w-2 h-2 rounded-full bg-[#ff4757]/60" />
+          <div className="w-2 h-2 rounded-full bg-[#ffb300]/60" />
+          <div className="w-2 h-2 rounded-full bg-[#22c55e]/60" />
+        </div>
+        <div className="flex-1 h-4 rounded bg-[rgba(34,197,94,0.06)] flex items-center px-2">
+          <span className="text-[8px] text-[#6b8c72]">vytal.fit/crossfit-aveiro</span>
+        </div>
+      </div>
+      {/* Mini site */}
+      <div className="p-3">
+        {/* Nav */}
+        <div className="flex items-center justify-between mb-3 pb-2 border-b border-[rgba(34,197,94,0.08)]">
+          <span className="text-[9px] font-bold text-[#22c55e]">CrossFit Aveiro</span>
+          <div className="flex gap-2">
+            {["Horários", "Planos", "Equipa"].map((n) => (
+              <span key={n} className="text-[7px] text-[#6b8c72]">{n}</span>
+            ))}
+          </div>
+        </div>
+        {/* Hero */}
+        <div className="rounded-xl bg-gradient-to-br from-[rgba(34,197,94,0.12)] to-[rgba(0,212,255,0.06)] p-3 mb-2 border border-[rgba(34,197,94,0.1)]">
+          <div className="text-[9px] font-bold text-[#dceee0] mb-1">Forja o Teu Melhor.</div>
+          <div className="text-[7px] text-[#6b8c72] mb-2">CrossFit em Aveiro desde 2015</div>
+          <div className="inline-flex px-2 py-1 rounded-md bg-[#22c55e] text-[7px] font-bold text-[#080c0a]">Inscreve-te</div>
+        </div>
+        {/* Pricing mini cards */}
+        <div className="grid grid-cols-3 gap-1">
+          {[{ n: "Starter", p: "Free" }, { n: "Pro", p: "49€" }, { n: "Elite", p: "79€" }].map((plan) => (
+            <div key={plan.n} className="rounded-lg border border-[rgba(34,197,94,0.1)] p-1.5 text-center">
+              <div className="text-[7px] font-semibold text-[#dceee0]">{plan.n}</div>
+              <div className="text-[8px] font-bold text-[#22c55e]">{plan.p}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function AnalyticsMockup() {
+  const bars = [30, 55, 40, 70, 60, 85, 75, 90, 65, 80, 95, 70];
+  const stats = [{ label: "Receita", value: "€12.4k", change: "+18%" }, { label: "Membros", value: "247", change: "+12" }, { label: "Retenção", value: "87%", change: "+3%" }];
+  return (
+    <div className="rounded-2xl border border-[rgba(34,197,94,0.15)] bg-[rgba(8,12,10,0.9)] p-4 shadow-xl shadow-black/40">
+      <div className="text-xs font-semibold text-[#dceee0] mb-3">Analytics — Junho 2026</div>
+      {/* Stats row */}
+      <div className="grid grid-cols-3 gap-2 mb-3">
+        {stats.map((s) => (
+          <div key={s.label} className="rounded-xl bg-[rgba(22,32,24,0.6)] border border-[rgba(34,197,94,0.08)] p-2">
+            <div className="text-[8px] text-[#6b8c72] mb-0.5">{s.label}</div>
+            <div className="text-xs font-bold text-[#dceee0]">{s.value}</div>
+            <div className="text-[8px] text-[#22c55e]">{s.change}</div>
+          </div>
+        ))}
+      </div>
+      {/* Chart */}
+      <div className="rounded-xl bg-[rgba(22,32,24,0.4)] border border-[rgba(34,197,94,0.06)] p-3">
+        <div className="text-[8px] text-[#6b8c72] mb-2">Presenças por mês</div>
+        <div className="flex items-end gap-1 h-12">
+          {bars.map((h, i) => (
+            <div key={i} className="flex-1 rounded-sm" style={{ height: `${h}%`, background: `rgba(34,197,94,${0.2 + (h / 100) * 0.7})` }} />
+          ))}
+        </div>
+        <div className="flex justify-between mt-1">
+          {["Jan", "Mar", "Mai", "Jun"].map((m) => (
+            <span key={m} className="text-[6px] text-[#6b8c72]">{m}</span>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function FeatureDeepDive({ t }: { t: (k: string) => string }) {
+  const ref = useScrollReveal();
+
+  const features = [
+    {
+      side: "left" as const,
+      titleKey: "deepDiveCheckinTitle",
+      descKey: "deepDiveCheckinDesc",
+      bulletKeys: ["deepDiveCheckinB1", "deepDiveCheckinB2", "deepDiveCheckinB3", "deepDiveCheckinB4"],
+      accent: "#22c55e",
+      Mockup: CheckinMockup,
+    },
+    {
+      side: "right" as const,
+      titleKey: "deepDiveCrmTitle",
+      descKey: "deepDiveCrmDesc",
+      bulletKeys: ["deepDiveCrmB1", "deepDiveCrmB2", "deepDiveCrmB3", "deepDiveCrmB4"],
+      accent: "#00d4ff",
+      Mockup: CRMMockup,
+    },
+    {
+      side: "left" as const,
+      titleKey: "deepDiveWebsiteTitle",
+      descKey: "deepDiveWebsiteDesc",
+      bulletKeys: ["deepDiveWebsiteB1", "deepDiveWebsiteB2", "deepDiveWebsiteB3", "deepDiveWebsiteB4"],
+      accent: "#c084fc",
+      Mockup: WebsiteMockup,
+    },
+    {
+      side: "right" as const,
+      titleKey: "deepDiveAnalyticsTitle",
+      descKey: "deepDiveAnalyticsDesc",
+      bulletKeys: ["deepDiveAnalyticsB1", "deepDiveAnalyticsB2", "deepDiveAnalyticsB3", "deepDiveAnalyticsB4"],
+      accent: "#ffb300",
+      Mockup: AnalyticsMockup,
+    },
+  ];
+
+  return (
+    <section className="py-24 border-t border-[rgba(34,197,94,0.08)]">
+      <WaveDivider color="rgba(34,197,94,0.03)" />
+      <div ref={ref} className="scroll-reveal max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-16">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[rgba(34,197,94,0.2)] bg-[rgba(34,197,94,0.05)] mb-4">
+            <Zap size={12} className="text-[#22c55e]" />
+            <span className="text-xs font-medium text-[#22c55e]">{t("deepDiveBadge")}</span>
+          </div>
+        </div>
+
+        <div className="space-y-24">
+          {features.map((feat) => {
+            const { Mockup } = feat;
+            const isLeft = feat.side === "left";
+            const textBlock = (
+              <div className="flex flex-col justify-center">
+                <h3 className="text-2xl sm:text-3xl font-bold text-[#dceee0] mb-4" style={{ color: feat.accent }}>
+                  {t(feat.titleKey)}
+                </h3>
+                <p className="text-[#6b8c72] leading-relaxed mb-6 text-sm">{t(feat.descKey)}</p>
+                <ul className="space-y-3">
+                  {feat.bulletKeys.map((bk) => (
+                    <li key={bk} className="flex items-start gap-3 text-sm text-[#dceee0]">
+                      <div
+                        className="w-5 h-5 rounded-full flex items-center justify-center shrink-0 mt-0.5"
+                        style={{ background: `${feat.accent}20` }}
+                      >
+                        <Check size={11} style={{ color: feat.accent }} />
+                      </div>
+                      {t(bk)}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            );
+            const mockupBlock = (
+              <div className="flex items-center justify-center">
+                <div className="w-full max-w-md">
+                  <Mockup />
+                </div>
+              </div>
+            );
+            return (
+              <div key={feat.titleKey} className="grid lg:grid-cols-2 gap-12 items-center">
+                {isLeft ? (
+                  <>
+                    {textBlock}
+                    {mockupBlock}
+                  </>
+                ) : (
+                  <>
+                    {mockupBlock}
+                    {textBlock}
+                  </>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ── Payments Portugal ────────────────────────────────────────────────────────
+function PaymentsPortugal({ t }: { t: (k: string) => string }) {
+  const ref = useScrollReveal();
+
+  const methods = [
+    {
+      key: "paymentsMbway",
+      icon: (
+        <svg width="28" height="28" viewBox="0 0 48 48" fill="none">
+          <rect width="48" height="48" rx="10" fill="rgba(255,71,87,0.12)" />
+          <path d="M12 24a12 12 0 1 1 24 0 12 12 0 0 1-24 0z" fill="none" stroke="#ff4757" strokeWidth="2.5"/>
+          <path d="M20 20l4 4 4-4M20 28l4-4 4 4" stroke="#ff4757" strokeWidth="2" strokeLinecap="round"/>
+        </svg>
+      ),
+      color: "#ff4757",
+    },
+    {
+      key: "paymentsMultibanco",
+      icon: (
+        <svg width="28" height="28" viewBox="0 0 48 48" fill="none">
+          <rect width="48" height="48" rx="10" fill="rgba(0,100,200,0.12)" />
+          <rect x="12" y="14" width="24" height="20" rx="3" stroke="#0064c8" strokeWidth="2.5" fill="none"/>
+          <path d="M12 20h24" stroke="#0064c8" strokeWidth="2"/>
+          <rect x="16" y="26" width="6" height="4" rx="1" fill="#0064c8" opacity="0.6"/>
+        </svg>
+      ),
+      color: "#0064c8",
+    },
+    {
+      key: "paymentsSepa",
+      icon: (
+        <svg width="28" height="28" viewBox="0 0 48 48" fill="none">
+          <rect width="48" height="48" rx="10" fill="rgba(0,212,255,0.12)" />
+          <circle cx="24" cy="24" r="10" stroke="#00d4ff" strokeWidth="2.5" fill="none"/>
+          <path d="M19 24h10M22 20l-3 4 3 4" stroke="#00d4ff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      ),
+      color: "#00d4ff",
+    },
+    {
+      key: "paymentsVisa",
+      icon: (
+        <svg width="28" height="28" viewBox="0 0 48 48" fill="none">
+          <rect width="48" height="48" rx="10" fill="rgba(192,132,252,0.12)" />
+          <rect x="8" y="14" width="32" height="20" rx="4" stroke="#c084fc" strokeWidth="2" fill="none"/>
+          <path d="M20 28l2-8 2 8M24 24h3" stroke="#c084fc" strokeWidth="1.5" strokeLinecap="round"/>
+          <circle cx="32" cy="24" r="3" fill="none" stroke="#c084fc" strokeWidth="1.5"/>
+        </svg>
+      ),
+      color: "#c084fc",
+    },
+    {
+      key: "paymentsCash",
+      icon: (
+        <svg width="28" height="28" viewBox="0 0 48 48" fill="none">
+          <rect width="48" height="48" rx="10" fill="rgba(34,197,94,0.12)" />
+          <rect x="8" y="16" width="32" height="16" rx="3" stroke="#22c55e" strokeWidth="2.5" fill="none"/>
+          <circle cx="24" cy="24" r="4" stroke="#22c55e" strokeWidth="2" fill="none"/>
+          <path d="M12 20v8M36 20v8" stroke="#22c55e" strokeWidth="1.5" strokeLinecap="round"/>
+        </svg>
+      ),
+      color: "#22c55e",
+    },
+    {
+      key: "paymentsTransfer",
+      icon: (
+        <svg width="28" height="28" viewBox="0 0 48 48" fill="none">
+          <rect width="48" height="48" rx="10" fill="rgba(255,179,0,0.12)" />
+          <path d="M10 24h28M30 16l8 8-8 8" stroke="#ffb300" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      ),
+      color: "#ffb300",
+    },
+  ];
+
+  return (
+    <section className="py-24 border-t border-[rgba(34,197,94,0.08)]">
+      <WaveDivider flip color="rgba(34,197,94,0.03)" />
+      <div ref={ref} className="scroll-reveal max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-12">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[rgba(34,197,94,0.2)] bg-[rgba(34,197,94,0.05)] mb-4">
+            <CreditCard size={12} className="text-[#22c55e]" />
+            <span className="text-xs font-medium text-[#22c55e]">{t("paymentsBadge")}</span>
+          </div>
+          <h2 className="text-3xl sm:text-4xl font-bold text-[#dceee0] mb-4">
+            {t("paymentsTitle")}{" "}
+            <span className="bg-gradient-to-r from-[#22c55e] to-[#00d4ff] bg-clip-text text-transparent">
+              {t("paymentsTitleHighlight")}
+            </span>
+          </h2>
+          <p className="text-[#6b8c72] text-sm max-w-lg mx-auto">{t("paymentsSubtitle")}</p>
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+          {methods.map((m) => (
+            <div
+              key={m.key}
+              className="flex flex-col items-center gap-3 p-5 rounded-2xl border border-[rgba(34,197,94,0.1)] bg-[rgba(22,32,24,0.4)] backdrop-blur-sm hover:border-[rgba(34,197,94,0.3)] hover:-translate-y-1 hover:shadow-[0_0_20px_rgba(34,197,94,0.08)] transition-all duration-200 group"
+            >
+              <div className="transition-transform duration-200 group-hover:scale-110">
+                {m.icon}
+              </div>
+              <span className="text-xs font-semibold text-[#dceee0] text-center">{t(m.key)}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ── Automations & AI ─────────────────────────────────────────────────────────
+function AutomationsAI({ t }: { t: (k: string) => string }) {
+  const ref = useScrollReveal();
+
+  const automations = [
+    { titleKey: "autoA1Title", descKey: "autoA1Desc", icon: "✉️", color: "#22c55e" },
+    { titleKey: "autoA2Title", descKey: "autoA2Desc", icon: "🎯", color: "#ff8c42" },
+    { titleKey: "autoA3Title", descKey: "autoA3Desc", icon: "🚀", color: "#00d4ff" },
+    { titleKey: "autoA4Title", descKey: "autoA4Desc", icon: "🎂", color: "#c084fc" },
+  ];
+
+  const aiInsights = [
+    { titleKey: "autoB1Title", descKey: "autoB1Desc", icon: "🔮", color: "#ff4757" },
+    { titleKey: "autoB2Title", descKey: "autoB2Desc", icon: "🧠", color: "#22c55e" },
+    { titleKey: "autoB3Title", descKey: "autoB3Desc", icon: "🏋️", color: "#00d4ff" },
+    { titleKey: "autoB4Title", descKey: "autoB4Desc", icon: "📊", color: "#ffb300" },
+  ];
+
+  return (
+    <section className="py-24 border-t border-[rgba(34,197,94,0.08)]">
+      <WaveDivider color="rgba(34,197,94,0.03)" />
+      <div ref={ref} className="scroll-reveal max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-12">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[rgba(34,197,94,0.2)] bg-[rgba(34,197,94,0.05)] mb-4">
+            <Zap size={12} className="text-[#22c55e]" />
+            <span className="text-xs font-medium text-[#22c55e]">{t("autoBadge")}</span>
+          </div>
+          <h2 className="text-3xl sm:text-4xl font-bold text-[#dceee0] mb-4">
+            {t("autoTitle")}{" "}
+            <span className="bg-gradient-to-r from-[#22c55e] to-[#00d4ff] bg-clip-text text-transparent">
+              {t("autoTitleHighlight")}
+            </span>
+          </h2>
+          <p className="text-[#6b8c72] text-sm max-w-lg mx-auto">{t("autoSubtitle")}</p>
+        </div>
+
+        <div className="grid lg:grid-cols-2 gap-8">
+          {/* Automations column */}
+          <div className="rounded-2xl border border-[rgba(34,197,94,0.12)] bg-[rgba(22,32,24,0.4)] backdrop-blur-sm p-6">
+            <h3 className="text-sm font-bold text-[#22c55e] uppercase tracking-wider mb-5 flex items-center gap-2">
+              <div className="w-5 h-5 rounded-md bg-[rgba(34,197,94,0.15)] flex items-center justify-center">
+                <Zap size={11} className="text-[#22c55e]" />
+              </div>
+              {t("autoColLeft")}
+            </h3>
+            <div className="space-y-3">
+              {automations.map((item) => (
+                <div
+                  key={item.titleKey}
+                  className="flex items-start gap-3 p-3.5 rounded-xl border border-[rgba(34,197,94,0.08)] bg-[rgba(8,12,10,0.4)] hover:border-[rgba(34,197,94,0.2)] hover:bg-[rgba(8,12,10,0.6)] transition-all duration-150 group"
+                >
+                  <div className="w-9 h-9 rounded-xl flex items-center justify-center text-base shrink-0 bg-[rgba(22,32,24,0.8)] border border-[rgba(34,197,94,0.1)]">
+                    {item.icon}
+                  </div>
+                  <div>
+                    <div className="text-sm font-semibold text-[#dceee0] mb-0.5">{t(item.titleKey)}</div>
+                    <div className="text-xs text-[#6b8c72] leading-relaxed">{t(item.descKey)}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* AI column */}
+          <div className="rounded-2xl border border-[rgba(0,212,255,0.12)] bg-[rgba(0,30,40,0.4)] backdrop-blur-sm p-6">
+            <h3 className="text-sm font-bold text-[#00d4ff] uppercase tracking-wider mb-5 flex items-center gap-2">
+              <div className="w-5 h-5 rounded-md bg-[rgba(0,212,255,0.15)] flex items-center justify-center">
+                <BarChart3 size={11} className="text-[#00d4ff]" />
+              </div>
+              {t("autoColRight")}
+            </h3>
+            <div className="space-y-3">
+              {aiInsights.map((item) => (
+                <div
+                  key={item.titleKey}
+                  className="flex items-start gap-3 p-3.5 rounded-xl border border-[rgba(0,212,255,0.08)] bg-[rgba(8,12,10,0.4)] hover:border-[rgba(0,212,255,0.2)] hover:bg-[rgba(8,12,10,0.6)] transition-all duration-150 group"
+                >
+                  <div className="w-9 h-9 rounded-xl flex items-center justify-center text-base shrink-0 bg-[rgba(22,32,24,0.8)] border border-[rgba(0,212,255,0.1)]">
+                    {item.icon}
+                  </div>
+                  <div>
+                    <div className="text-sm font-semibold text-[#dceee0] mb-0.5">{t(item.titleKey)}</div>
+                    <div className="text-xs text-[#6b8c72] leading-relaxed">{t(item.descKey)}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ── Compliance & Segurança ───────────────────────────────────────────────────
+function ComplianceSecurity({ t }: { t: (k: string) => string }) {
+  const ref = useScrollReveal();
+
+  const badges = [
+    {
+      key: "complianceRgpd",
+      icon: (
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+        </svg>
+      ),
+      color: "#22c55e",
+    },
+    {
+      key: "complianceSaft",
+      icon: (
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+        </svg>
+      ),
+      color: "#00d4ff",
+    },
+    {
+      key: "complianceSsl",
+      icon: (
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#c084fc" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+        </svg>
+      ),
+      color: "#c084fc",
+    },
+    {
+      key: "complianceUptime",
+      icon: (
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+          <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+        </svg>
+      ),
+      color: "#22c55e",
+    },
+    {
+      key: "complianceIso",
+      icon: (
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ffb300" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/>
+        </svg>
+      ),
+      color: "#ffb300",
+    },
+    {
+      key: "complianceBackup",
+      icon: (
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ff8c42" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+          <polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.51"/>
+        </svg>
+      ),
+      color: "#ff8c42",
+    },
+  ];
+
+  return (
+    <section className="py-24 border-t border-[rgba(34,197,94,0.08)]">
+      <WaveDivider flip color="rgba(34,197,94,0.03)" />
+      <div ref={ref} className="scroll-reveal max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-12">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[rgba(34,197,94,0.2)] bg-[rgba(34,197,94,0.05)] mb-4">
+            <Shield size={12} className="text-[#22c55e]" />
+            <span className="text-xs font-medium text-[#22c55e]">{t("complianceBadge")}</span>
+          </div>
+          <h2 className="text-3xl sm:text-4xl font-bold text-[#dceee0] mb-4">
+            {t("complianceTitle")}{" "}
+            <span className="bg-gradient-to-r from-[#22c55e] to-[#00d4ff] bg-clip-text text-transparent">
+              {t("complianceTitleHighlight")}
+            </span>
+          </h2>
+          <p className="text-[#6b8c72] text-sm max-w-lg mx-auto">{t("complianceSubtitle")}</p>
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+          {badges.map((badge) => (
+            <div
+              key={badge.key}
+              className="flex flex-col items-center gap-3 p-5 rounded-2xl border bg-[rgba(22,32,24,0.4)] backdrop-blur-sm hover:-translate-y-1 hover:shadow-[0_0_20px_rgba(34,197,94,0.08)] transition-all duration-200 group"
+              style={{ borderColor: `${badge.color}20` }}
+            >
+              <div
+                className="w-12 h-12 rounded-xl flex items-center justify-center transition-transform duration-200 group-hover:scale-110"
+                style={{ background: `${badge.color}12` }}
+              >
+                {badge.icon}
+              </div>
+              <span className="text-xs font-semibold text-[#dceee0] text-center leading-tight">{t(badge.key)}</span>
+            </div>
+          ))}
         </div>
       </div>
     </section>
@@ -1690,10 +2607,15 @@ export default function LandingPage() {
         <Hero t={t} />
         <SocialProof t={t} />
         <Features t={t} />
+        <VerticalsMarquee t={t} />
         <ProductShowcase t={t} />
+        <FeatureDeepDive t={t} />
+        <PaymentsPortugal t={t} />
+        <AutomationsAI t={t} />
         <Comparison t={t} />
         <Testimonials t={t} />
         <Pricing t={t} />
+        <ComplianceSecurity t={t} />
         <FAQ t={t} />
         <CTABanner t={t} />
       </main>
