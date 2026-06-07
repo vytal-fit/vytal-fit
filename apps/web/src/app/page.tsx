@@ -16,11 +16,102 @@ import {
   Menu,
   Zap,
   Shield,
-  Smartphone,
   BarChart3,
   ArrowRight,
   Play,
 } from "lucide-react";
+
+// ── Noise texture SVG ────────────────────────────────────────────────────────
+const NOISE_SVG = `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E")`;
+
+// ── CSS Keyframes (injected via style tag) ──────────────────────────────────
+const LANDING_KEYFRAMES = `
+@keyframes landing-float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-12px); }
+}
+@keyframes landing-float-delayed {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-8px); }
+}
+@keyframes landing-fade-in-up {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes landing-gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+@keyframes landing-pulse-glow {
+  0%, 100% { box-shadow: 0 0 4px rgba(34,197,94,0.4); }
+  50% { box-shadow: 0 0 12px rgba(34,197,94,0.8); }
+}
+.scroll-reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.scroll-reveal[data-revealed="true"] {
+  opacity: 1;
+  transform: translateY(0);
+}
+.animated-gradient-border {
+  background: linear-gradient(90deg, #22c55e, #00d4ff, #c084fc, #22c55e);
+  background-size: 300% 100%;
+  animation: landing-gradient-shift 4s ease infinite;
+}
+`;
+
+// ── Scroll Reveal Hook ──────────────────────────────────────────────────────
+function useScrollReveal() {
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          el.setAttribute("data-revealed", "true");
+          observer.unobserve(el);
+        }
+      },
+      { threshold: 0.1, rootMargin: "0px 0px -40px 0px" }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  return ref;
+}
+
+// ── SVG Decorative Components ────────────────────────────────────────────────
+function DotGrid() {
+  return (
+    <svg className="absolute inset-0 w-full h-full pointer-events-none" aria-hidden="true">
+      <defs>
+        <pattern id="hero-dots" width="32" height="32" patternUnits="userSpaceOnUse">
+          <circle cx="1" cy="1" r="1" fill="rgba(34,197,94,0.15)" />
+        </pattern>
+      </defs>
+      <rect width="100%" height="100%" fill="url(#hero-dots)" />
+    </svg>
+  );
+}
+
+function WaveDivider({ flip = false, color = "rgba(34,197,94,0.06)" }: { flip?: boolean; color?: string }) {
+  return (
+    <div className={`w-full overflow-hidden leading-[0] ${flip ? "rotate-180" : ""}`} aria-hidden="true">
+      <svg viewBox="0 0 1440 60" preserveAspectRatio="none" className="w-full h-[40px]">
+        <path
+          d="M0,30 C360,60 720,0 1080,30 C1260,45 1380,20 1440,30 L1440,60 L0,60 Z"
+          fill={color}
+        />
+      </svg>
+    </div>
+  );
+}
 
 // ── Multi-language ──────────────────────────────────────────────────────────
 type Lang = "pt" | "en" | "es";
@@ -416,7 +507,7 @@ function usePricingToggle() {
 function FAQItem({ question, answer }: { question: string; answer: string }) {
   const [open, setOpen] = useState(false);
   return (
-    <div className="border border-[rgba(34,197,94,0.12)] rounded-xl overflow-hidden">
+    <div className="border border-[rgba(34,197,94,0.12)] rounded-xl overflow-hidden backdrop-blur-sm">
       <button
         onClick={() => setOpen(!open)}
         className="w-full flex items-center justify-between px-6 py-5 text-left hover:bg-[rgba(34,197,94,0.04)] transition-colors duration-150"
@@ -576,10 +667,98 @@ function Navbar({ t, lang, setLang }: { t: (k: string) => string; lang: Lang; se
   );
 }
 
+// ── Floating UI Cards (Hero decorations) ─────────────────────────────────────
+function FloatingStatsCard() {
+  return (
+    <div
+      className="absolute hidden lg:flex flex-col gap-1.5 p-3.5 rounded-xl border border-[rgba(34,197,94,0.2)] bg-[rgba(8,12,10,0.85)] backdrop-blur-md shadow-xl shadow-black/30 w-[150px]"
+      style={{
+        top: "18%",
+        right: "6%",
+        animation: "landing-float 6s ease-in-out infinite",
+      }}
+    >
+      <div className="flex items-center gap-2 mb-1">
+        <div className="w-5 h-5 rounded-md bg-[rgba(34,197,94,0.15)] flex items-center justify-center">
+          <TrendingUp size={10} className="text-[#22c55e]" />
+        </div>
+        <span className="text-[9px] font-medium text-[#6b8c72] uppercase tracking-wider">Revenue</span>
+      </div>
+      <span className="text-lg font-bold text-[#dceee0]">+32%</span>
+      <div className="flex gap-0.5">
+        {[40, 55, 35, 65, 50, 70, 80, 60, 90, 75].map((h, i) => (
+          <div
+            key={i}
+            className="flex-1 rounded-sm bg-[#22c55e]"
+            style={{ height: `${h * 0.25}px`, opacity: 0.3 + (h / 100) * 0.7 }}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function FloatingCalendarCard() {
+  return (
+    <div
+      className="absolute hidden lg:flex flex-col gap-1.5 p-3.5 rounded-xl border border-[rgba(0,212,255,0.2)] bg-[rgba(8,12,10,0.85)] backdrop-blur-md shadow-xl shadow-black/30 w-[140px]"
+      style={{
+        bottom: "22%",
+        left: "5%",
+        animation: "landing-float-delayed 7s ease-in-out infinite",
+        animationDelay: "1s",
+      }}
+    >
+      <div className="flex items-center gap-2 mb-1">
+        <div className="w-5 h-5 rounded-md bg-[rgba(0,212,255,0.15)] flex items-center justify-center">
+          <Calendar size={10} className="text-[#00d4ff]" />
+        </div>
+        <span className="text-[9px] font-medium text-[#6b8c72] uppercase tracking-wider">Today</span>
+      </div>
+      <div className="space-y-1">
+        {["09:00 CrossFit", "10:30 Yoga", "17:00 HIIT"].map((cls, i) => (
+          <div key={i} className="flex items-center gap-1.5">
+            <div className="w-1 h-1 rounded-full" style={{ background: ["#22c55e", "#c084fc", "#ffb300"][i] }} />
+            <span className="text-[9px] text-[#6b8c72]">{cls}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function FloatingMembersCard() {
+  return (
+    <div
+      className="absolute hidden lg:flex flex-col gap-1 p-3 rounded-xl border border-[rgba(192,132,252,0.2)] bg-[rgba(8,12,10,0.85)] backdrop-blur-md shadow-xl shadow-black/30 w-[130px]"
+      style={{
+        top: "55%",
+        right: "3%",
+        animation: "landing-float 8s ease-in-out infinite",
+        animationDelay: "2s",
+      }}
+    >
+      <div className="flex items-center gap-2 mb-1">
+        <div className="w-5 h-5 rounded-md bg-[rgba(192,132,252,0.15)] flex items-center justify-center">
+          <Users size={10} className="text-[#c084fc]" />
+        </div>
+        <span className="text-[9px] font-medium text-[#6b8c72] uppercase tracking-wider">Active</span>
+      </div>
+      <span className="text-lg font-bold text-[#dceee0]">247</span>
+      <span className="text-[9px] text-[#22c55e]">+12 this week</span>
+    </div>
+  );
+}
+
 // ── Hero ─────────────────────────────────────────────────────────────────────
 function Hero({ t }: { t: (k: string) => string }) {
   return (
     <section className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden pt-16">
+      {/* Dot grid pattern */}
+      <div className="absolute inset-0 pointer-events-none opacity-40">
+        <DotGrid />
+      </div>
+
       {/* Animated background blobs */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <div
@@ -618,18 +797,24 @@ function Hero({ t }: { t: (k: string) => string }) {
         />
       </div>
 
+      {/* Floating UI cards */}
+      <FloatingStatsCard />
+      <FloatingCalendarCard />
+      <FloatingMembersCard />
+
       <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center page-enter">
         {/* Badge */}
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[rgba(34,197,94,0.3)] bg-[rgba(34,197,94,0.06)] mb-8">
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[rgba(34,197,94,0.3)] bg-[rgba(34,197,94,0.06)] mb-8 backdrop-blur-sm">
           <span className="w-1.5 h-1.5 rounded-full bg-[#22c55e] animate-pulse" />
           <span className="text-xs font-medium text-[#22c55e] tracking-wide">
             {t("badge")}
           </span>
         </div>
 
-        {/* Headline */}
-        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-[#dceee0] leading-tight tracking-tight mb-6">
-          {t("headline")}
+        {/* Headline — larger with gradient text */}
+        <h1 className="text-5xl sm:text-6xl md:text-7xl font-bold text-[#dceee0] leading-[1.1] tracking-tight mb-6">
+          <span className="bg-gradient-to-r from-[#22c55e] to-[#00d4ff] bg-clip-text text-transparent">{t("headline").split(" ").slice(0, 3).join(" ")}</span>{" "}
+          {t("headline").split(" ").slice(3).join(" ")}
         </h1>
 
         {/* Subtitle */}
@@ -639,16 +824,19 @@ function Hero({ t }: { t: (k: string) => string }) {
 
         {/* CTAs */}
         <div className="flex flex-col sm:flex-row gap-3 items-center justify-center mb-16">
-          <Link
-            href="/login"
-            className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl bg-[#22c55e] text-[#080c0a] font-semibold text-sm hover:bg-[#16a34a] transition-all duration-150 shadow-lg shadow-[rgba(34,197,94,0.25)] hover:shadow-[rgba(34,197,94,0.4)] hover:-translate-y-0.5"
-          >
-            {t("ctaStart")}
-            <ArrowRight size={16} />
-          </Link>
+          {/* Animated gradient border CTA */}
+          <div className="rounded-[14px] p-[1.5px] animated-gradient-border">
+            <Link
+              href="/login"
+              className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl bg-[#22c55e] text-[#080c0a] font-semibold text-sm hover:bg-[#16a34a] transition-all duration-150 shadow-lg shadow-[rgba(34,197,94,0.25)] hover:shadow-[rgba(34,197,94,0.4)] hover:-translate-y-0.5"
+            >
+              {t("ctaStart")}
+              <ArrowRight size={16} />
+            </Link>
+          </div>
           <Link
             href="/@crossfit-aveiro"
-            className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl border border-[rgba(34,197,94,0.25)] text-[#dceee0] font-medium text-sm hover:border-[rgba(34,197,94,0.5)] hover:bg-[rgba(34,197,94,0.05)] transition-all duration-150"
+            className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl border border-[rgba(34,197,94,0.25)] text-[#dceee0] font-medium text-sm hover:border-[rgba(34,197,94,0.5)] hover:bg-[rgba(34,197,94,0.05)] transition-all duration-150 backdrop-blur-sm"
           >
             <Play size={15} className="text-[#22c55e]" />
             {t("ctaDemo")}
@@ -656,7 +844,7 @@ function Hero({ t }: { t: (k: string) => string }) {
         </div>
 
         {/* Stats row */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-px bg-[rgba(34,197,94,0.1)] rounded-2xl overflow-hidden border border-[rgba(34,197,94,0.1)]">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-px bg-[rgba(34,197,94,0.1)] rounded-2xl overflow-hidden border border-[rgba(34,197,94,0.1)] backdrop-blur-sm">
           {[
             { value: "20+", label: t("statVerticals") },
             { value: "500+", label: t("statFeatures") },
@@ -665,7 +853,7 @@ function Hero({ t }: { t: (k: string) => string }) {
           ].map((s) => (
             <div
               key={s.label}
-              className="flex flex-col items-center justify-center py-5 px-4 bg-[#080c0a] hover:bg-[rgba(34,197,94,0.04)] transition-colors"
+              className="flex flex-col items-center justify-center py-5 px-4 bg-[#080c0a]/80 hover:bg-[rgba(34,197,94,0.04)] transition-colors"
             >
               <span className="text-2xl font-bold text-[#22c55e]">{s.value}</span>
               <span className="text-xs text-[#6b8c72] mt-0.5">{s.label}</span>
@@ -679,6 +867,7 @@ function Hero({ t }: { t: (k: string) => string }) {
 
 // ── Social Proof ─────────────────────────────────────────────────────────────
 function SocialProof({ t }: { t: (k: string) => string }) {
+  const ref = useScrollReveal();
   const gyms = [
     "CrossFit Aveiro",
     "Yoga Flow Porto",
@@ -690,7 +879,7 @@ function SocialProof({ t }: { t: (k: string) => string }) {
 
   return (
     <section className="py-16 border-t border-[rgba(34,197,94,0.08)]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div ref={ref} className="scroll-reveal max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <p className="text-center text-sm text-[#6b8c72] mb-10 tracking-wider uppercase">
           {t("trustedBy")}
         </p>
@@ -698,7 +887,7 @@ function SocialProof({ t }: { t: (k: string) => string }) {
           {gyms.map((gym, i) => (
             <div
               key={gym}
-              className="flex items-center justify-center px-4 py-3.5 rounded-xl border border-[rgba(34,197,94,0.1)] bg-[rgba(22,32,24,0.4)] hover:border-[rgba(34,197,94,0.25)] hover:bg-[rgba(34,197,94,0.04)] transition-all duration-150 group"
+              className="flex items-center justify-center px-4 py-3.5 rounded-xl border border-[rgba(34,197,94,0.1)] bg-[rgba(22,32,24,0.4)] hover:border-[rgba(34,197,94,0.25)] hover:bg-[rgba(34,197,94,0.04)] transition-all duration-150 group backdrop-blur-sm"
               style={{ animationDelay: `${i * 0.1}s` }}
             >
               <span className="text-xs font-medium text-[#6b8c72] group-hover:text-[#dceee0] transition-colors text-center leading-tight">
@@ -725,9 +914,12 @@ const FEATURE_KEYS = [
 ];
 
 function Features({ t }: { t: (k: string) => string }) {
+  const ref = useScrollReveal();
+
   return (
     <section id="funcionalidades" className="py-24 border-t border-[rgba(34,197,94,0.08)]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <WaveDivider color="rgba(34,197,94,0.03)" />
+      <div ref={ref} className="scroll-reveal max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[rgba(34,197,94,0.2)] bg-[rgba(34,197,94,0.05)] mb-4">
             <Zap size={12} className="text-[#22c55e]" />
@@ -735,7 +927,7 @@ function Features({ t }: { t: (k: string) => string }) {
           </div>
           <h2 className="text-3xl sm:text-4xl font-bold text-[#dceee0] mb-4">
             {t("everythingTitle").split(".")[0]}.{" "}
-            <span className="text-[#22c55e]">{t("everythingTitle").split(".").slice(1).join(".").trim()}</span>
+            <span className="bg-gradient-to-r from-[#22c55e] to-[#00d4ff] bg-clip-text text-transparent">{t("everythingTitle").split(".").slice(1).join(".").trim()}</span>
           </h2>
           <p className="text-[#6b8c72] max-w-xl mx-auto text-sm leading-relaxed">
             {t("everythingSubtitle")}
@@ -749,7 +941,7 @@ function Features({ t }: { t: (k: string) => string }) {
             return (
               <div
                 key={keys.title}
-                className="group relative p-6 rounded-2xl border border-[rgba(34,197,94,0.1)] bg-[rgba(22,32,24,0.4)] hover:border-[rgba(34,197,94,0.25)] hover:bg-[rgba(22,32,24,0.7)] transition-all duration-200 overflow-hidden"
+                className="group relative p-6 rounded-2xl border border-[rgba(34,197,94,0.1)] bg-[rgba(22,32,24,0.4)] backdrop-blur-sm hover:border-[rgba(34,197,94,0.3)] hover:bg-[rgba(22,32,24,0.7)] hover:-translate-y-1 hover:shadow-[0_0_30px_rgba(34,197,94,0.1)] transition-all duration-300 overflow-hidden"
               >
                 {/* Hover glow */}
                 <div
@@ -758,11 +950,27 @@ function Features({ t }: { t: (k: string) => string }) {
                     background: `radial-gradient(circle at 0% 0%, ${color}08 0%, transparent 60%)`,
                   }}
                 />
-                <div
-                  className="w-10 h-10 rounded-xl flex items-center justify-center mb-4"
-                  style={{ background: `${color}14` }}
-                >
-                  <Icon size={20} style={{ color }} />
+                {/* Decorative circle */}
+                <svg className="absolute top-3 right-3 w-16 h-16 opacity-[0.04] group-hover:opacity-[0.08] transition-opacity pointer-events-none" aria-hidden="true">
+                  <circle cx="32" cy="32" r="30" stroke={color} strokeWidth="1" fill="none" />
+                  <circle cx="32" cy="32" r="20" stroke={color} strokeWidth="0.5" fill="none" />
+                </svg>
+                {/* Decorative line */}
+                <svg className="absolute bottom-0 left-6 right-6 h-[1px] opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" aria-hidden="true">
+                  <line x1="0" y1="0" x2="100%" y2="0" stroke={color} strokeWidth="1" strokeOpacity="0.2" />
+                </svg>
+                {/* Icon with glow */}
+                <div className="relative">
+                  <div
+                    className="absolute inset-0 rounded-xl blur-xl opacity-0 group-hover:opacity-40 transition-opacity duration-300"
+                    style={{ background: color }}
+                  />
+                  <div
+                    className="relative w-10 h-10 rounded-xl flex items-center justify-center mb-4"
+                    style={{ background: `${color}14` }}
+                  >
+                    <Icon size={20} style={{ color }} />
+                  </div>
                 </div>
                 <h3 className="font-semibold text-[#dceee0] mb-2 text-sm">{t(keys.title)}</h3>
                 <p className="text-xs text-[#6b8c72] leading-relaxed">{t(keys.desc)}</p>
@@ -801,17 +1009,19 @@ function ProductShowcase({ t }: { t: (k: string) => string }) {
   const [activeTab, setActiveTab] = useState("admin");
   const tab = TAB_META.find((tb) => tb.id === activeTab)!;
   const mockItems = tab.itemKeys.map((k) => t(k));
+  const ref = useScrollReveal();
 
   return (
     <section className="py-24 border-t border-[rgba(34,197,94,0.08)]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <WaveDivider flip color="rgba(34,197,94,0.03)" />
+      <div ref={ref} className="scroll-reveal max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[rgba(34,197,94,0.2)] bg-[rgba(34,197,94,0.05)] mb-4">
             <BarChart3 size={12} className="text-[#22c55e]" />
             <span className="text-xs font-medium text-[#22c55e]">{t("showcaseBadge")}</span>
           </div>
           <h2 className="text-3xl sm:text-4xl font-bold text-[#dceee0] mb-4">
-            {t("showcaseTitle")} <span className="text-[#22c55e]">{t("showcaseTitleHighlight")}</span>
+            {t("showcaseTitle")} <span className="bg-gradient-to-r from-[#22c55e] to-[#00d4ff] bg-clip-text text-transparent">{t("showcaseTitleHighlight")}</span>
           </h2>
           <p className="text-[#6b8c72] max-w-xl mx-auto text-sm leading-relaxed">
             {t("showcaseSubtitle")}
@@ -819,7 +1029,7 @@ function ProductShowcase({ t }: { t: (k: string) => string }) {
         </div>
 
         {/* Tab bar */}
-        <div className="flex items-center justify-center gap-1 mb-8 p-1 rounded-xl bg-[rgba(22,32,24,0.6)] border border-[rgba(34,197,94,0.1)] w-fit mx-auto">
+        <div className="flex items-center justify-center gap-1 mb-8 p-1 rounded-xl bg-[rgba(22,32,24,0.6)] border border-[rgba(34,197,94,0.1)] w-fit mx-auto backdrop-blur-sm">
           {TAB_META.map((tb) => (
             <button
               key={tb.id}
@@ -855,7 +1065,7 @@ function ProductShowcase({ t }: { t: (k: string) => string }) {
               {mockItems.map((item, i) => (
                 <div
                   key={item}
-                  className="rounded-lg border border-[rgba(34,197,94,0.1)] bg-[rgba(8,12,10,0.6)] flex flex-col items-center justify-center gap-1 p-2 hover:border-[rgba(34,197,94,0.3)] transition-colors"
+                  className="rounded-lg border border-[rgba(34,197,94,0.1)] bg-[rgba(8,12,10,0.6)] backdrop-blur-sm flex flex-col items-center justify-center gap-1 p-2 hover:border-[rgba(34,197,94,0.3)] transition-colors"
                   style={{ animationDelay: `${i * 0.05}s` }}
                 >
                   <div
@@ -918,9 +1128,12 @@ const COMPARISON_DATA = [
 ];
 
 function Comparison({ t }: { t: (k: string) => string }) {
+  const ref = useScrollReveal();
+
   return (
     <section className="py-24 border-t border-[rgba(34,197,94,0.08)]">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+      <WaveDivider color="rgba(34,197,94,0.03)" />
+      <div ref={ref} className="scroll-reveal max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[rgba(34,197,94,0.2)] bg-[rgba(34,197,94,0.05)] mb-4">
             <Shield size={12} className="text-[#22c55e]" />
@@ -934,7 +1147,7 @@ function Comparison({ t }: { t: (k: string) => string }) {
           </p>
         </div>
 
-        <div className="rounded-2xl border border-[rgba(34,197,94,0.12)] overflow-hidden">
+        <div className="rounded-2xl border border-[rgba(34,197,94,0.12)] overflow-hidden backdrop-blur-sm">
           {/* Header */}
           <div className="grid grid-cols-5 bg-[rgba(22,32,24,0.8)]">
             <div className="col-span-2 px-6 py-4 text-xs font-semibold text-[#6b8c72] uppercase tracking-wider">
@@ -944,10 +1157,15 @@ function Comparison({ t }: { t: (k: string) => string }) {
               <div
                 key={name}
                 className={`px-4 py-4 text-center text-xs font-semibold uppercase tracking-wider ${
-                  i === 0 ? "text-[#22c55e]" : "text-[#6b8c72]"
+                  i === 0 ? "text-[#22c55e] bg-[rgba(34,197,94,0.08)]" : "text-[#6b8c72]"
                 }`}
               >
-                {name}
+                {i === 0 ? (
+                  <span className="inline-flex items-center gap-1.5">
+                    <span className="px-2 py-0.5 rounded-full bg-[#22c55e] text-[#080c0a] text-[10px] font-bold">#1</span>
+                    {name}
+                  </span>
+                ) : name}
               </div>
             ))}
           </div>
@@ -962,7 +1180,7 @@ function Comparison({ t }: { t: (k: string) => string }) {
             >
               <div className="col-span-2 px-6 py-4 text-sm text-[#dceee0]">{t(row.key)}</div>
               {[row.vytal, row.regibox, row.wodify, row.generic].map((val, i) => (
-                <div key={i} className="px-4 py-4 flex items-center justify-center">
+                <div key={i} className={`px-4 py-4 flex items-center justify-center ${i === 0 ? "bg-[rgba(34,197,94,0.05)]" : ""}`}>
                   {val ? (
                     <div
                       className={`w-6 h-6 rounded-full flex items-center justify-center ${
@@ -999,16 +1217,19 @@ const TESTIMONIAL_META = [
 ];
 
 function Testimonials({ t }: { t: (k: string) => string }) {
+  const ref = useScrollReveal();
+
   return (
     <section id="testemunhos" className="py-24 border-t border-[rgba(34,197,94,0.08)]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <WaveDivider flip color="rgba(34,197,94,0.03)" />
+      <div ref={ref} className="scroll-reveal max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[rgba(34,197,94,0.2)] bg-[rgba(34,197,94,0.05)] mb-4">
             <Star size={12} className="text-[#22c55e]" />
             <span className="text-xs font-medium text-[#22c55e]">{t("testimonialsBadge")}</span>
           </div>
           <h2 className="text-3xl sm:text-4xl font-bold text-[#dceee0] mb-4">
-            {t("testimonialsTitle")} <span className="text-[#22c55e]">{t("testimonialsTitleHighlight")}</span>
+            {t("testimonialsTitle")} <span className="bg-gradient-to-r from-[#22c55e] to-[#00d4ff] bg-clip-text text-transparent">{t("testimonialsTitleHighlight")}</span>
           </h2>
         </div>
 
@@ -1016,7 +1237,7 @@ function Testimonials({ t }: { t: (k: string) => string }) {
           {TESTIMONIAL_META.map((tm) => (
             <div
               key={tm.nameKey}
-              className="relative p-6 rounded-2xl border border-[rgba(34,197,94,0.1)] bg-[rgba(22,32,24,0.4)] hover:border-[rgba(34,197,94,0.22)] transition-all duration-200 group"
+              className="relative p-6 rounded-2xl border border-[rgba(34,197,94,0.1)] bg-[rgba(22,32,24,0.4)] backdrop-blur-sm hover:border-[rgba(34,197,94,0.22)] hover:-translate-y-1 hover:shadow-[0_0_30px_rgba(34,197,94,0.08)] transition-all duration-300 group"
             >
               {/* Stars */}
               <div className="flex gap-1 mb-4">
@@ -1075,24 +1296,26 @@ const PLAN_META = [
 
 function Pricing({ t }: { t: (k: string) => string }) {
   const { annual, setAnnual } = usePricingToggle();
+  const ref = useScrollReveal();
 
   return (
     <section id="precos" className="py-24 border-t border-[rgba(34,197,94,0.08)]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <WaveDivider color="rgba(34,197,94,0.03)" />
+      <div ref={ref} className="scroll-reveal max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[rgba(34,197,94,0.2)] bg-[rgba(34,197,94,0.05)] mb-4">
             <CreditCard size={12} className="text-[#22c55e]" />
             <span className="text-xs font-medium text-[#22c55e]">{t("pricingBadge")}</span>
           </div>
           <h2 className="text-3xl sm:text-4xl font-bold text-[#dceee0] mb-4">
-            {t("pricingTitle")} <span className="text-[#22c55e]">{t("pricingTitleHighlight")}</span>
+            {t("pricingTitle")} <span className="bg-gradient-to-r from-[#22c55e] to-[#00d4ff] bg-clip-text text-transparent">{t("pricingTitleHighlight")}</span>
           </h2>
           <p className="text-[#6b8c72] max-w-xl mx-auto text-sm leading-relaxed mb-8">
             {t("pricingSubtitle")}
           </p>
 
           {/* Toggle */}
-          <div className="inline-flex items-center gap-3 p-1 rounded-xl bg-[rgba(22,32,24,0.6)] border border-[rgba(34,197,94,0.1)]">
+          <div className="inline-flex items-center gap-3 p-1 rounded-xl bg-[rgba(22,32,24,0.6)] border border-[rgba(34,197,94,0.1)] backdrop-blur-sm">
             <button
               onClick={() => setAnnual(false)}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-150 ${
@@ -1129,69 +1352,83 @@ function Pricing({ t }: { t: (k: string) => string }) {
             return (
               <div
                 key={plan.nameKey}
-                className={`relative p-6 rounded-2xl border transition-all duration-200 flex flex-col ${
-                  plan.highlighted
-                    ? "border-[rgba(34,197,94,0.4)] bg-[rgba(34,197,94,0.04)] shadow-lg shadow-[rgba(34,197,94,0.08)]"
-                    : "border-[rgba(34,197,94,0.1)] bg-[rgba(22,32,24,0.4)]"
+                className={`relative flex flex-col ${
+                  plan.highlighted ? "md:-mt-2 md:mb-[-8px]" : ""
                 }`}
               >
+                {/* Animated gradient border for popular plan */}
                 {plan.highlighted && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                    <span className="px-3 py-1 rounded-full bg-[#22c55e] text-[#080c0a] text-xs font-bold">
-                      {t("mostPopular")}
-                    </span>
-                  </div>
+                  <div className="absolute -inset-[1.5px] rounded-[18px] animated-gradient-border opacity-60" />
                 )}
-
-                <div className="mb-6">
-                  <h3 className="font-bold text-[#dceee0] text-lg mb-1">{t(plan.nameKey)}</h3>
-                  <p className="text-xs text-[#6b8c72] mb-4">{t(plan.descKey)}</p>
-                  <div className="flex items-end gap-1">
-                    {displayPrice === null ? (
-                      <span className="text-3xl font-bold text-[#dceee0]">{t("onRequest")}</span>
-                    ) : (
-                      <>
-                        <span className="text-3xl font-bold text-[#dceee0]">
-                          {displayPrice === 0 ? t("free") : `${displayPrice}€`}
-                        </span>
-                        {displayPrice > 0 && (
-                          <span className="text-sm text-[#6b8c72] mb-1">/mo</span>
-                        )}
-                      </>
-                    )}
-                  </div>
-                  {annual && plan.priceVal && plan.priceVal > 0 && (
-                    <p className="text-xs text-[#22c55e] mt-1">
-                      {t("billedAnnually")} {plan.priceVal * 12 - Math.round(plan.priceVal * 0.8) * 12}{t("perYear")}
-                    </p>
-                  )}
-                </div>
-
-                <ul className="space-y-2.5 mb-6 flex-1">
-                  {plan.featureKeys.map((fk) => (
-                    <li key={fk} className="flex items-start gap-2.5 text-sm text-[#dceee0]">
-                      <Check size={14} className="text-[#22c55e] shrink-0 mt-0.5" />
-                      {t(fk)}
-                    </li>
-                  ))}
-                  {plan.notIncludedKeys.map((fk) => (
-                    <li key={fk} className="flex items-start gap-2.5 text-sm text-[#6b8c72]/50">
-                      <X size={14} className="text-[rgba(255,71,87,0.3)] shrink-0 mt-0.5" />
-                      {t(fk)}
-                    </li>
-                  ))}
-                </ul>
-
-                <Link
-                  href="/login"
-                  className={`block text-center py-3 rounded-xl text-sm font-semibold transition-all duration-150 ${
+                <div
+                  className={`relative p-6 rounded-2xl border transition-all duration-200 flex flex-col flex-1 ${
                     plan.highlighted
-                      ? "bg-[#22c55e] text-[#080c0a] hover:bg-[#16a34a] shadow-md shadow-[rgba(34,197,94,0.2)]"
-                      : "border border-[rgba(34,197,94,0.25)] text-[#dceee0] hover:border-[rgba(34,197,94,0.5)] hover:bg-[rgba(34,197,94,0.05)]"
+                      ? "border-[rgba(34,197,94,0.4)] bg-[rgba(34,197,94,0.04)] shadow-lg shadow-[rgba(34,197,94,0.08)] backdrop-blur-sm"
+                      : "border-[rgba(34,197,94,0.1)] bg-[rgba(22,32,24,0.4)] backdrop-blur-sm"
                   }`}
                 >
-                  {t(plan.ctaKey)}
-                </Link>
+                  {plan.highlighted && (
+                    <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                      <span
+                        className="px-3 py-1 rounded-full bg-[#22c55e] text-[#080c0a] text-xs font-bold inline-flex items-center gap-1.5"
+                        style={{ animation: "landing-pulse-glow 2s ease-in-out infinite" }}
+                      >
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#080c0a] animate-pulse" />
+                        {t("mostPopular")}
+                      </span>
+                    </div>
+                  )}
+
+                  <div className="mb-6">
+                    <h3 className="font-bold text-[#dceee0] text-lg mb-1">{t(plan.nameKey)}</h3>
+                    <p className="text-xs text-[#6b8c72] mb-4">{t(plan.descKey)}</p>
+                    <div className="flex items-end gap-1">
+                      {displayPrice === null ? (
+                        <span className="text-3xl font-bold text-[#dceee0]">{t("onRequest")}</span>
+                      ) : (
+                        <>
+                          <span className="text-5xl font-bold text-[#dceee0] tracking-tight">
+                            {displayPrice === 0 ? t("free") : `${displayPrice}€`}
+                          </span>
+                          {displayPrice > 0 && (
+                            <span className="text-sm text-[#6b8c72] mb-2">/mo</span>
+                          )}
+                        </>
+                      )}
+                    </div>
+                    {annual && plan.priceVal && plan.priceVal > 0 && (
+                      <p className="text-xs text-[#22c55e] mt-1">
+                        {t("billedAnnually")} {plan.priceVal * 12 - Math.round(plan.priceVal * 0.8) * 12}{t("perYear")}
+                      </p>
+                    )}
+                  </div>
+
+                  <ul className="space-y-2.5 mb-6 flex-1">
+                    {plan.featureKeys.map((fk) => (
+                      <li key={fk} className="flex items-start gap-2.5 text-sm text-[#dceee0]">
+                        <Check size={14} className="text-[#22c55e] shrink-0 mt-0.5" />
+                        {t(fk)}
+                      </li>
+                    ))}
+                    {plan.notIncludedKeys.map((fk) => (
+                      <li key={fk} className="flex items-start gap-2.5 text-sm text-[#6b8c72]/50">
+                        <X size={14} className="text-[rgba(255,71,87,0.3)] shrink-0 mt-0.5" />
+                        {t(fk)}
+                      </li>
+                    ))}
+                  </ul>
+
+                  <Link
+                    href="/login"
+                    className={`block text-center py-3 rounded-xl text-sm font-semibold transition-all duration-150 ${
+                      plan.highlighted
+                        ? "bg-[#22c55e] text-[#080c0a] hover:bg-[#16a34a] shadow-md shadow-[rgba(34,197,94,0.2)]"
+                        : "border border-[rgba(34,197,94,0.25)] text-[#dceee0] hover:border-[rgba(34,197,94,0.5)] hover:bg-[rgba(34,197,94,0.05)]"
+                    }`}
+                  >
+                    {t(plan.ctaKey)}
+                  </Link>
+                </div>
               </div>
             );
           })}
@@ -1216,15 +1453,18 @@ const FAQ_KEYS = [
 ];
 
 function FAQ({ t }: { t: (k: string) => string }) {
+  const ref = useScrollReveal();
+
   return (
     <section id="faq" className="py-24 border-t border-[rgba(34,197,94,0.08)]">
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+      <WaveDivider flip color="rgba(34,197,94,0.03)" />
+      <div ref={ref} className="scroll-reveal max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[rgba(34,197,94,0.2)] bg-[rgba(34,197,94,0.05)] mb-4">
             <span className="text-xs font-medium text-[#22c55e]">{t("faqBadge")}</span>
           </div>
           <h2 className="text-3xl sm:text-4xl font-bold text-[#dceee0] mb-4">
-            {t("faqTitle")} <span className="text-[#22c55e]">{t("faqTitleHighlight")}</span>
+            {t("faqTitle")} <span className="bg-gradient-to-r from-[#22c55e] to-[#00d4ff] bg-clip-text text-transparent">{t("faqTitleHighlight")}</span>
           </h2>
         </div>
         <div className="space-y-3">
@@ -1239,10 +1479,12 @@ function FAQ({ t }: { t: (k: string) => string }) {
 
 // ── CTA Banner ────────────────────────────────────────────────────────────────
 function CTABanner({ t }: { t: (k: string) => string }) {
+  const ref = useScrollReveal();
+
   return (
     <section className="py-24 border-t border-[rgba(34,197,94,0.08)]">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <div className="relative rounded-3xl border border-[rgba(34,197,94,0.2)] bg-[rgba(22,32,24,0.6)] p-12 overflow-hidden">
+      <div ref={ref} className="scroll-reveal max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <div className="relative rounded-3xl border border-[rgba(34,197,94,0.2)] bg-[rgba(22,32,24,0.6)] backdrop-blur-sm p-12 overflow-hidden">
           {/* Background blobs */}
           <div
             className="absolute -top-20 -left-20 w-60 h-60 rounded-full opacity-10 pointer-events-none"
@@ -1265,13 +1507,15 @@ function CTABanner({ t }: { t: (k: string) => string }) {
               {t("ctaBannerSubtitle")}
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Link
-                href="/login"
-                className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-[#22c55e] text-[#080c0a] font-bold text-sm hover:bg-[#16a34a] transition-all duration-150 shadow-lg shadow-[rgba(34,197,94,0.3)] hover:-translate-y-0.5"
-              >
-                {t("ctaBannerStart")}
-                <ArrowRight size={16} />
-              </Link>
+              <div className="rounded-[14px] p-[1.5px] animated-gradient-border inline-flex">
+                <Link
+                  href="/login"
+                  className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-[#22c55e] text-[#080c0a] font-bold text-sm hover:bg-[#16a34a] transition-all duration-150 shadow-lg shadow-[rgba(34,197,94,0.3)] hover:-translate-y-0.5"
+                >
+                  {t("ctaBannerStart")}
+                  <ArrowRight size={16} />
+                </Link>
+              </div>
               <Link
                 href="/@crossfit-aveiro"
                 className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl border border-[rgba(34,197,94,0.25)] text-[#dceee0] font-medium text-sm hover:border-[rgba(34,197,94,0.5)] hover:bg-[rgba(34,197,94,0.05)] transition-all duration-150"
@@ -1410,6 +1654,16 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen bg-[#080c0a] text-[#dceee0]">
+      {/* Injected keyframes */}
+      <style dangerouslySetInnerHTML={{ __html: LANDING_KEYFRAMES }} />
+
+      {/* Noise texture overlay */}
+      <div
+        className="fixed inset-0 pointer-events-none z-[100]"
+        style={{ backgroundImage: NOISE_SVG, backgroundRepeat: "repeat" }}
+        aria-hidden="true"
+      />
+
       <Navbar t={t} lang={lang} setLang={setLang} />
       <main>
         <Hero t={t} />
