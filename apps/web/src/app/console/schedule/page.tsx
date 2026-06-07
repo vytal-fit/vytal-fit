@@ -97,6 +97,7 @@ export default function SchedulePage() {
 
   return (
     <div className="flex flex-col min-h-full">
+      <h1 className="sr-only">Horário</h1>
       {/* Toast */}
       {toast && (
         <div

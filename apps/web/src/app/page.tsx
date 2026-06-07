@@ -842,7 +842,7 @@ function Navbar({ t, lang, setLang }: { t: (k: string) => string; lang: Lang; se
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <a href="#" className="flex items-center gap-0.5 shrink-0">
+          <a href="/" className="flex items-center gap-0.5 shrink-0">
             <span className="text-xl font-bold text-[#22c55e] tracking-tight">Vytal</span>
             <span className="text-xl font-bold text-[#6b8c72] tracking-tight">.fit</span>
           </a>
@@ -2520,7 +2520,7 @@ function Footer({ t }: { t: (k: string) => string }) {
         <div className="grid grid-cols-2 md:grid-cols-5 gap-8 mb-12">
           {/* Brand col */}
           <div className="col-span-2 md:col-span-1">
-            <a href="#" className="flex items-center gap-0.5 mb-4">
+            <a href="/" className="flex items-center gap-0.5 mb-4">
               <span className="text-xl font-bold text-[#22c55e]">Vytal</span>
               <span className="text-xl font-bold text-[#6b8c72]">.fit</span>
             </a>
@@ -2536,7 +2536,7 @@ function Footer({ t }: { t: (k: string) => string }) {
               ].map((s) => (
                 <a
                   key={s.label}
-                  href="#"
+                  href="https://vytal.fit"
                   aria-label={s.label}
                   className="w-8 h-8 rounded-lg border border-[rgba(34,197,94,0.15)] flex items-center justify-center text-[10px] font-bold text-[#6b8c72] hover:border-[rgba(34,197,94,0.4)] hover:text-[#22c55e] transition-all duration-150"
                 >

@@ -471,7 +471,7 @@ export default function ApiKeysPage() {
             </div>
           </div>
           <a
-            href="#"
+            href="/settings/api-keys"
             onClick={(e) => {
               e.preventDefault();
               toast(t("apiKeys.docsToast"), "info");

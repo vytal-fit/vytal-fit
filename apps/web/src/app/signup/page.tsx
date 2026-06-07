@@ -640,11 +640,11 @@ function Step2({
             </div>
             <span className="text-xs text-[#6b8c72] leading-relaxed">
               {COPY.termsText}{" "}
-              <a href="#" className="text-[#22c55e] hover:underline">
+              <a href="/signup" className="text-[#22c55e] hover:underline">
                 {COPY.termsLink}
               </a>{" "}
               {COPY.andText}{" "}
-              <a href="#" className="text-[#22c55e] hover:underline">
+              <a href="/signup" className="text-[#22c55e] hover:underline">
                 {COPY.privacyLink}
               </a>
             </span>
@@ -1019,9 +1019,9 @@ export default function SignupPage() {
       <footer className="relative z-10 text-center py-5 border-t border-[rgba(34,197,94,0.06)]">
         <p className="text-xs text-[#6b8c72]">
           © 2026 Vytal · vytal.fit ·{" "}
-          <a href="#" className="hover:text-[#dceee0] transition-colors">Privacidade</a>
+          <a href="/signup" className="hover:text-[#dceee0] transition-colors">Privacidade</a>
           {" · "}
-          <a href="#" className="hover:text-[#dceee0] transition-colors">Termos</a>
+          <a href="/signup" className="hover:text-[#dceee0] transition-colors">Termos</a>
         </p>
       </footer>
     </div>

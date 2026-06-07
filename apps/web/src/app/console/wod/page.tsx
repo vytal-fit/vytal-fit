@@ -160,6 +160,7 @@ export default function WODPage() {
 
   return (
     <div className="px-4 py-6 max-w-lg mx-auto space-y-6">
+      <h1 className="sr-only">WOD</h1>
       {/* Toast */}
       {toast && (
         <div
