@@ -19,6 +19,8 @@ import {
   BarChart3,
   ArrowRight,
   Play,
+  Sun,
+  Moon,
 } from "lucide-react";
 
 // ── Noise texture SVG ────────────────────────────────────────────────────────
@@ -531,6 +533,17 @@ function FAQItem({ question, answer }: { question: string; answer: string }) {
 function Navbar({ t, lang, setLang }: { t: (k: string) => string; lang: Lang; setLang: (l: Lang) => void }) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [lightMode, setLightMode] = useState(false);
+
+  function toggleTheme() {
+    const next = !lightMode;
+    setLightMode(next);
+    if (next) {
+      document.documentElement.classList.add("light");
+    } else {
+      document.documentElement.classList.remove("light");
+    }
+  }
 
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 20);
@@ -592,6 +605,14 @@ function Navbar({ t, lang, setLang }: { t: (k: string) => string; lang: Lang; se
                 </button>
               ))}
             </div>
+            {/* Theme toggle */}
+            <button
+              onClick={toggleTheme}
+              aria-label={lightMode ? "Switch to dark mode" : "Switch to light mode"}
+              className="w-8 h-8 flex items-center justify-center rounded-lg border border-[rgba(34,197,94,0.2)] text-[#6b8c72] hover:text-[#22c55e] hover:border-[rgba(34,197,94,0.4)] transition-all duration-150"
+            >
+              {lightMode ? <Sun size={14} /> : <Moon size={14} />}
+            </button>
             <Link
               href="/login"
               className="text-sm px-4 py-2 rounded-lg border border-[rgba(34,197,94,0.25)] text-[#dceee0] hover:border-[rgba(34,197,94,0.5)] hover:bg-[rgba(34,197,94,0.05)] transition-all duration-150"
@@ -599,7 +620,7 @@ function Navbar({ t, lang, setLang }: { t: (k: string) => string; lang: Lang; se
               {t("signIn")}
             </Link>
             <Link
-              href="/login"
+              href="/signup"
               className="text-sm px-4 py-2 rounded-lg bg-[#22c55e] text-[#080c0a] font-semibold hover:bg-[#16a34a] transition-colors duration-150"
             >
               {t("ctaStart")}
@@ -653,7 +674,7 @@ function Navbar({ t, lang, setLang }: { t: (k: string) => string; lang: Lang; se
                   {t("signIn")}
                 </Link>
                 <Link
-                  href="/login"
+                  href="/signup"
                   className="flex-1 text-center text-sm px-4 py-2.5 rounded-lg bg-[#22c55e] text-[#080c0a] font-semibold"
                 >
                   {t("ctaStart")}
@@ -827,7 +848,7 @@ function Hero({ t }: { t: (k: string) => string }) {
           {/* Animated gradient border CTA */}
           <div className="rounded-[14px] p-[1.5px] animated-gradient-border">
             <Link
-              href="/login"
+              href="/signup"
               className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl bg-[#22c55e] text-[#080c0a] font-semibold text-sm hover:bg-[#16a34a] transition-all duration-150 shadow-lg shadow-[rgba(34,197,94,0.25)] hover:shadow-[rgba(34,197,94,0.4)] hover:-translate-y-0.5"
             >
               {t("ctaStart")}
@@ -1101,7 +1122,7 @@ function ProductShowcase({ t }: { t: (k: string) => string }) {
               ))}
             </ul>
             <Link
-              href="/login"
+              href="/signup"
               className="inline-flex items-center gap-2 mt-8 px-5 py-2.5 rounded-lg text-sm font-semibold text-[#080c0a] transition-all duration-150 hover:-translate-y-0.5"
               style={{ background: tab.accent }}
             >
@@ -1419,7 +1440,7 @@ function Pricing({ t }: { t: (k: string) => string }) {
                   </ul>
 
                   <Link
-                    href="/login"
+                    href={plan.nameKey === "enterprise" ? "/login" : "/signup"}
                     className={`block text-center py-3 rounded-xl text-sm font-semibold transition-all duration-150 ${
                       plan.highlighted
                         ? "bg-[#22c55e] text-[#080c0a] hover:bg-[#16a34a] shadow-md shadow-[rgba(34,197,94,0.2)]"
@@ -1509,7 +1530,7 @@ function CTABanner({ t }: { t: (k: string) => string }) {
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <div className="rounded-[14px] p-[1.5px] animated-gradient-border inline-flex">
                 <Link
-                  href="/login"
+                  href="/signup"
                   className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-[#22c55e] text-[#080c0a] font-bold text-sm hover:bg-[#16a34a] transition-all duration-150 shadow-lg shadow-[rgba(34,197,94,0.3)] hover:-translate-y-0.5"
                 >
                   {t("ctaBannerStart")}
