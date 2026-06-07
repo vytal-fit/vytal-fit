@@ -2966,12 +2966,7 @@ function CTABanner({ t }: { t: (k: string) => string }) {
     <section className="py-24 border-t border-[rgba(34,197,94,0.08)]">
       <div ref={ref} className="scroll-reveal max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <div
-          className="relative rounded-3xl border border-[rgba(34,197,94,0.2)] backdrop-blur-sm p-12 overflow-hidden transition-all duration-500"
-          style={{
-            background: hovered
-              ? "linear-gradient(135deg, rgba(34,197,94,0.08) 0%, rgba(0,212,255,0.06) 50%, rgba(192,132,252,0.06) 100%)"
-              : "rgba(20,28,20,0.6)",
-          }}
+          className="relative rounded-3xl border border-vytal-border backdrop-blur-sm p-12 overflow-hidden transition-all duration-500 bg-vytal-card"
           onMouseEnter={() => setHovered(true)}
           onMouseLeave={() => setHovered(false)}
         >
@@ -3003,7 +2998,7 @@ function CTABanner({ t }: { t: (k: string) => string }) {
 
           {/* Floating UI card — top left */}
           <div
-            className="absolute hidden lg:flex flex-col gap-1 p-3 rounded-xl border border-[rgba(34,197,94,0.2)] bg-vytal-bg/80 backdrop-blur-md shadow-lg w-36 pointer-events-none"
+            className="absolute hidden lg:flex flex-col gap-1 p-3 rounded-xl border border-vytal-border bg-vytal-card backdrop-blur-md shadow-lg landing-float-card w-36 pointer-events-none"
             style={{
               top: "16px",
               left: "20px",
@@ -3025,7 +3020,7 @@ function CTABanner({ t }: { t: (k: string) => string }) {
 
           {/* Floating UI card — top right */}
           <div
-            className="absolute hidden lg:flex flex-col gap-1.5 p-3 rounded-xl border border-[rgba(0,212,255,0.2)] bg-vytal-bg/80 backdrop-blur-md shadow-lg w-32 pointer-events-none"
+            className="absolute hidden lg:flex flex-col gap-1.5 p-3 rounded-xl border border-vytal-border bg-vytal-card backdrop-blur-md shadow-lg landing-float-card w-32 pointer-events-none"
             style={{
               top: "16px",
               right: "20px",
