@@ -62,8 +62,13 @@ export function middleware(request: NextRequest) {
 
   // ─── Subdomain Handling (admin.vytal.fit, console.vytal.fit) ───
   if (subdomain && ADMIN_SUBDOMAINS.includes(subdomain)) {
-    // admin.vytal.fit → serve admin app (same as root, just the (app) layout)
-    // All paths pass through directly — the (app) layout handles auth
+    // pro.vytal.fit / admin.vytal.fit → serve admin app
+    // Root → redirect to /dashboard (auth guard in layout handles login redirect)
+    if (pathname === "/" || pathname === "") {
+      const url = request.nextUrl.clone();
+      url.pathname = "/dashboard";
+      return NextResponse.rewrite(url);
+    }
     return NextResponse.next();
   }
 
