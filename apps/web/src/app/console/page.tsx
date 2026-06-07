@@ -2,18 +2,78 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Calendar, Dumbbell, Trophy, Flame, CheckCircle, ArrowRight, Clock, Users, MapPin } from "lucide-react";
+import {
+  Calendar,
+  Dumbbell,
+  Trophy,
+  Flame,
+  CheckCircle,
+  ArrowRight,
+  Clock,
+  Users,
+  MapPin,
+  TrendingUp,
+  Star,
+  Zap,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/stores/auth-store";
 import { useDataStore } from "@/stores/data-store";
+
+function getGreeting(): string {
+  const h = new Date().getHours();
+  if (h < 12) return "Bom dia";
+  if (h < 18) return "Boa tarde";
+  return "Boa noite";
+}
+
+function getMotivationalQuote(): string {
+  const quotes = [
+    "O progresso e a soma de pequenos esforos repetidos dia apos dia.",
+    "Forca nao vem do que consegues fazer. Vem de superar o que pensavas nao conseguir.",
+    "Cada treino e um deposito no banco da tua saude.",
+    "Nao contes os dias. Faz os dias contar.",
+    "O teu unico limite es tu mesmo.",
+  ];
+  return quotes[new Date().getDay() % quotes.length];
+}
+
+// Weekly streak calendar — last 7 days
+const WEEKLY_KEY = "vytal-console-checkins";
+function getWeekDays(): { date: string; label: string; isToday: boolean }[] {
+  const days = [];
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    days.push({
+      date: d.toISOString().split("T")[0],
+      label: d.toLocaleDateString("pt-PT", { weekday: "narrow" }),
+      isToday: i === 0,
+    });
+  }
+  return days;
+}
+
+function loadCheckins(): Set<string> {
+  if (typeof window === "undefined") return new Set();
+  try {
+    const raw = localStorage.getItem(WEEKLY_KEY);
+    return raw ? new Set(JSON.parse(raw) as string[]) : new Set();
+  } catch {
+    return new Set();
+  }
+}
 
 export default function ConsolePage() {
   const { user, hydrate } = useAuthStore();
   const { classes, wods, personalRecords, members } = useDataStore();
   const [mounted, setMounted] = useState(false);
+  const [checkins, setCheckins] = useState<Set<string>>(new Set());
+  const weekDays = getWeekDays();
 
   useEffect(() => {
     hydrate();
+    setCheckins(loadCheckins());
     setMounted(true);
   }, [hydrate]);
 
@@ -21,7 +81,7 @@ export default function ConsolePage() {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div
-          className="w-6 h-6 rounded-full border-2 border-t-transparent animate-spin"
+          className="w-8 h-8 rounded-full border-2 border-t-transparent animate-spin"
           style={{ borderColor: "var(--color-vytal-green)", borderTopColor: "transparent" }}
         />
       </div>
@@ -29,253 +89,423 @@ export default function ConsolePage() {
   }
 
   const firstName = user?.user?.name?.split(" ")[0] ?? "Atleta";
-
-  // Find mock member data (first member = "the logged in member" for demo)
   const member = members?.[0];
   const streakWeeks = member?.streakWeeks ?? 8;
   const totalCheckIns = member?.totalCheckIns ?? 142;
-
-  // Today's classes
   const today = new Date().toISOString().split("T")[0];
   const todayClasses = (classes ?? []).filter((c) => c.date === today);
-
-  // Next upcoming class
   const now = new Date();
   const nowTime = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
   const nextClass = todayClasses.find((c) => c.startTime >= nowTime) ?? todayClasses[0];
-
-  // Today's WOD
   const todayWOD = (wods ?? []).find((w) => w.date === today);
-
-  // Quick stat for PRs
   const prCount = (personalRecords ?? []).length;
 
+  const classColor = nextClass?.classType?.color ?? "#22c55e";
+
   return (
-    <div className="px-4 py-6 max-w-lg mx-auto md:max-w-5xl space-y-6">
-      {/* Greeting */}
-      <div>
-        <p className="text-sm" style={{ color: "var(--color-vytal-muted)" }}>
-          Bem-vindo de volta,
+    <div className="px-4 py-6 max-w-2xl mx-auto space-y-6 md:max-w-5xl">
+
+      {/* ── Hero greeting ── */}
+      <div
+        className="rounded-2xl p-6 relative overflow-hidden"
+        style={{
+          background: "linear-gradient(135deg, rgba(34,197,94,0.15) 0%, rgba(34,197,94,0.04) 60%, transparent 100%)",
+          border: "1px solid rgba(34,197,94,0.2)",
+        }}
+      >
+        {/* Background glow */}
+        <div
+          className="absolute -top-8 -right-8 w-40 h-40 rounded-full pointer-events-none"
+          style={{ background: "radial-gradient(circle, rgba(34,197,94,0.12) 0%, transparent 70%)" }}
+        />
+        <p className="text-sm font-medium mb-1" style={{ color: "var(--color-vytal-muted)" }}>
+          {getGreeting()},
         </p>
-        <h1 className="text-2xl font-bold mt-0.5" style={{ color: "var(--color-vytal-text)" }}>
+        <h1 className="text-3xl font-black tracking-tight mb-2" style={{ color: "var(--color-vytal-text)" }}>
           {firstName}
         </h1>
+        <p className="text-xs leading-relaxed italic max-w-sm" style={{ color: "var(--color-vytal-muted)" }}>
+          "{getMotivationalQuote()}"
+        </p>
       </div>
 
-      <div className="space-y-6">
-
-      {/* Stats strip */}
+      {/* ── Stats strip ── */}
       <div className="grid grid-cols-3 gap-3">
-        <div
-          className="rounded-xl p-3 flex flex-col items-center gap-1"
-          style={{ background: "var(--color-vytal-bg2)", border: "1px solid var(--color-vytal-border)" }}
-        >
-          <Flame size={18} style={{ color: "var(--color-vytal-amber)" }} />
-          <span className="text-lg font-bold" style={{ color: "var(--color-vytal-text)" }}>
-            {streakWeeks}
-          </span>
-          <span className="text-[10px] text-center leading-tight" style={{ color: "var(--color-vytal-muted)" }}>
-            semanas seguidas
-          </span>
-        </div>
-        <div
-          className="rounded-xl p-3 flex flex-col items-center gap-1"
-          style={{ background: "var(--color-vytal-bg2)", border: "1px solid var(--color-vytal-border)" }}
-        >
-          <CheckCircle size={18} style={{ color: "var(--color-vytal-green)" }} />
-          <span className="text-lg font-bold" style={{ color: "var(--color-vytal-text)" }}>
-            {totalCheckIns}
-          </span>
-          <span className="text-[10px] text-center leading-tight" style={{ color: "var(--color-vytal-muted)" }}>
-            check-ins totais
-          </span>
-        </div>
-        <div
-          className="rounded-xl p-3 flex flex-col items-center gap-1"
-          style={{ background: "var(--color-vytal-bg2)", border: "1px solid var(--color-vytal-border)" }}
-        >
-          <Trophy size={18} style={{ color: "var(--color-vytal-purple)" }} />
-          <span className="text-lg font-bold" style={{ color: "var(--color-vytal-text)" }}>
-            {prCount}
-          </span>
-          <span className="text-[10px] text-center leading-tight" style={{ color: "var(--color-vytal-muted)" }}>
-            recordes pessoais
-          </span>
-        </div>
-      </div>
-
-      {/* Next class card */}
-      {nextClass ? (
-        <div
-          className="rounded-xl p-4 space-y-3"
-          style={{ background: "var(--color-vytal-bg2)", border: "1px solid var(--color-vytal-border)" }}
-        >
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--color-vytal-muted)" }}>
-              Proxima aula
-            </span>
-            <Link
-              href="/console/schedule"
-              className="text-xs flex items-center gap-1 transition-opacity hover:opacity-80"
-              style={{ color: "var(--color-vytal-green)" }}
-            >
-              Ver todas
-              <ArrowRight size={12} />
-            </Link>
-          </div>
-
-          <div className="flex items-start justify-between">
-            <div>
-              <div className="flex items-center gap-2 mb-1">
-                <span
-                  className="px-2 py-0.5 rounded text-xs font-bold"
-                  style={{
-                    background: nextClass.classType?.color
-                      ? `${nextClass.classType.color}22`
-                      : "rgba(34,197,94,0.12)",
-                    color: nextClass.classType?.color ?? "var(--color-vytal-green)",
-                  }}
-                >
-                  {nextClass.classType?.abbreviation ?? "CF"}
-                </span>
-                <span className="font-semibold text-sm" style={{ color: "var(--color-vytal-text)" }}>
-                  {nextClass.classType?.name ?? "CrossFit"}
-                </span>
-              </div>
-              <div className="flex flex-col gap-1">
-                <div className="flex items-center gap-1.5 text-xs" style={{ color: "var(--color-vytal-muted)" }}>
-                  <Clock size={12} />
-                  {nextClass.startTime} – {nextClass.endTime}
-                </div>
-                <div className="flex items-center gap-1.5 text-xs" style={{ color: "var(--color-vytal-muted)" }}>
-                  <MapPin size={12} />
-                  {nextClass.location?.name ?? "Box principal"}
-                </div>
-                <div className="flex items-center gap-1.5 text-xs" style={{ color: "var(--color-vytal-muted)" }}>
-                  <Users size={12} />
-                  {nextClass.enrolledCount}/{nextClass.maxCapacity} atletas
-                </div>
-              </div>
-            </div>
-            <Link
-              href="/console/schedule"
-              className={cn(
-                "px-3 py-1.5 rounded-lg text-xs font-semibold transition-opacity hover:opacity-90",
-                nextClass.enrolledCount >= nextClass.maxCapacity
-                  ? "opacity-60 cursor-not-allowed"
-                  : ""
-              )}
+        {[
+          {
+            icon: Flame,
+            value: streakWeeks,
+            label: "semanas",
+            sub: "sequidas",
+            color: "var(--color-vytal-amber)",
+            bg: "rgba(255,179,0,0.1)",
+            border: "rgba(255,179,0,0.2)",
+          },
+          {
+            icon: CheckCircle,
+            value: totalCheckIns,
+            label: "check-ins",
+            sub: "totais",
+            color: "var(--color-vytal-green)",
+            bg: "rgba(34,197,94,0.08)",
+            border: "rgba(34,197,94,0.2)",
+          },
+          {
+            icon: Trophy,
+            value: prCount,
+            label: "records",
+            sub: "pessoais",
+            color: "var(--color-vytal-purple)",
+            bg: "rgba(192,132,252,0.1)",
+            border: "rgba(192,132,252,0.2)",
+          },
+        ].map((stat, i) => {
+          const Icon = stat.icon;
+          return (
+            <div
+              key={i}
+              className="rounded-2xl p-4 flex flex-col items-center gap-1.5 transition-all duration-200 hover:scale-[1.02]"
               style={{
-                background: nextClass.enrolledCount >= nextClass.maxCapacity
-                  ? "var(--color-vytal-bg3)"
-                  : "var(--color-vytal-green)",
-                color: nextClass.enrolledCount >= nextClass.maxCapacity
-                  ? "var(--color-vytal-muted)"
-                  : "#080c0a",
+                background: stat.bg,
+                border: `1px solid ${stat.border}`,
               }}
             >
-              {nextClass.enrolledCount >= nextClass.maxCapacity ? "Lista espera" : "Reservar"}
-            </Link>
-          </div>
-        </div>
-      ) : (
-        <div
-          className="rounded-xl p-4 text-center"
-          style={{ background: "var(--color-vytal-bg2)", border: "1px solid var(--color-vytal-border)" }}
-        >
-          <Calendar size={24} className="mx-auto mb-2 opacity-40" style={{ color: "var(--color-vytal-muted)" }} />
-          <p className="text-sm" style={{ color: "var(--color-vytal-muted)" }}>
-            Sem aulas hoje. Descansa bem!
-          </p>
-        </div>
-      )}
+              <div
+                className="w-8 h-8 rounded-xl flex items-center justify-center"
+                style={{ background: stat.bg, border: `1px solid ${stat.border}` }}
+              >
+                <Icon size={15} style={{ color: stat.color }} strokeWidth={2} />
+              </div>
+              <span
+                className="text-2xl font-black tabular-nums"
+                style={{ color: stat.color }}
+              >
+                {stat.value}
+              </span>
+              <div className="text-center">
+                <p className="text-[10px] font-semibold uppercase tracking-wide leading-tight" style={{ color: stat.color, opacity: 0.9 }}>
+                  {stat.label}
+                </p>
+                <p className="text-[9px] leading-tight" style={{ color: "var(--color-vytal-muted)" }}>
+                  {stat.sub}
+                </p>
+              </div>
+            </div>
+          );
+        })}
+      </div>
 
-      {/* Today's WOD preview */}
-      {todayWOD ? (
-        <div
-          className="rounded-xl p-4 space-y-3"
-          style={{ background: "var(--color-vytal-bg2)", border: "1px solid var(--color-vytal-border)" }}
-        >
-          <div className="flex items-center justify-between">
+      {/* ── Streak calendar ── */}
+      <div
+        className="rounded-2xl p-4"
+        style={{
+          background: "var(--color-vytal-bg2)",
+          border: "1px solid var(--color-vytal-border)",
+        }}
+      >
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2">
+            <TrendingUp size={14} style={{ color: "var(--color-vytal-green)" }} />
             <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--color-vytal-muted)" }}>
-              WOD de hoje
+              Esta semana
             </span>
-            <Link
-              href="/console/wod"
-              className="text-xs flex items-center gap-1 transition-opacity hover:opacity-80"
-              style={{ color: "var(--color-vytal-green)" }}
-            >
-              Ver detalhes
-              <ArrowRight size={12} />
-            </Link>
           </div>
-
-          <div>
-            <h3 className="font-bold text-lg" style={{ color: "var(--color-vytal-green)" }}>
-              {todayWOD.title ?? "WOD do Dia"}
-            </h3>
-            {todayWOD.description && (
-              <p className="text-xs mt-1 leading-relaxed" style={{ color: "var(--color-vytal-muted)" }}>
-                {todayWOD.description}
-              </p>
-            )}
-            {todayWOD.parts?.length > 0 && (
-              <div className="mt-3 space-y-1">
-                {todayWOD.parts.slice(0, 3).map((part, i) => (
-                  <div key={i} className="flex items-center gap-2 text-xs" style={{ color: "var(--color-vytal-text)" }}>
-                    <span
-                      className="w-1.5 h-1.5 rounded-full flex-shrink-0"
+          <span className="text-xs font-bold" style={{ color: "var(--color-vytal-green)" }}>
+            {checkins.size} / 7
+          </span>
+        </div>
+        <div className="flex gap-1.5 justify-between">
+          {weekDays.map((day) => {
+            const checked = checkins.has(day.date);
+            return (
+              <div key={day.date} className="flex-1 flex flex-col items-center gap-1.5">
+                <span className="text-[9px] font-medium uppercase" style={{ color: "var(--color-vytal-muted)" }}>
+                  {day.label}
+                </span>
+                <div
+                  className={cn(
+                    "w-full aspect-square rounded-lg flex items-center justify-center transition-all duration-200",
+                    day.isToday ? "ring-2" : ""
+                  )}
+                  style={{
+                    background: checked ? "rgba(34,197,94,0.2)" : "var(--color-vytal-bg3)",
+                    boxShadow: day.isToday ? "0 0 0 2px var(--color-vytal-green)" : "none",
+                  }}
+                >
+                  {checked && (
+                    <div
+                      className="w-2 h-2 rounded-full"
                       style={{ background: "var(--color-vytal-green)" }}
                     />
-                    <span className="font-medium">{part.name}</span>
-                    <span style={{ color: "var(--color-vytal-muted)" }}>
-                      — {part.exercises.slice(0, 2).map((e) => e.exercise?.name).filter(Boolean).join(", ")}
-                      {part.exercises.length > 2 ? ` +${part.exercises.length - 2}` : ""}
-                    </span>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* ── Next class card ── */}
+        {nextClass ? (
+          <div
+            className="rounded-2xl overflow-hidden transition-all duration-200 hover:scale-[1.01]"
+            style={{
+              background: "var(--color-vytal-bg2)",
+              border: "1px solid var(--color-vytal-border)",
+            }}
+          >
+            {/* Color accent bar */}
+            <div
+              className="h-1 w-full"
+              style={{
+                background: `linear-gradient(90deg, ${classColor}, ${classColor}66)`,
+              }}
+            />
+            <div className="p-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: "var(--color-vytal-muted)" }}>
+                  Proxima aula
+                </span>
+                <Link
+                  href="/console/schedule"
+                  className="flex items-center gap-1 text-[10px] font-semibold transition-opacity hover:opacity-70"
+                  style={{ color: "var(--color-vytal-green)" }}
+                >
+                  Ver todas <ArrowRight size={10} />
+                </Link>
+              </div>
+
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <span
+                    className="px-2 py-0.5 rounded-md text-[10px] font-black tracking-wide"
+                    style={{
+                      background: `${classColor}22`,
+                      color: classColor,
+                    }}
+                  >
+                    {nextClass.classType?.abbreviation ?? "CF"}
+                  </span>
+                  <span className="font-bold text-base" style={{ color: "var(--color-vytal-text)" }}>
+                    {nextClass.classType?.name ?? "CrossFit"}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-2 gap-1.5 mb-3">
+                  {[
+                    { icon: Clock, text: `${nextClass.startTime} – ${nextClass.endTime}` },
+                    { icon: MapPin, text: nextClass.location?.name ?? "Box principal" },
+                    {
+                      icon: Users,
+                      text: `${nextClass.enrolledCount}/${nextClass.maxCapacity} atletas`,
+                    },
+                    ...(nextClass.coaches?.length > 0
+                      ? [{ icon: Star, text: `Coach ${nextClass.coaches[0].name}` }]
+                      : []),
+                  ].map((item, i) => {
+                    const Icon = item.icon;
+                    return (
+                      <div key={i} className="flex items-center gap-1.5 text-[11px]" style={{ color: "var(--color-vytal-muted)" }}>
+                        <Icon size={11} />
+                        <span className="truncate">{item.text}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Capacity bar */}
+                <div className="space-y-1.5 mb-3">
+                  <div
+                    className="h-2 rounded-full overflow-hidden"
+                    style={{ background: "var(--color-vytal-bg3)" }}
+                  >
+                    <div
+                      className="h-full rounded-full transition-all duration-500"
+                      style={{
+                        width: `${Math.min(100, Math.round((nextClass.enrolledCount / nextClass.maxCapacity) * 100))}%`,
+                        background: nextClass.enrolledCount >= nextClass.maxCapacity
+                          ? "var(--color-vytal-red)"
+                          : nextClass.enrolledCount / nextClass.maxCapacity >= 0.8
+                          ? "var(--color-vytal-amber)"
+                          : `linear-gradient(90deg, ${classColor}, ${classColor}cc)`,
+                      }}
+                    />
                   </div>
-                ))}
-                {todayWOD.parts.length > 3 && (
-                  <p className="text-xs" style={{ color: "var(--color-vytal-muted)" }}>
-                    +{todayWOD.parts.length - 3} partes
+                  <p className="text-[10px]" style={{ color: "var(--color-vytal-muted)" }}>
+                    {nextClass.maxCapacity - nextClass.enrolledCount} lugares disponveis
+                  </p>
+                </div>
+
+                <Link
+                  href="/console/schedule"
+                  className="block w-full py-2 rounded-xl text-xs font-bold text-center transition-all duration-200 hover:opacity-90 hover:scale-[1.01]"
+                  style={{
+                    background: nextClass.enrolledCount >= nextClass.maxCapacity
+                      ? "var(--color-vytal-bg3)"
+                      : "var(--color-vytal-green)",
+                    color: nextClass.enrolledCount >= nextClass.maxCapacity
+                      ? "var(--color-vytal-muted)"
+                      : "#080c0a",
+                  }}
+                >
+                  {nextClass.enrolledCount >= nextClass.maxCapacity ? "Lista de Espera" : "Reservar Agora"}
+                </Link>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div
+            className="rounded-2xl p-6 flex flex-col items-center justify-center text-center gap-3"
+            style={{ background: "var(--color-vytal-bg2)", border: "1px solid var(--color-vytal-border)" }}
+          >
+            <Calendar size={28} style={{ color: "var(--color-vytal-muted)", opacity: 0.4 }} />
+            <p className="text-sm font-medium" style={{ color: "var(--color-vytal-muted)" }}>
+              Sem aulas hoje
+            </p>
+            <p className="text-xs" style={{ color: "var(--color-vytal-muted)", opacity: 0.6 }}>
+              Descansa bem!
+            </p>
+          </div>
+        )}
+
+        {/* ── WOD preview ── */}
+        {todayWOD ? (
+          <div
+            className="rounded-2xl overflow-hidden transition-all duration-200 hover:scale-[1.01]"
+            style={{
+              background: "var(--color-vytal-bg2)",
+              border: "1px solid var(--color-vytal-border)",
+            }}
+          >
+            <div
+              className="h-1 w-full"
+              style={{
+                background: "linear-gradient(90deg, var(--color-vytal-green), rgba(34,197,94,0.3))",
+              }}
+            />
+            <div className="p-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: "var(--color-vytal-muted)" }}>
+                  WOD de hoje
+                </span>
+                <Link
+                  href="/console/wod"
+                  className="flex items-center gap-1 text-[10px] font-semibold transition-opacity hover:opacity-70"
+                  style={{ color: "var(--color-vytal-green)" }}
+                >
+                  Ver detalhes <ArrowRight size={10} />
+                </Link>
+              </div>
+
+              <div>
+                <h3 className="font-black text-xl leading-tight mb-1" style={{ color: "var(--color-vytal-green)" }}>
+                  {todayWOD.title ?? "WOD do Dia"}
+                </h3>
+                {todayWOD.description && (
+                  <p className="text-xs leading-relaxed mb-3 line-clamp-2" style={{ color: "var(--color-vytal-muted)" }}>
+                    {todayWOD.description}
                   </p>
                 )}
-              </div>
-            )}
-          </div>
-        </div>
-      ) : (
-        <div
-          className="rounded-xl p-4 text-center"
-          style={{ background: "var(--color-vytal-bg2)", border: "1px solid var(--color-vytal-border)" }}
-        >
-          <Dumbbell size={24} className="mx-auto mb-2 opacity-40" style={{ color: "var(--color-vytal-muted)" }} />
-          <p className="text-sm" style={{ color: "var(--color-vytal-muted)" }}>
-            WOD ainda nao publicado para hoje.
-          </p>
-        </div>
-      )}
 
-      {/* Quick actions */}
-      <div className="space-y-2">
-        <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--color-vytal-muted)" }}>
+                {todayWOD.parts?.length > 0 && (
+                  <div className="space-y-1.5">
+                    {todayWOD.parts.slice(0, 3).map((part, i) => (
+                      <div
+                        key={i}
+                        className="flex items-start gap-2 rounded-lg px-2.5 py-2"
+                        style={{ background: "var(--color-vytal-bg3)" }}
+                      >
+                        <div
+                          className="w-4 h-4 rounded flex items-center justify-center text-[9px] font-black shrink-0 mt-0.5"
+                          style={{ background: "var(--color-vytal-green)", color: "#080c0a" }}
+                        >
+                          {i + 1}
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-[11px] font-bold truncate" style={{ color: "var(--color-vytal-text)" }}>
+                            {part.name}
+                          </p>
+                          <p className="text-[10px] truncate" style={{ color: "var(--color-vytal-muted)" }}>
+                            {part.exercises.slice(0, 2).map((e) => e.exercise?.name).filter(Boolean).join(" · ")}
+                            {part.exercises.length > 2 ? ` +${part.exercises.length - 2}` : ""}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                    {todayWOD.parts.length > 3 && (
+                      <p className="text-[10px] text-center" style={{ color: "var(--color-vytal-muted)" }}>
+                        +{todayWOD.parts.length - 3} mais partes
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div
+            className="rounded-2xl p-6 flex flex-col items-center justify-center text-center gap-3"
+            style={{ background: "var(--color-vytal-bg2)", border: "1px solid var(--color-vytal-border)" }}
+          >
+            <Dumbbell size={28} style={{ color: "var(--color-vytal-muted)", opacity: 0.4 }} />
+            <p className="text-sm font-medium" style={{ color: "var(--color-vytal-muted)" }}>
+              WOD ainda nao publicado
+            </p>
+          </div>
+        )}
+      </div>
+
+      {/* ── Quick actions ── */}
+      <div>
+        <p className="text-[10px] font-bold uppercase tracking-widest mb-3" style={{ color: "var(--color-vytal-muted)" }}>
           Acoes rapidas
         </p>
         <div className="grid grid-cols-3 gap-3">
           {[
-            { href: "/console/schedule", icon: Calendar, label: "Reservar aula" },
-            { href: "/console/wod", icon: Dumbbell, label: "Ver WOD" },
-            { href: "/console/records", icon: Trophy, label: "Os meus PRs" },
+            {
+              href: "/console/schedule",
+              icon: Calendar,
+              label: "Reservar Aula",
+              color: "var(--color-vytal-blue)",
+              bg: "rgba(0,212,255,0.08)",
+              border: "rgba(0,212,255,0.2)",
+            },
+            {
+              href: "/console/wod",
+              icon: Dumbbell,
+              label: "Ver WOD",
+              color: "var(--color-vytal-green)",
+              bg: "rgba(34,197,94,0.08)",
+              border: "rgba(34,197,94,0.2)",
+            },
+            {
+              href: "/console/records",
+              icon: Trophy,
+              label: "Os meus PRs",
+              color: "var(--color-vytal-purple)",
+              bg: "rgba(192,132,252,0.08)",
+              border: "rgba(192,132,252,0.2)",
+            },
           ].map((action) => {
             const Icon = action.icon;
             return (
               <Link
                 key={action.href}
                 href={action.href}
-                className="rounded-xl p-3 flex flex-col items-center gap-2 transition-all hover:scale-[1.02]"
-                style={{ background: "var(--color-vytal-bg3)", border: "1px solid var(--color-vytal-border)" }}
+                className="rounded-2xl p-4 flex flex-col items-center gap-3 transition-all duration-200 hover:scale-[1.03]"
+                style={{
+                  background: action.bg,
+                  border: `1px solid ${action.border}`,
+                }}
               >
-                <Icon size={20} style={{ color: "var(--color-vytal-green)" }} />
-                <span className="text-[10px] text-center font-medium leading-tight" style={{ color: "var(--color-vytal-text)" }}>
+                <div
+                  className="w-10 h-10 rounded-xl flex items-center justify-center"
+                  style={{ background: action.bg, border: `1px solid ${action.border}` }}
+                >
+                  <Icon size={18} style={{ color: action.color }} strokeWidth={1.8} />
+                </div>
+                <span className="text-[10px] font-bold text-center leading-tight uppercase tracking-wide" style={{ color: action.color }}>
                   {action.label}
                 </span>
               </Link>
@@ -283,6 +513,42 @@ export default function ConsolePage() {
           })}
         </div>
       </div>
+
+      {/* ── Community/achievements teaser ── */}
+      <div
+        className="rounded-2xl p-4"
+        style={{
+          background: "linear-gradient(135deg, rgba(34,197,94,0.06) 0%, transparent 100%)",
+          border: "1px solid var(--color-vytal-border)",
+        }}
+      >
+        <div className="flex items-center gap-2 mb-3">
+          <Zap size={14} style={{ color: "var(--color-vytal-green)" }} />
+          <span className="text-xs font-bold uppercase tracking-wider" style={{ color: "var(--color-vytal-muted)" }}>
+            Conquistas recentes
+          </span>
+        </div>
+        <div className="flex gap-2 flex-wrap">
+          {[
+            { label: "8 semanas seguidas", icon: "🔥" },
+            { label: "100+ check-ins", icon: "💎" },
+            { label: "Primeiro PR", icon: "🏆" },
+          ].map((badge, i) => (
+            <div
+              key={i}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full transition-all duration-200 hover:scale-105"
+              style={{
+                background: "rgba(34,197,94,0.1)",
+                border: "1px solid rgba(34,197,94,0.2)",
+              }}
+            >
+              <span className="text-xs">{badge.icon}</span>
+              <span className="text-[11px] font-semibold" style={{ color: "var(--color-vytal-text)" }}>
+                {badge.label}
+              </span>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

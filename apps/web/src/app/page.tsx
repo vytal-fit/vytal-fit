@@ -787,14 +787,14 @@ function FAQItem({ question, answer }: { question: string; answer: string }) {
         onClick={() => setOpen(!open)}
         className="w-full flex items-center justify-between px-6 py-5 text-left hover:bg-[rgba(34,197,94,0.04)] transition-colors duration-150"
       >
-        <span className="font-medium text-[#dceee0] text-sm leading-snug pr-4">{question}</span>
+        <span className="font-medium text-vytal-text text-sm leading-snug pr-4">{question}</span>
         <ChevronDown
           size={18}
-          className={`shrink-0 text-[#22c55e] transition-transform duration-200 ${open ? "rotate-180" : ""}`}
+          className={`shrink-0 text-vytal-green transition-transform duration-200 ${open ? "rotate-180" : ""}`}
         />
       </button>
       {open && (
-        <div className="px-6 pb-5 text-[#6b8c72] text-sm leading-relaxed border-t border-[rgba(34,197,94,0.08)] pt-4">
+        <div className="px-6 pb-5 text-vytal-muted text-sm leading-relaxed border-t border-[rgba(34,197,94,0.08)] pt-4">
           {answer}
         </div>
       )}
@@ -835,7 +835,7 @@ function Navbar({ t, lang, setLang }: { t: (k: string) => string; lang: Lang; se
     <nav
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         scrolled
-          ? "bg-[#080c0a]/95 backdrop-blur-md border-b border-[rgba(34,197,94,0.1)] shadow-lg shadow-black/20"
+          ? "bg-vytal-bg/95 backdrop-blur-md border-b border-[rgba(34,197,94,0.1)] shadow-lg shadow-black/20"
           : "bg-transparent"
       }`}
     >
@@ -843,8 +843,8 @@ function Navbar({ t, lang, setLang }: { t: (k: string) => string; lang: Lang; se
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <a href="/" className="flex items-center gap-0.5 shrink-0">
-            <span className="text-xl font-bold text-[#22c55e] tracking-tight">Vytal</span>
-            <span className="text-xl font-bold text-[#6b8c72] tracking-tight">.fit</span>
+            <span className="text-xl font-bold text-vytal-green tracking-tight">Vytal</span>
+            <span className="text-xl font-bold text-vytal-muted tracking-tight">.fit</span>
           </a>
 
           {/* Desktop links */}
@@ -853,7 +853,7 @@ function Navbar({ t, lang, setLang }: { t: (k: string) => string; lang: Lang; se
               <a
                 key={l.href}
                 href={l.href}
-                className="text-sm text-[#6b8c72] hover:text-[#dceee0] transition-colors duration-150"
+                className="text-sm text-vytal-muted hover:text-vytal-text transition-colors duration-150"
               >
                 {l.label}
               </a>
@@ -870,8 +870,8 @@ function Navbar({ t, lang, setLang }: { t: (k: string) => string; lang: Lang; se
                   onClick={() => setLang(l)}
                   className={`text-xs font-semibold px-2 py-1 rounded transition-all duration-150 ${
                     lang === l
-                      ? "bg-[rgba(34,197,94,0.15)] text-[#22c55e]"
-                      : "text-[#6b8c72] hover:text-[#dceee0]"
+                      ? "bg-[rgba(34,197,94,0.15)] text-vytal-green"
+                      : "text-vytal-muted hover:text-vytal-text"
                   }`}
                 >
                   {l.toUpperCase()}
@@ -882,19 +882,19 @@ function Navbar({ t, lang, setLang }: { t: (k: string) => string; lang: Lang; se
             <button
               onClick={toggleTheme}
               aria-label={lightMode ? "Switch to dark mode" : "Switch to light mode"}
-              className="w-8 h-8 flex items-center justify-center rounded-lg border border-[rgba(34,197,94,0.2)] text-[#6b8c72] hover:text-[#22c55e] hover:border-[rgba(34,197,94,0.4)] transition-all duration-150"
+              className="w-8 h-8 flex items-center justify-center rounded-lg border border-[rgba(34,197,94,0.2)] text-vytal-muted hover:text-vytal-green hover:border-[rgba(34,197,94,0.4)] transition-all duration-150"
             >
               {lightMode ? <Sun size={14} /> : <Moon size={14} />}
             </button>
             <Link
               href="/login"
-              className="text-sm px-4 py-2 rounded-lg border border-[rgba(34,197,94,0.25)] text-[#dceee0] hover:border-[rgba(34,197,94,0.5)] hover:bg-[rgba(34,197,94,0.05)] transition-all duration-150"
+              className="text-sm px-4 py-2 rounded-lg border border-[rgba(34,197,94,0.25)] text-vytal-text hover:border-[rgba(34,197,94,0.5)] hover:bg-[rgba(34,197,94,0.05)] transition-all duration-150"
             >
               {t("signIn")}
             </Link>
             <Link
               href="/signup"
-              className="text-sm px-4 py-2 rounded-lg bg-[#22c55e] text-[#080c0a] font-semibold hover:bg-[#16a34a] transition-colors duration-150"
+              className="text-sm px-4 py-2 rounded-lg bg-vytal-green text-vytal-bg font-semibold hover:bg-[#16a34a] transition-colors duration-150"
             >
               {t("ctaStart")}
             </Link>
@@ -903,7 +903,7 @@ function Navbar({ t, lang, setLang }: { t: (k: string) => string; lang: Lang; se
           {/* Mobile hamburger */}
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
-            className="md:hidden p-2 rounded-lg text-[#6b8c72] hover:text-[#dceee0] hover:bg-[rgba(34,197,94,0.06)] transition-colors"
+            className="md:hidden p-2 rounded-lg text-vytal-muted hover:text-vytal-text hover:bg-[rgba(34,197,94,0.06)] transition-colors"
           >
             <Menu size={20} />
           </button>
@@ -918,7 +918,7 @@ function Navbar({ t, lang, setLang }: { t: (k: string) => string; lang: Lang; se
                   key={l.href}
                   href={l.href}
                   onClick={() => setMobileOpen(false)}
-                  className="px-3 py-2.5 text-sm text-[#6b8c72] hover:text-[#dceee0] hover:bg-[rgba(34,197,94,0.04)] rounded-lg transition-colors"
+                  className="px-3 py-2.5 text-sm text-vytal-muted hover:text-vytal-text hover:bg-[rgba(34,197,94,0.04)] rounded-lg transition-colors"
                 >
                   {l.label}
                 </a>
@@ -931,8 +931,8 @@ function Navbar({ t, lang, setLang }: { t: (k: string) => string; lang: Lang; se
                     onClick={() => { setLang(l); setMobileOpen(false); }}
                     className={`text-xs font-semibold px-2.5 py-1.5 rounded transition-all duration-150 ${
                       lang === l
-                        ? "bg-[rgba(34,197,94,0.15)] text-[#22c55e]"
-                        : "text-[#6b8c72] hover:text-[#dceee0]"
+                        ? "bg-[rgba(34,197,94,0.15)] text-vytal-green"
+                        : "text-vytal-muted hover:text-vytal-text"
                     }`}
                   >
                     {l.toUpperCase()}
@@ -942,13 +942,13 @@ function Navbar({ t, lang, setLang }: { t: (k: string) => string; lang: Lang; se
               <div className="flex gap-2 mt-2 px-1">
                 <Link
                   href="/login"
-                  className="flex-1 text-center text-sm px-4 py-2.5 rounded-lg border border-[rgba(34,197,94,0.25)] text-[#dceee0]"
+                  className="flex-1 text-center text-sm px-4 py-2.5 rounded-lg border border-[rgba(34,197,94,0.25)] text-vytal-text"
                 >
                   {t("signIn")}
                 </Link>
                 <Link
                   href="/signup"
-                  className="flex-1 text-center text-sm px-4 py-2.5 rounded-lg bg-[#22c55e] text-[#080c0a] font-semibold"
+                  className="flex-1 text-center text-sm px-4 py-2.5 rounded-lg bg-vytal-green text-vytal-bg font-semibold"
                 >
                   {t("ctaStart")}
                 </Link>
@@ -965,7 +965,7 @@ function Navbar({ t, lang, setLang }: { t: (k: string) => string; lang: Lang; se
 function FloatingStatsCard() {
   return (
     <div
-      className="absolute hidden lg:flex flex-col gap-1.5 p-3.5 rounded-xl border border-[rgba(34,197,94,0.2)] bg-[rgba(8,12,10,0.85)] backdrop-blur-md shadow-xl shadow-black/30 w-[150px]"
+      className="absolute hidden lg:flex flex-col gap-1.5 p-3.5 rounded-xl border border-[rgba(34,197,94,0.2)] bg-vytal-bg/85 backdrop-blur-md shadow-xl shadow-black/30 w-[150px]"
       style={{
         top: "18%",
         right: "6%",
@@ -974,16 +974,16 @@ function FloatingStatsCard() {
     >
       <div className="flex items-center gap-2 mb-1">
         <div className="w-5 h-5 rounded-md bg-[rgba(34,197,94,0.15)] flex items-center justify-center">
-          <TrendingUp size={10} className="text-[#22c55e]" />
+          <TrendingUp size={10} className="text-vytal-green" />
         </div>
-        <span className="text-[9px] font-medium text-[#6b8c72] uppercase tracking-wider">Revenue</span>
+        <span className="text-[9px] font-medium text-vytal-muted uppercase tracking-wider">Revenue</span>
       </div>
-      <span className="text-lg font-bold text-[#dceee0]">+32%</span>
+      <span className="text-lg font-bold text-vytal-text">+32%</span>
       <div className="flex gap-0.5">
         {[40, 55, 35, 65, 50, 70, 80, 60, 90, 75].map((h, i) => (
           <div
             key={i}
-            className="flex-1 rounded-sm bg-[#22c55e]"
+            className="flex-1 rounded-sm bg-vytal-green"
             style={{ height: `${h * 0.25}px`, opacity: 0.3 + (h / 100) * 0.7 }}
           />
         ))}
@@ -995,7 +995,7 @@ function FloatingStatsCard() {
 function FloatingCalendarCard() {
   return (
     <div
-      className="absolute hidden lg:flex flex-col gap-1.5 p-3.5 rounded-xl border border-[rgba(0,212,255,0.2)] bg-[rgba(8,12,10,0.85)] backdrop-blur-md shadow-xl shadow-black/30 w-[140px]"
+      className="absolute hidden lg:flex flex-col gap-1.5 p-3.5 rounded-xl border border-[rgba(0,212,255,0.2)] bg-vytal-bg/85 backdrop-blur-md shadow-xl shadow-black/30 w-[140px]"
       style={{
         bottom: "22%",
         left: "5%",
@@ -1005,15 +1005,15 @@ function FloatingCalendarCard() {
     >
       <div className="flex items-center gap-2 mb-1">
         <div className="w-5 h-5 rounded-md bg-[rgba(0,212,255,0.15)] flex items-center justify-center">
-          <Calendar size={10} className="text-[#00d4ff]" />
+          <Calendar size={10} className="text-vytal-blue" />
         </div>
-        <span className="text-[9px] font-medium text-[#6b8c72] uppercase tracking-wider">Today</span>
+        <span className="text-[9px] font-medium text-vytal-muted uppercase tracking-wider">Today</span>
       </div>
       <div className="space-y-1">
         {["09:00 CrossFit", "10:30 Yoga", "17:00 HIIT"].map((cls, i) => (
           <div key={i} className="flex items-center gap-1.5">
             <div className="w-1 h-1 rounded-full" style={{ background: ["#22c55e", "#c084fc", "#ffb300"][i] }} />
-            <span className="text-[9px] text-[#6b8c72]">{cls}</span>
+            <span className="text-[9px] text-vytal-muted">{cls}</span>
           </div>
         ))}
       </div>
@@ -1024,7 +1024,7 @@ function FloatingCalendarCard() {
 function FloatingMembersCard() {
   return (
     <div
-      className="absolute hidden lg:flex flex-col gap-1 p-3 rounded-xl border border-[rgba(192,132,252,0.2)] bg-[rgba(8,12,10,0.85)] backdrop-blur-md shadow-xl shadow-black/30 w-[130px]"
+      className="absolute hidden lg:flex flex-col gap-1 p-3 rounded-xl border border-[rgba(192,132,252,0.2)] bg-vytal-bg/85 backdrop-blur-md shadow-xl shadow-black/30 w-[130px]"
       style={{
         top: "55%",
         right: "3%",
@@ -1036,10 +1036,10 @@ function FloatingMembersCard() {
         <div className="w-5 h-5 rounded-md bg-[rgba(192,132,252,0.15)] flex items-center justify-center">
           <Users size={10} className="text-[#c084fc]" />
         </div>
-        <span className="text-[9px] font-medium text-[#6b8c72] uppercase tracking-wider">Active</span>
+        <span className="text-[9px] font-medium text-vytal-muted uppercase tracking-wider">Active</span>
       </div>
-      <span className="text-lg font-bold text-[#dceee0]">247</span>
-      <span className="text-[9px] text-[#22c55e]">+12 this week</span>
+      <span className="text-lg font-bold text-vytal-text">247</span>
+      <span className="text-[9px] text-vytal-green">+12 this week</span>
     </div>
   );
 }
@@ -1099,20 +1099,20 @@ function Hero({ t }: { t: (k: string) => string }) {
       <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center page-enter">
         {/* Badge */}
         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[rgba(34,197,94,0.3)] bg-[rgba(34,197,94,0.06)] mb-8 backdrop-blur-sm">
-          <span className="w-1.5 h-1.5 rounded-full bg-[#22c55e] animate-pulse" />
-          <span className="text-xs font-medium text-[#22c55e] tracking-wide">
+          <span className="w-1.5 h-1.5 rounded-full bg-vytal-green animate-pulse" />
+          <span className="text-xs font-medium text-vytal-green tracking-wide">
             {t("badge")}
           </span>
         </div>
 
         {/* Headline — larger with gradient text */}
-        <h1 className="text-5xl sm:text-6xl md:text-7xl font-bold text-[#dceee0] leading-[1.1] tracking-tight mb-6">
-          <span className="bg-gradient-to-r from-[#22c55e] to-[#00d4ff] bg-clip-text text-transparent">{t("headline").split(" ").slice(0, 3).join(" ")}</span>{" "}
+        <h1 className="text-5xl sm:text-6xl md:text-7xl font-bold text-vytal-text leading-[1.1] tracking-tight mb-6">
+          <span className="bg-gradient-to-r from-vytal-green to-vytal-blue bg-clip-text text-transparent">{t("headline").split(" ").slice(0, 3).join(" ")}</span>{" "}
           {t("headline").split(" ").slice(3).join(" ")}
         </h1>
 
         {/* Subtitle */}
-        <p className="text-base sm:text-lg text-[#6b8c72] max-w-2xl mx-auto leading-relaxed mb-10">
+        <p className="text-base sm:text-lg text-vytal-muted max-w-2xl mx-auto leading-relaxed mb-10">
           {t("subtitle")}
         </p>
 
@@ -1122,7 +1122,7 @@ function Hero({ t }: { t: (k: string) => string }) {
           <div className="rounded-[14px] p-[1.5px] animated-gradient-border">
             <Link
               href="/signup"
-              className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl bg-[#22c55e] text-[#080c0a] font-semibold text-sm hover:bg-[#16a34a] transition-all duration-150 shadow-lg shadow-[rgba(34,197,94,0.25)] hover:shadow-[rgba(34,197,94,0.4)] hover:-translate-y-0.5"
+              className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl bg-vytal-green text-vytal-bg font-semibold text-sm hover:bg-[#16a34a] transition-all duration-150 shadow-lg shadow-[rgba(34,197,94,0.25)] hover:shadow-[rgba(34,197,94,0.4)] hover:-translate-y-0.5"
             >
               {t("ctaStart")}
               <ArrowRight size={16} />
@@ -1130,9 +1130,9 @@ function Hero({ t }: { t: (k: string) => string }) {
           </div>
           <Link
             href="/@crossfit-aveiro"
-            className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl border border-[rgba(34,197,94,0.25)] text-[#dceee0] font-medium text-sm hover:border-[rgba(34,197,94,0.5)] hover:bg-[rgba(34,197,94,0.05)] transition-all duration-150 backdrop-blur-sm"
+            className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl border border-[rgba(34,197,94,0.25)] text-vytal-text font-medium text-sm hover:border-[rgba(34,197,94,0.5)] hover:bg-[rgba(34,197,94,0.05)] transition-all duration-150 backdrop-blur-sm"
           >
-            <Play size={15} className="text-[#22c55e]" />
+            <Play size={15} className="text-vytal-green" />
             {t("ctaDemo")}
           </Link>
         </div>
@@ -1147,10 +1147,10 @@ function Hero({ t }: { t: (k: string) => string }) {
           ].map((s) => (
             <div
               key={s.label}
-              className="flex flex-col items-center justify-center py-5 px-4 bg-[#080c0a]/80 hover:bg-[rgba(34,197,94,0.04)] transition-colors"
+              className="flex flex-col items-center justify-center py-5 px-4 bg-vytal-bg/80 hover:bg-[rgba(34,197,94,0.04)] transition-colors"
             >
-              <span className="text-2xl font-bold text-[#22c55e]">{s.value}</span>
-              <span className="text-xs text-[#6b8c72] mt-0.5">{s.label}</span>
+              <span className="text-2xl font-bold text-vytal-green">{s.value}</span>
+              <span className="text-xs text-vytal-muted mt-0.5">{s.label}</span>
             </div>
           ))}
         </div>
@@ -1174,17 +1174,17 @@ function SocialProof({ t }: { t: (k: string) => string }) {
   return (
     <section className="py-16 border-t border-[rgba(34,197,94,0.08)]">
       <div ref={ref} className="scroll-reveal max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <p className="text-center text-sm text-[#6b8c72] mb-10 tracking-wider uppercase">
+        <p className="text-center text-sm text-vytal-muted mb-10 tracking-wider uppercase">
           {t("trustedBy")}
         </p>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
           {gyms.map((gym, i) => (
             <div
               key={gym}
-              className="flex items-center justify-center px-4 py-3.5 rounded-xl border border-[rgba(34,197,94,0.1)] bg-[rgba(22,32,24,0.4)] hover:border-[rgba(34,197,94,0.25)] hover:bg-[rgba(34,197,94,0.04)] transition-all duration-150 group backdrop-blur-sm"
+              className="flex items-center justify-center px-4 py-3.5 rounded-xl border border-[rgba(34,197,94,0.1)] bg-vytal-bg3/40 hover:border-[rgba(34,197,94,0.25)] hover:bg-[rgba(34,197,94,0.04)] transition-all duration-150 group backdrop-blur-sm"
               style={{ animationDelay: `${i * 0.1}s` }}
             >
-              <span className="text-xs font-medium text-[#6b8c72] group-hover:text-[#dceee0] transition-colors text-center leading-tight">
+              <span className="text-xs font-medium text-vytal-muted group-hover:text-vytal-text transition-colors text-center leading-tight">
                 {gym}
               </span>
             </div>
@@ -1216,14 +1216,14 @@ function Features({ t }: { t: (k: string) => string }) {
       <div ref={ref} className="scroll-reveal max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[rgba(34,197,94,0.2)] bg-[rgba(34,197,94,0.05)] mb-4">
-            <Zap size={12} className="text-[#22c55e]" />
-            <span className="text-xs font-medium text-[#22c55e]">{t("features")}</span>
+            <Zap size={12} className="text-vytal-green" />
+            <span className="text-xs font-medium text-vytal-green">{t("features")}</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl font-bold text-[#dceee0] mb-4">
+          <h2 className="text-3xl sm:text-4xl font-bold text-vytal-text mb-4">
             {t("everythingTitle").split(".")[0]}.{" "}
-            <span className="bg-gradient-to-r from-[#22c55e] to-[#00d4ff] bg-clip-text text-transparent">{t("everythingTitle").split(".").slice(1).join(".").trim()}</span>
+            <span className="bg-gradient-to-r from-vytal-green to-vytal-blue bg-clip-text text-transparent">{t("everythingTitle").split(".").slice(1).join(".").trim()}</span>
           </h2>
-          <p className="text-[#6b8c72] max-w-xl mx-auto text-sm leading-relaxed">
+          <p className="text-vytal-muted max-w-xl mx-auto text-sm leading-relaxed">
             {t("everythingSubtitle")}
           </p>
         </div>
@@ -1235,7 +1235,7 @@ function Features({ t }: { t: (k: string) => string }) {
             return (
               <div
                 key={keys.title}
-                className="group relative p-6 rounded-2xl border border-[rgba(34,197,94,0.1)] bg-[rgba(22,32,24,0.4)] backdrop-blur-sm hover:border-[rgba(34,197,94,0.3)] hover:bg-[rgba(22,32,24,0.7)] hover:-translate-y-1 hover:shadow-[0_0_30px_rgba(34,197,94,0.1)] transition-all duration-300 overflow-hidden"
+                className="group relative p-6 rounded-2xl border border-[rgba(34,197,94,0.1)] bg-vytal-bg3/40 backdrop-blur-sm hover:border-[rgba(34,197,94,0.3)] hover:bg-vytal-bg3/70 hover:-translate-y-1 hover:shadow-[0_0_30px_rgba(34,197,94,0.1)] transition-all duration-300 overflow-hidden"
               >
                 {/* Hover glow */}
                 <div
@@ -1266,8 +1266,8 @@ function Features({ t }: { t: (k: string) => string }) {
                     <Icon size={20} style={{ color }} />
                   </div>
                 </div>
-                <h3 className="font-semibold text-[#dceee0] mb-2 text-sm">{t(keys.title)}</h3>
-                <p className="text-xs text-[#6b8c72] leading-relaxed">{t(keys.desc)}</p>
+                <h3 className="font-semibold text-vytal-text mb-2 text-sm">{t(keys.title)}</h3>
+                <p className="text-xs text-vytal-muted leading-relaxed">{t(keys.desc)}</p>
                 <Link
                   href={keys.href}
                   className="mt-4 inline-flex items-center gap-1 text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-200"
@@ -1319,33 +1319,33 @@ function VerticalsMarquee({ t }: { t: (k: string) => string }) {
       <div ref={ref} className="scroll-reveal">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center mb-10">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[rgba(34,197,94,0.2)] bg-[rgba(34,197,94,0.05)] mb-4">
-            <span className="text-xs font-medium text-[#22c55e]">Verticais</span>
+            <span className="text-xs font-medium text-vytal-green">Verticais</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl font-bold text-[#dceee0] mb-3">
+          <h2 className="text-3xl sm:text-4xl font-bold text-vytal-text mb-3">
             {t("verticalsTitle")}{" "}
-            <span className="bg-gradient-to-r from-[#22c55e] to-[#00d4ff] bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-vytal-green to-vytal-blue bg-clip-text text-transparent">
               {t("verticalsTitleHighlight")}
             </span>
           </h2>
-          <p className="text-[#6b8c72] text-sm max-w-lg mx-auto">{t("verticalsSubtitle")}</p>
+          <p className="text-vytal-muted text-sm max-w-lg mx-auto">{t("verticalsSubtitle")}</p>
         </div>
 
         {/* Marquee */}
         <div className="relative w-full overflow-hidden">
           {/* Left fade */}
           <div className="absolute left-0 top-0 bottom-0 w-24 z-10 pointer-events-none"
-            style={{ background: "linear-gradient(to right, #080c0a, transparent)" }} />
+            style={{ background: "linear-gradient(to right, var(--color-vytal-bg), transparent)" }} />
           {/* Right fade */}
           <div className="absolute right-0 top-0 bottom-0 w-24 z-10 pointer-events-none"
-            style={{ background: "linear-gradient(to left, #080c0a, transparent)" }} />
+            style={{ background: "linear-gradient(to left, var(--color-vytal-bg), transparent)" }} />
           <div className="marquee-track gap-3 py-2">
             {doubled.map((pill, i) => (
               <div
                 key={i}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-[rgba(34,197,94,0.15)] bg-[rgba(22,32,24,0.6)] backdrop-blur-sm shrink-0 mx-1.5 hover:border-[rgba(34,197,94,0.4)] hover:bg-[rgba(34,197,94,0.07)] transition-all duration-150 cursor-default"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-[rgba(34,197,94,0.15)] bg-vytal-bg3/60 backdrop-blur-sm shrink-0 mx-1.5 hover:border-[rgba(34,197,94,0.4)] hover:bg-[rgba(34,197,94,0.07)] transition-all duration-150 cursor-default"
               >
                 <span className="text-base leading-none">{pill.emoji}</span>
-                <span className="text-xs font-medium text-[#dceee0] whitespace-nowrap">{pill.label}</span>
+                <span className="text-xs font-medium text-vytal-text whitespace-nowrap">{pill.label}</span>
               </div>
             ))}
           </div>
@@ -1357,16 +1357,16 @@ function VerticalsMarquee({ t }: { t: (k: string) => string }) {
 
 // ── Product Showcase ──────────────────────────────────────────────────────────
 const TAB_META = [
-  { id: "admin",   gradient: "from-[#22c55e]/20 via-[#0f1610] to-[#080c0a]", accent: "#22c55e",
+  { id: "admin",   gradient: "from-vytal-green/20 via-vytal-bg2 to-vytal-bg", accent: "#22c55e",
     labelKey: "tabAdmin", titleKey: "tabAdminTitle", descKey: "tabAdminDesc",
     itemKeys: ["tabAdminI1","tabAdminI2","tabAdminI3","tabAdminI4","tabAdminI5","tabAdminI6"] },
-  { id: "website", gradient: "from-[#00d4ff]/20 via-[#0f1610] to-[#080c0a]", accent: "#00d4ff",
+  { id: "website", gradient: "from-vytal-blue/20 via-vytal-bg2 to-vytal-bg", accent: "#00d4ff",
     labelKey: "tabWebsite", titleKey: "tabWebsiteTitle", descKey: "tabWebsiteDesc",
     itemKeys: ["tabWebsiteI1","tabWebsiteI2","tabWebsiteI3","tabWebsiteI4","tabWebsiteI5","tabWebsiteI6"] },
-  { id: "membro",  gradient: "from-[#c084fc]/20 via-[#0f1610] to-[#080c0a]", accent: "#c084fc",
+  { id: "membro",  gradient: "from-[#c084fc]/20 via-vytal-bg2 to-vytal-bg", accent: "#c084fc",
     labelKey: "tabMembro", titleKey: "tabMembroTitle", descKey: "tabMembroDesc",
     itemKeys: ["tabMembroI1","tabMembroI2","tabMembroI3","tabMembroI4","tabMembroI5","tabMembroI6"] },
-  { id: "mobile",  gradient: "from-[#ff8c42]/20 via-[#0f1610] to-[#080c0a]", accent: "#ff8c42",
+  { id: "mobile",  gradient: "from-[#ff8c42]/20 via-vytal-bg2 to-vytal-bg", accent: "#ff8c42",
     labelKey: "tabMobile", titleKey: "tabMobileTitle", descKey: "tabMobileDesc",
     itemKeys: ["tabMobileI1","tabMobileI2","tabMobileI3","tabMobileI4","tabMobileI5","tabMobileI6"] },
 ];
@@ -1383,27 +1383,27 @@ function ProductShowcase({ t }: { t: (k: string) => string }) {
       <div ref={ref} className="scroll-reveal max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[rgba(34,197,94,0.2)] bg-[rgba(34,197,94,0.05)] mb-4">
-            <BarChart3 size={12} className="text-[#22c55e]" />
-            <span className="text-xs font-medium text-[#22c55e]">{t("showcaseBadge")}</span>
+            <BarChart3 size={12} className="text-vytal-green" />
+            <span className="text-xs font-medium text-vytal-green">{t("showcaseBadge")}</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl font-bold text-[#dceee0] mb-4">
-            {t("showcaseTitle")} <span className="bg-gradient-to-r from-[#22c55e] to-[#00d4ff] bg-clip-text text-transparent">{t("showcaseTitleHighlight")}</span>
+          <h2 className="text-3xl sm:text-4xl font-bold text-vytal-text mb-4">
+            {t("showcaseTitle")} <span className="bg-gradient-to-r from-vytal-green to-vytal-blue bg-clip-text text-transparent">{t("showcaseTitleHighlight")}</span>
           </h2>
-          <p className="text-[#6b8c72] max-w-xl mx-auto text-sm leading-relaxed">
+          <p className="text-vytal-muted max-w-xl mx-auto text-sm leading-relaxed">
             {t("showcaseSubtitle")}
           </p>
         </div>
 
         {/* Tab bar */}
-        <div className="flex items-center justify-center gap-1 mb-8 p-1 rounded-xl bg-[rgba(22,32,24,0.6)] border border-[rgba(34,197,94,0.1)] w-fit mx-auto backdrop-blur-sm">
+        <div className="flex items-center justify-center gap-1 mb-8 p-1 rounded-xl bg-vytal-bg3/60 border border-[rgba(34,197,94,0.1)] w-fit mx-auto backdrop-blur-sm">
           {TAB_META.map((tb) => (
             <button
               key={tb.id}
               onClick={() => setActiveTab(tb.id)}
               className={`px-5 py-2 rounded-lg text-sm font-medium transition-all duration-150 ${
                 activeTab === tb.id
-                  ? "bg-[#22c55e] text-[#080c0a]"
-                  : "text-[#6b8c72] hover:text-[#dceee0]"
+                  ? "bg-vytal-green text-vytal-bg"
+                  : "text-vytal-muted hover:text-vytal-text"
               }`}
             >
               {t(tb.labelKey)}
@@ -1418,11 +1418,11 @@ function ProductShowcase({ t }: { t: (k: string) => string }) {
             className={`relative rounded-2xl border border-[rgba(34,197,94,0.15)] overflow-hidden h-80 bg-gradient-to-br ${tab.gradient}`}
           >
             {/* Mock UI chrome */}
-            <div className="absolute top-0 left-0 right-0 h-10 bg-[rgba(8,12,10,0.8)] flex items-center gap-2 px-4 border-b border-[rgba(34,197,94,0.08)]">
+            <div className="absolute top-0 left-0 right-0 h-10 bg-vytal-bg/80 flex items-center gap-2 px-4 border-b border-[rgba(34,197,94,0.08)]">
               <div className="flex gap-1.5">
                 <div className="w-3 h-3 rounded-full bg-[#ff4757]/60" />
-                <div className="w-3 h-3 rounded-full bg-[#ffb300]/60" />
-                <div className="w-3 h-3 rounded-full bg-[#22c55e]/60" />
+                <div className="w-3 h-3 rounded-full bg-vytal-amber/60" />
+                <div className="w-3 h-3 rounded-full bg-vytal-green/60" />
               </div>
               <div className="flex-1 h-5 rounded bg-[rgba(34,197,94,0.06)] mx-4" />
             </div>
@@ -1431,14 +1431,14 @@ function ProductShowcase({ t }: { t: (k: string) => string }) {
               {mockItems.map((item, i) => (
                 <div
                   key={item}
-                  className="rounded-lg border border-[rgba(34,197,94,0.1)] bg-[rgba(8,12,10,0.6)] backdrop-blur-sm flex flex-col items-center justify-center gap-1 p-2 hover:border-[rgba(34,197,94,0.3)] transition-colors"
+                  className="rounded-lg border border-[rgba(34,197,94,0.1)] bg-vytal-bg/60 backdrop-blur-sm flex flex-col items-center justify-center gap-1 p-2 hover:border-[rgba(34,197,94,0.3)] transition-colors"
                   style={{ animationDelay: `${i * 0.05}s` }}
                 >
                   <div
                     className="w-6 h-6 rounded-md"
                     style={{ background: `${tab.accent}20` }}
                   />
-                  <span className="text-[10px] text-[#6b8c72] text-center leading-tight">{item}</span>
+                  <span className="text-[10px] text-vytal-muted text-center leading-tight">{item}</span>
                 </div>
               ))}
             </div>
@@ -1451,11 +1451,11 @@ function ProductShowcase({ t }: { t: (k: string) => string }) {
 
           {/* Description */}
           <div>
-            <h3 className="text-2xl font-bold text-[#dceee0] mb-4">{t(tab.titleKey)}</h3>
-            <p className="text-[#6b8c72] leading-relaxed mb-6">{t(tab.descKey)}</p>
+            <h3 className="text-2xl font-bold text-vytal-text mb-4">{t(tab.titleKey)}</h3>
+            <p className="text-vytal-muted leading-relaxed mb-6">{t(tab.descKey)}</p>
             <ul className="space-y-3">
               {mockItems.map((item) => (
-                <li key={item} className="flex items-center gap-3 text-sm text-[#dceee0]">
+                <li key={item} className="flex items-center gap-3 text-sm text-vytal-text">
                   <div
                     className="w-4 h-4 rounded-full flex items-center justify-center shrink-0"
                     style={{ background: `${tab.accent}20` }}
@@ -1468,7 +1468,7 @@ function ProductShowcase({ t }: { t: (k: string) => string }) {
             </ul>
             <Link
               href="/signup"
-              className="inline-flex items-center gap-2 mt-8 px-5 py-2.5 rounded-lg text-sm font-semibold text-[#080c0a] transition-all duration-150 hover:-translate-y-0.5"
+              className="inline-flex items-center gap-2 mt-8 px-5 py-2.5 rounded-lg text-sm font-semibold text-vytal-bg transition-all duration-150 hover:-translate-y-0.5"
               style={{ background: tab.accent }}
             >
               {t("showcaseExplore")} {t(tab.labelKey)}
@@ -1489,12 +1489,12 @@ function CheckinMockup() {
     { name: "Maria Santos", status: "noshow" },
   ];
   return (
-    <div className="rounded-2xl border border-[rgba(34,197,94,0.15)] bg-[rgba(8,12,10,0.9)] p-5 shadow-xl shadow-black/40">
+    <div className="rounded-2xl border border-[rgba(34,197,94,0.15)] bg-vytal-bg/90 p-5 shadow-xl shadow-black/40">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div>
-          <div className="text-xs font-semibold text-[#dceee0]">CrossFit 09:00</div>
-          <div className="text-[10px] text-[#6b8c72]">12/15 atletas</div>
+          <div className="text-xs font-semibold text-vytal-text">CrossFit 09:00</div>
+          <div className="text-[10px] text-vytal-muted">12/15 atletas</div>
         </div>
         <div className="w-9 h-9 rounded-xl bg-[rgba(34,197,94,0.12)] flex items-center justify-center border border-[rgba(34,197,94,0.2)]">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2">
@@ -1505,11 +1505,11 @@ function CheckinMockup() {
       {/* Member rows */}
       <div className="space-y-2 mb-4">
         {members.map((m) => (
-          <div key={m.name} className="flex items-center gap-3 p-2.5 rounded-xl bg-[rgba(22,32,24,0.6)] border border-[rgba(34,197,94,0.07)]">
-            <div className="w-7 h-7 rounded-full bg-[rgba(34,197,94,0.15)] flex items-center justify-center text-[10px] font-bold text-[#22c55e]">
+          <div key={m.name} className="flex items-center gap-3 p-2.5 rounded-xl bg-vytal-bg3/60 border border-[rgba(34,197,94,0.07)]">
+            <div className="w-7 h-7 rounded-full bg-[rgba(34,197,94,0.15)] flex items-center justify-center text-[10px] font-bold text-vytal-green">
               {m.name.split(" ").map((n) => n[0]).join("")}
             </div>
-            <span className="text-xs text-[#dceee0] flex-1">{m.name}</span>
+            <span className="text-xs text-vytal-text flex-1">{m.name}</span>
             {m.status === "checked" ? (
               <div className="w-5 h-5 rounded-full bg-[rgba(34,197,94,0.2)] flex items-center justify-center">
                 <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="3"><path d="M5 12l5 5L19 7" /></svg>
@@ -1528,7 +1528,7 @@ function CheckinMockup() {
           <rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" /><rect x="3" y="14" width="7" height="7" />
           <path d="M14 14h.01M14 17h3M17 14v3M20 14h.01M20 20h.01" />
         </svg>
-        <span className="text-xs font-medium text-[#22c55e]">Scan QR Code</span>
+        <span className="text-xs font-medium text-vytal-green">Scan QR Code</span>
       </div>
     </div>
   );
@@ -1542,8 +1542,8 @@ function CRMMockup() {
     { title: "Subscrito", color: "#22c55e", cards: ["Ana P."] },
   ];
   return (
-    <div className="rounded-2xl border border-[rgba(34,197,94,0.15)] bg-[rgba(8,12,10,0.9)] p-4 shadow-xl shadow-black/40">
-      <div className="text-xs font-semibold text-[#dceee0] mb-3">Pipeline de Vendas</div>
+    <div className="rounded-2xl border border-[rgba(34,197,94,0.15)] bg-vytal-bg/90 p-4 shadow-xl shadow-black/40">
+      <div className="text-xs font-semibold text-vytal-text mb-3">Pipeline de Vendas</div>
       <div className="grid grid-cols-4 gap-2">
         {columns.map((col) => (
           <div key={col.title} className="flex flex-col gap-1.5">
@@ -1552,12 +1552,12 @@ function CRMMockup() {
               <span className="text-[9px] font-semibold uppercase tracking-wider" style={{ color: col.color }}>{col.title}</span>
             </div>
             {col.cards.map((card) => (
-              <div key={card} className="px-2 py-2 rounded-lg border text-[9px] text-[#dceee0] bg-[rgba(22,32,24,0.8)] cursor-grab active:cursor-grabbing hover:border-opacity-50 transition-colors"
+              <div key={card} className="px-2 py-2 rounded-lg border text-[9px] text-vytal-text bg-vytal-bg3/80 cursor-grab active:cursor-grabbing hover:border-opacity-50 transition-colors"
                 style={{ borderColor: `${col.color}30` }}>
                 {card}
               </div>
             ))}
-            <div className="px-2 py-1.5 rounded-lg border border-dashed border-[rgba(34,197,94,0.1)] text-[9px] text-[#6b8c72] text-center">+ Add</div>
+            <div className="px-2 py-1.5 rounded-lg border border-dashed border-[rgba(34,197,94,0.1)] text-[9px] text-vytal-muted text-center">+ Add</div>
           </div>
         ))}
       </div>
@@ -1567,41 +1567,41 @@ function CRMMockup() {
 
 function WebsiteMockup() {
   return (
-    <div className="rounded-2xl border border-[rgba(34,197,94,0.15)] bg-[rgba(8,12,10,0.9)] overflow-hidden shadow-xl shadow-black/40">
+    <div className="rounded-2xl border border-[rgba(34,197,94,0.15)] bg-vytal-bg/90 overflow-hidden shadow-xl shadow-black/40">
       {/* Browser chrome */}
-      <div className="flex items-center gap-2 px-3 py-2 bg-[rgba(22,32,24,0.8)] border-b border-[rgba(34,197,94,0.08)]">
+      <div className="flex items-center gap-2 px-3 py-2 bg-vytal-bg3/80 border-b border-[rgba(34,197,94,0.08)]">
         <div className="flex gap-1">
           <div className="w-2 h-2 rounded-full bg-[#ff4757]/60" />
-          <div className="w-2 h-2 rounded-full bg-[#ffb300]/60" />
-          <div className="w-2 h-2 rounded-full bg-[#22c55e]/60" />
+          <div className="w-2 h-2 rounded-full bg-vytal-amber/60" />
+          <div className="w-2 h-2 rounded-full bg-vytal-green/60" />
         </div>
         <div className="flex-1 h-4 rounded bg-[rgba(34,197,94,0.06)] flex items-center px-2">
-          <span className="text-[8px] text-[#6b8c72]">vytal.fit/crossfit-aveiro</span>
+          <span className="text-[8px] text-vytal-muted">vytal.fit/crossfit-aveiro</span>
         </div>
       </div>
       {/* Mini site */}
       <div className="p-3">
         {/* Nav */}
         <div className="flex items-center justify-between mb-3 pb-2 border-b border-[rgba(34,197,94,0.08)]">
-          <span className="text-[9px] font-bold text-[#22c55e]">CrossFit Aveiro</span>
+          <span className="text-[9px] font-bold text-vytal-green">CrossFit Aveiro</span>
           <div className="flex gap-2">
             {["Horários", "Planos", "Equipa"].map((n) => (
-              <span key={n} className="text-[7px] text-[#6b8c72]">{n}</span>
+              <span key={n} className="text-[7px] text-vytal-muted">{n}</span>
             ))}
           </div>
         </div>
         {/* Hero */}
         <div className="rounded-xl bg-gradient-to-br from-[rgba(34,197,94,0.12)] to-[rgba(0,212,255,0.06)] p-3 mb-2 border border-[rgba(34,197,94,0.1)]">
-          <div className="text-[9px] font-bold text-[#dceee0] mb-1">Forja o Teu Melhor.</div>
-          <div className="text-[7px] text-[#6b8c72] mb-2">CrossFit em Aveiro desde 2015</div>
-          <div className="inline-flex px-2 py-1 rounded-md bg-[#22c55e] text-[7px] font-bold text-[#080c0a]">Inscreve-te</div>
+          <div className="text-[9px] font-bold text-vytal-text mb-1">Forja o Teu Melhor.</div>
+          <div className="text-[7px] text-vytal-muted mb-2">CrossFit em Aveiro desde 2015</div>
+          <div className="inline-flex px-2 py-1 rounded-md bg-vytal-green text-[7px] font-bold text-vytal-bg">Inscreve-te</div>
         </div>
         {/* Pricing mini cards */}
         <div className="grid grid-cols-3 gap-1">
           {[{ n: "Starter", p: "Free" }, { n: "Pro", p: "49€" }, { n: "Elite", p: "79€" }].map((plan) => (
             <div key={plan.n} className="rounded-lg border border-[rgba(34,197,94,0.1)] p-1.5 text-center">
-              <div className="text-[7px] font-semibold text-[#dceee0]">{plan.n}</div>
-              <div className="text-[8px] font-bold text-[#22c55e]">{plan.p}</div>
+              <div className="text-[7px] font-semibold text-vytal-text">{plan.n}</div>
+              <div className="text-[8px] font-bold text-vytal-green">{plan.p}</div>
             </div>
           ))}
         </div>
@@ -1614,21 +1614,21 @@ function AnalyticsMockup() {
   const bars = [30, 55, 40, 70, 60, 85, 75, 90, 65, 80, 95, 70];
   const stats = [{ label: "Receita", value: "€12.4k", change: "+18%" }, { label: "Membros", value: "247", change: "+12" }, { label: "Retenção", value: "87%", change: "+3%" }];
   return (
-    <div className="rounded-2xl border border-[rgba(34,197,94,0.15)] bg-[rgba(8,12,10,0.9)] p-4 shadow-xl shadow-black/40">
-      <div className="text-xs font-semibold text-[#dceee0] mb-3">Analytics — Junho 2026</div>
+    <div className="rounded-2xl border border-[rgba(34,197,94,0.15)] bg-vytal-bg/90 p-4 shadow-xl shadow-black/40">
+      <div className="text-xs font-semibold text-vytal-text mb-3">Analytics — Junho 2026</div>
       {/* Stats row */}
       <div className="grid grid-cols-3 gap-2 mb-3">
         {stats.map((s) => (
-          <div key={s.label} className="rounded-xl bg-[rgba(22,32,24,0.6)] border border-[rgba(34,197,94,0.08)] p-2">
-            <div className="text-[8px] text-[#6b8c72] mb-0.5">{s.label}</div>
-            <div className="text-xs font-bold text-[#dceee0]">{s.value}</div>
-            <div className="text-[8px] text-[#22c55e]">{s.change}</div>
+          <div key={s.label} className="rounded-xl bg-vytal-bg3/60 border border-[rgba(34,197,94,0.08)] p-2">
+            <div className="text-[8px] text-vytal-muted mb-0.5">{s.label}</div>
+            <div className="text-xs font-bold text-vytal-text">{s.value}</div>
+            <div className="text-[8px] text-vytal-green">{s.change}</div>
           </div>
         ))}
       </div>
       {/* Chart */}
-      <div className="rounded-xl bg-[rgba(22,32,24,0.4)] border border-[rgba(34,197,94,0.06)] p-3">
-        <div className="text-[8px] text-[#6b8c72] mb-2">Presenças por mês</div>
+      <div className="rounded-xl bg-vytal-bg3/40 border border-[rgba(34,197,94,0.06)] p-3">
+        <div className="text-[8px] text-vytal-muted mb-2">Presenças por mês</div>
         <div className="flex items-end gap-1 h-12">
           {bars.map((h, i) => (
             <div key={i} className="flex-1 rounded-sm" style={{ height: `${h}%`, background: `rgba(34,197,94,${0.2 + (h / 100) * 0.7})` }} />
@@ -1636,7 +1636,7 @@ function AnalyticsMockup() {
         </div>
         <div className="flex justify-between mt-1">
           {["Jan", "Mar", "Mai", "Jun"].map((m) => (
-            <span key={m} className="text-[6px] text-[#6b8c72]">{m}</span>
+            <span key={m} className="text-[6px] text-vytal-muted">{m}</span>
           ))}
         </div>
       </div>
@@ -1688,8 +1688,8 @@ function FeatureDeepDive({ t }: { t: (k: string) => string }) {
       <div ref={ref} className="scroll-reveal max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[rgba(34,197,94,0.2)] bg-[rgba(34,197,94,0.05)] mb-4">
-            <Zap size={12} className="text-[#22c55e]" />
-            <span className="text-xs font-medium text-[#22c55e]">{t("deepDiveBadge")}</span>
+            <Zap size={12} className="text-vytal-green" />
+            <span className="text-xs font-medium text-vytal-green">{t("deepDiveBadge")}</span>
           </div>
         </div>
 
@@ -1699,13 +1699,13 @@ function FeatureDeepDive({ t }: { t: (k: string) => string }) {
             const isLeft = feat.side === "left";
             const textBlock = (
               <div className="flex flex-col justify-center">
-                <h3 className="text-2xl sm:text-3xl font-bold text-[#dceee0] mb-4" style={{ color: feat.accent }}>
+                <h3 className="text-2xl sm:text-3xl font-bold text-vytal-text mb-4" style={{ color: feat.accent }}>
                   {t(feat.titleKey)}
                 </h3>
-                <p className="text-[#6b8c72] leading-relaxed mb-6 text-sm">{t(feat.descKey)}</p>
+                <p className="text-vytal-muted leading-relaxed mb-6 text-sm">{t(feat.descKey)}</p>
                 <ul className="space-y-3">
                   {feat.bulletKeys.map((bk) => (
-                    <li key={bk} className="flex items-start gap-3 text-sm text-[#dceee0]">
+                    <li key={bk} className="flex items-start gap-3 text-sm text-vytal-text">
                       <div
                         className="w-5 h-5 rounded-full flex items-center justify-center shrink-0 mt-0.5"
                         style={{ background: `${feat.accent}20` }}
@@ -1828,28 +1828,28 @@ function PaymentsPortugal({ t }: { t: (k: string) => string }) {
       <div ref={ref} className="scroll-reveal max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[rgba(34,197,94,0.2)] bg-[rgba(34,197,94,0.05)] mb-4">
-            <CreditCard size={12} className="text-[#22c55e]" />
-            <span className="text-xs font-medium text-[#22c55e]">{t("paymentsBadge")}</span>
+            <CreditCard size={12} className="text-vytal-green" />
+            <span className="text-xs font-medium text-vytal-green">{t("paymentsBadge")}</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl font-bold text-[#dceee0] mb-4">
+          <h2 className="text-3xl sm:text-4xl font-bold text-vytal-text mb-4">
             {t("paymentsTitle")}{" "}
-            <span className="bg-gradient-to-r from-[#22c55e] to-[#00d4ff] bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-vytal-green to-vytal-blue bg-clip-text text-transparent">
               {t("paymentsTitleHighlight")}
             </span>
           </h2>
-          <p className="text-[#6b8c72] text-sm max-w-lg mx-auto">{t("paymentsSubtitle")}</p>
+          <p className="text-vytal-muted text-sm max-w-lg mx-auto">{t("paymentsSubtitle")}</p>
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
           {methods.map((m) => (
             <div
               key={m.key}
-              className="flex flex-col items-center gap-3 p-5 rounded-2xl border border-[rgba(34,197,94,0.1)] bg-[rgba(22,32,24,0.4)] backdrop-blur-sm hover:border-[rgba(34,197,94,0.3)] hover:-translate-y-1 hover:shadow-[0_0_20px_rgba(34,197,94,0.08)] transition-all duration-200 group"
+              className="flex flex-col items-center gap-3 p-5 rounded-2xl border border-[rgba(34,197,94,0.1)] bg-vytal-bg3/40 backdrop-blur-sm hover:border-[rgba(34,197,94,0.3)] hover:-translate-y-1 hover:shadow-[0_0_20px_rgba(34,197,94,0.08)] transition-all duration-200 group"
             >
               <div className="transition-transform duration-200 group-hover:scale-110">
                 {m.icon}
               </div>
-              <span className="text-xs font-semibold text-[#dceee0] text-center">{t(m.key)}</span>
+              <span className="text-xs font-semibold text-vytal-text text-center">{t(m.key)}</span>
             </div>
           ))}
         </div>
@@ -1882,24 +1882,24 @@ function AutomationsAI({ t }: { t: (k: string) => string }) {
       <div ref={ref} className="scroll-reveal max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[rgba(34,197,94,0.2)] bg-[rgba(34,197,94,0.05)] mb-4">
-            <Zap size={12} className="text-[#22c55e]" />
-            <span className="text-xs font-medium text-[#22c55e]">{t("autoBadge")}</span>
+            <Zap size={12} className="text-vytal-green" />
+            <span className="text-xs font-medium text-vytal-green">{t("autoBadge")}</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl font-bold text-[#dceee0] mb-4">
+          <h2 className="text-3xl sm:text-4xl font-bold text-vytal-text mb-4">
             {t("autoTitle")}{" "}
-            <span className="bg-gradient-to-r from-[#22c55e] to-[#00d4ff] bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-vytal-green to-vytal-blue bg-clip-text text-transparent">
               {t("autoTitleHighlight")}
             </span>
           </h2>
-          <p className="text-[#6b8c72] text-sm max-w-lg mx-auto">{t("autoSubtitle")}</p>
+          <p className="text-vytal-muted text-sm max-w-lg mx-auto">{t("autoSubtitle")}</p>
         </div>
 
         <div className="grid lg:grid-cols-2 gap-8">
           {/* Automations column */}
-          <div className="rounded-2xl border border-[rgba(34,197,94,0.12)] bg-[rgba(22,32,24,0.4)] backdrop-blur-sm p-6">
-            <h3 className="text-sm font-bold text-[#22c55e] uppercase tracking-wider mb-5 flex items-center gap-2">
+          <div className="rounded-2xl border border-[rgba(34,197,94,0.12)] bg-vytal-bg3/40 backdrop-blur-sm p-6">
+            <h3 className="text-sm font-bold text-vytal-green uppercase tracking-wider mb-5 flex items-center gap-2">
               <div className="w-5 h-5 rounded-md bg-[rgba(34,197,94,0.15)] flex items-center justify-center">
-                <Zap size={11} className="text-[#22c55e]" />
+                <Zap size={11} className="text-vytal-green" />
               </div>
               {t("autoColLeft")}
             </h3>
@@ -1907,14 +1907,14 @@ function AutomationsAI({ t }: { t: (k: string) => string }) {
               {automations.map((item) => (
                 <div
                   key={item.titleKey}
-                  className="flex items-start gap-3 p-3.5 rounded-xl border border-[rgba(34,197,94,0.08)] bg-[rgba(8,12,10,0.4)] hover:border-[rgba(34,197,94,0.2)] hover:bg-[rgba(8,12,10,0.6)] transition-all duration-150 group"
+                  className="flex items-start gap-3 p-3.5 rounded-xl border border-[rgba(34,197,94,0.08)] bg-vytal-bg/40 hover:border-[rgba(34,197,94,0.2)] hover:bg-vytal-bg/60 transition-all duration-150 group"
                 >
-                  <div className="w-9 h-9 rounded-xl flex items-center justify-center text-base shrink-0 bg-[rgba(22,32,24,0.8)] border border-[rgba(34,197,94,0.1)]">
+                  <div className="w-9 h-9 rounded-xl flex items-center justify-center text-base shrink-0 bg-vytal-bg3/80 border border-[rgba(34,197,94,0.1)]">
                     {item.icon}
                   </div>
                   <div>
-                    <div className="text-sm font-semibold text-[#dceee0] mb-0.5">{t(item.titleKey)}</div>
-                    <div className="text-xs text-[#6b8c72] leading-relaxed">{t(item.descKey)}</div>
+                    <div className="text-sm font-semibold text-vytal-text mb-0.5">{t(item.titleKey)}</div>
+                    <div className="text-xs text-vytal-muted leading-relaxed">{t(item.descKey)}</div>
                   </div>
                 </div>
               ))}
@@ -1923,9 +1923,9 @@ function AutomationsAI({ t }: { t: (k: string) => string }) {
 
           {/* AI column */}
           <div className="rounded-2xl border border-[rgba(0,212,255,0.12)] bg-[rgba(0,30,40,0.4)] backdrop-blur-sm p-6">
-            <h3 className="text-sm font-bold text-[#00d4ff] uppercase tracking-wider mb-5 flex items-center gap-2">
+            <h3 className="text-sm font-bold text-vytal-blue uppercase tracking-wider mb-5 flex items-center gap-2">
               <div className="w-5 h-5 rounded-md bg-[rgba(0,212,255,0.15)] flex items-center justify-center">
-                <BarChart3 size={11} className="text-[#00d4ff]" />
+                <BarChart3 size={11} className="text-vytal-blue" />
               </div>
               {t("autoColRight")}
             </h3>
@@ -1933,14 +1933,14 @@ function AutomationsAI({ t }: { t: (k: string) => string }) {
               {aiInsights.map((item) => (
                 <div
                   key={item.titleKey}
-                  className="flex items-start gap-3 p-3.5 rounded-xl border border-[rgba(0,212,255,0.08)] bg-[rgba(8,12,10,0.4)] hover:border-[rgba(0,212,255,0.2)] hover:bg-[rgba(8,12,10,0.6)] transition-all duration-150 group"
+                  className="flex items-start gap-3 p-3.5 rounded-xl border border-[rgba(0,212,255,0.08)] bg-vytal-bg/40 hover:border-[rgba(0,212,255,0.2)] hover:bg-vytal-bg/60 transition-all duration-150 group"
                 >
-                  <div className="w-9 h-9 rounded-xl flex items-center justify-center text-base shrink-0 bg-[rgba(22,32,24,0.8)] border border-[rgba(0,212,255,0.1)]">
+                  <div className="w-9 h-9 rounded-xl flex items-center justify-center text-base shrink-0 bg-vytal-bg3/80 border border-[rgba(0,212,255,0.1)]">
                     {item.icon}
                   </div>
                   <div>
-                    <div className="text-sm font-semibold text-[#dceee0] mb-0.5">{t(item.titleKey)}</div>
-                    <div className="text-xs text-[#6b8c72] leading-relaxed">{t(item.descKey)}</div>
+                    <div className="text-sm font-semibold text-vytal-text mb-0.5">{t(item.titleKey)}</div>
+                    <div className="text-xs text-vytal-muted leading-relaxed">{t(item.descKey)}</div>
                   </div>
                 </div>
               ))}
@@ -2019,23 +2019,23 @@ function ComplianceSecurity({ t }: { t: (k: string) => string }) {
       <div ref={ref} className="scroll-reveal max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[rgba(34,197,94,0.2)] bg-[rgba(34,197,94,0.05)] mb-4">
-            <Shield size={12} className="text-[#22c55e]" />
-            <span className="text-xs font-medium text-[#22c55e]">{t("complianceBadge")}</span>
+            <Shield size={12} className="text-vytal-green" />
+            <span className="text-xs font-medium text-vytal-green">{t("complianceBadge")}</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl font-bold text-[#dceee0] mb-4">
+          <h2 className="text-3xl sm:text-4xl font-bold text-vytal-text mb-4">
             {t("complianceTitle")}{" "}
-            <span className="bg-gradient-to-r from-[#22c55e] to-[#00d4ff] bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-vytal-green to-vytal-blue bg-clip-text text-transparent">
               {t("complianceTitleHighlight")}
             </span>
           </h2>
-          <p className="text-[#6b8c72] text-sm max-w-lg mx-auto">{t("complianceSubtitle")}</p>
+          <p className="text-vytal-muted text-sm max-w-lg mx-auto">{t("complianceSubtitle")}</p>
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
           {badges.map((badge) => (
             <div
               key={badge.key}
-              className="flex flex-col items-center gap-3 p-5 rounded-2xl border bg-[rgba(22,32,24,0.4)] backdrop-blur-sm hover:-translate-y-1 hover:shadow-[0_0_20px_rgba(34,197,94,0.08)] transition-all duration-200 group"
+              className="flex flex-col items-center gap-3 p-5 rounded-2xl border bg-vytal-bg3/40 backdrop-blur-sm hover:-translate-y-1 hover:shadow-[0_0_20px_rgba(34,197,94,0.08)] transition-all duration-200 group"
               style={{ borderColor: `${badge.color}20` }}
             >
               <div
@@ -2044,7 +2044,7 @@ function ComplianceSecurity({ t }: { t: (k: string) => string }) {
               >
                 {badge.icon}
               </div>
-              <span className="text-xs font-semibold text-[#dceee0] text-center leading-tight">{t(badge.key)}</span>
+              <span className="text-xs font-semibold text-vytal-text text-center leading-tight">{t(badge.key)}</span>
             </div>
           ))}
         </div>
@@ -2074,33 +2074,33 @@ function Comparison({ t }: { t: (k: string) => string }) {
       <div ref={ref} className="scroll-reveal max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[rgba(34,197,94,0.2)] bg-[rgba(34,197,94,0.05)] mb-4">
-            <Shield size={12} className="text-[#22c55e]" />
-            <span className="text-xs font-medium text-[#22c55e]">{t("compBadge")}</span>
+            <Shield size={12} className="text-vytal-green" />
+            <span className="text-xs font-medium text-vytal-green">{t("compBadge")}</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl font-bold text-[#dceee0] mb-4">
+          <h2 className="text-3xl sm:text-4xl font-bold text-vytal-text mb-4">
             {t("compTitle")}
           </h2>
-          <p className="text-[#6b8c72] max-w-xl mx-auto text-sm leading-relaxed">
+          <p className="text-vytal-muted max-w-xl mx-auto text-sm leading-relaxed">
             {t("compSubtitle")}
           </p>
         </div>
 
         <div className="rounded-2xl border border-[rgba(34,197,94,0.12)] overflow-hidden backdrop-blur-sm">
           {/* Header */}
-          <div className="grid grid-cols-5 bg-[rgba(22,32,24,0.8)]">
-            <div className="col-span-2 px-6 py-4 text-xs font-semibold text-[#6b8c72] uppercase tracking-wider">
+          <div className="grid grid-cols-5 bg-vytal-bg3/80">
+            <div className="col-span-2 px-6 py-4 text-xs font-semibold text-vytal-muted uppercase tracking-wider">
               {t("compColFeature")}
             </div>
             {["Vytal", "Regibox", "Wodify", t("compGeneric")].map((name, i) => (
               <div
                 key={name}
                 className={`px-4 py-4 text-center text-xs font-semibold uppercase tracking-wider ${
-                  i === 0 ? "text-[#22c55e] bg-[rgba(34,197,94,0.08)]" : "text-[#6b8c72]"
+                  i === 0 ? "text-vytal-green bg-[rgba(34,197,94,0.08)]" : "text-vytal-muted"
                 }`}
               >
                 {i === 0 ? (
                   <span className="inline-flex items-center gap-1.5">
-                    <span className="px-2 py-0.5 rounded-full bg-[#22c55e] text-[#080c0a] text-[10px] font-bold">#1</span>
+                    <span className="px-2 py-0.5 rounded-full bg-vytal-green text-vytal-bg text-[10px] font-bold">#1</span>
                     {name}
                   </span>
                 ) : name}
@@ -2113,10 +2113,10 @@ function Comparison({ t }: { t: (k: string) => string }) {
             <div
               key={row.key}
               className={`grid grid-cols-5 border-t border-[rgba(34,197,94,0.06)] ${
-                idx % 2 === 0 ? "bg-[rgba(8,12,10,0.4)]" : "bg-[rgba(22,32,24,0.2)]"
+                idx % 2 === 0 ? "bg-vytal-bg/40" : "bg-vytal-bg3/20"
               } hover:bg-[rgba(34,197,94,0.03)] transition-colors`}
             >
-              <div className="col-span-2 px-6 py-4 text-sm text-[#dceee0]">{t(row.key)}</div>
+              <div className="col-span-2 px-6 py-4 text-sm text-vytal-text">{t(row.key)}</div>
               {[row.vytal, row.regibox, row.wodify, row.generic].map((val, i) => (
                 <div key={i} className={`px-4 py-4 flex items-center justify-center ${i === 0 ? "bg-[rgba(34,197,94,0.05)]" : ""}`}>
                   {val ? (
@@ -2129,7 +2129,7 @@ function Comparison({ t }: { t: (k: string) => string }) {
                     >
                       <Check
                         size={12}
-                        className={i === 0 ? "text-[#22c55e]" : "text-[#6b8c72]"}
+                        className={i === 0 ? "text-vytal-green" : "text-vytal-muted"}
                       />
                     </div>
                   ) : (
@@ -2163,11 +2163,11 @@ function Testimonials({ t }: { t: (k: string) => string }) {
       <div ref={ref} className="scroll-reveal max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[rgba(34,197,94,0.2)] bg-[rgba(34,197,94,0.05)] mb-4">
-            <Star size={12} className="text-[#22c55e]" />
-            <span className="text-xs font-medium text-[#22c55e]">{t("testimonialsBadge")}</span>
+            <Star size={12} className="text-vytal-green" />
+            <span className="text-xs font-medium text-vytal-green">{t("testimonialsBadge")}</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl font-bold text-[#dceee0] mb-4">
-            {t("testimonialsTitle")} <span className="bg-gradient-to-r from-[#22c55e] to-[#00d4ff] bg-clip-text text-transparent">{t("testimonialsTitleHighlight")}</span>
+          <h2 className="text-3xl sm:text-4xl font-bold text-vytal-text mb-4">
+            {t("testimonialsTitle")} <span className="bg-gradient-to-r from-vytal-green to-vytal-blue bg-clip-text text-transparent">{t("testimonialsTitleHighlight")}</span>
           </h2>
         </div>
 
@@ -2175,29 +2175,29 @@ function Testimonials({ t }: { t: (k: string) => string }) {
           {TESTIMONIAL_META.map((tm) => (
             <div
               key={tm.nameKey}
-              className="relative p-6 rounded-2xl border border-[rgba(34,197,94,0.1)] bg-[rgba(22,32,24,0.4)] backdrop-blur-sm hover:border-[rgba(34,197,94,0.22)] hover:-translate-y-1 hover:shadow-[0_0_30px_rgba(34,197,94,0.08)] transition-all duration-300 group"
+              className="relative p-6 rounded-2xl border border-[rgba(34,197,94,0.1)] bg-vytal-bg3/40 backdrop-blur-sm hover:border-[rgba(34,197,94,0.22)] hover:-translate-y-1 hover:shadow-[0_0_30px_rgba(34,197,94,0.08)] transition-all duration-300 group"
             >
               {/* Stars */}
               <div className="flex gap-1 mb-4">
                 {Array.from({ length: 5 }).map((_, i) => (
-                  <Star key={i} size={14} className="fill-[#ffb300] text-[#ffb300]" />
+                  <Star key={i} size={14} className="fill-vytal-amber text-vytal-amber" />
                 ))}
               </div>
               {/* Quote */}
-              <p className="text-sm text-[#6b8c72] leading-relaxed mb-6 group-hover:text-[#dceee0] transition-colors duration-200">
+              <p className="text-sm text-vytal-muted leading-relaxed mb-6 group-hover:text-vytal-text transition-colors duration-200">
                 &ldquo;{t(tm.quoteKey)}&rdquo;
               </p>
               {/* Author */}
               <div className="flex items-center gap-3">
                 <div
-                  className="w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold text-[#080c0a]"
+                  className="w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold text-vytal-bg"
                   style={{ background: tm.color }}
                 >
                   {tm.initials}
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-[#dceee0]">{t(tm.nameKey)}</p>
-                  <p className="text-xs text-[#6b8c72]">
+                  <p className="text-sm font-semibold text-vytal-text">{t(tm.nameKey)}</p>
+                  <p className="text-xs text-vytal-muted">
                     {t(tm.roleKey)} · {t(tm.gymKey)}
                   </p>
                 </div>
@@ -2242,22 +2242,22 @@ function Pricing({ t }: { t: (k: string) => string }) {
       <div ref={ref} className="scroll-reveal max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[rgba(34,197,94,0.2)] bg-[rgba(34,197,94,0.05)] mb-4">
-            <CreditCard size={12} className="text-[#22c55e]" />
-            <span className="text-xs font-medium text-[#22c55e]">{t("pricingBadge")}</span>
+            <CreditCard size={12} className="text-vytal-green" />
+            <span className="text-xs font-medium text-vytal-green">{t("pricingBadge")}</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl font-bold text-[#dceee0] mb-4">
-            {t("pricingTitle")} <span className="bg-gradient-to-r from-[#22c55e] to-[#00d4ff] bg-clip-text text-transparent">{t("pricingTitleHighlight")}</span>
+          <h2 className="text-3xl sm:text-4xl font-bold text-vytal-text mb-4">
+            {t("pricingTitle")} <span className="bg-gradient-to-r from-vytal-green to-vytal-blue bg-clip-text text-transparent">{t("pricingTitleHighlight")}</span>
           </h2>
-          <p className="text-[#6b8c72] max-w-xl mx-auto text-sm leading-relaxed mb-8">
+          <p className="text-vytal-muted max-w-xl mx-auto text-sm leading-relaxed mb-8">
             {t("pricingSubtitle")}
           </p>
 
           {/* Toggle */}
-          <div className="inline-flex items-center gap-3 p-1 rounded-xl bg-[rgba(22,32,24,0.6)] border border-[rgba(34,197,94,0.1)] backdrop-blur-sm">
+          <div className="inline-flex items-center gap-3 p-1 rounded-xl bg-vytal-bg3/60 border border-[rgba(34,197,94,0.1)] backdrop-blur-sm">
             <button
               onClick={() => setAnnual(false)}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-150 ${
-                !annual ? "bg-[rgba(34,197,94,0.15)] text-[#22c55e]" : "text-[#6b8c72]"
+                !annual ? "bg-[rgba(34,197,94,0.15)] text-vytal-green" : "text-vytal-muted"
               }`}
             >
               {t("monthly")}
@@ -2265,11 +2265,11 @@ function Pricing({ t }: { t: (k: string) => string }) {
             <button
               onClick={() => setAnnual(true)}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-150 flex items-center gap-2 ${
-                annual ? "bg-[rgba(34,197,94,0.15)] text-[#22c55e]" : "text-[#6b8c72]"
+                annual ? "bg-[rgba(34,197,94,0.15)] text-vytal-green" : "text-vytal-muted"
               }`}
             >
               {t("annual")}
-              <span className="text-[10px] bg-[#22c55e] text-[#080c0a] px-1.5 py-0.5 rounded-full font-bold">
+              <span className="text-[10px] bg-vytal-green text-vytal-bg px-1.5 py-0.5 rounded-full font-bold">
                 -20%
               </span>
             </button>
@@ -2302,40 +2302,40 @@ function Pricing({ t }: { t: (k: string) => string }) {
                   className={`relative p-6 rounded-2xl border transition-all duration-200 flex flex-col flex-1 ${
                     plan.highlighted
                       ? "border-[rgba(34,197,94,0.4)] bg-[rgba(34,197,94,0.04)] shadow-lg shadow-[rgba(34,197,94,0.08)] backdrop-blur-sm"
-                      : "border-[rgba(34,197,94,0.1)] bg-[rgba(22,32,24,0.4)] backdrop-blur-sm"
+                      : "border-[rgba(34,197,94,0.1)] bg-vytal-bg3/40 backdrop-blur-sm"
                   }`}
                 >
                   {plan.highlighted && (
                     <div className="absolute -top-3 left-1/2 -translate-x-1/2">
                       <span
-                        className="px-3 py-1 rounded-full bg-[#22c55e] text-[#080c0a] text-xs font-bold inline-flex items-center gap-1.5"
+                        className="px-3 py-1 rounded-full bg-vytal-green text-vytal-bg text-xs font-bold inline-flex items-center gap-1.5"
                         style={{ animation: "landing-pulse-glow 2s ease-in-out infinite" }}
                       >
-                        <span className="w-1.5 h-1.5 rounded-full bg-[#080c0a] animate-pulse" />
+                        <span className="w-1.5 h-1.5 rounded-full bg-vytal-bg animate-pulse" />
                         {t("mostPopular")}
                       </span>
                     </div>
                   )}
 
                   <div className="mb-6">
-                    <h3 className="font-bold text-[#dceee0] text-lg mb-1">{t(plan.nameKey)}</h3>
-                    <p className="text-xs text-[#6b8c72] mb-4">{t(plan.descKey)}</p>
+                    <h3 className="font-bold text-vytal-text text-lg mb-1">{t(plan.nameKey)}</h3>
+                    <p className="text-xs text-vytal-muted mb-4">{t(plan.descKey)}</p>
                     <div className="flex items-end gap-1">
                       {displayPrice === null ? (
-                        <span className="text-3xl font-bold text-[#dceee0]">{t("onRequest")}</span>
+                        <span className="text-3xl font-bold text-vytal-text">{t("onRequest")}</span>
                       ) : (
                         <>
-                          <span className="text-5xl font-bold text-[#dceee0] tracking-tight">
+                          <span className="text-5xl font-bold text-vytal-text tracking-tight">
                             {displayPrice === 0 ? t("free") : `${displayPrice}€`}
                           </span>
                           {displayPrice > 0 && (
-                            <span className="text-sm text-[#6b8c72] mb-2">/mo</span>
+                            <span className="text-sm text-vytal-muted mb-2">/mo</span>
                           )}
                         </>
                       )}
                     </div>
                     {annual && plan.priceVal && plan.priceVal > 0 && (
-                      <p className="text-xs text-[#22c55e] mt-1">
+                      <p className="text-xs text-vytal-green mt-1">
                         {t("billedAnnually")} {plan.priceVal * 12 - Math.round(plan.priceVal * 0.8) * 12}{t("perYear")}
                       </p>
                     )}
@@ -2343,13 +2343,13 @@ function Pricing({ t }: { t: (k: string) => string }) {
 
                   <ul className="space-y-2.5 mb-6 flex-1">
                     {plan.featureKeys.map((fk) => (
-                      <li key={fk} className="flex items-start gap-2.5 text-sm text-[#dceee0]">
-                        <Check size={14} className="text-[#22c55e] shrink-0 mt-0.5" />
+                      <li key={fk} className="flex items-start gap-2.5 text-sm text-vytal-text">
+                        <Check size={14} className="text-vytal-green shrink-0 mt-0.5" />
                         {t(fk)}
                       </li>
                     ))}
                     {plan.notIncludedKeys.map((fk) => (
-                      <li key={fk} className="flex items-start gap-2.5 text-sm text-[#6b8c72]/50">
+                      <li key={fk} className="flex items-start gap-2.5 text-sm text-vytal-muted/50">
                         <X size={14} className="text-[rgba(255,71,87,0.3)] shrink-0 mt-0.5" />
                         {t(fk)}
                       </li>
@@ -2360,8 +2360,8 @@ function Pricing({ t }: { t: (k: string) => string }) {
                     href={plan.nameKey === "enterprise" ? "/login" : "/signup"}
                     className={`block text-center py-3 rounded-xl text-sm font-semibold transition-all duration-150 ${
                       plan.highlighted
-                        ? "bg-[#22c55e] text-[#080c0a] hover:bg-[#16a34a] shadow-md shadow-[rgba(34,197,94,0.2)]"
-                        : "border border-[rgba(34,197,94,0.25)] text-[#dceee0] hover:border-[rgba(34,197,94,0.5)] hover:bg-[rgba(34,197,94,0.05)]"
+                        ? "bg-vytal-green text-vytal-bg hover:bg-[#16a34a] shadow-md shadow-[rgba(34,197,94,0.2)]"
+                        : "border border-[rgba(34,197,94,0.25)] text-vytal-text hover:border-[rgba(34,197,94,0.5)] hover:bg-[rgba(34,197,94,0.05)]"
                     }`}
                   >
                     {t(plan.ctaKey)}
@@ -2372,7 +2372,7 @@ function Pricing({ t }: { t: (k: string) => string }) {
           })}
         </div>
 
-        <p className="text-center text-xs text-[#6b8c72] mt-8">
+        <p className="text-center text-xs text-vytal-muted mt-8">
           {t("pricingNote")}
         </p>
       </div>
@@ -2399,10 +2399,10 @@ function FAQ({ t }: { t: (k: string) => string }) {
       <div ref={ref} className="scroll-reveal max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[rgba(34,197,94,0.2)] bg-[rgba(34,197,94,0.05)] mb-4">
-            <span className="text-xs font-medium text-[#22c55e]">{t("faqBadge")}</span>
+            <span className="text-xs font-medium text-vytal-green">{t("faqBadge")}</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl font-bold text-[#dceee0] mb-4">
-            {t("faqTitle")} <span className="bg-gradient-to-r from-[#22c55e] to-[#00d4ff] bg-clip-text text-transparent">{t("faqTitleHighlight")}</span>
+          <h2 className="text-3xl sm:text-4xl font-bold text-vytal-text mb-4">
+            {t("faqTitle")} <span className="bg-gradient-to-r from-vytal-green to-vytal-blue bg-clip-text text-transparent">{t("faqTitleHighlight")}</span>
           </h2>
         </div>
         <div className="space-y-3">
@@ -2422,7 +2422,7 @@ function CTABanner({ t }: { t: (k: string) => string }) {
   return (
     <section className="py-24 border-t border-[rgba(34,197,94,0.08)]">
       <div ref={ref} className="scroll-reveal max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <div className="relative rounded-3xl border border-[rgba(34,197,94,0.2)] bg-[rgba(22,32,24,0.6)] backdrop-blur-sm p-12 overflow-hidden">
+        <div className="relative rounded-3xl border border-[rgba(34,197,94,0.2)] bg-vytal-bg3/60 backdrop-blur-sm p-12 overflow-hidden">
           {/* Background blobs */}
           <div
             className="absolute -top-20 -left-20 w-60 h-60 rounded-full opacity-10 pointer-events-none"
@@ -2435,20 +2435,20 @@ function CTABanner({ t }: { t: (k: string) => string }) {
 
           <div className="relative z-10">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[rgba(34,197,94,0.3)] bg-[rgba(34,197,94,0.08)] mb-6">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#22c55e] animate-pulse" />
-              <span className="text-xs font-medium text-[#22c55e]">{t("ctaBannerBadge")}</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-vytal-green animate-pulse" />
+              <span className="text-xs font-medium text-vytal-green">{t("ctaBannerBadge")}</span>
             </div>
-            <h2 className="text-3xl sm:text-4xl font-bold text-[#dceee0] mb-4">
+            <h2 className="text-3xl sm:text-4xl font-bold text-vytal-text mb-4">
               {t("ctaBannerTitle")} <br />{t("ctaBannerTitleLine2")}
             </h2>
-            <p className="text-[#6b8c72] mb-8 max-w-md mx-auto text-sm leading-relaxed">
+            <p className="text-vytal-muted mb-8 max-w-md mx-auto text-sm leading-relaxed">
               {t("ctaBannerSubtitle")}
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <div className="rounded-[14px] p-[1.5px] animated-gradient-border inline-flex">
                 <Link
                   href="/signup"
-                  className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-[#22c55e] text-[#080c0a] font-bold text-sm hover:bg-[#16a34a] transition-all duration-150 shadow-lg shadow-[rgba(34,197,94,0.3)] hover:-translate-y-0.5"
+                  className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-vytal-green text-vytal-bg font-bold text-sm hover:bg-[#16a34a] transition-all duration-150 shadow-lg shadow-[rgba(34,197,94,0.3)] hover:-translate-y-0.5"
                 >
                   {t("ctaBannerStart")}
                   <ArrowRight size={16} />
@@ -2456,9 +2456,9 @@ function CTABanner({ t }: { t: (k: string) => string }) {
               </div>
               <Link
                 href="/@crossfit-aveiro"
-                className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl border border-[rgba(34,197,94,0.25)] text-[#dceee0] font-medium text-sm hover:border-[rgba(34,197,94,0.5)] hover:bg-[rgba(34,197,94,0.05)] transition-all duration-150"
+                className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl border border-[rgba(34,197,94,0.25)] text-vytal-text font-medium text-sm hover:border-[rgba(34,197,94,0.5)] hover:bg-[rgba(34,197,94,0.05)] transition-all duration-150"
               >
-                <Play size={14} className="text-[#22c55e]" />
+                <Play size={14} className="text-vytal-green" />
                 {t("ctaBannerDemo")}
               </Link>
             </div>
@@ -2521,10 +2521,10 @@ function Footer({ t }: { t: (k: string) => string }) {
           {/* Brand col */}
           <div className="col-span-2 md:col-span-1">
             <a href="/" className="flex items-center gap-0.5 mb-4">
-              <span className="text-xl font-bold text-[#22c55e]">Vytal</span>
-              <span className="text-xl font-bold text-[#6b8c72]">.fit</span>
+              <span className="text-xl font-bold text-vytal-green">Vytal</span>
+              <span className="text-xl font-bold text-vytal-muted">.fit</span>
             </a>
-            <p className="text-xs text-[#6b8c72] leading-relaxed mb-4">
+            <p className="text-xs text-vytal-muted leading-relaxed mb-4">
               {t("footerTagline")}
             </p>
             {/* Social links */}
@@ -2538,7 +2538,7 @@ function Footer({ t }: { t: (k: string) => string }) {
                   key={s.label}
                   href="https://vytal.fit"
                   aria-label={s.label}
-                  className="w-8 h-8 rounded-lg border border-[rgba(34,197,94,0.15)] flex items-center justify-center text-[10px] font-bold text-[#6b8c72] hover:border-[rgba(34,197,94,0.4)] hover:text-[#22c55e] transition-all duration-150"
+                  className="w-8 h-8 rounded-lg border border-[rgba(34,197,94,0.15)] flex items-center justify-center text-[10px] font-bold text-vytal-muted hover:border-[rgba(34,197,94,0.4)] hover:text-vytal-green transition-all duration-150"
                 >
                   {s.icon}
                 </a>
@@ -2549,7 +2549,7 @@ function Footer({ t }: { t: (k: string) => string }) {
           {/* Link cols */}
           {FOOTER_COL_META.map((col) => (
             <div key={col.titleKey}>
-              <h4 className="text-xs font-semibold text-[#dceee0] uppercase tracking-wider mb-4">
+              <h4 className="text-xs font-semibold text-vytal-text uppercase tracking-wider mb-4">
                 {t(col.titleKey)}
               </h4>
               <ul className="space-y-2.5">
@@ -2557,7 +2557,7 @@ function Footer({ t }: { t: (k: string) => string }) {
                   <li key={link.labelKey}>
                     <a
                       href={link.href}
-                      className="text-xs text-[#6b8c72] hover:text-[#dceee0] transition-colors duration-150"
+                      className="text-xs text-vytal-muted hover:text-vytal-text transition-colors duration-150"
                     >
                       {t(link.labelKey)}
                     </a>
@@ -2570,15 +2570,15 @@ function Footer({ t }: { t: (k: string) => string }) {
 
         {/* Bottom bar */}
         <div className="flex flex-col sm:flex-row items-center justify-between pt-8 border-t border-[rgba(34,197,94,0.08)] gap-4">
-          <p className="text-xs text-[#6b8c72]">
-            © 2026 Vytal. {t("footerRights")} <span className="text-[#22c55e]">♥</span> {t("footerInPortugal")}
+          <p className="text-xs text-vytal-muted">
+            © 2026 Vytal. {t("footerRights")} <span className="text-vytal-green">♥</span> {t("footerInPortugal")}
           </p>
           <div className="flex items-center gap-4">
-            <span className="flex items-center gap-1.5 text-xs text-[#6b8c72]">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#22c55e]" />
+            <span className="flex items-center gap-1.5 text-xs text-vytal-muted">
+              <span className="w-1.5 h-1.5 rounded-full bg-vytal-green" />
               {t("footerAllSystems")}
             </span>
-            <span className="text-xs text-[#6b8c72]">PT · EN · ES</span>
+            <span className="text-xs text-vytal-muted">PT · EN · ES</span>
           </div>
         </div>
       </div>
@@ -2591,7 +2591,7 @@ export default function LandingPage() {
   const { lang, setLang, t } = useLandingLang();
 
   return (
-    <div className="min-h-screen bg-[#080c0a] text-[#dceee0]">
+    <div className="min-h-screen bg-vytal-bg text-vytal-text">
       {/* Injected keyframes */}
       <style dangerouslySetInnerHTML={{ __html: LANDING_KEYFRAMES }} />
 
