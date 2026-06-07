@@ -3,17 +3,20 @@
 import { useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Home, Calendar, Dumbbell, Trophy, User, Bell, Zap } from "lucide-react";
+import { Home, Calendar, Dumbbell, Trophy, User, Bell, Zap, Users, TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/stores/auth-store";
 import { useAppStore } from "@/stores/app-store";
 
 const NAV_TABS = [
-  { href: "/console", label: "Inicio", icon: Home, exact: true },
-  { href: "/console/schedule", label: "Horario", icon: Calendar, exact: false },
-  { href: "/console/wod", label: "WOD", icon: Dumbbell, exact: false },
-  { href: "/console/records", label: "Recordes", icon: Trophy, exact: false },
-  { href: "/console/profile", label: "Perfil", icon: User, exact: false },
+  { href: "/console",            label: "Inicio",     icon: Home,      exact: true },
+  { href: "/console/schedule",   label: "Horario",    icon: Calendar,  exact: false },
+  { href: "/console/wod",        label: "WOD",        icon: Dumbbell,  exact: false },
+  { href: "/console/workouts",   label: "Treinos",    icon: Dumbbell,  exact: false },
+  { href: "/console/records",    label: "Recordes",   icon: Trophy,    exact: false },
+  { href: "/console/community",  label: "Comunidade", icon: Users,     exact: false },
+  { href: "/console/progress",   label: "Progresso",  icon: TrendingUp,exact: false },
+  { href: "/console/profile",    label: "Perfil",     icon: User,      exact: false },
 ];
 
 export default function ConsoleLayout({ children }: { children: React.ReactNode }) {

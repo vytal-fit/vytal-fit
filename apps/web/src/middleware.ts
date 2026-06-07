@@ -13,7 +13,12 @@ const ADMIN_ROUTES = new Set([
 ]);
 
 // Member portal routes (athlete-facing)
-const MEMBER_ROUTES = new Set(["console"]);
+const MEMBER_ROUTES = new Set([
+  "console",
+  "console/community",
+  "console/workouts",
+  "console/progress",
+]);
 
 // Public org page routes (not admin)
 const PUBLIC_ORG_ROUTES = new Set([
