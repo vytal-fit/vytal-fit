@@ -105,8 +105,7 @@ export default function ConsoleLoginPage() {
             {/* Logo */}
             <div className="mb-8 text-center">
               <h1 className="text-3xl font-bold tracking-tight">
-                <span className="text-vytal-muted/70">my</span>
-                <span className="text-vytal-green">VYTAL</span>
+                <span className="text-base font-medium text-vytal-muted/60">my</span><span className="text-vytal-green">VYTAL</span>
               </h1>
               <p className="mt-2 text-sm text-vytal-muted">
                 Portal do Atleta

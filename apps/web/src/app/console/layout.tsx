@@ -71,17 +71,11 @@ export default function ConsoleLayout({ children }: { children: React.ReactNode 
           className="flex items-center h-14 px-5 border-b shrink-0"
           style={{ borderColor: "var(--color-vytal-border)" }}
         >
-          <Link href="/console" className="flex items-center">
-            <span
-              className="text-lg font-bold tracking-tight"
-              style={{ color: "var(--color-vytal-muted)" }}
-            >
+          <Link href="/console" className="flex items-baseline gap-0">
+            <span className="text-xs font-medium tracking-tight" style={{ color: "var(--color-vytal-muted)", opacity: 0.5 }}>
               my
             </span>
-            <span
-              className="text-lg font-bold tracking-tight"
-              style={{ color: "var(--color-vytal-green)" }}
-            >
+            <span className="text-lg font-bold tracking-tight" style={{ color: "var(--color-vytal-green)" }}>
               VYTAL
             </span>
           </Link>
