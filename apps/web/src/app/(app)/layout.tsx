@@ -1059,7 +1059,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             <span className="text-xs font-medium text-vytal-muted/50">pro</span><span className="text-vytal-green">VYTAL</span>
           </span>
         ) : (
-          <span className="flex justify-center text-sm font-bold text-vytal-green">V</span>
+          <span className="flex h-8 w-full items-center justify-center text-base font-bold text-vytal-green">V</span>
         )}
       </div>
 
@@ -1253,8 +1253,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         </button>
         {sidebarContent}
       </aside>
-      {/* Spacer when sidebar is collapsed + hovered (absolute) */}
-      {sidebarCollapsed && <div className="hidden lg:block w-[72px] shrink-0" />}
 
       {/* Mobile Sidebar Overlay */}
       {mobileOpen && (
