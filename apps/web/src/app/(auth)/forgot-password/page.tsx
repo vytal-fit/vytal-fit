@@ -24,7 +24,7 @@ export default function ForgotPasswordPage() {
         {/* Logo */}
         <div className="mb-8 text-center">
           <h1 className="text-3xl font-bold tracking-tight">
-            <span className="text-base font-medium text-vytal-muted/60">control</span><span className="text-vytal-green">VYTAL</span>
+            <span className="text-base font-medium text-vytal-muted/60">pro</span><span className="text-vytal-green">VYTAL</span>
           </h1>
           <p className="mt-2 text-sm text-vytal-muted">
             Reset your password
