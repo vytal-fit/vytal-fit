@@ -303,11 +303,16 @@ export default function OnboardingScreen() {
     gender: "",
     emergencyContact: "",
   });
-  const [prefs, setPrefs] = useState({
+  const [prefs, setPrefs] = useState<{
+    classReminders: boolean;
+    wodPublished: boolean;
+    prNotifications: boolean;
+    privacy: "public" | "box_only" | "private";
+  }>({
     classReminders: true,
     wodPublished: true,
     prNotifications: true,
-    privacy: "box_only" as const,
+    privacy: "box_only",
   });
 
   function handleNext() {
