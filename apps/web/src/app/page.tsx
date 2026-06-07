@@ -146,6 +146,7 @@ const LANDING_COPY: Record<Lang, Record<string, string>> = {
     statFeatures: "Funcionalidades",
     statLangs: "Idiomas",
     statLocal: "100% Português",
+    floatRevenue: "Receita",
     trustedBy: "Confiado por espaços em todo o país",
     everythingTitle: "Tudo o que precisa. Numa plataforma.",
     everythingSubtitle: "Construído de raiz para o mercado português, com todas as ferramentas que o seu espaço fitness precisa para crescer.",
@@ -357,6 +358,7 @@ const LANDING_COPY: Record<Lang, Record<string, string>> = {
     statFeatures: "Features",
     statLangs: "Languages",
     statLocal: "100% Portuguese",
+    floatRevenue: "Revenue",
     trustedBy: "Trusted by spaces across the country",
     everythingTitle: "Everything you need. One platform.",
     everythingSubtitle: "Built from the ground up for the Portuguese market, with all the tools your fitness space needs to grow.",
@@ -568,6 +570,7 @@ const LANDING_COPY: Record<Lang, Record<string, string>> = {
     statFeatures: "Funcionalidades",
     statLangs: "Idiomas",
     statLocal: "100% Portugués",
+    floatRevenue: "Ingresos",
     trustedBy: "La confianza de espacios en todo el país",
     everythingTitle: "Todo lo que necesitas. Una plataforma.",
     everythingSubtitle: "Construido desde cero para el mercado portugués, con todas las herramientas que tu espacio fitness necesita para crecer.",
@@ -962,7 +965,7 @@ function Navbar({ t, lang, setLang }: { t: (k: string) => string; lang: Lang; se
 }
 
 // ── Floating UI Cards (Hero decorations) ─────────────────────────────────────
-function FloatingStatsCard() {
+function FloatingStatsCard({ t }: { t: (k: string) => string }) {
   return (
     <div
       className="absolute hidden lg:flex flex-col gap-1.5 p-3.5 rounded-xl border border-[rgba(34,197,94,0.2)] bg-vytal-bg/85 backdrop-blur-md shadow-xl shadow-black/30 w-[150px]"
@@ -976,7 +979,7 @@ function FloatingStatsCard() {
         <div className="w-5 h-5 rounded-md bg-[rgba(34,197,94,0.15)] flex items-center justify-center">
           <TrendingUp size={10} className="text-vytal-green" />
         </div>
-        <span className="text-[9px] font-medium text-vytal-muted uppercase tracking-wider">Revenue</span>
+        <span className="text-[9px] font-medium text-vytal-muted uppercase tracking-wider">{t("floatRevenue")}</span>
       </div>
       <span className="text-lg font-bold text-vytal-text">+32%</span>
       <div className="flex gap-0.5">
@@ -1092,7 +1095,7 @@ function Hero({ t }: { t: (k: string) => string }) {
       </div>
 
       {/* Floating UI cards */}
-      <FloatingStatsCard />
+      <FloatingStatsCard t={t} />
       <FloatingCalendarCard />
       <FloatingMembersCard />
 
@@ -1129,7 +1132,7 @@ function Hero({ t }: { t: (k: string) => string }) {
             </Link>
           </div>
           <Link
-            href="/@crossfit-aveiro"
+            href="/@yoga-flow-porto"
             className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl border border-[rgba(34,197,94,0.25)] text-vytal-text font-medium text-sm hover:border-[rgba(34,197,94,0.5)] hover:bg-[rgba(34,197,94,0.05)] transition-all duration-150 backdrop-blur-sm"
           >
             <Play size={15} className="text-vytal-green" />
@@ -1576,7 +1579,7 @@ function WebsiteMockup() {
           <div className="w-2 h-2 rounded-full bg-vytal-green/60" />
         </div>
         <div className="flex-1 h-4 rounded bg-[rgba(34,197,94,0.06)] flex items-center px-2">
-          <span className="text-[8px] text-vytal-muted">vytal.fit/crossfit-aveiro</span>
+          <span className="text-[8px] text-vytal-muted">vytal.fit/@yoga-flow-porto</span>
         </div>
       </div>
       {/* Mini site */}
@@ -2455,7 +2458,7 @@ function CTABanner({ t }: { t: (k: string) => string }) {
                 </Link>
               </div>
               <Link
-                href="/@crossfit-aveiro"
+                href="/@yoga-flow-porto"
                 className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl border border-[rgba(34,197,94,0.25)] text-vytal-text font-medium text-sm hover:border-[rgba(34,197,94,0.5)] hover:bg-[rgba(34,197,94,0.05)] transition-all duration-150"
               >
                 <Play size={14} className="text-vytal-green" />
