@@ -3,10 +3,11 @@
 import { useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Home, Calendar, Dumbbell, Trophy, User, Bell, Zap, Users, TrendingUp } from "lucide-react";
+import { Home, Calendar, Dumbbell, Trophy, User, Bell, Zap, Users, TrendingUp, Sun, Moon, Globe } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/stores/auth-store";
 import { useAppStore } from "@/stores/app-store";
+import { useI18n } from "@/lib/i18n";
 
 const NAV_TABS = [
   { href: "/console",            label: "Inicio",     icon: Home,      exact: true },
@@ -23,7 +24,8 @@ export default function ConsoleLayout({ children }: { children: React.ReactNode 
   const pathname = usePathname();
   const router = useRouter();
   const { user, isAuthenticated, hydrate } = useAuthStore();
-  const { hydrate: hydrateApp } = useAppStore();
+  const { hydrate: hydrateApp, theme, toggleTheme } = useAppStore();
+  const { language, setLanguage } = useI18n();
 
   useEffect(() => {
     hydrate();
@@ -261,6 +263,28 @@ export default function ConsoleLayout({ children }: { children: React.ReactNode 
 
           {/* Right controls */}
           <div className="flex items-center gap-2">
+            {/* Language switcher */}
+            <div className="hidden md:flex items-center rounded-lg overflow-hidden" style={{ border: "1px solid var(--color-vytal-border)" }}>
+              {(["pt", "en", "es"] as const).map((l) => (
+                <button
+                  key={l}
+                  onClick={() => setLanguage(l)}
+                  className={cn("px-2 py-1.5 text-[10px] font-bold uppercase transition-all", language === l ? "text-vytal-green bg-[rgba(34,197,94,0.1)]" : "text-vytal-muted hover:text-vytal-text")}
+                >
+                  {l.toUpperCase()}
+                </button>
+              ))}
+            </div>
+
+            {/* Theme toggle */}
+            <button
+              onClick={toggleTheme}
+              className="flex items-center justify-center w-9 h-9 rounded-xl transition-all duration-200 hover:scale-105"
+              style={{ background: "rgba(34,197,94,0.08)", border: "1px solid var(--color-vytal-border)" }}
+            >
+              {theme === "dark" ? <Sun size={14} style={{ color: "var(--color-vytal-muted)" }} /> : <Moon size={14} style={{ color: "var(--color-vytal-muted)" }} />}
+            </button>
+
             {/* Notifications */}
             <button
               className="relative flex items-center justify-center w-9 h-9 rounded-xl transition-all duration-200 hover:scale-105"
