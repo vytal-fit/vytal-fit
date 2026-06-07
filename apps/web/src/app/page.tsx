@@ -342,6 +342,9 @@ const LANDING_COPY: Record<Lang, Record<string, string>> = {
     complianceUptime: "99.9% Uptime",
     complianceIso: "ISO 27001 (planeado)",
     complianceBackup: "Backups Diários",
+    t1gymType: "Box de CrossFit",
+    t2gymType: "Ginásio Funcional",
+    t3gymType: "Estúdios de Yoga",
   },
   en: {
     badge: "The #1 platform for fitness spaces in Portugal",
@@ -554,6 +557,9 @@ const LANDING_COPY: Record<Lang, Record<string, string>> = {
     complianceUptime: "99.9% Uptime",
     complianceIso: "ISO 27001 (planned)",
     complianceBackup: "Daily Backups",
+    t1gymType: "CrossFit Box",
+    t2gymType: "Functional Gym",
+    t3gymType: "Yoga Studios",
   },
   es: {
     badge: "La plataforma #1 para espacios fitness en Portugal",
@@ -766,6 +772,9 @@ const LANDING_COPY: Record<Lang, Record<string, string>> = {
     complianceUptime: "99.9% Uptime",
     complianceIso: "ISO 27001 (planificado)",
     complianceBackup: "Backups Diarios",
+    t1gymType: "Box de CrossFit",
+    t2gymType: "Gimnasio Funcional",
+    t3gymType: "Estudios de Yoga",
   },
 };
 
@@ -1157,6 +1166,153 @@ function Hero({ t }: { t: (k: string) => string }) {
             </div>
           ))}
         </div>
+
+        {/* ── Browser mockup product preview ── */}
+        <div
+          className="mt-16 hidden lg:block"
+          style={{
+            perspective: "1000px",
+          }}
+        >
+          <div
+            className="relative mx-auto max-w-4xl rounded-2xl border border-[rgba(34,197,94,0.2)] bg-vytal-bg3/60 backdrop-blur-sm shadow-[0_40px_80px_rgba(0,0,0,0.5),0_0_0_1px_rgba(34,197,94,0.1)] overflow-hidden"
+            style={{
+              transform: "perspective(1000px) rotateX(2deg)",
+              transformOrigin: "center top",
+            }}
+          >
+            {/* Browser chrome */}
+            <div className="flex items-center gap-3 px-4 py-3 bg-vytal-bg/90 border-b border-[rgba(34,197,94,0.1)]">
+              <div className="flex gap-1.5 shrink-0">
+                <div className="w-3 h-3 rounded-full bg-[#ff4757]/70" />
+                <div className="w-3 h-3 rounded-full bg-[#ffb300]/70" />
+                <div className="w-3 h-3 rounded-full bg-[rgba(34,197,94,0.7)]" />
+              </div>
+              {/* URL bar */}
+              <div className="flex-1 max-w-xs mx-auto h-6 rounded-md bg-[rgba(34,197,94,0.06)] border border-[rgba(34,197,94,0.1)] flex items-center justify-center gap-1.5 px-3">
+                <div className="w-2 h-2 rounded-full bg-vytal-green opacity-60" />
+                <span className="text-[10px] text-vytal-muted font-mono">pro.vytal.fit</span>
+              </div>
+              <div className="flex gap-2 shrink-0">
+                {["#", "☆"].map((c, i) => (
+                  <div key={i} className="w-5 h-5 rounded bg-[rgba(34,197,94,0.06)] flex items-center justify-center">
+                    <span className="text-[9px] text-vytal-muted">{c}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Dashboard interior */}
+            <div className="flex h-52">
+              {/* Mini sidebar */}
+              <div className="w-36 shrink-0 border-r border-[rgba(34,197,94,0.08)] bg-vytal-bg/60 flex flex-col py-3 px-2 gap-1">
+                <div className="flex items-center gap-2 px-2 py-1.5 mb-2">
+                  <span className="text-[11px] font-bold text-vytal-green">Vytal</span>
+                  <span className="text-[11px] font-bold text-vytal-muted">.fit</span>
+                </div>
+                {[
+                  { dot: "#22c55e", label: "Dashboard" },
+                  { dot: "#00d4ff", label: "Membros" },
+                  { dot: "#c084fc", label: "Aulas" },
+                  { dot: "#ffb300", label: "CRM" },
+                  { dot: "#ff8c42", label: "Finanças" },
+                ].map((item, i) => (
+                  <div
+                    key={i}
+                    className={`flex items-center gap-2 px-2 py-1.5 rounded-md cursor-default transition-colors ${i === 0 ? "bg-[rgba(34,197,94,0.1)]" : "hover:bg-[rgba(34,197,94,0.04)]"}`}
+                  >
+                    <div className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: item.dot }} />
+                    <span className={`text-[10px] ${i === 0 ? "text-vytal-green font-semibold" : "text-vytal-muted"}`}>{item.label}</span>
+                  </div>
+                ))}
+              </div>
+
+              {/* Main content area */}
+              <div className="flex-1 p-4 flex flex-col gap-3 bg-vytal-bg/40">
+                {/* Top stat cards */}
+                <div className="grid grid-cols-4 gap-2">
+                  {[
+                    { label: "Membros", value: "247", change: "+12", color: "#22c55e" },
+                    { label: "Receita", value: "€12.4k", change: "+18%", color: "#00d4ff" },
+                    { label: "Aulas hoje", value: "8", change: "3 full", color: "#c084fc" },
+                    { label: "Retenção", value: "87%", change: "+3%", color: "#ffb300" },
+                  ].map((card, i) => (
+                    <div
+                      key={i}
+                      className="rounded-lg border border-[rgba(34,197,94,0.1)] bg-vytal-bg3/60 p-2.5 flex flex-col gap-1"
+                    >
+                      <span className="text-[9px] text-vytal-muted uppercase tracking-wide">{card.label}</span>
+                      <span className="text-sm font-bold text-vytal-text">{card.value}</span>
+                      <span className="text-[8px] font-medium" style={{ color: card.color }}>{card.change}</span>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Chart area */}
+                <div className="flex-1 rounded-lg border border-[rgba(34,197,94,0.1)] bg-vytal-bg3/40 p-3 flex flex-col gap-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[9px] font-semibold text-vytal-text">Presenças — Junho 2026</span>
+                    <div className="flex gap-1">
+                      {["Semana", "Mês"].map((l, i) => (
+                        <div key={i} className={`px-1.5 py-0.5 rounded text-[8px] ${i === 1 ? "bg-[rgba(34,197,94,0.15)] text-vytal-green font-semibold" : "text-vytal-muted"}`}>{l}</div>
+                      ))}
+                    </div>
+                  </div>
+                  {/* Bar chart */}
+                  <div className="flex-1 flex items-end gap-1 pt-1">
+                    {[45, 62, 38, 75, 55, 88, 70, 92, 65, 80, 58, 95, 72, 85, 60, 78, 90, 68, 82, 76, 50, 88, 74, 96, 62, 84, 70, 91, 66, 79].map((h, i) => (
+                      <div
+                        key={i}
+                        className="flex-1 rounded-sm min-w-[3px]"
+                        style={{
+                          height: `${h}%`,
+                          background: `rgba(34,197,94,${0.15 + (h / 100) * 0.6})`,
+                        }}
+                      />
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Right mini panel */}
+              <div className="w-32 shrink-0 border-l border-[rgba(34,197,94,0.08)] bg-vytal-bg/50 p-2.5 flex flex-col gap-2">
+                <span className="text-[9px] font-semibold text-vytal-muted uppercase tracking-wide">Próximas Aulas</span>
+                {[
+                  { time: "09:00", name: "CrossFit", spots: "12/15", color: "#22c55e" },
+                  { time: "10:30", name: "Yoga", spots: "8/10", color: "#c084fc" },
+                  { time: "17:00", name: "HIIT", spots: "14/15", color: "#ff8c42" },
+                  { time: "18:30", name: "Mobility", spots: "5/12", color: "#00d4ff" },
+                ].map((cls, i) => (
+                  <div key={i} className="rounded-md border p-1.5 flex flex-col gap-0.5" style={{ borderColor: `${cls.color}25`, background: `${cls.color}06` }}>
+                    <div className="flex items-center justify-between">
+                      <span className="text-[8px] font-bold" style={{ color: cls.color }}>{cls.time}</span>
+                      <span className="text-[7px] text-vytal-muted">{cls.spots}</span>
+                    </div>
+                    <span className="text-[9px] text-vytal-text font-medium">{cls.name}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Bottom status bar */}
+            <div className="flex items-center justify-between px-4 py-1.5 bg-vytal-bg/80 border-t border-[rgba(34,197,94,0.06)]">
+              <div className="flex items-center gap-3">
+                <span className="flex items-center gap-1 text-[8px] text-vytal-muted">
+                  <span className="w-1.5 h-1.5 rounded-full bg-vytal-green" />
+                  Live
+                </span>
+                <span className="text-[8px] text-vytal-muted">CrossFit Aveiro · Pro</span>
+              </div>
+              <span className="text-[8px] text-vytal-muted">Actualizado agora</span>
+            </div>
+          </div>
+
+          {/* Reflection/glow under mockup */}
+          <div
+            className="mx-auto mt-2 h-8 max-w-2xl rounded-full blur-2xl opacity-20 pointer-events-none"
+            style={{ background: "linear-gradient(90deg, #22c55e, #00d4ff, #c084fc)" }}
+          />
+        </div>
       </div>
     </section>
   );
@@ -1166,12 +1322,12 @@ function Hero({ t }: { t: (k: string) => string }) {
 function SocialProof({ t }: { t: (k: string) => string }) {
   const ref = useScrollReveal();
   const gyms = [
-    "CrossFit Aveiro",
-    "Yoga Flow Porto",
-    "Iron Temple",
-    "Box 47",
-    "Studio Zen",
-    "PT Academy",
+    { name: "CrossFit Aveiro", count: "245 membros", color: "#22c55e" },
+    { name: "Yoga Flow Porto", count: "182 membros", color: "#c084fc" },
+    { name: "Iron Temple", count: "310 membros", color: "#00d4ff" },
+    { name: "Box 47", count: "198 membros", color: "#ffb300" },
+    { name: "Studio Zen", count: "143 membros", color: "#ff8c42" },
+    { name: "PT Academy", count: "97 membros", color: "#22c55e" },
   ];
 
   return (
@@ -1183,12 +1339,22 @@ function SocialProof({ t }: { t: (k: string) => string }) {
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
           {gyms.map((gym, i) => (
             <div
-              key={gym}
-              className="flex items-center justify-center px-4 py-3.5 rounded-xl border border-[rgba(34,197,94,0.1)] bg-vytal-bg3/40 hover:border-[rgba(34,197,94,0.25)] hover:bg-[rgba(34,197,94,0.04)] transition-all duration-150 group backdrop-blur-sm"
+              key={gym.name}
+              className="flex flex-col items-center justify-center gap-1.5 px-4 py-4 rounded-xl border border-[rgba(34,197,94,0.1)] bg-vytal-bg3/40 hover:border-[rgba(34,197,94,0.25)] hover:bg-[rgba(34,197,94,0.04)] transition-all duration-150 group backdrop-blur-sm"
               style={{ animationDelay: `${i * 0.1}s` }}
             >
-              <span className="text-xs font-medium text-vytal-muted group-hover:text-vytal-text transition-colors text-center leading-tight">
-                {gym}
+              {/* Mini avatar-style initials badge */}
+              <div
+                className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold text-vytal-bg shrink-0"
+                style={{ background: gym.color }}
+              >
+                {gym.name.split(" ").map((w) => w[0]).join("").slice(0, 2)}
+              </div>
+              <span className="text-xs font-semibold text-vytal-text group-hover:text-vytal-text transition-colors text-center leading-tight">
+                {gym.name}
+              </span>
+              <span className="text-[9px] text-vytal-muted text-center leading-tight">
+                {gym.count}
               </span>
             </div>
           ))}
@@ -1196,6 +1362,138 @@ function SocialProof({ t }: { t: (k: string) => string }) {
       </div>
     </section>
   );
+}
+
+// ── Feature card mini illustrations ─────────────────────────────────────────
+function FeatureMiniIllustration({ idx, color }: { idx: number; color: string }) {
+  // 0: Members — avatar row
+  if (idx === 0) {
+    return (
+      <div className="flex items-center gap-1 mb-3">
+        {["AF", "JS", "MR", "PL"].map((init, i) => (
+          <div
+            key={i}
+            className="w-7 h-7 rounded-full flex items-center justify-center text-[9px] font-bold text-vytal-bg border-2 border-vytal-bg3"
+            style={{ background: color, opacity: 0.6 + i * 0.1, marginLeft: i > 0 ? "-6px" : "0" }}
+          >
+            {init}
+          </div>
+        ))}
+        <div
+          className="w-7 h-7 rounded-full flex items-center justify-center text-[9px] font-bold border-2 border-vytal-bg3"
+          style={{ background: `${color}20`, color, marginLeft: "-6px", borderColor: `${color}30` }}
+        >
+          +8
+        </div>
+      </div>
+    );
+  }
+  // 1: Classes — mini calendar grid
+  if (idx === 1) {
+    const days = [1,2,3,4,5,6,7,8,9,10,11,12,13,14];
+    const active = [3,7,8,12,13];
+    return (
+      <div className="mb-3 p-2 rounded-lg border border-[rgba(34,197,94,0.08)] bg-vytal-bg/40 w-fit">
+        <div className="grid grid-cols-7 gap-0.5">
+          {days.map((d) => (
+            <div
+              key={d}
+              className="w-4 h-4 rounded-sm flex items-center justify-center text-[7px] font-medium"
+              style={
+                active.includes(d)
+                  ? { background: color, color: "var(--color-vytal-bg)", opacity: 0.85 }
+                  : { background: `${color}10`, color: "var(--color-vytal-muted)" }
+              }
+            >
+              {d}
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+  // 2: WODs — mini timer display
+  if (idx === 2) {
+    return (
+      <div
+        className="mb-3 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border font-mono"
+        style={{ borderColor: `${color}30`, background: `${color}10` }}
+      >
+        <div className="w-2 h-2 rounded-full animate-pulse" style={{ background: color }} />
+        <span className="text-sm font-bold tabular-nums" style={{ color }}>21:00</span>
+        <span className="text-[9px] text-vytal-muted">AMRAP</span>
+      </div>
+    );
+  }
+  // 3: CRM — mini kanban columns
+  if (idx === 3) {
+    const cols = [
+      { label: "Lead", n: 4 },
+      { label: "Trial", n: 2 },
+      { label: "Ativo", n: 7 },
+    ];
+    return (
+      <div className="flex gap-1.5 mb-3">
+        {cols.map((col, i) => (
+          <div key={i} className="flex flex-col gap-0.5 flex-1">
+            <span className="text-[7px] font-semibold uppercase tracking-wide mb-0.5" style={{ color }}>{col.label}</span>
+            {Array.from({ length: Math.min(col.n, 3) }).map((_, j) => (
+              <div
+                key={j}
+                className="h-2 rounded-sm"
+                style={{ background: `${color}${j === 0 ? "25" : "12"}` }}
+              />
+            ))}
+            {col.n > 3 && <span className="text-[7px] text-vytal-muted">+{col.n - 3}</span>}
+          </div>
+        ))}
+      </div>
+    );
+  }
+  // 4: Finance — mini chart bars
+  if (idx === 4) {
+    const bars = [30, 55, 45, 70, 60, 85];
+    return (
+      <div className="flex items-end gap-1 h-8 mb-3">
+        {bars.map((h, i) => (
+          <div
+            key={i}
+            className="flex-1 rounded-sm"
+            style={{
+              height: `${h}%`,
+              background: `${color}${i === bars.length - 1 ? "99" : "40"}`,
+            }}
+          />
+        ))}
+      </div>
+    );
+  }
+  // 5: Website — mini browser frame
+  if (idx === 5) {
+    return (
+      <div
+        className="mb-3 rounded-md border overflow-hidden w-32"
+        style={{ borderColor: `${color}25` }}
+      >
+        <div className="flex items-center gap-1 px-1.5 py-1 border-b" style={{ background: `${color}08`, borderColor: `${color}15` }}>
+          <div className="w-1.5 h-1.5 rounded-full" style={{ background: "#ff4757", opacity: 0.6 }} />
+          <div className="w-1.5 h-1.5 rounded-full" style={{ background: "#ffb300", opacity: 0.6 }} />
+          <div className="w-1.5 h-1.5 rounded-full" style={{ background: color, opacity: 0.6 }} />
+          <div className="flex-1 h-2 rounded-sm ml-1" style={{ background: `${color}12` }} />
+        </div>
+        <div className="p-1.5 flex flex-col gap-1" style={{ background: `${color}05` }}>
+          <div className="h-2 rounded-sm w-full" style={{ background: `${color}20` }} />
+          <div className="h-1.5 rounded-sm w-3/4" style={{ background: `${color}12` }} />
+          <div className="flex gap-1 mt-0.5">
+            {[1,2,3].map((k) => (
+              <div key={k} className="flex-1 h-3 rounded-sm" style={{ background: `${color}15` }} />
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+  return null;
 }
 
 // ── Features ─────────────────────────────────────────────────────────────────
@@ -1269,6 +1567,8 @@ function Features({ t }: { t: (k: string) => string }) {
                     <Icon size={20} style={{ color }} />
                   </div>
                 </div>
+                {/* Mini illustration */}
+                <FeatureMiniIllustration idx={idx} color={color} />
                 <h3 className="font-semibold text-vytal-text mb-2 text-sm">{t(keys.title)}</h3>
                 <p className="text-xs text-vytal-muted leading-relaxed">{t(keys.desc)}</p>
                 <Link
@@ -1358,6 +1658,209 @@ function VerticalsMarquee({ t }: { t: (k: string) => string }) {
   );
 }
 
+// ── Product Showcase tab mockups ─────────────────────────────────────────────
+function ShowcaseAdminMockup() {
+  return (
+    <div className="absolute top-12 left-0 right-0 bottom-0 flex">
+      {/* Sidebar */}
+      <div className="w-28 shrink-0 border-r border-[rgba(34,197,94,0.08)] bg-vytal-bg/50 flex flex-col py-2 px-1.5 gap-0.5">
+        {[
+          { dot: "#22c55e", label: "Dashboard", active: true },
+          { dot: "#00d4ff", label: "Membros" },
+          { dot: "#c084fc", label: "Aulas" },
+          { dot: "#ffb300", label: "CRM" },
+          { dot: "#ff8c42", label: "Finanças" },
+          { dot: "#22c55e", label: "Relatórios" },
+        ].map((item, i) => (
+          <div
+            key={i}
+            className="flex items-center gap-1.5 px-2 py-1.5 rounded-md"
+            style={{ background: item.active ? "rgba(34,197,94,0.1)" : "transparent" }}
+          >
+            <div className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: item.dot }} />
+            <span className="text-[9px]" style={{ color: item.active ? "#22c55e" : "var(--color-vytal-muted)", fontWeight: item.active ? 600 : 400 }}>{item.label}</span>
+          </div>
+        ))}
+      </div>
+      {/* Content */}
+      <div className="flex-1 p-3 flex flex-col gap-2">
+        <div className="grid grid-cols-2 gap-2">
+          {[
+            { label: "Membros Ativos", value: "247", sub: "+12 esta semana", color: "#22c55e" },
+            { label: "Receita Mensal", value: "€12.4k", sub: "+18% vs mês ant.", color: "#00d4ff" },
+          ].map((card, i) => (
+            <div key={i} className="rounded-lg border border-[rgba(34,197,94,0.1)] bg-vytal-bg3/50 p-2.5">
+              <div className="text-[8px] text-vytal-muted mb-1">{card.label}</div>
+              <div className="text-sm font-bold text-vytal-text">{card.value}</div>
+              <div className="text-[8px] font-medium mt-0.5" style={{ color: card.color }}>{card.sub}</div>
+            </div>
+          ))}
+        </div>
+        <div className="flex-1 rounded-lg border border-[rgba(34,197,94,0.08)] bg-vytal-bg3/30 p-2">
+          <div className="text-[8px] text-vytal-muted mb-1.5">Presenças — últimos 30 dias</div>
+          <div className="flex items-end gap-0.5 h-16">
+            {[35,50,42,68,55,80,65,88,60,75,45,90,70,85,55,78,92,66,80,72,50,88,74,96,62,84,58,91,76,79].map((h,i) => (
+              <div key={i} className="flex-1 rounded-sm" style={{ height: `${h}%`, background: `rgba(34,197,94,${0.15+(h/100)*0.65})` }} />
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ShowcaseWebsiteMockup() {
+  return (
+    <div className="absolute top-12 left-0 right-0 bottom-0 overflow-hidden">
+      {/* Public site preview */}
+      <div className="p-3 flex flex-col gap-2 h-full">
+        {/* Site nav */}
+        <div className="flex items-center justify-between px-3 py-1.5 rounded-lg border border-[rgba(0,212,255,0.12)] bg-vytal-bg3/50">
+          <span className="text-[10px] font-bold text-[#00d4ff]">CrossFit Aveiro</span>
+          <div className="flex gap-2">
+            {["Horários","Planos","Equipa","Loja"].map((n,i) => (
+              <span key={i} className="text-[8px] text-vytal-muted">{n}</span>
+            ))}
+          </div>
+          <div className="px-2 py-0.5 rounded-md bg-[rgba(0,212,255,0.15)] text-[8px] font-semibold text-[#00d4ff]">Inscrever</div>
+        </div>
+        {/* Hero banner */}
+        <div className="rounded-lg border border-[rgba(0,212,255,0.1)] bg-gradient-to-br from-[rgba(0,212,255,0.08)] to-[rgba(34,197,94,0.04)] p-3 flex items-center justify-between">
+          <div>
+            <div className="text-[10px] font-bold text-vytal-text mb-0.5">Forja o Teu Melhor.</div>
+            <div className="text-[8px] text-vytal-muted mb-1.5">CrossFit em Aveiro desde 2015</div>
+            <div className="inline-flex px-2 py-0.5 rounded-md bg-[#00d4ff] text-[8px] font-bold text-vytal-bg">Começar Agora</div>
+          </div>
+          <div className="grid grid-cols-2 gap-1">
+            {["245\nmembros","15\naulas/sem","★ 4.9","5\nanos"].map((s,i) => (
+              <div key={i} className="text-center px-1.5 py-1 rounded bg-vytal-bg3/60 border border-[rgba(0,212,255,0.08)]">
+                <div className="text-[9px] font-bold text-[#00d4ff] whitespace-pre-line leading-tight">{s}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+        {/* Pricing mini */}
+        <div className="grid grid-cols-3 gap-1.5">
+          {[
+            { name: "Starter", price: "Grátis", color: "#6b8c72" },
+            { name: "Pro", price: "49€/mês", color: "#00d4ff" },
+            { name: "Elite", price: "79€/mês", color: "#c084fc" },
+          ].map((plan, i) => (
+            <div key={i} className="rounded-lg border p-2 text-center" style={{ borderColor: `${plan.color}25`, background: `${plan.color}06` }}>
+              <div className="text-[8px] font-semibold text-vytal-text">{plan.name}</div>
+              <div className="text-[9px] font-bold mt-0.5" style={{ color: plan.color }}>{plan.price}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ShowcaseMemberMockup() {
+  const today = new Date();
+  const month = Array.from({ length: 30 }, (_, i) => i + 1);
+  const checkedIn = [1,2,4,5,7,8,9,11,12,14,15,16,18,19,21,22,24,25,26,28,29];
+  return (
+    <div className="absolute top-12 left-0 right-0 bottom-0 p-3 flex flex-col gap-2 overflow-hidden">
+      {/* Streak header */}
+      <div className="flex items-center justify-between px-3 py-2 rounded-lg border border-[rgba(192,132,252,0.15)] bg-[rgba(192,132,252,0.06)]">
+        <div>
+          <div className="text-[9px] text-vytal-muted">Sequência actual</div>
+          <div className="text-base font-bold text-[#c084fc]">🔥 12 dias</div>
+        </div>
+        <div className="text-right">
+          <div className="text-[9px] text-vytal-muted">Total este mês</div>
+          <div className="text-sm font-bold text-vytal-text">{checkedIn.length} treinos</div>
+        </div>
+      </div>
+      {/* Streak calendar */}
+      <div className="rounded-lg border border-[rgba(192,132,252,0.1)] bg-vytal-bg3/40 p-2">
+        <div className="text-[8px] text-vytal-muted mb-1.5">Junho 2026</div>
+        <div className="grid grid-cols-10 gap-0.5">
+          {month.map((d) => (
+            <div
+              key={d}
+              className="w-full aspect-square rounded-sm flex items-center justify-center text-[7px]"
+              style={checkedIn.includes(d) ? { background: "#c084fc", color: "var(--color-vytal-bg)", fontWeight: 700 } : { background: "rgba(192,132,252,0.08)", color: "var(--color-vytal-muted)" }}
+            >
+              {d}
+            </div>
+          ))}
+        </div>
+      </div>
+      {/* Today's WOD card */}
+      <div className="rounded-lg border border-[rgba(192,132,252,0.15)] bg-[rgba(192,132,252,0.05)] p-2.5">
+        <div className="flex items-center justify-between mb-1">
+          <span className="text-[9px] font-bold text-[#c084fc] uppercase tracking-wide">WOD de Hoje</span>
+          <span className="text-[8px] text-vytal-muted">AMRAP 21min</span>
+        </div>
+        <div className="flex gap-2">
+          {["21 Thrusters", "15 Pull-ups", "9 HSPU"].map((mv, i) => (
+            <span key={i} className="text-[8px] px-1.5 py-0.5 rounded bg-[rgba(192,132,252,0.12)] text-[#c084fc] font-medium">{mv}</span>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ShowcaseMobileMockup() {
+  return (
+    <div className="absolute top-10 left-1/2 -translate-x-1/2 w-40">
+      {/* Phone frame */}
+      <div className="relative rounded-3xl border-2 border-[rgba(255,140,66,0.4)] bg-vytal-bg overflow-hidden shadow-xl shadow-black/40" style={{ aspectRatio: "9/18" }}>
+        {/* Notch */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-16 h-4 bg-vytal-bg3 rounded-b-xl z-10" />
+        {/* Screen content */}
+        <div className="p-2.5 pt-5 flex flex-col gap-2 h-full">
+          {/* Header */}
+          <div className="flex items-center justify-between">
+            <span className="text-[9px] font-bold text-vytal-text">Olá, João 👋</span>
+            <div className="w-5 h-5 rounded-full bg-[rgba(255,140,66,0.2)] flex items-center justify-center">
+              <span className="text-[7px] font-bold text-[#ff8c42]">JC</span>
+            </div>
+          </div>
+          {/* Today WOD card */}
+          <div className="rounded-xl border border-[rgba(255,140,66,0.2)] bg-[rgba(255,140,66,0.08)] p-2">
+            <div className="text-[8px] font-bold text-[#ff8c42] mb-1">WOD · Hoje</div>
+            <div className="text-[8px] text-vytal-text font-medium">AMRAP 21min</div>
+            <div className="flex flex-col gap-0.5 mt-1">
+              {["21 Thrusters","15 Pull-ups","9 HSPU"].map((m,i) => (
+                <div key={i} className="flex items-center gap-1">
+                  <div className="w-1 h-1 rounded-full bg-[#ff8c42]" />
+                  <span className="text-[7px] text-vytal-muted">{m}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+          {/* Class card */}
+          <div className="rounded-xl border border-[rgba(34,197,94,0.15)] bg-[rgba(34,197,94,0.05)] p-2">
+            <div className="flex items-center justify-between mb-0.5">
+              <span className="text-[8px] font-bold text-vytal-green">09:00 CrossFit</span>
+              <span className="text-[7px] text-vytal-muted">12/15</span>
+            </div>
+            <div className="w-full h-1 rounded-full bg-[rgba(34,197,94,0.1)]">
+              <div className="h-1 rounded-full bg-vytal-green" style={{ width: "80%" }} />
+            </div>
+          </div>
+          {/* Spacer */}
+          <div className="flex-1" />
+          {/* Bottom tab bar */}
+          <div className="flex items-center justify-around py-1.5 rounded-xl border border-[rgba(255,140,66,0.1)] bg-vytal-bg3/80">
+            {["🏠","📅","🏋️","💬","👤"].map((icon, i) => (
+              <div key={i} className={`flex flex-col items-center gap-0.5 ${i === 0 ? "" : ""}`}>
+                <span className="text-[10px] leading-none">{icon}</span>
+                {i === 0 && <div className="w-1 h-1 rounded-full bg-[#ff8c42]" />}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ── Product Showcase ──────────────────────────────────────────────────────────
 const TAB_META = [
   { id: "admin",   gradient: "from-vytal-green/20 via-vytal-bg2 to-vytal-bg", accent: "#22c55e",
@@ -1420,34 +1923,27 @@ function ProductShowcase({ t }: { t: (k: string) => string }) {
           <div
             className={`relative rounded-2xl border border-[rgba(34,197,94,0.15)] overflow-hidden h-80 bg-gradient-to-br ${tab.gradient}`}
           >
-            {/* Mock UI chrome */}
-            <div className="absolute top-0 left-0 right-0 h-10 bg-vytal-bg/80 flex items-center gap-2 px-4 border-b border-[rgba(34,197,94,0.08)]">
+            {/* Mock UI chrome bar */}
+            <div className="absolute top-0 left-0 right-0 h-10 bg-vytal-bg/80 flex items-center gap-2 px-4 border-b border-[rgba(34,197,94,0.08)] z-10">
               <div className="flex gap-1.5">
                 <div className="w-3 h-3 rounded-full bg-[#ff4757]/60" />
                 <div className="w-3 h-3 rounded-full bg-vytal-amber/60" />
                 <div className="w-3 h-3 rounded-full bg-vytal-green/60" />
               </div>
-              <div className="flex-1 h-5 rounded bg-[rgba(34,197,94,0.06)] mx-4" />
+              <div className="flex-1 h-5 rounded bg-[rgba(34,197,94,0.06)] mx-4 flex items-center px-2">
+                <span className="text-[9px] text-vytal-muted font-mono" style={{ color: tab.accent }}>
+                  {tab.id === "admin" ? "pro.vytal.fit" : tab.id === "website" ? "vytal.fit/@crossfit-aveiro" : tab.id === "membro" ? "myvytal.fit/joao-costa" : "Vytal App"}
+                </span>
+              </div>
             </div>
-            {/* Mock content grid */}
-            <div className="absolute top-12 left-4 right-4 bottom-4 grid grid-cols-3 gap-2">
-              {mockItems.map((item, i) => (
-                <div
-                  key={item}
-                  className="rounded-lg border border-[rgba(34,197,94,0.1)] bg-vytal-bg/60 backdrop-blur-sm flex flex-col items-center justify-center gap-1 p-2 hover:border-[rgba(34,197,94,0.3)] transition-colors"
-                  style={{ animationDelay: `${i * 0.05}s` }}
-                >
-                  <div
-                    className="w-6 h-6 rounded-md"
-                    style={{ background: `${tab.accent}20` }}
-                  />
-                  <span className="text-[10px] text-vytal-muted text-center leading-tight">{item}</span>
-                </div>
-              ))}
-            </div>
+            {/* Per-tab rich mockup */}
+            {tab.id === "admin" && <ShowcaseAdminMockup />}
+            {tab.id === "website" && <ShowcaseWebsiteMockup />}
+            {tab.id === "membro" && <ShowcaseMemberMockup />}
+            {tab.id === "mobile" && <ShowcaseMobileMockup />}
             {/* Glow */}
             <div
-              className="absolute bottom-0 left-1/2 -translate-x-1/2 w-48 h-24 rounded-full blur-3xl opacity-30 pointer-events-none"
+              className="absolute bottom-0 left-1/2 -translate-x-1/2 w-48 h-24 rounded-full blur-3xl opacity-20 pointer-events-none"
               style={{ background: tab.accent }}
             />
           </div>
@@ -2152,9 +2648,12 @@ function Comparison({ t }: { t: (k: string) => string }) {
 
 // ── Testimonials ──────────────────────────────────────────────────────────────
 const TESTIMONIAL_META = [
-  { quoteKey: "t1quote", nameKey: "t1name", roleKey: "t1role", gymKey: "t1gym", initials: "AF", color: "#22c55e" },
-  { quoteKey: "t2quote", nameKey: "t2name", roleKey: "t2role", gymKey: "t2gym", initials: "RS", color: "#00d4ff" },
-  { quoteKey: "t3quote", nameKey: "t3name", roleKey: "t3role", gymKey: "t3gym", initials: "SM", color: "#c084fc" },
+  { quoteKey: "t1quote", nameKey: "t1name", roleKey: "t1role", gymKey: "t1gym", initials: "AF", color: "#22c55e",
+    gymTypeKey: "t1gymType" },
+  { quoteKey: "t2quote", nameKey: "t2name", roleKey: "t2role", gymKey: "t2gym", initials: "RS", color: "#00d4ff",
+    gymTypeKey: "t2gymType" },
+  { quoteKey: "t3quote", nameKey: "t3name", roleKey: "t3role", gymKey: "t3gym", initials: "SM", color: "#c084fc",
+    gymTypeKey: "t3gymType" },
 ];
 
 function Testimonials({ t }: { t: (k: string) => string }) {
@@ -2178,31 +2677,52 @@ function Testimonials({ t }: { t: (k: string) => string }) {
           {TESTIMONIAL_META.map((tm) => (
             <div
               key={tm.nameKey}
-              className="relative p-6 rounded-2xl border border-[rgba(34,197,94,0.1)] bg-vytal-bg3/40 backdrop-blur-sm hover:border-[rgba(34,197,94,0.22)] hover:-translate-y-1 hover:shadow-[0_0_30px_rgba(34,197,94,0.08)] transition-all duration-300 group"
+              className="relative p-7 rounded-2xl border border-[rgba(34,197,94,0.1)] bg-vytal-bg3/40 backdrop-blur-sm hover:border-[rgba(34,197,94,0.22)] hover:-translate-y-1 hover:shadow-[0_0_30px_rgba(34,197,94,0.08)] transition-all duration-300 group overflow-hidden flex flex-col"
             >
+              {/* Decorative large quote SVG — top left */}
+              <svg
+                aria-hidden="true"
+                className="absolute top-4 left-4 opacity-10 group-hover:opacity-[0.18] transition-opacity pointer-events-none"
+                width="56" height="40" viewBox="0 0 56 40" fill="none"
+              >
+                <path
+                  d="M0 40V24C0 10.745 8.507 3.2 25.52 0l2.48 4C19.76 5.76 15.013 9.893 13.52 16H24V40H0ZM32 40V24C32 10.745 40.507 3.2 57.52 0L60 4c-8.24 1.76-12.987 5.893-14.48 12H56V40H32Z"
+                  fill={tm.color}
+                />
+              </svg>
+
               {/* Stars */}
-              <div className="flex gap-1 mb-4">
+              <div className="flex gap-1 mb-5 relative z-10">
                 {Array.from({ length: 5 }).map((_, i) => (
                   <Star key={i} size={14} className="fill-vytal-amber text-vytal-amber" />
                 ))}
               </div>
+
               {/* Quote */}
-              <p className="text-sm text-vytal-muted leading-relaxed mb-6 group-hover:text-vytal-text transition-colors duration-200">
+              <p className="text-sm text-vytal-muted leading-relaxed mb-6 group-hover:text-vytal-text transition-colors duration-200 relative z-10 flex-1">
                 &ldquo;{t(tm.quoteKey)}&rdquo;
               </p>
+
               {/* Author */}
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 relative z-10">
                 <div
-                  className="w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold text-vytal-bg"
-                  style={{ background: tm.color }}
+                  className="w-11 h-11 rounded-full flex items-center justify-center text-xs font-bold text-vytal-bg shrink-0 shadow-lg"
+                  style={{ background: `linear-gradient(135deg, ${tm.color}, ${tm.color}bb)`, boxShadow: `0 4px 12px ${tm.color}40` }}
                 >
                   {tm.initials}
                 </div>
-                <div>
+                <div className="flex-1 min-w-0">
                   <p className="text-sm font-semibold text-vytal-text">{t(tm.nameKey)}</p>
-                  <p className="text-xs text-vytal-muted">
+                  <p className="text-xs text-vytal-muted truncate">
                     {t(tm.roleKey)} · {t(tm.gymKey)}
                   </p>
+                  {/* Gym type badge */}
+                  <span
+                    className="inline-flex items-center gap-1 mt-1.5 px-2 py-0.5 rounded-full text-[9px] font-semibold"
+                    style={{ background: `${tm.color}15`, color: tm.color, border: `1px solid ${tm.color}25` }}
+                  >
+                    {t(tm.gymTypeKey)}
+                  </span>
                 </div>
               </div>
             </div>
@@ -2421,28 +2941,145 @@ function FAQ({ t }: { t: (k: string) => string }) {
 // ── CTA Banner ────────────────────────────────────────────────────────────────
 function CTABanner({ t }: { t: (k: string) => string }) {
   const ref = useScrollReveal();
+  const [hovered, setHovered] = useState(false);
 
   return (
     <section className="py-24 border-t border-[rgba(34,197,94,0.08)]">
       <div ref={ref} className="scroll-reveal max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <div className="relative rounded-3xl border border-[rgba(34,197,94,0.2)] bg-vytal-bg3/60 backdrop-blur-sm p-12 overflow-hidden">
-          {/* Background blobs */}
+        <div
+          className="relative rounded-3xl border border-[rgba(34,197,94,0.2)] backdrop-blur-sm p-12 overflow-hidden transition-all duration-500"
+          style={{
+            background: hovered
+              ? "linear-gradient(135deg, rgba(34,197,94,0.08) 0%, rgba(0,212,255,0.06) 50%, rgba(192,132,252,0.06) 100%)"
+              : "rgba(20,28,20,0.6)",
+          }}
+          onMouseEnter={() => setHovered(true)}
+          onMouseLeave={() => setHovered(false)}
+        >
+          {/* Animated background gradient blobs */}
           <div
-            className="absolute -top-20 -left-20 w-60 h-60 rounded-full opacity-10 pointer-events-none"
-            style={{ background: "radial-gradient(circle, #22c55e 0%, transparent 70%)" }}
+            className="absolute -top-24 -left-24 w-72 h-72 rounded-full pointer-events-none transition-opacity duration-500"
+            style={{
+              background: "radial-gradient(circle, #22c55e 0%, transparent 70%)",
+              opacity: hovered ? 0.12 : 0.06,
+              animation: "landing-float 8s ease-in-out infinite",
+            }}
           />
           <div
-            className="absolute -bottom-20 -right-20 w-60 h-60 rounded-full opacity-10 pointer-events-none"
-            style={{ background: "radial-gradient(circle, #00d4ff 0%, transparent 70%)" }}
+            className="absolute -bottom-24 -right-24 w-72 h-72 rounded-full pointer-events-none transition-opacity duration-500"
+            style={{
+              background: "radial-gradient(circle, #00d4ff 0%, transparent 70%)",
+              opacity: hovered ? 0.10 : 0.05,
+              animation: "landing-float-delayed 10s ease-in-out infinite",
+              animationDelay: "2s",
+            }}
+          />
+          <div
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-40 rounded-full pointer-events-none blur-3xl transition-opacity duration-500"
+            style={{
+              background: "radial-gradient(ellipse, rgba(34,197,94,0.06) 0%, transparent 70%)",
+              opacity: hovered ? 1 : 0,
+            }}
           />
 
+          {/* Floating UI card — top left */}
+          <div
+            className="absolute hidden lg:flex flex-col gap-1 p-3 rounded-xl border border-[rgba(34,197,94,0.2)] bg-vytal-bg/80 backdrop-blur-md shadow-lg w-36 pointer-events-none"
+            style={{
+              top: "16px",
+              left: "20px",
+              animation: "landing-float 7s ease-in-out infinite",
+              animationDelay: "0.5s",
+            }}
+          >
+            <div className="flex items-center gap-1.5 mb-1">
+              <div className="w-1.5 h-1.5 rounded-full bg-vytal-green animate-pulse" />
+              <span className="text-[8px] text-vytal-muted uppercase tracking-wider">Novos membros</span>
+            </div>
+            <div className="flex gap-0.5 items-end h-6">
+              {[40,55,35,65,50,70,80].map((h,i) => (
+                <div key={i} className="flex-1 rounded-sm bg-vytal-green" style={{ height: `${h}%`, opacity: 0.3+(h/100)*0.6 }} />
+              ))}
+            </div>
+            <span className="text-xs font-bold text-vytal-green">+12 esta semana</span>
+          </div>
+
+          {/* Floating UI card — top right */}
+          <div
+            className="absolute hidden lg:flex flex-col gap-1.5 p-3 rounded-xl border border-[rgba(0,212,255,0.2)] bg-vytal-bg/80 backdrop-blur-md shadow-lg w-32 pointer-events-none"
+            style={{
+              top: "16px",
+              right: "20px",
+              animation: "landing-float-delayed 9s ease-in-out infinite",
+              animationDelay: "1.5s",
+            }}
+          >
+            <span className="text-[8px] text-vytal-muted uppercase tracking-wider">Setup</span>
+            <div className="space-y-1">
+              {[
+                { label: "Espaço criado", done: true },
+                { label: "Membros importados", done: true },
+                { label: "Website activo", done: false },
+              ].map((step, i) => (
+                <div key={i} className="flex items-center gap-1.5">
+                  <div className={`w-3 h-3 rounded-full flex items-center justify-center shrink-0 ${step.done ? "bg-[rgba(34,197,94,0.2)]" : "bg-[rgba(0,212,255,0.1)]"}`}>
+                    {step.done
+                      ? <svg width="7" height="7" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#22c55e" strokeWidth="2" strokeLinecap="round"/></svg>
+                      : <div className="w-1 h-1 rounded-full bg-[#00d4ff] opacity-60" />}
+                  </div>
+                  <span className="text-[8px] text-vytal-muted leading-tight">{step.label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Floating UI card — bottom left */}
+          <div
+            className="absolute hidden lg:flex items-center gap-2 p-2.5 rounded-xl border border-[rgba(192,132,252,0.2)] bg-vytal-bg/80 backdrop-blur-md shadow-lg pointer-events-none"
+            style={{
+              bottom: "20px",
+              left: "16px",
+              animation: "landing-float 6s ease-in-out infinite",
+              animationDelay: "3s",
+            }}
+          >
+            <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[#c084fc] to-[#8b5cf6] flex items-center justify-center text-[9px] font-bold text-white">AF</div>
+            <div>
+              <div className="text-[9px] font-semibold text-vytal-text">Ana Ferreira</div>
+              <div className="text-[8px] text-vytal-green">acabou de aderir ✓</div>
+            </div>
+          </div>
+
+          {/* Floating UI card — bottom right */}
+          <div
+            className="absolute hidden lg:flex items-center gap-2 p-2.5 rounded-xl border border-[rgba(255,179,0,0.2)] bg-vytal-bg/80 backdrop-blur-md shadow-lg pointer-events-none"
+            style={{
+              bottom: "20px",
+              right: "16px",
+              animation: "landing-float-delayed 8s ease-in-out infinite",
+              animationDelay: "4s",
+            }}
+          >
+            <div className="w-7 h-7 rounded-xl bg-[rgba(255,179,0,0.15)] flex items-center justify-center">
+              <TrendingUp size={14} className="text-[#ffb300]" />
+            </div>
+            <div>
+              <div className="text-[9px] text-vytal-muted">Receita MBWay</div>
+              <div className="text-[10px] font-bold text-[#ffb300]">€1,240 hoje</div>
+            </div>
+          </div>
+
+          {/* Main content */}
           <div className="relative z-10">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[rgba(34,197,94,0.3)] bg-[rgba(34,197,94,0.08)] mb-6">
               <span className="w-1.5 h-1.5 rounded-full bg-vytal-green animate-pulse" />
               <span className="text-xs font-medium text-vytal-green">{t("ctaBannerBadge")}</span>
             </div>
-            <h2 className="text-3xl sm:text-4xl font-bold text-vytal-text mb-4">
-              {t("ctaBannerTitle")} <br />{t("ctaBannerTitleLine2")}
+            <h2 className="text-3xl sm:text-5xl font-bold text-vytal-text mb-4 leading-tight">
+              {t("ctaBannerTitle")} <br />
+              <span className="bg-gradient-to-r from-vytal-green via-[#00d4ff] to-[#c084fc] bg-clip-text text-transparent">
+                {t("ctaBannerTitleLine2")}
+              </span>
             </h2>
             <p className="text-vytal-muted mb-8 max-w-md mx-auto text-sm leading-relaxed">
               {t("ctaBannerSubtitle")}
