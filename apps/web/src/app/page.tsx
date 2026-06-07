@@ -233,6 +233,8 @@ const LANDING_COPY: Record<Lang, Record<string, string>> = {
     ctaBannerSubtitle: "Comece grátis hoje. Configure o seu espaço em menos de 5 minutos. Sem compromisso, sem cartão de crédito.",
     ctaBannerStart: "Começar Grátis Agora",
     ctaBannerDemo: "Ver Demo ao Vivo",
+    comingSoonModal: "Esta página está em construção. Registe-se para ser notificado quando estiver disponível.",
+    comingSoonClose: "Entendido",
     footerTagline: "A plataforma de gestão para espaços fitness e wellness — feita em Portugal, para o mundo.",
     footerRights: "Todos os direitos reservados. Feito com",
     footerInPortugal: "em Portugal.",
@@ -448,6 +450,8 @@ const LANDING_COPY: Record<Lang, Record<string, string>> = {
     ctaBannerSubtitle: "Start free today. Set up your space in under 5 minutes. No commitment, no credit card.",
     ctaBannerStart: "Start Free Now",
     ctaBannerDemo: "View Live Demo",
+    comingSoonModal: "This page is under construction. Sign up to be notified when it's available.",
+    comingSoonClose: "Got it",
     footerTagline: "The management platform for fitness and wellness spaces — made in Portugal, for the world.",
     footerRights: "All rights reserved. Made with",
     footerInPortugal: "in Portugal.",
@@ -663,6 +667,8 @@ const LANDING_COPY: Record<Lang, Record<string, string>> = {
     ctaBannerSubtitle: "Empieza gratis hoy. Configura tu espacio en menos de 5 minutos. Sin compromiso, sin tarjeta de crédito.",
     ctaBannerStart: "Empezar Gratis Ahora",
     ctaBannerDemo: "Ver Demo en Vivo",
+    comingSoonModal: "Esta página está en construcción. Regístrate para ser notificado cuando esté disponible.",
+    comingSoonClose: "Entendido",
     footerTagline: "La plataforma de gestión para espacios fitness y wellness — hecha en Portugal, para el mundo.",
     footerRights: "Todos los derechos reservados. Hecho con",
     footerInPortugal: "en Portugal.",
@@ -818,11 +824,24 @@ function FAQItem({ question, answer }: { question: string; answer: string }) {
 function Navbar({ t, lang, setLang }: { t: (k: string) => string; lang: Lang; setLang: (l: Lang) => void }) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [lightMode, setLightMode] = useState(false);
+  const [lightMode, setLightMode] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return localStorage.getItem("vytal-landing-theme") === "light";
+  });
+
+  // Apply theme on mount
+  useEffect(() => {
+    if (lightMode) {
+      document.documentElement.classList.add("light");
+    } else {
+      document.documentElement.classList.remove("light");
+    }
+  }, [lightMode]);
 
   function toggleTheme() {
     const next = !lightMode;
     setLightMode(next);
+    localStorage.setItem("vytal-landing-theme", next ? "light" : "dark");
     if (next) {
       document.documentElement.classList.add("light");
     } else {
@@ -977,7 +996,7 @@ function Navbar({ t, lang, setLang }: { t: (k: string) => string; lang: Lang; se
 function FloatingStatsCard({ t }: { t: (k: string) => string }) {
   return (
     <div
-      className="absolute hidden lg:flex flex-col gap-1.5 p-3.5 rounded-xl border border-[rgba(34,197,94,0.2)] bg-vytal-bg/85 backdrop-blur-md shadow-xl shadow-black/30 w-[150px]"
+      className="landing-float-card absolute hidden lg:flex flex-col gap-1.5 p-3.5 rounded-xl border border-[rgba(34,197,94,0.2)] bg-vytal-bg/85 backdrop-blur-md shadow-xl shadow-black/30 w-[150px]"
       style={{
         top: "18%",
         right: "6%",
@@ -3154,7 +3173,45 @@ const FOOTER_COL_META = [
 ];
 
 function Footer({ t }: { t: (k: string) => string }) {
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalTitle, setModalTitle] = useState("");
+
+  function handleFooterLink(e: React.MouseEvent, labelKey: string, href: string) {
+    // Anchor links scroll normally
+    if (href.startsWith("#")) return;
+    e.preventDefault();
+    setModalTitle(t(labelKey));
+    setModalOpen(true);
+  }
+
   return (
+    <>
+    {/* Coming Soon Modal */}
+    {modalOpen && (
+      <div className="fixed inset-0 z-[200] flex items-center justify-center p-4" onClick={() => setModalOpen(false)}>
+        <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+        <div
+          className="relative rounded-2xl p-8 max-w-sm w-full text-center space-y-4"
+          style={{ background: "var(--color-vytal-bg2)", border: "1px solid var(--color-vytal-border)" }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="mx-auto w-12 h-12 rounded-full flex items-center justify-center" style={{ background: "rgba(34,197,94,0.15)" }}>
+            <Zap size={20} className="text-vytal-green" />
+          </div>
+          <h3 className="text-lg font-bold text-vytal-text">{modalTitle}</h3>
+          <p className="text-sm text-vytal-muted">
+            {t("comingSoonModal")}
+          </p>
+          <button
+            onClick={() => setModalOpen(false)}
+            className="w-full py-2.5 rounded-xl text-sm font-bold transition-all hover:opacity-90"
+            style={{ background: "var(--color-vytal-green)", color: "#080c0a" }}
+          >
+            {t("comingSoonClose")}
+          </button>
+        </div>
+      </div>
+    )}
     <footer className="border-t border-[rgba(34,197,94,0.08)] py-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-2 md:grid-cols-5 gap-8 mb-12">
@@ -3197,7 +3254,8 @@ function Footer({ t }: { t: (k: string) => string }) {
                   <li key={link.labelKey}>
                     <a
                       href={link.href}
-                      className="text-xs text-vytal-muted hover:text-vytal-text transition-colors duration-150"
+                      onClick={(e) => handleFooterLink(e, link.labelKey, link.href)}
+                      className="text-xs text-vytal-muted hover:text-vytal-text transition-colors duration-150 cursor-pointer"
                     >
                       {t(link.labelKey)}
                     </a>
@@ -3223,6 +3281,7 @@ function Footer({ t }: { t: (k: string) => string }) {
         </div>
       </div>
     </footer>
+    </>
   );
 }
 
