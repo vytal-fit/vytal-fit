@@ -20,8 +20,8 @@ test.describe("Journey: Auth Flow", () => {
   test("login flow: redirects unauthenticated user to /login, then logs in to /dashboard", async ({
     page,
   }) => {
-    // 1. Navigate to / -> should redirect to /login
-    await page.goto("/", { waitUntil: "domcontentloaded" });
+    // 1. Navigate to /dashboard -> should redirect to /login when not authenticated
+    await page.goto("/dashboard", { waitUntil: "domcontentloaded" });
     await page.waitForTimeout(3000);
     await expect(page).toHaveURL(/login/);
 
@@ -105,8 +105,8 @@ test.describe("Journey: Logout", () => {
       localStorage.removeItem("vytal-auth");
     });
 
-    // Reload the page -- should redirect to login
-    await page.goto("/", { waitUntil: "domcontentloaded" });
+    // Reload dashboard -- should redirect to login
+    await page.goto("/dashboard", { waitUntil: "domcontentloaded" });
     await page.waitForTimeout(3000);
 
     // After clearing auth, we should be redirected to login

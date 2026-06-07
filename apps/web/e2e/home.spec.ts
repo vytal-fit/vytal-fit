@@ -3,10 +3,10 @@ import { test, expect } from "@playwright/test";
 const dashboardHeading = /bom dia|boa tarde|boa noite|good morning|good afternoon|good evening|dashboard/i;
 
 test.describe("Home / Dashboard", () => {
-  test("redirects to dashboard", async ({ page }) => {
+  test("landing page loads at root", async ({ page }) => {
     await page.goto("/");
-    await page.waitForURL(/dashboard/);
-    await expect(page).toHaveURL(/dashboard/);
+    // Root now shows the landing page (VYTAL marketing), not a redirect
+    await expect(page.locator("text=VYTAL").first()).toBeVisible();
   });
 
   test("renders the dashboard heading", async ({ page }) => {

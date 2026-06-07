@@ -62,9 +62,6 @@ export default function ConsolePage() {
         </h1>
       </div>
 
-      {/* Desktop: two-column grid wrapper */}
-      <div className="md:grid md:grid-cols-2 md:gap-6 md:items-start space-y-6 md:space-y-0">
-      {/* Left column on desktop */}
       <div className="space-y-6">
 
       {/* Stats strip */}
@@ -285,6 +282,7 @@ export default function ConsolePage() {
             );
           })}
         </div>
+      </div>
       </div>
     </div>
   );

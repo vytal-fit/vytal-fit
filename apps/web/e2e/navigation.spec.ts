@@ -36,9 +36,9 @@ test.describe("Admin Navigation", () => {
     }
   });
 
-  test("root redirects to dashboard", async ({ page }) => {
+  test("root shows landing page", async ({ page }) => {
     await page.goto("/");
-    await page.waitForURL(/dashboard/);
-    expect(page.url()).toContain("/dashboard");
+    // Root now shows VYTAL landing page
+    await expect(page.locator("text=VYTAL").first()).toBeVisible();
   });
 });
