@@ -39,7 +39,11 @@ const ADMIN_SUBDOMAINS = ["admin", "control", "pro"];
 const MEMBER_SUBDOMAINS = ["my"];
 
 function getSubdomain(hostname: string): string | null {
-  const host = hostname.split(":")[0];
+  let host = hostname.split(":")[0];
+  // Strip www. prefix (www.pro.vytal.fit → pro.vytal.fit)
+  if (host.startsWith("www.")) {
+    host = host.slice(4);
+  }
   // Check for vytal.fit subdomains
   if (host.endsWith(".vytal.fit")) {
     return host.replace(".vytal.fit", "");
@@ -94,10 +98,11 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  if (subdomain === "www") {
-    // www.vytal.fit → redirect to vytal.fit
+  // Handle www.* → redirect to non-www
+  const rawHost = (request.headers.get("host") ?? "").split(":")[0];
+  if (rawHost.startsWith("www.")) {
     const url = request.nextUrl.clone();
-    url.host = "vytal.fit";
+    url.host = rawHost.slice(4) + (request.headers.get("host")?.includes(":") ? ":" + request.headers.get("host")?.split(":")[1] : "");
     return NextResponse.redirect(url, 301);
   }
 
