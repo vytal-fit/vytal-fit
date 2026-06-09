@@ -9,15 +9,15 @@ import { useAuthStore } from "@/stores/auth-store";
 import { useAppStore } from "@/stores/app-store";
 import { useI18n } from "@/lib/i18n";
 
-const NAV_TABS = [
-  { href: "/console",            label: "Inicio",     icon: Home,      exact: true },
-  { href: "/console/schedule",   label: "Horario",    icon: Calendar,  exact: false },
-  { href: "/console/wod",        label: "WOD",        icon: Dumbbell,  exact: false },
-  { href: "/console/workouts",   label: "Treinos",    icon: Dumbbell,  exact: false },
-  { href: "/console/records",    label: "Recordes",   icon: Trophy,    exact: false },
-  { href: "/console/community",  label: "Comunidade", icon: Users,     exact: false },
-  { href: "/console/progress",   label: "Progresso",  icon: TrendingUp,exact: false },
-  { href: "/console/profile",    label: "Perfil",     icon: User,      exact: false },
+const NAV_TAB_KEYS = [
+  { href: "/console",            labelKey: "my.nav.home",      icon: Home,      exact: true },
+  { href: "/console/schedule",   labelKey: "my.nav.schedule",  icon: Calendar,  exact: false },
+  { href: "/console/wod",        labelKey: "my.nav.wod",       icon: Dumbbell,  exact: false },
+  { href: "/console/workouts",   labelKey: "my.nav.workouts",  icon: Dumbbell,  exact: false },
+  { href: "/console/records",    labelKey: "my.nav.records",   icon: Trophy,    exact: false },
+  { href: "/console/community",  labelKey: "my.nav.community", icon: Users,     exact: false },
+  { href: "/console/progress",   labelKey: "my.nav.progress",  icon: TrendingUp,exact: false },
+  { href: "/console/profile",    labelKey: "my.nav.profile",   icon: User,      exact: false },
 ];
 
 export default function ConsoleLayout({ children }: { children: React.ReactNode }) {
@@ -25,7 +25,7 @@ export default function ConsoleLayout({ children }: { children: React.ReactNode 
   const router = useRouter();
   const { user, isAuthenticated, hydrate } = useAuthStore();
   const { hydrate: hydrateApp, theme, toggleTheme } = useAppStore();
-  const { language, setLanguage } = useI18n();
+  const { language, setLanguage, t } = useI18n();
 
   useEffect(() => {
     hydrate();
@@ -124,7 +124,7 @@ export default function ConsoleLayout({ children }: { children: React.ReactNode 
 
         {/* Nav links */}
         <nav className="flex-1 px-3 py-3 space-y-0.5 overflow-y-auto">
-          {NAV_TABS.map((tab) => {
+          {NAV_TAB_KEYS.map((tab) => {
             const isActive = tab.exact
               ? pathname === tab.href
               : pathname.startsWith(tab.href);
@@ -164,7 +164,7 @@ export default function ConsoleLayout({ children }: { children: React.ReactNode 
                   className="font-medium"
                   style={{ color: isActive ? "var(--color-vytal-text)" : "var(--color-vytal-muted)" }}
                 >
-                  {tab.label}
+                  {t(tab.labelKey)}
                 </span>
                 {isActive && (
                   <div
@@ -213,7 +213,7 @@ export default function ConsoleLayout({ children }: { children: React.ReactNode 
                 {userName}
               </p>
               <p className="text-[10px] font-medium" style={{ color: "var(--color-vytal-green)" }}>
-                Membro Pro
+                {t("my.profile.memberPro")}
               </p>
             </div>
           </Link>
@@ -340,7 +340,7 @@ export default function ConsoleLayout({ children }: { children: React.ReactNode 
             borderTop: "1px solid var(--color-vytal-border)",
           }}
         >
-          {NAV_TABS.map((tab) => {
+          {NAV_TAB_KEYS.map((tab) => {
             const isActive = tab.exact
               ? pathname === tab.href
               : pathname.startsWith(tab.href);
@@ -377,7 +377,7 @@ export default function ConsoleLayout({ children }: { children: React.ReactNode 
                   className="text-[9px] font-semibold tracking-wide uppercase"
                   style={{ color: isActive ? "var(--color-vytal-green)" : "var(--color-vytal-muted)", opacity: isActive ? 1 : 0.6 }}
                 >
-                  {tab.label}
+                  {t(tab.labelKey)}
                 </span>
               </Link>
             );

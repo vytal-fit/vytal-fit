@@ -2440,7 +2440,7 @@ function AutomationsAI({ t }: { t: (k: string) => string }) {
           </div>
 
           {/* AI column */}
-          <div className="rounded-2xl border border-[rgba(0,212,255,0.12)] bg-[rgba(0,30,40,0.4)] backdrop-blur-sm p-6">
+          <div className="rounded-2xl border border-[rgba(0,212,255,0.12)] bg-vytal-bg3/40 backdrop-blur-sm p-6">
             <h3 className="text-sm font-bold text-vytal-blue uppercase tracking-wider mb-5 flex items-center gap-2">
               <div className="w-5 h-5 rounded-md bg-[rgba(0,212,255,0.15)] flex items-center justify-center">
                 <BarChart3 size={11} className="text-vytal-blue" />
@@ -3200,7 +3200,7 @@ function Footer({ t }: { t: (k: string) => string }) {
           <button
             onClick={() => setModalOpen(false)}
             className="w-full py-2.5 rounded-xl text-sm font-bold transition-all hover:opacity-90"
-            style={{ background: "var(--color-vytal-green)", color: "#080c0a" }}
+            style={{ background: "var(--color-vytal-green)", color: "var(--color-vytal-bg)" }}
           >
             {t("comingSoonClose")}
           </button>
