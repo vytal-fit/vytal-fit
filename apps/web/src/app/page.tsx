@@ -918,7 +918,7 @@ function Navbar({ t, lang, setLang }: { t: (k: string) => string; lang: Lang; se
               {lightMode ? <Sun size={14} /> : <Moon size={14} />}
             </button>
             <Link
-              href="/login"
+              href="https://pro.vytal.fit"
               className="text-sm px-4 py-2 rounded-lg border border-[rgba(34,197,94,0.25)] text-vytal-text hover:border-[rgba(34,197,94,0.5)] hover:bg-[rgba(34,197,94,0.05)] transition-all duration-150"
             >
               {t("signIn")}
@@ -972,7 +972,7 @@ function Navbar({ t, lang, setLang }: { t: (k: string) => string; lang: Lang; se
               </div>
               <div className="flex gap-2 mt-2 px-1">
                 <Link
-                  href="/login"
+                  href="https://pro.vytal.fit"
                   className="flex-1 text-center text-sm px-4 py-2.5 rounded-lg border border-[rgba(34,197,94,0.25)] text-vytal-text"
                 >
                   {t("signIn")}
