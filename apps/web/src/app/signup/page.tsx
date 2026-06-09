@@ -201,7 +201,7 @@ function StepIndicator({ step }: { step: Step }) {
                   done
                     ? "bg-vytal-green text-vytal-bg"
                     : active
-                    ? "bg-[rgba(34,197,94,0.15)] border-2 border-[#22c55e] text-vytal-green"
+                    ? "bg-[rgba(34,197,94,0.15)] border-2 border-vytal-green text-vytal-green"
                     : "bg-[rgba(34,197,94,0.06)] border border-[rgba(34,197,94,0.15)] text-vytal-muted"
                 }`}
               >
@@ -277,7 +277,7 @@ function PlanCard({
         isEnterprise
           ? "opacity-60 cursor-not-allowed border-[rgba(192,132,252,0.15)] bg-vytal-bg3/30"
           : selected
-          ? "border-[#22c55e] bg-[rgba(34,197,94,0.06)] shadow-lg shadow-[rgba(34,197,94,0.1)] cursor-pointer"
+          ? "border-vytal-green bg-[rgba(34,197,94,0.06)] shadow-lg shadow-[rgba(34,197,94,0.1)] cursor-pointer"
           : "border-[rgba(34,197,94,0.12)] bg-vytal-bg3/40 hover:border-[rgba(34,197,94,0.3)] cursor-pointer"
       }`}
     >
@@ -333,7 +333,7 @@ function PlanCard({
       {isEnterprise && (
         <a
           href="mailto:sales@vytal.fit"
-          className="mt-auto block text-center text-[11px] font-semibold text-[#c084fc] border border-[rgba(192,132,252,0.25)] rounded-lg py-2 hover:bg-[rgba(192,132,252,0.06)] transition-colors"
+          className="mt-auto block text-center text-[11px] font-semibold text-vytal-purple border border-[rgba(192,132,252,0.25)] rounded-lg py-2 hover:bg-[rgba(192,132,252,0.06)] transition-colors"
           onClick={(e) => e.stopPropagation()}
         >
           Falar com Vendas
@@ -410,16 +410,16 @@ function Input({
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
           autoComplete={autoComplete}
-          className={`w-full rounded-xl border bg-vytal-bg3/60 text-sm text-vytal-text placeholder-vytal-muted/60 px-4 py-3 outline-none transition-all duration-150 focus:border-[#22c55e] focus:ring-1 focus:ring-[rgba(34,197,94,0.3)] ${
+          className={`w-full rounded-xl border bg-vytal-bg3/60 text-sm text-vytal-text placeholder-vytal-muted/60 px-4 py-3 outline-none transition-all duration-150 focus:border-vytal-green focus:ring-1 focus:ring-[rgba(34,197,94,0.3)] ${
             prefix ? "pl-[calc(1rem+var(--prefix-w,0px))]" : ""
-          } ${error ? "border-[#ff4757]/60" : "border-[rgba(34,197,94,0.15)]"}`}
+          } ${error ? "border-vytal-red/60" : "border-[rgba(34,197,94,0.15)]"}`}
           style={prefix ? { paddingLeft: `${prefix.length * 7.5 + 16}px` } : undefined}
         />
         {suffix && (
           <div className="absolute right-3">{suffix}</div>
         )}
       </div>
-      {error && <p className="text-[10px] text-[#ff4757]">{error}</p>}
+      {error && <p className="text-[10px] text-vytal-red">{error}</p>}
     </div>
   );
 }
@@ -446,8 +446,8 @@ function Select({
         <select
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className={`w-full appearance-none rounded-xl border bg-vytal-bg3/60 text-sm text-vytal-text px-4 py-3 pr-10 outline-none transition-all duration-150 focus:border-[#22c55e] focus:ring-1 focus:ring-[rgba(34,197,94,0.3)] ${
-            error ? "border-[#ff4757]/60" : "border-[rgba(34,197,94,0.15)]"
+          className={`w-full appearance-none rounded-xl border bg-vytal-bg3/60 text-sm text-vytal-text px-4 py-3 pr-10 outline-none transition-all duration-150 focus:border-vytal-green focus:ring-1 focus:ring-[rgba(34,197,94,0.3)] ${
+            error ? "border-vytal-red/60" : "border-[rgba(34,197,94,0.15)]"
           } ${!value ? "text-vytal-muted/60" : ""}`}
         >
           {placeholder && (
@@ -466,7 +466,7 @@ function Select({
           className="absolute right-3 top-1/2 -translate-y-1/2 text-vytal-muted pointer-events-none"
         />
       </div>
-      {error && <p className="text-[10px] text-[#ff4757]">{error}</p>}
+      {error && <p className="text-[10px] text-vytal-red">{error}</p>}
     </div>
   );
 }
@@ -583,8 +583,8 @@ function Step2({
               onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))}
               placeholder={COPY.passwordPlaceholder}
               autoComplete="new-password"
-              className={`w-full rounded-xl border bg-vytal-bg3/60 text-sm text-vytal-text placeholder-vytal-muted/60 px-4 py-3 pr-10 outline-none transition-all duration-150 focus:border-[#22c55e] focus:ring-1 focus:ring-[rgba(34,197,94,0.3)] ${
-                errors.password ? "border-[#ff4757]/60" : "border-[rgba(34,197,94,0.15)]"
+              className={`w-full rounded-xl border bg-vytal-bg3/60 text-sm text-vytal-text placeholder-vytal-muted/60 px-4 py-3 pr-10 outline-none transition-all duration-150 focus:border-vytal-green focus:ring-1 focus:ring-[rgba(34,197,94,0.3)] ${
+                errors.password ? "border-vytal-red/60" : "border-[rgba(34,197,94,0.15)]"
               }`}
             />
             <button
@@ -595,7 +595,7 @@ function Step2({
               {showPw ? <EyeOff size={14} /> : <Eye size={14} />}
             </button>
           </div>
-          {errors.password && <p className="text-[10px] text-[#ff4757]">{errors.password}</p>}
+          {errors.password && <p className="text-[10px] text-vytal-red">{errors.password}</p>}
           <PasswordStrengthBar password={form.password} />
         </div>
 
@@ -608,8 +608,8 @@ function Step2({
               onChange={(e) => setForm((f) => ({ ...f, confirmPassword: e.target.value }))}
               placeholder={COPY.confirmPasswordPlaceholder}
               autoComplete="new-password"
-              className={`w-full rounded-xl border bg-vytal-bg3/60 text-sm text-vytal-text placeholder-vytal-muted/60 px-4 py-3 pr-10 outline-none transition-all duration-150 focus:border-[#22c55e] focus:ring-1 focus:ring-[rgba(34,197,94,0.3)] ${
-                errors.confirmPassword ? "border-[#ff4757]/60" : "border-[rgba(34,197,94,0.15)]"
+              className={`w-full rounded-xl border bg-vytal-bg3/60 text-sm text-vytal-text placeholder-vytal-muted/60 px-4 py-3 pr-10 outline-none transition-all duration-150 focus:border-vytal-green focus:ring-1 focus:ring-[rgba(34,197,94,0.3)] ${
+                errors.confirmPassword ? "border-vytal-red/60" : "border-[rgba(34,197,94,0.15)]"
               }`}
             />
             <button
@@ -621,7 +621,7 @@ function Step2({
             </button>
           </div>
           {errors.confirmPassword && (
-            <p className="text-[10px] text-[#ff4757]">{errors.confirmPassword}</p>
+            <p className="text-[10px] text-vytal-red">{errors.confirmPassword}</p>
           )}
         </div>
 
@@ -631,7 +631,7 @@ function Step2({
             <div
               className={`relative mt-0.5 w-4 h-4 rounded shrink-0 border transition-all duration-150 flex items-center justify-center ${
                 form.acceptTerms
-                  ? "bg-vytal-green border-[#22c55e]"
+                  ? "bg-vytal-green border-vytal-green"
                   : "border-[rgba(34,197,94,0.3)] group-hover:border-[rgba(34,197,94,0.6)]"
               }`}
               onClick={() => setForm((f) => ({ ...f, acceptTerms: !f.acceptTerms }))}
@@ -650,7 +650,7 @@ function Step2({
             </span>
           </label>
           {errors.acceptTerms && (
-            <p className="text-[10px] text-[#ff4757] pl-7">{errors.acceptTerms}</p>
+            <p className="text-[10px] text-vytal-red pl-7">{errors.acceptTerms}</p>
           )}
         </div>
       </div>
@@ -787,7 +787,7 @@ function Step4({ plan }: { plan: PlanId }) {
             boxShadow: show ? "0 0 40px rgba(34,197,94,0.3)" : "none",
           }}
         >
-          <div className="w-16 h-16 rounded-full bg-[rgba(34,197,94,0.15)] border-2 border-[#22c55e] flex items-center justify-center">
+          <div className="w-16 h-16 rounded-full bg-[rgba(34,197,94,0.15)] border-2 border-vytal-green flex items-center justify-center">
             <Check size={28} className="text-vytal-green" strokeWidth={3} />
           </div>
           {/* Orbiting ring */}
@@ -832,7 +832,7 @@ function Step4({ plan }: { plan: PlanId }) {
 
       <Link
         href="/login"
-        className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-vytal-green text-vytal-bg font-bold text-sm hover:bg-[#16a34a] transition-all duration-150 shadow-lg shadow-[rgba(34,197,94,0.25)] hover:shadow-[rgba(34,197,94,0.4)] hover:-translate-y-0.5"
+        className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-vytal-green text-vytal-bg font-bold text-sm hover:bg-vytal-green/90 transition-all duration-150 shadow-lg shadow-[rgba(34,197,94,0.25)] hover:shadow-[rgba(34,197,94,0.4)] hover:-translate-y-0.5"
       >
         {COPY.goToDashboard}
         <ArrowRight size={16} />
@@ -987,7 +987,7 @@ export default function SignupPage() {
                 )}
                 <button
                   onClick={handleNext}
-                  className="flex items-center gap-2 px-6 py-3 rounded-xl bg-vytal-green text-vytal-bg font-semibold text-sm hover:bg-[#16a34a] transition-all duration-150 shadow-md shadow-[rgba(34,197,94,0.2)] hover:-translate-y-0.5"
+                  className="flex items-center gap-2 px-6 py-3 rounded-xl bg-vytal-green text-vytal-bg font-semibold text-sm hover:bg-vytal-green/90 transition-all duration-150 shadow-md shadow-[rgba(34,197,94,0.2)] hover:-translate-y-0.5"
                 >
                   {COPY.next}
                   <ArrowRight size={14} />

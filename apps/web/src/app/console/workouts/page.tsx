@@ -592,7 +592,7 @@ export default function WorkoutsPage() {
                     style={{ background: cfg.color, color: "#080c0a" }}
                   >
                     <Play size={12} fill="currentColor" />
-                    Iniciar Treino
+                    {t("my.workouts.startWorkout")}
                   </button>
                 </div>
               )}
