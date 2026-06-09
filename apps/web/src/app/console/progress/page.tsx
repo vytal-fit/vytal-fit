@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { TrendingUp, Target, Trophy, Calendar, CheckCircle, Edit2, Check, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/lib/i18n";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -188,9 +189,11 @@ function MonthCalendar() {
 function GoalCard({
   goal,
   onUpdate,
+  labelDone,
 }: {
   goal: Goal;
   onUpdate: (id: string, current: number) => void;
+  labelDone: string;
 }) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(String(goal.current));
@@ -220,7 +223,7 @@ function GoalCard({
             className="text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded-lg shrink-0"
             style={{ background: "rgba(34,197,94,0.15)", color: "var(--color-vytal-green)" }}
           >
-            Concluido
+            {labelDone}
           </span>
         ) : (
           <button
@@ -292,6 +295,7 @@ function GoalCard({
 // ── Main ───────────────────────────────────────────────────────────────────────
 
 export default function ProgressPage() {
+  const { t } = useI18n();
   const [mounted, setMounted] = useState(false);
   const [goals, setGoals] = useState<Goal[]>(DEFAULT_GOALS);
   const [toast, setToast] = useState<string | null>(null);
@@ -312,7 +316,7 @@ export default function ProgressPage() {
       saveGoals(updated);
       return updated;
     });
-    showToast("Objetivo atualizado!");
+    showToast(t("my.progress.toastGoalUpdated"));
   }
 
   if (!mounted) {
@@ -348,10 +352,10 @@ export default function ProgressPage() {
       {/* ── Header ── */}
       <div>
         <h1 className="text-2xl font-black" style={{ color: "var(--color-vytal-text)" }}>
-          O Meu Progresso
+          {t("my.progress.title")}
         </h1>
         <p className="text-xs mt-0.5" style={{ color: "var(--color-vytal-muted)" }}>
-          Acompanha a tua evolucao
+          {t("my.progress.subtitle")}
         </p>
       </div>
 
@@ -364,13 +368,13 @@ export default function ProgressPage() {
         }}
       >
         <p className="text-[10px] font-black uppercase tracking-widest mb-3" style={{ color: "var(--color-vytal-muted)" }}>
-          Resumo de junho
+          {t("my.progress.monthSummary")}
         </p>
         <div className="grid grid-cols-3 gap-3">
           {[
-            { value: checkInsThisMonth,  label: "check-ins",    color: "var(--color-vytal-green)" },
-            { value: prsThisMonth,       label: "PRs batidos",  color: "var(--color-vytal-amber)" },
-            { value: classesAttended,    label: "aulas",        color: "var(--color-vytal-blue)" },
+            { value: checkInsThisMonth,  label: t("my.progress.checkins"),  color: "var(--color-vytal-green)" },
+            { value: prsThisMonth,       label: t("my.progress.prs"),       color: "var(--color-vytal-amber)" },
+            { value: classesAttended,    label: t("my.progress.classes"),   color: "var(--color-vytal-blue)" },
           ].map((s, i) => (
             <div key={i} className="text-center">
               <p className="text-3xl font-black tabular-nums" style={{ color: s.color }}>
@@ -394,7 +398,7 @@ export default function ProgressPage() {
           <div className="flex items-center gap-2 mb-1">
             <TrendingUp size={13} style={{ color: "var(--color-vytal-green)" }} />
             <p className="text-[10px] font-black uppercase tracking-widest" style={{ color: "var(--color-vytal-muted)" }}>
-              Peso corporal (kg)
+              {t("my.progress.bodyWeight")}
             </p>
           </div>
           <div className="flex items-center gap-3 mb-1">
@@ -406,7 +410,7 @@ export default function ProgressPage() {
                 -{(DEFAULT_BODY[0].weight - DEFAULT_BODY[DEFAULT_BODY.length - 1].weight).toFixed(1)} kg
               </p>
               <p className="text-[10px]" style={{ color: "var(--color-vytal-muted)" }}>
-                desde jan 2026
+                {t("my.progress.sinceJan")}
               </p>
             </div>
           </div>
@@ -421,12 +425,12 @@ export default function ProgressPage() {
           <div className="flex items-center gap-2 mb-4">
             <Calendar size={13} style={{ color: "var(--color-vytal-green)" }} />
             <p className="text-[10px] font-black uppercase tracking-widest" style={{ color: "var(--color-vytal-muted)" }}>
-              Calendario de treinos — junho
+              {t("my.progress.trainingCalendar")}
             </p>
           </div>
           <MonthCalendar />
           <p className="text-[10px] mt-3" style={{ color: "var(--color-vytal-muted)" }}>
-            <span className="font-bold" style={{ color: "var(--color-vytal-green)" }}>16</span> dias de treino este mes
+            <span className="font-bold" style={{ color: "var(--color-vytal-green)" }}>16</span> {t("my.progress.trainingDays")}
           </p>
         </div>
       </div>
@@ -436,12 +440,12 @@ export default function ProgressPage() {
         <div className="flex items-center gap-2 mb-3">
           <Target size={13} style={{ color: "var(--color-vytal-green)" }} />
           <p className="text-[10px] font-black uppercase tracking-widest" style={{ color: "var(--color-vytal-muted)" }}>
-            Os meus objetivos
+            {t("my.progress.goals")}
           </p>
         </div>
         <div className="space-y-2">
           {goals.map((goal) => (
-            <GoalCard key={goal.id} goal={goal} onUpdate={updateGoal} />
+            <GoalCard key={goal.id} goal={goal} onUpdate={updateGoal} labelDone={t("my.progress.goalDone")} />
           ))}
         </div>
       </div>
@@ -451,7 +455,7 @@ export default function ProgressPage() {
         <div className="flex items-center gap-2 mb-3">
           <Trophy size={13} style={{ color: "var(--color-vytal-amber)" }} />
           <p className="text-[10px] font-black uppercase tracking-widest" style={{ color: "var(--color-vytal-muted)" }}>
-            Linha do tempo de PRs
+            {t("my.progress.prTimeline")}
           </p>
         </div>
         <div className="relative">
@@ -488,7 +492,7 @@ export default function ProgressPage() {
                         className="text-[8px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded-md"
                         style={{ background: "rgba(34,197,94,0.15)", color: "var(--color-vytal-green)" }}
                       >
-                        Novo!
+                        {t("my.progress.prNew")}
                       </span>
                     )}
                   </div>

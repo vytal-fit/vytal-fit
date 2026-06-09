@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Trophy, TrendingUp, Plus, X, ChevronUp, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useDataStore } from "@/stores/data-store";
+import { useI18n } from "@/lib/i18n";
 import type { PersonalRecord } from "@vytal-fit/shared";
 
 const EXTRA_PRS_KEY = "vytal-console-extra-prs";
@@ -74,6 +75,7 @@ function Sparkline({ values, color }: { values: number[]; color: string }) {
 
 export default function RecordsPage() {
   const { personalRecords, exercises } = useDataStore();
+  const { t } = useI18n();
   const [mounted, setMounted] = useState(false);
   const [extraPRs, setExtraPRs] = useState<LocalPR[]>([]);
   const [showForm, setShowForm] = useState(false);
@@ -117,14 +119,14 @@ export default function RecordsPage() {
     setFormUnit("kg");
     setFormDate(new Date().toISOString().split("T")[0]);
     setShowForm(false);
-    showToast("Record pessoal adicionado!");
+    showToast(t("my.records.toastAdded"));
   }
 
   function deleteExtraPR(id: string) {
     const updated = extraPRs.filter((p) => p.id !== id);
     setExtraPRs(updated);
     saveExtraPRs(updated);
-    showToast("Record removido");
+    showToast(t("my.records.toastRemoved"));
   }
 
   function toggleSort(field: "date" | "name") {
@@ -183,10 +185,10 @@ export default function RecordsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-black" style={{ color: "var(--color-vytal-text)" }}>
-            Records Pessoais
+            {t("my.records.title")}
           </h1>
           <p className="text-xs mt-0.5" style={{ color: "var(--color-vytal-muted)" }}>
-            {storePRs.length + extraPRs.length} records registados
+            {storePRs.length + extraPRs.length} {t("my.records.count")}
           </p>
         </div>
         <button
@@ -195,7 +197,7 @@ export default function RecordsPage() {
           style={{ background: "var(--color-vytal-green)", color: "#080c0a" }}
         >
           <Plus size={14} />
-          Novo PR
+          {t("my.records.addPr")}
         </button>
       </div>
 
@@ -211,7 +213,7 @@ export default function RecordsPage() {
         >
           <div className="flex items-center justify-between">
             <p className="font-black text-base" style={{ color: "var(--color-vytal-text)" }}>
-              Adicionar novo record
+              {t("my.records.addTitle")}
             </p>
             <button
               onClick={() => setShowForm(false)}
@@ -225,12 +227,12 @@ export default function RecordsPage() {
             {/* Exercise name */}
             <div>
               <label className="text-[10px] font-bold uppercase tracking-wider mb-1.5 block" style={{ color: "var(--color-vytal-muted)" }}>
-                Exercicio
+                {t("my.records.exercise")}
               </label>
               <input
                 type="text"
                 required
-                placeholder="ex: Back Squat, Snatch, Fran..."
+                placeholder={t("my.records.exercisePlaceholder")}
                 value={formExercise}
                 onChange={(e) => setFormExercise(e.target.value)}
                 list="exercise-suggestions"
@@ -251,7 +253,7 @@ export default function RecordsPage() {
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="text-[10px] font-bold uppercase tracking-wider mb-1.5 block" style={{ color: "var(--color-vytal-muted)" }}>
-                  Valor
+                  {t("my.records.value")}
                 </label>
                 <input
                   type="text"
@@ -269,7 +271,7 @@ export default function RecordsPage() {
               </div>
               <div>
                 <label className="text-[10px] font-bold uppercase tracking-wider mb-1.5 block" style={{ color: "var(--color-vytal-muted)" }}>
-                  Unidade
+                  {t("my.records.unit")}
                 </label>
                 <select
                   value={formUnit}
@@ -291,7 +293,7 @@ export default function RecordsPage() {
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="text-[10px] font-bold uppercase tracking-wider mb-1.5 block" style={{ color: "var(--color-vytal-muted)" }}>
-                  Valor anterior
+                  {t("my.records.previousValue")}
                 </label>
                 <input
                   type="text"
@@ -308,7 +310,7 @@ export default function RecordsPage() {
               </div>
               <div>
                 <label className="text-[10px] font-bold uppercase tracking-wider mb-1.5 block" style={{ color: "var(--color-vytal-muted)" }}>
-                  Data
+                  {t("my.records.date")}
                 </label>
                 <input
                   type="date"
@@ -330,7 +332,7 @@ export default function RecordsPage() {
               className="w-full py-3 rounded-xl font-bold text-sm transition-all duration-200 hover:scale-[1.01] hover:opacity-90"
               style={{ background: "var(--color-vytal-green)", color: "#080c0a" }}
             >
-              Guardar Record
+              {t("my.records.save")}
             </button>
           </form>
         </div>
@@ -342,7 +344,7 @@ export default function RecordsPage() {
           <div className="flex items-center gap-2 mb-3">
             <TrendingUp size={13} style={{ color: "var(--color-vytal-green)" }} />
             <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: "var(--color-vytal-muted)" }}>
-              Destaque de progresso
+              {t("my.records.progressHighlight")}
             </p>
           </div>
           <div className="grid grid-cols-3 gap-2.5">
@@ -387,7 +389,7 @@ export default function RecordsPage() {
       {/* ── Sort controls ── */}
       <div className="flex items-center gap-4">
         <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: "var(--color-vytal-muted)" }}>
-          Ordenar:
+          {t("my.records.sortBy")}
         </span>
         {(["date", "name"] as const).map((field) => (
           <button
@@ -396,7 +398,7 @@ export default function RecordsPage() {
             className="flex items-center gap-1 text-xs font-bold transition-all duration-200 hover:scale-105"
             style={{ color: sortBy === field ? "var(--color-vytal-green)" : "var(--color-vytal-muted)" }}
           >
-            {field === "date" ? "Data" : "Nome"}
+            {field === "date" ? t("my.records.sortDate") : t("my.records.sortName")}
             {sortBy === field && (
               sortDir === "desc"
                 ? <ChevronDown size={11} />
@@ -416,10 +418,10 @@ export default function RecordsPage() {
             <Trophy size={36} style={{ color: "var(--color-vytal-muted)", opacity: 0.3 }} />
             <div>
               <p className="font-bold" style={{ color: "var(--color-vytal-text)" }}>
-                Sem records ainda
+                {t("my.records.empty")}
               </p>
               <p className="text-sm mt-1" style={{ color: "var(--color-vytal-muted)" }}>
-                Adiciona o teu primeiro PR!
+                {t("my.records.addFirst")}
               </p>
             </div>
           </div>
@@ -451,7 +453,7 @@ export default function RecordsPage() {
                       month: "short",
                       year: "numeric",
                     })}
-                    {pr.previousValue && ` · anterior: ${pr.previousValue} ${pr.unit}`}
+                    {pr.previousValue && ` · ${t("my.records.previous")}: ${pr.previousValue} ${pr.unit}`}
                   </p>
                 </div>
                 <div className="text-right flex items-center gap-2.5">
@@ -467,7 +469,7 @@ export default function RecordsPage() {
                     onClick={() => deleteExtraPR(pr.id)}
                     className="w-7 h-7 rounded-lg flex items-center justify-center transition-all hover:scale-110"
                     style={{ background: "rgba(255,71,87,0.12)" }}
-                    title="Remover"
+                    title={t("my.records.remove")}
                   >
                     <X size={12} style={{ color: "var(--color-vytal-red)" }} />
                   </button>
@@ -508,7 +510,7 @@ export default function RecordsPage() {
                         year: "numeric",
                       })}
                       {pr.previousValue && (
-                        <span> · anterior: {pr.previousValue} {pr.unit}</span>
+                        <span> · {t("my.records.previous")}: {pr.previousValue} {pr.unit}</span>
                       )}
                     </p>
                   </div>

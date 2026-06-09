@@ -13,24 +13,25 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useDataStore } from "@/stores/data-store";
+import { useI18n } from "@/lib/i18n";
 import type { WOD } from "@vytal-fit/shared";
 
-const WOD_TYPE_LABELS: Record<string, { label: string; color: string }> = {
-  amrap:    { label: "AMRAP",    color: "var(--color-vytal-green)" },
-  emom:     { label: "EMOM",    color: "var(--color-vytal-blue)" },
-  for_time: { label: "For Time", color: "var(--color-vytal-amber)" },
-  tabata:   { label: "Tabata",   color: "var(--color-vytal-purple)" },
-  strength: { label: "Forca",    color: "var(--color-vytal-orange)" },
-  custom:   { label: "Custom",   color: "var(--color-vytal-muted)" },
+const WOD_TYPE_LABELS: Record<string, { labelKey: string; color: string }> = {
+  amrap:    { labelKey: "AMRAP",                    color: "var(--color-vytal-green)" },
+  emom:     { labelKey: "EMOM",                     color: "var(--color-vytal-blue)" },
+  for_time: { labelKey: "For Time",                 color: "var(--color-vytal-amber)" },
+  tabata:   { labelKey: "Tabata",                   color: "var(--color-vytal-purple)" },
+  strength: { labelKey: "my.wod.type.strength",     color: "var(--color-vytal-orange)" },
+  custom:   { labelKey: "Custom",                   color: "var(--color-vytal-muted)" },
 };
 
-const SCORE_TYPES = [
-  { value: "time",        label: "Tempo (mm:ss)" },
-  { value: "rounds_reps", label: "Rounds + Reps" },
-  { value: "reps",        label: "Reps" },
-  { value: "weight",      label: "Peso (kg)" },
-  { value: "distance",    label: "Distancia (m)" },
-  { value: "calories",    label: "Calorias" },
+const SCORE_TYPE_KEYS = [
+  { value: "time",        key: "my.wod.score.time" },
+  { value: "rounds_reps", key: "my.wod.score.roundsReps" },
+  { value: "reps",        key: "my.wod.score.reps" },
+  { value: "weight",      key: "my.wod.score.weight" },
+  { value: "distance",    key: "my.wod.score.distance" },
+  { value: "calories",    key: "my.wod.score.calories" },
 ];
 
 const LOG_KEY = "vytal-console-wod-logs";
@@ -72,10 +73,16 @@ function CircularTimer({
   seconds,
   total,
   running,
+  labelRunning,
+  labelFinished,
+  labelPaused,
 }: {
   seconds: number;
   total: number;
   running: boolean;
+  labelRunning: string;
+  labelFinished: string;
+  labelPaused: string;
 }) {
   const radius = 72;
   const circ = 2 * Math.PI * radius;
@@ -129,7 +136,7 @@ function CircularTimer({
           className="text-[10px] font-bold uppercase tracking-widest"
           style={{ color: running ? color : "var(--color-vytal-muted)" }}
         >
-          {running ? "Em curso" : seconds === 0 ? "Terminado!" : "Pausado"}
+          {running ? labelRunning : seconds === 0 ? labelFinished : labelPaused}
         </span>
       </div>
     </div>
@@ -138,6 +145,7 @@ function CircularTimer({
 
 export default function WODPage() {
   const { wods } = useDataStore();
+  const { t } = useI18n();
   const [mounted, setMounted] = useState(false);
   const [expandedParts, setExpandedParts] = useState<Set<number>>(new Set([0]));
   const [logs, setLogs] = useState<WODLog[]>([]);
@@ -217,7 +225,7 @@ export default function WODPage() {
     setNotes("");
     setSubmitted(true);
     setShowLogForm(false);
-    showToast("Resultado guardado com sucesso!");
+    showToast(t("my.wod.log.saved"));
     setTimeout(() => setSubmitted(false), 5000);
   }
 
@@ -276,7 +284,7 @@ export default function WODPage() {
             <div className="flex items-start justify-between gap-3">
               <div>
                 <p className="text-[10px] font-bold uppercase tracking-widest mb-1.5" style={{ color: "var(--color-vytal-muted)" }}>
-                  WOD de Hoje
+                  {t("my.wod.todayTitle")}
                 </p>
                 <h2 className="text-3xl font-black leading-tight" style={{ color: "var(--color-vytal-green)" }}>
                   {mainWOD.title ?? "WOD do Dia"}
@@ -290,7 +298,7 @@ export default function WODPage() {
                       border: `1px solid ${wodTypeMeta.color}44`,
                     }}
                   >
-                    {wodTypeMeta.label}
+                    {wodTypeMeta.labelKey.startsWith("my.") ? t(wodTypeMeta.labelKey) : wodTypeMeta.labelKey}
                   </span>
                 )}
               </div>
@@ -301,7 +309,7 @@ export default function WODPage() {
                 >
                   <CheckCircle size={13} style={{ color: "var(--color-vytal-green)" }} />
                   <span className="text-xs font-bold" style={{ color: "var(--color-vytal-green)" }}>
-                    Registado
+                    {t("my.wod.registered")}
                   </span>
                 </div>
               )}
@@ -355,7 +363,7 @@ export default function WODPage() {
                               color: partType.color,
                             }}
                           >
-                            {partType.label}
+                            {partType.labelKey.startsWith("my.") ? t(partType.labelKey) : partType.labelKey}
                           </span>
                           {part.timeCap && (
                             <span className="text-[10px]" style={{ color: "var(--color-vytal-muted)" }}>
@@ -439,13 +447,16 @@ export default function WODPage() {
             }}
           >
             <p className="text-[10px] font-bold uppercase tracking-widest self-start" style={{ color: "var(--color-vytal-muted)" }}>
-              Temporizador
+              {t("my.wod.timer.label")}
             </p>
 
             <CircularTimer
               seconds={timerSeconds}
               total={timerTotal}
               running={timerRunning}
+              labelRunning={t("my.wod.timer.running")}
+              labelFinished={t("my.wod.timer.finished")}
+              labelPaused={t("my.wod.timer.paused")}
             />
 
             {/* Controls */}
@@ -459,7 +470,7 @@ export default function WODPage() {
                 }}
               >
                 {timerRunning ? <Pause size={16} /> : <Play size={16} />}
-                {timerRunning ? "Pausar" : "Iniciar"}
+                {timerRunning ? t("my.wod.timer.pause") : t("my.wod.timer.start")}
               </button>
               <button
                 onClick={resetTimer}
@@ -477,7 +488,7 @@ export default function WODPage() {
             {/* Duration input */}
             <div className="flex items-center gap-3">
               <span className="text-xs font-medium" style={{ color: "var(--color-vytal-muted)" }}>
-                Duracao (min):
+                {t("my.wod.timer.duration")}
               </span>
               <input
                 type="number"
@@ -516,7 +527,7 @@ export default function WODPage() {
                   <Zap size={14} style={{ color: "var(--color-vytal-green)" }} />
                 </div>
                 <span className="font-bold text-sm" style={{ color: "var(--color-vytal-text)" }}>
-                  Registar resultado
+                  {t("my.wod.log.register")}
                 </span>
               </div>
               {showLogForm ? (
@@ -535,7 +546,7 @@ export default function WODPage() {
                 {/* Scale selector */}
                 <div className="pt-4">
                   <p className="text-[10px] font-bold uppercase tracking-wider mb-2" style={{ color: "var(--color-vytal-muted)" }}>
-                    Escala
+                    {t("my.wod.log.scale")}
                   </p>
                   <div className="flex gap-2">
                     {(["rx", "scaled", "rx_plus"] as const).map((s) => (
@@ -564,7 +575,7 @@ export default function WODPage() {
                 {/* Score type */}
                 <div>
                   <label className="text-[10px] font-bold uppercase tracking-wider mb-2 block" style={{ color: "var(--color-vytal-muted)" }}>
-                    Tipo de resultado
+                    {t("my.wod.log.scoreType")}
                   </label>
                   <select
                     value={scoreType}
@@ -576,8 +587,8 @@ export default function WODPage() {
                       border: "1px solid var(--color-vytal-border)",
                     }}
                   >
-                    {SCORE_TYPES.map((st) => (
-                      <option key={st.value} value={st.value}>{st.label}</option>
+                    {SCORE_TYPE_KEYS.map((st) => (
+                      <option key={st.value} value={st.value}>{t(st.key)}</option>
                     ))}
                   </select>
                 </div>
@@ -585,7 +596,7 @@ export default function WODPage() {
                 {/* Score value */}
                 <div>
                   <label className="text-[10px] font-bold uppercase tracking-wider mb-2 block" style={{ color: "var(--color-vytal-muted)" }}>
-                    Resultado
+                    {t("my.wod.log.result")}
                   </label>
                   <input
                     type="text"
@@ -609,11 +620,11 @@ export default function WODPage() {
                 {/* Notes */}
                 <div>
                   <label className="text-[10px] font-bold uppercase tracking-wider mb-2 block" style={{ color: "var(--color-vytal-muted)" }}>
-                    Notas (opcional)
+                    {t("my.wod.log.notes")}
                   </label>
                   <textarea
                     rows={2}
-                    placeholder="Como correu? Que peso usaste?"
+                    placeholder={t("my.wod.log.notesPlaceholder")}
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}
                     className="w-full rounded-xl px-3 py-2.5 text-sm outline-none resize-none"
@@ -630,7 +641,7 @@ export default function WODPage() {
                   className="w-full py-3 rounded-xl font-bold text-sm transition-all duration-200 hover:scale-[1.01] hover:opacity-90"
                   style={{ background: "var(--color-vytal-green)", color: "#080c0a" }}
                 >
-                  Guardar resultado
+                  {t("my.wod.log.save")}
                 </button>
               </form>
             )}
@@ -644,10 +655,10 @@ export default function WODPage() {
           <Dumbbell size={36} style={{ color: "var(--color-vytal-muted)", opacity: 0.3 }} />
           <div>
             <p className="font-bold" style={{ color: "var(--color-vytal-text)" }}>
-              WOD ainda nao publicado
+              {t("my.wod.notPublished")}
             </p>
             <p className="text-sm mt-1" style={{ color: "var(--color-vytal-muted)" }}>
-              Volta mais tarde ou consulta o horario
+              {t("my.wod.checkLater")}
             </p>
           </div>
         </div>
@@ -656,14 +667,14 @@ export default function WODPage() {
       {/* ── History ── */}
       <div className="space-y-3">
         <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: "var(--color-vytal-muted)" }}>
-          Historico
+          {t("my.wod.history")}
         </p>
 
         {/* My recent logs */}
         {logs.length > 0 && (
           <div className="space-y-2">
             <p className="text-xs font-bold" style={{ color: "var(--color-vytal-green)" }}>
-              Os meus resultados
+              {t("my.wod.myResults")}
             </p>
             {logs.slice(0, 3).map((log, i) => {
               const scaleColor =
@@ -707,7 +718,7 @@ export default function WODPage() {
                       {log.score}
                     </p>
                     <p className="text-[10px]" style={{ color: "var(--color-vytal-muted)" }}>
-                      {SCORE_TYPES.find((st) => st.value === log.scoreType)?.label ?? log.scoreType}
+                      {t(SCORE_TYPE_KEYS.find((st) => st.value === log.scoreType)?.key ?? log.scoreType)}
                     </p>
                   </div>
                 </div>
@@ -719,7 +730,7 @@ export default function WODPage() {
         {/* Past WOD cards */}
         {pastWODs.length === 0 ? (
           <p className="text-sm text-center py-4" style={{ color: "var(--color-vytal-muted)" }}>
-            Sem WODs anteriores registados.
+            {t("my.wod.noPastWods")}
           </p>
         ) : (
           pastWODs.slice(0, 5).map((wod) => (
@@ -744,7 +755,7 @@ export default function WODPage() {
                   className="text-[10px] px-2 py-1 rounded-lg font-bold flex-shrink-0"
                   style={{ background: "var(--color-vytal-bg3)", color: "var(--color-vytal-muted)" }}
                 >
-                  {wod.parts.length} {wod.parts.length === 1 ? "parte" : "partes"}
+                  {wod.parts.length} {wod.parts.length === 1 ? t("my.wod.part") : t("my.wod.parts")}
                 </span>
               </div>
             </div>

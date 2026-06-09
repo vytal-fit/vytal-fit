@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Play, ChevronDown, ChevronUp, Clock, Dumbbell, Flame, Activity } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/lib/i18n";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -213,7 +214,11 @@ function DifficultyDots({ level, color }: { level: Difficulty; color: string }) 
   );
 }
 
-function TimerModal({ workout, onClose }: { workout: Workout; onClose: () => void }) {
+function TimerModal({ workout, onClose, labels }: {
+  workout: Workout;
+  onClose: () => void;
+  labels: { inProgress: string; estimated: string; pause: string; resume: string; start: string; exit: string };
+}) {
   const [elapsed, setElapsed] = useState(0);
   const [running, setRunning] = useState(false);
 
@@ -237,7 +242,7 @@ function TimerModal({ workout, onClose }: { workout: Workout; onClose: () => voi
       >
         <div className="text-center">
           <p className="text-xs font-bold uppercase tracking-widest mb-1" style={{ color: "var(--color-vytal-muted)" }}>
-            Treino em curso
+            {labels.inProgress}
           </p>
           <h2 className="text-xl font-black" style={{ color: "var(--color-vytal-text)" }}>
             {workout.title}
@@ -256,7 +261,7 @@ function TimerModal({ workout, onClose }: { workout: Workout; onClose: () => voi
             {mins}:{secs}
           </span>
           <p className="text-xs mt-1" style={{ color: "var(--color-vytal-muted)" }}>
-            de {workout.duration} min estimados
+            {labels.estimated.replace("{n}", String(workout.duration))}
           </p>
           {/* Progress bar */}
           <div
@@ -304,14 +309,14 @@ function TimerModal({ workout, onClose }: { workout: Workout; onClose: () => voi
             className="flex-1 py-3 rounded-2xl font-bold text-sm transition-all duration-200 hover:opacity-90 hover:scale-[1.01]"
             style={{ background: "var(--color-vytal-green)", color: "#080c0a" }}
           >
-            {running ? "Pausar" : elapsed > 0 ? "Continuar" : "Iniciar"}
+            {running ? labels.pause : elapsed > 0 ? labels.resume : labels.start}
           </button>
           <button
             onClick={onClose}
             className="px-5 py-3 rounded-2xl font-bold text-sm transition-all duration-200 hover:scale-[1.01]"
             style={{ background: "var(--color-vytal-bg3)", color: "var(--color-vytal-muted)", border: "1px solid var(--color-vytal-border)" }}
           >
-            Sair
+            {labels.exit}
           </button>
         </div>
       </div>
@@ -322,6 +327,7 @@ function TimerModal({ workout, onClose }: { workout: Workout; onClose: () => voi
 // ── Main component ─────────────────────────────────────────────────────────────
 
 export default function WorkoutsPage() {
+  const { t } = useI18n();
   const [mounted, setMounted] = useState(false);
   const [activeCategory, setActiveCategory] = useState<Category | "Todos">("Todos");
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -342,6 +348,7 @@ export default function WorkoutsPage() {
     );
   }
 
+  const ALL_LABEL = t("my.workouts.all");
   const filtered =
     activeCategory === "Todos"
       ? WORKOUTS
@@ -354,16 +361,27 @@ export default function WorkoutsPage() {
 
       {/* Timer modal */}
       {timerWorkout && (
-        <TimerModal workout={timerWorkout} onClose={() => setTimerWorkout(null)} />
+        <TimerModal
+          workout={timerWorkout}
+          onClose={() => setTimerWorkout(null)}
+          labels={{
+            inProgress: t("my.workouts.timer.inProgress"),
+            estimated: t("my.workouts.timer.estimated"),
+            pause: t("my.workouts.timer.pause"),
+            resume: t("my.workouts.timer.resume"),
+            start: t("my.workouts.timer.start"),
+            exit: t("my.workouts.timer.exit"),
+          }}
+        />
       )}
 
       {/* ── Header ── */}
       <div>
         <h1 className="text-2xl font-black" style={{ color: "var(--color-vytal-text)" }}>
-          Biblioteca de Treinos
+          {t("my.workouts.title")}
         </h1>
         <p className="text-xs mt-0.5" style={{ color: "var(--color-vytal-muted)" }}>
-          {WORKOUTS.length} treinos para fazer em casa
+          {WORKOUTS.length} {t("my.workouts.subtitle")}
         </p>
       </div>
 
@@ -373,7 +391,7 @@ export default function WorkoutsPage() {
           <div className="flex items-center gap-2 mb-3">
             <Flame size={13} style={{ color: "var(--color-vytal-amber)" }} />
             <p className="text-[10px] font-black uppercase tracking-widest" style={{ color: "var(--color-vytal-muted)" }}>
-              Sugerido para ti
+              {t("my.workouts.suggested")}
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -418,7 +436,7 @@ export default function WorkoutsPage() {
                       <div className="flex items-center gap-1.5">
                         <Dumbbell size={11} style={{ color: "var(--color-vytal-muted)" }} />
                         <span className="text-xs font-semibold" style={{ color: "var(--color-vytal-muted)" }}>
-                          {w.exercises.length} exercicios
+                          {w.exercises.length} {t("my.workouts.exercises")}
                         </span>
                       </div>
                     </div>
@@ -429,7 +447,7 @@ export default function WorkoutsPage() {
                       style={{ background: cfg.color, color: "#080c0a" }}
                     >
                       <Play size={12} fill="currentColor" />
-                      Iniciar Treino
+                      {t("my.workouts.start")}
                     </button>
                   </div>
                 </div>
@@ -456,7 +474,7 @@ export default function WorkoutsPage() {
                 : "1px solid var(--color-vytal-border)",
             }}
           >
-            {cat}
+            {cat === "Todos" ? ALL_LABEL : cat}
           </button>
         ))}
       </div>
@@ -494,7 +512,7 @@ export default function WorkoutsPage() {
                         className="text-[8px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded-md shrink-0"
                         style={{ background: "rgba(255,179,0,0.15)", color: "var(--color-vytal-amber)" }}
                       >
-                        Sugerido
+                        {t("my.workouts.suggestedBadge")}
                       </span>
                     )}
                   </div>
@@ -503,7 +521,7 @@ export default function WorkoutsPage() {
                       {w.category}
                     </span>
                     <span className="text-[10px]" style={{ color: "var(--color-vytal-muted)" }}>
-                      {w.duration} min · {w.exercises.length} exerc.
+                      {w.duration} min · {w.exercises.length} {t("my.workouts.exercises")}
                     </span>
                   </div>
                 </div>
@@ -561,7 +579,7 @@ export default function WorkoutsPage() {
                           )}
                           {ex.rest && (
                             <p className="text-[9px]" style={{ color: "var(--color-vytal-muted)" }}>
-                              desc. {ex.rest}
+                              {t("my.workouts.rest")} {ex.rest}
                             </p>
                           )}
                         </div>

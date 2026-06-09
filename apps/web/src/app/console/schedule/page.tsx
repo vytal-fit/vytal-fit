@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Clock, Users, MapPin, CheckCircle, X, Star, Calendar } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useDataStore } from "@/stores/data-store";
+import { useI18n } from "@/lib/i18n";
 import type { Class } from "@vytal-fit/shared";
 
 const DAYS_TO_SHOW = 7;
@@ -14,7 +15,7 @@ function getDaysArray(): { date: string; dayNum: string; short: string; isToday:
     const d = new Date();
     d.setDate(d.getDate() + i);
     const date = d.toISOString().split("T")[0];
-    const short = i === 0 ? "Hoje" : d.toLocaleDateString("pt-PT", { weekday: "short" });
+    const short = d.toLocaleDateString("pt-PT", { weekday: "short" });
     const dayNum = String(d.getDate()).padStart(2, "0");
     days.push({ date, short, dayNum, isToday: i === 0 });
   }
@@ -47,6 +48,7 @@ export default function SchedulePage() {
   const [animatingId, setAnimatingId] = useState<string | null>(null);
   const [toast, setToast] = useState<{ msg: string; type: "success" | "error" } | null>(null);
 
+  const { t } = useI18n();
   const days = getDaysArray();
 
   useEffect(() => {
@@ -66,12 +68,12 @@ export default function SchedulePage() {
     const next = new Set(bookings);
     if (next.has(cls.id)) {
       next.delete(cls.id);
-      showToast(`Reserva cancelada: ${cls.classType?.name ?? "Aula"}`, "error");
+      showToast(`${t("my.schedule.toastCancelled")}: ${cls.classType?.name ?? "Aula"}`, "error");
     } else {
       if (cls.enrolledCount >= cls.maxCapacity) {
-        showToast("Adicionado a lista de espera!", "success");
+        showToast(t("my.schedule.toastWaitlist"), "success");
       } else {
-        showToast(`Reserva confirmada — ${cls.classType?.name ?? "Aula"} as ${cls.startTime}`, "success");
+        showToast(`${t("my.schedule.toastBooked")} — ${cls.classType?.name ?? "Aula"} às ${cls.startTime}`, "success");
       }
       next.add(cls.id);
     }
@@ -100,7 +102,7 @@ export default function SchedulePage() {
 
   return (
     <div className="flex flex-col min-h-full">
-      <h1 className="sr-only">Horario</h1>
+      <h1 className="sr-only">{t("my.schedule.title")}</h1>
 
       {/* Toast */}
       {toast && (
@@ -149,7 +151,7 @@ export default function SchedulePage() {
                     : "1px solid transparent",
                 }}
               >
-                <span className="font-black text-sm capitalize">{day.short}</span>
+                <span className="font-black text-sm capitalize">{day.isToday ? t("my.schedule.today") : day.short}</span>
                 <span className="text-[10px] font-bold mt-0.5 opacity-60">{day.dayNum}</span>
               </button>
             );
@@ -171,7 +173,7 @@ export default function SchedulePage() {
             <div className="flex items-center gap-2 mb-1">
               <CheckCircle size={13} style={{ color: "var(--color-vytal-green)" }} />
               <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: "var(--color-vytal-green)" }}>
-                As minhas reservas hoje
+                {t("my.schedule.myBookings")}
               </p>
             </div>
             {myBookedIds.map((cls) => (
@@ -196,7 +198,7 @@ export default function SchedulePage() {
                   onClick={() => toggleBooking(cls)}
                   className="w-7 h-7 rounded-lg flex items-center justify-center transition-all duration-200 hover:scale-110"
                   style={{ background: "rgba(255,71,87,0.15)" }}
-                  title="Cancelar reserva"
+                  title={t("my.schedule.cancelBooking")}
                 >
                   <X size={13} style={{ color: "var(--color-vytal-red)" }} />
                 </button>
@@ -216,7 +218,7 @@ export default function SchedulePage() {
               border: filterTypeId === "all" ? "1px solid var(--color-vytal-green)" : "1px solid transparent",
             }}
           >
-            Todas
+            {t("my.schedule.all")}
           </button>
           {(classTypes ?? []).filter((ct) => ct.active).map((ct) => (
             <button
@@ -246,7 +248,7 @@ export default function SchedulePage() {
           >
             <Calendar size={32} style={{ color: "var(--color-vytal-muted)", opacity: 0.3 }} />
             <p className="text-sm font-medium" style={{ color: "var(--color-vytal-muted)" }}>
-              Sem aulas para este dia
+              {t("my.schedule.noClasses")}
             </p>
           </div>
         ) : (
@@ -351,7 +353,7 @@ export default function SchedulePage() {
                             border: isBooked ? "1px solid rgba(255,71,87,0.2)" : "1px solid transparent",
                           }}
                         >
-                          {isBooked ? "Cancelar" : isFull ? "Espera" : "Reservar"}
+                          {isBooked ? t("my.schedule.cancel") : isFull ? t("my.schedule.waitlist") : t("my.schedule.book")}
                         </button>
                       </div>
 
@@ -375,8 +377,8 @@ export default function SchedulePage() {
                         </div>
                         <p className="text-[10px]" style={{ color: "var(--color-vytal-muted)" }}>
                           {isFull
-                            ? `Lotado${cls.waitlistCount > 0 ? ` · ${cls.waitlistCount} em espera` : ""}`
-                            : `${spotsLeft} lugar${spotsLeft !== 1 ? "es" : ""} disponiv${spotsLeft !== 1 ? "eis" : "el"}`
+                            ? `${t("my.schedule.full")}${cls.waitlistCount > 0 ? ` · ${cls.waitlistCount} ${t("my.schedule.waiting")}` : ""}`
+                            : `${spotsLeft} ${spotsLeft !== 1 ? t("my.schedule.spotsAvailable") : t("my.schedule.spotAvailable")}`
                           }
                         </p>
                       </div>
