@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "myVYTAL",
-    "slug": "myvytal",
+    "slug": "my-vytal",
     "version": "0.1.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -11,7 +11,9 @@
       "resizeMode": "contain",
       "backgroundColor": "#080c0a"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "fit.vytal.myvytal"
@@ -41,6 +43,19 @@
     "scheme": "myvytal",
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "ba052fde-14e2-4117-8361-271f231daa77"
+      }
+    },
+    "owner": "vytal-fits-team",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/ba052fde-14e2-4117-8361-271f231daa77"
     }
   }
 }
