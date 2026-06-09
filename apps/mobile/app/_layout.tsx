@@ -1,4 +1,4 @@
-import React, { createContext, useContext } from "react";
+import React, { createContext, useContext, useEffect } from "react";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useAppStore } from "@/stores/app-store";
@@ -14,7 +14,12 @@ export function useTheme(): Colors {
 // ─── Root Layout ───────────────────────────────────────────
 export default function RootLayout() {
   const theme = useAppStore((s) => s.theme);
+  const hydrate = useAppStore((s) => s.hydrate);
   const C = getColors(theme);
+
+  useEffect(() => {
+    hydrate();
+  }, [hydrate]);
 
   return (
     <ThemeContext.Provider value={C}>
