@@ -95,7 +95,7 @@ export default function RegisterScreen() {
           >
             <ArrowLeft size={20} color={COLORS.muted} />
           </TouchableOpacity>
-          <Text style={styles.logo}>VYTAL</Text>
+          <Text style={styles.logo}><Text style={{ fontSize: 18, color: "#6b8c72" }}>my</Text>VYTAL</Text>
           <View style={styles.backButton} />
         </View>
 

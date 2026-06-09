@@ -50,7 +50,7 @@ export default function ForgotPasswordScreen() {
       >
         {/* Logo */}
         <View style={styles.logoContainer}>
-          <Text style={styles.logo}>VYTAL</Text>
+          <Text style={styles.logo}><Text style={{ fontSize: 18, color: "#6b8c72" }}>my</Text>VYTAL</Text>
         </View>
 
         {sent ? (
