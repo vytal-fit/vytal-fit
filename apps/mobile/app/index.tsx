@@ -5,7 +5,7 @@ export default function Index() {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
 
   if (isAuthenticated) {
-    return <Redirect href="/(tabs)/classes" />;
+    return <Redirect href="/(tabs)/home" />;
   }
 
   return <Redirect href="/login" />;

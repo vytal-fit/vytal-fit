@@ -27,7 +27,7 @@ export default function LoginScreen() {
 
   useEffect(() => {
     if (isAuthenticated) {
-      router.replace("/(tabs)/classes");
+      router.replace("/(tabs)/home");
     }
   }, [isAuthenticated]);
 
@@ -35,7 +35,7 @@ export default function LoginScreen() {
     setLoading(true);
     setTimeout(() => {
       login(email, password);
-      router.replace("/(tabs)/classes");
+      router.replace("/(tabs)/home");
     }, 600);
   }
 

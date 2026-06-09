@@ -71,7 +71,7 @@ export default function RegisterScreen() {
     }
     setLoading(true);
     setTimeout(() => {
-      router.replace("/(tabs)/classes");
+      router.replace("/(tabs)/home");
     }, 600);
   }
 
