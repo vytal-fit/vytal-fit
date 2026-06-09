@@ -10,10 +10,9 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { ChevronRight, Building2, Plus, SortAsc, SortDesc, Zap, TrendingUp } from "lucide-react-native";
-import { colors } from "@/colors";
+import { useTheme } from "../_layout";
+import type { Colors } from "@/colors";
 import { t } from "@/i18n";
-
-const C = colors;
 
 // ─── Mock PR Data ────────────────────────────────────────
 const initialPRs = [
@@ -41,7 +40,7 @@ function getCategoryPillLabel(cat: string): string {
   }
 }
 
-function getCategoryColor(category: string): string {
+function getCategoryColor(category: string, C: Colors): string {
   switch (category) {
     case "weightlifting": return C.green;
     case "benchmark": return C.amber;
@@ -75,6 +74,8 @@ const exerciseNameToId: Record<string, string> = {
 // ─── Screen ──────────────────────────────────────────────
 export default function RecordsScreen() {
   const router = useRouter();
+  const C = useTheme();
+  const styles = makeStyles(C);
   const [activeCategory, setActiveCategory] = useState<Category>("Todos");
   const [sortDesc, setSortDesc] = useState(true);
 
@@ -173,7 +174,7 @@ export default function RecordsScreen() {
           contentContainerStyle={styles.scrollContent}
         >
           {filtered.map((pr) => {
-            const catColor = getCategoryColor(pr.category);
+            const catColor = getCategoryColor(pr.category, C);
             const exerciseId = exerciseNameToId[pr.exercise];
             return (
               <TouchableOpacity
@@ -227,7 +228,7 @@ export default function RecordsScreen() {
 }
 
 // ─── Styles ──────────────────────────────────────────────
-const styles = StyleSheet.create({
+function makeStyles(C: Colors) { return StyleSheet.create({
   safe: { flex: 1, backgroundColor: C.bg },
   container: { flex: 1 },
 
@@ -351,4 +352,4 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
   },
   addPRText: { fontSize: 14, fontWeight: "700", color: C.green },
-});
+}); }

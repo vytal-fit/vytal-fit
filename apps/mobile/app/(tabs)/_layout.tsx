@@ -1,5 +1,4 @@
 import { Tabs } from "expo-router";
-import { StyleSheet } from "react-native";
 import {
   Home,
   CalendarDays,
@@ -8,12 +7,14 @@ import {
   Users,
   User,
 } from "lucide-react-native";
-import { colors } from "@/colors";
+import { useAppStore } from "@/stores/app-store";
+import { getColors } from "@/colors";
 import { t } from "@/i18n";
 
-const C = colors;
-
 export default function TabLayout() {
+  const theme = useAppStore((s) => s.theme);
+  const C = getColors(theme);
+
   return (
     <Tabs
       screenOptions={{
@@ -98,4 +99,3 @@ export default function TabLayout() {
   );
 }
 
-const styles = StyleSheet.create({});
