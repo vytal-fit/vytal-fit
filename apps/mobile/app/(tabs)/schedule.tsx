@@ -13,10 +13,9 @@ import { useRouter } from "expo-router";
 import { User, MapPin, Bell, Check, CalendarX, Zap } from "lucide-react-native";
 import { mockClasses } from "@vytal-fit/shared";
 import type { Class } from "@vytal-fit/shared";
-import { colors } from "@/colors";
+import { useTheme } from "../_layout";
+import type { Colors } from "@/colors";
 import { t } from "@/i18n";
-
-const C = colors;
 
 // ─── Filter pills config ──────────────────────────────────
 const FILTERS = ["Todas", "CrossFit", "Ginástica", "Weightlifting", "Cardio"] as const;
@@ -80,10 +79,12 @@ function DaySelector({
   days,
   selected,
   onSelect,
+  styles,
 }: {
   days: ReturnType<typeof getWeekDays>;
   selected: string;
   onSelect: (d: string) => void;
+  styles: ReturnType<typeof makeStyles>;
 }) {
   return (
     <ScrollView
@@ -137,9 +138,11 @@ function DaySelector({
 function FilterPills({
   active,
   onSelect,
+  styles,
 }: {
   active: FilterLabel;
   onSelect: (f: FilterLabel) => void;
+  styles: ReturnType<typeof makeStyles>;
 }) {
   return (
     <ScrollView
@@ -169,12 +172,16 @@ function ClassCard({
   isBooked,
   onBook,
   enrollmentOffset,
+  C,
+  styles,
 }: {
   cls: Class;
   onPress: () => void;
   isBooked: boolean;
   onBook: () => void;
   enrollmentOffset: number;
+  C: Colors;
+  styles: ReturnType<typeof makeStyles>;
 }) {
   const adjustedEnrolled = cls.enrolledCount + enrollmentOffset;
   const isFull = adjustedEnrolled >= cls.maxCapacity;
@@ -289,6 +296,8 @@ function ClassCard({
 // ─── Screen ───────────────────────────────────────────────
 export default function ScheduleScreen() {
   const router = useRouter();
+  const C = useTheme();
+  const styles = makeStyles(C);
   const weekDays = getWeekDays();
   const [selectedDate, setSelectedDate] = useState(weekDays[0].dateStr);
   const [activeFilter, setActiveFilter] = useState<FilterLabel>("Todas");
@@ -298,15 +307,15 @@ export default function ScheduleScreen() {
     .filter((cls) => cls.date === selectedDate)
     .filter((cls) => matchesFilter(cls, activeFilter));
 
-  function toggleBooking(classId: string, cls: Class) {
+  function toggleBooking(classId: string, _cls: Class) {
     setBookedIds((prev) => {
       const next = new Set(prev);
       if (next.has(classId)) {
         next.delete(classId);
-        Alert.alert(t("alert.bookingCancelled"), t("alert.bookingCancelledMsg"));
+        router.push("/booking-history");
       } else {
         next.add(classId);
-        Alert.alert(t("alert.booked"), t("alert.bookedMsg"));
+        router.push("/booking-confirm");
       }
       return next;
     });
@@ -340,10 +349,11 @@ export default function ScheduleScreen() {
           days={weekDays}
           selected={selectedDate}
           onSelect={(d) => { setSelectedDate(d); setActiveFilter("Todas"); }}
+          styles={styles}
         />
 
         {/* Filter Pills */}
-        <FilterPills active={activeFilter} onSelect={setActiveFilter} />
+        <FilterPills active={activeFilter} onSelect={setActiveFilter} styles={styles} />
 
         {/* Class List */}
         <FlatList
@@ -356,6 +366,8 @@ export default function ScheduleScreen() {
               isBooked={bookedIds.has(item.id)}
               onBook={() => toggleBooking(item.id, item)}
               enrollmentOffset={bookedIds.has(item.id) ? 1 : 0}
+              C={C}
+              styles={styles}
             />
           )}
           contentContainerStyle={styles.listContent}
@@ -376,7 +388,7 @@ export default function ScheduleScreen() {
 }
 
 // ─── Styles ───────────────────────────────────────────────
-const styles = StyleSheet.create({
+function makeStyles(C: Colors) { return StyleSheet.create({
   safe: {
     flex: 1,
     backgroundColor: C.bg,
@@ -670,4 +682,4 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: C.muted,
   },
-});
+}); }

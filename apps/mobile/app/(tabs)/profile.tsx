@@ -30,12 +30,11 @@ import {
   Mail,
   Zap,
 } from "lucide-react-native";
-import { colors } from "@/colors";
+import { useTheme } from "../_layout";
+import type { Colors } from "@/colors";
 import { useAuthStore } from "@/stores/auth-store";
 import { useAppStore } from "@/stores/app-store";
 import { t, setLanguage } from "@/i18n";
-
-const C = colors;
 
 function getInitials(name: string): string {
   return name
@@ -56,7 +55,7 @@ type MenuItemConfig = {
   badge?: number;
 };
 
-function MenuItem({ item }: { item: MenuItemConfig }) {
+function MenuItem({ item, C, styles }: { item: MenuItemConfig; C: Colors; styles: ReturnType<typeof makeStyles> }) {
   return (
     <TouchableOpacity style={styles.menuItem} onPress={item.onPress}>
       <View style={styles.menuLeft}>
@@ -95,6 +94,8 @@ const THEME_LABELS: Record<string, string> = {
 
 // ─── Screen ──────────────────────────────────────────────
 export default function ProfileScreen() {
+  const C = useTheme();
+  const styles = makeStyles(C);
   const router = useRouter();
   const { user, logout } = useAuthStore();
   const { theme, language, setLanguage: setAppLanguage } = useAppStore();
@@ -325,7 +326,7 @@ export default function ProfileScreen() {
             <Text style={styles.sectionHeader}>{section.title}</Text>
             <View style={styles.menuSection}>
               {section.items.map((item, i) => (
-                <MenuItem key={i} item={item} />
+                <MenuItem key={i} item={item} C={C} styles={styles} />
               ))}
             </View>
           </View>
@@ -348,7 +349,7 @@ export default function ProfileScreen() {
 }
 
 // ─── Styles ──────────────────────────────────────────────
-const styles = StyleSheet.create({
+function makeStyles(C: Colors) { return StyleSheet.create({
   safe: {
     flex: 1,
     backgroundColor: C.bg,
@@ -611,4 +612,4 @@ const styles = StyleSheet.create({
     marginTop: 20,
     opacity: 0.6,
   },
-});
+}); }

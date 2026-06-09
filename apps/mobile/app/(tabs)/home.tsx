@@ -5,7 +5,6 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
@@ -20,23 +19,23 @@ import {
   Newspaper,
   MessageSquare,
   Moon,
+  Bell,
 } from "lucide-react-native";
 import { mockCoaches } from "@vytal-fit/shared";
-import { colors } from "@/colors";
+import { useTheme } from "../_layout";
 import { t } from "@/i18n";
 import { useAuthStore } from "@/stores/auth-store";
-
-const C = colors;
+import type { Colors } from "@/colors";
 
 // ─── Mock data ─────────────────────────────────────────────
-const mockNews = [
+const mockNewsRaw = [
   {
     id: "news-1",
     title: "Throwdown Interno — Sábado 14 Junho",
     body: "Inscrições abertas para o throwdown de verão! Equipas de 2 pessoas (misto). Inscreve-te na receção ou pela app.",
     date: "1 Jun",
     tag: "Evento",
-    tagColor: C.amber,
+    tagKey: "amber" as const,
   },
   {
     id: "news-2",
@@ -44,7 +43,7 @@ const mockNews = [
     body: "A partir de 15 de Junho, o horário de verão entra em vigor. Consulta os novos horários na secção Agenda.",
     date: "30 Mai",
     tag: "Info",
-    tagColor: C.blue,
+    tagKey: "blue" as const,
   },
 ];
 
@@ -81,9 +80,9 @@ const WEEKLY_TRAINED = getWeeklyTrained();
 // ─── Weekly Stories Header ──────────────────────────────────
 const DAY_LETTERS_PT = ["D", "S", "T", "Q", "Q", "S", "S"];
 
-function WeeklyStories() {
+function WeeklyStories({ C }: { C: Colors }) {
+  const router = useRouter();
   const today = new Date();
-  const todayIndex = today.getDay(); // 0 = Sun
 
   // Build Mon-Sun starting from current week Monday
   const days = useMemo(() => {
@@ -105,43 +104,45 @@ function WeeklyStories() {
     });
   }, []);
 
+  const ss = storyStyles(C);
+
   return (
-    <View style={storyStyles.container}>
+    <View style={ss.container}>
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
-        contentContainerStyle={storyStyles.scroll}
+        contentContainerStyle={ss.scroll}
       >
         {days.map((day, i) => {
           const trained = day.trained && (day.isPast || day.isToday);
           return (
             <TouchableOpacity
               key={i}
-              style={storyStyles.dayCol}
+              style={ss.dayCol}
               onPress={() => {
                 if (day.isFuture) return;
-                const dateStr = day.d.toLocaleDateString("pt-PT", { weekday: "long", day: "numeric", month: "short" });
-                Alert.alert(
-                  trained ? "✅ Treino" : day.isRestDay ? "😴 Descanso" : "📅 Hoje",
-                  trained ? `${dateStr}\n${day.label}` : `${dateStr}\n${day.label || "Sem treino"}`,
-                );
+                if (trained) {
+                  router.push("/booking-history");
+                } else {
+                  router.push("/(tabs)/schedule");
+                }
               }}
             >
-              <Text style={[storyStyles.dayLetter, day.isToday && storyStyles.dayLetterToday]}>
+              <Text style={[ss.dayLetter, day.isToday && ss.dayLetterToday]}>
                 {day.letter}
               </Text>
               <View
                 style={[
-                  storyStyles.ring,
-                  trained && storyStyles.ringTrained,
-                  day.isToday && storyStyles.ringToday,
-                  day.isFuture && storyStyles.ringFuture,
+                  ss.ring,
+                  trained && ss.ringTrained,
+                  day.isToday && ss.ringToday,
+                  day.isFuture && ss.ringFuture,
                 ]}
               >
                 <View
                   style={[
-                    storyStyles.circle,
-                    day.isToday && storyStyles.circleToday,
+                    ss.circle,
+                    day.isToday && ss.circleToday,
                   ]}
                 >
                   {day.isRestDay ? (
@@ -149,11 +150,11 @@ function WeeklyStories() {
                   ) : trained ? (
                     <Flame size={day.isToday ? 16 : 13} color={day.isToday ? C.green : C.amber} strokeWidth={2} fill={day.isToday ? C.green + "60" : C.amber + "40"} />
                   ) : (
-                    <View style={[storyStyles.emptyDot, day.isFuture && storyStyles.emptyDotFuture]} />
+                    <View style={[ss.emptyDot, day.isFuture && ss.emptyDotFuture]} />
                   )}
                 </View>
               </View>
-              {day.isToday && <View style={storyStyles.todayPip} />}
+              {day.isToday && <View style={ss.todayPip} />}
             </TouchableOpacity>
           );
         })}
@@ -162,83 +163,85 @@ function WeeklyStories() {
   );
 }
 
-const storyStyles = StyleSheet.create({
-  container: {
-    paddingHorizontal: 16,
-    marginBottom: 20,
-  },
-  scroll: {
-    gap: 8,
-    paddingVertical: 4,
-  },
-  dayCol: {
-    alignItems: "center",
-    width: 42,
-    gap: 4,
-  },
-  dayLetter: {
-    fontSize: 10,
-    fontWeight: "700",
-    color: C.muted,
-    letterSpacing: 0.5,
-  },
-  dayLetterToday: {
-    color: C.green,
-  },
-  ring: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
-    borderWidth: 2,
-    borderColor: "transparent",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  ringTrained: {
-    borderColor: C.amber,
-  },
-  ringToday: {
-    borderColor: C.green,
-    shadowColor: C.green,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.5,
-    shadowRadius: 6,
-    elevation: 4,
-  },
-  ringFuture: {
-    borderColor: C.border,
-  },
-  circle: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
-    backgroundColor: C.surface2,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  circleToday: {
-    backgroundColor: C.green + "15",
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-  },
-  emptyDot: {
-    width: 5,
-    height: 5,
-    borderRadius: 3,
-    backgroundColor: C.muted,
-    opacity: 0.4,
-  },
-  emptyDotFuture: {
-    opacity: 0.15,
-  },
-  todayPip: {
-    width: 4,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: C.green,
-  },
-});
+function storyStyles(C: Colors) {
+  return StyleSheet.create({
+    container: {
+      paddingHorizontal: 16,
+      marginBottom: 20,
+    },
+    scroll: {
+      gap: 8,
+      paddingVertical: 4,
+    },
+    dayCol: {
+      alignItems: "center",
+      width: 42,
+      gap: 4,
+    },
+    dayLetter: {
+      fontSize: 10,
+      fontWeight: "700",
+      color: C.muted,
+      letterSpacing: 0.5,
+    },
+    dayLetterToday: {
+      color: C.green,
+    },
+    ring: {
+      width: 42,
+      height: 42,
+      borderRadius: 21,
+      borderWidth: 2,
+      borderColor: "transparent",
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    ringTrained: {
+      borderColor: C.amber,
+    },
+    ringToday: {
+      borderColor: C.green,
+      shadowColor: C.green,
+      shadowOffset: { width: 0, height: 0 },
+      shadowOpacity: 0.5,
+      shadowRadius: 6,
+      elevation: 4,
+    },
+    ringFuture: {
+      borderColor: C.border,
+    },
+    circle: {
+      width: 34,
+      height: 34,
+      borderRadius: 17,
+      backgroundColor: C.surface2,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    circleToday: {
+      backgroundColor: C.green + "15",
+      width: 36,
+      height: 36,
+      borderRadius: 18,
+    },
+    emptyDot: {
+      width: 5,
+      height: 5,
+      borderRadius: 3,
+      backgroundColor: C.muted,
+      opacity: 0.4,
+    },
+    emptyDotFuture: {
+      opacity: 0.15,
+    },
+    todayPip: {
+      width: 4,
+      height: 4,
+      borderRadius: 2,
+      backgroundColor: C.green,
+    },
+  });
+}
 
 // ─── Helpers ───────────────────────────────────────────────
 function getInitials(name: string): string {
@@ -261,7 +264,7 @@ function getRoleLabel(role: string): string {
   }
 }
 
-function getRoleColor(role: string): string {
+function getRoleColor(role: string, C: Colors): string {
   switch (role) {
     case "head_coach": return C.green;
     case "coach": return C.blue;
@@ -273,10 +276,16 @@ function getRoleColor(role: string): string {
 // ─── Screen ────────────────────────────────────────────────
 export default function HomeScreen() {
   const router = useRouter();
+  const C = useTheme();
   const { user } = useAuthStore();
   const userName = user?.user.name?.split(" ")[0] ?? "Atleta";
   const greeting = getGreeting();
   const nextOccupancy = nextClass.enrolled / nextClass.capacity;
+  const mockNews = mockNewsRaw.map((item) => ({
+    ...item,
+    tagColor: item.tagKey === "amber" ? C.amber : C.blue,
+  }));
+  const styles = makeStyles(C);
 
   return (
     <SafeAreaView style={styles.safe} edges={["top"]}>
@@ -297,7 +306,7 @@ export default function HomeScreen() {
             onPress={() => router.push("/notifications")}
           >
             <View style={styles.notifDot} />
-            <Text style={styles.notifBell}>🔔</Text>
+            <Bell size={22} color={C.text} strokeWidth={1.8} />
           </TouchableOpacity>
         </View>
 
@@ -309,7 +318,7 @@ export default function HomeScreen() {
         </View>
 
         {/* ── Weekly Training Stories ── */}
-        <WeeklyStories />
+        <WeeklyStories C={C} />
 
         {/* ── Stats strip (all tappable) ── */}
         <View style={styles.statsStrip}>
@@ -477,7 +486,7 @@ export default function HomeScreen() {
           style={styles.coachScrollWrapper}
         >
           {mockCoaches.map((coach) => {
-            const rc = getRoleColor(coach.role);
+            const rc = getRoleColor(coach.role, C);
             return (
               <TouchableOpacity
                 key={coach.id}
@@ -555,7 +564,7 @@ export default function HomeScreen() {
 }
 
 // ─── Styles ────────────────────────────────────────────────
-const styles = StyleSheet.create({
+function makeStyles(C: Colors) { return StyleSheet.create({
   safe: { flex: 1, backgroundColor: C.bg },
   scrollContent: { paddingBottom: 36 },
 
@@ -588,15 +597,14 @@ const styles = StyleSheet.create({
   notifButton: { position: "relative", padding: 4 },
   notifDot: {
     position: "absolute",
-    top: 4,
-    right: 4,
+    top: 2,
+    right: 2,
     width: 8,
     height: 8,
     borderRadius: 4,
     backgroundColor: C.red,
     zIndex: 1,
   },
-  notifBell: { fontSize: 20 },
 
   // Greeting
   greetingSection: {
@@ -849,4 +857,4 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
   },
   quickLinkText: { flex: 1, fontSize: 13, fontWeight: "600", color: C.text },
-});
+}); }

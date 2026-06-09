@@ -6,7 +6,6 @@ import {
   ScrollView,
   TouchableOpacity,
   Animated,
-  Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
@@ -24,10 +23,9 @@ import {
   CalendarCheck,
   Plus,
 } from "lucide-react-native";
-import { colors } from "@/colors";
+import { useTheme } from "../_layout";
+import type { Colors } from "@/colors";
 import { t } from "@/i18n";
-
-const C = colors;
 
 // ─── Types ────────────────────────────────────────────────
 type FeedEventType = "pr" | "checkin" | "wod" | "milestone";
@@ -122,7 +120,7 @@ const athleteOfMonth = {
 };
 
 // ─── Helpers ──────────────────────────────────────────────
-function getEventIcon(type: FeedEventType): React.ReactNode {
+function getEventIcon(type: FeedEventType, C: Colors): React.ReactNode {
   switch (type) {
     case "pr":
       return <Trophy size={14} color={C.amber} strokeWidth={2} />;
@@ -135,7 +133,7 @@ function getEventIcon(type: FeedEventType): React.ReactNode {
   }
 }
 
-function getEventBadge(type: FeedEventType): { label: string; color: string } {
+function getEventBadge(type: FeedEventType, C: Colors): { label: string; color: string } {
   switch (type) {
     case "pr": return { label: "PR", color: C.amber };
     case "checkin": return { label: "Check-in", color: C.green };
@@ -152,6 +150,8 @@ function FeedCard({
   onPress,
   onComment,
   bounceAnim,
+  C,
+  styles,
 }: {
   event: FeedEvent;
   fistbumped: boolean;
@@ -159,8 +159,10 @@ function FeedCard({
   onPress: () => void;
   onComment: () => void;
   bounceAnim: Animated.Value;
+  C: Colors;
+  styles: ReturnType<typeof makeStyles>;
 }) {
-  const badge = getEventBadge(event.eventType);
+  const badge = getEventBadge(event.eventType, C);
 
   return (
     <TouchableOpacity style={styles.feedCard} onPress={onPress} activeOpacity={0.8}>
@@ -172,7 +174,7 @@ function FeedCard({
         <View style={styles.feedAuthorInfo}>
           <Text style={styles.feedAuthorName}>{event.authorName}</Text>
           <View style={styles.feedMetaRow}>
-            {getEventIcon(event.eventType)}
+            {getEventIcon(event.eventType, C)}
             <Text style={styles.feedTimeAgo}>{event.timeAgo}</Text>
           </View>
         </View>
@@ -223,6 +225,8 @@ function FeedCard({
 // ─── Screen ───────────────────────────────────────────────
 export default function CommunityScreen() {
   const router = useRouter();
+  const C = useTheme();
+  const styles = makeStyles(C);
   const [fistbumpedIds, setFistbumpedIds] = useState<Set<string>>(new Set());
   const bounceAnims = useRef<Record<string, Animated.Value>>({}).current;
 
@@ -248,14 +252,7 @@ export default function CommunityScreen() {
   }
 
   function handleCreatePost() {
-    Alert.alert(
-      t("alert.newPost"),
-      t("alert.newPostMsg"),
-      [
-        { text: t("alert.postCancel"), style: "cancel" },
-        { text: t("alert.postShare"), onPress: () => Alert.alert("", t("alert.postShared")) },
-      ]
-    );
+    router.push("/social-feed");
   }
 
   return (
@@ -389,6 +386,8 @@ export default function CommunityScreen() {
             onPress={() => router.push(`/fistbump-detail?id=${event.id}`)}
             onComment={() => router.push(`/fistbump-detail?id=${event.id}`)}
             bounceAnim={getBounceAnim(event.id)}
+            C={C}
+            styles={styles}
           />
         ))}
 
@@ -408,7 +407,7 @@ export default function CommunityScreen() {
 }
 
 // ─── Styles ───────────────────────────────────────────────
-const styles = StyleSheet.create({
+function makeStyles(C: Colors) { return StyleSheet.create({
   safe: { flex: 1, backgroundColor: C.bg },
   scrollContent: { paddingBottom: 36 },
 
@@ -694,4 +693,4 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 8,
   },
-});
+}); }

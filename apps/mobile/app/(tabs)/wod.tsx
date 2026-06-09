@@ -11,10 +11,9 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { Clock, ChevronDown, ChevronUp, Play, Pause, RotateCcw, Zap, Timer } from "lucide-react-native";
-import { colors } from "@/colors";
+import { useTheme } from "../_layout";
+import type { Colors } from "@/colors";
 import { t } from "@/i18n";
-
-const C = colors;
 
 // ─── Types ───────────────────────────────────────────────
 type WODExercise = {
@@ -79,7 +78,7 @@ const todayWOD: { id: string; title: string; date: string; parts: WODPart[] } = 
   ],
 };
 
-function getWODTypeBadge(type: string): { label: string; color: string } {
+function getWODTypeBadge(type: string, C: Colors): { label: string; color: string } {
   switch (type) {
     case "amrap": return { label: "AMRAP", color: C.green };
     case "emom": return { label: "EMOM", color: C.blue };
@@ -106,9 +105,9 @@ function formatTime(secs: number): string {
 }
 
 // ─── Collapsible Part Card ────────────────────────────────
-function WODPartCard({ part, defaultOpen }: { part: WODPart; defaultOpen?: boolean }) {
+function WODPartCard({ part, defaultOpen, C, styles }: { part: WODPart; defaultOpen?: boolean; C: Colors; styles: ReturnType<typeof makeStyles> }) {
   const [open, setOpen] = useState(defaultOpen ?? true);
-  const badge = getWODTypeBadge(part.type);
+  const badge = getWODTypeBadge(part.type, C);
 
   return (
     <View style={styles.partCard}>
@@ -160,7 +159,7 @@ function WODPartCard({ part, defaultOpen }: { part: WODPart; defaultOpen?: boole
 }
 
 // ─── Inline Timer ────────────────────────────────────────
-function InlineTimer() {
+function InlineTimer({ C, styles }: { C: Colors; styles: ReturnType<typeof makeStyles> }) {
   const [seconds, setSeconds] = useState(0);
   const [running, setRunning] = useState(false);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -221,6 +220,8 @@ function InlineTimer() {
 // ─── Screen ──────────────────────────────────────────────
 export default function WODScreen() {
   const router = useRouter();
+  const C = useTheme();
+  const styles = makeStyles(C);
 
   return (
     <SafeAreaView style={styles.safe} edges={["top"]}>
@@ -258,11 +259,11 @@ export default function WODScreen() {
           contentContainerStyle={styles.scrollContent}
         >
           {todayWOD.parts.map((part, i) => (
-            <WODPartCard key={i} part={part} defaultOpen={i === 2} />
+            <WODPartCard key={i} part={part} defaultOpen={i === 2} C={C} styles={styles} />
           ))}
 
           {/* Inline Timer */}
-          <InlineTimer />
+          <InlineTimer C={C} styles={styles} />
 
           {/* Log result section */}
           <View style={styles.logSection}>
@@ -311,7 +312,7 @@ export default function WODScreen() {
 }
 
 // ─── Styles ──────────────────────────────────────────────
-const styles = StyleSheet.create({
+function makeStyles(C: Colors) { return StyleSheet.create({
   safe: { flex: 1, backgroundColor: C.bg },
   container: { flex: 1 },
 
@@ -551,4 +552,4 @@ const styles = StyleSheet.create({
     color: "#080c0a",
     letterSpacing: 1,
   },
-});
+}); }
