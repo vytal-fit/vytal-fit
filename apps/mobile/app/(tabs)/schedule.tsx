@@ -18,7 +18,11 @@ import { t } from "@/i18n";
 
 const C = colors;
 
-// ─── Helpers ─────────────────────────────────────────────
+// ─── Filter pills config ──────────────────────────────────
+const FILTERS = ["Todas", "CrossFit", "Ginastica", "Weightlifting", "Cardio"] as const;
+type FilterLabel = typeof FILTERS[number];
+
+// ─── Helpers ──────────────────────────────────────────────
 function getWeekDays(): { key: string; label: string; dayNum: number; dateStr: string; isToday: boolean }[] {
   const days: ReturnType<typeof getWeekDays> = [];
   const weekLabels = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sab"];
@@ -50,8 +54,19 @@ function formatDateHeader(): string {
   return `${weekDays[now.getDay()]}, ${now.getDate()} de ${months[now.getMonth()]}`;
 }
 
-// ─── Components ──────────────────────────────────────────
+function matchesFilter(cls: Class, filter: FilterLabel): boolean {
+  if (filter === "Todas") return true;
+  const name = cls.classType.name.toLowerCase();
+  switch (filter) {
+    case "CrossFit": return name.includes("crossfit");
+    case "Ginastica": return name.includes("ginastica") || name.includes("gymnastics");
+    case "Weightlifting": return name.includes("weightlifting") || name.includes("halterofilia");
+    case "Cardio": return name.includes("cardio") || name.includes("endurance");
+    default: return true;
+  }
+}
 
+// ─── Components ───────────────────────────────────────────
 function DaySelector({
   days,
   selected,
@@ -106,6 +121,35 @@ function DaySelector({
           </TouchableOpacity>
         );
       })}
+    </ScrollView>
+  );
+}
+
+function FilterPills({
+  active,
+  onSelect,
+}: {
+  active: FilterLabel;
+  onSelect: (f: FilterLabel) => void;
+}) {
+  return (
+    <ScrollView
+      horizontal
+      showsHorizontalScrollIndicator={false}
+      contentContainerStyle={styles.filterContent}
+      style={styles.filterBar}
+    >
+      {FILTERS.map((f) => (
+        <TouchableOpacity
+          key={f}
+          style={[styles.filterPill, active === f && styles.filterPillActive]}
+          onPress={() => onSelect(f)}
+        >
+          <Text style={[styles.filterPillText, active === f && styles.filterPillTextActive]}>
+            {f}
+          </Text>
+        </TouchableOpacity>
+      ))}
     </ScrollView>
   );
 }
@@ -208,7 +252,13 @@ function ClassCard({
             </View>
           </TouchableOpacity>
         ) : isFull ? (
-          <TouchableOpacity style={styles.waitlistButton}>
+          <TouchableOpacity
+            style={styles.waitlistButton}
+            onPress={(e) => {
+              e.stopPropagation?.();
+              onBook();
+            }}
+          >
             <Text style={styles.waitlistButtonText}>{t("btn.waitlist")}</Text>
           </TouchableOpacity>
         ) : (
@@ -227,18 +277,19 @@ function ClassCard({
   );
 }
 
-// ─── Screen ──────────────────────────────────────────────
+// ─── Screen ───────────────────────────────────────────────
 export default function ScheduleScreen() {
   const router = useRouter();
   const weekDays = getWeekDays();
   const [selectedDate, setSelectedDate] = useState(weekDays[0].dateStr);
+  const [activeFilter, setActiveFilter] = useState<FilterLabel>("Todas");
   const [bookedIds, setBookedIds] = useState<Set<string>>(new Set(["cl-2", "cl-6"]));
 
-  const filteredClasses = mockClasses.filter(
-    (cls) => cls.date === selectedDate
-  );
+  const filteredClasses = mockClasses
+    .filter((cls) => cls.date === selectedDate)
+    .filter((cls) => matchesFilter(cls, activeFilter));
 
-  function toggleBooking(classId: string) {
+  function toggleBooking(classId: string, cls: Class) {
     setBookedIds((prev) => {
       const next = new Set(prev);
       if (next.has(classId)) {
@@ -279,8 +330,11 @@ export default function ScheduleScreen() {
         <DaySelector
           days={weekDays}
           selected={selectedDate}
-          onSelect={setSelectedDate}
+          onSelect={(d) => { setSelectedDate(d); setActiveFilter("Todas"); }}
         />
+
+        {/* Filter Pills */}
+        <FilterPills active={activeFilter} onSelect={setActiveFilter} />
 
         {/* Class List */}
         <FlatList
@@ -291,13 +345,13 @@ export default function ScheduleScreen() {
               cls={item}
               onPress={() => router.push(`/class-detail?id=${item.id}`)}
               isBooked={bookedIds.has(item.id)}
-              onBook={() => toggleBooking(item.id)}
+              onBook={() => toggleBooking(item.id, item)}
               enrollmentOffset={bookedIds.has(item.id) ? 1 : 0}
             />
           )}
           contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}
-          ItemSeparatorComponent={() => <View style={styles.cardDivider} />}
+          ItemSeparatorComponent={() => <View style={styles.cardGap} />}
           ListEmptyComponent={
             <View style={styles.emptyState}>
               <CalendarX size={48} color={C.muted} strokeWidth={1.2} />
@@ -312,7 +366,7 @@ export default function ScheduleScreen() {
   );
 }
 
-// ─── Styles ──────────────────────────────────────────────
+// ─── Styles ───────────────────────────────────────────────
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
@@ -419,11 +473,45 @@ const styles = StyleSheet.create({
     backgroundColor: "#080c0a",
   },
 
+  // Filter pills
+  filterBar: {
+    maxHeight: 44,
+    marginBottom: 12,
+  },
+  filterContent: {
+    paddingHorizontal: 16,
+    gap: 8,
+    alignItems: "center",
+  },
+  filterPill: {
+    paddingHorizontal: 14,
+    paddingVertical: 7,
+    borderRadius: 20,
+    backgroundColor: C.surface,
+    borderWidth: 1,
+    borderColor: C.border,
+  },
+  filterPillActive: {
+    backgroundColor: C.green + "18",
+    borderColor: C.green + "60",
+  },
+  filterPillText: {
+    fontSize: 11,
+    fontWeight: "700",
+    color: C.muted,
+    letterSpacing: 0.3,
+  },
+  filterPillTextActive: {
+    color: C.green,
+  },
+
   // List
   listContent: {
     paddingHorizontal: 16,
     paddingBottom: 20,
-    gap: 12,
+  },
+  cardGap: {
+    height: 12,
   },
 
   // Card
@@ -479,11 +567,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
-  },
-  cardDivider: {
-    height: 1,
-    backgroundColor: C.border,
-    marginHorizontal: 4,
   },
   infoText: {
     fontSize: 14,
@@ -572,9 +655,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     paddingVertical: 60,
-  },
-  emptyIconWrap: {
-    marginBottom: 12,
+    gap: 12,
   },
   emptyText: {
     fontSize: 16,

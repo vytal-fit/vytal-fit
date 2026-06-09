@@ -6,6 +6,7 @@ import {
   ScrollView,
   TouchableOpacity,
   Animated,
+  Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
@@ -21,13 +22,14 @@ import {
   Award,
   Flame,
   CalendarCheck,
+  Plus,
 } from "lucide-react-native";
 import { colors } from "@/colors";
 import { t } from "@/i18n";
 
 const C = colors;
 
-// ─── Types ───────────────────────────────────────────────
+// ─── Types ────────────────────────────────────────────────
 type FeedEventType = "pr" | "checkin" | "wod" | "milestone";
 
 type FeedEvent = {
@@ -41,7 +43,7 @@ type FeedEvent = {
   comments: number;
 };
 
-// ─── Mock Data ───────────────────────────────────────────
+// ─── Mock Data ────────────────────────────────────────────
 const communityStats = {
   activeMembers: 142,
   totalFistbumps: 1840,
@@ -119,7 +121,7 @@ const athleteOfMonth = {
   highlight: "Melhor streak do mes",
 };
 
-// ─── Helpers ─────────────────────────────────────────────
+// ─── Helpers ──────────────────────────────────────────────
 function getEventIcon(type: FeedEventType): React.ReactNode {
   switch (type) {
     case "pr":
@@ -142,18 +144,20 @@ function getEventBadge(type: FeedEventType): { label: string; color: string } {
   }
 }
 
-// ─── Feed Card ───────────────────────────────────────────
+// ─── Feed Card ────────────────────────────────────────────
 function FeedCard({
   event,
   fistbumped,
   onFistbump,
   onPress,
+  onComment,
   bounceAnim,
 }: {
   event: FeedEvent;
   fistbumped: boolean;
   onFistbump: () => void;
   onPress: () => void;
+  onComment: () => void;
   bounceAnim: Animated.Value;
 }) {
   const badge = getEventBadge(event.eventType);
@@ -201,16 +205,22 @@ function FeedCard({
             {event.fistbumps + (fistbumped ? 1 : 0)}
           </Text>
         </TouchableOpacity>
-        <View style={styles.feedActionBtn}>
+        <TouchableOpacity
+          style={styles.feedActionBtn}
+          onPress={(e) => {
+            e.stopPropagation?.();
+            onComment();
+          }}
+        >
           <MessageCircle size={16} color={C.muted} strokeWidth={2} />
           <Text style={styles.feedActionCount}>{event.comments}</Text>
-        </View>
+        </TouchableOpacity>
       </View>
     </TouchableOpacity>
   );
 }
 
-// ─── Screen ──────────────────────────────────────────────
+// ─── Screen ───────────────────────────────────────────────
 export default function CommunityScreen() {
   const router = useRouter();
   const [fistbumpedIds, setFistbumpedIds] = useState<Set<string>>(new Set());
@@ -226,7 +236,7 @@ export default function CommunityScreen() {
   function toggleFistbump(id: string) {
     const anim = getBounceAnim(id);
     Animated.sequence([
-      Animated.timing(anim, { toValue: 1.35, duration: 100, useNativeDriver: true }),
+      Animated.timing(anim, { toValue: 1.4, duration: 90, useNativeDriver: true }),
       Animated.spring(anim, { toValue: 1, friction: 3, useNativeDriver: true }),
     ]).start();
     setFistbumpedIds((prev) => {
@@ -235,6 +245,10 @@ export default function CommunityScreen() {
       else next.add(id);
       return next;
     });
+  }
+
+  function handleCreatePost() {
+    Alert.alert("Em breve", "A criacao de posts estara disponivel em breve!");
   }
 
   return (
@@ -257,27 +271,39 @@ export default function CommunityScreen() {
 
         {/* Stats Strip */}
         <View style={styles.statsStrip}>
-          <View style={[styles.statItem, { borderRightWidth: 1, borderRightColor: C.border }]}>
+          <TouchableOpacity
+            style={[styles.statItem, { borderRightWidth: 1, borderRightColor: C.border }]}
+            onPress={() => router.push("/social-feed")}
+            activeOpacity={0.7}
+          >
             <View style={[styles.statIconBox, { backgroundColor: C.green + "20" }]}>
               <Users size={16} color={C.green} strokeWidth={2} />
             </View>
             <Text style={[styles.statValue, { color: C.green }]}>{communityStats.activeMembers}</Text>
             <Text style={styles.statLabel}>{t("label.activeMembers")}</Text>
-          </View>
-          <View style={[styles.statItem, { borderRightWidth: 1, borderRightColor: C.border }]}>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.statItem, { borderRightWidth: 1, borderRightColor: C.border }]}
+            onPress={() => router.push("/fistbumps")}
+            activeOpacity={0.7}
+          >
             <View style={[styles.statIconBox, { backgroundColor: C.red + "20" }]}>
               <Heart size={16} color={C.red} strokeWidth={2} />
             </View>
             <Text style={[styles.statValue, { color: C.red }]}>{communityStats.totalFistbumps}</Text>
             <Text style={styles.statLabel}>{t("label.totalFistbumps")}</Text>
-          </View>
-          <View style={styles.statItem}>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.statItem}
+            onPress={() => router.push("/wod-history")}
+            activeOpacity={0.7}
+          >
             <View style={[styles.statIconBox, { backgroundColor: C.orange + "20" }]}>
               <Flame size={16} color={C.orange} strokeWidth={2} />
             </View>
             <Text style={[styles.statValue, { color: C.orange }]}>{communityStats.wodsDone}</Text>
             <Text style={styles.statLabel}>{t("label.wodsDone")}</Text>
-          </View>
+          </TouchableOpacity>
         </View>
 
         {/* Athlete of the Month */}
@@ -354,17 +380,27 @@ export default function CommunityScreen() {
             fistbumped={fistbumpedIds.has(event.id)}
             onFistbump={() => toggleFistbump(event.id)}
             onPress={() => router.push(`/fistbump-detail?id=${event.id}`)}
+            onComment={() => router.push(`/fistbump-detail?id=${event.id}`)}
             bounceAnim={getBounceAnim(event.id)}
           />
         ))}
 
-        <View style={{ height: 20 }} />
+        <View style={{ height: 100 }} />
       </ScrollView>
+
+      {/* Floating "+" button */}
+      <TouchableOpacity
+        style={styles.fab}
+        onPress={handleCreatePost}
+        activeOpacity={0.85}
+      >
+        <Plus size={22} color="#080c0a" strokeWidth={2.5} />
+      </TouchableOpacity>
     </SafeAreaView>
   );
 }
 
-// ─── Styles ──────────────────────────────────────────────
+// ─── Styles ───────────────────────────────────────────────
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: C.bg },
   scrollContent: { paddingBottom: 36 },
@@ -626,10 +662,29 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 5,
     minHeight: 32,
+    paddingHorizontal: 4,
   },
   feedActionCount: {
     fontSize: 12,
     fontWeight: "600",
     color: C.muted,
+  },
+
+  // Floating action button
+  fab: {
+    position: "absolute",
+    bottom: 24,
+    right: 20,
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    backgroundColor: C.green,
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: C.green,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.4,
+    shadowRadius: 8,
+    elevation: 8,
   },
 });

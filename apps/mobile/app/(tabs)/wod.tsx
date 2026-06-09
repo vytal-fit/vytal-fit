@@ -6,6 +6,7 @@ import {
   ScrollView,
   TouchableOpacity,
   Animated,
+  Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
@@ -192,7 +193,7 @@ function InlineTimer() {
       <View style={styles.timerHeader}>
         <View style={styles.timerHeaderLeft}>
           <Clock size={16} color={C.green} strokeWidth={2} />
-          <Text style={styles.timerTitle}>TIMER</Text>
+          <Text style={styles.timerTitle}>{t("wod.timer")}</Text>
         </View>
         <TouchableOpacity onPress={reset} style={styles.timerResetBtn}>
           <RotateCcw size={16} color={C.muted} strokeWidth={2} />
@@ -210,7 +211,7 @@ function InlineTimer() {
           : <Play size={22} color="#080c0a" strokeWidth={2.5} fill="#080c0a" />
         }
         <Text style={[styles.timerPlayText, { color: running ? C.red : "#080c0a" }]}>
-          {running ? "PAUSAR" : "INICIAR"}
+          {running ? t("wod.pause") : t("wod.start")}
         </Text>
       </TouchableOpacity>
     </View>
@@ -265,7 +266,7 @@ export default function WODScreen() {
 
           {/* Log result section */}
           <View style={styles.logSection}>
-            <Text style={styles.logSectionTitle}>REGISTAR RESULTADO</Text>
+            <Text style={styles.logSectionTitle}>{t("wod.logResult")}</Text>
             <TouchableOpacity
               style={styles.logButton}
               onPress={() => router.push("/score-entry")}

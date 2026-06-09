@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import {
   View,
   Text,
@@ -18,15 +18,16 @@ import {
   Users,
   Newspaper,
   MessageSquare,
+  Moon,
 } from "lucide-react-native";
-import { mockCoaches, mockDashboardStats } from "@vytal-fit/shared";
+import { mockCoaches } from "@vytal-fit/shared";
 import { colors } from "@/colors";
 import { t } from "@/i18n";
 import { useAuthStore } from "@/stores/auth-store";
 
 const C = colors;
 
-// ─── Mock data ────────────────────────────────────────────
+// ─── Mock data ─────────────────────────────────────────────
 const mockNews = [
   {
     id: "news-1",
@@ -60,6 +61,160 @@ const todayWODPreview = {
   movements: ["Power Cleans", "Box Jumps", "Toes-to-Bar"],
 };
 
+// Mock weekly training data: true = trained, false = rest
+const WEEKLY_TRAINED: boolean[] = [true, true, false, true, true, false, false];
+
+// ─── Weekly Stories Header ──────────────────────────────────
+const DAY_LETTERS_PT = ["D", "S", "T", "Q", "Q", "S", "S"];
+
+function WeeklyStories() {
+  const today = new Date();
+  const todayIndex = today.getDay(); // 0 = Sun
+
+  // Build Mon-Sun starting from current week Monday
+  const days = useMemo(() => {
+    const monday = new Date(today);
+    const diff = (today.getDay() + 6) % 7; // days since Monday
+    monday.setDate(today.getDate() - diff);
+
+    return Array.from({ length: 7 }, (_, i) => {
+      const d = new Date(monday);
+      d.setDate(monday.getDate() + i);
+      const isToday = d.toDateString() === today.toDateString();
+      const isPast = d < today && !isToday;
+      const dayOfWeek = d.getDay();
+      const letter = DAY_LETTERS_PT[dayOfWeek];
+      const trained = WEEKLY_TRAINED[i];
+      const isRestDay = !trained && isPast;
+      return { d, isToday, isPast, isFuture: !isPast && !isToday, letter, trained, isRestDay };
+    });
+  }, []);
+
+  return (
+    <View style={storyStyles.container}>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={storyStyles.scroll}
+      >
+        {days.map((day, i) => {
+          const trained = day.trained && (day.isPast || day.isToday);
+          return (
+            <View key={i} style={storyStyles.dayCol}>
+              <Text style={[storyStyles.dayLetter, day.isToday && storyStyles.dayLetterToday]}>
+                {day.letter}
+              </Text>
+              <View
+                style={[
+                  storyStyles.ring,
+                  trained && storyStyles.ringTrained,
+                  day.isToday && storyStyles.ringToday,
+                  day.isFuture && storyStyles.ringFuture,
+                ]}
+              >
+                <View
+                  style={[
+                    storyStyles.circle,
+                    day.isToday && storyStyles.circleToday,
+                  ]}
+                >
+                  {day.isRestDay ? (
+                    <Moon size={12} color={C.blue} strokeWidth={2} />
+                  ) : trained ? (
+                    <Flame size={day.isToday ? 16 : 13} color={day.isToday ? C.green : C.amber} strokeWidth={2} fill={day.isToday ? C.green + "60" : C.amber + "40"} />
+                  ) : (
+                    <View style={[storyStyles.emptyDot, day.isFuture && storyStyles.emptyDotFuture]} />
+                  )}
+                </View>
+              </View>
+              {day.isToday && <View style={storyStyles.todayPip} />}
+            </View>
+          );
+        })}
+      </ScrollView>
+    </View>
+  );
+}
+
+const storyStyles = StyleSheet.create({
+  container: {
+    paddingHorizontal: 16,
+    marginBottom: 20,
+  },
+  scroll: {
+    gap: 8,
+    paddingVertical: 4,
+  },
+  dayCol: {
+    alignItems: "center",
+    width: 42,
+    gap: 4,
+  },
+  dayLetter: {
+    fontSize: 10,
+    fontWeight: "700",
+    color: C.muted,
+    letterSpacing: 0.5,
+  },
+  dayLetterToday: {
+    color: C.green,
+  },
+  ring: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    borderWidth: 2,
+    borderColor: "transparent",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  ringTrained: {
+    borderColor: C.amber,
+  },
+  ringToday: {
+    borderColor: C.green,
+    shadowColor: C.green,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.5,
+    shadowRadius: 6,
+    elevation: 4,
+  },
+  ringFuture: {
+    borderColor: C.border,
+  },
+  circle: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    backgroundColor: C.surface2,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  circleToday: {
+    backgroundColor: C.green + "15",
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+  },
+  emptyDot: {
+    width: 5,
+    height: 5,
+    borderRadius: 3,
+    backgroundColor: C.muted,
+    opacity: 0.4,
+  },
+  emptyDotFuture: {
+    opacity: 0.15,
+  },
+  todayPip: {
+    width: 4,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: C.green,
+  },
+});
+
+// ─── Helpers ───────────────────────────────────────────────
 function getInitials(name: string): string {
   return name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
 }
@@ -89,7 +244,7 @@ function getRoleColor(role: string): string {
   }
 }
 
-// ─── Screen ──────────────────────────────────────────────
+// ─── Screen ────────────────────────────────────────────────
 export default function HomeScreen() {
   const router = useRouter();
   const { user } = useAuthStore();
@@ -127,34 +282,49 @@ export default function HomeScreen() {
           <Text style={styles.orgName}>Vytal CrossFit · Lisboa</Text>
         </View>
 
-        {/* ── Stats strip ── */}
+        {/* ── Weekly Training Stories ── */}
+        <WeeklyStories />
+
+        {/* ── Stats strip (all tappable) ── */}
         <View style={styles.statsStrip}>
-          <View style={[styles.statItem, { borderRightWidth: 1, borderRightColor: C.border }]}>
+          <TouchableOpacity
+            style={[styles.statItem, { borderRightWidth: 1, borderRightColor: C.border }]}
+            onPress={() => router.push("/booking-history")}
+            activeOpacity={0.7}
+          >
             <View style={[styles.statIconBox, { backgroundColor: C.amber + "20" }]}>
               <Flame size={16} color={C.amber} strokeWidth={2} />
             </View>
             <Text style={[styles.statValue, { color: C.amber }]}>12</Text>
             <Text style={styles.statLabel}>Semanas</Text>
-          </View>
-          <View style={[styles.statItem, { borderRightWidth: 1, borderRightColor: C.border }]}>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.statItem, { borderRightWidth: 1, borderRightColor: C.border }]}
+            onPress={() => router.push("/booking-history")}
+            activeOpacity={0.7}
+          >
             <View style={[styles.statIconBox, { backgroundColor: C.blue + "20" }]}>
               <CalendarCheck size={16} color={C.blue} strokeWidth={2} />
             </View>
             <Text style={[styles.statValue, { color: C.blue }]}>47</Text>
             <Text style={styles.statLabel}>Check-ins</Text>
-          </View>
-          <View style={styles.statItem}>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.statItem}
+            onPress={() => router.push("/(tabs)/records")}
+            activeOpacity={0.7}
+          >
             <View style={[styles.statIconBox, { backgroundColor: C.green + "20" }]}>
               <Trophy size={16} color={C.green} strokeWidth={2} />
             </View>
             <Text style={[styles.statValue, { color: C.green }]}>8</Text>
             <Text style={styles.statLabel}>PRs</Text>
-          </View>
+          </TouchableOpacity>
         </View>
 
         {/* ── Next class card ── */}
         <View style={styles.sectionHeaderRow}>
-          <Text style={styles.sectionLabel}>PROXIMA AULA</Text>
+          <Text style={styles.sectionLabel}>{t("home.nextClass")}</Text>
         </View>
         <TouchableOpacity
           style={styles.nextClassCard}
@@ -201,7 +371,7 @@ export default function HomeScreen() {
 
         {/* ── WOD preview ── */}
         <View style={styles.sectionHeaderRow}>
-          <Text style={styles.sectionLabel}>WOD DE HOJE</Text>
+          <Text style={styles.sectionLabel}>{t("home.todayWOD")}</Text>
           <TouchableOpacity onPress={() => router.push("/wod-detail")}>
             <Text style={styles.seeAll}>Ver completo</Text>
           </TouchableOpacity>
@@ -229,7 +399,7 @@ export default function HomeScreen() {
 
         {/* ── Quick actions ── */}
         <View style={styles.sectionHeaderRow}>
-          <Text style={styles.sectionLabel}>ACOES RAPIDAS</Text>
+          <Text style={styles.sectionLabel}>{t("home.quickActions")}</Text>
         </View>
         <View style={styles.actionsGrid}>
           <TouchableOpacity
@@ -272,7 +442,7 @@ export default function HomeScreen() {
 
         {/* ── Coaches ── */}
         <View style={styles.sectionHeaderRow}>
-          <Text style={styles.sectionLabel}>EQUIPA TECNICA</Text>
+          <Text style={styles.sectionLabel}>{t("home.coaches")}</Text>
         </View>
         <ScrollView
           horizontal
@@ -308,7 +478,7 @@ export default function HomeScreen() {
 
         {/* ── News ── */}
         <View style={styles.sectionHeaderRow}>
-          <Text style={styles.sectionLabel}>NOTICIAS</Text>
+          <Text style={styles.sectionLabel}>{t("home.news")}</Text>
           <TouchableOpacity onPress={() => router.push("/news")}>
             <Text style={styles.seeAll}>Ver todas</Text>
           </TouchableOpacity>
@@ -358,7 +528,7 @@ export default function HomeScreen() {
   );
 }
 
-// ─── Styles ──────────────────────────────────────────────
+// ─── Styles ────────────────────────────────────────────────
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: C.bg },
   scrollContent: { paddingBottom: 36 },
