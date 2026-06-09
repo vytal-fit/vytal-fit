@@ -132,7 +132,7 @@ export default function ProfileScreen() {
 
   const menuSections: { title: string; items: MenuItemConfig[] }[] = [
     {
-      title: "FERRAMENTAS",
+      title: t("section.tools"),
       items: [
         {
           icon: <Timer size={20} color={C.orange} strokeWidth={1.8} />,
@@ -158,7 +158,7 @@ export default function ProfileScreen() {
       ],
     },
     {
-      title: "A MINHA CONTA",
+      title: t("section.myAccount"),
       items: [
         {
           icon: <UserIcon size={20} color={C.blue} strokeWidth={1.8} />,
@@ -192,7 +192,7 @@ export default function ProfileScreen() {
       ],
     },
     {
-      title: "COMUNIDADE",
+      title: t("section.community"),
       items: [
         {
           icon: <Mail size={20} color={C.blue} strokeWidth={1.8} />,
@@ -225,7 +225,7 @@ export default function ProfileScreen() {
       ],
     },
     {
-      title: "PREFERENCIAS",
+      title: t("section.preferences"),
       items: [
         {
           icon: <Shield size={20} color={C.purple} strokeWidth={1.8} />,

@@ -5,6 +5,7 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
+  Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
@@ -29,13 +30,16 @@ const initialPRs = [
 const CATEGORIES = ["Todos", "weightlifting", "benchmark", "cardio", "gymnastics"] as const;
 type Category = typeof CATEGORIES[number];
 
-const CATEGORY_LABELS: Record<string, string> = {
-  "Todos": "TODOS",
-  "weightlifting": "HALTER.",
-  "benchmark": "BENCH.",
-  "cardio": "CARDIO",
-  "gymnastics": "GIN.",
-};
+function getCategoryPillLabel(cat: string): string {
+  switch (cat) {
+    case "Todos": return t("cat.all");
+    case "weightlifting": return t("cat.weightlifting");
+    case "benchmark": return t("cat.benchmark");
+    case "cardio": return t("cat.cardio");
+    case "gymnastics": return t("cat.gymnastics");
+    default: return cat.toUpperCase();
+  }
+}
 
 function getCategoryColor(category: string): string {
   switch (category) {
@@ -49,10 +53,10 @@ function getCategoryColor(category: string): string {
 
 function getCategoryLabelFull(category: string): string {
   switch (category) {
-    case "weightlifting": return "HALTEROFILIA";
-    case "benchmark": return "BENCHMARK";
-    case "cardio": return "CARDIO";
-    case "gymnastics": return "GINASTICA";
+    case "weightlifting": return t("cat.weightliftingFull");
+    case "benchmark": return t("cat.benchmarkFull");
+    case "cardio": return t("cat.cardioFull");
+    case "gymnastics": return t("cat.gymnasticsFull");
     default: return category.toUpperCase();
   }
 }
@@ -96,7 +100,7 @@ export default function RecordsScreen() {
             <View>
               <View style={styles.headerBrandRow}>
                 <Zap size={14} color={C.green} strokeWidth={2.5} fill={C.green} />
-                <Text style={styles.headerBrand}>RECORDES</Text>
+                <Text style={styles.headerBrand}>{t("records.headerBrand")}</Text>
               </View>
               <Text style={styles.headerTitle}>{t("screen.records")}</Text>
               <Text style={styles.headerSubtitle}>{t("screen.records.subtitle")}</Text>
@@ -147,7 +151,7 @@ export default function RecordsScreen() {
                 onPress={() => setActiveCategory(cat)}
               >
                 <Text style={[styles.filterPillText, activeCategory === cat && styles.filterPillTextActive]}>
-                  {CATEGORY_LABELS[cat]}
+                  {getCategoryPillLabel(cat)}
                 </Text>
               </TouchableOpacity>
             ))}
@@ -214,7 +218,7 @@ export default function RecordsScreen() {
             onPress={() => router.push("/pr-entry")}
           >
             <Plus size={20} color={C.green} strokeWidth={2.5} />
-            <Text style={styles.addPRText}>Adicionar novo PR</Text>
+            <Text style={styles.addPRText}>{t("records.addPR")}</Text>
           </TouchableOpacity>
         </ScrollView>
       </View>
