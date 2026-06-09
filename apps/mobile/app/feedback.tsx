@@ -6,11 +6,10 @@ import {
   ScrollView,
   TouchableOpacity,
   TextInput,
-  Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
-import { ArrowLeft, Send, ChevronDown } from "lucide-react-native";
+import { ArrowLeft, Send, ChevronDown, CheckCircle } from "lucide-react-native";
 import { mockCoaches } from "@vytal-fit/shared";
 
 // ─── Colors ──────────────────────────────────────────────
@@ -47,6 +46,10 @@ export default function FeedbackScreen() {
   const [feedbackType, setFeedbackType] = useState(0);
   const [description, setDescription] = useState("");
 
+  // Success states
+  const [boxSent, setBoxSent] = useState(false);
+  const [vytalSent, setVytalSent] = useState(false);
+
   function cycleCoach() {
     setSelectedCoach((prev) => (prev + 1) % mockCoaches.length);
   }
@@ -56,14 +59,20 @@ export default function FeedbackScreen() {
   }
 
   function handleSendBox() {
-    Alert.alert("Enviado", "Mensagem enviada para a tua box!");
-    setSubject("");
-    setMessage("");
+    setBoxSent(true);
+    setTimeout(() => {
+      setBoxSent(false);
+      setSubject("");
+      setMessage("");
+    }, 2500);
   }
 
   function handleSendVytal() {
-    Alert.alert("Enviado", "Feedback enviado para a equipa Vytal!");
-    setDescription("");
+    setVytalSent(true);
+    setTimeout(() => {
+      setVytalSent(false);
+      setDescription("");
+    }, 2500);
   }
 
   return (
@@ -117,93 +126,113 @@ export default function FeedbackScreen() {
         >
           {activeTab === "box" ? (
             <>
-              {/* To (Coach Selector) */}
-              <Text style={styles.fieldLabel}>Para</Text>
-              <TouchableOpacity
-                style={styles.selector}
-                onPress={cycleCoach}
-              >
-                <Text style={styles.selectorText}>
-                  {mockCoaches[selectedCoach].name}
-                </Text>
-                <ChevronDown size={16} color={C.green} strokeWidth={2.5} />
-              </TouchableOpacity>
+              {boxSent ? (
+                <View style={styles.successCard}>
+                  <CheckCircle size={40} color={C.green} strokeWidth={2} />
+                  <Text style={styles.successTitle}>Mensagem enviada!</Text>
+                  <Text style={styles.successSubtitle}>A tua mensagem foi enviada para a box.</Text>
+                </View>
+              ) : (
+                <>
+                  {/* To (Coach Selector) */}
+                  <Text style={styles.fieldLabel}>Para</Text>
+                  <TouchableOpacity
+                    style={styles.selector}
+                    onPress={cycleCoach}
+                  >
+                    <Text style={styles.selectorText}>
+                      {mockCoaches[selectedCoach].name}
+                    </Text>
+                    <ChevronDown size={16} color={C.green} strokeWidth={2.5} />
+                  </TouchableOpacity>
 
-              {/* Subject */}
-              <Text style={styles.fieldLabel}>Assunto</Text>
-              <TextInput
-                style={styles.fieldInput}
-                value={subject}
-                onChangeText={setSubject}
-                placeholder="Assunto da mensagem..."
-                placeholderTextColor={C.muted + "60"}
-              />
+                  {/* Subject */}
+                  <Text style={styles.fieldLabel}>Assunto</Text>
+                  <TextInput
+                    style={styles.fieldInput}
+                    value={subject}
+                    onChangeText={setSubject}
+                    placeholder="Assunto da mensagem..."
+                    placeholderTextColor={C.muted + "60"}
+                  />
 
-              {/* Message */}
-              <Text style={styles.fieldLabel}>Mensagem</Text>
-              <TextInput
-                style={styles.textArea}
-                value={message}
-                onChangeText={setMessage}
-                placeholder="Escreve a tua mensagem..."
-                placeholderTextColor={C.muted + "60"}
-                multiline
-                numberOfLines={6}
-                textAlignVertical="top"
-              />
+                  {/* Message */}
+                  <Text style={styles.fieldLabel}>Mensagem</Text>
+                  <TextInput
+                    style={styles.textArea}
+                    value={message}
+                    onChangeText={setMessage}
+                    placeholder="Escreve a tua mensagem..."
+                    placeholderTextColor={C.muted + "60"}
+                    multiline
+                    numberOfLines={6}
+                    textAlignVertical="top"
+                  />
 
-              {/* Send */}
-              <TouchableOpacity
-                style={styles.sendButton}
-                onPress={handleSendBox}
-              >
-                <Send size={18} color="#080c0a" strokeWidth={2.5} />
-                <Text style={styles.sendButtonText}>ENVIAR</Text>
-              </TouchableOpacity>
+                  {/* Send */}
+                  <TouchableOpacity
+                    style={styles.sendButton}
+                    onPress={handleSendBox}
+                  >
+                    <Send size={18} color="#080c0a" strokeWidth={2.5} />
+                    <Text style={styles.sendButtonText}>ENVIAR</Text>
+                  </TouchableOpacity>
+                </>
+              )}
             </>
           ) : (
             <>
-              {/* Feedback Type */}
-              <Text style={styles.fieldLabel}>Tipo</Text>
-              <TouchableOpacity
-                style={styles.selector}
-                onPress={cycleFeedbackType}
-              >
-                <Text style={styles.selectorText}>
-                  {feedbackTypes[feedbackType]}
-                </Text>
-                <ChevronDown size={16} color={C.green} strokeWidth={2.5} />
-              </TouchableOpacity>
+              {vytalSent ? (
+                <View style={styles.successCard}>
+                  <CheckCircle size={40} color={C.green} strokeWidth={2} />
+                  <Text style={styles.successTitle}>Feedback enviado!</Text>
+                  <Text style={styles.successSubtitle}>Obrigado! A equipa Vytal vai rever o teu feedback.</Text>
+                </View>
+              ) : (
+                <>
+                  {/* Feedback Type */}
+                  <Text style={styles.fieldLabel}>Tipo</Text>
+                  <TouchableOpacity
+                    style={styles.selector}
+                    onPress={cycleFeedbackType}
+                  >
+                    <Text style={styles.selectorText}>
+                      {feedbackTypes[feedbackType]}
+                    </Text>
+                    <ChevronDown size={16} color={C.green} strokeWidth={2.5} />
+                  </TouchableOpacity>
 
-              {/* Description */}
-              <Text style={styles.fieldLabel}>Descricao</Text>
-              <TextInput
-                style={styles.textArea}
-                value={description}
-                onChangeText={setDescription}
-                placeholder="Descreve em detalhe..."
-                placeholderTextColor={C.muted + "60"}
-                multiline
-                numberOfLines={8}
-                textAlignVertical="top"
-              />
+                  {/* Description */}
+                  <Text style={styles.fieldLabel}>Descricao</Text>
+                  <TextInput
+                    style={styles.textArea}
+                    value={description}
+                    onChangeText={setDescription}
+                    placeholder="Descreve em detalhe..."
+                    placeholderTextColor={C.muted + "60"}
+                    multiline
+                    numberOfLines={8}
+                    textAlignVertical="top"
+                  />
 
-              {/* Info */}
-              <View style={styles.infoBanner}>
-                <Text style={styles.infoText}>
-                  O teu feedback ajuda-nos a melhorar a app. Respondemos em ate
-                  48 horas uteis.
-                </Text>
-              </View>
+                  {/* Info */}
+                  <View style={styles.infoBanner}>
+                    <Text style={styles.infoText}>
+                      O teu feedback ajuda-nos a melhorar a app. Respondemos em ate
+                      48 horas uteis.
+                    </Text>
+                  </View>
 
-              {/* Send */}
-              <TouchableOpacity
-                style={styles.sendButton}
-                onPress={handleSendVytal}
-              >
-                <Send size={18} color="#080c0a" strokeWidth={2.5} />
-                <Text style={styles.sendButtonText}>ENVIAR</Text>
-              </TouchableOpacity>
+                  {/* Send */}
+                  <TouchableOpacity
+                    style={styles.sendButton}
+                    onPress={handleSendVytal}
+                  >
+                    <Send size={18} color="#080c0a" strokeWidth={2.5} />
+                    <Text style={styles.sendButtonText}>ENVIAR</Text>
+                  </TouchableOpacity>
+                </>
+              )}
             </>
           )}
 
@@ -365,5 +394,24 @@ const styles = StyleSheet.create({
     fontWeight: "800",
     color: "#080c0a",
     letterSpacing: 1,
+  },
+
+  // Success Card
+  successCard: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 48,
+    gap: 12,
+  },
+  successTitle: {
+    fontSize: 22,
+    fontWeight: "800",
+    color: C.text,
+  },
+  successSubtitle: {
+    fontSize: 14,
+    color: C.muted,
+    textAlign: "center",
+    lineHeight: 20,
   },
 });

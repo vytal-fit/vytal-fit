@@ -5,12 +5,11 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { mockClasses, mockMembers } from "@vytal-fit/shared";
-import { ArrowLeft, MapPin, Clock, Users } from "lucide-react-native";
+import { ArrowLeft, MapPin, Clock, Users, CheckCircle } from "lucide-react-native";
 import { colors } from "@/colors";
 
 const C = { ...colors, cardBg: colors.card };
@@ -32,6 +31,8 @@ export default function ClassDetailScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
   const [isBooked, setIsBooked] = useState(false);
+  const [showBookedBanner, setShowBookedBanner] = useState(false);
+  const [showCancelledBanner, setShowCancelledBanner] = useState(false);
 
   const cls = mockClasses.find((c) => c.id === id);
 
@@ -171,12 +172,35 @@ export default function ClassDetailScreen() {
 
         {/* Bottom Action */}
         <View style={styles.bottomBar}>
+          {(showBookedBanner || showCancelledBanner) && (
+            <View
+              style={[
+                styles.successBanner,
+                { backgroundColor: showCancelledBanner ? C.red + "18" : C.green },
+              ]}
+            >
+              <CheckCircle
+                size={16}
+                color={showCancelledBanner ? C.red : C.bg}
+                strokeWidth={2.5}
+              />
+              <Text
+                style={[
+                  styles.successBannerText,
+                  { color: showCancelledBanner ? C.red : C.bg },
+                ]}
+              >
+                {showCancelledBanner ? "Reserva cancelada" : "Reserva confirmada!"}
+              </Text>
+            </View>
+          )}
           {isBooked ? (
             <TouchableOpacity
               style={styles.cancelButton}
               onPress={() => {
-                Alert.alert("Reserva Cancelada", "A tua reserva foi cancelada.");
                 setIsBooked(false);
+                setShowCancelledBanner(true);
+                setTimeout(() => setShowCancelledBanner(false), 3000);
               }}
             >
               <Text style={styles.cancelButtonText}>CANCELAR RESERVA</Text>
@@ -189,8 +213,9 @@ export default function ClassDetailScreen() {
             <TouchableOpacity
               style={styles.bookButton}
               onPress={() => {
-                Alert.alert("Reservado!", "A tua reserva foi confirmada com sucesso.");
                 setIsBooked(true);
+                setShowBookedBanner(true);
+                setTimeout(() => setShowBookedBanner(false), 3000);
               }}
             >
               <Text style={styles.bookButtonText}>RESERVAR</Text>
@@ -420,6 +445,19 @@ const styles = StyleSheet.create({
     backgroundColor: C.bg,
     borderTopWidth: 1,
     borderTopColor: C.border,
+    gap: 10,
+  },
+  successBanner: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+  },
+  successBannerText: {
+    fontSize: 13,
+    fontWeight: "700",
   },
   bookButton: {
     paddingVertical: 16,

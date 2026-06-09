@@ -6,11 +6,10 @@ import {
   ScrollView,
   TouchableOpacity,
   TextInput,
-  Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter, useLocalSearchParams } from "expo-router";
-import { ArrowLeft, Save } from "lucide-react-native";
+import { ArrowLeft, Save, CheckCircle } from "lucide-react-native";
 import { mockExercises, mockPersonalRecords } from "@vytal-fit/shared";
 
 // ─── Colors ──────────────────────────────────────────────
@@ -47,6 +46,7 @@ export default function PREntryScreen() {
     })
   );
   const [notes, setNotes] = useState("");
+  const [saving, setSaving] = useState(false);
 
   function updateRM(index: number, value: string) {
     const newValues = [...rmValues];
@@ -55,8 +55,10 @@ export default function PREntryScreen() {
   }
 
   function handleSave() {
-    Alert.alert("Guardado", `PR de ${exercise.name} atualizado com sucesso!`);
-    router.back();
+    setSaving(true);
+    setTimeout(() => {
+      router.back();
+    }, 800);
   }
 
   return (
@@ -145,9 +147,18 @@ export default function PREntryScreen() {
           />
 
           {/* Save Button */}
-          <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-            <Save size={18} color="#080c0a" strokeWidth={2.5} />
-            <Text style={styles.saveButtonText}>GUARDAR</Text>
+          <TouchableOpacity style={[styles.saveButton, saving && styles.saveButtonSaving]} onPress={handleSave} disabled={saving}>
+            {saving ? (
+              <>
+                <CheckCircle size={18} color="#080c0a" strokeWidth={2.5} />
+                <Text style={styles.saveButtonText}>GUARDADO!</Text>
+              </>
+            ) : (
+              <>
+                <Save size={18} color="#080c0a" strokeWidth={2.5} />
+                <Text style={styles.saveButtonText}>GUARDAR</Text>
+              </>
+            )}
           </TouchableOpacity>
 
           <View style={{ height: 30 }} />
@@ -329,6 +340,9 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     paddingVertical: 16,
     marginTop: 8,
+  },
+  saveButtonSaving: {
+    backgroundColor: C.blue,
   },
   saveButtonText: {
     fontSize: 15,

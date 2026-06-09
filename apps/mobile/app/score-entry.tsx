@@ -6,11 +6,10 @@ import {
   ScrollView,
   TouchableOpacity,
   TextInput,
-  Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
-import { ArrowLeft } from "lucide-react-native";
+import { ArrowLeft, CheckCircle } from "lucide-react-native";
 import { colors } from "@/colors";
 
 const C = { ...colors, cardBg: colors.card };
@@ -62,11 +61,13 @@ export default function ScoreEntryScreen() {
 
   // Reps input
   const [totalReps, setTotalReps] = useState("");
+  const [saving, setSaving] = useState(false);
 
   const handleSave = () => {
-    Alert.alert("Resultado Guardado", "O teu resultado foi guardado com sucesso!", [
-      { text: "OK", onPress: () => router.back() },
-    ]);
+    setSaving(true);
+    setTimeout(() => {
+      router.back();
+    }, 800);
   };
 
   return (
@@ -297,8 +298,15 @@ export default function ScoreEntryScreen() {
 
         {/* Save Button */}
         <View style={styles.bottomBar}>
-          <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-            <Text style={styles.saveButtonText}>GUARDAR</Text>
+          <TouchableOpacity style={[styles.saveButton, saving && styles.saveButtonSaving]} onPress={handleSave} disabled={saving}>
+            {saving ? (
+              <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+                <CheckCircle size={18} color="#080c0a" strokeWidth={2.5} />
+                <Text style={styles.saveButtonText}>GUARDADO!</Text>
+              </View>
+            ) : (
+              <Text style={styles.saveButtonText}>GUARDAR</Text>
+            )}
           </TouchableOpacity>
         </View>
       </View>
@@ -560,6 +568,9 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     backgroundColor: C.green,
     alignItems: "center",
+  },
+  saveButtonSaving: {
+    backgroundColor: C.blue,
   },
   saveButtonText: {
     fontSize: 15,

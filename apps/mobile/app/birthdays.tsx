@@ -1,15 +1,14 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
-import { ArrowLeft, Mail } from "lucide-react-native";
+import { ArrowLeft, Mail, Check } from "lucide-react-native";
 
 // ─── Colors ──────────────────────────────────────────────
 const C = {
@@ -52,9 +51,13 @@ function getInitials(name: string): string {
 // ─── Screen ──────────────────────────────────────────────
 export default function BirthdaysScreen() {
   const router = useRouter();
+  const [sentIds, setSentIds] = useState<string[]>([]);
 
-  function handleSendMessage(name: string) {
-    Alert.alert("Mensagem", `Mensagem de parabens enviada para ${name}!`);
+  function handleSendMessage(id: string) {
+    setSentIds((prev) => [...prev, id]);
+    setTimeout(() => {
+      setSentIds((prev) => prev.filter((sid) => sid !== id));
+    }, 2000);
   }
 
   return (
@@ -102,11 +105,21 @@ export default function BirthdaysScreen() {
                   </View>
                 </View>
                 <TouchableOpacity
-                  style={styles.sendButton}
-                  onPress={() => handleSendMessage(person.name)}
+                  style={[styles.sendButton, sentIds.includes(person.id) && styles.sendButtonSent]}
+                  onPress={() => handleSendMessage(person.id)}
+                  disabled={sentIds.includes(person.id)}
                 >
-                  <Mail size={16} color="#080c0a" strokeWidth={2.5} />
-                  <Text style={styles.sendButtonText}>Enviar</Text>
+                  {sentIds.includes(person.id) ? (
+                    <>
+                      <Check size={16} color="#080c0a" strokeWidth={2.5} />
+                      <Text style={styles.sendButtonText}>Enviado</Text>
+                    </>
+                  ) : (
+                    <>
+                      <Mail size={16} color="#080c0a" strokeWidth={2.5} />
+                      <Text style={styles.sendButtonText}>Enviar</Text>
+                    </>
+                  )}
                 </TouchableOpacity>
               </View>
             ))}
@@ -255,6 +268,9 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingHorizontal: 14,
     paddingVertical: 10,
+  },
+  sendButtonSent: {
+    backgroundColor: C.blue,
   },
   sendButtonText: {
     fontSize: 12,
