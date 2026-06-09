@@ -1,14 +1,15 @@
-import React from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   View,
   Text,
   StyleSheet,
   ScrollView,
   TouchableOpacity,
+  Animated,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
-import { Clock } from "lucide-react-native";
+import { Clock, ChevronDown, ChevronUp, Play, Pause, RotateCcw, Zap, Timer } from "lucide-react-native";
 import { colors } from "@/colors";
 import { t } from "@/i18n";
 
@@ -79,18 +80,12 @@ const todayWOD: { id: string; title: string; date: string; parts: WODPart[] } = 
 
 function getWODTypeBadge(type: string): { label: string; color: string } {
   switch (type) {
-    case "amrap":
-      return { label: "AMRAP", color: C.green };
-    case "emom":
-      return { label: "EMOM", color: C.blue };
-    case "for_time":
-      return { label: "FOR TIME", color: C.red };
-    case "tabata":
-      return { label: "TABATA", color: C.orange };
-    case "strength":
-      return { label: "STRENGTH", color: C.amber };
-    default:
-      return { label: "CUSTOM", color: C.purple };
+    case "amrap": return { label: "AMRAP", color: C.green };
+    case "emom": return { label: "EMOM", color: C.blue };
+    case "for_time": return { label: "FOR TIME", color: C.red };
+    case "tabata": return { label: "TABATA", color: C.orange };
+    case "strength": return { label: "STRENGTH", color: C.amber };
+    default: return { label: "CUSTOM", color: C.purple };
   }
 }
 
@@ -103,57 +98,121 @@ function formatDateHeader(): string {
   return `${now.getDate()} de ${months[now.getMonth()]} ${now.getFullYear()}`;
 }
 
-// ─── Components ──────────────────────────────────────────
+function formatTime(secs: number): string {
+  const m = Math.floor(secs / 60).toString().padStart(2, "0");
+  const s = (secs % 60).toString().padStart(2, "0");
+  return `${m}:${s}`;
+}
 
-function WODPartCard({
-  part,
-}: {
-  part: WODPart;
-}) {
+// ─── Collapsible Part Card ────────────────────────────────
+function WODPartCard({ part, defaultOpen }: { part: WODPart; defaultOpen?: boolean }) {
+  const [open, setOpen] = useState(defaultOpen ?? true);
   const badge = getWODTypeBadge(part.type);
 
   return (
     <View style={styles.partCard}>
-      <View style={styles.partHeader}>
+      <TouchableOpacity
+        style={styles.partHeader}
+        onPress={() => setOpen((v) => !v)}
+        activeOpacity={0.7}
+      >
         <View style={styles.partTitleRow}>
           <View style={[styles.partAccent, { backgroundColor: badge.color }]} />
           <Text style={styles.partName}>{part.name}</Text>
+          {part.timeCap && (
+            <View style={styles.timeCapInline}>
+              <Timer size={10} color={C.amber} strokeWidth={2} />
+              <Text style={styles.timeCapInlineText}>{part.timeCap} min</Text>
+            </View>
+          )}
         </View>
-        <View style={[styles.typeBadge, { backgroundColor: badge.color + "20" }]}>
-          <Text style={[styles.typeBadgeText, { color: badge.color }]}>
-            {badge.label}
-          </Text>
+        <View style={styles.partHeaderRight}>
+          <View style={[styles.typeBadge, { backgroundColor: badge.color + "20" }]}>
+            <Text style={[styles.typeBadgeText, { color: badge.color }]}>{badge.label}</Text>
+          </View>
+          {open
+            ? <ChevronUp size={16} color={C.muted} strokeWidth={2} />
+            : <ChevronDown size={16} color={C.muted} strokeWidth={2} />
+          }
         </View>
-      </View>
+      </TouchableOpacity>
 
-      {part.timeCap && (
-        <View style={styles.timeCapRow}>
-          <Text style={styles.timeCapIcon}>T</Text>
-          <Text style={styles.timeCapText}>{part.timeCap} min</Text>
+      {open && (
+        <View style={styles.exerciseList}>
+          {part.exercises.map((ex, i) => (
+            <View key={i} style={styles.exerciseRow}>
+              <View style={[styles.exerciseBullet, { backgroundColor: badge.color + "80" }]} />
+              <View style={styles.exerciseInfo}>
+                <View style={styles.exerciseMainRow}>
+                  <Text style={styles.exerciseName}>{ex.name}</Text>
+                  {ex.reps && <Text style={[styles.exerciseReps, { color: badge.color }]}>{ex.reps}</Text>}
+                </View>
+                {ex.weight && <Text style={styles.exerciseWeight}>{ex.weight}</Text>}
+                {ex.notes && <Text style={styles.exerciseNotes}>{ex.notes}</Text>}
+              </View>
+            </View>
+          ))}
         </View>
       )}
+    </View>
+  );
+}
 
-      <View style={styles.exerciseList}>
-        {part.exercises.map((ex, i) => (
-          <View key={i} style={styles.exerciseRow}>
-            <View style={styles.exerciseBullet} />
-            <View style={styles.exerciseInfo}>
-              <View style={styles.exerciseMainRow}>
-                <Text style={styles.exerciseName}>{ex.name}</Text>
-                {ex.reps && (
-                  <Text style={styles.exerciseReps}>{ex.reps}</Text>
-                )}
-              </View>
-              {ex.weight && (
-                <Text style={styles.exerciseWeight}>{ex.weight}</Text>
-              )}
-              {ex.notes && (
-                <Text style={styles.exerciseNotes}>{ex.notes}</Text>
-              )}
-            </View>
-          </View>
-        ))}
+// ─── Inline Timer ────────────────────────────────────────
+function InlineTimer() {
+  const [seconds, setSeconds] = useState(0);
+  const [running, setRunning] = useState(false);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const pulseAnim = useRef(new Animated.Value(1)).current;
+
+  useEffect(() => {
+    if (running) {
+      intervalRef.current = setInterval(() => setSeconds((s) => s + 1), 1000);
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(pulseAnim, { toValue: 1.06, duration: 500, useNativeDriver: true }),
+          Animated.timing(pulseAnim, { toValue: 1, duration: 500, useNativeDriver: true }),
+        ])
+      ).start();
+    } else {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+      pulseAnim.stopAnimation();
+      pulseAnim.setValue(1);
+    }
+    return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
+  }, [running]);
+
+  function reset() {
+    setRunning(false);
+    setSeconds(0);
+  }
+
+  return (
+    <View style={styles.timerCard}>
+      <View style={styles.timerHeader}>
+        <View style={styles.timerHeaderLeft}>
+          <Clock size={16} color={C.green} strokeWidth={2} />
+          <Text style={styles.timerTitle}>TIMER</Text>
+        </View>
+        <TouchableOpacity onPress={reset} style={styles.timerResetBtn}>
+          <RotateCcw size={16} color={C.muted} strokeWidth={2} />
+        </TouchableOpacity>
       </View>
+      <Animated.Text style={[styles.timerDisplay, { transform: [{ scale: pulseAnim }], color: running ? C.green : C.text }]}>
+        {formatTime(seconds)}
+      </Animated.Text>
+      <TouchableOpacity
+        style={[styles.timerPlayBtn, { backgroundColor: running ? C.red + "18" : C.green }]}
+        onPress={() => setRunning((v) => !v)}
+      >
+        {running
+          ? <Pause size={22} color={C.red} strokeWidth={2.5} />
+          : <Play size={22} color="#080c0a" strokeWidth={2.5} fill="#080c0a" />
+        }
+        <Text style={[styles.timerPlayText, { color: running ? C.red : "#080c0a" }]}>
+          {running ? "PAUSAR" : "INICIAR"}
+        </Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -168,6 +227,10 @@ export default function WODScreen() {
         {/* Header */}
         <View style={styles.header}>
           <View>
+            <View style={styles.headerBrandRow}>
+              <Zap size={14} color={C.green} strokeWidth={2.5} fill={C.green} />
+              <Text style={styles.headerBrand}>WOD</Text>
+            </View>
             <Text style={styles.headerTitle}>{t("screen.wod")}</Text>
             <Text style={styles.headerDate}>{formatDateHeader()}</Text>
           </View>
@@ -175,11 +238,11 @@ export default function WODScreen() {
             style={styles.headerAction}
             onPress={() => router.push("/timer")}
           >
-            <Clock size={22} color={C.text} strokeWidth={1.8} />
+            <Clock size={20} color={C.text} strokeWidth={1.8} />
           </TouchableOpacity>
         </View>
 
-        {/* WOD Title */}
+        {/* WOD Title bar */}
         <View style={styles.wodTitleSection}>
           <Text style={styles.wodTitle}>{todayWOD.title}</Text>
           <View style={styles.publishedBadge}>
@@ -188,20 +251,33 @@ export default function WODScreen() {
           </View>
         </View>
 
-        {/* Parts */}
+        {/* Scrollable content */}
         <ScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
         >
           {todayWOD.parts.map((part, i) => (
-            <WODPartCard key={i} part={part} />
+            <WODPartCard key={i} part={part} defaultOpen={i === 2} />
           ))}
 
-          {/* Spacer for bottom buttons */}
-          <View style={{ height: 100 }} />
+          {/* Inline Timer */}
+          <InlineTimer />
+
+          {/* Log result section */}
+          <View style={styles.logSection}>
+            <Text style={styles.logSectionTitle}>REGISTAR RESULTADO</Text>
+            <TouchableOpacity
+              style={styles.logButton}
+              onPress={() => router.push("/score-entry")}
+            >
+              <Text style={styles.logButtonText}>{t("btn.result")}</Text>
+            </TouchableOpacity>
+          </View>
+
+          <View style={{ height: 110 }} />
         </ScrollView>
 
-        {/* Action Buttons */}
+        {/* Action Bar */}
         <View style={styles.actionBar}>
           <TouchableOpacity
             style={styles.actionSecondary}
@@ -235,13 +311,8 @@ export default function WODScreen() {
 
 // ─── Styles ──────────────────────────────────────────────
 const styles = StyleSheet.create({
-  safe: {
-    flex: 1,
-    backgroundColor: C.bg,
-  },
-  container: {
-    flex: 1,
-  },
+  safe: { flex: 1, backgroundColor: C.bg },
+  container: { flex: 1 },
 
   // Header
   header: {
@@ -252,9 +323,21 @@ const styles = StyleSheet.create({
     paddingTop: 8,
     paddingBottom: 4,
   },
+  headerBrandRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    marginBottom: 4,
+  },
+  headerBrand: {
+    fontSize: 10,
+    fontWeight: "800",
+    color: C.green,
+    letterSpacing: 2,
+  },
   headerAction: {
-    width: 44,
-    height: 44,
+    width: 42,
+    height: 42,
     borderRadius: 14,
     backgroundColor: C.surface,
     borderWidth: 1,
@@ -268,11 +351,7 @@ const styles = StyleSheet.create({
     color: C.text,
     letterSpacing: -0.5,
   },
-  headerDate: {
-    fontSize: 14,
-    color: C.muted,
-    marginTop: 4,
-  },
+  headerDate: { fontSize: 13, color: C.muted, marginTop: 3 },
 
   // WOD Title
   wodTitleSection: {
@@ -280,13 +359,9 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     paddingHorizontal: 20,
-    paddingVertical: 16,
+    paddingVertical: 14,
   },
-  wodTitle: {
-    fontSize: 22,
-    fontWeight: "700",
-    color: C.green,
-  },
+  wodTitle: { fontSize: 22, fontWeight: "700", color: C.green },
   publishedBadge: {
     flexDirection: "row",
     alignItems: "center",
@@ -296,23 +371,11 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
     borderRadius: 8,
   },
-  liveDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: C.green,
-  },
-  publishedText: {
-    fontSize: 12,
-    fontWeight: "600",
-    color: C.green,
-  },
+  liveDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: C.green },
+  publishedText: { fontSize: 12, fontWeight: "600", color: C.green },
 
   // Scroll
-  scrollContent: {
-    paddingHorizontal: 16,
-    gap: 12,
-  },
+  scrollContent: { paddingHorizontal: 16, gap: 12 },
 
   // Part Card
   partCard: {
@@ -320,114 +383,129 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     borderWidth: 1,
     borderColor: C.border,
-    padding: 16,
+    overflow: "hidden",
   },
   partHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 12,
+    padding: 16,
   },
   partTitleRow: {
     flexDirection: "row",
     alignItems: "center",
     gap: 10,
-  },
-  partAccent: {
-    width: 3,
-    height: 20,
-    borderRadius: 2,
-  },
-  partName: {
-    fontSize: 17,
-    fontWeight: "700",
-    color: C.text,
-  },
-  typeBadge: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 12,
-  },
-  typeBadgeText: {
-    fontSize: 11,
-    fontWeight: "800",
-    letterSpacing: 1,
-  },
-
-  // Time Cap
-  timeCapRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-    marginBottom: 12,
-    paddingLeft: 13,
-  },
-  timeCapIcon: {
-    fontSize: 12,
-    fontWeight: "800",
-    color: C.amber,
-    backgroundColor: C.amber + "20",
-    width: 20,
-    height: 20,
-    textAlign: "center",
-    lineHeight: 20,
-    borderRadius: 4,
-    overflow: "hidden",
-  },
-  timeCapText: {
-    fontSize: 13,
-    fontWeight: "600",
-    color: C.amber,
-  },
-
-  // Exercises
-  exerciseList: {
-    gap: 10,
-    paddingLeft: 16,
-  },
-  exerciseRow: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    gap: 10,
-  },
-  exerciseBullet: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: C.muted,
-    marginTop: 7,
-  },
-  exerciseInfo: {
     flex: 1,
   },
+  partAccent: { width: 3, height: 20, borderRadius: 2 },
+  partName: { fontSize: 17, fontWeight: "700", color: C.text },
+  timeCapInline: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 3,
+    backgroundColor: C.amber + "15",
+    borderRadius: 6,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+  },
+  timeCapInlineText: { fontSize: 10, fontWeight: "700", color: C.amber },
+  partHeaderRight: { flexDirection: "row", alignItems: "center", gap: 8 },
+  typeBadge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 },
+  typeBadgeText: { fontSize: 11, fontWeight: "800", letterSpacing: 1 },
+
+  // Exercises
+  exerciseList: { gap: 10, paddingHorizontal: 16, paddingBottom: 16 },
+  exerciseRow: { flexDirection: "row", alignItems: "flex-start", gap: 10 },
+  exerciseBullet: { width: 6, height: 6, borderRadius: 3, marginTop: 7 },
+  exerciseInfo: { flex: 1 },
   exerciseMainRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
   },
-  exerciseName: {
-    fontSize: 15,
-    fontWeight: "600",
-    color: C.text,
-    flex: 1,
+  exerciseName: { fontSize: 15, fontWeight: "600", color: C.text, flex: 1 },
+  exerciseReps: { fontSize: 14, fontWeight: "700", marginLeft: 8 },
+  exerciseWeight: { fontSize: 13, color: C.blue, fontWeight: "500", marginTop: 2 },
+  exerciseNotes: { fontSize: 12, color: C.muted, fontStyle: "italic", marginTop: 2 },
+
+  // Timer
+  timerCard: {
+    backgroundColor: C.card,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: C.border,
+    padding: 20,
+    alignItems: "center",
   },
-  exerciseReps: {
-    fontSize: 14,
-    fontWeight: "700",
+  timerHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    width: "100%",
+    marginBottom: 12,
+  },
+  timerHeaderLeft: { flexDirection: "row", alignItems: "center", gap: 6 },
+  timerTitle: {
+    fontSize: 10,
+    fontWeight: "800",
     color: C.green,
-    marginLeft: 8,
+    letterSpacing: 2,
   },
-  exerciseWeight: {
-    fontSize: 13,
-    color: C.blue,
-    fontWeight: "500",
-    marginTop: 2,
+  timerResetBtn: {
+    width: 32,
+    height: 32,
+    borderRadius: 8,
+    backgroundColor: C.surface2,
+    alignItems: "center",
+    justifyContent: "center",
   },
-  exerciseNotes: {
-    fontSize: 12,
+  timerDisplay: {
+    fontSize: 56,
+    fontWeight: "800",
+    letterSpacing: -2,
+    marginBottom: 16,
+  },
+  timerPlayBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    paddingHorizontal: 32,
+    paddingVertical: 14,
+    borderRadius: 14,
+    borderWidth: 1.5,
+    borderColor: "transparent",
+  },
+  timerPlayText: { fontSize: 14, fontWeight: "800", letterSpacing: 1 },
+
+  // Log section
+  logSection: {
+    backgroundColor: C.card,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: C.border,
+    padding: 16,
+  },
+  logSectionTitle: {
+    fontSize: 10,
+    fontWeight: "800",
     color: C.muted,
-    fontStyle: "italic",
-    marginTop: 2,
+    letterSpacing: 1.5,
+    marginBottom: 12,
+    textAlign: "center",
+  },
+  logButton: {
+    backgroundColor: C.green + "18",
+    borderRadius: 12,
+    borderWidth: 1.5,
+    borderColor: C.green + "40",
+    paddingVertical: 14,
+    alignItems: "center",
+  },
+  logButtonText: {
+    fontSize: 13,
+    fontWeight: "800",
+    color: C.green,
+    letterSpacing: 1,
   },
 
   // Action Bar
@@ -454,10 +532,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   actionSecondaryText: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: "800",
     color: C.muted,
-    letterSpacing: 1,
+    letterSpacing: 0.8,
   },
   actionPrimary: {
     flex: 1.3,

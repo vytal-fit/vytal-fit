@@ -28,6 +28,7 @@ import {
   History,
   MapPin,
   Mail,
+  Zap,
 } from "lucide-react-native";
 import { colors } from "@/colors";
 import { useAuthStore } from "@/stores/auth-store";
@@ -259,15 +260,23 @@ export default function ProfileScreen() {
       >
         {/* Header */}
         <View style={styles.header}>
+          <View style={styles.headerBrandRow}>
+            <View style={styles.zapCircle}>
+              <Zap size={14} color={C.green} strokeWidth={2.5} fill={C.green} />
+            </View>
+            <Text style={styles.brandName}>myVYTAL</Text>
+          </View>
           <Text style={styles.headerTitle}>{t("screen.profile")}</Text>
         </View>
 
         {/* Avatar Section */}
         <View style={styles.avatarSection}>
-          <View style={styles.avatarCircle}>
-            <Text style={styles.avatarText}>
-              {getInitials(userName)}
-            </Text>
+          <View style={styles.avatarRing}>
+            <View style={styles.avatarCircle}>
+              <Text style={styles.avatarText}>
+                {getInitials(userName)}
+              </Text>
+            </View>
           </View>
           <Text style={styles.userName}>{userName}</Text>
           <Text style={styles.userEmail}>{userEmail}</Text>
@@ -276,7 +285,7 @@ export default function ProfileScreen() {
             onPress={() => router.push("/org-switcher")}
           >
             <Text style={styles.memberBadgeText}>
-              {t("label.memberNumber")}{memberNumber} {">"} {t("label.switchSpace")}
+              {t("label.memberNumber")}{memberNumber} · {t("label.switchSpace")}
             </Text>
           </TouchableOpacity>
         </View>
@@ -351,8 +360,30 @@ const styles = StyleSheet.create({
   // Header
   header: {
     paddingHorizontal: 20,
-    paddingTop: 8,
+    paddingTop: 12,
     paddingBottom: 8,
+  },
+  headerBrandRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    marginBottom: 6,
+  },
+  zapCircle: {
+    width: 26,
+    height: 26,
+    borderRadius: 8,
+    backgroundColor: C.green + "18",
+    borderWidth: 1,
+    borderColor: C.green + "40",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  brandName: {
+    fontSize: 13,
+    fontWeight: "900",
+    color: C.green,
+    letterSpacing: 0.5,
   },
   headerTitle: {
     fontSize: 28,
@@ -366,16 +397,24 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingVertical: 20,
   },
+  avatarRing: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    borderWidth: 2.5,
+    borderColor: C.green,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 14,
+    backgroundColor: C.green + "08",
+  },
   avatarCircle: {
     width: 88,
     height: 88,
     borderRadius: 44,
     backgroundColor: C.green + "18",
-    borderWidth: 3,
-    borderColor: C.green,
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 14,
   },
   avatarText: {
     fontSize: 32,

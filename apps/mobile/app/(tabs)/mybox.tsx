@@ -8,71 +8,94 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
-import { ChevronRight, Cake } from "lucide-react-native";
+import {
+  ChevronRight,
+  Cake,
+  Zap,
+  Flame,
+  CalendarCheck,
+  Trophy,
+  Users,
+  Newspaper,
+  MessageSquare,
+} from "lucide-react-native";
 import { mockCoaches, mockDashboardStats } from "@vytal-fit/shared";
 import { colors } from "@/colors";
 import { t } from "@/i18n";
+import { useAuthStore } from "@/stores/auth-store";
 
 const C = colors;
 
-// ─── Mock News ───────────────────────────────────────────
+// ─── Mock data ────────────────────────────────────────────
 const mockNews = [
   {
     id: "news-1",
-    title: "Throwdown Interno - Sabado 14 Junho",
+    title: "Throwdown Interno — Sabado 14 Junho",
     body: "Inscricoes abertas para o throwdown de verao! Equipas de 2 pessoas (misto). Inscreve-te na recepcao ou pela app.",
-    date: "2026-06-01",
+    date: "1 Jun",
     tag: "Evento",
     tagColor: C.amber,
   },
   {
     id: "news-2",
     title: "Novo Horario de Verao",
-    body: "A partir de 15 de Junho, o horario de verao entra em vigor. Consulta os novos horarios na seccao de Aulas.",
-    date: "2026-05-30",
+    body: "A partir de 15 de Junho, o horario de verao entra em vigor. Consulta os novos horarios na seccao Agenda.",
+    date: "30 Mai",
     tag: "Info",
     tagColor: C.blue,
   },
 ];
 
+const nextClass = {
+  name: "CrossFit",
+  time: "18:30",
+  coach: "Ana Silva",
+  enrolled: 14,
+  capacity: 20,
+};
+
+const todayWODPreview = {
+  title: "CrossFit Total",
+  type: "AMRAP 15",
+  movements: ["Power Cleans", "Box Jumps", "Toes-to-Bar"],
+};
+
 function getInitials(name: string): string {
-  return name
-    .split(" ")
-    .map((n) => n[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2);
+  return name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
+}
+
+function getGreeting(): string {
+  const h = new Date().getHours();
+  if (h < 12) return "Bom dia";
+  if (h < 18) return "Boa tarde";
+  return "Boa noite";
 }
 
 function getRoleLabel(role: string): string {
   switch (role) {
-    case "head_coach":
-      return "Head Coach";
-    case "coach":
-      return "Coach";
-    case "assistant":
-      return "Assistente";
-    default:
-      return role;
+    case "head_coach": return "Head Coach";
+    case "coach": return "Coach";
+    case "assistant": return "Assistente";
+    default: return role;
   }
 }
 
 function getRoleColor(role: string): string {
   switch (role) {
-    case "head_coach":
-      return C.green;
-    case "coach":
-      return C.blue;
-    case "assistant":
-      return C.purple;
-    default:
-      return C.muted;
+    case "head_coach": return C.green;
+    case "coach": return C.blue;
+    case "assistant": return C.purple;
+    default: return C.muted;
   }
 }
 
 // ─── Screen ──────────────────────────────────────────────
 export default function MyBoxScreen() {
   const router = useRouter();
+  const { user } = useAuthStore();
+  const userName = user?.user.name?.split(" ")[0] ?? "Atleta";
+  const greeting = getGreeting();
+  const nextOccupancy = nextClass.enrolled / nextClass.capacity;
 
   return (
     <SafeAreaView style={styles.safe} edges={["top"]}>
@@ -80,171 +103,255 @@ export default function MyBoxScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
-        {/* Box Header */}
-        <View style={styles.boxHeader}>
-          <View style={styles.logoCircle}>
-            <Text style={styles.logoText}>V</Text>
+        {/* ── Top bar ── */}
+        <View style={styles.topBar}>
+          <View style={styles.brandRow}>
+            <View style={styles.zapCircle}>
+              <Zap size={18} color={C.green} strokeWidth={2.5} fill={C.green} />
+            </View>
+            <Text style={styles.brandName}>myVYTAL</Text>
           </View>
-          <View style={styles.boxInfo}>
-            <Text style={styles.boxName}>Vytal CrossFit</Text>
-            <Text style={styles.boxLocation}>Lisboa, Portugal</Text>
+          <TouchableOpacity
+            style={styles.notifButton}
+            onPress={() => router.push("/notifications")}
+          >
+            <View style={styles.notifDot} />
+            <Text style={styles.notifBell}>🔔</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* ── Greeting ── */}
+        <View style={styles.greetingSection}>
+          <Text style={styles.greetingLine}>{greeting},</Text>
+          <Text style={styles.greetingName}>{userName}</Text>
+          <Text style={styles.orgName}>Vytal CrossFit · Lisboa</Text>
+        </View>
+
+        {/* ── Stats strip ── */}
+        <View style={styles.statsStrip}>
+          <View style={[styles.statItem, { borderRightWidth: 1, borderRightColor: C.border }]}>
+            <View style={[styles.statIconBox, { backgroundColor: C.amber + "20" }]}>
+              <Flame size={16} color={C.amber} strokeWidth={2} />
+            </View>
+            <Text style={[styles.statValue, { color: C.amber }]}>12</Text>
+            <Text style={styles.statLabel}>Semanas</Text>
+          </View>
+          <View style={[styles.statItem, { borderRightWidth: 1, borderRightColor: C.border }]}>
+            <View style={[styles.statIconBox, { backgroundColor: C.blue + "20" }]}>
+              <CalendarCheck size={16} color={C.blue} strokeWidth={2} />
+            </View>
+            <Text style={[styles.statValue, { color: C.blue }]}>47</Text>
+            <Text style={styles.statLabel}>Check-ins</Text>
+          </View>
+          <View style={styles.statItem}>
+            <View style={[styles.statIconBox, { backgroundColor: C.green + "20" }]}>
+              <Trophy size={16} color={C.green} strokeWidth={2} />
+            </View>
+            <Text style={[styles.statValue, { color: C.green }]}>8</Text>
+            <Text style={styles.statLabel}>PRs</Text>
           </View>
         </View>
 
-        {/* Quick Info Cards */}
-        <View style={styles.quickInfoRow}>
-          <View style={styles.quickCard}>
-            <Text style={styles.quickValue}>
-              {mockDashboardStats.activeMembers}
-            </Text>
-            <Text style={styles.quickLabel}>Membros{"\n"}Ativos</Text>
-          </View>
-          <View style={styles.quickCard}>
-            <Text style={[styles.quickValue, { color: C.blue }]}>
-              {mockDashboardStats.todayClasses}
-            </Text>
-            <Text style={styles.quickLabel}>Aulas{"\n"}Hoje</Text>
-          </View>
-          <View style={styles.quickCard}>
-            <Text style={[styles.quickValue, { color: C.amber }]}>
-              2h 15m
-            </Text>
-            <Text style={styles.quickLabel}>Proxima{"\n"}Aula</Text>
-          </View>
+        {/* ── Next class card ── */}
+        <View style={styles.sectionHeaderRow}>
+          <Text style={styles.sectionLabel}>PROXIMA AULA</Text>
         </View>
-
-        {/* Occupancy */}
-        <View style={styles.sectionCard}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Ocupacao Hoje</Text>
-            <Text style={styles.sectionBadge}>
-              {mockDashboardStats.occupancyPercent}%
+        <TouchableOpacity
+          style={styles.nextClassCard}
+          onPress={() => router.push("/(tabs)/classes")}
+          activeOpacity={0.85}
+        >
+          <View style={styles.nextClassTop}>
+            <View>
+              <Text style={styles.nextClassName}>{nextClass.name}</Text>
+              <Text style={styles.nextClassCoach}>{nextClass.coach}</Text>
+            </View>
+            <View style={styles.nextClassTimeBadge}>
+              <Text style={styles.nextClassTime}>{nextClass.time}</Text>
+            </View>
+          </View>
+          <View style={styles.capacityRow}>
+            <Text style={styles.capacityText}>
+              {nextClass.enrolled}/{nextClass.capacity} inscritos
+            </Text>
+            <Text style={[styles.capacityPct, {
+              color: nextOccupancy > 0.8 ? C.amber : C.green,
+            }]}>
+              {Math.round(nextOccupancy * 100)}%
             </Text>
           </View>
-          <View style={styles.occupancyBarBg}>
+          <View style={styles.capacityBarBg}>
             <View
               style={[
-                styles.occupancyBarFill,
-                { width: `${mockDashboardStats.occupancyPercent}%` },
+                styles.capacityBarFill,
+                {
+                  width: `${nextOccupancy * 100}%` as `${number}%`,
+                  backgroundColor: nextOccupancy > 0.8 ? C.amber : C.green,
+                },
               ]}
             />
           </View>
-          <Text style={styles.occupancyLabel}>
-            {mockDashboardStats.checkInsToday} check-ins realizados hoje
-          </Text>
-        </View>
-
-        {/* Coaches */}
-        <View style={styles.sectionWrapper}>
-          <Text style={styles.sectionTitleStandalone}>Equipa Tecnica</Text>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.coachScroll}
+          <TouchableOpacity
+            style={styles.reserveBtn}
+            onPress={() => router.push("/(tabs)/classes")}
           >
-            {mockCoaches.map((coach) => {
-              const roleColor = getRoleColor(coach.role);
-              return (
-                <TouchableOpacity
-                  key={coach.id}
-                  style={styles.coachCard}
-                  onPress={() => router.push(`/coach-profile?id=${coach.id}`)}
-                >
-                  <View
-                    style={[
-                      styles.coachAvatar,
-                      { borderColor: roleColor },
-                    ]}
-                  >
-                    <Text style={[styles.coachInitials, { color: roleColor }]}>
-                      {getInitials(coach.name)}
-                    </Text>
-                  </View>
-                  <Text style={styles.coachName} numberOfLines={1}>
-                    {coach.name.split(" ")[0]}
-                  </Text>
-                  <View
-                    style={[
-                      styles.roleBadge,
-                      { backgroundColor: roleColor + "18" },
-                    ]}
-                  >
-                    <Text style={[styles.roleText, { color: roleColor }]}>
-                      {getRoleLabel(coach.role)}
-                    </Text>
-                  </View>
-                </TouchableOpacity>
-              );
-            })}
-          </ScrollView>
+            <Text style={styles.reserveBtnText}>RESERVAR</Text>
+          </TouchableOpacity>
+        </TouchableOpacity>
+
+        {/* ── WOD preview ── */}
+        <View style={styles.sectionHeaderRow}>
+          <Text style={styles.sectionLabel}>WOD DE HOJE</Text>
+          <TouchableOpacity onPress={() => router.push("/(tabs)/wod")}>
+            <Text style={styles.seeAll}>Ver completo</Text>
+          </TouchableOpacity>
+        </View>
+        <TouchableOpacity
+          style={styles.wodPreviewCard}
+          onPress={() => router.push("/(tabs)/wod")}
+          activeOpacity={0.85}
+        >
+          <View style={styles.wodPreviewHeader}>
+            <Text style={styles.wodPreviewTitle}>{todayWODPreview.title}</Text>
+            <View style={styles.wodTypeBadge}>
+              <Text style={styles.wodTypeText}>{todayWODPreview.type}</Text>
+            </View>
+          </View>
+          <View style={styles.wodMovements}>
+            {todayWODPreview.movements.map((m, i) => (
+              <View key={i} style={styles.movementPill}>
+                <View style={styles.movementDot} />
+                <Text style={styles.movementText}>{m}</Text>
+              </View>
+            ))}
+          </View>
+        </TouchableOpacity>
+
+        {/* ── Quick actions ── */}
+        <View style={styles.sectionHeaderRow}>
+          <Text style={styles.sectionLabel}>ACOES RAPIDAS</Text>
+        </View>
+        <View style={styles.actionsGrid}>
+          <TouchableOpacity
+            style={styles.actionCard}
+            onPress={() => router.push("/checkin")}
+          >
+            <View style={[styles.actionIcon, { backgroundColor: C.green + "20" }]}>
+              <CalendarCheck size={22} color={C.green} strokeWidth={2} />
+            </View>
+            <Text style={styles.actionLabel}>Check-in{"\n"}QR</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.actionCard}
+            onPress={() => router.push("/timer")}
+          >
+            <View style={[styles.actionIcon, { backgroundColor: C.orange + "20" }]}>
+              <Flame size={22} color={C.orange} strokeWidth={2} />
+            </View>
+            <Text style={styles.actionLabel}>Timer{"\n"}AMRAP</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.actionCard}
+            onPress={() => router.push("/social-feed")}
+          >
+            <View style={[styles.actionIcon, { backgroundColor: C.blue + "20" }]}>
+              <Users size={22} color={C.blue} strokeWidth={2} />
+            </View>
+            <Text style={styles.actionLabel}>Comuni{"\n"}dade</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.actionCard}
+            onPress={() => router.push("/chat")}
+          >
+            <View style={[styles.actionIcon, { backgroundColor: C.purple + "20" }]}>
+              <MessageSquare size={22} color={C.purple} strokeWidth={2} />
+            </View>
+            <Text style={styles.actionLabel}>Mensa{"\n"}gens</Text>
+          </TouchableOpacity>
         </View>
 
-        {/* Quick Links */}
+        {/* ── Coaches ── */}
+        <View style={styles.sectionHeaderRow}>
+          <Text style={styles.sectionLabel}>EQUIPA TECNICA</Text>
+        </View>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.coachScroll}
+          style={styles.coachScrollWrapper}
+        >
+          {mockCoaches.map((coach) => {
+            const rc = getRoleColor(coach.role);
+            return (
+              <TouchableOpacity
+                key={coach.id}
+                style={styles.coachCard}
+                onPress={() => router.push(`/coach-profile?id=${coach.id}`)}
+              >
+                <View style={[styles.coachAvatar, { borderColor: rc }]}>
+                  <Text style={[styles.coachInitials, { color: rc }]}>
+                    {getInitials(coach.name)}
+                  </Text>
+                </View>
+                <Text style={styles.coachName} numberOfLines={1}>
+                  {coach.name.split(" ")[0]}
+                </Text>
+                <View style={[styles.roleBadge, { backgroundColor: rc + "18" }]}>
+                  <Text style={[styles.roleText, { color: rc }]}>
+                    {getRoleLabel(coach.role)}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            );
+          })}
+        </ScrollView>
+
+        {/* ── News ── */}
+        <View style={styles.sectionHeaderRow}>
+          <Text style={styles.sectionLabel}>NOTICIAS</Text>
+          <TouchableOpacity onPress={() => router.push("/news")}>
+            <Text style={styles.seeAll}>Ver todas</Text>
+          </TouchableOpacity>
+        </View>
+        {mockNews.map((item) => (
+          <TouchableOpacity
+            key={item.id}
+            style={styles.newsCard}
+            onPress={() => router.push("/news")}
+            activeOpacity={0.8}
+          >
+            <View style={[styles.newsAccent, { backgroundColor: item.tagColor }]} />
+            <View style={styles.newsBody2}>
+              <View style={styles.newsHeaderRow}>
+                <View style={[styles.newsTag, { backgroundColor: item.tagColor + "18" }]}>
+                  <Text style={[styles.newsTagText, { color: item.tagColor }]}>{item.tag}</Text>
+                </View>
+                <Text style={styles.newsDate}>{item.date}</Text>
+              </View>
+              <Text style={styles.newsTitle}>{item.title}</Text>
+              <Text style={styles.newsBodyText} numberOfLines={2}>{item.body}</Text>
+            </View>
+          </TouchableOpacity>
+        ))}
+
+        {/* ── Quick links row ── */}
         <View style={styles.quickLinksRow}>
           <TouchableOpacity
             style={styles.quickLinkCard}
             onPress={() => router.push("/birthdays")}
           >
-            <Cake size={20} color={C.amber} strokeWidth={2} />
+            <Cake size={18} color={C.amber} strokeWidth={2} />
             <Text style={styles.quickLinkText}>Aniversarios</Text>
-            <ChevronRight size={16} color={C.muted} strokeWidth={2} />
+            <ChevronRight size={14} color={C.muted} strokeWidth={2} />
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.quickLinkCard}
-            onPress={() => router.push("/news")}
+            onPress={() => router.push("/box-records")}
           >
-            <Text style={styles.quickLinkIcon}>N</Text>
-            <Text style={styles.quickLinkText}>Noticias</Text>
-            <ChevronRight size={16} color={C.muted} strokeWidth={2} />
+            <Newspaper size={18} color={C.blue} strokeWidth={2} />
+            <Text style={styles.quickLinkText}>Box Records</Text>
+            <ChevronRight size={14} color={C.muted} strokeWidth={2} />
           </TouchableOpacity>
-        </View>
-
-        <View style={styles.quickLinksRow}>
-          <TouchableOpacity
-            style={styles.quickLinkCard}
-            onPress={() => router.push("/social-feed")}
-          >
-            <Text style={[styles.quickLinkIcon, { color: C.green, backgroundColor: C.green + "18" }]}>C</Text>
-            <Text style={styles.quickLinkText}>Comunidade</Text>
-            <ChevronRight size={16} color={C.muted} strokeWidth={2} />
-          </TouchableOpacity>
-        </View>
-
-        {/* News / Announcements */}
-        <View style={styles.sectionWrapper}>
-          <View style={styles.newsSectionHeader}>
-            <Text style={styles.sectionTitleStandalone}>Noticias</Text>
-            <TouchableOpacity onPress={() => router.push("/news")}>
-              <Text style={styles.seeAllText}>Ver todas</Text>
-            </TouchableOpacity>
-          </View>
-          {mockNews.map((item) => (
-            <TouchableOpacity
-              key={item.id}
-              style={styles.newsCard}
-              onPress={() => router.push("/news")}
-            >
-              <View style={styles.newsHeader}>
-                <View
-                  style={[
-                    styles.newsTag,
-                    { backgroundColor: item.tagColor + "18" },
-                  ]}
-                >
-                  <Text
-                    style={[styles.newsTagText, { color: item.tagColor }]}
-                  >
-                    {item.tag}
-                  </Text>
-                </View>
-                <Text style={styles.newsDate}>{item.date}</Text>
-              </View>
-              <Text style={styles.newsTitle}>{item.title}</Text>
-              <Text style={styles.newsBody} numberOfLines={3}>
-                {item.body}
-              </Text>
-            </TouchableOpacity>
-          ))}
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -253,183 +360,285 @@ export default function MyBoxScreen() {
 
 // ─── Styles ──────────────────────────────────────────────
 const styles = StyleSheet.create({
-  safe: {
-    flex: 1,
-    backgroundColor: C.bg,
-  },
-  scrollContent: {
-    paddingBottom: 30,
-  },
+  safe: { flex: 1, backgroundColor: C.bg },
+  scrollContent: { paddingBottom: 36 },
 
-  // Box Header
-  boxHeader: {
+  // Top bar
+  topBar: {
     flexDirection: "row",
+    justifyContent: "space-between",
     alignItems: "center",
     paddingHorizontal: 20,
     paddingTop: 12,
-    paddingBottom: 20,
-    gap: 16,
+    paddingBottom: 8,
   },
-  logoCircle: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
+  brandRow: { flexDirection: "row", alignItems: "center", gap: 8 },
+  zapCircle: {
+    width: 32,
+    height: 32,
+    borderRadius: 10,
     backgroundColor: C.green + "18",
-    borderWidth: 2,
-    borderColor: C.green,
+    borderWidth: 1,
+    borderColor: C.green + "40",
     alignItems: "center",
     justifyContent: "center",
   },
-  logoText: {
-    fontSize: 24,
+  brandName: {
+    fontSize: 18,
     fontWeight: "900",
-    color: C.green,
-  },
-  boxInfo: {
-    flex: 1,
-  },
-  boxName: {
-    fontSize: 24,
-    fontWeight: "800",
     color: C.text,
     letterSpacing: -0.5,
   },
-  boxLocation: {
-    fontSize: 14,
-    color: C.muted,
-    marginTop: 2,
+  notifButton: { position: "relative", padding: 4 },
+  notifDot: {
+    position: "absolute",
+    top: 4,
+    right: 4,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: C.red,
+    zIndex: 1,
   },
+  notifBell: { fontSize: 20 },
 
-  // Quick Info
-  quickInfoRow: {
-    flexDirection: "row",
-    paddingHorizontal: 16,
-    gap: 10,
-    marginBottom: 16,
+  // Greeting
+  greetingSection: {
+    paddingHorizontal: 20,
+    paddingTop: 8,
+    paddingBottom: 20,
   },
-  quickCard: {
-    flex: 1,
-    backgroundColor: C.card,
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: C.border,
-    paddingVertical: 16,
-    paddingHorizontal: 12,
-    alignItems: "center",
+  greetingLine: { fontSize: 16, color: C.muted, fontWeight: "500" },
+  greetingName: {
+    fontSize: 30,
+    fontWeight: "900",
+    color: C.text,
+    letterSpacing: -0.8,
+    lineHeight: 34,
   },
-  quickValue: {
-    fontSize: 24,
-    fontWeight: "800",
+  orgName: {
+    fontSize: 13,
     color: C.green,
-    marginBottom: 4,
-  },
-  quickLabel: {
-    fontSize: 11,
     fontWeight: "600",
-    color: C.muted,
-    textAlign: "center",
-    lineHeight: 15,
+    marginTop: 4,
+    opacity: 0.85,
   },
 
-  // Occupancy Section
-  sectionCard: {
+  // Stats strip
+  statsStrip: {
+    flexDirection: "row",
     marginHorizontal: 16,
     backgroundColor: C.card,
-    borderRadius: 14,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: C.border,
+    marginBottom: 24,
+    overflow: "hidden",
+  },
+  statItem: {
+    flex: 1,
+    alignItems: "center",
+    paddingVertical: 16,
+    gap: 4,
+  },
+  statIconBox: {
+    width: 30,
+    height: 30,
+    borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 4,
+  },
+  statValue: { fontSize: 22, fontWeight: "800" },
+  statLabel: { fontSize: 10, fontWeight: "600", color: C.muted, letterSpacing: 0.3 },
+
+  // Section header row
+  sectionHeaderRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 20,
+    marginBottom: 10,
+  },
+  sectionLabel: {
+    fontSize: 10,
+    fontWeight: "800",
+    color: C.muted,
+    letterSpacing: 1.5,
+  },
+  seeAll: { fontSize: 12, fontWeight: "700", color: C.green },
+
+  // Next class card
+  nextClassCard: {
+    marginHorizontal: 16,
+    backgroundColor: C.card,
+    borderRadius: 16,
     borderWidth: 1,
     borderColor: C.border,
     padding: 16,
-    marginBottom: 20,
+    marginBottom: 24,
   },
-  sectionHeader: {
+  nextClassTop: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+    marginBottom: 12,
+  },
+  nextClassName: { fontSize: 20, fontWeight: "800", color: C.text },
+  nextClassCoach: { fontSize: 13, color: C.muted, marginTop: 2 },
+  nextClassTimeBadge: {
+    backgroundColor: C.green + "18",
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+  },
+  nextClassTime: { fontSize: 18, fontWeight: "800", color: C.green },
+  capacityRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 6,
+  },
+  capacityText: { fontSize: 12, color: C.muted },
+  capacityPct: { fontSize: 12, fontWeight: "700" },
+  capacityBarBg: {
+    height: 5,
+    borderRadius: 3,
+    backgroundColor: C.surface2,
+    marginBottom: 14,
+  },
+  capacityBarFill: { height: 5, borderRadius: 3 },
+  reserveBtn: {
+    backgroundColor: C.green,
+    borderRadius: 12,
+    paddingVertical: 12,
+    alignItems: "center",
+  },
+  reserveBtnText: {
+    fontSize: 13,
+    fontWeight: "800",
+    color: "#080c0a",
+    letterSpacing: 1,
+  },
+
+  // WOD preview
+  wodPreviewCard: {
+    marginHorizontal: 16,
+    backgroundColor: C.card,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: C.border,
+    padding: 16,
+    marginBottom: 24,
+  },
+  wodPreviewHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     marginBottom: 12,
   },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: "700",
-    color: C.text,
+  wodPreviewTitle: { fontSize: 18, fontWeight: "700", color: C.text },
+  wodTypeBadge: {
+    backgroundColor: C.green + "18",
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
   },
-  sectionBadge: {
-    fontSize: 16,
-    fontWeight: "800",
-    color: C.green,
-  },
-  occupancyBarBg: {
-    height: 6,
-    borderRadius: 3,
+  wodTypeText: { fontSize: 11, fontWeight: "800", color: C.green, letterSpacing: 0.5 },
+  wodMovements: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
+  movementPill: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
     backgroundColor: C.surface2,
-    marginBottom: 8,
+    borderRadius: 20,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
   },
-  occupancyBarFill: {
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: C.green,
+  movementDot: { width: 5, height: 5, borderRadius: 3, backgroundColor: C.green },
+  movementText: { fontSize: 12, fontWeight: "600", color: C.text },
+
+  // Actions grid
+  actionsGrid: {
+    flexDirection: "row",
+    paddingHorizontal: 16,
+    gap: 10,
+    marginBottom: 24,
   },
-  occupancyLabel: {
-    fontSize: 12,
+  actionCard: {
+    flex: 1,
+    backgroundColor: C.card,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: C.border,
+    paddingVertical: 14,
+    alignItems: "center",
+    gap: 6,
+  },
+  actionIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  actionLabel: {
+    fontSize: 10,
+    fontWeight: "700",
     color: C.muted,
+    textAlign: "center",
+    lineHeight: 14,
   },
 
   // Coaches
-  sectionWrapper: {
-    marginBottom: 20,
-  },
-  sectionTitleStandalone: {
-    fontSize: 18,
-    fontWeight: "700",
-    color: C.text,
-    paddingHorizontal: 20,
-    marginBottom: 14,
-  },
-  coachScroll: {
-    paddingHorizontal: 16,
-    gap: 12,
-  },
-  coachCard: {
-    alignItems: "center",
-    width: 80,
-  },
+  coachScrollWrapper: { marginBottom: 24 },
+  coachScroll: { paddingHorizontal: 16, gap: 12 },
+  coachCard: { alignItems: "center", width: 76 },
   coachAvatar: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
     backgroundColor: C.surface2,
     borderWidth: 2,
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 8,
+    marginBottom: 7,
   },
-  coachInitials: {
-    fontSize: 18,
-    fontWeight: "800",
-  },
-  coachName: {
-    fontSize: 13,
-    fontWeight: "600",
-    color: C.text,
-    marginBottom: 4,
-    textAlign: "center",
-  },
-  roleBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 6,
-  },
-  roleText: {
-    fontSize: 9,
-    fontWeight: "700",
-    letterSpacing: 0.3,
-  },
+  coachInitials: { fontSize: 17, fontWeight: "800" },
+  coachName: { fontSize: 12, fontWeight: "600", color: C.text, marginBottom: 3, textAlign: "center" },
+  roleBadge: { paddingHorizontal: 7, paddingVertical: 2, borderRadius: 5 },
+  roleText: { fontSize: 8, fontWeight: "700", letterSpacing: 0.3 },
 
-  // Quick Links
+  // News
+  newsCard: {
+    flexDirection: "row",
+    marginHorizontal: 16,
+    backgroundColor: C.card,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: C.border,
+    marginBottom: 10,
+    overflow: "hidden",
+  },
+  newsAccent: { width: 4 },
+  newsBody2: { flex: 1, padding: 14 },
+  newsHeaderRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 6,
+  },
+  newsTag: { paddingHorizontal: 8, paddingVertical: 2, borderRadius: 5 },
+  newsTagText: { fontSize: 10, fontWeight: "800", letterSpacing: 0.5 },
+  newsDate: { fontSize: 11, color: C.muted },
+  newsTitle: { fontSize: 15, fontWeight: "700", color: C.text, marginBottom: 4 },
+  newsBodyText: { fontSize: 13, color: C.muted, lineHeight: 18 },
+
+  // Quick links
   quickLinksRow: {
     flexDirection: "row",
     paddingHorizontal: 16,
     gap: 10,
-    marginBottom: 20,
+    marginTop: 4,
   },
   quickLinkCard: {
     flex: 1,
@@ -437,84 +646,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 8,
     backgroundColor: C.card,
-    borderRadius: 14,
+    borderRadius: 12,
     borderWidth: 1,
     borderColor: C.border,
-    paddingVertical: 14,
-    paddingHorizontal: 14,
+    paddingVertical: 12,
+    paddingHorizontal: 12,
   },
-  quickLinkText: {
-    flex: 1,
-    fontSize: 14,
-    fontWeight: "600",
-    color: C.text,
-  },
-  quickLinkIcon: {
-    fontSize: 16,
-    fontWeight: "800",
-    color: C.blue,
-    backgroundColor: C.blue + "18",
-    width: 24,
-    height: 24,
-    textAlign: "center",
-    lineHeight: 24,
-    borderRadius: 6,
-    overflow: "hidden",
-  },
-
-  // News Section Header
-  newsSectionHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingHorizontal: 20,
-    marginBottom: 14,
-  },
-  seeAllText: {
-    fontSize: 13,
-    fontWeight: "600",
-    color: C.green,
-  },
-
-  // News
-  newsCard: {
-    marginHorizontal: 16,
-    backgroundColor: C.card,
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: C.border,
-    padding: 16,
-    marginBottom: 10,
-  },
-  newsHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 10,
-  },
-  newsTag: {
-    paddingHorizontal: 10,
-    paddingVertical: 3,
-    borderRadius: 6,
-  },
-  newsTagText: {
-    fontSize: 11,
-    fontWeight: "700",
-    letterSpacing: 0.5,
-  },
-  newsDate: {
-    fontSize: 12,
-    color: C.muted,
-  },
-  newsTitle: {
-    fontSize: 16,
-    fontWeight: "700",
-    color: C.text,
-    marginBottom: 6,
-  },
-  newsBody: {
-    fontSize: 14,
-    color: C.muted,
-    lineHeight: 20,
-  },
+  quickLinkText: { flex: 1, fontSize: 13, fontWeight: "600", color: C.text },
 });

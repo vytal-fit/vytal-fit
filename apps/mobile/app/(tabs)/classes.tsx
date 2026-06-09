@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
-import { User, MapPin, Bell, Check, CalendarX } from "lucide-react-native";
+import { User, MapPin, Bell, Check, CalendarX, Zap } from "lucide-react-native";
 import { mockClasses } from "@vytal-fit/shared";
 import type { Class } from "@vytal-fit/shared";
 import { colors } from "@/colors";
@@ -259,6 +259,10 @@ export default function ClassesScreen() {
         <View style={styles.header}>
           <View style={styles.headerRow}>
             <View>
+              <View style={styles.headerBrandRow}>
+                <Zap size={14} color={C.green} strokeWidth={2.5} fill={C.green} />
+                <Text style={styles.headerBrand}>AGENDA</Text>
+              </View>
               <Text style={styles.headerTitle}>{t("screen.classes")}</Text>
               <Text style={styles.headerDate}>{formatDateHeader()}</Text>
             </View>
@@ -266,7 +270,7 @@ export default function ClassesScreen() {
               style={styles.headerAction}
               onPress={() => router.push("/notifications")}
             >
-              <Bell size={22} color={C.text} strokeWidth={1.8} />
+              <Bell size={20} color={C.text} strokeWidth={1.8} />
             </TouchableOpacity>
           </View>
         </View>
@@ -329,6 +333,18 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "flex-start",
   },
+  headerBrandRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    marginBottom: 4,
+  },
+  headerBrand: {
+    fontSize: 10,
+    fontWeight: "800",
+    color: C.green,
+    letterSpacing: 2,
+  },
   headerTitle: {
     fontSize: 28,
     fontWeight: "800",
@@ -336,13 +352,13 @@ const styles = StyleSheet.create({
     letterSpacing: -0.5,
   },
   headerDate: {
-    fontSize: 14,
+    fontSize: 13,
     color: C.muted,
-    marginTop: 4,
+    marginTop: 3,
   },
   headerAction: {
-    width: 44,
-    height: 44,
+    width: 42,
+    height: 42,
     borderRadius: 14,
     backgroundColor: C.surface,
     borderWidth: 1,
