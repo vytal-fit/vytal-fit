@@ -6,11 +6,10 @@ import {
   ScrollView,
   TouchableOpacity,
   TextInput,
-  Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
-import { ArrowLeft, Save } from "lucide-react-native";
+import { ArrowLeft, Save, CheckCircle } from "lucide-react-native";
 import { mockMembers } from "@vytal-fit/shared";
 
 // ─── Colors ──────────────────────────────────────────────
@@ -53,6 +52,7 @@ export default function PersonalDataScreen() {
   const [tshirt, setTshirt] = useState("L");
   const [weight, setWeight] = useState("82");
   const [height, setHeight] = useState("178");
+  const [saved, setSaved] = useState(false);
 
   const bmi =
     weight && height
@@ -63,8 +63,11 @@ export default function PersonalDataScreen() {
       : "--";
 
   function handleSave() {
-    Alert.alert("Guardado", "Dados pessoais atualizados com sucesso!");
-    router.back();
+    setSaved(true);
+    setTimeout(() => {
+      setSaved(false);
+      router.back();
+    }, 1500);
   }
 
   return (
@@ -215,10 +218,18 @@ export default function PersonalDataScreen() {
             <Text style={styles.bmiValue}>{bmi}</Text>
           </View>
 
+          {/* Success Banner */}
+          {saved && (
+            <View style={styles.successBanner}>
+              <CheckCircle size={16} color={C.bg} strokeWidth={2.5} />
+              <Text style={styles.successBannerText}>Guardado com sucesso!</Text>
+            </View>
+          )}
+
           {/* Save Button */}
-          <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
+          <TouchableOpacity style={styles.saveButton} onPress={handleSave} disabled={saved}>
             <Save size={18} color="#080c0a" strokeWidth={2.5} />
-            <Text style={styles.saveButtonText}>GUARDAR</Text>
+            <Text style={styles.saveButtonText}>{saved ? "GUARDADO" : "GUARDAR"}</Text>
           </TouchableOpacity>
 
           <View style={{ height: 30 }} />
@@ -424,5 +435,22 @@ const styles = StyleSheet.create({
     fontWeight: "800",
     color: "#080c0a",
     letterSpacing: 1,
+  },
+
+  // Success Banner
+  successBanner: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    backgroundColor: C.green,
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    marginBottom: 4,
+  },
+  successBannerText: {
+    fontSize: 13,
+    fontWeight: "700",
+    color: C.bg,
   },
 });

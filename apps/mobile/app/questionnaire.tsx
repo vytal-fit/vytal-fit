@@ -6,7 +6,6 @@ import {
   ScrollView,
   TouchableOpacity,
   TextInput,
-  Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
@@ -38,9 +37,7 @@ export default function QuestionnaireScreen() {
   const totalQuestions = 5;
 
   function handleSubmit() {
-    Alert.alert("Obrigado!", "As tuas respostas foram enviadas.", [
-      { text: "OK", onPress: () => router.back() },
-    ]);
+    router.back();
   }
 
   function renderQuestion() {
