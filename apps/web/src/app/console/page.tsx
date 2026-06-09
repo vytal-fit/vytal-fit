@@ -21,22 +21,22 @@ import { useAuthStore } from "@/stores/auth-store";
 import { useDataStore } from "@/stores/data-store";
 import { useI18n } from "@/lib/i18n";
 
-function getGreeting(): string {
+function getGreetingKey(): string {
   const h = new Date().getHours();
-  if (h < 12) return "Bom dia";
-  if (h < 18) return "Boa tarde";
-  return "Boa noite";
+  if (h < 12) return "my.home.greeting.morning";
+  if (h < 18) return "my.home.greeting.afternoon";
+  return "my.home.greeting.evening";
 }
 
-function getMotivationalQuote(): string {
-  const quotes = [
-    "O progresso é a soma de pequenos esforços repetidos dia após dia.",
-    "Força não vem do que consegues fazer. Vem de superar o que pensavas não conseguir.",
-    "Cada treino é um depósito no banco da tua saúde.",
-    "Não contes os dias. Faz os dias contar.",
-    "O teu único limite és tu mesmo.",
+function getMotivationalQuoteKey(): string {
+  const keys = [
+    "my.home.quote1",
+    "my.home.quote2",
+    "my.home.quote3",
+    "my.home.quote4",
+    "my.home.quote5",
   ];
-  return quotes[new Date().getDay() % quotes.length];
+  return keys[new Date().getDay() % keys.length];
 }
 
 // Weekly streak calendar — last 7 days
@@ -68,6 +68,7 @@ function loadCheckins(): Set<string> {
 export default function ConsolePage() {
   const { user, hydrate } = useAuthStore();
   const { classes, wods, personalRecords, members } = useDataStore();
+  const { t } = useI18n();
   const [mounted, setMounted] = useState(false);
   const [checkins, setCheckins] = useState<Set<string>>(new Set());
   const weekDays = getWeekDays();
@@ -120,13 +121,13 @@ export default function ConsolePage() {
           style={{ background: "radial-gradient(circle, rgba(34,197,94,0.12) 0%, transparent 70%)" }}
         />
         <p className="text-sm font-medium mb-1" style={{ color: "var(--color-vytal-muted)" }}>
-          {getGreeting()},
+          {t(getGreetingKey())},
         </p>
         <h1 className="text-3xl font-black tracking-tight mb-2" style={{ color: "var(--color-vytal-text)" }}>
           {firstName}
         </h1>
         <p className="text-xs leading-relaxed italic max-w-sm" style={{ color: "var(--color-vytal-muted)" }}>
-          "{getMotivationalQuote()}"
+          "{t(getMotivationalQuoteKey())}"
         </p>
       </div>
 
@@ -136,8 +137,8 @@ export default function ConsolePage() {
           {
             icon: Flame,
             value: streakWeeks,
-            label: "semanas",
-            sub: "sequidas",
+            label: t("my.home.stats.weeks"),
+            sub: t("my.home.stats.consecutive"),
             color: "var(--color-vytal-amber)",
             bg: "rgba(255,179,0,0.1)",
             border: "rgba(255,179,0,0.2)",
@@ -145,8 +146,8 @@ export default function ConsolePage() {
           {
             icon: CheckCircle,
             value: totalCheckIns,
-            label: "check-ins",
-            sub: "totais",
+            label: t("my.home.stats.checkins"),
+            sub: t("my.home.stats.total"),
             color: "var(--color-vytal-green)",
             bg: "rgba(34,197,94,0.08)",
             border: "rgba(34,197,94,0.2)",
@@ -154,8 +155,8 @@ export default function ConsolePage() {
           {
             icon: Trophy,
             value: prCount,
-            label: "records",
-            sub: "pessoais",
+            label: t("my.home.stats.records"),
+            sub: t("my.home.stats.personal"),
             color: "var(--color-vytal-purple)",
             bg: "rgba(192,132,252,0.1)",
             border: "rgba(192,132,252,0.2)",
@@ -208,7 +209,7 @@ export default function ConsolePage() {
           <div className="flex items-center gap-2">
             <TrendingUp size={14} style={{ color: "var(--color-vytal-green)" }} />
             <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--color-vytal-muted)" }}>
-              Esta semana
+              {t("my.home.thisWeek")}
             </span>
           </div>
           <span className="text-xs font-bold" style={{ color: "var(--color-vytal-green)" }}>
@@ -266,14 +267,14 @@ export default function ConsolePage() {
             <div className="p-4 space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: "var(--color-vytal-muted)" }}>
-                  Proxima aula
+                  {t("my.home.nextClass")}
                 </span>
                 <Link
                   href="/console/schedule"
                   className="flex items-center gap-1 text-[10px] font-semibold transition-opacity hover:opacity-70"
                   style={{ color: "var(--color-vytal-green)" }}
                 >
-                  Ver todas <ArrowRight size={10} />
+                  {t("my.home.viewAll")} <ArrowRight size={10} />
                 </Link>
               </div>
 
@@ -299,7 +300,7 @@ export default function ConsolePage() {
                     { icon: MapPin, text: nextClass.location?.name ?? "Box principal" },
                     {
                       icon: Users,
-                      text: `${nextClass.enrolledCount}/${nextClass.maxCapacity} atletas`,
+                      text: `${nextClass.enrolledCount}/${nextClass.maxCapacity} ${t("my.home.athletes")}`,
                     },
                     ...(nextClass.coaches?.length > 0
                       ? [{ icon: Star, text: `Coach ${nextClass.coaches[0].name}` }]
@@ -334,7 +335,7 @@ export default function ConsolePage() {
                     />
                   </div>
                   <p className="text-[10px]" style={{ color: "var(--color-vytal-muted)" }}>
-                    {nextClass.maxCapacity - nextClass.enrolledCount} lugares disponveis
+                    {nextClass.maxCapacity - nextClass.enrolledCount} {t("my.home.spotsLeft")}
                   </p>
                 </div>
 
@@ -350,7 +351,7 @@ export default function ConsolePage() {
                       : "#080c0a",
                   }}
                 >
-                  {nextClass.enrolledCount >= nextClass.maxCapacity ? "Lista de Espera" : "Reservar Agora"}
+                  {nextClass.enrolledCount >= nextClass.maxCapacity ? t("my.home.waitlist") : t("my.home.bookNow")}
                 </Link>
               </div>
             </div>
@@ -362,10 +363,10 @@ export default function ConsolePage() {
           >
             <Calendar size={28} style={{ color: "var(--color-vytal-muted)", opacity: 0.4 }} />
             <p className="text-sm font-medium" style={{ color: "var(--color-vytal-muted)" }}>
-              Sem aulas hoje
+              {t("my.home.noClasses")}
             </p>
             <p className="text-xs" style={{ color: "var(--color-vytal-muted)", opacity: 0.6 }}>
-              Descansa bem!
+              {t("my.home.restWell")}
             </p>
           </div>
         )}
@@ -388,14 +389,14 @@ export default function ConsolePage() {
             <div className="p-4 space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: "var(--color-vytal-muted)" }}>
-                  WOD de hoje
+                  {t("my.home.todayWod")}
                 </span>
                 <Link
                   href="/console/wod"
                   className="flex items-center gap-1 text-[10px] font-semibold transition-opacity hover:opacity-70"
                   style={{ color: "var(--color-vytal-green)" }}
                 >
-                  Ver detalhes <ArrowRight size={10} />
+                  {t("my.home.viewDetails")} <ArrowRight size={10} />
                 </Link>
               </div>
 
@@ -436,7 +437,7 @@ export default function ConsolePage() {
                     ))}
                     {todayWOD.parts.length > 3 && (
                       <p className="text-[10px] text-center" style={{ color: "var(--color-vytal-muted)" }}>
-                        +{todayWOD.parts.length - 3} mais partes
+                        +{todayWOD.parts.length - 3} {t("my.home.moreParts")}
                       </p>
                     )}
                   </div>
@@ -451,7 +452,7 @@ export default function ConsolePage() {
           >
             <Dumbbell size={28} style={{ color: "var(--color-vytal-muted)", opacity: 0.4 }} />
             <p className="text-sm font-medium" style={{ color: "var(--color-vytal-muted)" }}>
-              WOD ainda nao publicado
+              {t("my.home.wodNotPublished")}
             </p>
           </div>
         )}
@@ -460,14 +461,14 @@ export default function ConsolePage() {
       {/* ── Quick actions ── */}
       <div>
         <p className="text-[10px] font-bold uppercase tracking-widest mb-3" style={{ color: "var(--color-vytal-muted)" }}>
-          Acoes rapidas
+          {t("my.home.quickActions")}
         </p>
         <div className="grid grid-cols-3 gap-3">
           {[
             {
               href: "/console/schedule",
               icon: Calendar,
-              label: "Reservar Aula",
+              label: t("my.home.bookClass"),
               color: "var(--color-vytal-blue)",
               bg: "rgba(0,212,255,0.08)",
               border: "rgba(0,212,255,0.2)",
@@ -475,7 +476,7 @@ export default function ConsolePage() {
             {
               href: "/console/wod",
               icon: Dumbbell,
-              label: "Ver WOD",
+              label: t("my.home.viewWod"),
               color: "var(--color-vytal-green)",
               bg: "rgba(34,197,94,0.08)",
               border: "rgba(34,197,94,0.2)",
@@ -483,7 +484,7 @@ export default function ConsolePage() {
             {
               href: "/console/records",
               icon: Trophy,
-              label: "Os meus PRs",
+              label: t("my.home.myPRs"),
               color: "var(--color-vytal-purple)",
               bg: "rgba(192,132,252,0.08)",
               border: "rgba(192,132,252,0.2)",
@@ -534,10 +535,10 @@ export default function ConsolePage() {
             </div>
             <div>
               <p className="text-sm font-bold" style={{ color: "var(--color-vytal-text)" }}>
-                Comunidade
+                {t("my.home.community")}
               </p>
               <p className="text-xs" style={{ color: "var(--color-vytal-muted)" }}>
-                3 fistbumps recebidos hoje
+                {t("my.home.fistbumpsToday")}
               </p>
             </div>
           </div>
@@ -564,10 +565,10 @@ export default function ConsolePage() {
             </div>
             <div>
               <p className="text-sm font-bold" style={{ color: "var(--color-vytal-text)" }}>
-                Treino sugerido
+                {t("my.home.suggestedWorkout")}
               </p>
               <p className="text-xs" style={{ color: "var(--color-vytal-muted)" }}>
-                Mobilidade Matinal · 15 min
+                {t("my.home.suggestedWorkoutSub")}
               </p>
             </div>
           </div>
@@ -586,14 +587,14 @@ export default function ConsolePage() {
         <div className="flex items-center gap-2 mb-3">
           <Zap size={14} style={{ color: "var(--color-vytal-green)" }} />
           <span className="text-xs font-bold uppercase tracking-wider" style={{ color: "var(--color-vytal-muted)" }}>
-            Conquistas recentes
+            {t("my.home.recentAchievements")}
           </span>
         </div>
         <div className="flex gap-2 flex-wrap">
           {[
-            { label: "8 semanas seguidas", icon: "🔥" },
-            { label: "100+ check-ins", icon: "💎" },
-            { label: "Primeiro PR", icon: "🏆" },
+            { label: t("my.home.badge.streak"), icon: "🔥" },
+            { label: t("my.home.badge.checkins"), icon: "💎" },
+            { label: t("my.home.badge.firstPR"), icon: "🏆" },
           ].map((badge, i) => (
             <div
               key={i}

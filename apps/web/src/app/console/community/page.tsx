@@ -12,6 +12,7 @@ import {
   Award,
   Activity,
 } from "lucide-react";
+import { useI18n } from "@/lib/i18n";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -133,7 +134,6 @@ const ATHLETE_OF_MONTH = {
   checkIns: 24,
   prs: 3,
   streak: 8,
-  badge: "Melhor do Mes",
 };
 
 const FEED_STORAGE_KEY = "vytal-community-feed";
@@ -153,15 +153,15 @@ function saveFeed(feed: FeedEvent[]) {
   localStorage.setItem(FEED_STORAGE_KEY, JSON.stringify(feed));
 }
 
-function relativeTime(iso: string): string {
+function relativeTime(iso: string, labelNow: string): string {
   const diff = Date.now() - new Date(iso).getTime();
   const mins = Math.floor(diff / 60000);
-  if (mins < 1) return "agora mesmo";
-  if (mins < 60) return `ha ${mins}m`;
+  if (mins < 1) return labelNow;
+  if (mins < 60) return `há ${mins}m`;
   const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return `ha ${hrs}h`;
+  if (hrs < 24) return `há ${hrs}h`;
   const days = Math.floor(hrs / 24);
-  return `ha ${days}d`;
+  return `há ${days}d`;
 }
 
 function feedTypeConfig(type: FeedEvent["type"]): {
@@ -186,6 +186,7 @@ function feedTypeConfig(type: FeedEvent["type"]): {
 // ── Component ─────────────────────────────────────────────────────────────────
 
 export default function CommunityPage() {
+  const { t } = useI18n();
   const [mounted, setMounted] = useState(false);
   const [feed, setFeed] = useState<FeedEvent[]>(INITIAL_FEED);
   const [toast, setToast] = useState<string | null>(null);
@@ -215,7 +216,7 @@ export default function CommunityPage() {
       return updated;
     });
     const event = feed.find((e) => e.id === id);
-    if (event && !event.hasBumped) showToast("Fistbump enviado!");
+    if (event && !event.hasBumped) showToast(t("my.community.fistbump"));
   }
 
   if (!mounted) {
@@ -250,10 +251,10 @@ export default function CommunityPage() {
       {/* ── Header ── */}
       <div>
         <h1 className="text-2xl font-black" style={{ color: "var(--color-vytal-text)" }}>
-          Comunidade
+          {t("my.community.title")}
         </h1>
         <p className="text-xs mt-0.5" style={{ color: "var(--color-vytal-muted)" }}>
-          O que se passa no box esta semana
+          {t("my.community.subtitle")}
         </p>
       </div>
 
@@ -263,8 +264,8 @@ export default function CommunityPage() {
           {
             icon: Activity,
             value: totalCheckInsWeek,
-            label: "check-ins",
-            sub: "esta semana",
+            label: t("my.community.checkins"),
+            sub: t("my.community.thisWeek"),
             color: "var(--color-vytal-green)",
             bg: "rgba(34,197,94,0.08)",
             border: "rgba(34,197,94,0.2)",
@@ -272,8 +273,8 @@ export default function CommunityPage() {
           {
             icon: Trophy,
             value: prsThisWeek,
-            label: "PRs batidos",
-            sub: "esta semana",
+            label: t("my.community.prs"),
+            sub: t("my.community.thisWeek"),
             color: "var(--color-vytal-amber)",
             bg: "rgba(255,179,0,0.08)",
             border: "rgba(255,179,0,0.2)",
@@ -281,8 +282,8 @@ export default function CommunityPage() {
           {
             icon: Users,
             value: activeMembers,
-            label: "membros",
-            sub: "ativos hoje",
+            label: t("my.community.members"),
+            sub: t("my.community.activeToday"),
             color: "var(--color-vytal-blue)",
             bg: "rgba(0,212,255,0.08)",
             border: "rgba(0,212,255,0.2)",
@@ -337,7 +338,7 @@ export default function CommunityPage() {
               className="text-[10px] font-black uppercase tracking-widest"
               style={{ color: "var(--color-vytal-amber)" }}
             >
-              Atleta do Mes
+              {t("my.community.athleteOfMonth")}
             </span>
           </div>
           <div className="flex items-center gap-4">
@@ -356,15 +357,15 @@ export default function CommunityPage() {
                 {ATHLETE_OF_MONTH.name}
               </p>
               <p className="text-xs mt-0.5" style={{ color: "var(--color-vytal-amber)" }}>
-                {ATHLETE_OF_MONTH.badge}
+                {t("my.community.bestBadge")}
               </p>
             </div>
           </div>
           <div className="grid grid-cols-3 gap-2 mt-4">
             {[
-              { value: ATHLETE_OF_MONTH.checkIns, label: "check-ins" },
+              { value: ATHLETE_OF_MONTH.checkIns, label: t("my.community.checkins") },
               { value: ATHLETE_OF_MONTH.prs,      label: "PRs" },
-              { value: `${ATHLETE_OF_MONTH.streak}sem`, label: "sequencia" },
+              { value: `${ATHLETE_OF_MONTH.streak}sem`, label: t("my.community.sequence") },
             ].map((s, i) => (
               <div
                 key={i}
@@ -393,7 +394,7 @@ export default function CommunityPage() {
           <div className="flex items-center gap-2 mb-4">
             <TrendingUp size={13} style={{ color: "var(--color-vytal-green)" }} />
             <span className="text-[10px] font-black uppercase tracking-widest" style={{ color: "var(--color-vytal-muted)" }}>
-              Top check-ins — junho
+              {t("my.community.leaderboard")}
             </span>
           </div>
           <div className="space-y-2">
@@ -456,7 +457,7 @@ export default function CommunityPage() {
         <div className="flex items-center gap-2 mb-3">
           <Activity size={13} style={{ color: "var(--color-vytal-green)" }} />
           <p className="text-[10px] font-black uppercase tracking-widest" style={{ color: "var(--color-vytal-muted)" }}>
-            Feed de atividade
+            {t("my.community.feed")}
           </p>
         </div>
         <div className="space-y-2">
@@ -487,7 +488,7 @@ export default function CommunityPage() {
                     <span style={{ color: "var(--color-vytal-muted)" }}>{event.message}</span>
                   </p>
                   <p className="text-[10px] mt-1" style={{ color: "var(--color-vytal-muted)", opacity: 0.7 }}>
-                    {relativeTime(event.timestamp)}
+                    {relativeTime(event.timestamp, t("my.community.agora"))}
                   </p>
                 </div>
 
