@@ -19,6 +19,7 @@ import {
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/stores/auth-store";
 import { useDataStore } from "@/stores/data-store";
+import { useI18n } from "@/lib/i18n";
 
 function getGreeting(): string {
   const h = new Date().getHours();
@@ -29,11 +30,11 @@ function getGreeting(): string {
 
 function getMotivationalQuote(): string {
   const quotes = [
-    "O progresso e a soma de pequenos esforos repetidos dia apos dia.",
-    "Forca nao vem do que consegues fazer. Vem de superar o que pensavas nao conseguir.",
-    "Cada treino e um deposito no banco da tua saude.",
-    "Nao contes os dias. Faz os dias contar.",
-    "O teu unico limite es tu mesmo.",
+    "O progresso é a soma de pequenos esforços repetidos dia após dia.",
+    "Força não vem do que consegues fazer. Vem de superar o que pensavas não conseguir.",
+    "Cada treino é um depósito no banco da tua saúde.",
+    "Não contes os dias. Faz os dias contar.",
+    "O teu único limite és tu mesmo.",
   ];
   return quotes[new Date().getDay() % quotes.length];
 }

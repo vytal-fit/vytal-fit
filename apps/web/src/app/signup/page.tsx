@@ -185,7 +185,7 @@ function StepIndicator({ step }: { step: Step }) {
       {/* Progress bar */}
       <div className="h-1 bg-[rgba(34,197,94,0.12)] rounded-full mb-6 overflow-hidden">
         <div
-          className="h-full bg-[#22c55e] rounded-full transition-all duration-500 ease-out"
+          className="h-full bg-vytal-green rounded-full transition-all duration-500 ease-out"
           style={{ width: `${pct}%` }}
         />
       </div>
@@ -199,17 +199,17 @@ function StepIndicator({ step }: { step: Step }) {
               <div
                 className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 ${
                   done
-                    ? "bg-[#22c55e] text-[#080c0a]"
+                    ? "bg-vytal-green text-vytal-bg"
                     : active
-                    ? "bg-[rgba(34,197,94,0.15)] border-2 border-[#22c55e] text-[#22c55e]"
-                    : "bg-[rgba(34,197,94,0.06)] border border-[rgba(34,197,94,0.15)] text-[#6b8c72]"
+                    ? "bg-[rgba(34,197,94,0.15)] border-2 border-[#22c55e] text-vytal-green"
+                    : "bg-[rgba(34,197,94,0.06)] border border-[rgba(34,197,94,0.15)] text-vytal-muted"
                 }`}
               >
                 {done ? <Check size={14} /> : s.n}
               </div>
               <span
                 className={`text-[10px] font-medium ${
-                  active ? "text-[#22c55e]" : done ? "text-[#dceee0]" : "text-[#6b8c72]"
+                  active ? "text-vytal-green" : done ? "text-vytal-text" : "text-vytal-muted"
                 }`}
               >
                 {s.label}
@@ -275,15 +275,15 @@ function PlanCard({
       onClick={isEnterprise ? undefined : onSelect}
       className={`relative rounded-2xl border p-5 flex flex-col gap-3 transition-all duration-200 ${
         isEnterprise
-          ? "opacity-60 cursor-not-allowed border-[rgba(192,132,252,0.15)] bg-[rgba(22,32,24,0.3)]"
+          ? "opacity-60 cursor-not-allowed border-[rgba(192,132,252,0.15)] bg-vytal-bg3/30"
           : selected
           ? "border-[#22c55e] bg-[rgba(34,197,94,0.06)] shadow-lg shadow-[rgba(34,197,94,0.1)] cursor-pointer"
-          : "border-[rgba(34,197,94,0.12)] bg-[rgba(22,32,24,0.4)] hover:border-[rgba(34,197,94,0.3)] cursor-pointer"
+          : "border-[rgba(34,197,94,0.12)] bg-vytal-bg3/40 hover:border-[rgba(34,197,94,0.3)] cursor-pointer"
       }`}
     >
       {isPro && (
         <div className="absolute -top-2.5 left-1/2 -translate-x-1/2">
-          <span className="px-2.5 py-0.5 rounded-full bg-[#22c55e] text-[#080c0a] text-[10px] font-bold">
+          <span className="px-2.5 py-0.5 rounded-full bg-vytal-green text-vytal-bg text-[10px] font-bold">
             {COPY.mostPopular}
           </span>
         </div>
@@ -291,8 +291,8 @@ function PlanCard({
 
       {/* Selected ring */}
       {selected && (
-        <div className="absolute top-3 right-3 w-5 h-5 rounded-full bg-[#22c55e] flex items-center justify-center">
-          <Check size={11} className="text-[#080c0a]" />
+        <div className="absolute top-3 right-3 w-5 h-5 rounded-full bg-vytal-green flex items-center justify-center">
+          <Check size={11} className="text-vytal-bg" />
         </div>
       )}
 
@@ -302,29 +302,29 @@ function PlanCard({
             {label}
           </span>
         </div>
-        <p className="text-[11px] text-[#6b8c72]">{desc}</p>
+        <p className="text-[11px] text-vytal-muted">{desc}</p>
       </div>
 
       <div className="flex items-end gap-1">
-        <span className="text-2xl font-bold text-[#dceee0] leading-none">{priceDisplay}</span>
-        <span className="text-xs text-[#6b8c72] mb-0.5">{period}</span>
+        <span className="text-2xl font-bold text-vytal-text leading-none">{priceDisplay}</span>
+        <span className="text-xs text-vytal-muted mb-0.5">{period}</span>
       </div>
 
       {isPro && billing === "annual" && (
-        <p className="text-[10px] text-[#22c55e] -mt-2">
+        <p className="text-[10px] text-vytal-green -mt-2">
           Poupas 120€/ano
         </p>
       )}
 
       <ul className="space-y-1.5 mt-1">
         {features.slice(0, 5).map((f) => (
-          <li key={f} className="flex items-center gap-2 text-[11px] text-[#6b8c72]">
+          <li key={f} className="flex items-center gap-2 text-[11px] text-vytal-muted">
             <Check size={10} style={{ color }} className="shrink-0" />
             {f}
           </li>
         ))}
         {features.length > 5 && (
-          <li className="text-[10px] text-[#6b8c72]/60 pl-4">
+          <li className="text-[10px] text-vytal-muted/60 pl-4">
             +{features.length - 5} mais...
           </li>
         )}
@@ -397,10 +397,10 @@ function Input({
 }) {
   return (
     <div className="flex flex-col gap-1.5">
-      <label className="text-xs font-medium text-[#dceee0]">{label}</label>
+      <label className="text-xs font-medium text-vytal-text">{label}</label>
       <div className="relative flex items-center">
         {prefix && (
-          <span className="absolute left-3 text-xs text-[#6b8c72] pointer-events-none select-none">
+          <span className="absolute left-3 text-xs text-vytal-muted pointer-events-none select-none">
             {prefix}
           </span>
         )}
@@ -410,7 +410,7 @@ function Input({
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
           autoComplete={autoComplete}
-          className={`w-full rounded-xl border bg-[rgba(22,32,24,0.6)] text-sm text-[#dceee0] placeholder-[#6b8c72]/60 px-4 py-3 outline-none transition-all duration-150 focus:border-[#22c55e] focus:ring-1 focus:ring-[rgba(34,197,94,0.3)] ${
+          className={`w-full rounded-xl border bg-vytal-bg3/60 text-sm text-vytal-text placeholder-vytal-muted/60 px-4 py-3 outline-none transition-all duration-150 focus:border-[#22c55e] focus:ring-1 focus:ring-[rgba(34,197,94,0.3)] ${
             prefix ? "pl-[calc(1rem+var(--prefix-w,0px))]" : ""
           } ${error ? "border-[#ff4757]/60" : "border-[rgba(34,197,94,0.15)]"}`}
           style={prefix ? { paddingLeft: `${prefix.length * 7.5 + 16}px` } : undefined}
@@ -441,14 +441,14 @@ function Select({
 }) {
   return (
     <div className="flex flex-col gap-1.5">
-      <label className="text-xs font-medium text-[#dceee0]">{label}</label>
+      <label className="text-xs font-medium text-vytal-text">{label}</label>
       <div className="relative">
         <select
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className={`w-full appearance-none rounded-xl border bg-[rgba(22,32,24,0.6)] text-sm text-[#dceee0] px-4 py-3 pr-10 outline-none transition-all duration-150 focus:border-[#22c55e] focus:ring-1 focus:ring-[rgba(34,197,94,0.3)] ${
+          className={`w-full appearance-none rounded-xl border bg-vytal-bg3/60 text-sm text-vytal-text px-4 py-3 pr-10 outline-none transition-all duration-150 focus:border-[#22c55e] focus:ring-1 focus:ring-[rgba(34,197,94,0.3)] ${
             error ? "border-[#ff4757]/60" : "border-[rgba(34,197,94,0.15)]"
-          } ${!value ? "text-[#6b8c72]/60" : ""}`}
+          } ${!value ? "text-vytal-muted/60" : ""}`}
         >
           {placeholder && (
             <option value="" disabled>
@@ -456,14 +456,14 @@ function Select({
             </option>
           )}
           {options.map((o) => (
-            <option key={o.value} value={o.value} className="bg-[#0f1610] text-[#dceee0]">
+            <option key={o.value} value={o.value} className="bg-vytal-bg2 text-vytal-text">
               {o.label}
             </option>
           ))}
         </select>
         <ChevronDown
           size={14}
-          className="absolute right-3 top-1/2 -translate-y-1/2 text-[#6b8c72] pointer-events-none"
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-vytal-muted pointer-events-none"
         />
       </div>
       {error && <p className="text-[10px] text-[#ff4757]">{error}</p>}
@@ -484,11 +484,11 @@ function Step1({
     <div className="wizard-step-fade">
       <div className="text-center mb-8">
         <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-[rgba(34,197,94,0.3)] bg-[rgba(34,197,94,0.08)] mb-5">
-          <span className="w-1.5 h-1.5 rounded-full bg-[#22c55e] animate-pulse" />
-          <span className="text-xs font-semibold text-[#22c55e]">{COPY.freeTrial}</span>
+          <span className="w-1.5 h-1.5 rounded-full bg-vytal-green animate-pulse" />
+          <span className="text-xs font-semibold text-vytal-green">{COPY.freeTrial}</span>
         </div>
-        <h2 className="text-2xl font-bold text-[#dceee0] mb-2">{COPY.step1Title}</h2>
-        <p className="text-sm text-[#6b8c72]">{COPY.step1Sub}</p>
+        <h2 className="text-2xl font-bold text-vytal-text mb-2">{COPY.step1Title}</h2>
+        <p className="text-sm text-vytal-muted">{COPY.step1Sub}</p>
       </div>
 
       {/* Billing toggle */}
@@ -497,8 +497,8 @@ function Step1({
           onClick={() => setForm((f) => ({ ...f, billing: "monthly" }))}
           className={`px-4 py-2 rounded-lg text-xs font-semibold transition-all duration-150 ${
             form.billing === "monthly"
-              ? "bg-[rgba(34,197,94,0.15)] text-[#22c55e]"
-              : "text-[#6b8c72] hover:text-[#dceee0]"
+              ? "bg-[rgba(34,197,94,0.15)] text-vytal-green"
+              : "text-vytal-muted hover:text-vytal-text"
           }`}
         >
           {COPY.monthly}
@@ -507,8 +507,8 @@ function Step1({
           onClick={() => setForm((f) => ({ ...f, billing: "annual" }))}
           className={`px-4 py-2 rounded-lg text-xs font-semibold transition-all duration-150 ${
             form.billing === "annual"
-              ? "bg-[rgba(34,197,94,0.15)] text-[#22c55e]"
-              : "text-[#6b8c72] hover:text-[#dceee0]"
+              ? "bg-[rgba(34,197,94,0.15)] text-vytal-green"
+              : "text-vytal-muted hover:text-vytal-text"
           }`}
         >
           {COPY.annual}
@@ -547,10 +547,10 @@ function Step2({
   return (
     <div className="wizard-step-fade">
       <div className="text-center mb-8">
-        <h2 className="text-2xl font-bold text-[#dceee0] mb-2">{COPY.step2Title}</h2>
-        <p className="text-sm text-[#6b8c72]">
+        <h2 className="text-2xl font-bold text-vytal-text mb-2">{COPY.step2Title}</h2>
+        <p className="text-sm text-vytal-muted">
           {COPY.step2Sub}{" "}
-          <Link href="/login" className="text-[#22c55e] hover:underline font-medium">
+          <Link href="/login" className="text-vytal-green hover:underline font-medium">
             {COPY.step2SignIn}
           </Link>
         </p>
@@ -575,7 +575,7 @@ function Step2({
           autoComplete="email"
         />
         <div className="flex flex-col gap-1.5">
-          <label className="text-xs font-medium text-[#dceee0]">Password</label>
+          <label className="text-xs font-medium text-vytal-text">Password</label>
           <div className="relative flex items-center">
             <input
               type={showPw ? "text" : "password"}
@@ -583,14 +583,14 @@ function Step2({
               onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))}
               placeholder={COPY.passwordPlaceholder}
               autoComplete="new-password"
-              className={`w-full rounded-xl border bg-[rgba(22,32,24,0.6)] text-sm text-[#dceee0] placeholder-[#6b8c72]/60 px-4 py-3 pr-10 outline-none transition-all duration-150 focus:border-[#22c55e] focus:ring-1 focus:ring-[rgba(34,197,94,0.3)] ${
+              className={`w-full rounded-xl border bg-vytal-bg3/60 text-sm text-vytal-text placeholder-vytal-muted/60 px-4 py-3 pr-10 outline-none transition-all duration-150 focus:border-[#22c55e] focus:ring-1 focus:ring-[rgba(34,197,94,0.3)] ${
                 errors.password ? "border-[#ff4757]/60" : "border-[rgba(34,197,94,0.15)]"
               }`}
             />
             <button
               type="button"
               onClick={() => setShowPw(!showPw)}
-              className="absolute right-3 text-[#6b8c72] hover:text-[#dceee0] transition-colors"
+              className="absolute right-3 text-vytal-muted hover:text-vytal-text transition-colors"
             >
               {showPw ? <EyeOff size={14} /> : <Eye size={14} />}
             </button>
@@ -600,7 +600,7 @@ function Step2({
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <label className="text-xs font-medium text-[#dceee0]">Confirmar password</label>
+          <label className="text-xs font-medium text-vytal-text">Confirmar password</label>
           <div className="relative flex items-center">
             <input
               type={showConfirm ? "text" : "password"}
@@ -608,14 +608,14 @@ function Step2({
               onChange={(e) => setForm((f) => ({ ...f, confirmPassword: e.target.value }))}
               placeholder={COPY.confirmPasswordPlaceholder}
               autoComplete="new-password"
-              className={`w-full rounded-xl border bg-[rgba(22,32,24,0.6)] text-sm text-[#dceee0] placeholder-[#6b8c72]/60 px-4 py-3 pr-10 outline-none transition-all duration-150 focus:border-[#22c55e] focus:ring-1 focus:ring-[rgba(34,197,94,0.3)] ${
+              className={`w-full rounded-xl border bg-vytal-bg3/60 text-sm text-vytal-text placeholder-vytal-muted/60 px-4 py-3 pr-10 outline-none transition-all duration-150 focus:border-[#22c55e] focus:ring-1 focus:ring-[rgba(34,197,94,0.3)] ${
                 errors.confirmPassword ? "border-[#ff4757]/60" : "border-[rgba(34,197,94,0.15)]"
               }`}
             />
             <button
               type="button"
               onClick={() => setShowConfirm(!showConfirm)}
-              className="absolute right-3 text-[#6b8c72] hover:text-[#dceee0] transition-colors"
+              className="absolute right-3 text-vytal-muted hover:text-vytal-text transition-colors"
             >
               {showConfirm ? <EyeOff size={14} /> : <Eye size={14} />}
             </button>
@@ -631,20 +631,20 @@ function Step2({
             <div
               className={`relative mt-0.5 w-4 h-4 rounded shrink-0 border transition-all duration-150 flex items-center justify-center ${
                 form.acceptTerms
-                  ? "bg-[#22c55e] border-[#22c55e]"
+                  ? "bg-vytal-green border-[#22c55e]"
                   : "border-[rgba(34,197,94,0.3)] group-hover:border-[rgba(34,197,94,0.6)]"
               }`}
               onClick={() => setForm((f) => ({ ...f, acceptTerms: !f.acceptTerms }))}
             >
-              {form.acceptTerms && <Check size={10} className="text-[#080c0a]" />}
+              {form.acceptTerms && <Check size={10} className="text-vytal-bg" />}
             </div>
-            <span className="text-xs text-[#6b8c72] leading-relaxed">
+            <span className="text-xs text-vytal-muted leading-relaxed">
               {COPY.termsText}{" "}
-              <a href="/signup" className="text-[#22c55e] hover:underline">
+              <a href="/signup" className="text-vytal-green hover:underline">
                 {COPY.termsLink}
               </a>{" "}
               {COPY.andText}{" "}
-              <a href="/signup" className="text-[#22c55e] hover:underline">
+              <a href="/signup" className="text-vytal-green hover:underline">
                 {COPY.privacyLink}
               </a>
             </span>
@@ -691,8 +691,8 @@ function Step3({
   return (
     <div className="wizard-step-fade">
       <div className="text-center mb-8">
-        <h2 className="text-2xl font-bold text-[#dceee0] mb-2">{COPY.step3Title}</h2>
-        <p className="text-sm text-[#6b8c72]">{COPY.step3Sub}</p>
+        <h2 className="text-2xl font-bold text-vytal-text mb-2">{COPY.step3Title}</h2>
+        <p className="text-sm text-vytal-muted">{COPY.step3Sub}</p>
       </div>
 
       <div className="flex flex-col gap-4">
@@ -707,20 +707,20 @@ function Step3({
 
         {/* Slug preview */}
         <div className="flex flex-col gap-1.5">
-          <label className="text-xs font-medium text-[#dceee0]">{COPY.slugLabel}</label>
-          <div className="flex items-center rounded-xl border border-[rgba(34,197,94,0.15)] bg-[rgba(22,32,24,0.6)] overflow-hidden">
-            <span className="px-3 py-3 text-xs text-[#6b8c72] bg-[rgba(34,197,94,0.04)] border-r border-[rgba(34,197,94,0.1)] shrink-0 select-none">
+          <label className="text-xs font-medium text-vytal-text">{COPY.slugLabel}</label>
+          <div className="flex items-center rounded-xl border border-[rgba(34,197,94,0.15)] bg-vytal-bg3/60 overflow-hidden">
+            <span className="px-3 py-3 text-xs text-vytal-muted bg-[rgba(34,197,94,0.04)] border-r border-[rgba(34,197,94,0.1)] shrink-0 select-none">
               {COPY.slugPrefix}
             </span>
             <input
               type="text"
               value={form.orgSlug}
               onChange={(e) => setForm((f) => ({ ...f, orgSlug: slugify(e.target.value) }))}
-              className="flex-1 bg-transparent text-sm text-[#dceee0] px-3 py-3 outline-none placeholder-[#6b8c72]/60"
+              className="flex-1 bg-transparent text-sm text-vytal-text px-3 py-3 outline-none placeholder-vytal-muted/60"
               placeholder="o-meu-espaco"
             />
           </div>
-          <p className="text-[10px] text-[#6b8c72]">
+          <p className="text-[10px] text-vytal-muted">
             Pode usar o seu domínio próprio mais tarde.
           </p>
         </div>
@@ -788,7 +788,7 @@ function Step4({ plan }: { plan: PlanId }) {
           }}
         >
           <div className="w-16 h-16 rounded-full bg-[rgba(34,197,94,0.15)] border-2 border-[#22c55e] flex items-center justify-center">
-            <Check size={28} className="text-[#22c55e]" strokeWidth={3} />
+            <Check size={28} className="text-vytal-green" strokeWidth={3} />
           </div>
           {/* Orbiting ring */}
           <div
@@ -800,18 +800,18 @@ function Step4({ plan }: { plan: PlanId }) {
 
       <style dangerouslySetInnerHTML={{ __html: `@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }` }} />
 
-      <h2 className="text-3xl font-bold text-[#dceee0] mb-3">{COPY.accountCreated}</h2>
-      <p className="text-[#6b8c72] mb-2">
+      <h2 className="text-3xl font-bold text-vytal-text mb-3">{COPY.accountCreated}</h2>
+      <p className="text-vytal-muted mb-2">
         {plan !== "free" && (
           <>
-            <span className="text-[#22c55e] font-semibold">30</span>{" "}
+            <span className="text-vytal-green font-semibold">30</span>{" "}
             {COPY.freeDaysOf}{" "}
-            <span className="text-[#22c55e] font-semibold">{planLabel}</span>.
+            <span className="text-vytal-green font-semibold">{planLabel}</span>.
           </>
         )}
         {plan === "free" && "O seu espaço está configurado e pronto a usar."}
       </p>
-      <p className="text-sm text-[#6b8c72] mb-10">{COPY.step4Sub}</p>
+      <p className="text-sm text-vytal-muted mb-10">{COPY.step4Sub}</p>
 
       {/* Feature checklist */}
       <div className="flex flex-col gap-2 mb-10 max-w-xs mx-auto text-left">
@@ -823,16 +823,16 @@ function Step4({ plan }: { plan: PlanId }) {
         ].map((item) => (
           <div key={item} className="flex items-center gap-3">
             <div className="w-5 h-5 rounded-full bg-[rgba(34,197,94,0.15)] flex items-center justify-center shrink-0">
-              <Check size={10} className="text-[#22c55e]" />
+              <Check size={10} className="text-vytal-green" />
             </div>
-            <span className="text-sm text-[#dceee0]">{item}</span>
+            <span className="text-sm text-vytal-text">{item}</span>
           </div>
         ))}
       </div>
 
       <Link
         href="/login"
-        className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-[#22c55e] text-[#080c0a] font-bold text-sm hover:bg-[#16a34a] transition-all duration-150 shadow-lg shadow-[rgba(34,197,94,0.25)] hover:shadow-[rgba(34,197,94,0.4)] hover:-translate-y-0.5"
+        className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-vytal-green text-vytal-bg font-bold text-sm hover:bg-[#16a34a] transition-all duration-150 shadow-lg shadow-[rgba(34,197,94,0.25)] hover:shadow-[rgba(34,197,94,0.4)] hover:-translate-y-0.5"
       >
         {COPY.goToDashboard}
         <ArrowRight size={16} />
@@ -911,7 +911,7 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#080c0a] text-[#dceee0] flex flex-col">
+    <div className="min-h-screen bg-vytal-bg text-vytal-text flex flex-col">
       {/* Background blobs */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
         <div
@@ -935,12 +935,12 @@ export default function SignupPage() {
       {/* Header */}
       <header className="relative z-10 flex items-center justify-between px-6 py-5 border-b border-[rgba(34,197,94,0.08)]">
         <Link href="/" className="flex items-center gap-0.5">
-          <span className="text-xl font-bold text-[#22c55e] tracking-tight">Vytal</span>
-          <span className="text-xl font-bold text-[#6b8c72] tracking-tight">.fit</span>
+          <span className="text-xl font-bold text-vytal-green tracking-tight">Vytal</span>
+          <span className="text-xl font-bold text-vytal-muted tracking-tight">.fit</span>
         </Link>
         <Link
           href="/"
-          className="flex items-center gap-1.5 text-xs text-[#6b8c72] hover:text-[#dceee0] transition-colors"
+          className="flex items-center gap-1.5 text-xs text-vytal-muted hover:text-vytal-text transition-colors"
         >
           <X size={14} />
           Fechar
@@ -958,7 +958,7 @@ export default function SignupPage() {
         >
           {/* Card */}
           <div
-            className={`rounded-2xl border border-[rgba(34,197,94,0.12)] bg-[rgba(15,22,16,0.8)] backdrop-blur-md p-6 sm:p-8 ${
+            className={`rounded-2xl border border-[rgba(34,197,94,0.12)] bg-vytal-bg2/80 backdrop-blur-md p-6 sm:p-8 ${
               step === 4 ? "text-center" : ""
             }`}
           >
@@ -979,7 +979,7 @@ export default function SignupPage() {
                 {step > 1 && (
                   <button
                     onClick={handleBack}
-                    className="flex items-center gap-2 text-sm text-[#6b8c72] hover:text-[#dceee0] transition-colors"
+                    className="flex items-center gap-2 text-sm text-vytal-muted hover:text-vytal-text transition-colors"
                   >
                     <ArrowLeft size={14} />
                     {COPY.back}
@@ -987,7 +987,7 @@ export default function SignupPage() {
                 )}
                 <button
                   onClick={handleNext}
-                  className="flex items-center gap-2 px-6 py-3 rounded-xl bg-[#22c55e] text-[#080c0a] font-semibold text-sm hover:bg-[#16a34a] transition-all duration-150 shadow-md shadow-[rgba(34,197,94,0.2)] hover:-translate-y-0.5"
+                  className="flex items-center gap-2 px-6 py-3 rounded-xl bg-vytal-green text-vytal-bg font-semibold text-sm hover:bg-[#16a34a] transition-all duration-150 shadow-md shadow-[rgba(34,197,94,0.2)] hover:-translate-y-0.5"
                 >
                   {COPY.next}
                   <ArrowRight size={14} />
@@ -998,17 +998,17 @@ export default function SignupPage() {
 
           {/* Step context hints */}
           {step === 1 && (
-            <p className="text-center text-xs text-[#6b8c72] mt-4">
+            <p className="text-center text-xs text-vytal-muted mt-4">
               Sem cartão de crédito · Cancele quando quiser · Suporte em Português
             </p>
           )}
           {step === 2 && (
-            <p className="text-center text-xs text-[#6b8c72] mt-4">
+            <p className="text-center text-xs text-vytal-muted mt-4">
               Dados encriptados e seguros · Conformidade RGPD
             </p>
           )}
           {step === 3 && (
-            <p className="text-center text-xs text-[#6b8c72] mt-4">
+            <p className="text-center text-xs text-vytal-muted mt-4">
               Pode configurar múltiplas localizações depois.
             </p>
           )}
@@ -1017,11 +1017,11 @@ export default function SignupPage() {
 
       {/* Footer */}
       <footer className="relative z-10 text-center py-5 border-t border-[rgba(34,197,94,0.06)]">
-        <p className="text-xs text-[#6b8c72]">
+        <p className="text-xs text-vytal-muted">
           © 2026 Vytal · vytal.fit ·{" "}
-          <a href="/signup" className="hover:text-[#dceee0] transition-colors">Privacidade</a>
+          <a href="/signup" className="hover:text-vytal-text transition-colors">Privacidade</a>
           {" · "}
-          <a href="/signup" className="hover:text-[#dceee0] transition-colors">Termos</a>
+          <a href="/signup" className="hover:text-vytal-text transition-colors">Termos</a>
         </p>
       </footer>
     </div>
