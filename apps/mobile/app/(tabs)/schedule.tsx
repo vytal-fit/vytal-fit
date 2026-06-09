@@ -400,8 +400,8 @@ function makeStyles(C: Colors) { return StyleSheet.create({
   // Header
   header: {
     paddingHorizontal: 20,
-    paddingTop: 8,
-    paddingBottom: 16,
+    paddingTop: 4,
+    paddingBottom: 8,
   },
   headerRow: {
     flexDirection: "row",
@@ -421,7 +421,7 @@ function makeStyles(C: Colors) { return StyleSheet.create({
     letterSpacing: 2,
   },
   headerTitle: {
-    fontSize: 28,
+    fontSize: 22,
     fontWeight: "800",
     color: C.text,
     letterSpacing: -0.5,
@@ -496,18 +496,18 @@ function makeStyles(C: Colors) { return StyleSheet.create({
 
   // Filter pills
   filterBar: {
-    maxHeight: 44,
-    marginBottom: 12,
+    maxHeight: 36,
+    marginBottom: 8,
   },
   filterContent: {
     paddingHorizontal: 16,
-    gap: 8,
+    gap: 6,
     alignItems: "center",
   },
   filterPill: {
-    paddingHorizontal: 14,
-    paddingVertical: 7,
-    borderRadius: 20,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 16,
     backgroundColor: C.surface,
     borderWidth: 1,
     borderColor: C.border,
