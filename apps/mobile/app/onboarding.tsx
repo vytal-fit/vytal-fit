@@ -319,7 +319,7 @@ export default function OnboardingScreen() {
     if (step < TOTAL_STEPS) {
       setStep(step + 1);
     } else {
-      router.replace("/(tabs)/classes");
+      router.replace("/(tabs)/home");
     }
   }
 
@@ -333,7 +333,7 @@ export default function OnboardingScreen() {
     if (step < TOTAL_STEPS) {
       setStep(step + 1);
     } else {
-      router.replace("/(tabs)/classes");
+      router.replace("/(tabs)/home");
     }
   }
 
