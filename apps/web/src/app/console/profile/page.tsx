@@ -102,7 +102,7 @@ export default function ProfilePage() {
       {toast && (
         <div
           className="fixed top-20 left-4 right-4 z-50 rounded-2xl px-4 py-3 text-sm font-semibold shadow-2xl animate-slide-in-right flex items-center gap-2"
-          style={{ background: "var(--color-vytal-green)", color: "#080c0a" }}
+          style={{ background: "var(--color-vytal-green)", color: "var(--color-vytal-bg)" }}
         >
           <CheckCircle size={16} />
           {toast}
@@ -128,7 +128,7 @@ export default function ProfilePage() {
             className="w-24 h-24 rounded-full flex items-center justify-center text-3xl font-black relative z-10"
             style={{
               background: "linear-gradient(135deg, var(--color-vytal-green), #16a34a)",
-              color: "#080c0a",
+              color: "var(--color-vytal-bg)",
             }}
           >
             {initials}
@@ -425,7 +425,7 @@ export default function ProfilePage() {
               className="absolute top-0.5 w-5 h-5 rounded-full transition-all duration-300"
               style={{
                 left: notificationsEnabled ? "calc(100% - 22px)" : "2px",
-                background: notificationsEnabled ? "#080c0a" : "var(--color-vytal-muted)",
+                background: notificationsEnabled ? "var(--color-vytal-bg)" : "var(--color-vytal-muted)",
               }}
             />
           </button>

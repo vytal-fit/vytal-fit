@@ -382,7 +382,7 @@ export default function AnalyticsPage() {
                       >
                         <span
                           className="font-mono text-[10px] font-semibold"
-                          style={{ color: value === 0 ? "rgba(107,140,114,0.2)" : value / pMax > 0.4 ? "#080c0a" : "#6b8c72" }}
+                          style={{ color: value === 0 ? "rgba(107,140,114,0.2)" : value / pMax > 0.4 ? "var(--color-vytal-bg)" : "#6b8c72" }}
                         >
                           {value > 0 ? value : ""}
                         </span>

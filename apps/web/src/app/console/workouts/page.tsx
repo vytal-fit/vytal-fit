@@ -288,7 +288,7 @@ function TimerModal({ workout, onClose, labels }: {
             >
               <div
                 className="w-5 h-5 rounded-md flex items-center justify-center text-[9px] font-black shrink-0"
-                style={{ background: "var(--color-vytal-green)", color: "#080c0a" }}
+                style={{ background: "var(--color-vytal-green)", color: "var(--color-vytal-bg)" }}
               >
                 {i + 1}
               </div>
@@ -307,7 +307,7 @@ function TimerModal({ workout, onClose, labels }: {
           <button
             onClick={() => setRunning((r) => !r)}
             className="flex-1 py-3 rounded-2xl font-bold text-sm transition-all duration-200 hover:opacity-90 hover:scale-[1.01]"
-            style={{ background: "var(--color-vytal-green)", color: "#080c0a" }}
+            style={{ background: "var(--color-vytal-green)", color: "var(--color-vytal-bg)" }}
           >
             {running ? labels.pause : elapsed > 0 ? labels.resume : labels.start}
           </button>
@@ -444,7 +444,7 @@ export default function WorkoutsPage() {
                     <button
                       onClick={() => setTimerWorkout(w)}
                       className="w-full py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all duration-200 hover:scale-[1.01] hover:opacity-90"
-                      style={{ background: cfg.color, color: "#080c0a" }}
+                      style={{ background: cfg.color, color: "var(--color-vytal-bg)" }}
                     >
                       <Play size={12} fill="currentColor" />
                       {t("my.workouts.start")}
@@ -468,7 +468,7 @@ export default function WorkoutsPage() {
             )}
             style={{
               background: activeCategory === cat ? "var(--color-vytal-green)" : "var(--color-vytal-bg2)",
-              color: activeCategory === cat ? "#080c0a" : "var(--color-vytal-muted)",
+              color: activeCategory === cat ? "var(--color-vytal-bg)" : "var(--color-vytal-muted)",
               border: activeCategory === cat
                 ? "1px solid var(--color-vytal-green)"
                 : "1px solid var(--color-vytal-border)",
@@ -552,7 +552,7 @@ export default function WorkoutsPage() {
                       >
                         <div
                           className="w-5 h-5 rounded-md flex items-center justify-center text-[9px] font-black shrink-0"
-                          style={{ background: cfg.color, color: "#080c0a" }}
+                          style={{ background: cfg.color, color: "var(--color-vytal-bg)" }}
                         >
                           {i + 1}
                         </div>
@@ -589,7 +589,7 @@ export default function WorkoutsPage() {
                   <button
                     onClick={() => setTimerWorkout(w)}
                     className="w-full py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all duration-200 hover:scale-[1.01] hover:opacity-90"
-                    style={{ background: cfg.color, color: "#080c0a" }}
+                    style={{ background: cfg.color, color: "var(--color-vytal-bg)" }}
                   >
                     <Play size={12} fill="currentColor" />
                     {t("my.workouts.startWorkout")}

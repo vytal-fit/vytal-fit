@@ -112,7 +112,7 @@ export default function SchedulePage() {
           )}
           style={{
             background: toast.type === "success" ? "var(--color-vytal-green)" : "var(--color-vytal-red)",
-            color: toast.type === "success" ? "#080c0a" : "#fff",
+            color: toast.type === "success" ? "var(--color-vytal-bg)" : "#fff",
           }}
         >
           {toast.type === "success" ? <CheckCircle size={16} /> : <X size={16} />}
@@ -124,7 +124,7 @@ export default function SchedulePage() {
       <div
         className="sticky top-16 z-30 px-4 py-3"
         style={{
-          background: "rgba(8,12,10,0.9)",
+          background: "color-mix(in srgb, var(--color-vytal-bg) 90%, transparent)",
           backdropFilter: "blur(12px)",
           borderBottom: "1px solid var(--color-vytal-border)",
         }}
@@ -143,7 +143,7 @@ export default function SchedulePage() {
                     : day.isToday
                     ? "rgba(34,197,94,0.1)"
                     : "var(--color-vytal-bg3)",
-                  color: isSelected ? "#080c0a" : "var(--color-vytal-muted)",
+                  color: isSelected ? "var(--color-vytal-bg)" : "var(--color-vytal-muted)",
                   border: isSelected
                     ? "1px solid var(--color-vytal-green)"
                     : day.isToday
@@ -214,7 +214,7 @@ export default function SchedulePage() {
             className="px-3.5 py-1.5 rounded-full text-[11px] font-bold whitespace-nowrap transition-all duration-200 hover:scale-105 shrink-0"
             style={{
               background: filterTypeId === "all" ? "var(--color-vytal-green)" : "var(--color-vytal-bg3)",
-              color: filterTypeId === "all" ? "#080c0a" : "var(--color-vytal-muted)",
+              color: filterTypeId === "all" ? "var(--color-vytal-bg)" : "var(--color-vytal-muted)",
               border: filterTypeId === "all" ? "1px solid var(--color-vytal-green)" : "1px solid transparent",
             }}
           >
@@ -229,7 +229,7 @@ export default function SchedulePage() {
                 background: filterTypeId === ct.id
                   ? (ct.color ?? "var(--color-vytal-green)")
                   : "var(--color-vytal-bg3)",
-                color: filterTypeId === ct.id ? "#080c0a" : "var(--color-vytal-muted)",
+                color: filterTypeId === ct.id ? "var(--color-vytal-bg)" : "var(--color-vytal-muted)",
                 border: filterTypeId === ct.id
                   ? `1px solid ${ct.color ?? "var(--color-vytal-green)"}`
                   : "1px solid transparent",
@@ -349,7 +349,7 @@ export default function SchedulePage() {
                               ? "var(--color-vytal-red)"
                               : isFull
                               ? "var(--color-vytal-muted)"
-                              : "#080c0a",
+                              : "var(--color-vytal-bg)",
                             border: isBooked ? "1px solid rgba(255,71,87,0.2)" : "1px solid transparent",
                           }}
                         >

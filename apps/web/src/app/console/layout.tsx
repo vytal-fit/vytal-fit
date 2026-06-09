@@ -79,7 +79,7 @@ export default function ConsoleLayout({ children }: { children: React.ReactNode 
               className="w-7 h-7 rounded-lg flex items-center justify-center transition-transform group-hover:scale-110"
               style={{ background: "var(--color-vytal-green)" }}
             >
-              <Zap size={14} style={{ color: "#080c0a" }} strokeWidth={2.5} />
+              <Zap size={14} style={{ color: "var(--color-vytal-bg)" }} strokeWidth={2.5} />
             </div>
             <div className="flex items-baseline gap-0">
               <span
@@ -109,7 +109,7 @@ export default function ConsoleLayout({ children }: { children: React.ReactNode 
           >
             <div
               className="w-6 h-6 rounded-md flex items-center justify-center text-[10px] font-bold shrink-0"
-              style={{ background: "var(--color-vytal-green)", color: "#080c0a" }}
+              style={{ background: "var(--color-vytal-green)", color: "var(--color-vytal-bg)" }}
             >
               {orgName.charAt(0).toUpperCase()}
             </div>
@@ -157,7 +157,7 @@ export default function ConsoleLayout({ children }: { children: React.ReactNode 
                   <Icon
                     size={15}
                     strokeWidth={isActive ? 2.5 : 1.8}
-                    style={{ color: isActive ? "#080c0a" : "var(--color-vytal-muted)" }}
+                    style={{ color: isActive ? "var(--color-vytal-bg)" : "var(--color-vytal-muted)" }}
                   />
                 </div>
                 <span
@@ -202,7 +202,7 @@ export default function ConsoleLayout({ children }: { children: React.ReactNode 
               className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ring-2"
               style={{
                 background: "var(--color-vytal-green)",
-                color: "#080c0a",
+                color: "var(--color-vytal-bg)",
                 boxShadow: "0 0 0 2px rgba(34,197,94,0.3)",
               }}
             >
@@ -227,7 +227,7 @@ export default function ConsoleLayout({ children }: { children: React.ReactNode 
         <header
           className="sticky top-0 z-30 flex items-center justify-between px-4 h-16 shrink-0"
           style={{
-            background: "rgba(8,12,10,0.85)",
+            background: "color-mix(in srgb, var(--color-vytal-bg) 85%, transparent)",
             backdropFilter: "blur(12px)",
             WebkitBackdropFilter: "blur(12px)",
             borderBottom: "1px solid var(--color-vytal-border)",
@@ -239,7 +239,7 @@ export default function ConsoleLayout({ children }: { children: React.ReactNode 
               className="w-7 h-7 rounded-lg flex items-center justify-center"
               style={{ background: "var(--color-vytal-green)" }}
             >
-              <Zap size={14} style={{ color: "#080c0a" }} strokeWidth={2.5} />
+              <Zap size={14} style={{ color: "var(--color-vytal-bg)" }} strokeWidth={2.5} />
             </div>
             <div className="flex items-baseline gap-0">
               <span className="text-xs font-semibold" style={{ color: "var(--color-vytal-muted)" }}>my</span>
@@ -315,7 +315,7 @@ export default function ConsoleLayout({ children }: { children: React.ReactNode 
                 className="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold"
                 style={{
                   background: "var(--color-vytal-green)",
-                  color: "#080c0a",
+                  color: "var(--color-vytal-bg)",
                   boxShadow: "0 0 0 2px rgba(34,197,94,0.3)",
                 }}
               >
@@ -334,7 +334,7 @@ export default function ConsoleLayout({ children }: { children: React.ReactNode 
         <nav
           className="md:hidden fixed bottom-0 left-0 right-0 z-40 flex items-stretch"
           style={{
-            background: "rgba(8,12,10,0.92)",
+            background: "color-mix(in srgb, var(--color-vytal-bg) 92%, transparent)",
             backdropFilter: "blur(16px)",
             WebkitBackdropFilter: "blur(16px)",
             borderTop: "1px solid var(--color-vytal-border)",

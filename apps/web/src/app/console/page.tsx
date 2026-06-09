@@ -348,7 +348,7 @@ export default function ConsolePage() {
                       : "var(--color-vytal-green)",
                     color: nextClass.enrolledCount >= nextClass.maxCapacity
                       ? "var(--color-vytal-muted)"
-                      : "#080c0a",
+                      : "var(--color-vytal-bg)",
                   }}
                 >
                   {nextClass.enrolledCount >= nextClass.maxCapacity ? t("my.home.waitlist") : t("my.home.bookNow")}
@@ -420,7 +420,7 @@ export default function ConsolePage() {
                       >
                         <div
                           className="w-4 h-4 rounded flex items-center justify-center text-[9px] font-black shrink-0 mt-0.5"
-                          style={{ background: "var(--color-vytal-green)", color: "#080c0a" }}
+                          style={{ background: "var(--color-vytal-green)", color: "var(--color-vytal-bg)" }}
                         >
                           {i + 1}
                         </div>

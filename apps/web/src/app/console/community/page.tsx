@@ -241,7 +241,7 @@ export default function CommunityPage() {
       {toast && (
         <div
           className="fixed top-20 left-4 right-4 z-50 rounded-2xl px-4 py-3 text-sm font-semibold shadow-2xl flex items-center gap-2 transition-all duration-300"
-          style={{ background: "var(--color-vytal-green)", color: "#080c0a" }}
+          style={{ background: "var(--color-vytal-green)", color: "var(--color-vytal-bg)" }}
         >
           <Heart size={14} fill="currentColor" />
           {toast}
@@ -429,7 +429,7 @@ export default function CommunityPage() {
                   className="w-7 h-7 rounded-lg flex items-center justify-center text-[10px] font-bold shrink-0"
                   style={{
                     background: entry.isMe ? "var(--color-vytal-green)" : "rgba(34,197,94,0.12)",
-                    color: entry.isMe ? "#080c0a" : "var(--color-vytal-green)",
+                    color: entry.isMe ? "var(--color-vytal-bg)" : "var(--color-vytal-green)",
                   }}
                 >
                   {entry.initials}
