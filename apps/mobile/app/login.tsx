@@ -50,7 +50,7 @@ export default function LoginScreen() {
       >
         {/* Logo */}
         <View style={styles.logoContainer}>
-          <Text style={styles.logo}>VYTAL</Text>
+          <Text style={styles.logo}><Text style={{ fontSize: 18, color: "#6b8c72" }}>my</Text>VYTAL</Text>
           <Text style={styles.tagline}>{t("login.tagline")}</Text>
         </View>
 
@@ -127,7 +127,7 @@ export default function LoginScreen() {
         </View>
 
         {/* Powered by footer */}
-        <Text style={styles.poweredBy}>Powered by Vytal</Text>
+        <Text style={styles.poweredBy}>Powered by VYTAL</Text>
       </ScrollView>
     </KeyboardAvoidingView>
   );
