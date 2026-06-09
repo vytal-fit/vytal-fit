@@ -93,7 +93,7 @@ function getWODTypeBadge(type: string): { label: string; color: string } {
 function formatDateHeader(): string {
   const now = new Date();
   const months = [
-    "Janeiro", "Fevereiro", "Marco", "Abril", "Maio", "Junho",
+    "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
     "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro",
   ];
   return `${now.getDate()} de ${months[now.getMonth()]} ${now.getFullYear()}`;

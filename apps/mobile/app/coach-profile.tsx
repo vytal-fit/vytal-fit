@@ -69,11 +69,11 @@ const mockCoachBios: Record<string, string> = {
   "coach-1":
     "CrossFit Level 3 Trainer com mais de 10 anos de experiencia. Especialista em halterofilia e programacao de treino. Competiu em varios regionais e formou dezenas de atletas.",
   "coach-2":
-    "CrossFit Level 2 Trainer. Background em ginastica artistica e movimentos de peso corporal. Apaixonada por ensinar fundamentos e ajudar atletas a superar os seus limites.",
+    "CrossFit Level 2 Trainer. Background em ginástica artística e movimentos de peso corporal. Apaixonada por ensinar fundamentos e ajudar atletas a superar os seus limites.",
   "coach-3":
-    "CrossFit Level 2 Trainer e Halterofilia Nivel 2. Especialista em movimentos olimpicos, snatch e clean & jerk. Organizador de workshops tecnicos mensais.",
+    "CrossFit Level 2 Trainer e Halterofilia Nível 2. Especialista em movimentos olímpicos, snatch e clean & jerk. Organizador de workshops técnicos mensais.",
   "coach-4":
-    "CrossFit Level 1 Trainer. Focada em mobilidade, aquecimento e prevencao de lesoes. Formacao em fisioterapia desportiva.",
+    "CrossFit Level 1 Trainer. Focada em mobilidade, aquecimento e prevenção de lesões. Formação em fisioterapia desportiva.",
 };
 
 const mockCoachPhones: Record<string, string> = {

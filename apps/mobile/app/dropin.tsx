@@ -51,7 +51,7 @@ const mockGyms: DropInGym[] = [
     type: "CrossFit Box",
     distance: "2.3 km",
     rating: 4.8,
-    price: "15 EUR / sessao",
+    price: "15 EUR / sessão",
     address: "Rua das Flores 123, Porto",
     schedule: "06:30 - 21:00",
     color: C.green,
@@ -63,7 +63,7 @@ const mockGyms: DropInGym[] = [
     type: "Yoga Studio",
     distance: "3.7 km",
     rating: 4.5,
-    price: "12 EUR / sessao",
+    price: "12 EUR / sessão",
     address: "Av. da Liberdade 45, Aveiro",
     schedule: "07:00 - 20:00",
     color: C.purple,
@@ -75,7 +75,7 @@ const mockGyms: DropInGym[] = [
     type: "Weightlifting Club",
     distance: "5.1 km",
     rating: 4.7,
-    price: "10 EUR / sessao",
+    price: "10 EUR / sessão",
     address: "Rua do Ferro 78, Aveiro",
     schedule: "06:00 - 22:00",
     color: C.amber,
@@ -87,7 +87,7 @@ const mockGyms: DropInGym[] = [
     type: "CrossFit Box",
     distance: "8.4 km",
     rating: 4.6,
-    price: "18 EUR / sessao",
+    price: "18 EUR / sessão",
     address: "Rua Augusta 200, Lisboa",
     schedule: "07:00 - 21:30",
     color: C.blue,
@@ -99,7 +99,7 @@ const mockGyms: DropInGym[] = [
     type: "Functional Training",
     distance: "12.0 km",
     rating: 4.3,
-    price: "8 EUR / sessao",
+    price: "8 EUR / sessão",
     address: "Rua Nova 55, Coimbra",
     schedule: "08:00 - 20:00",
     color: C.orange,
@@ -246,7 +246,7 @@ export default function DropInScreen() {
               </View>
               <View style={styles.detailDivider} />
               <View style={styles.detailRow}>
-                <Text style={styles.detailLabel}>Horario</Text>
+                <Text style={styles.detailLabel}>Horário</Text>
                 <Text style={styles.detailValue}>{detailGym.schedule}</Text>
               </View>
               <View style={styles.detailDivider} />

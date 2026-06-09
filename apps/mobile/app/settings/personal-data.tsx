@@ -102,7 +102,7 @@ export default function PersonalDataScreen() {
             keyboardType="phone-pad"
           />
           <FormField
-            label="Contacto de Emergencia"
+            label="Contacto de Emergência"
             value={emergency}
             onChangeText={setEmergency}
           />
@@ -116,7 +116,7 @@ export default function PersonalDataScreen() {
           />
 
           {/* Gender */}
-          <Text style={styles.fieldLabel}>Genero</Text>
+          <Text style={styles.fieldLabel}>Género</Text>
           <View style={styles.genderRow}>
             <TouchableOpacity
               style={[
@@ -160,10 +160,10 @@ export default function PersonalDataScreen() {
               <FormField label="Cidade" value={city} onChangeText={setCity} />
             </View>
             <View style={styles.rowHalf}>
-              <FormField label="Codigo Postal" value={zip} onChangeText={setZip} />
+              <FormField label="Código Postal" value={zip} onChangeText={setZip} />
             </View>
           </View>
-          <FormField label="Pais" value={country} onChangeText={setCountry} />
+          <FormField label="País" value={country} onChangeText={setCountry} />
 
           {/* T-shirt Size */}
           <Text style={styles.fieldLabel}>Tamanho T-shirt</Text>

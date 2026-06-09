@@ -28,7 +28,7 @@ const mockComments = [
   { id: "c-2", name: "Ana Santos", initials: "AS", timeAgo: "25 min", text: "Alguem fez unbroken nos pull-ups? Eu parti no set de 15..." },
   { id: "c-3", name: "Miguel Costa", initials: "MC", timeAgo: "1h", text: "Primeira vez sub-5 no Fran! Estou a voar hoje." },
   { id: "c-4", name: "Sofia Mendes", initials: "SM", timeAgo: "2h", text: "Bom treino! O Coach Ricardo deu-me uma dica para os thrusters que fez toda a diferenca." },
-  { id: "c-5", name: "Ricardo Ribeiro", initials: "RR", timeAgo: "3h", text: "Parabens a todos pelos resultados de hoje! Viram-se excelentes execucoes." },
+  { id: "c-5", name: "Ricardo Ribeiro", initials: "RR", timeAgo: "3h", text: "Parabéns a todos pelos resultados de hoje! Viram-se excelentes execuções." },
 ];
 
 export default function WodCommentsScreen() {

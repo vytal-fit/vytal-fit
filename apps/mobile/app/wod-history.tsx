@@ -132,7 +132,7 @@ export default function WODHistoryScreen() {
           <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
             <ArrowLeft size={22} color={C.text} strokeWidth={2} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Historico de Treinos</Text>
+          <Text style={styles.headerTitle}>Histórico de Treinos</Text>
           <View style={{ width: 44 }} />
         </View>
 

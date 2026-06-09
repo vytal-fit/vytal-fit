@@ -55,7 +55,7 @@ function getWODTypeBadge(type: string): { label: string; color: string } {
 function formatDate(dateStr: string): string {
   const parts = dateStr.split("-");
   const months = [
-    "Janeiro", "Fevereiro", "Marco", "Abril", "Maio", "Junho",
+    "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
     "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro",
   ];
   return `${parts[2]} de ${months[parseInt(parts[1], 10) - 1]} ${parts[0]}`;
@@ -188,7 +188,7 @@ export default function WODDetailScreen() {
           })}
 
           {/* History */}
-          <Text style={styles.sectionTitle}>Historico</Text>
+          <Text style={styles.sectionTitle}>Histórico</Text>
           {mockHistory.map((entry) => (
             <View key={entry.id} style={styles.historyCard}>
               <View style={styles.historyLeft}>

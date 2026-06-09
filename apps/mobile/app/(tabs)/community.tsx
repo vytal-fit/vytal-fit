@@ -56,7 +56,7 @@ const feedEvents: FeedEvent[] = [
     authorName: "Pedro Silva",
     authorInitials: "PS",
     eventType: "pr",
-    content: "Novo PR! Back Squat 140kg (+5kg). Finalmente passei os 3 digitos!",
+    content: "Novo PR! Back Squat 140kg (+5kg). Finalmente passei os 3 dígitos!",
     timeAgo: "2h",
     fistbumps: 18,
     comments: 6,
@@ -76,7 +76,7 @@ const feedEvents: FeedEvent[] = [
     authorName: "Miguel Costa",
     authorInitials: "MC",
     eventType: "checkin",
-    content: "Check-in #100! Marco historico atingido. Vamos para os 200!",
+    content: "Check-in #100! Marco histórico atingido. Vamos para os 200!",
     timeAgo: "5h",
     fistbumps: 42,
     comments: 15,
@@ -96,17 +96,17 @@ const feedEvents: FeedEvent[] = [
     authorName: "Ricardo Ribeiro",
     authorInitials: "RR",
     eventType: "milestone",
-    content: "12 semanas consecutivas sem falhar um treino. Consistencia e tudo!",
+    content: "12 semanas consecutivas sem falhar um treino. Consistência é tudo!",
     timeAgo: "1d",
     fistbumps: 36,
     comments: 9,
   },
   {
     id: "fe-6",
-    authorName: "Ines Ferreira",
+    authorName: "Inês Ferreira",
     authorInitials: "IF",
     eventType: "wod",
-    content: "Resultado: Deadlift 5x5 @ 120kg. Dia de forca bem passado.",
+    content: "Resultado: Deadlift 5x5 @ 120kg. Dia de força bem passado.",
     timeAgo: "1d",
     fistbumps: 14,
     comments: 4,
@@ -114,11 +114,11 @@ const feedEvents: FeedEvent[] = [
 ];
 
 const athleteOfMonth = {
-  name: "Jose Fonte",
+  name: "José Fonte",
   initials: "JF",
   checkIns: 22,
   prs: 4,
-  highlight: "Melhor streak do mes",
+  highlight: "Melhor série do mês",
 };
 
 // ─── Helpers ──────────────────────────────────────────────
@@ -140,7 +140,7 @@ function getEventBadge(type: FeedEventType): { label: string; color: string } {
     case "pr": return { label: "PR", color: C.amber };
     case "checkin": return { label: "Check-in", color: C.green };
     case "wod": return { label: "WOD", color: C.orange };
-    case "milestone": return { label: "Marco", color: C.purple };
+    case "milestone": return { label: "Marco 🏅", color: C.purple };
   }
 }
 
@@ -249,11 +249,11 @@ export default function CommunityScreen() {
 
   function handleCreatePost() {
     Alert.alert(
-      "💬 Novo Post",
-      "Partilha o teu treino com a comunidade!",
+      t("alert.newPost"),
+      t("alert.newPostMsg"),
       [
-        { text: "Cancelar", style: "cancel" },
-        { text: "Partilhar Treino", onPress: () => Alert.alert("✅", "Post partilhado com sucesso!") },
+        { text: t("alert.postCancel"), style: "cancel" },
+        { text: t("alert.postShare"), onPress: () => Alert.alert("", t("alert.postShared")) },
       ]
     );
   }
@@ -368,7 +368,7 @@ export default function CommunityScreen() {
           <View style={[styles.linkIcon, { backgroundColor: C.blue + "20" }]}>
             <TrendingUp size={20} color={C.blue} strokeWidth={2} />
           </View>
-          <Text style={styles.linkLabel}>Feed Social Completo</Text>
+          <Text style={styles.linkLabel}>{t("misc.feedSocial")}</Text>
           <ChevronRight size={14} color={C.muted} strokeWidth={2} />
         </TouchableOpacity>
 

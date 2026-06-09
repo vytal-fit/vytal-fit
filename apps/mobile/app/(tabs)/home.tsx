@@ -32,16 +32,16 @@ const C = colors;
 const mockNews = [
   {
     id: "news-1",
-    title: "Throwdown Interno — Sabado 14 Junho",
-    body: "Inscricoes abertas para o throwdown de verao! Equipas de 2 pessoas (misto). Inscreve-te na recepcao ou pela app.",
+    title: "Throwdown Interno — Sábado 14 Junho",
+    body: "Inscrições abertas para o throwdown de verão! Equipas de 2 pessoas (misto). Inscreve-te na receção ou pela app.",
     date: "1 Jun",
     tag: "Evento",
     tagColor: C.amber,
   },
   {
     id: "news-2",
-    title: "Novo Horario de Verao",
-    body: "A partir de 15 de Junho, o horario de verao entra em vigor. Consulta os novos horarios na seccao Agenda.",
+    title: "Novo Horário de Verão",
+    body: "A partir de 15 de Junho, o horário de verão entra em vigor. Consulta os novos horários na secção Agenda.",
     date: "30 Mai",
     tag: "Info",
     tagColor: C.blue,
@@ -257,7 +257,7 @@ function getRoleLabel(role: string): string {
     case "head_coach": return "Head Coach";
     case "coach": return "Coach";
     case "assistant": return "Assistente";
-    default: return role;
+    default: return role.charAt(0).toUpperCase() + role.slice(1);
   }
 }
 
@@ -368,7 +368,7 @@ export default function HomeScreen() {
           </View>
           <View style={styles.capacityRow}>
             <Text style={styles.capacityText}>
-              {nextClass.enrolled}/{nextClass.capacity} inscritos
+              {nextClass.enrolled}/{nextClass.capacity} {t("status.enrolled")}
             </Text>
             <Text style={[styles.capacityPct, {
               color: nextOccupancy > 0.8 ? C.amber : C.green,
@@ -399,7 +399,7 @@ export default function HomeScreen() {
         <View style={styles.sectionHeaderRow}>
           <Text style={styles.sectionLabel}>{t("home.todayWOD")}</Text>
           <TouchableOpacity onPress={() => router.push("/wod-detail")}>
-            <Text style={styles.seeAll}>Ver completo</Text>
+            <Text style={styles.seeAll}>{t("btn.details")}</Text>
           </TouchableOpacity>
         </View>
         <TouchableOpacity
@@ -435,7 +435,7 @@ export default function HomeScreen() {
             <View style={[styles.actionIcon, { backgroundColor: C.green + "20" }]}>
               <CalendarCheck size={22} color={C.green} strokeWidth={2} />
             </View>
-            <Text style={styles.actionLabel}>Check-in{"\n"}QR</Text>
+            <Text style={styles.actionLabel}>{t("misc.checkinQR")}</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.actionCard}
@@ -444,7 +444,7 @@ export default function HomeScreen() {
             <View style={[styles.actionIcon, { backgroundColor: C.orange + "20" }]}>
               <Flame size={22} color={C.orange} strokeWidth={2} />
             </View>
-            <Text style={styles.actionLabel}>Timer{"\n"}AMRAP</Text>
+            <Text style={styles.actionLabel}>{t("misc.timerAmrap")}</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.actionCard}
@@ -453,7 +453,7 @@ export default function HomeScreen() {
             <View style={[styles.actionIcon, { backgroundColor: C.blue + "20" }]}>
               <Users size={22} color={C.blue} strokeWidth={2} />
             </View>
-            <Text style={styles.actionLabel}>Comuni{"\n"}dade</Text>
+            <Text style={styles.actionLabel}>{t("misc.community")}</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.actionCard}
@@ -462,7 +462,7 @@ export default function HomeScreen() {
             <View style={[styles.actionIcon, { backgroundColor: C.purple + "20" }]}>
               <MessageSquare size={22} color={C.purple} strokeWidth={2} />
             </View>
-            <Text style={styles.actionLabel}>Mensa{"\n"}gens</Text>
+            <Text style={styles.actionLabel}>{t("misc.messages")}</Text>
           </TouchableOpacity>
         </View>
 
@@ -506,7 +506,7 @@ export default function HomeScreen() {
         <View style={styles.sectionHeaderRow}>
           <Text style={styles.sectionLabel}>{t("home.news")}</Text>
           <TouchableOpacity onPress={() => router.push("/news")}>
-            <Text style={styles.seeAll}>Ver todas</Text>
+            <Text style={styles.seeAll}>{t("label.viewAll")}</Text>
           </TouchableOpacity>
         </View>
         {mockNews.map((item) => (
@@ -537,7 +537,7 @@ export default function HomeScreen() {
             onPress={() => router.push("/birthdays")}
           >
             <Cake size={18} color={C.amber} strokeWidth={2} />
-            <Text style={styles.quickLinkText}>Aniversarios</Text>
+            <Text style={styles.quickLinkText}>{t("misc.anniversaries")}</Text>
             <ChevronRight size={14} color={C.muted} strokeWidth={2} />
           </TouchableOpacity>
           <TouchableOpacity
@@ -545,7 +545,7 @@ export default function HomeScreen() {
             onPress={() => router.push("/box-records")}
           >
             <Newspaper size={18} color={C.blue} strokeWidth={2} />
-            <Text style={styles.quickLinkText}>Box Records</Text>
+            <Text style={styles.quickLinkText}>{t("misc.boxRecordsFull")}</Text>
             <ChevronRight size={14} color={C.muted} strokeWidth={2} />
           </TouchableOpacity>
         </View>

@@ -32,7 +32,7 @@ const C = {
 function getMonths(): { key: string; label: string; year: number; month: number }[] {
   const months: ReturnType<typeof getMonths> = [];
   const monthNames = [
-    "Janeiro", "Fevereiro", "Marco", "Abril", "Maio", "Junho",
+    "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
     "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro",
   ];
   for (let i = 0; i < 3; i++) {
@@ -115,7 +115,7 @@ export default function BookingHistoryScreen() {
           <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
             <ArrowLeft size={22} color={C.text} strokeWidth={2} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Historico de Aulas</Text>
+          <Text style={styles.headerTitle}>Histórico de Aulas</Text>
           <View style={{ width: 44 }} />
         </View>
 

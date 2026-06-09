@@ -91,7 +91,7 @@ export default function NotificationPrefsScreen() {
           <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
             <ArrowLeft size={22} color={C.text} strokeWidth={2} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Notificacoes</Text>
+          <Text style={styles.headerTitle}>Notificações</Text>
           <View style={{ width: 44 }} />
         </View>
 

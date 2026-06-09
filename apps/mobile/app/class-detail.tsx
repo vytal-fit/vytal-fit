@@ -89,7 +89,7 @@ export default function ClassDetailScreen() {
           <View style={styles.infoGrid}>
             <View style={styles.infoCard}>
               <Clock size={18} color={C.green} strokeWidth={1.8} />
-              <Text style={styles.infoCardLabel}>Horario</Text>
+              <Text style={styles.infoCardLabel}>Horário</Text>
               <Text style={styles.infoCardValue}>{cls.startTime} - {cls.endTime}</Text>
             </View>
             <View style={styles.infoCard}>
