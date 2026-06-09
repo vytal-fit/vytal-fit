@@ -79,13 +79,13 @@ const initialMessages: ChatMessage[] = [
   },
   {
     id: "c7",
-    text: "Sim, exatamente! Sabado das 08:00 as 10:00. Nao precisa reservar para Open Box.",
+    text: "Sim, exatamente! Sábado das 08:00 às 10:00. Não precisa reservar para Open Box.",
     sender: "box",
     timestamp: "14:45",
   },
   {
     id: "c8",
-    text: "Obrigado pela informacao!",
+    text: "Obrigado pela informação!",
     sender: "me",
     timestamp: "14:50",
   },

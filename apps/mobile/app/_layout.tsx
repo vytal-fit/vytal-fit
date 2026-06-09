@@ -1,14 +1,28 @@
+import React, { createContext, useContext } from "react";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
+import { useAppStore } from "@/stores/app-store";
+import { getColors, Colors } from "@/colors";
 
+// ─── Theme Context ─────────────────────────────────────────
+export const ThemeContext = createContext<Colors>(getColors("dark"));
+
+export function useTheme(): Colors {
+  return useContext(ThemeContext);
+}
+
+// ─── Root Layout ───────────────────────────────────────────
 export default function RootLayout() {
+  const theme = useAppStore((s) => s.theme);
+  const C = getColors(theme);
+
   return (
-    <>
-      <StatusBar style="light" backgroundColor="#080c0a" />
+    <ThemeContext.Provider value={C}>
+      <StatusBar style={theme === "light" ? "dark" : "light"} backgroundColor={C.bg} />
       <Stack
         screenOptions={{
           headerShown: false,
-          contentStyle: { backgroundColor: "#080c0a" },
+          contentStyle: { backgroundColor: C.bg },
           animation: "fade",
         }}
       >
@@ -56,6 +70,6 @@ export default function RootLayout() {
         <Stack.Screen name="notification-prefs" options={{ animation: "slide_from_right" }} />
         <Stack.Screen name="chat" options={{ animation: "slide_from_right" }} />
       </Stack>
-    </>
+    </ThemeContext.Provider>
   );
 }

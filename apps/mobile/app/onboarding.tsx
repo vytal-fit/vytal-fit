@@ -154,10 +154,10 @@ function StepPreferences({
 }) {
   return (
     <View style={styles.stepContainer}>
-      <Text style={styles.stepTitle}>Preferencias</Text>
+      <Text style={styles.stepTitle}>Preferências</Text>
 
       <View style={styles.prefsSection}>
-        <Text style={styles.prefsGroupTitle}>Notificacoes</Text>
+        <Text style={styles.prefsGroupTitle}>Notificações</Text>
 
         <View style={styles.toggleRow}>
           <View style={styles.toggleInfo}>

@@ -109,7 +109,7 @@ export default function CheckInScreen() {
                   <Text style={styles.classInfoValue}>CrossFit WOD</Text>
                 </View>
                 <View style={styles.classInfoRow}>
-                  <Text style={styles.classInfoLabel}>Horario</Text>
+                  <Text style={styles.classInfoLabel}>Horário</Text>
                   <Text style={styles.classInfoValue}>09:00 - 10:00</Text>
                 </View>
                 <View style={styles.classInfoRow}>
@@ -151,7 +151,7 @@ export default function CheckInScreen() {
                   <Text style={styles.classInfoValue}>CrossFit WOD</Text>
                 </View>
                 <View style={styles.classInfoRow}>
-                  <Text style={styles.classInfoLabel}>Horario</Text>
+                  <Text style={styles.classInfoLabel}>Horário</Text>
                   <Text style={styles.classInfoValue}>09:00 - 10:00</Text>
                 </View>
                 <View style={styles.classInfoRow}>

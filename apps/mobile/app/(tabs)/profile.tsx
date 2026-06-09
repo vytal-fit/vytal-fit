@@ -82,9 +82,9 @@ function MenuItem({ item }: { item: MenuItemConfig }) {
 
 // Language labels for sublabel display
 const LANGUAGE_LABELS: Record<string, string> = {
-  pt: "Portugues",
+  pt: "Português",
   en: "English",
-  es: "Espanol",
+  es: "Español",
 };
 
 // Theme labels for sublabel display

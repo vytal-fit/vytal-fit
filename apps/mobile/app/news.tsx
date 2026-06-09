@@ -31,8 +31,8 @@ const C = {
 const initialNews = [
   {
     id: "news-1",
-    title: "Throwdown Interno - Sabado 14 Junho",
-    body: "Inscricoes abertas para o throwdown de verao! Equipas de 2 pessoas (misto). Inscreve-te na recepcao ou pela app. Premios para os 3 primeiros classificados. Vamos ter food trucks e musica ao vivo!",
+    title: "Throwdown Interno — Sábado 14 Junho",
+    body: "Inscrições abertas para o throwdown de verão! Equipas de 2 pessoas (misto). Inscreve-te na receção ou pela app. Prémios para os 3 primeiros classificados. Vamos ter food trucks e música ao vivo!",
     author: "Andre Loureiro",
     date: "2026-06-01",
     tag: "Evento",
@@ -43,8 +43,8 @@ const initialNews = [
   },
   {
     id: "news-2",
-    title: "Novo Horario de Verao",
-    body: "A partir de 15 de Junho, o horario de verao entra em vigor. A aula das 21:00 passa para as 20:30. Nova aula de Open Gym as sabados das 11:00-13:00. Consulta os novos horarios na seccao de Aulas.",
+    title: "Novo Horário de Verão",
+    body: "A partir de 15 de Junho, o horário de verão entra em vigor. A aula das 21:00 passa para as 20:30. Nova aula de Open Gym aos sábados das 11:00-13:00. Consulta os novos horários na secção de Aulas.",
     author: "Marine Robba",
     date: "2026-05-30",
     tag: "Info",
@@ -55,8 +55,8 @@ const initialNews = [
   },
   {
     id: "news-3",
-    title: "Manutencao do Rower #4",
-    body: "O Concept2 rower #4 esta em manutencao ate quarta-feira. Usem os restantes equipamentos. Obrigado pela compreensao.",
+    title: "Manutenção do Rower #4",
+    body: "O Concept2 rower #4 está em manutenção até quarta-feira. Usem os restantes equipamentos. Obrigado pela compreensão.",
     author: "Ricardo Ribeiro",
     date: "2026-05-28",
     tag: "Aviso",
@@ -67,8 +67,8 @@ const initialNews = [
   },
   {
     id: "news-4",
-    title: "Parabens aos atletas do Regional!",
-    body: "A nossa equipa ficou em 5o lugar no CrossFit Regional! Pedro, Ana e Miguel representaram a box com imenso orgulho. Obrigado pelo apoio de todos!",
+    title: "Parabéns aos atletas do Regional!",
+    body: "A nossa equipa ficou em 5.º lugar no CrossFit Regional! Pedro, Ana e Miguel representaram a box com imenso orgulho. Obrigado pelo apoio de todos!",
     author: "Andre Loureiro",
     date: "2026-05-25",
     tag: "Destaque",
@@ -79,8 +79,8 @@ const initialNews = [
   },
   {
     id: "news-5",
-    title: "Workshop de Olimpicos - 21 Junho",
-    body: "Workshop de tecnica de movimentos olimpicos com o Coach Ricardo. Snatch e Clean & Jerk. Vagas limitadas a 12 pessoas. Custo: 25 EUR membros / 40 EUR nao-membros.",
+    title: "Workshop de Olímpicos — 21 Junho",
+    body: "Workshop de técnica de movimentos olímpicos com o Coach Ricardo. Snatch e Clean & Jerk. Vagas limitadas a 12 pessoas. Custo: 25 EUR membros / 40 EUR não-membros.",
     author: "Ricardo Ribeiro",
     date: "2026-05-22",
     tag: "Workshop",

@@ -57,7 +57,7 @@ const privacySettings: PrivacySetting[] = [
     id: "prs",
     title: "Quem pode ver os meus PRs",
     description:
-      "Controla quem pode ver os teus Personal Records e historico de PRs.",
+      "Controla quem pode ver os teus Personal Records e histórico de PRs.",
     options: privacyOptions,
   },
   {
@@ -69,7 +69,7 @@ const privacySettings: PrivacySetting[] = [
   },
   {
     id: "enrollments",
-    title: "Quem pode ver o meu nome nas inscricoes",
+    title: "Quem pode ver o meu nome nas inscrições",
     description:
       "Controla se o teu nome aparece na lista de inscritos de cada aula.",
     options: limitedOptions,
@@ -117,7 +117,7 @@ export default function PrivacyScreen() {
   function handleSave() {
     Alert.alert(
       "Guardado",
-      "Definicoes de privacidade atualizadas com sucesso!"
+      "Definições de privacidade atualizadas com sucesso!"
     );
     router.back();
   }

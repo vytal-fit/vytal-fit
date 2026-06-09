@@ -19,13 +19,22 @@ import { t } from "@/i18n";
 const C = colors;
 
 // ─── Filter pills config ──────────────────────────────────
-const FILTERS = ["Todas", "CrossFit", "Ginastica", "Weightlifting", "Cardio"] as const;
+const FILTERS = ["Todas", "CrossFit", "Ginástica", "Weightlifting", "Cardio"] as const;
 type FilterLabel = typeof FILTERS[number];
 
 // ─── Helpers ──────────────────────────────────────────────
 function getWeekDays(): { key: string; label: string; dayNum: number; dateStr: string; isToday: boolean }[] {
   const days: ReturnType<typeof getWeekDays> = [];
-  const weekLabels = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sab"];
+  // Use i18n keys so day abbreviations respect language
+  const weekLabels = [
+    t("schedule.daySun"),
+    t("schedule.dayMon"),
+    t("schedule.dayTue"),
+    t("schedule.dayWed"),
+    t("schedule.dayThu"),
+    t("schedule.dayFri"),
+    t("schedule.daySat"),
+  ];
   for (let i = 0; i < 7; i++) {
     const d = new Date();
     d.setDate(d.getDate() + i);
@@ -44,12 +53,12 @@ function getWeekDays(): { key: string; label: string; dayNum: number; dateStr: s
 function formatDateHeader(): string {
   const now = new Date();
   const months = [
-    "Janeiro", "Fevereiro", "Marco", "Abril", "Maio", "Junho",
+    "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
     "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro",
   ];
   const weekDays = [
-    "Domingo", "Segunda-feira", "Terca-feira", "Quarta-feira",
-    "Quinta-feira", "Sexta-feira", "Sabado",
+    "Domingo", "Segunda-feira", "Terça-feira", "Quarta-feira",
+    "Quinta-feira", "Sexta-feira", "Sábado",
   ];
   return `${weekDays[now.getDay()]}, ${now.getDate()} de ${months[now.getMonth()]}`;
 }
@@ -59,7 +68,7 @@ function matchesFilter(cls: Class, filter: FilterLabel): boolean {
   const name = cls.classType.name.toLowerCase();
   switch (filter) {
     case "CrossFit": return name.includes("crossfit");
-    case "Ginastica": return name.includes("ginastica") || name.includes("gymnastics");
+    case "Ginástica": return name.includes("gin") || name.includes("gymnastics");
     case "Weightlifting": return name.includes("weightlifting") || name.includes("halterofilia");
     case "Cardio": return name.includes("cardio") || name.includes("endurance");
     default: return true;

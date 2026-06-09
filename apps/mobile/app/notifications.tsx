@@ -93,7 +93,7 @@ export default function NotificationsScreen() {
             <ArrowLeft size={24} color={C.text} strokeWidth={1.8} />
           </TouchableOpacity>
           <View style={styles.headerCenter}>
-            <Text style={styles.headerTitle}>Notificacoes</Text>
+            <Text style={styles.headerTitle}>Notificações</Text>
             {unreadCount > 0 && (
               <View style={styles.unreadBadgeHeader}>
                 <Text style={styles.unreadBadgeHeaderText}>{unreadCount}</Text>

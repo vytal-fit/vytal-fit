@@ -42,7 +42,7 @@ function getInitials(name: string): string {
 function formatJoinedAt(dateStr: string): string {
   const d = new Date(dateStr);
   const months = [
-    "Janeiro", "Fevereiro", "Marco", "Abril", "Maio", "Junho",
+    "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
     "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro",
   ];
   return `${months[d.getMonth()]} ${d.getFullYear()}`;
