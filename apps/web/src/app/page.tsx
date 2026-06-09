@@ -1697,7 +1697,7 @@ function ShowcaseAdminMockup() {
             style={{ background: item.active ? "rgba(34,197,94,0.1)" : "transparent" }}
           >
             <div className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: item.dot }} />
-            <span className="text-[9px]" style={{ color: item.active ? "#22c55e" : "var(--color-vytal-muted)", fontWeight: item.active ? 600 : 400 }}>{item.label}</span>
+            <span className="text-[9px]" style={{ color: item.active ? "var(--color-vytal-green)" : "var(--color-vytal-muted)", fontWeight: item.active ? 600 : 400 }}>{item.label}</span>
           </div>
         ))}
       </div>

@@ -186,7 +186,7 @@ export default function KioskConfigPage() {
                   className="flex items-center gap-3 rounded-xl px-8 py-4 text-lg font-bold shadow-lg transition-all duration-200 hover:scale-105"
                   style={{
                     backgroundColor: themeColor,
-                    color: themeColor === "#ffffff" ? "#080c0a" : "#ffffff",
+                    color: themeColor === "#ffffff" ? "var(--color-vytal-bg)" : "#ffffff",
                     boxShadow: `0 4px 20px ${themeColor}40`,
                   }}
                 >
@@ -211,7 +211,7 @@ export default function KioskConfigPage() {
                     <div
                       key={idx}
                       className="h-3 w-3 rounded-[1px]"
-                      style={{ backgroundColor: cell ? "#080c0a" : "#ffffff" }}
+                      style={{ backgroundColor: cell ? "var(--color-vytal-bg)" : "#ffffff" }}
                     />
                   ))}
                 </div>
@@ -222,7 +222,7 @@ export default function KioskConfigPage() {
                     <div
                       key={idx}
                       className="h-3 w-3 rounded-[1px]"
-                      style={{ backgroundColor: cell ? "#080c0a" : "#ffffff" }}
+                      style={{ backgroundColor: cell ? "var(--color-vytal-bg)" : "#ffffff" }}
                     />
                   ))}
                 </div>

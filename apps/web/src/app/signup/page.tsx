@@ -268,7 +268,7 @@ function PlanCard({
     : COPY.planProPeriod;
 
   const features = PLAN_FEATURES[id];
-  const color = isFree ? "#6b8c72" : isPro ? "#22c55e" : "#c084fc";
+  const color = isFree ? "var(--color-vytal-muted)" : isPro ? "var(--color-vytal-green)" : "var(--color-vytal-purple)";
 
   return (
     <div
@@ -354,7 +354,7 @@ function PasswordStrengthBar({ password }: { password: string }) {
     COPY.passwordStrengthGood,
     COPY.passwordStrengthStrong,
   ];
-  const colors = ["#ff4757", "#ffb300", "#00d4ff", "#22c55e"];
+  const colors = ["var(--color-vytal-red)", "#ffb300", "#00d4ff", "var(--color-vytal-green)"];
   const widths = ["25%", "50%", "75%", "100%"];
 
   return (
@@ -917,7 +917,7 @@ export default function SignupPage() {
         <div
           className="absolute w-[500px] h-[500px] rounded-full opacity-[0.05]"
           style={{
-            background: "radial-gradient(circle, #22c55e 0%, transparent 70%)",
+            background: "radial-gradient(circle, var(--color-vytal-green) 0%, transparent 70%)",
             top: "-150px",
             right: "-100px",
           }}
@@ -925,7 +925,7 @@ export default function SignupPage() {
         <div
           className="absolute w-[400px] h-[400px] rounded-full opacity-[0.04]"
           style={{
-            background: "radial-gradient(circle, #c084fc 0%, transparent 70%)",
+            background: "radial-gradient(circle, var(--color-vytal-purple) 0%, transparent 70%)",
             bottom: "-100px",
             left: "-100px",
           }}

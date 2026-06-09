@@ -259,7 +259,7 @@ export default function WODPage() {
       {toast && (
         <div
           className="fixed top-20 left-4 right-4 z-50 rounded-2xl px-4 py-3 text-sm font-semibold shadow-2xl animate-slide-in-right flex items-center gap-2"
-          style={{ background: "var(--color-vytal-green)", color: "#080c0a" }}
+          style={{ background: "var(--color-vytal-green)", color: "var(--color-vytal-bg)" }}
         >
           <CheckCircle size={16} />
           {toast}
@@ -347,7 +347,7 @@ export default function WODPage() {
                     <div className="flex items-center gap-3">
                       <div
                         className="w-7 h-7 rounded-xl flex items-center justify-center text-xs font-black shrink-0"
-                        style={{ background: "var(--color-vytal-green)", color: "#080c0a" }}
+                        style={{ background: "var(--color-vytal-green)", color: "var(--color-vytal-bg)" }}
                       >
                         {i + 1}
                       </div>
@@ -466,7 +466,7 @@ export default function WODPage() {
                 className="flex items-center gap-2 px-6 py-2.5 rounded-2xl font-bold text-sm transition-all duration-200 hover:scale-105"
                 style={{
                   background: timerRunning ? "var(--color-vytal-amber)" : "var(--color-vytal-green)",
-                  color: "#080c0a",
+                  color: "var(--color-vytal-bg)",
                 }}
               >
                 {timerRunning ? <Pause size={16} /> : <Play size={16} />}
@@ -563,7 +563,7 @@ export default function WODPage() {
                               ? "var(--color-vytal-amber)"
                               : "var(--color-vytal-green)"
                             : "var(--color-vytal-bg3)",
-                          color: scale === s ? "#080c0a" : "var(--color-vytal-muted)",
+                          color: scale === s ? "var(--color-vytal-bg)" : "var(--color-vytal-muted)",
                         }}
                       >
                         {s === "rx" ? "RX" : s === "scaled" ? "Scaled" : "RX+"}
@@ -639,7 +639,7 @@ export default function WODPage() {
                 <button
                   type="submit"
                   className="w-full py-3 rounded-xl font-bold text-sm transition-all duration-200 hover:scale-[1.01] hover:opacity-90"
-                  style={{ background: "var(--color-vytal-green)", color: "#080c0a" }}
+                  style={{ background: "var(--color-vytal-green)", color: "var(--color-vytal-bg)" }}
                 >
                   {t("my.wod.log.save")}
                 </button>

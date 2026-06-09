@@ -342,7 +342,7 @@ export default function ProgressPage() {
       {toast && (
         <div
           className="fixed top-20 left-4 right-4 z-50 rounded-2xl px-4 py-3 text-sm font-semibold shadow-2xl flex items-center gap-2 transition-all duration-300"
-          style={{ background: "var(--color-vytal-green)", color: "#080c0a" }}
+          style={{ background: "var(--color-vytal-green)", color: "var(--color-vytal-bg)" }}
         >
           <Target size={14} />
           {toast}
