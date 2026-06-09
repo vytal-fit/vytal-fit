@@ -8,6 +8,8 @@ let currentLanguage: Language = "pt";
 const translations: Record<Language, Record<string, string>> = {
   pt: {
     // Tab names
+    "tab.home": "Inicio",
+    "tab.schedule": "Agenda",
     "tab.classes": "Aulas",
     "tab.wod": "WOD",
     "tab.records": "Recordes",
@@ -169,6 +171,8 @@ const translations: Record<Language, Record<string, string>> = {
 
   en: {
     // Tab names
+    "tab.home": "Home",
+    "tab.schedule": "Schedule",
     "tab.classes": "Classes",
     "tab.wod": "WOD",
     "tab.records": "Records",
@@ -330,6 +334,8 @@ const translations: Record<Language, Record<string, string>> = {
 
   es: {
     // Tab names
+    "tab.home": "Inicio",
+    "tab.schedule": "Agenda",
     "tab.classes": "Clases",
     "tab.wod": "WOD",
     "tab.records": "Records",
