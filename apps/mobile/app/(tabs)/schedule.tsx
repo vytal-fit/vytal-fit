@@ -344,21 +344,22 @@ export default function ScheduleScreen() {
           </View>
         </View>
 
-        {/* Day Selector */}
-        <DaySelector
-          days={weekDays}
-          selected={selectedDate}
-          onSelect={(d) => { setSelectedDate(d); setActiveFilter("Todas"); }}
-          styles={styles}
-        />
-
-        {/* Filter Pills */}
-        <FilterPills active={activeFilter} onSelect={setActiveFilter} styles={styles} />
-
-        {/* Class List */}
+        {/* Class List with Day Selector + Filters as header */}
         <FlatList
           data={filteredClasses}
           keyExtractor={(item) => item.id}
+          ListHeaderComponent={
+            <>
+              <DaySelector
+                days={weekDays}
+                selected={selectedDate}
+                onSelect={(d) => { setSelectedDate(d); setActiveFilter("Todas"); }}
+                styles={styles}
+              />
+              <FilterPills active={activeFilter} onSelect={setActiveFilter} styles={styles} />
+            </>
+          }
+          stickyHeaderIndices={[0]}
           renderItem={({ item }) => (
             <ClassCard
               cls={item}
