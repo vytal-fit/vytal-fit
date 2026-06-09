@@ -246,7 +246,7 @@ export default function ProfileScreen() {
           label: t("menu.language"),
           sublabel: LANGUAGE_LABELS[language] || language,
           color: C.blue,
-          onPress: handleLanguageCycle,
+          onPress: () => router.push("/language-selector"),
         },
       ],
     },

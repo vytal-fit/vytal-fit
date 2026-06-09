@@ -90,7 +90,7 @@ function getRoleColor(role: string): string {
 }
 
 // ─── Screen ──────────────────────────────────────────────
-export default function MyBoxScreen() {
+export default function HomeScreen() {
   const router = useRouter();
   const { user } = useAuthStore();
   const userName = user?.user.name?.split(" ")[0] ?? "Atleta";
@@ -158,7 +158,7 @@ export default function MyBoxScreen() {
         </View>
         <TouchableOpacity
           style={styles.nextClassCard}
-          onPress={() => router.push("/(tabs)/classes")}
+          onPress={() => router.push("/class-detail")}
           activeOpacity={0.85}
         >
           <View style={styles.nextClassTop}>
@@ -193,7 +193,7 @@ export default function MyBoxScreen() {
           </View>
           <TouchableOpacity
             style={styles.reserveBtn}
-            onPress={() => router.push("/(tabs)/classes")}
+            onPress={() => router.push("/booking-confirm")}
           >
             <Text style={styles.reserveBtnText}>RESERVAR</Text>
           </TouchableOpacity>
@@ -202,13 +202,13 @@ export default function MyBoxScreen() {
         {/* ── WOD preview ── */}
         <View style={styles.sectionHeaderRow}>
           <Text style={styles.sectionLabel}>WOD DE HOJE</Text>
-          <TouchableOpacity onPress={() => router.push("/(tabs)/wod")}>
+          <TouchableOpacity onPress={() => router.push("/wod-detail")}>
             <Text style={styles.seeAll}>Ver completo</Text>
           </TouchableOpacity>
         </View>
         <TouchableOpacity
           style={styles.wodPreviewCard}
-          onPress={() => router.push("/(tabs)/wod")}
+          onPress={() => router.push("/wod-detail")}
           activeOpacity={0.85}
         >
           <View style={styles.wodPreviewHeader}>
@@ -252,7 +252,7 @@ export default function MyBoxScreen() {
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.actionCard}
-            onPress={() => router.push("/social-feed")}
+            onPress={() => router.push("/(tabs)/community")}
           >
             <View style={[styles.actionIcon, { backgroundColor: C.blue + "20" }]}>
               <Users size={22} color={C.blue} strokeWidth={2} />
