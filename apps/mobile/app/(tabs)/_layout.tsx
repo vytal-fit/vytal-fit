@@ -5,6 +5,7 @@ import {
   CalendarDays,
   Dumbbell,
   Trophy,
+  Users,
   User,
 } from "lucide-react-native";
 import { colors } from "@/colors";
@@ -52,7 +53,7 @@ export default function TabLayout() {
       }}
     >
       <Tabs.Screen
-        name="mybox"
+        name="home"
         options={{
           title: t("tab.home"),
           tabBarIcon: ({ color, size, focused }) => (
@@ -64,7 +65,7 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="classes"
+        name="schedule"
         options={{
           title: t("tab.schedule"),
           tabBarIcon: ({ color, size, focused }) => (
@@ -95,6 +96,18 @@ export default function TabLayout() {
             <TabIcon
               focused={focused}
               icon={<Trophy size={size} color={color} strokeWidth={focused ? 2.2 : 1.8} />}
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="community"
+        options={{
+          title: t("tab.community"),
+          tabBarIcon: ({ color, size, focused }) => (
+            <TabIcon
+              focused={focused}
+              icon={<Users size={size} color={color} strokeWidth={focused ? 2.2 : 1.8} />}
             />
           ),
         }}

@@ -228,7 +228,7 @@ function ClassCard({
 }
 
 // ─── Screen ──────────────────────────────────────────────
-export default function ClassesScreen() {
+export default function ScheduleScreen() {
   const router = useRouter();
   const weekDays = getWeekDays();
   const [selectedDate, setSelectedDate] = useState(weekDays[0].dateStr);
@@ -263,7 +263,7 @@ export default function ClassesScreen() {
                 <Zap size={14} color={C.green} strokeWidth={2.5} fill={C.green} />
                 <Text style={styles.headerBrand}>AGENDA</Text>
               </View>
-              <Text style={styles.headerTitle}>{t("screen.classes")}</Text>
+              <Text style={styles.headerTitle}>{t("screen.schedule")}</Text>
               <Text style={styles.headerDate}>{formatDateHeader()}</Text>
             </View>
             <TouchableOpacity
