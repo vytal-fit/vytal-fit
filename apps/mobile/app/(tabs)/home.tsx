@@ -5,6 +5,7 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
+  Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
@@ -61,8 +62,21 @@ const todayWODPreview = {
   movements: ["Power Cleans", "Box Jumps", "Toes-to-Bar"],
 };
 
-// Mock weekly training data: true = trained, false = rest
-const WEEKLY_TRAINED: boolean[] = [true, true, false, true, true, false, false];
+// Weekly training data — uses day of week to simulate realistic pattern
+// Mon/Tue/Thu/Fri = trained, Wed = active recovery, Sat/Sun = rest
+function getWeeklyTrained(): { trained: boolean; label: string }[] {
+  const today = new Date().getDay(); // 0=Sun
+  return [
+    { trained: true, label: "WOD + Strength" },      // Mon
+    { trained: true, label: "AMRAP 20min" },           // Tue
+    { trained: false, label: "Mobilidade" },           // Wed (rest/recovery)
+    { trained: true, label: "For Time" },              // Thu
+    { trained: today >= 5, label: "Open Box" },        // Fri (only if past)
+    { trained: false, label: "Descanso" },             // Sat
+    { trained: false, label: "Descanso" },             // Sun
+  ];
+}
+const WEEKLY_TRAINED = getWeeklyTrained();
 
 // ─── Weekly Stories Header ──────────────────────────────────
 const DAY_LETTERS_PT = ["D", "S", "T", "Q", "Q", "S", "S"];
@@ -84,9 +98,10 @@ function WeeklyStories() {
       const isPast = d < today && !isToday;
       const dayOfWeek = d.getDay();
       const letter = DAY_LETTERS_PT[dayOfWeek];
-      const trained = WEEKLY_TRAINED[i];
+      const info = WEEKLY_TRAINED[i];
+      const trained = info.trained;
       const isRestDay = !trained && isPast;
-      return { d, isToday, isPast, isFuture: !isPast && !isToday, letter, trained, isRestDay };
+      return { d, isToday, isPast, isFuture: !isPast && !isToday, letter, trained, isRestDay, label: info.label };
     });
   }, []);
 
@@ -100,7 +115,18 @@ function WeeklyStories() {
         {days.map((day, i) => {
           const trained = day.trained && (day.isPast || day.isToday);
           return (
-            <View key={i} style={storyStyles.dayCol}>
+            <TouchableOpacity
+              key={i}
+              style={storyStyles.dayCol}
+              onPress={() => {
+                if (day.isFuture) return;
+                const dateStr = day.d.toLocaleDateString("pt-PT", { weekday: "long", day: "numeric", month: "short" });
+                Alert.alert(
+                  trained ? "✅ Treino" : day.isRestDay ? "😴 Descanso" : "📅 Hoje",
+                  trained ? `${dateStr}\n${day.label}` : `${dateStr}\n${day.label || "Sem treino"}`,
+                );
+              }}
+            >
               <Text style={[storyStyles.dayLetter, day.isToday && storyStyles.dayLetterToday]}>
                 {day.letter}
               </Text>
@@ -128,7 +154,7 @@ function WeeklyStories() {
                 </View>
               </View>
               {day.isToday && <View style={storyStyles.todayPip} />}
-            </View>
+            </TouchableOpacity>
           );
         })}
       </ScrollView>
