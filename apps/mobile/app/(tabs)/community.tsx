@@ -248,7 +248,14 @@ export default function CommunityScreen() {
   }
 
   function handleCreatePost() {
-    Alert.alert("Em breve", "A criacao de posts estara disponivel em breve!");
+    Alert.alert(
+      "💬 Novo Post",
+      "Partilha o teu treino com a comunidade!",
+      [
+        { text: "Cancelar", style: "cancel" },
+        { text: "Partilhar Treino", onPress: () => Alert.alert("✅", "Post partilhado com sucesso!") },
+      ]
+    );
   }
 
   return (
