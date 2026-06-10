@@ -22,7 +22,6 @@ import {
   Eye,
   EyeOff,
   ChevronRight,
-  Check,
   Save,
   AlertTriangle,
 } from "lucide-react";
@@ -45,7 +44,7 @@ export default function ProfilePage() {
   const [email, setEmail] = useState(user?.user.email ?? "");
   const [phone, setPhone] = useState(user?.user.phone ?? "");
   const [showPassword, setShowPassword] = useState(false);
-  const [saved, setSaved] = useState(false);
+  const [, setSaved] = useState(false);
   const [show2fa, setShow2fa] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const { toast } = useToast();

@@ -52,7 +52,7 @@ export default function ClassDetailPage() {
     return initial;
   });
 
-  const [showAddMember, setShowAddMember] = useState(false);
+  const [, setShowAddMember] = useState(false);
   const [showQrScanner, setShowQrScanner] = useState(false);
 
   const handleCheckIn = useCallback((memberId: string, memberName: string) => {
@@ -63,11 +63,6 @@ export default function ClassDetailPage() {
   const handleNoShow = useCallback((memberId: string, memberName: string) => {
     setAttendance((prev) => ({ ...prev, [memberId]: "no_show" }));
     toast(t("classDetail.markedNoShow").replace("{name}", memberName), "info");
-  }, [toast, t]);
-
-  const handleCancel = useCallback((memberId: string, memberName: string) => {
-    setAttendance((prev) => ({ ...prev, [memberId]: "cancelled" }));
-    toast(t("classDetail.bookingCancelled").replace("{name}", memberName), "info");
   }, [toast, t]);
 
   const handleCheckInAll = useCallback(() => {

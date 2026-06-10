@@ -10,7 +10,6 @@ import {
   ChevronDown,
   ChevronUp,
   Save,
-  CheckCircle,
   Wallet,
 } from "lucide-react";
 import { Breadcrumbs } from "@/components/breadcrumbs";
@@ -224,7 +223,7 @@ export default function PaymentsSettingsPage() {
     () => orgSettings.paymentMethods ?? defaultPaymentMethods
   );
   const [expandedKey, setExpandedKey] = useState<MethodKey | null>(null);
-  const [saved, setSaved] = useState(false);
+  const [, setSaved] = useState(false);
 
   // Keep in sync with store if org switches
   useEffect(() => {

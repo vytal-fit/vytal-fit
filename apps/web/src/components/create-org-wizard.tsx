@@ -90,17 +90,6 @@ const REQUIRED_FEATURES: Set<keyof OrganizationFeatures> = new Set(["financials"
 
 // ---- Constants ----
 
-const TOP_TYPES = [
-  "crossfit_box",
-  "functional_training",
-  "gym",
-  "yoga_studio",
-  "pilates_studio",
-  "martial_arts",
-  "personal_training",
-  "bootcamp",
-];
-
 const COUNTRIES = [
   { code: "PT", label: "Portugal", flag: "\uD83C\uDDF5\uD83C\uDDF9" },
   { code: "BR", label: "Brasil", flag: "\uD83C\uDDE7\uD83C\uDDF7" },
@@ -185,7 +174,7 @@ export function CreateOrgWizard({
     currency: "EUR",
     timezone: detectTimezone(),
   });
-  const [slugEdited, setSlugEdited] = useState(false);
+  const [slugEdited] = useState(false);
 
   // Step 3 — feature toggles
   const [features, setFeatures] = useState<OrganizationFeatures | null>(null);

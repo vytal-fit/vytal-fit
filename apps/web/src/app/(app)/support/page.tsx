@@ -2,23 +2,17 @@
 
 import { useState } from "react";
 import {
-  LifeBuoy,
   Plus,
   Clock,
   CheckCircle,
   AlertCircle,
   Loader2,
-  ChevronDown,
-  ChevronRight,
-  MessageSquare,
   X,
-  Send,
-  Filter,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/lib/i18n";
 import { useToast } from "@/components/toast";
-import { useDataStore } from "@/stores/data-store";
+
 import { Breadcrumbs } from "@/components/breadcrumbs";
 
 type TicketStatus = "open" | "in_progress" | "resolved" | "closed";
@@ -167,8 +161,6 @@ const priorityConfig: Record<TicketPriority, { label: string; className: string 
 export default function SupportPage() {
   const { t } = useI18n();
   const { toast } = useToast();
-  const coaches = useDataStore((s) => s.coaches);
-  const members = useDataStore((s) => s.members);
 
   const [tickets, setTickets] = useState(mockTickets);
   const [statusFilter, setStatusFilter] = useState<"all" | TicketStatus>("all");

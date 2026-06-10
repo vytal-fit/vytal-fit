@@ -24,10 +24,6 @@ function Field({
   error?: boolean;
 }) {
   const { t } = useI18n();
-  const storeLocations = useDataStore((s) => s.locations);
-  const storeClassTypes = useDataStore((s) => s.classTypes);
-  const storeCoaches = useDataStore((s) => s.coaches);
-  const storeAddClass = useDataStore((s) => s.addClass);
   return (
     <div>
       <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">

@@ -242,7 +242,7 @@ export default function EventsPage() {
     toast(t("events.created"), "success");
   }, [newEvent, toast, t]);
 
-  function handlePublishResults(eventId: string) {
+  function handlePublishResults() {
     toast(t("events.resultsPublished"), "success");
   }
 
@@ -632,7 +632,7 @@ export default function EventsPage() {
                   {/* Publish Results */}
                   {ev.status !== "ended" && (
                     <button
-                      onClick={() => handlePublishResults(ev.id)}
+                      onClick={() => handlePublishResults()}
                       className="w-full rounded-lg bg-vytal-green px-4 py-2 text-sm font-semibold text-vytal-bg transition-colors hover:bg-vytal-green/90"
                     >
                       {t("events.publishResults")}

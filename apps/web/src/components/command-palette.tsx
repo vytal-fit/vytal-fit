@@ -302,6 +302,6 @@ export function CommandPalette() {
 }
 
 /** Button to open the command palette from the top bar */
-export function CommandPaletteButton({ onClick }: { onClick: () => void }) {
+export function CommandPaletteButton() {
   return null; // The palette opens via keyboard; we add a trigger button in layout instead
 }

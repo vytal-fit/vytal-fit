@@ -2,7 +2,7 @@
 
 import { useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
-import { Users, TrendingUp, TrendingDown, UserPlus, UserMinus, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import {
   ResponsiveContainer,

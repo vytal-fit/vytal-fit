@@ -12,7 +12,6 @@ import {
   CalendarDays,
 } from "lucide-react";
 import { useDataStore } from "@/stores/data-store";
-import { useI18n } from "@/lib/i18n";
 
 // ---- Mock leaderboard data ----
 
@@ -41,12 +40,11 @@ const mockScheduleTicker = [
 ];
 
 export default function ScreenPage() {
-  const { t } = useI18n();
   const wods = useDataStore((s) => s.wods);
   const orgSettings = useDataStore((s) => s.orgSettings);
 
   const [clock, setClock] = useState(new Date());
-  const [lastRefresh, setLastRefresh] = useState(new Date());
+  const [, setLastRefresh] = useState(new Date());
 
   // Clock update
   useEffect(() => {

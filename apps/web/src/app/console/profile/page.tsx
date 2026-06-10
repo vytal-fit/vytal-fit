@@ -14,7 +14,6 @@ import {
   Moon,
   Zap,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/stores/auth-store";
 import { useDataStore } from "@/stores/data-store";
 import { useAppStore } from "@/stores/app-store";

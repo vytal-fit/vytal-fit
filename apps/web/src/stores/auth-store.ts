@@ -53,7 +53,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   isAuthenticated: false,
   user: null,
 
-  login: (_email: string, _password: string) => {
+  login: () => {
     const user = { ...mockCurrentUser };
     persistAuth(user);
     setOrgSlugCookie(user);

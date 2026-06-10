@@ -5,7 +5,6 @@ import { useDataStore } from "@/stores/data-store";
 import {
   Trophy,
   CheckCircle,
-  MessageCircle,
   Flag,
   Eye,
   EyeOff,
@@ -91,15 +90,6 @@ const activityIcons: Record<ActivityType, { emoji: string; color: string }> = {
   post: { emoji: "\uD83D\uDCF0", color: "text-vytal-orange" },
   challenge: { emoji: "\uD83C\uDFAF", color: "text-vytal-green" },
 };
-
-function getInitials(name: string): string {
-  return name
-    .split(" ")
-    .map((n) => n[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2);
-}
 
 const initialFeedItems: FeedItem[] = [
   { id: "f-1", memberName: "Pedro Almeida", initials: "PA", type: "pr", description: "Pedro achieved a new PR: Back Squat 140kg", timestamp: "2m ago", hidden: false, flagged: false },
@@ -259,7 +249,7 @@ export default function CommunityPage() {
       );
       toast(t("community.feed"), "success");
     },
-    [toast]
+    [toast, t]
   );
 
   const handleFlag = useCallback(
@@ -269,7 +259,7 @@ export default function CommunityPage() {
       );
       toast(t("community.flagged"), "info");
     },
-    [toast]
+    [toast, t]
   );
 
   // Moderation actions
@@ -278,7 +268,7 @@ export default function CommunityPage() {
       setFlaggedItems((prev) => prev.filter((item) => item.id !== id));
       toast(t("community.approve"), "success");
     },
-    [toast]
+    [toast, t]
   );
 
   const handleRemove = useCallback(
@@ -286,7 +276,7 @@ export default function CommunityPage() {
       setFlaggedItems((prev) => prev.filter((item) => item.id !== id));
       toast(t("community.remove"), "success");
     },
-    [toast]
+    [toast, t]
   );
 
   const handleWarnUser = useCallback(
@@ -294,7 +284,7 @@ export default function CommunityPage() {
       setFlaggedItems((prev) => prev.filter((item) => item.id !== id));
       toast(t("community.warnUser"), "info");
     },
-    [toast]
+    [toast, t]
   );
 
   // Create challenge
@@ -317,7 +307,7 @@ export default function CommunityPage() {
     setNewChallenge({ title: "", description: "", type: "challenge", startDate: "", endDate: "" });
     setShowCreateChallenge(false);
     toast(t("community.createChallenge"), "success");
-  }, [newChallenge, toast]);
+  }, [newChallenge, toast, t]);
 
   const tabs: { key: Tab; label: string; icon: React.ReactNode }[] = [
     { key: "feed", label: t("community.feed"), icon: <Heart className="h-4 w-4" /> },

@@ -228,10 +228,6 @@ export default function QuestionnairesPage() {
     toast(t("questionnaires.created"), "success");
   }
 
-  const viewQuestionnaire = viewResponsesId
-    ? questionnaires.find((q) => q.id === viewResponsesId)
-    : null;
-
   return (
     <div className="space-y-6">
       {/* Breadcrumbs */}

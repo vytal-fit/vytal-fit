@@ -18,9 +18,7 @@ import {
   Clock,
   Mail,
   UserCheck,
-  Brain,
   Target,
-  Lightbulb,
   Zap,
 } from "lucide-react";
 import {

@@ -194,7 +194,6 @@ const CATEGORY_CONFIG: Record<Category, { color: string; bg: string; border: str
   "Recuperacao":  { color: "var(--color-vytal-blue)",   bg: "rgba(0,212,255,0.08)",    border: "rgba(0,212,255,0.2)",    icon: Activity },
 };
 
-const TIMER_KEY = "vytal-workout-timer";
 const ALL_CATEGORIES: Category[] = ["Peso Corporal", "Mobilidade", "Core", "Cardio", "Recuperacao"];
 
 function DifficultyDots({ level, color }: { level: Difficulty; color: string }) {

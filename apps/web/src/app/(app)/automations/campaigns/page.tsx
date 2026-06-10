@@ -11,7 +11,6 @@ import {
   MousePointer,
   Send,
   TrendingUp,
-  ArrowRight,
   X,
   ChevronDown,
 } from "lucide-react";

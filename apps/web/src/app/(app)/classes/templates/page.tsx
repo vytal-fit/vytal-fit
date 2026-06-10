@@ -5,7 +5,6 @@ import { Breadcrumbs } from "@/components/breadcrumbs";
 import { useI18n } from "@/lib/i18n";
 import { useToast } from "@/components/toast";
 import {
-  CalendarDays,
   Clock,
   Users,
   MapPin,

@@ -2,13 +2,12 @@
 
 import { useState, useMemo } from "react";
 import {
-  Megaphone,
   Plus,
   Calendar,
   Camera,
   Globe,
   Briefcase,
-  Image,
+  Image as ImageIcon,
   Clock,
   Send,
   TrendingUp,
@@ -284,7 +283,7 @@ export default function MarketingPage() {
                     </span>
                     {post.imageLabel && (
                       <span className="flex items-center gap-1 text-xs text-vytal-muted">
-                        <Image className="h-3 w-3" />
+                        <ImageIcon className="h-3 w-3" />
                         {post.imageLabel}
                       </span>
                     )}
@@ -344,7 +343,7 @@ export default function MarketingPage() {
             </div>
 
             <div className="rounded-lg border border-dashed border-vytal-border p-4 text-center">
-              <Image className="h-8 w-8 text-vytal-muted mx-auto mb-2" />
+              <ImageIcon className="h-8 w-8 text-vytal-muted mx-auto mb-2" />
               <p className="text-xs text-vytal-muted">{t("marketing.uploadImage")}</p>
             </div>
 

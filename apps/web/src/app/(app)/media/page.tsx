@@ -11,7 +11,6 @@ import {
   Download,
   Link2,
   Trash2,
-  Plus,
   X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";

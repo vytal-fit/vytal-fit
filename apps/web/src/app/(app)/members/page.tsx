@@ -7,7 +7,7 @@ import {
   Search, Users, UserCheck, UserX, Clock, Upload, Download, FileText,
   Mail, Smartphone, CreditCard, AlertTriangle, Eye, SearchX,
   ArrowUp, ArrowDown, Plus, Trash2, X, Check,
-  CalendarDays, Flame, Zap, DollarSign, Activity,
+  CalendarDays, Flame, DollarSign, Activity,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";

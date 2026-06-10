@@ -2,7 +2,6 @@
 
 import { useState, useRef } from "react";
 import {
-  Settings,
   Globe,
   Building2,
   Save,

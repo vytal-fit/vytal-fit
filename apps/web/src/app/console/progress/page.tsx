@@ -31,7 +31,6 @@ interface PREntry {
 
 // ── Storage keys ──────────────────────────────────────────────────────────────
 const GOALS_KEY = "vytal-progress-goals";
-const BODY_KEY  = "vytal-progress-body";
 
 // ── Mock data ─────────────────────────────────────────────────────────────────
 

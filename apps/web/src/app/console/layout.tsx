@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Home, Calendar, Dumbbell, Trophy, User, Bell, Zap, Users, TrendingUp, Sun, Moon, Globe } from "lucide-react";
+import { Home, Calendar, Dumbbell, Trophy, User, Bell, Zap, Users, TrendingUp, Sun, Moon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/stores/auth-store";
 import { useAppStore } from "@/stores/app-store";

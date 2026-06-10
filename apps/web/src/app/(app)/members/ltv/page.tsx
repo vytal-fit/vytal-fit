@@ -1,19 +1,11 @@
 "use client";
 
-import { useMemo } from "react";
 import {
-  DollarSign,
-  TrendingUp,
-  Users,
-  CreditCard,
-  BarChart3,
-  Calendar,
-  Target,
   Sparkles,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/lib/i18n";
-import { useDataStore, formatCurrency } from "@/stores/data-store";
+import { formatCurrency } from "@/stores/data-store";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 
 interface LTVByPlan {
@@ -102,7 +94,6 @@ const cohortLTV: CohortLTV[] = [
 
 export default function MemberLTVPage() {
   const { t } = useI18n();
-  const members = useDataStore((s) => s.members);
 
   const maxDist = Math.max(...ltvDistribution.map((d) => d.count));
   const maxSource = Math.max(...ltvBySource.map((s) => s.avgLTV));

@@ -8,7 +8,6 @@ import {
   CalendarDays,
   Download,
   ArrowRight,
-  ArrowUpRight,
   Clock,
   TrendingUp,
 } from "lucide-react";

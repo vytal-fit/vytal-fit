@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft, Save, X } from "lucide-react";
+import { Save, X } from "lucide-react";
 import { useDataStore } from "@/stores/data-store";
 import { useToast } from "@/components/toast";
 import { useI18n } from "@/lib/i18n";

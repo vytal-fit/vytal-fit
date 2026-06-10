@@ -13,7 +13,6 @@ import {
   Trophy,
   ArrowLeft,
   Clock,
-  Dumbbell,
   TrendingUp,
   User,
   Activity,

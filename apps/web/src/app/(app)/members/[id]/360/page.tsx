@@ -7,7 +7,6 @@ import { useI18n } from "@/lib/i18n";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { cn } from "@/lib/utils";
 import {
-  User,
   Trophy,
   Flame,
   Calendar,
@@ -19,7 +18,6 @@ import {
   BookOpen,
   RefreshCw,
   XCircle,
-  CheckCircle,
   Star,
   Dumbbell,
 } from "lucide-react";
