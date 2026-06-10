@@ -8,7 +8,7 @@ import {
   Mail,
   Smartphone,
   Save,
-  Image,
+  Image as ImageIcon,
   Type,
   CheckCircle,
   AlertCircle,
@@ -120,7 +120,7 @@ export default function BrandingPage() {
         {/* Logo Section */}
         <div className="rounded-xl border border-vytal-border bg-vytal-card p-6 lg:col-span-2">
           <div className="mb-5 flex items-center gap-2">
-            <Image className="h-5 w-5 text-vytal-green" />
+            <ImageIcon className="h-5 w-5 text-vytal-green" />
             <h2 className="text-lg font-semibold text-vytal-text">{t("branding.logos")}</h2>
           </div>
           <div className="grid gap-6 sm:grid-cols-3">

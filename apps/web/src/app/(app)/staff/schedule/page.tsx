@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo } from "react";
 import { useDataStore } from "@/stores/data-store";
 import { useI18n } from "@/lib/i18n";
 import { useToast } from "@/components/toast";
@@ -10,7 +10,6 @@ import {
   ChevronRight,
   Copy,
   Clock,
-  Trash2,
   Plus,
   X,
   AlertCircle,

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import {
-  Globe, MapPin, Save, DollarSign, ShieldCheck, Image, Camera, Eye, ArrowRight,
+  Globe, MapPin, Save, DollarSign, ShieldCheck, Image as ImageIcon, Camera, Eye, ArrowRight,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/lib/i18n";
@@ -180,7 +180,7 @@ export default function DropInsPage() {
           {/* Photo Upload */}
           <div className="rounded-xl border border-vytal-border bg-vytal-card p-6 space-y-4">
             <div className="flex items-center gap-2">
-              <Image className="h-4 w-4 text-vytal-green" />
+              <ImageIcon className="h-4 w-4 text-vytal-green" />
               <h3 className="text-sm font-semibold text-vytal-text">{t("dropins.photos")}</h3>
             </div>
             <div className="grid grid-cols-3 gap-3">

@@ -11,7 +11,6 @@ import {
   Zap,
   Dumbbell,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { useDataStore } from "@/stores/data-store";
 import { useI18n } from "@/lib/i18n";
 import type { WOD } from "@vytal-fit/shared";

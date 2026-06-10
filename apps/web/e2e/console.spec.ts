@@ -106,7 +106,6 @@ test.describe("Console: Schedule", () => {
 
   test("console schedule shows day selector", async ({ page }) => {
     // The schedule page renders a horizontal day strip (7 days)
-    const dayButtons = page.locator("button").filter({ hasText: /^(0?[1-9]|[12]\d|3[01])$/ });
     // At least today's date button should be visible OR the short day label buttons
     const buttonCount = await page.locator("button").count();
     expect(buttonCount).toBeGreaterThan(0);

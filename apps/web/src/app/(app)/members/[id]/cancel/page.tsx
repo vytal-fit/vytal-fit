@@ -5,13 +5,10 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import {
   AlertTriangle,
-  ArrowLeft,
   Pause,
   XCircle,
   CheckCircle,
-  MessageSquare,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { useI18n } from "@/lib/i18n";
 import { useToast } from "@/components/toast";
 import { useDataStore } from "@/stores/data-store";

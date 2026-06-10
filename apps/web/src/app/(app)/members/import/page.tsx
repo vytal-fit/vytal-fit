@@ -116,7 +116,6 @@ export default function MemberImportPage() {
 
   const readyCount = mappedData.filter((r) => r.valid).length;
   const duplicateCount = mappedData.filter((r) => r.isDuplicate).length;
-  const errorCount = mappedData.filter((r) => r.errors.length > 0).length;
   const mappedFieldCount = mappings.filter((m) => m !== "-- Skip --").length;
 
   const handleImport = useCallback(() => {

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import { formatCurrency, formatCurrencyCompact } from "@/stores/data-store";
-import { Lightbulb, TrendingUp, TrendingDown, Users, Clock, Zap } from "lucide-react";
+import { Lightbulb, TrendingDown, Users, Clock, Zap } from "lucide-react";
 import {
   ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
   BarChart, Bar, PieChart, Pie, Cell, Legend, Area, AreaChart,

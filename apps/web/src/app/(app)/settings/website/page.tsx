@@ -22,7 +22,7 @@ import {
   Upload,
   Copy,
   Check,
-  Image,
+  Image as ImageIcon,
   Sun,
   Moon,
   AlignLeft,
@@ -1508,7 +1508,7 @@ function SeoTab({
       >
         <div className="max-w-sm overflow-hidden rounded-xl border border-vytal-border">
           <div className="flex aspect-video items-center justify-center bg-gradient-to-br from-vytal-bg3 to-vytal-bg2">
-            <Image className="h-10 w-10 text-vytal-muted/30" />
+            <ImageIcon className="h-10 w-10 text-vytal-muted/30" />
           </div>
           <div className="border-t border-vytal-border bg-vytal-bg2 px-4 py-3">
             <p className="text-[11px] uppercase tracking-wider text-vytal-muted">
@@ -1717,7 +1717,7 @@ function ContentTab({
         />
         {config.gallery.enabled && (
           <div className="rounded-lg border-2 border-dashed border-vytal-border bg-vytal-bg2 p-6 text-center">
-            <Image className="mx-auto h-8 w-8 text-vytal-muted/40" />
+            <ImageIcon className="mx-auto h-8 w-8 text-vytal-muted/40" />
             <p className="mt-2 text-sm text-vytal-muted">
               Gerencie as fotos na{" "}
               <a

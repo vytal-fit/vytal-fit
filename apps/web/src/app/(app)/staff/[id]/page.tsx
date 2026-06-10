@@ -4,7 +4,6 @@ import { useDataStore } from "@/stores/data-store";
 import {
   ArrowLeft,
   Mail,
-  Phone,
   Shield,
   Calendar,
   Users,

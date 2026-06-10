@@ -22,7 +22,6 @@ import type { WODType, Exercise } from "@vytal-fit/shared";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/components/toast";
 import { useI18n } from "@/lib/i18n";
-import { Breadcrumbs } from "@/components/breadcrumbs";
 
 const PART_NAMES = ["Warm Up", "Skill", "Strength", "WOD", "Cool Down", "Custom"];
 
@@ -633,7 +632,6 @@ export default function WODBuilderPage() {
               <div className="space-y-4">
                 {parts.map((part) => {
                   const config = wodTypeConfig[part.type];
-                  const hasContent = part.exercises.length > 0 || part.timeCap || part.rounds;
 
                   return (
                     <div key={part.id} className="space-y-2">

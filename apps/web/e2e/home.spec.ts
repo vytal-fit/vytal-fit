@@ -1,7 +1,5 @@
 import { test, expect } from "@playwright/test";
 
-const dashboardHeading = /bom dia|boa tarde|boa noite|good morning|good afternoon|good evening|dashboard/i;
-
 test.describe("Home / Dashboard", () => {
   test("landing page loads at root", async ({ page }) => {
     await page.goto("/");

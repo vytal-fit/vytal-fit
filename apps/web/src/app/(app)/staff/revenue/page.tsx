@@ -2,12 +2,7 @@
 
 import { useState, useMemo } from "react";
 import {
-  DollarSign,
-  TrendingUp,
-  Users,
   Award,
-  BarChart3,
-  CalendarDays,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/lib/i18n";
@@ -180,8 +175,6 @@ export default function CoachRevenuePage() {
         <h3 className="text-base font-bold text-vytal-text mb-4">{t("coachRevenue.trend")}</h3>
         <div className="flex items-end gap-3 h-48">
           {trendData.map((entry) => {
-            const coachValues = coaches.map((c) => (entry as unknown as Record<string, number>)[c.id] ?? 0);
-            const monthMax = Math.max(...coachValues, 1);
             return (
               <div key={entry.month} className="flex-1 flex flex-col items-center gap-1">
                 <div className="flex items-end gap-0.5 h-40 w-full">

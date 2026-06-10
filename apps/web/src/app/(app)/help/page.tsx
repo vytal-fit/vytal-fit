@@ -18,21 +18,14 @@ import {
   Play,
   CheckCircle2,
   Sparkles,
-  Command,
   CreditCard,
   Globe,
   Dumbbell,
   Settings,
   UserCheck,
-  Clock,
-  FileText,
-  BarChart2,
   ShieldCheck,
-  Zap,
   ArrowRight,
   Info,
-  Sun,
-  PanelLeft,
 } from "lucide-react";
 import Link from "next/link";
 import { useI18n } from "@/lib/i18n";

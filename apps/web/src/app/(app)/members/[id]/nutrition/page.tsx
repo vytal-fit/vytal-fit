@@ -14,7 +14,6 @@ import {
   Calendar,
   ChevronLeft,
   ChevronRight,
-  Target,
   Flame,
   Beef,
   Wheat,

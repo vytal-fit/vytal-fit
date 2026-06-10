@@ -804,21 +804,21 @@ export default function CRMPage() {
       });
       toast(t("crm.leadAdded").replace("{name}", name), "success");
     },
-    [toast, storeAddLead]
+    [toast, storeAddLead, t]
   );
 
   const handleCall = useCallback(
     (lead: Lead) => {
       toast(t("crm.calling").replace("{name}", lead.name), "info");
     },
-    [toast]
+    [toast, t]
   );
 
   const handleEmail = useCallback(
     (lead: Lead) => {
       toast(t("crm.emailSentTo").replace("{name}", lead.name), "success");
     },
-    [toast]
+    [toast, t]
   );
 
   const handleBookTrial = useCallback(
@@ -826,7 +826,7 @@ export default function CRMPage() {
       storeMoveLead(lead.id, "trial_booked");
       toast(t("crm.movedTo").replace("{name}", lead.name).replace("{stage}", t("crm.stage.trial_booked")), "success");
     },
-    [toast, storeMoveLead]
+    [toast, storeMoveLead, t]
   );
 
   const importInputRef = useRef<HTMLInputElement>(null);

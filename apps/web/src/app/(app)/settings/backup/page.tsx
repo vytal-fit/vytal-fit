@@ -8,8 +8,6 @@ import {
   FileSpreadsheet,
   Clock,
   Shield,
-  AlertTriangle,
-  CheckCircle,
   Trash2,
   RefreshCw,
 } from "lucide-react";

@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import {
-  Award,
   AlertTriangle,
   CheckCircle,
   Clock,
@@ -10,7 +9,6 @@ import {
   FileText,
   Bell,
   X,
-  Shield,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/lib/i18n";

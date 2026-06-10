@@ -28,10 +28,7 @@ import {
   Activity,
   Calendar,
   CreditCard,
-  Target,
-  Sparkles,
   Rocket,
-  CheckCircle,
   Circle,
   ArrowRight,
   X as XIcon,
@@ -116,32 +113,6 @@ function StatCard({ label, value, icon, color, subtitle, trend }: StatCardProps)
         </div>
       </div>
     </div>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Quick Action Card
-// ---------------------------------------------------------------------------
-
-function QuickActionCard({
-  href,
-  icon,
-  label,
-}: {
-  href: string;
-  icon: React.ReactNode;
-  label: string;
-}) {
-  return (
-    <Link
-      href={href}
-      className="flex flex-col items-center gap-2 rounded-xl border border-vytal-border bg-vytal-card p-4 transition-all duration-200 hover:border-vytal-green/30 hover:bg-vytal-green/5 hover:-translate-y-1 hover:shadow-lg hover:shadow-black/20"
-    >
-      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-vytal-green/10 text-vytal-green">
-        {icon}
-      </div>
-      <span className="text-xs font-medium text-vytal-text">{label}</span>
-    </Link>
   );
 }
 
@@ -630,7 +601,6 @@ export default function DashboardPage() {
   const storeClasses = useDataStore((s) => s.classes);
   const storeClassTypes = useDataStore((s) => s.classTypes);
   const storeMembers = useDataStore((s) => s.members);
-  const storeLeads = useDataStore((s) => s.leads);
   const storeSubscriptions = useDataStore((s) => s.subscriptions);
   const storePersonalRecords = useDataStore((s) => s.personalRecords);
   const classDistributionData = buildClassDistributionData(storeClassTypes);

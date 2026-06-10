@@ -7,13 +7,10 @@ import { cn } from "@/lib/utils";
 import {
   Brain,
   Zap,
-  Clock,
   Users,
   TrendingUp,
-  ArrowRight,
   CalendarDays,
   AlertTriangle,
-  CheckCircle,
 } from "lucide-react";
 import {
   ResponsiveContainer,

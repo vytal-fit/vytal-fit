@@ -46,7 +46,7 @@ export default function SMSTargetingPage() {
       if (planFilter !== "all" && m.planId !== planFilter) return false;
       return true;
     }).length;
-  }, [gender, statusFilter, planFilter]);
+  }, [storeMembers, gender, statusFilter, planFilter]);
 
   return (
     <div className="space-y-6">

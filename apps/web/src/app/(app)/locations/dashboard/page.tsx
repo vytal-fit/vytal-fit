@@ -1,12 +1,10 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import Link from "next/link";
 import {
   MapPin,
   Plus,
   Users,
-  CalendarDays,
   DollarSign,
   TrendingUp,
   Activity,

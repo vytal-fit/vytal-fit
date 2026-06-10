@@ -54,7 +54,6 @@ import {
   Image,
   Wrench,
   Newspaper,
-  Rocket,
   LifeBuoy,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -538,7 +537,6 @@ function OrgSwitcher({ onCreateOrg, collapsed }: { onCreateOrg?: () => void; col
           </div>
           {memberships.map((mem) => {
             const isActive = mem.organizationId === activeOrgId;
-            const config = ORGANIZATION_CONFIGS[mem.organization.type];
             return (
               <button
                 key={mem.id}
@@ -916,7 +914,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const orgConfig = ORGANIZATION_CONFIGS[orgType];
   const notifications = useDataStore((s) => s.notifications);
   const orgSettings = useDataStore((s) => s.orgSettings);
-  const updateOrgSettings = useDataStore((s) => s.updateOrgSettings);
   const notifUnread = notifications.filter((n) => !n.read).length;
   const navGroups = useMemo(() => {
     const groups = getNavGroups(orgType, userRole, orgSettings.features);

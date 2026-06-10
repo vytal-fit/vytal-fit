@@ -154,7 +154,6 @@ export function middleware(request: NextRequest) {
       return NextResponse.rewrite(url);
     }
 
-    const orgSlug = rest.slice(0, slashIndex);
     const subpath = rest.slice(slashIndex);
     const firstSegment = subpath.split("/")[1];
 

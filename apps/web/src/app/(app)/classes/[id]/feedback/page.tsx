@@ -1,14 +1,11 @@
 "use client";
 
-import { useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import {
   Star,
   MessageSquare,
-  TrendingUp,
   Users,
-  BarChart3,
   Sparkles,
   ArrowLeft,
 } from "lucide-react";

@@ -1777,7 +1777,6 @@ function ShowcaseWebsiteMockup() {
 }
 
 function ShowcaseMemberMockup() {
-  const today = new Date();
   const month = Array.from({ length: 30 }, (_, i) => i + 1);
   const checkedIn = [1,2,4,5,7,8,9,11,12,14,15,16,18,19,21,22,24,25,26,28,29];
   return (

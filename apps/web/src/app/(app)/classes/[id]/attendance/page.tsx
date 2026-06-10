@@ -36,7 +36,6 @@ export default function ClassAttendancePage() {
   const id = params.id as string;
   const storeClasses = useDataStore((s) => s.classes);
   const storeMembers = useDataStore((s) => s.members);
-  const plans = useDataStore((s) => s.plans);
   const cls = storeClasses.find((c) => c.id === id);
 
   if (!cls) {

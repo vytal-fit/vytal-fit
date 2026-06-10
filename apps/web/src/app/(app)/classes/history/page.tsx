@@ -5,7 +5,6 @@ import { useI18n } from "@/lib/i18n";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import {
   Search,
-  Filter,
   ChevronDown,
   ChevronUp,
   Users,
