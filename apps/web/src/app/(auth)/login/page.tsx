@@ -34,17 +34,19 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    setError(false);
     setLoading(true);
-    setTimeout(() => {
-      const success = login(email, password);
-      if (success) {
-        router.push("/dashboard");
-      }
+    const success = await login(email, password);
+    if (success) {
+      router.push("/dashboard");
+    } else {
+      setError(true);
       setLoading(false);
-    }, 400);
+    }
   }
 
   return (
@@ -86,6 +88,21 @@ export default function LoginPage() {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
+          {/* Error */}
+          {error && (
+            <div
+              role="alert"
+              className="rounded-lg px-4 py-3 text-sm font-medium"
+              style={{
+                background: "rgba(255,71,87,0.10)",
+                color: "var(--color-vytal-red)",
+                border: "1px solid rgba(255,71,87,0.20)",
+              }}
+            >
+              {t("auth.invalidCredentials")}
+            </div>
+          )}
+
           {/* Email */}
           <div>
             <label
@@ -176,6 +193,14 @@ export default function LoginPage() {
             </Link>
           </span>
         </div>
+
+        {/* Demo credentials hint */}
+        <p className="mt-4 text-center text-[11px] text-vytal-muted/60">
+          {t("auth.demoHint")}{" "}
+          <span className="font-mono text-vytal-muted/80">
+            jose@vytal.fit · VytalDemo2026!
+          </span>
+        </p>
       </div>
 
       {/* Powered by footer */}
