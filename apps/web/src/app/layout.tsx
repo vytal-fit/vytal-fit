@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { I18nProvider } from "@/lib/i18n";
+import { TRPCProvider } from "@/components/trpc-provider";
 import { AuthProvider } from "@/providers/auth-provider";
 import { ThemeInitializer } from "@/providers/theme-initializer";
 
@@ -28,12 +29,14 @@ export default function RootLayout({
   return (
     <html lang="pt" className="dark" suppressHydrationWarning>
       <body className={`${inter.variable} ${jetbrainsMono.variable} antialiased`}>
-        <I18nProvider>
-          <AuthProvider>
-            <ThemeInitializer />
-            {children}
-          </AuthProvider>
-        </I18nProvider>
+        <TRPCProvider>
+          <I18nProvider>
+            <AuthProvider>
+              <ThemeInitializer />
+              {children}
+            </AuthProvider>
+          </I18nProvider>
+        </TRPCProvider>
       </body>
     </html>
   );
