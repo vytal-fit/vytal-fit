@@ -8,13 +8,14 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
+    "@trpc/server": "^11.0.0",
     "@vytal-fit/db": "*",
     "@vytal-fit/shared": "*",
-    "@trpc/server": "^11.0.0",
     "superjson": "^2.2.0",
     "zod": "^4.3.6"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "^0.5.1",
     "typescript": "^5"
   }
 }

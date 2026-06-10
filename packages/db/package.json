@@ -14,10 +14,12 @@
     "db:generate": "drizzle-kit generate"
   },
   "dependencies": {
+    "@vytal-fit/shared": "*",
     "drizzle-orm": "^0.45.2",
-    "@vytal-fit/shared": "*"
+    "postgres": "^3.4.9"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "^0.5.1",
     "drizzle-kit": "^0.31.10",
     "typescript": "^5"
   }

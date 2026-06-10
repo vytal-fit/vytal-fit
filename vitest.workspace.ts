@@ -6,6 +6,9 @@ const projects: TestProjectConfiguration[] = [
       name: "@vytal-fit/api",
       include: ["packages/api/tests/*.test.ts"],
       environment: "node",
+      // PGlite (WASM Postgres) boots per test file; allow for parallel startup.
+      testTimeout: 30_000,
+      hookTimeout: 60_000,
     },
   },
   {
@@ -13,6 +16,8 @@ const projects: TestProjectConfiguration[] = [
       name: "@vytal-fit/db",
       include: ["packages/db/tests/*.test.ts"],
       environment: "node",
+      testTimeout: 30_000,
+      hookTimeout: 60_000,
     },
   },
   {
@@ -20,8 +25,15 @@ const projects: TestProjectConfiguration[] = [
       name: "@vytal-fit/auth",
       include: ["packages/auth/tests/*.test.ts"],
       environment: "node",
-      testTimeout: 15_000,
-      hookTimeout: 15_000,
+      testTimeout: 30_000,
+      hookTimeout: 60_000,
+    },
+  },
+  {
+    test: {
+      name: "@vytal-fit/shared",
+      include: ["packages/shared/tests/*.test.ts"],
+      environment: "node",
     },
   },
 ];

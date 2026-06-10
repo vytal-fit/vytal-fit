@@ -1,0 +1,128 @@
+import { TRPCError } from "@trpc/server";
+import { and, desc, eq, gte, lte } from "drizzle-orm";
+import { classTypes, wods } from "@vytal-fit/db";
+import { z } from "zod";
+import { orgProcedure, router } from "../trpc";
+
+const dateString = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Expected YYYY-MM-DD");
+
+const WOD_TYPES = ["amrap", "emom", "for_time", "tabata", "strength", "custom"] as const;
+
+const wodPartSchema = z.object({
+  name: z.string().min(1).max(120),
+  type: z.enum(WOD_TYPES),
+  timeCap: z.number().int().positive().optional(),
+  rounds: z.number().int().positive().optional(),
+  intervalSeconds: z.number().int().positive().optional(),
+  exercises: z.array(
+    z.object({
+      exerciseId: z.string().min(1),
+      reps: z.string().max(60).optional(),
+      weight: z.string().max(60).optional(),
+      notes: z.string().max(500).optional(),
+    }),
+  ),
+});
+
+const wodInput = z.object({
+  classTypeId: z.string().min(1),
+  date: dateString,
+  title: z.string().max(200).optional(),
+  description: z.string().max(2000).optional(),
+  parts: z.array(wodPartSchema).default([]),
+});
+
+export const wodsRouter = router({
+  list: orgProcedure
+    .input(
+      z
+        .object({
+          from: dateString.optional(),
+          to: dateString.optional(),
+        })
+        .default({}),
+    )
+    .query(async ({ ctx, input }) => {
+      return ctx.db
+        .select()
+        .from(wods)
+        .where(
+          and(
+            eq(wods.organizationId, ctx.activeOrganizationId),
+            input.from ? gte(wods.date, input.from) : undefined,
+            input.to ? lte(wods.date, input.to) : undefined,
+          ),
+        )
+        .orderBy(desc(wods.date));
+    }),
+
+  byId: orgProcedure
+    .input(z.object({ id: z.string().min(1) }))
+    .query(async ({ ctx, input }) => {
+      const [row] = await ctx.db
+        .select()
+        .from(wods)
+        .where(
+          and(eq(wods.id, input.id), eq(wods.organizationId, ctx.activeOrganizationId)),
+        )
+        .limit(1);
+      if (!row) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "WOD not found." });
+      }
+      return row;
+    }),
+
+  create: orgProcedure.input(wodInput).mutation(async ({ ctx, input }) => {
+    const [classType] = await ctx.db
+      .select({ id: classTypes.id })
+      .from(classTypes)
+      .where(
+        and(
+          eq(classTypes.id, input.classTypeId),
+          eq(classTypes.organizationId, ctx.activeOrganizationId),
+        ),
+      )
+      .limit(1);
+    if (!classType) {
+      throw new TRPCError({ code: "NOT_FOUND", message: "Class type not found." });
+    }
+
+    const [created] = await ctx.db
+      .insert(wods)
+      .values({
+        id: crypto.randomUUID(),
+        organizationId: ctx.activeOrganizationId,
+        createdBy: ctx.session.user.id,
+        ...input,
+      })
+      .returning();
+    return created;
+  }),
+
+  publish: orgProcedure
+    .input(z.object({ id: z.string().min(1) }))
+    .mutation(async ({ ctx, input }) => {
+      const [existing] = await ctx.db
+        .select({ id: wods.id, publishedAt: wods.publishedAt })
+        .from(wods)
+        .where(
+          and(eq(wods.id, input.id), eq(wods.organizationId, ctx.activeOrganizationId)),
+        )
+        .limit(1);
+      if (!existing) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "WOD not found." });
+      }
+      if (existing.publishedAt) {
+        throw new TRPCError({ code: "CONFLICT", message: "WOD is already published." });
+      }
+
+      const [published] = await ctx.db
+        .update(wods)
+        .set({ publishedAt: new Date() })
+        .where(
+          and(eq(wods.id, input.id), eq(wods.organizationId, ctx.activeOrganizationId)),
+        )
+        .returning();
+      return published;
+    }),
+});
