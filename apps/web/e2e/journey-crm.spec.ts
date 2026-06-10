@@ -14,7 +14,10 @@ async function closeRightSidebar(page: Page) {
 }
 
 test.describe("Journey: CRM Pipeline Flow", () => {
-  const testLeadName = "E2E Lead Test";
+  // "E2E-" prefix marks rows created by this suite. Lead CRUD is persisted
+  // in the org-scoped localStorage data store (per browser context), not
+  // the database, so the created lead is discarded when the context closes.
+  const testLeadName = "E2E-Lead Test";
   const testLeadPhone = "+351777666555";
 
   test("create a new lead and verify it appears in pipeline", async ({

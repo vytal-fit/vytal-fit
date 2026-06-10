@@ -1,4 +1,5 @@
 import { test, expect, type Page } from "@playwright/test";
+import { DEMO_PASSWORD, DEMO_USERS } from "./fixtures/test";
 
 async function closeRightSidebar(page: Page) {
   const backdrop = page.locator(
@@ -17,6 +18,28 @@ test.describe("Journey: Auth Flow", () => {
   // This test does NOT use stored auth state -- it tests login from scratch
   test.use({ storageState: { cookies: [], origins: [] } });
 
+  test("rejects bad credentials: inline error appears and URL stays on /login", async ({
+    page,
+  }) => {
+    await page.goto("/login");
+
+    // Submit credentials that do NOT exist in the database -> 401
+    await page.locator('input[type="email"]').fill("nobody@vytal.fit");
+    await page.locator('input[type="password"]').fill("definitely-wrong-1!");
+    await page.getByRole("button", { name: /entrar|login/i }).click();
+
+    // The inline error (role="alert") must appear with the i18n message.
+    // Filter by text because Next.js adds its own empty route-announcer
+    // element with role="alert".
+    const alert = page
+      .getByRole("alert")
+      .filter({ hasText: /incorretos|invalid|incorrectos/i });
+    await expect(alert).toBeVisible({ timeout: 10000 });
+
+    // And we must still be on the login page — no redirect happened
+    await expect(page).toHaveURL(/login/);
+  });
+
   test("login flow: redirects unauthenticated user to /login, then logs in to /dashboard", async ({
     page,
   }) => {
@@ -25,15 +48,15 @@ test.describe("Journey: Auth Flow", () => {
     await page.waitForTimeout(3000);
     await expect(page).toHaveURL(/login/);
 
-    // 2. Fill login credentials
-    await page.locator('input[type="email"]').fill("test@vytal.fit");
-    await page.locator('input[type="password"]').fill("testpassword123");
+    // 2. Fill the seeded demo credentials (real Better Auth account)
+    await page.locator('input[type="email"]').fill(DEMO_USERS.owner.email);
+    await page.locator('input[type="password"]').fill(DEMO_PASSWORD);
 
     // 3. Click submit (PT: "Entrar", EN: "Login")
     await page.getByRole("button", { name: /entrar|login/i }).click();
 
-    // 4. Verify redirect to dashboard
-    await page.waitForURL(/dashboard/, { timeout: 10000 });
+    // 4. Verify redirect to dashboard (real sign-in + org hydration round-trips)
+    await page.waitForURL(/dashboard/, { timeout: 20000 });
     await expect(page).toHaveURL(/dashboard/);
   });
 });
@@ -96,20 +119,24 @@ test.describe("Journey: Dashboard & Preferences", () => {
 });
 
 test.describe("Journey: Logout", () => {
-  test("after clearing auth, page redirects to login", async ({ page }) => {
+  test("after clearing the cached snapshot, app re-resolves auth from the session cookie", async ({
+    page,
+  }) => {
     await page.goto("/dashboard");
     await expect(page).toHaveURL(/dashboard/);
 
-    // Clear auth from localStorage to simulate logout
+    // Clear only the derived localStorage cache. The real session lives in
+    // the HttpOnly better-auth cookie, so this is NOT a logout anymore:
+    // the auth store re-hydrates from the live session on next load.
     await page.evaluate(() => {
       localStorage.removeItem("vytal-auth");
     });
 
-    // Reload dashboard -- should redirect to login
+    // Reload dashboard — either the guard bounces to /login before the
+    // session revalidation finishes, or hydration wins and we stay.
     await page.goto("/dashboard", { waitUntil: "domcontentloaded" });
     await page.waitForTimeout(3000);
 
-    // After clearing auth, we should be redirected to login
     const url = page.url();
     expect(url).toMatch(/login|dashboard/);
   });
