@@ -10,6 +10,7 @@ import { useRouter } from "expo-router";
 import { ArrowLeft, CheckCircle } from "lucide-react-native";
 import { useTheme } from "./_layout";
 import type { Colors } from "@/colors";
+import { t } from "@/i18n";
 
 
 // ─── Screen ──────────────────────────────────────────────
@@ -30,7 +31,7 @@ export default function CheckInScreen() {
           >
             <ArrowLeft size={22} color={C.text} strokeWidth={2} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>QR Check-in</Text>
+          <Text style={styles.headerTitle}>{t("menu.qrCheckin")}</Text>
           <View style={{ width: 44 }} />
         </View>
 
@@ -95,22 +96,22 @@ export default function CheckInScreen() {
               {/* Class Info */}
               <View style={styles.classInfoCard}>
                 <View style={styles.classInfoRow}>
-                  <Text style={styles.classInfoLabel}>Aula</Text>
+                  <Text style={styles.classInfoLabel}>{t("checkin.classLabel")}</Text>
                   <Text style={styles.classInfoValue}>CrossFit WOD</Text>
                 </View>
                 <View style={styles.classInfoRow}>
-                  <Text style={styles.classInfoLabel}>Horário</Text>
+                  <Text style={styles.classInfoLabel}>{t("checkin.time")}</Text>
                   <Text style={styles.classInfoValue}>09:00 - 10:00</Text>
                 </View>
                 <View style={styles.classInfoRow}>
-                  <Text style={styles.classInfoLabel}>Local</Text>
+                  <Text style={styles.classInfoLabel}>{t("checkin.location")}</Text>
                   <Text style={styles.classInfoValue}>Main Box</Text>
                 </View>
               </View>
 
               {/* Info Text */}
               <Text style={styles.infoText}>
-                Mostra este QR code no quiosque para fazer check-in
+                {t("checkin.info")}
               </Text>
 
               {/* Simulate validation */}
@@ -118,7 +119,7 @@ export default function CheckInScreen() {
                 style={styles.simulateButton}
                 onPress={() => setValidated(true)}
               >
-                <Text style={styles.simulateButtonText}>SIMULAR CHECK-IN</Text>
+                <Text style={styles.simulateButtonText}>{t("checkin.simulate")}</Text>
               </TouchableOpacity>
             </>
           ) : (
@@ -128,20 +129,20 @@ export default function CheckInScreen() {
                 <View style={styles.successCircle}>
                   <CheckCircle size={64} color={C.green} strokeWidth={1.5} />
                 </View>
-                <Text style={styles.successTitle}>Check-in validado!</Text>
+                <Text style={styles.successTitle}>{t("checkin.validated")}</Text>
                 <Text style={styles.successSubtitle}>
-                  Bom treino, Jose!
+                  {t("checkin.goodWorkout").replace("{name}", "Jose")}
                 </Text>
               </View>
 
               {/* Class Info */}
               <View style={styles.classInfoCard}>
                 <View style={styles.classInfoRow}>
-                  <Text style={styles.classInfoLabel}>Aula</Text>
+                  <Text style={styles.classInfoLabel}>{t("checkin.classLabel")}</Text>
                   <Text style={styles.classInfoValue}>CrossFit WOD</Text>
                 </View>
                 <View style={styles.classInfoRow}>
-                  <Text style={styles.classInfoLabel}>Horário</Text>
+                  <Text style={styles.classInfoLabel}>{t("checkin.time")}</Text>
                   <Text style={styles.classInfoValue}>09:00 - 10:00</Text>
                 </View>
                 <View style={styles.classInfoRow}>
@@ -156,7 +157,7 @@ export default function CheckInScreen() {
                 style={styles.backToClassesButton}
                 onPress={() => router.back()}
               >
-                <Text style={styles.backToClassesText}>VOLTAR</Text>
+                <Text style={styles.backToClassesText}>{t("checkin.back")}</Text>
               </TouchableOpacity>
             </>
           )}

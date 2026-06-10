@@ -12,14 +12,15 @@ import { useRouter } from "expo-router";
 import { ArrowLeft, CheckCircle } from "lucide-react-native";
 import { useTheme } from "./_layout";
 import type { Colors } from "@/colors";
+import { t } from "@/i18n";
 
 
 // ─── Score Type Config ──────────────────────────────────
 const scoreTypes = [
-  { key: "time", label: "Tempo" },
-  { key: "rounds_reps", label: "Rounds+Reps" },
-  { key: "weight", label: "Peso" },
-  { key: "reps", label: "Reps" },
+  { key: "time", labelKey: "score.typeTime" },
+  { key: "rounds_reps", labelKey: "score.typeRoundsReps" },
+  { key: "weight", labelKey: "score.typeWeight" },
+  { key: "reps", labelKey: "score.typeReps" },
 ] as const;
 
 type ScoreType = (typeof scoreTypes)[number]["key"];
@@ -80,7 +81,7 @@ export default function ScoreEntryScreen() {
           <TouchableOpacity style={styles.backButton} onPress={() => router.back()} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
             <ArrowLeft size={24} color={C.text} strokeWidth={1.8} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Resultado</Text>
+          <Text style={styles.headerTitle}>{t("score.title")}</Text>
           <View style={{ width: 44 }} />
         </View>
 
@@ -96,7 +97,7 @@ export default function ScoreEntryScreen() {
 
           {/* Score Type Selector */}
           <View style={styles.sectionCard}>
-            <Text style={styles.sectionLabel}>TIPO DE RESULTADO</Text>
+            <Text style={styles.sectionLabel}>{t("score.sectionType")}</Text>
             <View style={styles.typeSelector}>
               {scoreTypes.map((type) => (
                 <TouchableOpacity
@@ -113,7 +114,7 @@ export default function ScoreEntryScreen() {
                       scoreType === type.key && styles.typePillTextActive,
                     ]}
                   >
-                    {type.label}
+                    {t(type.labelKey)}
                   </Text>
                 </TouchableOpacity>
               ))}
@@ -122,7 +123,7 @@ export default function ScoreEntryScreen() {
 
           {/* Score Input */}
           <View style={styles.sectionCard}>
-            <Text style={styles.sectionLabel}>SCORE</Text>
+            <Text style={styles.sectionLabel}>{t("score.sectionScore")}</Text>
             {scoreType === "time" && (
               <View style={styles.timeInputRow}>
                 <View style={styles.timeInputGroup}>
@@ -135,7 +136,7 @@ export default function ScoreEntryScreen() {
                     value={minutes}
                     onChangeText={setMinutes}
                   />
-                  <Text style={styles.timeLabel}>min</Text>
+                  <Text style={styles.timeLabel}>{t("score.min")}</Text>
                 </View>
                 <Text style={styles.timeSeparator}>:</Text>
                 <View style={styles.timeInputGroup}>
@@ -148,7 +149,7 @@ export default function ScoreEntryScreen() {
                     value={seconds}
                     onChangeText={setSeconds}
                   />
-                  <Text style={styles.timeLabel}>seg</Text>
+                  <Text style={styles.timeLabel}>{t("score.sec")}</Text>
                 </View>
               </View>
             )}
@@ -212,7 +213,7 @@ export default function ScoreEntryScreen() {
 
           {/* Scale Selector */}
           <View style={styles.sectionCard}>
-            <Text style={styles.sectionLabel}>ESCALA</Text>
+            <Text style={styles.sectionLabel}>{t("score.sectionScale")}</Text>
             <View style={styles.scaleRow}>
               {scaleOptions.map((opt) => (
                 <TouchableOpacity
@@ -242,7 +243,7 @@ export default function ScoreEntryScreen() {
           {/* RPE Slider */}
           <View style={styles.sectionCard}>
             <View style={styles.rpeHeader}>
-              <Text style={styles.sectionLabel}>RPE (ESFORCO PERCEBIDO)</Text>
+              <Text style={styles.sectionLabel}>{t("score.rpeLabel")}</Text>
               <Text style={[styles.rpeValue, { color: getRPEColor(rpe, C) }]}>
                 {rpe}
               </Text>
@@ -274,17 +275,17 @@ export default function ScoreEntryScreen() {
               ))}
             </View>
             <View style={styles.rpeLabels}>
-              <Text style={styles.rpeLabelText}>Facil</Text>
-              <Text style={styles.rpeLabelText}>Maximo</Text>
+              <Text style={styles.rpeLabelText}>{t("score.easy")}</Text>
+              <Text style={styles.rpeLabelText}>{t("score.max")}</Text>
             </View>
           </View>
 
           {/* Notes */}
           <View style={styles.sectionCard}>
-            <Text style={styles.sectionLabel}>NOTAS</Text>
+            <Text style={styles.sectionLabel}>{t("score.sectionNotes")}</Text>
             <TextInput
               style={styles.notesInput}
-              placeholder="Adicionar notas sobre o treino..."
+              placeholder={t("score.notesPlaceholder")}
               placeholderTextColor={C.muted}
               multiline
               numberOfLines={4}
@@ -304,10 +305,10 @@ export default function ScoreEntryScreen() {
             {saving ? (
               <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
                 <CheckCircle size={18} color="#080c0a" strokeWidth={2.5} />
-                <Text style={styles.saveButtonText}>GUARDADO!</Text>
+                <Text style={styles.saveButtonText}>{t("btn.savedExcl")}</Text>
               </View>
             ) : (
-              <Text style={styles.saveButtonText}>GUARDAR</Text>
+              <Text style={styles.saveButtonText}>{t("btn.save")}</Text>
             )}
           </TouchableOpacity>
         </View>

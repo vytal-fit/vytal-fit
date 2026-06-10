@@ -11,6 +11,7 @@ import { useRouter } from "expo-router";
 import { ArrowLeft, Check, MapPin, Clock, User } from "lucide-react-native";
 import { useTheme } from "./_layout";
 import type { Colors } from "@/colors";
+import { t } from "@/i18n";
 
 
 // ─── Screen ──────────────────────────────────────────────
@@ -45,7 +46,7 @@ export default function BookingConfirmScreen() {
           <Animated.View style={[styles.checkCircle, { transform: [{ scale: scaleAnim }] }]}>
             <Check size={48} color="#080c0a" strokeWidth={3} />
           </Animated.View>
-          <Text style={styles.successTitle}>Reserva Confirmada!</Text>
+          <Text style={styles.successTitle}>{t("bookingConfirm.confirmedTitle")}</Text>
           <View style={styles.successDetails}>
             <Text style={styles.successDetail}>WOD - 07:00 - 08:00</Text>
             <Text style={styles.successDetail}>Coach Andre Loureiro</Text>
@@ -55,7 +56,7 @@ export default function BookingConfirmScreen() {
             style={styles.doneButton}
             onPress={() => router.back()}
           >
-            <Text style={styles.doneButtonText}>FECHAR</Text>
+            <Text style={styles.doneButtonText}>{t("passwordChange.close")}</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -70,7 +71,7 @@ export default function BookingConfirmScreen() {
           <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
             <ArrowLeft size={22} color={C.text} strokeWidth={2} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Reserva</Text>
+          <Text style={styles.headerTitle}>{t("bookingConfirm.title")}</Text>
           <View style={{ width: 44 }} />
         </View>
 
@@ -92,21 +93,21 @@ export default function BookingConfirmScreen() {
             </View>
           </View>
 
-          <Text style={styles.confirmHeading}>Confirmar Reserva?</Text>
+          <Text style={styles.confirmHeading}>{t("bookingConfirm.question")}</Text>
 
           {/* Buttons */}
           <TouchableOpacity
             style={styles.confirmButton}
             onPress={() => setConfirmed(true)}
           >
-            <Text style={styles.confirmButtonText}>CONFIRMAR</Text>
+            <Text style={styles.confirmButtonText}>{t("bookingConfirm.confirm")}</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             style={styles.cancelButton}
             onPress={() => router.back()}
           >
-            <Text style={styles.cancelButtonText}>CANCELAR</Text>
+            <Text style={styles.cancelButtonText}>{t("bookingConfirm.cancel")}</Text>
           </TouchableOpacity>
         </View>
       </View>

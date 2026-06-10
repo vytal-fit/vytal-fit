@@ -12,6 +12,7 @@ import { useRouter } from "expo-router";
 import { ArrowLeft, Send } from "lucide-react-native";
 import { useTheme } from "./_layout";
 import type { Colors } from "@/colors";
+import { t } from "@/i18n";
 
 
 const mockComments = [
@@ -35,7 +36,7 @@ export default function WodCommentsScreen() {
           <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
             <ArrowLeft size={22} color={C.text} strokeWidth={2} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Comentarios</Text>
+          <Text style={styles.headerTitle}>{t("wodComments.title")}</Text>
           <View style={{ width: 44 }} />
         </View>
 
@@ -70,7 +71,7 @@ export default function WodCommentsScreen() {
         <View style={styles.inputBar}>
           <TextInput
             style={styles.input}
-            placeholder="Escrever comentario..."
+            placeholder={t("wodComments.placeholder")}
             placeholderTextColor={C.muted}
             value={newComment}
             onChangeText={setNewComment}

@@ -12,6 +12,7 @@ import { ArrowLeft, Clock, Trophy, Calendar } from "lucide-react-native";
 import { mockWODs } from "@vytal-fit/shared";
 import { useTheme } from "./_layout";
 import type { Colors } from "@/colors";
+import { t } from "@/i18n";
 
 
 // ─── Mock History ────────────────────────────────────────
@@ -32,19 +33,24 @@ function getWODTypeBadge(type: string, C: Colors): { label: string; color: strin
     case "tabata":
       return { label: "TABATA", color: C.orange };
     case "strength":
-      return { label: "STRENGTH", color: C.amber };
+      return { label: t("cat.strengthFull"), color: C.amber };
     default:
-      return { label: "CUSTOM", color: C.purple };
+      return { label: t("wod.typeCustom"), color: C.purple };
   }
 }
 
+const MONTH_KEYS = [
+  "month.jan", "month.feb", "month.mar", "month.apr", "month.may", "month.jun",
+  "month.jul", "month.aug", "month.sep", "month.oct", "month.nov", "month.dec",
+];
+
 function formatDate(dateStr: string): string {
   const parts = dateStr.split("-");
-  const months = [
-    "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
-    "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro",
-  ];
-  return `${parts[2]} de ${months[parseInt(parts[1], 10) - 1]} ${parts[0]}`;
+  const month = t(MONTH_KEYS[parseInt(parts[1], 10) - 1]);
+  return t("wodDetail.dateFormat")
+    .replace("{d}", parts[2])
+    .replace("{m}", month)
+    .replace("{y}", parts[0]);
 }
 
 // ─── Screen ──────────────────────────────────────────────
@@ -68,7 +74,7 @@ export default function WODDetailScreen() {
           >
             <ArrowLeft size={22} color={C.text} strokeWidth={2} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Detalhes do WOD</Text>
+          <Text style={styles.headerTitle}>{t("wodDetail.title")}</Text>
           <View style={{ width: 44 }} />
         </View>
 
@@ -94,7 +100,7 @@ export default function WODDetailScreen() {
               <View style={styles.pbLeft}>
                 <Trophy size={20} color={C.amber} strokeWidth={2} />
                 <View>
-                  <Text style={styles.pbLabel}>O teu melhor resultado</Text>
+                  <Text style={styles.pbLabel}>{t("wodDetail.pbLabel")}</Text>
                   <Text style={styles.pbValue}>{personalBest}</Text>
                 </View>
               </View>
@@ -105,7 +111,7 @@ export default function WODDetailScreen() {
           )}
 
           {/* Workout Breakdown */}
-          <Text style={styles.sectionTitle}>Detalhes do Treino</Text>
+          <Text style={styles.sectionTitle}>{t("wodDetail.workoutDetails")}</Text>
           {wod.parts.map((part, i) => {
             const badge = getWODTypeBadge(part.type, C);
             return (
@@ -142,7 +148,7 @@ export default function WODDetailScreen() {
                     <Text style={styles.timeCapText}>
                       {part.rounds} rounds
                       {part.intervalSeconds
-                        ? ` (${part.intervalSeconds}s interval)`
+                        ? ` ${t("wodDetail.interval").replace("{s}", String(part.intervalSeconds))}`
                         : ""}
                     </Text>
                   </View>
@@ -176,7 +182,7 @@ export default function WODDetailScreen() {
           })}
 
           {/* History */}
-          <Text style={styles.sectionTitle}>Histórico</Text>
+          <Text style={styles.sectionTitle}>{t("wodDetail.history")}</Text>
           {mockHistory.map((entry) => (
             <View key={entry.id} style={styles.historyCard}>
               <View style={styles.historyLeft}>
