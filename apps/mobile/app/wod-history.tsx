@@ -10,23 +10,9 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { ArrowLeft, Zap, ChevronDown } from "lucide-react-native";
+import { useTheme } from "./_layout";
+import type { Colors } from "@/colors";
 
-// ─── Colors ──────────────────────────────────────────────
-const C = {
-  bg: "#080c0a",
-  surface: "#0f1610",
-  surface2: "#162018",
-  green: "#3dff6e",
-  blue: "#00d4ff",
-  amber: "#ffb300",
-  red: "#ff4757",
-  purple: "#c084fc",
-  orange: "#ff8c42",
-  text: "#dceee0",
-  muted: "#6b8c72",
-  cardBg: "rgba(22,32,24,0.9)",
-  border: "rgba(61,255,110,0.1)",
-};
 
 // ─── Types ───────────────────────────────────────────────
 type WODHistoryEntry = {
@@ -58,7 +44,7 @@ const SORT_OPTIONS = [
   { key: "fistbumps", label: "Fist bumps primeiro" },
 ];
 
-function getTypeBadge(type: string): { label: string; color: string } {
+function getTypeBadge(type: string, C: Colors): { label: string; color: string } {
   switch (type) {
     case "amrap":
       return { label: "AMRAP", color: C.green };
@@ -82,6 +68,8 @@ function formatDate(dateStr: string): string {
 
 // ─── Screen ──────────────────────────────────────────────
 export default function WODHistoryScreen() {
+  const C = useTheme();
+  const styles = makeStyles(C);
   const router = useRouter();
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
@@ -206,7 +194,7 @@ export default function WODHistoryScreen() {
           contentContainerStyle={styles.scrollContent}
         >
           {filtered.map((entry) => {
-            const badge = getTypeBadge(entry.type);
+            const badge = getTypeBadge(entry.type, C);
             return (
               <View key={entry.id} style={styles.card}>
                 <View style={styles.cardHeader}>
@@ -258,7 +246,7 @@ export default function WODHistoryScreen() {
 }
 
 // ─── Styles ──────────────────────────────────────────────
-const styles = StyleSheet.create({
+function makeStyles(C: Colors) { return StyleSheet.create({
   safe: {
     flex: 1,
     backgroundColor: C.bg,
@@ -407,7 +395,7 @@ const styles = StyleSheet.create({
 
   // Card
   card: {
-    backgroundColor: C.cardBg,
+    backgroundColor: C.card,
     borderRadius: 14,
     borderWidth: 1,
     borderColor: C.border,
@@ -508,4 +496,4 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: C.muted,
   },
-});
+}); }

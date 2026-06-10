@@ -11,29 +11,16 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { mockClasses } from "@vytal-fit/shared";
+import { useTheme } from "./_layout";
+import type { Colors } from "@/colors";
 
-// ─── Colors ──────────────────────────────────────────────
-const C = {
-  bg: "#080c0a",
-  surface: "#0f1610",
-  surface2: "#162018",
-  green: "#3dff6e",
-  blue: "#00d4ff",
-  amber: "#ffb300",
-  red: "#ff4757",
-  purple: "#c084fc",
-  orange: "#ff8c42",
-  text: "#dceee0",
-  muted: "#6b8c72",
-  cardBg: "rgba(22,32,24,0.9)",
-  border: "rgba(61,255,110,0.1)",
-};
 
 const TOTAL_STEPS = 4;
 
 // ─── Step Components ─────────────────────────────────────
 
 function StepWelcome() {
+  const styles = makeStyles(useTheme());
   return (
     <View style={styles.stepContainer}>
       <View style={styles.welcomeLogoContainer}>
@@ -60,6 +47,8 @@ function StepProfile({
   };
   setProfile: (p: typeof profile) => void;
 }) {
+  const C = useTheme();
+  const styles = makeStyles(C);
   return (
     <View style={styles.stepContainer}>
       <Text style={styles.stepTitle}>Completa o teu perfil</Text>
@@ -152,6 +141,8 @@ function StepPreferences({
   };
   setPrefs: (p: typeof prefs) => void;
 }) {
+  const C = useTheme();
+  const styles = makeStyles(C);
   return (
     <View style={styles.stepContainer}>
       <Text style={styles.stepTitle}>Preferências</Text>
@@ -234,6 +225,8 @@ function StepPreferences({
 }
 
 function StepFirstBooking() {
+  const C = useTheme();
+  const styles = makeStyles(C);
   const [selectedClassId, setSelectedClassId] = useState<string | null>(null);
   const todayClasses = mockClasses.filter(
     (cls) => cls.date === new Date().toISOString().split("T")[0]
@@ -294,6 +287,8 @@ function StepFirstBooking() {
 
 // ─── Screen ──────────────────────────────────────────────
 export default function OnboardingScreen() {
+  const C = useTheme();
+  const styles = makeStyles(C);
   const router = useRouter();
   const [step, setStep] = useState(1);
   const [profile, setProfile] = useState({
@@ -391,7 +386,7 @@ export default function OnboardingScreen() {
 }
 
 // ─── Styles ──────────────────────────────────────────────
-const styles = StyleSheet.create({
+function makeStyles(C: Colors) { return StyleSheet.create({
   safe: {
     flex: 1,
     backgroundColor: C.bg,
@@ -558,7 +553,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    backgroundColor: C.cardBg,
+    backgroundColor: C.card,
     borderRadius: 12,
     borderWidth: 1,
     borderColor: C.border,
@@ -584,7 +579,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    backgroundColor: C.cardBg,
+    backgroundColor: C.card,
     borderRadius: 12,
     borderWidth: 1,
     borderColor: C.border,
@@ -632,7 +627,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   classCardOnboarding: {
-    backgroundColor: C.cardBg,
+    backgroundColor: C.card,
     borderRadius: 14,
     borderWidth: 1,
     borderColor: C.border,
@@ -748,4 +743,4 @@ const styles = StyleSheet.create({
     color: "#080c0a",
     letterSpacing: 1,
   },
-});
+}); }

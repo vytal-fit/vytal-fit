@@ -11,21 +11,12 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { ArrowLeft, Star } from "lucide-react-native";
 
-const C = {
-  bg: "#080c0a",
-  surface: "#0f1610",
-  surface2: "#162018",
-  green: "#3dff6e",
-  blue: "#00d4ff",
-  amber: "#ffb300",
-  red: "#ff4757",
-  text: "#dceee0",
-  muted: "#6b8c72",
-  cardBg: "rgba(22,32,24,0.9)",
-  border: "rgba(61,255,110,0.1)",
-};
+import { useTheme } from "./_layout";
+import type { Colors } from "@/colors";
 
 export default function QuestionnaireScreen() {
+  const C = useTheme();
+  const styles = makeStyles(C);
   const router = useRouter();
   const [currentQ, setCurrentQ] = useState(0);
   const [rating, setRating] = useState(0);
@@ -200,7 +191,7 @@ export default function QuestionnaireScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+function makeStyles(C: Colors) { return StyleSheet.create({
   safe: { flex: 1, backgroundColor: C.bg },
   container: { flex: 1 },
   header: {
@@ -222,7 +213,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: { paddingHorizontal: 16, paddingTop: 16, flex: 1 },
   questionCard: {
-    backgroundColor: C.cardBg, borderRadius: 16, borderWidth: 1,
+    backgroundColor: C.card, borderRadius: 16, borderWidth: 1,
     borderColor: C.border, padding: 24,
   },
   questionText: { fontSize: 18, fontWeight: "700", color: C.text, marginBottom: 20 },
@@ -275,4 +266,4 @@ const styles = StyleSheet.create({
     backgroundColor: C.green,
   },
   submitButtonText: { fontSize: 13, fontWeight: "800", color: "#080c0a", letterSpacing: 1 },
-});
+}); }

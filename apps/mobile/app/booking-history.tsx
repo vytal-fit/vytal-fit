@@ -10,23 +10,9 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { ArrowLeft } from "lucide-react-native";
+import { useTheme } from "./_layout";
+import type { Colors } from "@/colors";
 
-// ─── Colors ──────────────────────────────────────────────
-const C = {
-  bg: "#080c0a",
-  surface: "#0f1610",
-  surface2: "#162018",
-  green: "#3dff6e",
-  blue: "#00d4ff",
-  amber: "#ffb300",
-  red: "#ff4757",
-  purple: "#c084fc",
-  orange: "#ff8c42",
-  text: "#dceee0",
-  muted: "#6b8c72",
-  cardBg: "rgba(22,32,24,0.9)",
-  border: "rgba(61,255,110,0.1)",
-};
 
 // ─── Helpers ─────────────────────────────────────────────
 function getMonths(): { key: string; label: string; year: number; month: number }[] {
@@ -54,7 +40,7 @@ type BookingHistoryEntry = {
   startTime: string;
   endTime: string;
   classType: string;
-  classTypeColor: string;
+  classTypeColor: keyof Colors;
   location: string;
   coach: string;
   status: "presente" | "falta" | "cancelada";
@@ -62,19 +48,19 @@ type BookingHistoryEntry = {
 
 // ─── Mock Data ───────────────────────────────────────────
 const mockBookingHistory: BookingHistoryEntry[] = [
-  { id: "bh-1", date: "2026-06-02", startTime: "07:00", endTime: "08:00", classType: "CrossFit", classTypeColor: "#3dff6e", location: "Sala Principal", coach: "Andre Loureiro", status: "presente" },
-  { id: "bh-2", date: "2026-06-01", startTime: "09:00", endTime: "10:00", classType: "CrossFit", classTypeColor: "#3dff6e", location: "Sala Principal", coach: "Marine Robba", status: "presente" },
-  { id: "bh-3", date: "2026-05-30", startTime: "17:30", endTime: "18:30", classType: "CrossFit", classTypeColor: "#3dff6e", location: "Sala Principal", coach: "Andre Loureiro", status: "falta" },
-  { id: "bh-4", date: "2026-05-28", startTime: "12:00", endTime: "13:00", classType: "Halterofilismo", classTypeColor: "#ffb300", location: "Sala Olimpica", coach: "Ricardo Ribeiro", status: "presente" },
-  { id: "bh-5", date: "2026-05-26", startTime: "07:00", endTime: "08:00", classType: "CrossFit", classTypeColor: "#3dff6e", location: "Sala Principal", coach: "Andre Loureiro", status: "presente" },
-  { id: "bh-6", date: "2026-05-24", startTime: "10:00", endTime: "11:30", classType: "Yoga", classTypeColor: "#c084fc", location: "Sala Zen", coach: "Sofia Mendes", status: "cancelada" },
-  { id: "bh-7", date: "2026-05-22", startTime: "18:30", endTime: "19:30", classType: "CrossFit", classTypeColor: "#3dff6e", location: "Sala Principal", coach: "Marine Robba", status: "presente" },
-  { id: "bh-8", date: "2026-05-20", startTime: "09:00", endTime: "10:00", classType: "CrossFit", classTypeColor: "#3dff6e", location: "Sala Principal", coach: "Andre Loureiro", status: "presente" },
-  { id: "bh-9", date: "2026-05-18", startTime: "17:30", endTime: "18:30", classType: "Open Gym", classTypeColor: "#00d4ff", location: "Area Outdoor", coach: "Pedro Santos", status: "presente" },
-  { id: "bh-10", date: "2026-05-15", startTime: "07:00", endTime: "08:00", classType: "CrossFit", classTypeColor: "#3dff6e", location: "Sala Principal", coach: "Andre Loureiro", status: "falta" },
+  { id: "bh-1", date: "2026-06-02", startTime: "07:00", endTime: "08:00", classType: "CrossFit", classTypeColor: "green", location: "Sala Principal", coach: "Andre Loureiro", status: "presente" },
+  { id: "bh-2", date: "2026-06-01", startTime: "09:00", endTime: "10:00", classType: "CrossFit", classTypeColor: "green", location: "Sala Principal", coach: "Marine Robba", status: "presente" },
+  { id: "bh-3", date: "2026-05-30", startTime: "17:30", endTime: "18:30", classType: "CrossFit", classTypeColor: "green", location: "Sala Principal", coach: "Andre Loureiro", status: "falta" },
+  { id: "bh-4", date: "2026-05-28", startTime: "12:00", endTime: "13:00", classType: "Halterofilismo", classTypeColor: "amber", location: "Sala Olimpica", coach: "Ricardo Ribeiro", status: "presente" },
+  { id: "bh-5", date: "2026-05-26", startTime: "07:00", endTime: "08:00", classType: "CrossFit", classTypeColor: "green", location: "Sala Principal", coach: "Andre Loureiro", status: "presente" },
+  { id: "bh-6", date: "2026-05-24", startTime: "10:00", endTime: "11:30", classType: "Yoga", classTypeColor: "purple", location: "Sala Zen", coach: "Sofia Mendes", status: "cancelada" },
+  { id: "bh-7", date: "2026-05-22", startTime: "18:30", endTime: "19:30", classType: "CrossFit", classTypeColor: "green", location: "Sala Principal", coach: "Marine Robba", status: "presente" },
+  { id: "bh-8", date: "2026-05-20", startTime: "09:00", endTime: "10:00", classType: "CrossFit", classTypeColor: "green", location: "Sala Principal", coach: "Andre Loureiro", status: "presente" },
+  { id: "bh-9", date: "2026-05-18", startTime: "17:30", endTime: "18:30", classType: "Open Gym", classTypeColor: "blue", location: "Area Outdoor", coach: "Pedro Santos", status: "presente" },
+  { id: "bh-10", date: "2026-05-15", startTime: "07:00", endTime: "08:00", classType: "CrossFit", classTypeColor: "green", location: "Sala Principal", coach: "Andre Loureiro", status: "falta" },
 ];
 
-function getStatusBadge(status: BookingHistoryEntry["status"]): { label: string; color: string; bg: string } {
+function getStatusBadge(status: BookingHistoryEntry["status"], C: Colors): { label: string; color: string; bg: string } {
   switch (status) {
     case "presente":
       return { label: "Presente", color: C.green, bg: C.green + "18" };
@@ -92,6 +78,8 @@ function formatDate(dateStr: string): string {
 
 // ─── Screen ──────────────────────────────────────────────
 export default function BookingHistoryScreen() {
+  const C = useTheme();
+  const styles = makeStyles(C);
   const router = useRouter();
   const months = getMonths();
   const [selectedMonth, setSelectedMonth] = useState(months[0].key);
@@ -166,7 +154,7 @@ export default function BookingHistoryScreen() {
           data={filteredEntries}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => {
-            const badge = getStatusBadge(item.status);
+            const badge = getStatusBadge(item.status, C);
             return (
               <View style={styles.card}>
                 <View style={styles.cardTop}>
@@ -180,7 +168,7 @@ export default function BookingHistoryScreen() {
                 </View>
                 <View style={styles.cardBody}>
                   <View style={styles.classTypeRow}>
-                    <View style={[styles.colorDot, { backgroundColor: item.classTypeColor }]} />
+                    <View style={[styles.colorDot, { backgroundColor: C[item.classTypeColor] }]} />
                     <Text style={styles.classTypeName}>{item.classType}</Text>
                   </View>
                   <View style={styles.infoRow}>
@@ -210,7 +198,7 @@ export default function BookingHistoryScreen() {
 }
 
 // ─── Styles ──────────────────────────────────────────────
-const styles = StyleSheet.create({
+function makeStyles(C: Colors) { return StyleSheet.create({
   safe: {
     flex: 1,
     backgroundColor: C.bg,
@@ -293,7 +281,7 @@ const styles = StyleSheet.create({
   },
   statCard: {
     flex: 1,
-    backgroundColor: C.cardBg,
+    backgroundColor: C.card,
     borderRadius: 14,
     borderWidth: 1,
     borderColor: C.border,
@@ -323,7 +311,7 @@ const styles = StyleSheet.create({
 
   // Card
   card: {
-    backgroundColor: C.cardBg,
+    backgroundColor: C.card,
     borderRadius: 14,
     borderWidth: 1,
     borderColor: C.border,
@@ -409,4 +397,4 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: C.muted,
   },
-});
+}); }

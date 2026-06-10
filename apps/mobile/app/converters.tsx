@@ -10,19 +10,9 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { ArrowLeft, ArrowLeftRight } from "lucide-react-native";
+import { useTheme } from "./_layout";
+import type { Colors } from "@/colors";
 
-const C = {
-  bg: "#080c0a",
-  surface: "#0f1610",
-  surface2: "#162018",
-  green: "#3dff6e",
-  blue: "#00d4ff",
-  amber: "#ffb300",
-  text: "#dceee0",
-  muted: "#6b8c72",
-  cardBg: "rgba(22,32,24,0.9)",
-  border: "rgba(61,255,110,0.1)",
-};
 
 function ConverterSection({
   title,
@@ -37,6 +27,8 @@ function ConverterSection({
   aToB: (v: number) => number;
   bToA: (v: number) => number;
 }) {
+  const C = useTheme();
+  const styles = makeStyles(C);
   const [valA, setValA] = useState("");
   const [valB, setValB] = useState("");
 
@@ -93,6 +85,8 @@ function ConverterSection({
 }
 
 export default function ConvertersScreen() {
+  const C = useTheme();
+  const styles = makeStyles(C);
   const router = useRouter();
 
   return (
@@ -146,7 +140,7 @@ export default function ConvertersScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+function makeStyles(C: Colors) { return StyleSheet.create({
   safe: { flex: 1, backgroundColor: C.bg },
   container: { flex: 1 },
   header: {
@@ -160,7 +154,7 @@ const styles = StyleSheet.create({
   headerTitle: { fontSize: 18, fontWeight: "700", color: C.text },
   scrollContent: { paddingHorizontal: 16, paddingBottom: 20, gap: 12 },
   sectionCard: {
-    backgroundColor: C.cardBg, borderRadius: 14, borderWidth: 1,
+    backgroundColor: C.card, borderRadius: 14, borderWidth: 1,
     borderColor: C.border, padding: 16,
   },
   sectionTitle: {
@@ -180,4 +174,4 @@ const styles = StyleSheet.create({
     fontSize: 12, fontWeight: "700", color: C.muted, marginTop: 6,
     textTransform: "uppercase",
   },
-});
+}); }

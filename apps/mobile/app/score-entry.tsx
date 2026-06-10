@@ -10,9 +10,9 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { ArrowLeft, CheckCircle } from "lucide-react-native";
-import { colors } from "@/colors";
+import { useTheme } from "./_layout";
+import type { Colors } from "@/colors";
 
-const C = { ...colors, cardBg: colors.card };
 
 // ─── Score Type Config ──────────────────────────────────
 const scoreTypes = [
@@ -25,14 +25,14 @@ const scoreTypes = [
 type ScoreType = (typeof scoreTypes)[number]["key"];
 
 const scaleOptions = [
-  { key: "rx", label: "Rx", color: C.green },
-  { key: "scaled", label: "Scaled", color: C.blue },
-  { key: "rx_plus", label: "Rx+", color: C.purple },
+  { key: "rx", label: "Rx", color: "green" },
+  { key: "scaled", label: "Scaled", color: "blue" },
+  { key: "rx_plus", label: "Rx+", color: "purple" },
 ] as const;
 
 type ScaleType = (typeof scaleOptions)[number]["key"];
 
-function getRPEColor(rpe: number): string {
+function getRPEColor(rpe: number, C: Colors): string {
   if (rpe <= 3) return C.green;
   if (rpe <= 5) return C.blue;
   if (rpe <= 7) return C.amber;
@@ -42,6 +42,8 @@ function getRPEColor(rpe: number): string {
 
 // ─── Screen ──────────────────────────────────────────────
 export default function ScoreEntryScreen() {
+  const C = useTheme();
+  const styles = makeStyles(C);
   const router = useRouter();
   const [scoreType, setScoreType] = useState<ScoreType>("time");
   const [scale, setScale] = useState<ScaleType>("rx");
@@ -218,8 +220,8 @@ export default function ScoreEntryScreen() {
                   style={[
                     styles.scalePill,
                     scale === opt.key && {
-                      backgroundColor: opt.color,
-                      borderColor: opt.color,
+                      backgroundColor: C[opt.color],
+                      borderColor: C[opt.color],
                     },
                   ]}
                   onPress={() => setScale(opt.key)}
@@ -241,7 +243,7 @@ export default function ScoreEntryScreen() {
           <View style={styles.sectionCard}>
             <View style={styles.rpeHeader}>
               <Text style={styles.sectionLabel}>RPE (ESFORCO PERCEBIDO)</Text>
-              <Text style={[styles.rpeValue, { color: getRPEColor(rpe) }]}>
+              <Text style={[styles.rpeValue, { color: getRPEColor(rpe, C) }]}>
                 {rpe}
               </Text>
             </View>
@@ -253,7 +255,7 @@ export default function ScoreEntryScreen() {
                     styles.rpeDot,
                     {
                       backgroundColor:
-                        val <= rpe ? getRPEColor(val) : C.surface2,
+                        val <= rpe ? getRPEColor(val, C) : C.surface2,
                     },
                   ]}
                   onPress={() => setRpe(val)}
@@ -315,7 +317,7 @@ export default function ScoreEntryScreen() {
 }
 
 // ─── Styles ──────────────────────────────────────────────
-const styles = StyleSheet.create({
+function makeStyles(C: Colors) { return StyleSheet.create({
   safe: {
     flex: 1,
     backgroundColor: C.bg,
@@ -374,7 +376,7 @@ const styles = StyleSheet.create({
 
   // Section Card
   sectionCard: {
-    backgroundColor: C.cardBg,
+    backgroundColor: C.card,
     borderRadius: 14,
     borderWidth: 1,
     borderColor: C.border,
@@ -578,4 +580,4 @@ const styles = StyleSheet.create({
     color: "#080c0a",
     letterSpacing: 1.5,
   },
-});
+}); }

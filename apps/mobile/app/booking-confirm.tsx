@@ -9,24 +9,14 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { ArrowLeft, Check, MapPin, Clock, User } from "lucide-react-native";
+import { useTheme } from "./_layout";
+import type { Colors } from "@/colors";
 
-// ─── Colors ──────────────────────────────────────────────
-const C = {
-  bg: "#080c0a",
-  surface: "#0f1610",
-  surface2: "#162018",
-  green: "#3dff6e",
-  blue: "#00d4ff",
-  amber: "#ffb300",
-  red: "#ff4757",
-  text: "#dceee0",
-  muted: "#6b8c72",
-  cardBg: "rgba(22,32,24,0.9)",
-  border: "rgba(61,255,110,0.1)",
-};
 
 // ─── Screen ──────────────────────────────────────────────
 export default function BookingConfirmScreen() {
+  const C = useTheme();
+  const styles = makeStyles(C);
   const router = useRouter();
   const [confirmed, setConfirmed] = useState(false);
 
@@ -124,7 +114,7 @@ export default function BookingConfirmScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+function makeStyles(C: Colors) { return StyleSheet.create({
   safe: { flex: 1, backgroundColor: C.bg },
   container: { flex: 1 },
   header: {
@@ -138,7 +128,7 @@ const styles = StyleSheet.create({
   headerTitle: { fontSize: 18, fontWeight: "700", color: C.text },
   content: { flex: 1, paddingHorizontal: 16, justifyContent: "center" },
   classCard: {
-    backgroundColor: C.cardBg, borderRadius: 16, borderWidth: 1,
+    backgroundColor: C.card, borderRadius: 16, borderWidth: 1,
     borderColor: C.border, padding: 20, marginBottom: 30,
   },
   classType: {
@@ -175,4 +165,4 @@ const styles = StyleSheet.create({
     backgroundColor: C.surface, borderWidth: 1, borderColor: C.border,
   },
   doneButtonText: { fontSize: 15, fontWeight: "700", color: C.text, letterSpacing: 1 },
-});
+}); }

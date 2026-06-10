@@ -11,21 +11,8 @@ import { useRouter } from "expo-router";
 import { ArrowLeft, Heart, MessageCircle, Image } from "lucide-react-native";
 
 // ─── Colors ──────────────────────────────────────────────
-const C = {
-  bg: "#080c0a",
-  surface: "#0f1610",
-  surface2: "#162018",
-  green: "#3dff6e",
-  blue: "#00d4ff",
-  amber: "#ffb300",
-  red: "#ff4757",
-  purple: "#c084fc",
-  orange: "#ff8c42",
-  text: "#dceee0",
-  muted: "#6b8c72",
-  cardBg: "rgba(22,32,24,0.9)",
-  border: "rgba(61,255,110,0.1)",
-};
+import { useTheme } from "./_layout";
+import type { Colors } from "@/colors";
 
 // ─── Mock News ───────────────────────────────────────────
 const initialNews = [
@@ -36,7 +23,7 @@ const initialNews = [
     author: "Andre Loureiro",
     date: "2026-06-01",
     tag: "Evento",
-    tagColor: C.amber,
+    tagColor: "amber" as keyof Colors,
     likes: 24,
     comments: 8,
     hasPhoto: true,
@@ -48,7 +35,7 @@ const initialNews = [
     author: "Marine Robba",
     date: "2026-05-30",
     tag: "Info",
-    tagColor: C.blue,
+    tagColor: "blue" as keyof Colors,
     likes: 15,
     comments: 3,
     hasPhoto: false,
@@ -60,7 +47,7 @@ const initialNews = [
     author: "Ricardo Ribeiro",
     date: "2026-05-28",
     tag: "Aviso",
-    tagColor: C.red,
+    tagColor: "red" as keyof Colors,
     likes: 3,
     comments: 1,
     hasPhoto: false,
@@ -72,7 +59,7 @@ const initialNews = [
     author: "Andre Loureiro",
     date: "2026-05-25",
     tag: "Destaque",
-    tagColor: C.green,
+    tagColor: "green" as keyof Colors,
     likes: 42,
     comments: 12,
     hasPhoto: true,
@@ -84,7 +71,7 @@ const initialNews = [
     author: "Ricardo Ribeiro",
     date: "2026-05-22",
     tag: "Workshop",
-    tagColor: C.purple,
+    tagColor: "purple" as keyof Colors,
     likes: 18,
     comments: 5,
     hasPhoto: false,
@@ -102,6 +89,8 @@ function getInitials(name: string): string {
 
 // ─── Screen ──────────────────────────────────────────────
 export default function NewsScreen() {
+  const C = useTheme();
+  const styles = makeStyles(C);
   const router = useRouter();
   const [news, setNews] = useState(initialNews);
   const [likedIds, setLikedIds] = useState<Set<string>>(new Set());
@@ -156,11 +145,11 @@ export default function NewsScreen() {
                   <View
                     style={[
                       styles.newsTag,
-                      { backgroundColor: item.tagColor + "18" },
+                      { backgroundColor: C[item.tagColor] + "18" },
                     ]}
                   >
                     <Text
-                      style={[styles.newsTagText, { color: item.tagColor }]}
+                      style={[styles.newsTagText, { color: C[item.tagColor] }]}
                     >
                       {item.tag}
                     </Text>
@@ -234,7 +223,7 @@ export default function NewsScreen() {
 }
 
 // ─── Styles ──────────────────────────────────────────────
-const styles = StyleSheet.create({
+function makeStyles(C: Colors) { return StyleSheet.create({
   safe: {
     flex: 1,
     backgroundColor: C.bg,
@@ -276,7 +265,7 @@ const styles = StyleSheet.create({
 
   // News Card
   newsCard: {
-    backgroundColor: C.cardBg,
+    backgroundColor: C.card,
     borderRadius: 16,
     borderWidth: 1,
     borderColor: C.border,
@@ -378,4 +367,4 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: C.muted,
   },
-});
+}); }

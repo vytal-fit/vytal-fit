@@ -13,21 +13,8 @@ import { useRouter } from "expo-router";
 import { ArrowLeft, Heart, MessageCircle, Send } from "lucide-react-native";
 
 // ─── Colors ──────────────────────────────────────────────
-const C = {
-  bg: "#080c0a",
-  surface: "#0f1610",
-  surface2: "#162018",
-  green: "#3dff6e",
-  blue: "#00d4ff",
-  amber: "#ffb300",
-  red: "#ff4757",
-  purple: "#c084fc",
-  orange: "#ff8c42",
-  text: "#dceee0",
-  muted: "#6b8c72",
-  cardBg: "rgba(22,32,24,0.9)",
-  border: "rgba(61,255,110,0.1)",
-};
+import { useTheme } from "./_layout";
+import type { Colors } from "@/colors";
 
 // ─── Types ───────────────────────────────────────────────
 type PostType = "pr" | "result" | "checkin" | "photo";
@@ -44,7 +31,7 @@ type SocialPost = {
 };
 
 // ─── Helpers ─────────────────────────────────────────────
-function getPostTypeBadge(type: PostType): { label: string; color: string } {
+function getPostTypeBadge(type: PostType, C: Colors): { label: string; color: string } {
   switch (type) {
     case "pr":
       return { label: "PR", color: C.amber };
@@ -152,6 +139,8 @@ const initialPosts: SocialPost[] = [
 
 // ─── Screen ──────────────────────────────────────────────
 export default function SocialFeedScreen() {
+  const C = useTheme();
+  const styles = makeStyles(C);
   const router = useRouter();
   const [posts, setPosts] = useState(initialPosts);
   const [fistbumpedIds, setFistbumpedIds] = useState<Set<string>>(new Set());
@@ -223,7 +212,7 @@ export default function SocialFeedScreen() {
           contentContainerStyle={styles.scrollContent}
         >
           {posts.map((post) => {
-            const badge = getPostTypeBadge(post.postType);
+            const badge = getPostTypeBadge(post.postType, C);
             const isBumped = fistbumpedIds.has(post.id);
             return (
               <View key={post.id} style={styles.postCard}>
@@ -313,7 +302,7 @@ export default function SocialFeedScreen() {
 }
 
 // ─── Styles ──────────────────────────────────────────────
-const styles = StyleSheet.create({
+function makeStyles(C: Colors) { return StyleSheet.create({
   safe: {
     flex: 1,
     backgroundColor: C.bg,
@@ -355,7 +344,7 @@ const styles = StyleSheet.create({
 
   // Post Card
   postCard: {
-    backgroundColor: C.cardBg,
+    backgroundColor: C.card,
     borderRadius: 16,
     borderWidth: 1,
     borderColor: C.border,
@@ -478,4 +467,4 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-});
+}); }

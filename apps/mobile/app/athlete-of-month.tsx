@@ -10,20 +10,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { ArrowLeft, Award, Star } from "lucide-react-native";
 
-const C = {
-  bg: "#080c0a",
-  surface: "#0f1610",
-  surface2: "#162018",
-  green: "#3dff6e",
-  blue: "#00d4ff",
-  amber: "#ffb300",
-  red: "#ff4757",
-  purple: "#c084fc",
-  text: "#dceee0",
-  muted: "#6b8c72",
-  cardBg: "rgba(22,32,24,0.9)",
-  border: "rgba(61,255,110,0.1)",
-};
+import { useTheme } from "./_layout";
+import type { Colors } from "@/colors";
 
 const nominees = [
   { id: "n-1", name: "Pedro Almeida", votes: 24 },
@@ -44,6 +32,8 @@ function getInitials(name: string): string {
 }
 
 export default function AthleteOfMonthScreen() {
+  const C = useTheme();
+  const styles = makeStyles(C);
   const router = useRouter();
   const [votedId, setVotedId] = useState<string | null>(null);
 
@@ -118,7 +108,7 @@ export default function AthleteOfMonthScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+function makeStyles(C: Colors) { return StyleSheet.create({
   safe: { flex: 1, backgroundColor: C.bg },
   container: { flex: 1 },
   header: {
@@ -139,7 +129,7 @@ const styles = StyleSheet.create({
   monthText: { fontSize: 18, fontWeight: "800", color: C.amber },
   grid: { flexDirection: "row", flexWrap: "wrap", gap: 10 },
   nomineeCard: {
-    width: "48%", backgroundColor: C.cardBg, borderRadius: 14,
+    width: "48%", backgroundColor: C.card, borderRadius: 14,
     borderWidth: 1, borderColor: C.border, padding: 14, alignItems: "center",
   },
   nomineeAvatar: {
@@ -160,7 +150,7 @@ const styles = StyleSheet.create({
   sectionTitle: { fontSize: 16, fontWeight: "700", color: C.text, marginTop: 12 },
   winnerCard: {
     flexDirection: "row", alignItems: "center", gap: 12,
-    backgroundColor: C.cardBg, borderRadius: 14, borderWidth: 1,
+    backgroundColor: C.card, borderRadius: 14, borderWidth: 1,
     borderColor: C.border, padding: 14,
   },
   winnerAvatar: {
@@ -171,4 +161,4 @@ const styles = StyleSheet.create({
   winnerInfo: { flex: 1 },
   winnerName: { fontSize: 15, fontWeight: "700", color: C.text },
   winnerMonth: { fontSize: 12, color: C.muted },
-});
+}); }

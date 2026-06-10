@@ -11,28 +11,16 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { ArrowLeft, Save, CheckCircle } from "lucide-react-native";
 import { mockExercises, mockPersonalRecords } from "@vytal-fit/shared";
+import { useTheme } from "./_layout";
+import type { Colors } from "@/colors";
 
-// ─── Colors ──────────────────────────────────────────────
-const C = {
-  bg: "#080c0a",
-  surface: "#0f1610",
-  surface2: "#162018",
-  green: "#3dff6e",
-  blue: "#00d4ff",
-  amber: "#ffb300",
-  red: "#ff4757",
-  purple: "#c084fc",
-  orange: "#ff8c42",
-  text: "#dceee0",
-  muted: "#6b8c72",
-  cardBg: "rgba(22,32,24,0.9)",
-  border: "rgba(61,255,110,0.1)",
-};
 
 const rmLabels = ["1RM", "2RM", "3RM", "4RM", "5RM", "6RM", "7RM", "8RM", "9RM", "10RM"];
 
 // ─── Screen ──────────────────────────────────────────────
 export default function PREntryScreen() {
+  const C = useTheme();
+  const styles = makeStyles(C);
   const router = useRouter();
   const { exerciseId } = useLocalSearchParams<{ exerciseId: string }>();
 
@@ -86,13 +74,13 @@ export default function PREntryScreen() {
             <View
               style={[
                 styles.categoryBadge,
-                { backgroundColor: getCategoryColor(exercise.category) + "18" },
+                { backgroundColor: getCategoryColor(exercise.category, C) + "18" },
               ]}
             >
               <Text
                 style={[
                   styles.categoryText,
-                  { color: getCategoryColor(exercise.category) },
+                  { color: getCategoryColor(exercise.category, C) },
                 ]}
               >
                 {exercise.category.toUpperCase()}
@@ -168,7 +156,7 @@ export default function PREntryScreen() {
   );
 }
 
-function getCategoryColor(category: string): string {
+function getCategoryColor(category: string, C: Colors): string {
   switch (category) {
     case "weightlifting":
       return C.green;
@@ -184,7 +172,7 @@ function getCategoryColor(category: string): string {
 }
 
 // ─── Styles ──────────────────────────────────────────────
-const styles = StyleSheet.create({
+function makeStyles(C: Colors) { return StyleSheet.create({
   safe: {
     flex: 1,
     backgroundColor: C.bg,
@@ -226,7 +214,7 @@ const styles = StyleSheet.create({
 
   // Exercise Card
   exerciseCard: {
-    backgroundColor: C.cardBg,
+    backgroundColor: C.card,
     borderRadius: 16,
     borderWidth: 1,
     borderColor: C.border,
@@ -293,7 +281,7 @@ const styles = StyleSheet.create({
   },
   rmCell: {
     width: "18.5%",
-    backgroundColor: C.cardBg,
+    backgroundColor: C.card,
     borderRadius: 12,
     borderWidth: 1,
     borderColor: C.border,
@@ -320,7 +308,7 @@ const styles = StyleSheet.create({
 
   // Notes
   notesInput: {
-    backgroundColor: C.cardBg,
+    backgroundColor: C.card,
     borderRadius: 14,
     borderWidth: 1,
     borderColor: C.border,
@@ -350,4 +338,4 @@ const styles = StyleSheet.create({
     color: "#080c0a",
     letterSpacing: 1,
   },
-});
+}); }

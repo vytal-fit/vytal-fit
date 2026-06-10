@@ -11,22 +11,14 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { ArrowLeft, Lock, Eye, EyeOff, Check } from "lucide-react-native";
+import { useTheme } from "./_layout";
+import type { Colors } from "@/colors";
+import { t } from "@/i18n";
 
-const C = {
-  bg: "#080c0a",
-  surface: "#0f1610",
-  surface2: "#162018",
-  green: "#3dff6e",
-  blue: "#00d4ff",
-  amber: "#ffb300",
-  red: "#ff4757",
-  text: "#dceee0",
-  muted: "#6b8c72",
-  cardBg: "rgba(22,32,24,0.9)",
-  border: "rgba(61,255,110,0.1)",
-};
 
 export default function PasswordChangeScreen() {
+  const C = useTheme();
+  const styles = makeStyles(C);
   const router = useRouter();
   const [current, setCurrent] = useState("");
   const [newPass, setNewPass] = useState("");
@@ -43,11 +35,11 @@ export default function PasswordChangeScreen() {
 
   function handleSubmit() {
     if (!current || !newPass || !confirm) {
-      Alert.alert("Erro", "Preenche todos os campos.");
+      Alert.alert(t("alert.error"), t("passwordChange.fillAllFields"));
       return;
     }
     if (!passwordsMatch) {
-      Alert.alert("Erro", "As passwords nao coincidem.");
+      Alert.alert(t("alert.error"), t("passwordChange.mismatch"));
       return;
     }
     setSuccess(true);
@@ -60,12 +52,12 @@ export default function PasswordChangeScreen() {
           <View style={styles.checkCircle}>
             <Check size={48} color="#080c0a" strokeWidth={3} />
           </View>
-          <Text style={styles.successTitle}>Password Alterada!</Text>
+          <Text style={styles.successTitle}>{t("passwordChange.successTitle")}</Text>
           <Text style={styles.successSubtitle}>
-            A tua password foi atualizada com sucesso.
+            {t("passwordChange.successSubtitle")}
           </Text>
           <TouchableOpacity style={styles.doneButton} onPress={() => router.back()}>
-            <Text style={styles.doneButtonText}>FECHAR</Text>
+            <Text style={styles.doneButtonText}>{t("passwordChange.close")}</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -79,7 +71,7 @@ export default function PasswordChangeScreen() {
           <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
             <ArrowLeft size={22} color={C.text} strokeWidth={2} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Alterar Password</Text>
+          <Text style={styles.headerTitle}>{t("passwordChange.title")}</Text>
           <View style={{ width: 44 }} />
         </View>
 
@@ -88,14 +80,14 @@ export default function PasswordChangeScreen() {
           contentContainerStyle={styles.scrollContent}
         >
           {/* Current Password */}
-          <Text style={styles.fieldLabel}>Password Atual</Text>
+          <Text style={styles.fieldLabel}>{t("passwordChange.current")}</Text>
           <View style={styles.inputRow}>
             <TextInput
               style={styles.input}
               secureTextEntry={!showCurrent}
               value={current}
               onChangeText={setCurrent}
-              placeholder="Password atual"
+              placeholder={t("passwordChange.currentPlaceholder")}
               placeholderTextColor={C.muted}
             />
             <TouchableOpacity style={styles.eyeButton} onPress={() => setShowCurrent(!showCurrent)}>
@@ -104,14 +96,14 @@ export default function PasswordChangeScreen() {
           </View>
 
           {/* New Password */}
-          <Text style={styles.fieldLabel}>Nova Password</Text>
+          <Text style={styles.fieldLabel}>{t("passwordChange.new")}</Text>
           <View style={styles.inputRow}>
             <TextInput
               style={styles.input}
               secureTextEntry={!showNew}
               value={newPass}
               onChangeText={setNewPass}
-              placeholder="Nova password"
+              placeholder={t("passwordChange.newPlaceholder")}
               placeholderTextColor={C.muted}
             />
             <TouchableOpacity style={styles.eyeButton} onPress={() => setShowNew(!showNew)}>
@@ -120,14 +112,14 @@ export default function PasswordChangeScreen() {
           </View>
 
           {/* Confirm Password */}
-          <Text style={styles.fieldLabel}>Confirmar Nova Password</Text>
+          <Text style={styles.fieldLabel}>{t("passwordChange.confirm")}</Text>
           <View style={styles.inputRow}>
             <TextInput
               style={styles.input}
               secureTextEntry={!showConfirm}
               value={confirm}
               onChangeText={setConfirm}
-              placeholder="Confirmar password"
+              placeholder={t("passwordChange.confirmPlaceholder")}
               placeholderTextColor={C.muted}
             />
             <TouchableOpacity style={styles.eyeButton} onPress={() => setShowConfirm(!showConfirm)}>
@@ -137,17 +129,17 @@ export default function PasswordChangeScreen() {
 
           {/* Requirements */}
           <View style={styles.requirements}>
-            <Text style={styles.reqTitle}>Requisitos:</Text>
-            <Requirement met={hasMinLength} text="Minimo 8 caracteres" />
-            <Requirement met={hasUppercase} text="Pelo menos uma maiuscula" />
-            <Requirement met={hasNumber} text="Pelo menos um numero" />
-            <Requirement met={passwordsMatch} text="Passwords coincidem" />
+            <Text style={styles.reqTitle}>{t("passwordChange.requirements")}</Text>
+            <Requirement met={hasMinLength} text={t("passwordChange.reqMinLength")} />
+            <Requirement met={hasUppercase} text={t("passwordChange.reqUppercase")} />
+            <Requirement met={hasNumber} text={t("passwordChange.reqNumber")} />
+            <Requirement met={passwordsMatch} text={t("passwordChange.reqMatch")} />
           </View>
 
           {/* Submit */}
           <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
             <Lock size={18} color="#080c0a" strokeWidth={2.5} />
-            <Text style={styles.submitButtonText}>ALTERAR PASSWORD</Text>
+            <Text style={styles.submitButtonText}>{t("passwordChange.submit")}</Text>
           </TouchableOpacity>
 
           <View style={{ height: 30 }} />
@@ -158,6 +150,7 @@ export default function PasswordChangeScreen() {
 }
 
 function Requirement({ met, text }: { met: boolean; text: string }) {
+  const reqStyles = makeReqStyles(useTheme());
   return (
     <View style={reqStyles.row}>
       <View style={[reqStyles.dot, met && reqStyles.dotMet]} />
@@ -166,15 +159,15 @@ function Requirement({ met, text }: { met: boolean; text: string }) {
   );
 }
 
-const reqStyles = StyleSheet.create({
+function makeReqStyles(C: Colors) { return StyleSheet.create({
   row: { flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 6 },
   dot: { width: 8, height: 8, borderRadius: 4, backgroundColor: C.surface2 },
   dotMet: { backgroundColor: C.green },
   text: { fontSize: 13, color: C.muted },
   textMet: { color: C.green },
-});
+}); }
 
-const styles = StyleSheet.create({
+function makeStyles(C: Colors) { return StyleSheet.create({
   safe: { flex: 1, backgroundColor: C.bg },
   container: { flex: 1 },
   header: {
@@ -193,13 +186,13 @@ const styles = StyleSheet.create({
   },
   inputRow: { flexDirection: "row", alignItems: "center" },
   input: {
-    flex: 1, backgroundColor: C.cardBg, borderRadius: 12, borderWidth: 1,
+    flex: 1, backgroundColor: C.card, borderRadius: 12, borderWidth: 1,
     borderColor: C.border, paddingHorizontal: 14, paddingVertical: 14,
     fontSize: 15, color: C.text, fontWeight: "500",
   },
   eyeButton: { position: "absolute", right: 14 },
   requirements: {
-    backgroundColor: C.cardBg, borderRadius: 14, borderWidth: 1,
+    backgroundColor: C.card, borderRadius: 14, borderWidth: 1,
     borderColor: C.border, padding: 16, marginTop: 20,
   },
   reqTitle: { fontSize: 13, fontWeight: "700", color: C.text, marginBottom: 10 },
@@ -224,4 +217,4 @@ const styles = StyleSheet.create({
     backgroundColor: C.surface, borderWidth: 1, borderColor: C.border,
   },
   doneButtonText: { fontSize: 15, fontWeight: "700", color: C.text, letterSpacing: 1 },
-});
+}); }
