@@ -13,6 +13,7 @@ import { ArrowLeft, Search } from "lucide-react-native";
 import { mockExercises } from "@vytal-fit/shared";
 import { useTheme } from "./_layout";
 import type { Colors } from "@/colors";
+import { t } from "@/i18n";
 
 
 // ─── Mock Box Records ────────────────────────────────────
@@ -77,7 +78,7 @@ export default function BoxRecordsScreen() {
           >
             <ArrowLeft size={22} color={C.text} strokeWidth={2} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Recordes da Box</Text>
+          <Text style={styles.headerTitle}>{t("boxRecords.title")}</Text>
           <View style={{ width: 44 }} />
         </View>
 
@@ -97,7 +98,7 @@ export default function BoxRecordsScreen() {
                     gender === g && styles.filterPillTextActive,
                   ]}
                 >
-                  {g === "all" ? "Todos" : g}
+                  {g === "all" ? t("boxRecords.all") : g}
                 </Text>
               </TouchableOpacity>
             ))}
@@ -131,7 +132,7 @@ export default function BoxRecordsScreen() {
             style={styles.searchInput}
             value={search}
             onChangeText={setSearch}
-            placeholder="Pesquisar movimento..."
+            placeholder={t("boxRecords.searchPlaceholder")}
             placeholderTextColor={C.muted + "60"}
           />
         </View>
@@ -162,7 +163,7 @@ export default function BoxRecordsScreen() {
           }}
           ListEmptyComponent={
             <View style={styles.emptyState}>
-              <Text style={styles.emptyText}>Nenhum resultado encontrado</Text>
+              <Text style={styles.emptyText}>{t("boxRecords.empty")}</Text>
             </View>
           }
         />

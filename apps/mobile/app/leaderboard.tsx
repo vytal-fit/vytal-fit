@@ -12,6 +12,7 @@ import { mockLeaderboard } from "@vytal-fit/shared";
 import { ArrowLeft, Zap, Heart } from "lucide-react-native";
 import { useTheme } from "./_layout";
 import type { Colors } from "@/colors";
+import { t } from "@/i18n";
 
 const CURRENT_USER_NAME = "Jose Fonte";
 
@@ -19,13 +20,13 @@ const CURRENT_USER_NAME = "Jose Fonte";
 function getMedalEmoji(rank: number): string {
   switch (rank) {
     case 1:
-      return "1st";
+      return t("leaderboard.rank1");
     case 2:
-      return "2nd";
+      return t("leaderboard.rank2");
     case 3:
-      return "3rd";
+      return t("leaderboard.rank3");
     default:
-      return `${rank}th`;
+      return t("leaderboard.rankN").replace("{n}", String(rank));
   }
 }
 
@@ -104,7 +105,7 @@ export default function LeaderboardScreen() {
           <TouchableOpacity style={styles.backButton} onPress={() => router.back()} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
             <ArrowLeft size={24} color={C.text} strokeWidth={1.8} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Tabela</Text>
+          <Text style={styles.headerTitle}>{t("leaderboard.title")}</Text>
           <View style={{ width: 44 }} />
         </View>
 
@@ -192,7 +193,7 @@ export default function LeaderboardScreen() {
                   </View>
                   <View style={styles.entryInfo}>
                     <Text style={[styles.entryName, isCurrentUser && { color: C.green }]}>
-                      {item.memberName}{isCurrentUser ? " (Tu)" : ""}
+                      {item.memberName}{isCurrentUser ? ` ${t("leaderboard.you")}` : ""}
                     </Text>
                     <View style={styles.entryMeta}>
                       <View style={[styles.scaleBadge, { backgroundColor: scaleColor + "18" }]}>

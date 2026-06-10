@@ -12,6 +12,7 @@ import { useRouter } from "expo-router";
 import { ArrowLeft, Star, MapPin, Search } from "lucide-react-native";
 import { useTheme } from "./_layout";
 import type { Colors } from "@/colors";
+import { t } from "@/i18n";
 
 
 // ─── Types ───────────────────────────────────────────────
@@ -131,7 +132,7 @@ export default function DropInScreen() {
             <ArrowLeft size={22} color={C.text} strokeWidth={2} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>
-            {selectedGym ? "Detalhes" : "Drop-in"}
+            {selectedGym ? t("dropin.details") : t("screen.dropin")}
           </Text>
           <View style={{ width: 44 }} />
         </View>
@@ -146,7 +147,7 @@ export default function DropInScreen() {
                   style={styles.searchInput}
                   value={searchQuery}
                   onChangeText={setSearchQuery}
-                  placeholder="Encontra um espaco..."
+                  placeholder={t("dropin.searchPlaceholder")}
                   placeholderTextColor={C.muted + "80"}
                   autoCapitalize="none"
                 />
@@ -195,7 +196,7 @@ export default function DropInScreen() {
               {filteredGyms.length === 0 && (
                 <View style={styles.emptyState}>
                   <Text style={styles.emptyIcon}>{"( )"}</Text>
-                  <Text style={styles.emptyText}>Nenhum espaco encontrado</Text>
+                  <Text style={styles.emptyText}>{t("dropin.empty")}</Text>
                 </View>
               )}
 
@@ -224,22 +225,22 @@ export default function DropInScreen() {
 
             <View style={styles.detailCard}>
               <View style={styles.detailRow}>
-                <Text style={styles.detailLabel}>Morada</Text>
+                <Text style={styles.detailLabel}>{t("label.address")}</Text>
                 <Text style={styles.detailValue}>{detailGym.address}</Text>
               </View>
               <View style={styles.detailDivider} />
               <View style={styles.detailRow}>
-                <Text style={styles.detailLabel}>Distancia</Text>
+                <Text style={styles.detailLabel}>{t("dropin.distance")}</Text>
                 <Text style={styles.detailValue}>{detailGym.distance}</Text>
               </View>
               <View style={styles.detailDivider} />
               <View style={styles.detailRow}>
-                <Text style={styles.detailLabel}>Horário</Text>
+                <Text style={styles.detailLabel}>{t("dropin.schedule")}</Text>
                 <Text style={styles.detailValue}>{detailGym.schedule}</Text>
               </View>
               <View style={styles.detailDivider} />
               <View style={styles.detailRow}>
-                <Text style={styles.detailLabel}>Avaliacao</Text>
+                <Text style={styles.detailLabel}>{t("dropin.rating")}</Text>
                 <View style={styles.ratingRow}>
                   <Star size={14} color={C.amber} strokeWidth={2} fill={C.amber} />
                   <Text style={[styles.detailValue, { color: C.amber }]}>
@@ -249,7 +250,7 @@ export default function DropInScreen() {
               </View>
               <View style={styles.detailDivider} />
               <View style={styles.detailRow}>
-                <Text style={styles.detailLabel}>Preco</Text>
+                <Text style={styles.detailLabel}>{t("dropin.price")}</Text>
                 <Text style={[styles.detailValue, { color: C.green, fontWeight: "800" }]}>
                   {detailGym.price}
                 </Text>
@@ -258,7 +259,7 @@ export default function DropInScreen() {
 
             {/* Book Button */}
             <TouchableOpacity style={styles.bookButton}>
-              <Text style={styles.bookButtonText}>BOOK DROP-IN</Text>
+              <Text style={styles.bookButtonText}>{t("dropin.book")}</Text>
             </TouchableOpacity>
 
             <View style={{ height: 30 }} />

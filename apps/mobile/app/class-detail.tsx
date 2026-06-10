@@ -12,6 +12,7 @@ import { mockClasses, mockMembers } from "@vytal-fit/shared";
 import { ArrowLeft, MapPin, Clock, Users, CheckCircle } from "lucide-react-native";
 import { useTheme } from "./_layout";
 import type { Colors } from "@/colors";
+import { t } from "@/i18n";
 
 
 // Mock enrolled members (first 5 members)
@@ -46,7 +47,7 @@ export default function ClassDetailScreen() {
             <ArrowLeft size={24} color={C.text} strokeWidth={1.8} />
           </TouchableOpacity>
           <View style={styles.emptyState}>
-            <Text style={styles.emptyText}>Aula nao encontrada</Text>
+            <Text style={styles.emptyText}>{t("classDetail.notFound")}</Text>
           </View>
         </View>
       </SafeAreaView>
@@ -65,7 +66,7 @@ export default function ClassDetailScreen() {
           <TouchableOpacity style={styles.backButton} onPress={() => router.back()} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
             <ArrowLeft size={24} color={C.text} strokeWidth={1.8} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Detalhes da Aula</Text>
+          <Text style={styles.headerTitle}>{t("classDetail.title")}</Text>
           <View style={{ width: 44 }} />
         </View>
 
@@ -92,12 +93,12 @@ export default function ClassDetailScreen() {
           <View style={styles.infoGrid}>
             <View style={styles.infoCard}>
               <Clock size={18} color={C.green} strokeWidth={1.8} />
-              <Text style={styles.infoCardLabel}>Horário</Text>
+              <Text style={styles.infoCardLabel}>{t("classDetail.time")}</Text>
               <Text style={styles.infoCardValue}>{cls.startTime} - {cls.endTime}</Text>
             </View>
             <View style={styles.infoCard}>
               <MapPin size={18} color={C.blue} strokeWidth={1.8} />
-              <Text style={styles.infoCardLabel}>Local</Text>
+              <Text style={styles.infoCardLabel}>{t("classDetail.location")}</Text>
               <Text style={styles.infoCardValue}>{cls.location.name}</Text>
             </View>
           </View>
@@ -109,7 +110,7 @@ export default function ClassDetailScreen() {
               <Text style={styles.infoCardValue}>{coachName}</Text>
             </View>
             <View style={styles.infoCard}>
-              <Text style={[styles.infoCardLabel, { marginTop: 0 }]}>Data</Text>
+              <Text style={[styles.infoCardLabel, { marginTop: 0 }]}>{t("classDetail.date")}</Text>
               <Text style={styles.infoCardValue}>{cls.date}</Text>
             </View>
           </View>
@@ -117,7 +118,7 @@ export default function ClassDetailScreen() {
           {/* Capacity Section */}
           <View style={styles.sectionCard}>
             <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>Capacidade</Text>
+              <Text style={styles.sectionTitle}>{t("classDetail.capacity")}</Text>
               <Text style={[styles.sectionBadge, { color: isFull ? C.amber : C.green }]}>
                 {cls.enrolledCount}/{cls.maxCapacity}
               </Text>
@@ -135,14 +136,14 @@ export default function ClassDetailScreen() {
             </View>
             {cls.waitlistCount > 0 && (
               <Text style={styles.waitlistText}>
-                +{cls.waitlistCount} em lista de espera
+                {t("classDetail.waitlist").replace("{n}", String(cls.waitlistCount))}
               </Text>
             )}
           </View>
 
           {/* Enrolled Members */}
           <View style={styles.sectionCard}>
-            <Text style={styles.sectionTitle}>Inscritos</Text>
+            <Text style={styles.sectionTitle}>{t("classDetail.enrolledSection")}</Text>
             <View style={styles.memberList}>
               {enrolledMembers.map((member) => (
                 <View key={member.id} style={styles.memberRow}>
@@ -152,17 +153,17 @@ export default function ClassDetailScreen() {
                   <View style={styles.memberInfo}>
                     <Text style={styles.memberName}>{member.name}</Text>
                     <Text style={styles.memberStatus}>
-                      {member.status === "active" ? "Ativo" : "Trial"}
+                      {member.status === "active" ? t("status.active") : t("status.trial")}
                     </Text>
                   </View>
                   <View style={styles.checkedBadge}>
-                    <Text style={styles.checkedText}>Inscrito</Text>
+                    <Text style={styles.checkedText}>{t("classDetail.enrolledBadge")}</Text>
                   </View>
                 </View>
               ))}
               {cls.enrolledCount > 5 && (
                 <Text style={styles.moreMembers}>
-                  +{cls.enrolledCount - 5} mais inscritos
+                  {t("classDetail.moreEnrolled").replace("{n}", String(cls.enrolledCount - 5))}
                 </Text>
               )}
             </View>
@@ -192,7 +193,7 @@ export default function ClassDetailScreen() {
                   { color: showCancelledBanner ? C.red : C.bg },
                 ]}
               >
-                {showCancelledBanner ? "Reserva cancelada" : "Reserva confirmada!"}
+                {showCancelledBanner ? t("classDetail.cancelledBanner") : t("classDetail.bookedBanner")}
               </Text>
             </View>
           )}
@@ -205,11 +206,11 @@ export default function ClassDetailScreen() {
                 setTimeout(() => setShowCancelledBanner(false), 3000);
               }}
             >
-              <Text style={styles.cancelButtonText}>CANCELAR RESERVA</Text>
+              <Text style={styles.cancelButtonText}>{t("classDetail.cancelBooking")}</Text>
             </TouchableOpacity>
           ) : isFull ? (
             <TouchableOpacity style={styles.waitlistButton}>
-              <Text style={styles.waitlistButtonText}>ENTRAR NA LISTA DE ESPERA</Text>
+              <Text style={styles.waitlistButtonText}>{t("classDetail.joinWaitlist")}</Text>
             </TouchableOpacity>
           ) : (
             <TouchableOpacity
@@ -220,7 +221,7 @@ export default function ClassDetailScreen() {
                 setTimeout(() => setShowBookedBanner(false), 3000);
               }}
             >
-              <Text style={styles.bookButtonText}>RESERVAR</Text>
+              <Text style={styles.bookButtonText}>{t("btn.book")}</Text>
             </TouchableOpacity>
           )}
         </View>

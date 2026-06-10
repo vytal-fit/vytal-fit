@@ -643,6 +643,17 @@ const translations: Record<Language, Record<string, string>> = {
     "coachProfile.noBio": "Informação não disponível.",
     "feedback.info": "O teu feedback ajuda-nos a melhorar a app. Respondemos em até 48 horas úteis.",
     "waitlist.info": "Serás automaticamente promovido quando um lugar ficar disponível. Recebes uma notificação quando isso acontecer.",
+
+    // ── batch3: remaining screens ──
+    "status.trial": "Experimental",
+    "dropin.schedule": "Horário",
+    "chat.today": "Hoje",
+    "chat.yesterday": "Ontem",
+    "privacy.info": "Controla quem pode ver as tuas informações na plataforma. As definições aplicam-se tanto na app como na web.",
+    "privacy.prsDesc": "Controla quem pode ver os teus Personal Records e histórico de PRs.",
+    "privacy.resultsDesc": "Controla quem pode ver os teus resultados de atividades e WODs.",
+    "privacy.enrollmentsDesc": "Controla se o teu nome aparece na lista de inscritos de cada aula.",
+    "privacy.leaderboardDesc": "Controla a visibilidade dos teus resultados nos rankings e tabelas.",
   },
 
   en: {
@@ -1282,6 +1293,17 @@ const translations: Record<Language, Record<string, string>> = {
     "coachProfile.noBio": "Information not available.",
     "feedback.info": "Your feedback helps us improve the app. We reply within 48 business hours.",
     "waitlist.info": "You will be automatically promoted when a spot opens up. You will get a notification when that happens.",
+
+    // ── batch3: remaining screens ──
+    "status.trial": "Trial",
+    "dropin.schedule": "Opening hours",
+    "chat.today": "Today",
+    "chat.yesterday": "Yesterday",
+    "privacy.info": "Control who can see your information on the platform. These settings apply to both the app and the web.",
+    "privacy.prsDesc": "Control who can see your Personal Records and PR history.",
+    "privacy.resultsDesc": "Control who can see your activity and WOD results.",
+    "privacy.enrollmentsDesc": "Control whether your name appears on each class roster.",
+    "privacy.leaderboardDesc": "Control the visibility of your results in rankings and leaderboards.",
   },
 
   es: {
@@ -1921,6 +1943,17 @@ const translations: Record<Language, Record<string, string>> = {
     "coachProfile.noBio": "Información no disponible.",
     "feedback.info": "Tus comentarios nos ayudan a mejorar la app. Respondemos en un plazo de 48 horas laborables.",
     "waitlist.info": "Serás promovido automáticamente cuando se libere una plaza. Recibirás una notificación cuando eso ocurra.",
+
+    // ── batch3: remaining screens ──
+    "status.trial": "Prueba",
+    "dropin.schedule": "Horario",
+    "chat.today": "Hoy",
+    "chat.yesterday": "Ayer",
+    "privacy.info": "Controla quién puede ver tu información en la plataforma. La configuración se aplica tanto en la app como en la web.",
+    "privacy.prsDesc": "Controla quién puede ver tus Personal Records y tu historial de PRs.",
+    "privacy.resultsDesc": "Controla quién puede ver tus resultados de actividades y WODs.",
+    "privacy.enrollmentsDesc": "Controla si tu nombre aparece en la lista de inscritos de cada clase.",
+    "privacy.leaderboardDesc": "Controla la visibilidad de tus resultados en rankings y tablas.",
   },
 };
 

@@ -13,6 +13,7 @@ import { mockExercises } from "@vytal-fit/shared";
 import { ArrowLeft, Search } from "lucide-react-native";
 import { useTheme } from "./_layout";
 import type { Colors } from "@/colors";
+import { t } from "@/i18n";
 
 
 function getCategoryColor(category: string, C: Colors): string {
@@ -35,15 +36,15 @@ function getCategoryColor(category: string, C: Colors): string {
 function getCategoryLabel(category: string): string {
   switch (category) {
     case "weightlifting":
-      return "HALTEROFILIA";
+      return t("cat.weightliftingFull");
     case "gymnastics":
-      return "GINASTICA";
+      return t("cat.gymnasticsFull");
     case "cardio":
-      return "CARDIO";
+      return t("cat.cardioFull");
     case "strength":
-      return "FORCA";
+      return t("cat.strengthFull");
     case "other":
-      return "OUTRO";
+      return t("cat.otherFull");
     default:
       return category.toUpperCase();
   }
@@ -75,7 +76,7 @@ export default function ExerciseLibraryScreen() {
           <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
             <ArrowLeft size={24} color={C.text} strokeWidth={1.8} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Exercicios</Text>
+          <Text style={styles.headerTitle}>{t("screen.exercises")}</Text>
           <View style={{ width: 44 }} />
         </View>
 
@@ -84,7 +85,7 @@ export default function ExerciseLibraryScreen() {
           <Search size={18} color={C.muted} strokeWidth={1.8} />
           <TextInput
             style={styles.searchInput}
-            placeholder="Procurar exercicio..."
+            placeholder={t("exercises.searchPlaceholder")}
             placeholderTextColor={C.muted}
             value={search}
             onChangeText={setSearch}
@@ -95,7 +96,9 @@ export default function ExerciseLibraryScreen() {
 
         {/* Count */}
         <Text style={styles.resultCount}>
-          {filteredExercises.length} exercicio{filteredExercises.length !== 1 ? "s" : ""}
+          {filteredExercises.length === 1
+            ? t("exercises.one")
+            : t("exercises.count").replace("{n}", String(filteredExercises.length))}
         </Text>
 
         {/* Exercise List */}
@@ -140,7 +143,7 @@ export default function ExerciseLibraryScreen() {
           }}
           ListEmptyComponent={
             <View style={styles.emptyState}>
-              <Text style={styles.emptyText}>Nenhum exercicio encontrado</Text>
+              <Text style={styles.emptyText}>{t("exercises.empty")}</Text>
             </View>
           }
         />

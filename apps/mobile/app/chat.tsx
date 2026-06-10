@@ -14,6 +14,7 @@ import { useRouter } from "expo-router";
 import { ArrowLeft, Send } from "lucide-react-native";
 import { useTheme } from "./_layout";
 import type { Colors } from "@/colors";
+import { t } from "@/i18n";
 
 
 // ─── Types ───────────────────────────────────────────────
@@ -32,7 +33,7 @@ const initialMessages: ChatMessage[] = [
     text: "Bem-vindo ao Vytal CrossFit! Como podemos ajudar?",
     sender: "box",
     timestamp: "09:00",
-    dateSeparator: "Hoje",
+    dateSeparator: "chat.today",
   },
   {
     id: "c2",
@@ -63,7 +64,7 @@ const initialMessages: ChatMessage[] = [
     text: "Uma pergunta, o Open Box de sabado e das 08 as 10?",
     sender: "me",
     timestamp: "14:30",
-    dateSeparator: "Ontem",
+    dateSeparator: "chat.yesterday",
   },
   {
     id: "c7",
@@ -125,7 +126,7 @@ export default function ChatScreen() {
           </View>
           <View>
             <Text style={styles.headerTitle}>Vytal CrossFit</Text>
-            <Text style={styles.headerSubtitle}>Online</Text>
+            <Text style={styles.headerSubtitle}>{t("status.online")}</Text>
           </View>
         </View>
       </View>
@@ -151,7 +152,7 @@ export default function ChatScreen() {
                 <View style={styles.dateSeparator}>
                   <View style={styles.dateSeparatorLine} />
                   <Text style={styles.dateSeparatorText}>
-                    {msg.dateSeparator}
+                    {t(msg.dateSeparator)}
                   </Text>
                   <View style={styles.dateSeparatorLine} />
                 </View>
@@ -184,7 +185,7 @@ export default function ChatScreen() {
         <View style={styles.inputBar}>
           <TextInput
             style={styles.textInput}
-            placeholder="Escrever mensagem..."
+            placeholder={t("chat.placeholder")}
             placeholderTextColor={C.muted}
             value={inputText}
             onChangeText={setInputText}

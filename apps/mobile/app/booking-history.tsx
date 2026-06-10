@@ -12,21 +12,23 @@ import { useRouter } from "expo-router";
 import { ArrowLeft } from "lucide-react-native";
 import { useTheme } from "./_layout";
 import type { Colors } from "@/colors";
+import { t } from "@/i18n";
 
 
 // ─── Helpers ─────────────────────────────────────────────
+const MONTH_KEYS = [
+  "month.jan", "month.feb", "month.mar", "month.apr", "month.may", "month.jun",
+  "month.jul", "month.aug", "month.sep", "month.oct", "month.nov", "month.dec",
+];
+
 function getMonths(): { key: string; label: string; year: number; month: number }[] {
   const months: ReturnType<typeof getMonths> = [];
-  const monthNames = [
-    "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
-    "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro",
-  ];
   for (let i = 0; i < 3; i++) {
     const d = new Date();
     d.setMonth(d.getMonth() - i);
     months.push({
       key: `${d.getFullYear()}-${d.getMonth()}`,
-      label: monthNames[d.getMonth()],
+      label: t(MONTH_KEYS[d.getMonth()]),
       year: d.getFullYear(),
       month: d.getMonth(),
     });
@@ -63,11 +65,11 @@ const mockBookingHistory: BookingHistoryEntry[] = [
 function getStatusBadge(status: BookingHistoryEntry["status"], C: Colors): { label: string; color: string; bg: string } {
   switch (status) {
     case "presente":
-      return { label: "Presente", color: C.green, bg: C.green + "18" };
+      return { label: t("bookingHistory.present"), color: C.green, bg: C.green + "18" };
     case "falta":
-      return { label: "Falta", color: C.red, bg: C.red + "18" };
+      return { label: t("bookingHistory.absent"), color: C.red, bg: C.red + "18" };
     case "cancelada":
-      return { label: "Cancelada", color: C.amber, bg: C.amber + "18" };
+      return { label: t("bookingHistory.cancelled"), color: C.amber, bg: C.amber + "18" };
   }
 }
 
@@ -103,7 +105,7 @@ export default function BookingHistoryScreen() {
           <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
             <ArrowLeft size={22} color={C.text} strokeWidth={2} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Histórico de Aulas</Text>
+          <Text style={styles.headerTitle}>{t("screen.bookingHistory")}</Text>
           <View style={{ width: 44 }} />
         </View>
 
@@ -137,15 +139,15 @@ export default function BookingHistoryScreen() {
         <View style={styles.statsRow}>
           <View style={styles.statCard}>
             <Text style={styles.statValue}>{totalThisMonth}</Text>
-            <Text style={styles.statLabel}>Total</Text>
+            <Text style={styles.statLabel}>{t("bookingHistory.total")}</Text>
           </View>
           <View style={styles.statCard}>
             <Text style={[styles.statValue, { color: C.green }]}>{attendanceRate}%</Text>
-            <Text style={styles.statLabel}>Presenca</Text>
+            <Text style={styles.statLabel}>{t("bookingHistory.attendance")}</Text>
           </View>
           <View style={styles.statCard}>
             <Text style={[styles.statValue, { color: C.amber }]}>{streak}</Text>
-            <Text style={styles.statLabel}>Streak</Text>
+            <Text style={styles.statLabel}>{t("bookingHistory.streak")}</Text>
           </View>
         </View>
 
@@ -188,7 +190,7 @@ export default function BookingHistoryScreen() {
           ListEmptyComponent={
             <View style={styles.emptyState}>
               <Text style={styles.emptyIcon}>{"( )"}</Text>
-              <Text style={styles.emptyText}>Sem registos neste mes</Text>
+              <Text style={styles.emptyText}>{t("bookingHistory.empty")}</Text>
             </View>
           }
         />

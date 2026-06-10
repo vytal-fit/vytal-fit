@@ -15,6 +15,7 @@ import { mockMembers } from "@vytal-fit/shared";
 // ─── Colors ──────────────────────────────────────────────
 import { useTheme } from "../_layout";
 import type { Colors } from "@/colors";
+import { t } from "@/i18n";
 
 const tshirtSizes = ["XS", "S", "M", "L", "XL", "XXL"];
 const currentUser = mockMembers[0];
@@ -71,7 +72,7 @@ export default function PersonalDataScreen() {
           >
             <ArrowLeft size={22} color={C.text} strokeWidth={2} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Dados Pessoais</Text>
+          <Text style={styles.headerTitle}>{t("screen.personalData")}</Text>
           <View style={{ width: 44 }} />
         </View>
 
@@ -80,36 +81,36 @@ export default function PersonalDataScreen() {
           contentContainerStyle={styles.scrollContent}
         >
           {/* Basic Info */}
-          <FormField label="Nome Completo" value={name} onChangeText={setName} />
-          <FormField label="Alcunha" value={nickname} onChangeText={setNickname} />
+          <FormField label={t("label.name")} value={name} onChangeText={setName} />
+          <FormField label={t("label.nickname")} value={nickname} onChangeText={setNickname} />
           <FormField
-            label="Email"
+            label={t("label.email")}
             value={email}
             onChangeText={setEmail}
             keyboardType="email-address"
           />
           <FormField
-            label="Telefone"
+            label={t("label.phone")}
             value={phone}
             onChangeText={setPhone}
             keyboardType="phone-pad"
           />
           <FormField
-            label="Contacto de Emergência"
+            label={t("label.emergency")}
             value={emergency}
             onChangeText={setEmergency}
           />
 
           {/* DOB */}
           <FormField
-            label="Data de Nascimento"
+            label={t("label.dob")}
             value={dob}
             onChangeText={setDob}
-            placeholder="AAAA-MM-DD"
+            placeholder={t("personalData.dobPlaceholder")}
           />
 
           {/* Gender */}
-          <Text style={styles.fieldLabel}>Género</Text>
+          <Text style={styles.fieldLabel}>{t("label.gender")}</Text>
           <View style={styles.genderRow}>
             <TouchableOpacity
               style={[
@@ -124,7 +125,7 @@ export default function PersonalDataScreen() {
                   gender === "M" && styles.genderPillTextActive,
                 ]}
               >
-                Masculino
+                {t("label.male")}
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
@@ -140,26 +141,26 @@ export default function PersonalDataScreen() {
                   gender === "F" && styles.genderPillTextActive,
                 ]}
               >
-                Feminino
+                {t("label.female")}
               </Text>
             </TouchableOpacity>
           </View>
 
           {/* NIF + Address */}
-          <FormField label="NIF" value={nif} onChangeText={setNif} keyboardType="numeric" />
-          <FormField label="Morada" value={address} onChangeText={setAddress} />
+          <FormField label={t("label.nif")} value={nif} onChangeText={setNif} keyboardType="numeric" />
+          <FormField label={t("label.address")} value={address} onChangeText={setAddress} />
           <View style={styles.row}>
             <View style={styles.rowHalf}>
-              <FormField label="Cidade" value={city} onChangeText={setCity} />
+              <FormField label={t("label.city")} value={city} onChangeText={setCity} />
             </View>
             <View style={styles.rowHalf}>
-              <FormField label="Código Postal" value={zip} onChangeText={setZip} />
+              <FormField label={t("label.zip")} value={zip} onChangeText={setZip} />
             </View>
           </View>
-          <FormField label="País" value={country} onChangeText={setCountry} />
+          <FormField label={t("label.country")} value={country} onChangeText={setCountry} />
 
           {/* T-shirt Size */}
-          <Text style={styles.fieldLabel}>Tamanho T-shirt</Text>
+          <Text style={styles.fieldLabel}>{t("label.tshirtSize")}</Text>
           <View style={styles.sizeRow}>
             {tshirtSizes.map((size) => (
               <TouchableOpacity
@@ -186,7 +187,7 @@ export default function PersonalDataScreen() {
           <View style={styles.row}>
             <View style={styles.rowHalf}>
               <FormField
-                label="Peso (kg)"
+                label={t("label.weight")}
                 value={weight}
                 onChangeText={setWeight}
                 keyboardType="numeric"
@@ -194,7 +195,7 @@ export default function PersonalDataScreen() {
             </View>
             <View style={styles.rowHalf}>
               <FormField
-                label="Altura (cm)"
+                label={t("label.height")}
                 value={height}
                 onChangeText={setHeight}
                 keyboardType="numeric"
@@ -204,7 +205,7 @@ export default function PersonalDataScreen() {
 
           {/* BMI Display */}
           <View style={styles.bmiCard}>
-            <Text style={styles.bmiLabel}>IMC (calculado)</Text>
+            <Text style={styles.bmiLabel}>{t("label.bmi")}</Text>
             <Text style={styles.bmiValue}>{bmi}</Text>
           </View>
 
@@ -212,14 +213,14 @@ export default function PersonalDataScreen() {
           {saved && (
             <View style={styles.successBanner}>
               <CheckCircle size={16} color={C.bg} strokeWidth={2.5} />
-              <Text style={styles.successBannerText}>Guardado com sucesso!</Text>
+              <Text style={styles.successBannerText}>{t("personalData.savedBanner")}</Text>
             </View>
           )}
 
           {/* Save Button */}
           <TouchableOpacity style={styles.saveButton} onPress={handleSave} disabled={saved}>
             <Save size={18} color="#080c0a" strokeWidth={2.5} />
-            <Text style={styles.saveButtonText}>{saved ? "GUARDADO" : "GUARDAR"}</Text>
+            <Text style={styles.saveButtonText}>{saved ? t("personalData.savedBtn") : t("btn.save")}</Text>
           </TouchableOpacity>
 
           <View style={{ height: 30 }} />

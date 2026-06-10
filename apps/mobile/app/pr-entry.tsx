@@ -13,6 +13,7 @@ import { ArrowLeft, Save, CheckCircle } from "lucide-react-native";
 import { mockExercises, mockPersonalRecords } from "@vytal-fit/shared";
 import { useTheme } from "./_layout";
 import type { Colors } from "@/colors";
+import { t } from "@/i18n";
 
 
 const rmLabels = ["1RM", "2RM", "3RM", "4RM", "5RM", "6RM", "7RM", "8RM", "9RM", "10RM"];
@@ -60,7 +61,7 @@ export default function PREntryScreen() {
           >
             <ArrowLeft size={22} color={C.text} strokeWidth={2} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Registar PR</Text>
+          <Text style={styles.headerTitle}>{t("prEntry.title")}</Text>
           <View style={{ width: 44 }} />
         </View>
 
@@ -83,7 +84,7 @@ export default function PREntryScreen() {
                   { color: getCategoryColor(exercise.category, C) },
                 ]}
               >
-                {exercise.category.toUpperCase()}
+                {getCategoryLabel(exercise.category)}
               </Text>
             </View>
           </View>
@@ -91,20 +92,20 @@ export default function PREntryScreen() {
           {/* Current PR */}
           {existingPR && (
             <View style={styles.currentPR}>
-              <Text style={styles.currentPRLabel}>PR Atual</Text>
+              <Text style={styles.currentPRLabel}>{t("prEntry.currentPR")}</Text>
               <Text style={styles.currentPRValue}>
                 {existingPR.value} {existingPR.unit}
               </Text>
               {existingPR.previousValue && (
                 <Text style={styles.currentPRPrev}>
-                  Anterior: {existingPR.previousValue} {existingPR.unit}
+                  {t("prEntry.previous")} {existingPR.previousValue} {existingPR.unit}
                 </Text>
               )}
             </View>
           )}
 
           {/* RM Grid */}
-          <Text style={styles.sectionTitle}>Maximos (kg)</Text>
+          <Text style={styles.sectionTitle}>{t("prEntry.maxes")}</Text>
           <View style={styles.rmGrid}>
             {rmLabels.map((label, i) => (
               <View key={label} style={styles.rmCell}>
@@ -122,12 +123,12 @@ export default function PREntryScreen() {
           </View>
 
           {/* Notes */}
-          <Text style={styles.sectionTitle}>Notas</Text>
+          <Text style={styles.sectionTitle}>{t("prEntry.notes")}</Text>
           <TextInput
             style={styles.notesInput}
             value={notes}
             onChangeText={setNotes}
-            placeholder="Adiciona notas sobre o teu treino..."
+            placeholder={t("prEntry.notesPlaceholder")}
             placeholderTextColor={C.muted + "60"}
             multiline
             numberOfLines={4}
@@ -139,12 +140,12 @@ export default function PREntryScreen() {
             {saving ? (
               <>
                 <CheckCircle size={18} color="#080c0a" strokeWidth={2.5} />
-                <Text style={styles.saveButtonText}>GUARDADO!</Text>
+                <Text style={styles.saveButtonText}>{t("btn.savedExcl")}</Text>
               </>
             ) : (
               <>
                 <Save size={18} color="#080c0a" strokeWidth={2.5} />
-                <Text style={styles.saveButtonText}>GUARDAR</Text>
+                <Text style={styles.saveButtonText}>{t("btn.save")}</Text>
               </>
             )}
           </TouchableOpacity>
@@ -154,6 +155,21 @@ export default function PREntryScreen() {
       </View>
     </SafeAreaView>
   );
+}
+
+function getCategoryLabel(category: string): string {
+  switch (category) {
+    case "weightlifting":
+      return t("cat.weightliftingFull");
+    case "gymnastics":
+      return t("cat.gymnasticsFull");
+    case "cardio":
+      return t("cat.cardioFull");
+    case "strength":
+      return t("cat.strengthFull");
+    default:
+      return category.toUpperCase();
+  }
 }
 
 function getCategoryColor(category: string, C: Colors): string {

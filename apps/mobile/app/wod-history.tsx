@@ -12,6 +12,7 @@ import { useRouter } from "expo-router";
 import { ArrowLeft, Zap, ChevronDown } from "lucide-react-native";
 import { useTheme } from "./_layout";
 import type { Colors } from "@/colors";
+import { t } from "@/i18n";
 
 
 // ─── Types ───────────────────────────────────────────────
@@ -38,10 +39,10 @@ const mockWODHistory: WODHistoryEntry[] = [
 ];
 
 const SORT_OPTIONS = [
-  { key: "recent", label: "Mais recente" },
-  { key: "oldest", label: "Mais antigo" },
-  { key: "prs", label: "PRs primeiro" },
-  { key: "fistbumps", label: "Fist bumps primeiro" },
+  { key: "recent", labelKey: "wodHistory.sortRecent" },
+  { key: "oldest", labelKey: "wodHistory.sortOldest" },
+  { key: "prs", labelKey: "wodHistory.sortPRs" },
+  { key: "fistbumps", labelKey: "wodHistory.sortFistbumps" },
 ];
 
 function getTypeBadge(type: string, C: Colors): { label: string; color: string } {
@@ -55,9 +56,9 @@ function getTypeBadge(type: string, C: Colors): { label: string; color: string }
     case "tabata":
       return { label: "TABATA", color: C.orange };
     case "strength":
-      return { label: "STRENGTH", color: C.amber };
+      return { label: t("cat.strengthFull"), color: C.amber };
     default:
-      return { label: "CUSTOM", color: C.purple };
+      return { label: t("wod.typeCustom"), color: C.purple };
   }
 }
 
@@ -99,7 +100,9 @@ export default function WODHistoryScreen() {
       filtered.sort((a, b) => b.date.localeCompare(a.date));
   }
 
-  const currentSortLabel = SORT_OPTIONS.find((o) => o.key === sortBy)?.label || "Mais recente";
+  const currentSortLabel = t(
+    SORT_OPTIONS.find((o) => o.key === sortBy)?.labelKey || "wodHistory.sortRecent"
+  );
 
   function handleSearch() {
     setShowSortDropdown(false);
@@ -120,7 +123,7 @@ export default function WODHistoryScreen() {
           <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
             <ArrowLeft size={22} color={C.text} strokeWidth={2} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Histórico de Treinos</Text>
+          <Text style={styles.headerTitle}>{t("wodHistory.title")}</Text>
           <View style={{ width: 44 }} />
         </View>
 
@@ -128,23 +131,23 @@ export default function WODHistoryScreen() {
         <View style={styles.filtersSection}>
           <View style={styles.dateFiltersRow}>
             <View style={styles.dateInputGroup}>
-              <Text style={styles.dateLabel}>DE</Text>
+              <Text style={styles.dateLabel}>{t("wodHistory.from")}</Text>
               <TextInput
                 style={styles.dateInput}
                 value={fromDate}
                 onChangeText={setFromDate}
-                placeholder="AAAA-MM-DD"
+                placeholder={t("wodHistory.datePlaceholder")}
                 placeholderTextColor={C.muted + "60"}
                 autoCapitalize="none"
               />
             </View>
             <View style={styles.dateInputGroup}>
-              <Text style={styles.dateLabel}>ATE</Text>
+              <Text style={styles.dateLabel}>{t("wodHistory.to")}</Text>
               <TextInput
                 style={styles.dateInput}
                 value={toDate}
                 onChangeText={setToDate}
-                placeholder="AAAA-MM-DD"
+                placeholder={t("wodHistory.datePlaceholder")}
                 placeholderTextColor={C.muted + "60"}
                 autoCapitalize="none"
               />
@@ -170,7 +173,7 @@ export default function WODHistoryScreen() {
                   onPress={() => { setSortBy(opt.key); setShowSortDropdown(false); }}
                 >
                   <Text style={[styles.sortOptionText, sortBy === opt.key && styles.sortOptionTextActive]}>
-                    {opt.label}
+                    {t(opt.labelKey)}
                   </Text>
                 </TouchableOpacity>
               ))}
@@ -180,10 +183,10 @@ export default function WODHistoryScreen() {
           {/* Action Buttons */}
           <View style={styles.filterActions}>
             <TouchableOpacity style={styles.searchButton} onPress={handleSearch}>
-              <Text style={styles.searchButtonText}>PESQUISAR</Text>
+              <Text style={styles.searchButtonText}>{t("wodHistory.search")}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.cancelFilterButton} onPress={handleCancel}>
-              <Text style={styles.cancelFilterText}>LIMPAR</Text>
+              <Text style={styles.cancelFilterText}>{t("wodHistory.clear")}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -218,7 +221,7 @@ export default function WODHistoryScreen() {
 
                 <View style={styles.cardFooter}>
                   <Text style={styles.scoreText}>
-                    {entry.score || "Sem resultado"}
+                    {entry.score || t("wodHistory.noScore")}
                   </Text>
                   {entry.fistbumps > 0 && (
                     <View style={styles.fistbumpRow}>
@@ -234,7 +237,7 @@ export default function WODHistoryScreen() {
           {filtered.length === 0 && (
             <View style={styles.emptyState}>
               <Text style={styles.emptyIcon}>{"( )"}</Text>
-              <Text style={styles.emptyText}>Sem treinos encontrados</Text>
+              <Text style={styles.emptyText}>{t("wodHistory.empty")}</Text>
             </View>
           )}
 

@@ -14,59 +14,56 @@ import { ArrowLeft, Save, ChevronDown } from "lucide-react-native";
 // ─── Colors ──────────────────────────────────────────────
 import { useTheme } from "../_layout";
 import type { Colors } from "@/colors";
+import { t } from "@/i18n";
 
 type PrivacyLevel = "everyone" | "my_box" | "only_me";
 
-const privacyOptions: { value: PrivacyLevel; label: string }[] = [
-  { value: "everyone", label: "Todos" },
-  { value: "my_box", label: "A minha box" },
-  { value: "only_me", label: "So eu" },
+const privacyOptions: { value: PrivacyLevel; labelKey: string }[] = [
+  { value: "everyone", labelKey: "privacy.everyone" },
+  { value: "my_box", labelKey: "privacy.myBox" },
+  { value: "only_me", labelKey: "privacy.onlyMe" },
 ];
 
-const limitedOptions: { value: PrivacyLevel; label: string }[] = [
-  { value: "everyone", label: "Todos" },
-  { value: "my_box", label: "A minha box" },
+const limitedOptions: { value: PrivacyLevel; labelKey: string }[] = [
+  { value: "everyone", labelKey: "privacy.everyone" },
+  { value: "my_box", labelKey: "privacy.myBox" },
 ];
 
-const leaderboardOptions: { value: PrivacyLevel; label: string }[] = [
-  { value: "my_box", label: "A minha box" },
-  { value: "only_me", label: "So eu" },
+const leaderboardOptions: { value: PrivacyLevel; labelKey: string }[] = [
+  { value: "my_box", labelKey: "privacy.myBox" },
+  { value: "only_me", labelKey: "privacy.onlyMe" },
 ];
 
 type PrivacySetting = {
   id: string;
-  title: string;
-  description: string;
-  options: { value: PrivacyLevel; label: string }[];
+  titleKey: string;
+  descriptionKey: string;
+  options: { value: PrivacyLevel; labelKey: string }[];
 };
 
 const privacySettings: PrivacySetting[] = [
   {
     id: "prs",
-    title: "Quem pode ver os meus PRs",
-    description:
-      "Controla quem pode ver os teus Personal Records e histórico de PRs.",
+    titleKey: "privacy.prsTitle",
+    descriptionKey: "privacy.prsDesc",
     options: privacyOptions,
   },
   {
     id: "results",
-    title: "Quem pode ver os meus resultados",
-    description:
-      "Controla quem pode ver os teus resultados de atividades e WODs.",
+    titleKey: "privacy.resultsTitle",
+    descriptionKey: "privacy.resultsDesc",
     options: privacyOptions,
   },
   {
     id: "enrollments",
-    title: "Quem pode ver o meu nome nas inscrições",
-    description:
-      "Controla se o teu nome aparece na lista de inscritos de cada aula.",
+    titleKey: "privacy.enrollmentsTitle",
+    descriptionKey: "privacy.enrollmentsDesc",
     options: limitedOptions,
   },
   {
     id: "leaderboard",
-    title: "Quem pode ver os meus resultados no leaderboard",
-    description:
-      "Controla a visibilidade dos teus resultados nos rankings e tabelas.",
+    titleKey: "privacy.leaderboardTitle",
+    descriptionKey: "privacy.leaderboardDesc",
     options: leaderboardOptions,
   },
 ];
@@ -85,7 +82,7 @@ export default function PrivacyScreen() {
 
   function cycleOption(
     settingId: string,
-    options: { value: PrivacyLevel; label: string }[]
+    options: { value: PrivacyLevel; labelKey: string }[]
   ) {
     const current = values[settingId];
     const currentIndex = options.findIndex((o) => o.value === current);
@@ -98,17 +95,14 @@ export default function PrivacyScreen() {
 
   function getLabel(
     settingId: string,
-    options: { value: PrivacyLevel; label: string }[]
+    options: { value: PrivacyLevel; labelKey: string }[]
   ): string {
     const option = options.find((o) => o.value === values[settingId]);
-    return option?.label || "A minha box";
+    return t(option?.labelKey || "privacy.myBox");
   }
 
   function handleSave() {
-    Alert.alert(
-      "Guardado",
-      "Definições de privacidade atualizadas com sucesso!"
-    );
+    Alert.alert(t("alert.saved"), t("privacy.savedMsg"));
     router.back();
   }
 
@@ -123,7 +117,7 @@ export default function PrivacyScreen() {
           >
             <ArrowLeft size={22} color={C.text} strokeWidth={2} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Privacidade</Text>
+          <Text style={styles.headerTitle}>{t("screen.privacy")}</Text>
           <View style={{ width: 44 }} />
         </View>
 
@@ -134,17 +128,16 @@ export default function PrivacyScreen() {
           {/* Info Banner */}
           <View style={styles.infoBanner}>
             <Text style={styles.infoText}>
-              Controla quem pode ver as tuas informacoes na plataforma. As
-              definicoes aplicam-se tanto na app como na web.
+              {t("privacy.info")}
             </Text>
           </View>
 
           {/* Privacy Settings */}
           {privacySettings.map((setting) => (
             <View key={setting.id} style={styles.settingCard}>
-              <Text style={styles.settingTitle}>{setting.title}</Text>
+              <Text style={styles.settingTitle}>{t(setting.titleKey)}</Text>
               <Text style={styles.settingDescription}>
-                {setting.description}
+                {t(setting.descriptionKey)}
               </Text>
               <TouchableOpacity
                 style={styles.selector}
@@ -161,7 +154,7 @@ export default function PrivacyScreen() {
           {/* Save Button */}
           <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
             <Save size={18} color="#080c0a" strokeWidth={2.5} />
-            <Text style={styles.saveButtonText}>GUARDAR</Text>
+            <Text style={styles.saveButtonText}>{t("btn.save")}</Text>
           </TouchableOpacity>
 
           <View style={{ height: 30 }} />

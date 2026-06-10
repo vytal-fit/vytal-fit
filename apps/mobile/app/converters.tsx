@@ -12,6 +12,7 @@ import { useRouter } from "expo-router";
 import { ArrowLeft, ArrowLeftRight } from "lucide-react-native";
 import { useTheme } from "./_layout";
 import type { Colors } from "@/colors";
+import { t } from "@/i18n";
 
 
 function ConverterSection({
@@ -96,7 +97,7 @@ export default function ConvertersScreen() {
           <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
             <ArrowLeft size={22} color={C.text} strokeWidth={2} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Conversores</Text>
+          <Text style={styles.headerTitle}>{t("converters.title")}</Text>
           <View style={{ width: 44 }} />
         </View>
 
@@ -105,28 +106,28 @@ export default function ConvertersScreen() {
           contentContainerStyle={styles.scrollContent}
         >
           <ConverterSection
-            title="Distancia"
-            unitA="Miles"
+            title={t("converters.distance")}
+            unitA={t("converters.miles")}
             unitB="Km"
             aToB={(v) => v * 1.60934}
             bToA={(v) => v / 1.60934}
           />
           <ConverterSection
-            title="Peso"
-            unitA="Pounds"
+            title={t("converters.weight")}
+            unitA={t("converters.pounds")}
             unitB="Kg"
             aToB={(v) => v * 0.453592}
             bToA={(v) => v / 0.453592}
           />
           <ConverterSection
-            title="Comprimento"
-            unitA="Inches"
+            title={t("converters.length")}
+            unitA={t("converters.inches")}
             unitB="Cm"
             aToB={(v) => v * 2.54}
             bToA={(v) => v / 2.54}
           />
           <ConverterSection
-            title="Temperatura"
+            title={t("converters.temperature")}
             unitA="°F"
             unitB="°C"
             aToB={(v) => (v - 32) * (5 / 9)}

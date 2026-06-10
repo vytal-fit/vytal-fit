@@ -12,6 +12,7 @@ import { useRouter } from "expo-router";
 import { ArrowLeft } from "lucide-react-native";
 import { useTheme } from "./_layout";
 import type { Colors } from "@/colors";
+import { t } from "@/i18n";
 
 
 // ─── Brzycki Formula ────────────────────────────────────
@@ -69,7 +70,7 @@ export default function CalculatorScreen() {
           <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
             <ArrowLeft size={24} color={C.text} strokeWidth={1.8} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Calculadora RM</Text>
+          <Text style={styles.headerTitle}>{t("screen.calculator")}</Text>
           <View style={{ width: 44 }} />
         </View>
 
@@ -79,7 +80,7 @@ export default function CalculatorScreen() {
         >
           {/* RM Selector */}
           <View style={styles.sectionCard}>
-            <Text style={styles.sectionLabel}>REPETITION MAXIMUM</Text>
+            <Text style={styles.sectionLabel}>{t("calculator.repMax")}</Text>
             <TouchableOpacity
               style={styles.rmSelector}
               onPress={() => setShowRMPicker(!showRMPicker)}
@@ -118,7 +119,7 @@ export default function CalculatorScreen() {
 
           {/* Weight Input */}
           <View style={styles.sectionCard}>
-            <Text style={styles.sectionLabel}>PESO (KG)</Text>
+            <Text style={styles.sectionLabel}>{t("calculator.weightKg")}</Text>
             <View style={styles.weightInputRow}>
               <TouchableOpacity
                 style={styles.weightBtn}
@@ -146,21 +147,21 @@ export default function CalculatorScreen() {
           {/* Estimated 1RM */}
           {estimated1RM > 0 && (
             <View style={styles.resultCard}>
-              <Text style={styles.resultLabel}>1RM ESTIMADO</Text>
+              <Text style={styles.resultLabel}>{t("calculator.estimated")}</Text>
               <Text style={styles.resultValue}>
                 {Math.round(estimated1RM * 2) / 2} kg
               </Text>
-              <Text style={styles.resultNote}>Baseado na formula de Brzycki</Text>
+              <Text style={styles.resultNote}>{t("calculator.formulaNote")}</Text>
             </View>
           )}
 
           {/* Percentage Table */}
           {percentageTable.length > 0 && (
             <View style={styles.sectionCard}>
-              <Text style={styles.sectionLabel}>TABELA DE PERCENTAGENS</Text>
+              <Text style={styles.sectionLabel}>{t("calculator.percentTable")}</Text>
               <View style={styles.tableHeader}>
                 <Text style={styles.tableHeaderText}>%</Text>
-                <Text style={styles.tableHeaderText}>Peso</Text>
+                <Text style={styles.tableHeaderText}>{t("calculator.weight")}</Text>
               </View>
               {percentageTable.map((row) => {
                 const pctColor = getPercentColor(row.percent, C);
