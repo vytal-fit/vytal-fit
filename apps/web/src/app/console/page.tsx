@@ -127,7 +127,7 @@ export default function ConsolePage() {
           {firstName}
         </h1>
         <p className="text-xs leading-relaxed italic max-w-sm" style={{ color: "var(--color-vytal-muted)" }}>
-          "{t(getMotivationalQuoteKey())}"
+          &ldquo;{t(getMotivationalQuoteKey())}&rdquo;
         </p>
       </div>
 

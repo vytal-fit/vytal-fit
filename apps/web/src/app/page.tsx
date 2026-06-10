@@ -873,10 +873,10 @@ function Navbar({ t, lang, setLang }: { t: (k: string) => string; lang: Lang; se
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <a href="/" className="flex items-center gap-0.5 shrink-0">
+          <Link href="/" className="flex items-center gap-0.5 shrink-0">
             <span className="text-xl font-bold text-vytal-green tracking-tight">Vytal</span>
             <span className="text-xl font-bold text-vytal-muted tracking-tight">.fit</span>
-          </a>
+          </Link>
 
           {/* Desktop links */}
           <div className="hidden md:flex items-center gap-8">
@@ -3212,10 +3212,10 @@ function Footer({ t }: { t: (k: string) => string }) {
         <div className="grid grid-cols-2 md:grid-cols-5 gap-8 mb-12">
           {/* Brand col */}
           <div className="col-span-2 md:col-span-1">
-            <a href="/" className="flex items-center gap-0.5 mb-4">
+            <Link href="/" className="flex items-center gap-0.5 mb-4">
               <span className="text-xl font-bold text-vytal-green">Vytal</span>
               <span className="text-xl font-bold text-vytal-muted">.fit</span>
-            </a>
+            </Link>
             <p className="text-xs text-vytal-muted leading-relaxed mb-4">
               {t("footerTagline")}
             </p>
