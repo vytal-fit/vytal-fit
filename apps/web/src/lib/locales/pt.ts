@@ -171,6 +171,8 @@ export const pt: Record<string, string> = {
     "auth.passwordMinLength": "Password deve ter pelo menos 10 caracteres",
     "auth.passwordMismatch": "Passwords não coincidem",
     "auth.phonePlaceholder": "+351 912 345 678",
+    "auth.invalidCredentials": "Email ou palavra-passe incorretos.",
+    "auth.demoHint": "Conta de demonstração:",
 
     // Dashboard
     "dashboard.title": "Dashboard",
@@ -1724,6 +1726,10 @@ export const pt: Record<string, string> = {
     "members.nameRequired": "O nome é obrigatório",
     "members.emailRequired": "O email é obrigatório",
     "members.memberAdded": "Membro adicionado",
+    "members.loadError": "Não foi possível carregar os membros. Tente novamente.",
+    "members.memberUpdated": "Membro atualizado",
+    "members.memberArchived": "Membro arquivado",
+    "members.archiveMember": "Arquivar membro",
     "members.memberDeleted": "Membro eliminado",
     "members.deleteMember": "Eliminar Membro",
     "members.confirmDelete": "Tem a certeza que quer eliminar \"{name}\"? Esta ação não pode ser desfeita.",
