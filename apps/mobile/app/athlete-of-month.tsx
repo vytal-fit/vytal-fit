@@ -12,6 +12,7 @@ import { ArrowLeft, Award, Star } from "lucide-react-native";
 
 import { useTheme } from "./_layout";
 import type { Colors } from "@/colors";
+import { t } from "@/i18n";
 
 const nominees = [
   { id: "n-1", name: "Pedro Almeida", votes: 24 },
@@ -44,7 +45,7 @@ export default function AthleteOfMonthScreen() {
           <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
             <ArrowLeft size={22} color={C.text} strokeWidth={2} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Atleta do Mes</Text>
+          <Text style={styles.headerTitle}>{t("label.athleteOfMonth")}</Text>
           <View style={{ width: 44 }} />
         </View>
 
@@ -78,7 +79,7 @@ export default function AthleteOfMonthScreen() {
                     onPress={() => setVotedId(isVoted ? null : nominee.id)}
                   >
                     <Text style={[styles.voteButtonText, isVoted && styles.voteButtonTextActive]}>
-                      {isVoted ? "VOTADO" : "VOTAR"}
+                      {isVoted ? t("athleteMonth.voted") : t("athleteMonth.vote")}
                     </Text>
                   </TouchableOpacity>
                 </View>
@@ -87,7 +88,7 @@ export default function AthleteOfMonthScreen() {
           </View>
 
           {/* Previous Winners */}
-          <Text style={styles.sectionTitle}>Vencedores Anteriores</Text>
+          <Text style={styles.sectionTitle}>{t("athleteMonth.previousWinners")}</Text>
           {previousWinners.map((winner) => (
             <View key={winner.id} style={styles.winnerCard}>
               <View style={styles.winnerAvatar}>

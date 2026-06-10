@@ -13,6 +13,7 @@ import { ArrowLeft, Heart, MessageCircle, TrendingUp, Award } from "lucide-react
 // ─── Colors ──────────────────────────────────────────────
 import { useTheme } from "./_layout";
 import type { Colors } from "@/colors";
+import { t } from "@/i18n";
 
 // ─── Mock Stats ──────────────────────────────────────────
 const fistbumpStats = {
@@ -56,7 +57,7 @@ export default function FistbumpsScreen() {
           >
             <ArrowLeft size={22} color={C.text} strokeWidth={2} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Fistbumps & Comentarios</Text>
+          <Text style={styles.headerTitle}>{t("fistbumps.title")}</Text>
           <View style={{ width: 44 }} />
         </View>
 
@@ -73,7 +74,7 @@ export default function FistbumpsScreen() {
                 <Heart size={20} color={C.green} strokeWidth={2} />
               </View>
               <Text style={styles.statValue}>{fistbumpStats.received}</Text>
-              <Text style={styles.statLabel}>Fistbumps{"\n"}recebidos</Text>
+              <Text style={styles.statLabel}>{t("fistbumps.received")}</Text>
             </View>
             <View style={styles.statCard}>
               <View
@@ -84,7 +85,7 @@ export default function FistbumpsScreen() {
               <Text style={[styles.statValue, { color: C.blue }]}>
                 {fistbumpStats.sent}
               </Text>
-              <Text style={styles.statLabel}>Fistbumps{"\n"}enviados</Text>
+              <Text style={styles.statLabel}>{t("fistbumps.sent")}</Text>
             </View>
             <View style={styles.statCard}>
               <View
@@ -98,7 +99,7 @@ export default function FistbumpsScreen() {
               <Text style={[styles.statValue, { color: C.amber }]}>
                 {fistbumpStats.commentsReceived}
               </Text>
-              <Text style={styles.statLabel}>Comentarios{"\n"}recebidos</Text>
+              <Text style={styles.statLabel}>{t("fistbumps.commentsReceived")}</Text>
             </View>
             <View style={styles.statCard}>
               <View
@@ -112,15 +113,13 @@ export default function FistbumpsScreen() {
               <Text style={[styles.statValue, { color: C.purple }]}>
                 {fistbumpStats.commentsSent}
               </Text>
-              <Text style={styles.statLabel}>Comentarios{"\n"}enviados</Text>
+              <Text style={styles.statLabel}>{t("fistbumps.commentsSent")}</Text>
             </View>
           </View>
 
           {/* Top Fans */}
-          <Text style={styles.sectionTitle}>Os teus fas</Text>
-          <Text style={styles.sectionSubtitle}>
-            Quem te deu mais reacoes
-          </Text>
+          <Text style={styles.sectionTitle}>{t("fistbumps.topFans")}</Text>
+          <Text style={styles.sectionSubtitle}>{t("fistbumps.topFansSub")}</Text>
           {topFans.map((fan, index) => (
             <View key={fan.id} style={styles.fanCard}>
               <View style={styles.fanLeft}>

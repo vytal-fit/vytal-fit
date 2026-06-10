@@ -22,6 +22,7 @@ import {
 
 import { useTheme } from "./_layout";
 import type { Colors } from "@/colors";
+import { t } from "@/i18n";
 
 function getNotificationIcon(type: string, C: Colors): { icon: React.ReactNode; color: string } {
   switch (type) {
@@ -52,11 +53,11 @@ function timeAgo(dateStr: string): string {
   const diffHours = Math.floor(diffMs / 3600000);
   const diffDays = Math.floor(diffMs / 86400000);
 
-  if (diffMins < 1) return "agora";
-  if (diffMins < 60) return `${diffMins}min`;
-  if (diffHours < 24) return `${diffHours}h`;
-  if (diffDays < 7) return `${diffDays}d`;
-  return `${Math.floor(diffDays / 7)}sem`;
+  if (diffMins < 1) return t("notifications.now");
+  if (diffMins < 60) return `${diffMins}${t("notifications.minShort")}`;
+  if (diffHours < 24) return `${diffHours}${t("notifications.hourShort")}`;
+  if (diffDays < 7) return `${diffDays}${t("notifications.dayShort")}`;
+  return `${Math.floor(diffDays / 7)}${t("notifications.weekShort")}`;
 }
 
 // ─── Screen ──────────────────────────────────────────────
@@ -95,7 +96,7 @@ export default function NotificationsScreen() {
             <ArrowLeft size={24} color={C.text} strokeWidth={1.8} />
           </TouchableOpacity>
           <View style={styles.headerCenter}>
-            <Text style={styles.headerTitle}>Notificações</Text>
+            <Text style={styles.headerTitle}>{t("screen.notifications")}</Text>
             {unreadCount > 0 && (
               <View style={styles.unreadBadgeHeader}>
                 <Text style={styles.unreadBadgeHeaderText}>{unreadCount}</Text>
@@ -148,7 +149,7 @@ export default function NotificationsScreen() {
           }}
           ListEmptyComponent={
             <View style={styles.emptyState}>
-              <Text style={styles.emptyText}>Sem notificacoes</Text>
+              <Text style={styles.emptyText}>{t("label.noNotifications")}</Text>
             </View>
           }
         />

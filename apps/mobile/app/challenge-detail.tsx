@@ -12,6 +12,7 @@ import { ArrowLeft, Trophy, ChevronDown, ChevronUp } from "lucide-react-native";
 
 import { useTheme } from "./_layout";
 import type { Colors } from "@/colors";
+import { t } from "@/i18n";
 
 const leaderboard = [
   { id: "l-1", rank: 1, name: "Pedro Almeida", score: "4:22 Rx", isYou: false },
@@ -48,7 +49,7 @@ export default function ChallengeDetailScreen() {
           <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
             <ArrowLeft size={22} color={C.text} strokeWidth={2} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Challenge</Text>
+          <Text style={styles.headerTitle}>{t("challenge.title")}</Text>
           <View style={{ width: 44 }} />
         </View>
 
@@ -71,7 +72,7 @@ export default function ChallengeDetailScreen() {
           </View>
 
           {/* Leaderboard */}
-          <Text style={styles.sectionTitle}>Classificacao</Text>
+          <Text style={styles.sectionTitle}>{t("challenge.leaderboard")}</Text>
           {leaderboard.map((entry) => {
             const medal = getMedalColor(entry.rank, C);
             return (
@@ -89,7 +90,7 @@ export default function ChallengeDetailScreen() {
                 </View>
                 <View style={styles.nameCol}>
                   <Text style={styles.entryName}>
-                    {entry.name}{entry.isYou ? " (Tu)" : ""}
+                    {entry.name}{entry.isYou ? ` ${t("challenge.you")}` : ""}
                   </Text>
                 </View>
                 <Text style={styles.entryScore}>{entry.score}</Text>
@@ -99,7 +100,7 @@ export default function ChallengeDetailScreen() {
 
           {/* Register Button */}
           <TouchableOpacity style={styles.registerButton}>
-            <Text style={styles.registerText}>REGISTAR RESULTADO</Text>
+            <Text style={styles.registerText}>{t("wod.logResult")}</Text>
           </TouchableOpacity>
 
           {/* Rules */}
@@ -107,7 +108,7 @@ export default function ChallengeDetailScreen() {
             style={styles.rulesHeader}
             onPress={() => setRulesExpanded(!rulesExpanded)}
           >
-            <Text style={styles.rulesTitle}>Regras</Text>
+            <Text style={styles.rulesTitle}>{t("challenge.rules")}</Text>
             {rulesExpanded
               ? <ChevronUp size={18} color={C.muted} strokeWidth={2} />
               : <ChevronDown size={18} color={C.muted} strokeWidth={2} />

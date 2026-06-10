@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import { Lock } from "lucide-react-native";
+import { t } from "@/i18n";
 import { useTheme } from "./_layout";
 import type { Colors } from "@/colors";
 
@@ -52,33 +53,33 @@ export default function ForgotPasswordScreen() {
             <View style={styles.lockIconContainer}>
               <Lock size={40} color={C.green} strokeWidth={1.8} />
             </View>
-            <Text style={styles.successTitle}>Verifica o teu email</Text>
+            <Text style={styles.successTitle}>{t("forgot.checkEmail")}</Text>
             <Text style={styles.successBody}>
-              Enviamos um link de recuperacao para {email}. Verifica a tua caixa de entrada e a pasta de spam.
+              {t("forgot.sentBody").replace("{email}", email)}
             </Text>
             <TouchableOpacity
               style={styles.backToLoginButton}
               onPress={() => router.replace("/login")}
             >
-              <Text style={styles.backToLoginText}>VOLTAR AO LOGIN</Text>
+              <Text style={styles.backToLoginText}>{t("forgot.backToLoginCaps")}</Text>
             </TouchableOpacity>
           </View>
         ) : (
           /* Form */
           <View style={styles.form}>
-            <Text style={styles.title}>Recuperar Password</Text>
+            <Text style={styles.title}>{t("forgot.title")}</Text>
             <Text style={styles.subtitle}>
-              Insere o teu email e enviamos-te um link para redefinir a password.
+              {t("forgot.subtitle")}
             </Text>
 
             {/* Email */}
             <View style={styles.inputGroup}>
-              <Text style={styles.label}>EMAIL</Text>
+              <Text style={styles.label}>{t("label.email")}</Text>
               <TextInput
                 style={styles.input}
                 value={email}
                 onChangeText={setEmail}
-                placeholder="voce@exemplo.com"
+                placeholder={t("login.emailPlaceholder")}
                 placeholderTextColor={`${C.muted}80`}
                 keyboardType="email-address"
                 autoCapitalize="none"
@@ -94,14 +95,14 @@ export default function ForgotPasswordScreen() {
               activeOpacity={0.8}
             >
               <Text style={styles.buttonText}>
-                {loading ? "A ENVIAR..." : "ENVIAR LINK"}
+                {loading ? t("forgot.sending") : t("forgot.sendLink")}
               </Text>
             </TouchableOpacity>
 
             {/* Back to login */}
             <View style={styles.backContainer}>
               <TouchableOpacity onPress={() => router.back()}>
-                <Text style={styles.backLink}>Voltar ao login</Text>
+                <Text style={styles.backLink}>{t("forgot.backToLogin")}</Text>
               </TouchableOpacity>
             </View>
           </View>

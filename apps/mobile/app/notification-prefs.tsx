@@ -12,50 +12,51 @@ import { ArrowLeft } from "lucide-react-native";
 
 import { useTheme } from "./_layout";
 import type { Colors } from "@/colors";
+import { t } from "@/i18n";
 
 interface NotifCategory {
-  title: string;
-  items: { key: string; label: string }[];
+  titleKey: string;
+  items: { key: string; labelKey: string }[];
 }
 
 const categories: NotifCategory[] = [
   {
-    title: "Reservas",
+    titleKey: "notifPrefs.catBookings",
     items: [
-      { key: "booking_confirm", label: "Confirmacao de reserva" },
-      { key: "booking_cancel", label: "Cancelamento de reserva" },
-      { key: "booking_reminder", label: "Lembrete (1h antes)" },
-      { key: "waitlist_spot", label: "Lugar disponivel na lista de espera" },
+      { key: "booking_confirm", labelKey: "notifPrefs.bookingConfirm" },
+      { key: "booking_cancel", labelKey: "notifPrefs.bookingCancel" },
+      { key: "booking_reminder", labelKey: "notifPrefs.bookingReminder" },
+      { key: "waitlist_spot", labelKey: "notifPrefs.waitlistSpot" },
     ],
   },
   {
-    title: "Treinos",
+    titleKey: "notifPrefs.catWorkouts",
     items: [
-      { key: "wod_published", label: "WOD publicado" },
-      { key: "pr_achieved", label: "PR alcancado" },
+      { key: "wod_published", labelKey: "notifPrefs.wodPublished" },
+      { key: "pr_achieved", labelKey: "notifPrefs.prAchieved" },
     ],
   },
   {
-    title: "Social",
+    titleKey: "notifPrefs.catSocial",
     items: [
-      { key: "fistbumps", label: "Fistbumps" },
-      { key: "comments", label: "Comentarios" },
-      { key: "birthdays", label: "Aniversarios" },
+      { key: "fistbumps", labelKey: "notifPrefs.fistbumps" },
+      { key: "comments", labelKey: "notifPrefs.comments" },
+      { key: "birthdays", labelKey: "notifPrefs.birthdays" },
     ],
   },
   {
-    title: "Pagamentos",
+    titleKey: "notifPrefs.catPayments",
     items: [
-      { key: "payment_success", label: "Pagamento bem sucedido" },
-      { key: "payment_failed", label: "Pagamento falhado" },
-      { key: "receipt", label: "Recibo disponivel" },
+      { key: "payment_success", labelKey: "notifPrefs.paymentSuccess" },
+      { key: "payment_failed", labelKey: "notifPrefs.paymentFailed" },
+      { key: "receipt", labelKey: "notifPrefs.receipt" },
     ],
   },
   {
-    title: "Desafios",
+    titleKey: "notifPrefs.catChallenges",
     items: [
-      { key: "medal_earned", label: "Medalha conquistada" },
-      { key: "ranking_update", label: "Atualizacao de ranking" },
+      { key: "medal_earned", labelKey: "notifPrefs.medalEarned" },
+      { key: "ranking_update", labelKey: "notifPrefs.rankingUpdate" },
     ],
   },
 ];
@@ -85,7 +86,7 @@ export default function NotificationPrefsScreen() {
           <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
             <ArrowLeft size={22} color={C.text} strokeWidth={2} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Notificações</Text>
+          <Text style={styles.headerTitle}>{t("screen.notifications")}</Text>
           <View style={{ width: 44 }} />
         </View>
 
@@ -94,8 +95,8 @@ export default function NotificationPrefsScreen() {
           contentContainerStyle={styles.scrollContent}
         >
           {categories.map((cat) => (
-            <View key={cat.title} style={styles.categoryCard}>
-              <Text style={styles.categoryTitle}>{cat.title}</Text>
+            <View key={cat.titleKey} style={styles.categoryCard}>
+              <Text style={styles.categoryTitle}>{t(cat.titleKey)}</Text>
               {cat.items.map((item, idx) => (
                 <View
                   key={item.key}
@@ -104,7 +105,7 @@ export default function NotificationPrefsScreen() {
                     idx < cat.items.length - 1 && styles.itemBorder,
                   ]}
                 >
-                  <Text style={styles.itemLabel}>{item.label}</Text>
+                  <Text style={styles.itemLabel}>{t(item.labelKey)}</Text>
                   <TouchableOpacity
                     onPress={() => toggle(item.key)}
                     style={[

@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import { ArrowLeft, ArrowRight, Eye, EyeOff, Check } from "lucide-react-native";
+import { t } from "@/i18n";
 import { useTheme } from "./_layout";
 import type { Colors } from "@/colors";
 
@@ -39,12 +40,12 @@ export default function RegisterScreen() {
 
   function validateStep1(): boolean {
     const errs: Record<string, string> = {};
-    if (!name.trim()) errs.name = "Nome obrigatorio";
-    if (!email.trim()) errs.email = "Email obrigatorio";
+    if (!name.trim()) errs.name = t("register.errName");
+    if (!email.trim()) errs.email = t("register.errEmail");
     if (password.length < 10)
-      errs.password = "Minimo 10 caracteres";
+      errs.password = t("register.errPasswordMin");
     if (password !== confirmPassword)
-      errs.confirmPassword = "Passwords nao coincidem";
+      errs.confirmPassword = t("passwordChange.mismatch");
     setErrors(errs);
     return Object.keys(errs).length === 0;
   }
@@ -57,7 +58,7 @@ export default function RegisterScreen() {
 
   function handleRegister() {
     if (!acceptedTerms) {
-      setErrors({ terms: "Aceite os termos" });
+      setErrors({ terms: t("register.errTerms") });
       return;
     }
     setLoading(true);
@@ -108,12 +109,12 @@ export default function RegisterScreen() {
         </View>
 
         <Text style={styles.title}>
-          {step === 1 ? "Crie a sua conta" : "Sobre voce"}
+          {step === 1 ? t("register.title1") : t("register.title2")}
         </Text>
         <Text style={styles.subtitle}>
           {step === 1
-            ? "Dados de acesso"
-            : "Informacoes adicionais"}
+            ? t("register.subtitle1")
+            : t("register.subtitle2")}
         </Text>
 
         {/* Step 1 */}
@@ -121,12 +122,12 @@ export default function RegisterScreen() {
           <View style={styles.form}>
             {/* Name */}
             <View style={styles.inputGroup}>
-              <Text style={styles.label}>NOME</Text>
+              <Text style={styles.label}>{t("register.name")}</Text>
               <TextInput
                 style={styles.input}
                 value={name}
                 onChangeText={setName}
-                placeholder="O seu nome"
+                placeholder={t("register.namePlaceholder")}
                 placeholderTextColor={`${C.muted}80`}
                 autoCapitalize="words"
               />
@@ -137,12 +138,12 @@ export default function RegisterScreen() {
 
             {/* Email */}
             <View style={styles.inputGroup}>
-              <Text style={styles.label}>EMAIL</Text>
+              <Text style={styles.label}>{t("label.email")}</Text>
               <TextInput
                 style={styles.input}
                 value={email}
                 onChangeText={setEmail}
-                placeholder="voce@exemplo.com"
+                placeholder={t("login.emailPlaceholder")}
                 placeholderTextColor={`${C.muted}80`}
                 keyboardType="email-address"
                 autoCapitalize="none"
@@ -155,13 +156,13 @@ export default function RegisterScreen() {
 
             {/* Password */}
             <View style={styles.inputGroup}>
-              <Text style={styles.label}>PASSWORD</Text>
+              <Text style={styles.label}>{t("label.password")}</Text>
               <View style={styles.passwordContainer}>
                 <TextInput
                   style={[styles.input, styles.passwordInput]}
                   value={password}
                   onChangeText={setPassword}
-                  placeholder="Minimo 10 caracteres"
+                  placeholder={t("register.passwordPlaceholder")}
                   placeholderTextColor={`${C.muted}80`}
                   secureTextEntry={!showPassword}
                   autoCapitalize="none"
@@ -184,13 +185,13 @@ export default function RegisterScreen() {
 
             {/* Confirm Password */}
             <View style={styles.inputGroup}>
-              <Text style={styles.label}>CONFIRMAR PASSWORD</Text>
+              <Text style={styles.label}>{t("register.confirmPassword")}</Text>
               <View style={styles.passwordContainer}>
                 <TextInput
                   style={[styles.input, styles.passwordInput]}
                   value={confirmPassword}
                   onChangeText={setConfirmPassword}
-                  placeholder="Repita a password"
+                  placeholder={t("register.confirmPlaceholder")}
                   placeholderTextColor={`${C.muted}80`}
                   secureTextEntry={!showConfirm}
                   autoCapitalize="none"
@@ -217,7 +218,7 @@ export default function RegisterScreen() {
               onPress={handleNext}
               activeOpacity={0.8}
             >
-              <Text style={styles.buttonText}>SEGUINTE</Text>
+              <Text style={styles.buttonText}>{t("btn.next")}</Text>
               <ArrowRight size={18} color={C.bg} />
             </TouchableOpacity>
           </View>
@@ -228,7 +229,7 @@ export default function RegisterScreen() {
           <View style={styles.form}>
             {/* Gender */}
             <View style={styles.inputGroup}>
-              <Text style={styles.label}>GENERO</Text>
+              <Text style={styles.label}>{t("register.gender")}</Text>
               <View style={styles.genderRow}>
                 <TouchableOpacity
                   style={[
@@ -243,7 +244,7 @@ export default function RegisterScreen() {
                       gender === "M" && styles.genderTextActive,
                     ]}
                   >
-                    Masculino
+                    {t("label.male")}
                   </Text>
                 </TouchableOpacity>
                 <TouchableOpacity
@@ -259,7 +260,7 @@ export default function RegisterScreen() {
                       gender === "F" && styles.genderTextActive,
                     ]}
                   >
-                    Feminino
+                    {t("label.female")}
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -267,12 +268,12 @@ export default function RegisterScreen() {
 
             {/* Date of Birth */}
             <View style={styles.inputGroup}>
-              <Text style={styles.label}>DATA DE NASCIMENTO</Text>
+              <Text style={styles.label}>{t("register.dob")}</Text>
               <TextInput
                 style={styles.input}
                 value={dob}
                 onChangeText={setDob}
-                placeholder="DD/MM/AAAA"
+                placeholder={t("register.dobPlaceholder")}
                 placeholderTextColor={`${C.muted}80`}
                 keyboardType="numeric"
               />
@@ -280,7 +281,7 @@ export default function RegisterScreen() {
 
             {/* Country */}
             <View style={styles.inputGroup}>
-              <Text style={styles.label}>PAIS</Text>
+              <Text style={styles.label}>{t("register.country")}</Text>
               <TextInput
                 style={styles.input}
                 value={country}
@@ -305,9 +306,10 @@ export default function RegisterScreen() {
                 {acceptedTerms && <Check size={14} color={C.bg} />}
               </View>
               <Text style={styles.termsText}>
-                Aceito os{" "}
-                <Text style={styles.termsLink}>Termos de Servico</Text> e a{" "}
-                <Text style={styles.termsLink}>Politica de Privacidade</Text>
+                {t("register.termsPrefix")}
+                <Text style={styles.termsLink}>{t("register.termsService")}</Text>
+                {t("register.termsAnd")}
+                <Text style={styles.termsLink}>{t("register.termsPrivacy")}</Text>
               </Text>
             </TouchableOpacity>
             {errors.terms && (
@@ -322,7 +324,7 @@ export default function RegisterScreen() {
               activeOpacity={0.8}
             >
               <Text style={styles.buttonText}>
-                {loading ? "A CRIAR..." : "CRIAR CONTA"}
+                {loading ? t("register.creating") : t("register.create")}
               </Text>
             </TouchableOpacity>
           </View>
@@ -331,9 +333,9 @@ export default function RegisterScreen() {
         {/* Login link */}
         {step === 1 && (
           <View style={styles.loginContainer}>
-            <Text style={styles.loginText}>Ja tem conta? </Text>
+            <Text style={styles.loginText}>{t("register.haveAccount")}</Text>
             <TouchableOpacity onPress={() => router.back()}>
-              <Text style={styles.loginLink}>Entrar</Text>
+              <Text style={styles.loginLink}>{t("screen.login")}</Text>
             </TouchableOpacity>
           </View>
         )}

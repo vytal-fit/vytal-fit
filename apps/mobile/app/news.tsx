@@ -13,6 +13,7 @@ import { ArrowLeft, Heart, MessageCircle, Image } from "lucide-react-native";
 // ─── Colors ──────────────────────────────────────────────
 import { useTheme } from "./_layout";
 import type { Colors } from "@/colors";
+import { t } from "@/i18n";
 
 // ─── Mock News ───────────────────────────────────────────
 const initialNews = [
@@ -128,7 +129,7 @@ export default function NewsScreen() {
           >
             <ArrowLeft size={22} color={C.text} strokeWidth={2} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Noticias</Text>
+          <Text style={styles.headerTitle}>{t("news.title")}</Text>
           <View style={{ width: 44 }} />
         </View>
 
@@ -164,7 +165,7 @@ export default function NewsScreen() {
                 {item.hasPhoto && (
                   <View style={styles.photoPlaceholder}>
                     <Image size={28} color={C.muted} strokeWidth={1.5} />
-                    <Text style={styles.photoText}>Foto</Text>
+                    <Text style={styles.photoText}>{t("news.photo")}</Text>
                   </View>
                 )}
 

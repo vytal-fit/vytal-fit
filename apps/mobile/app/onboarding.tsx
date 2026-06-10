@@ -11,6 +11,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { mockClasses } from "@vytal-fit/shared";
+import { t } from "@/i18n";
 import { useTheme } from "./_layout";
 import type { Colors } from "@/colors";
 
@@ -26,9 +27,9 @@ function StepWelcome() {
       <View style={styles.welcomeLogoContainer}>
         <Text style={styles.welcomeLogo}>VYTAL</Text>
       </View>
-      <Text style={styles.welcomeTitle}>Bem-vindo ao CrossFit Aveiro!</Text>
+      <Text style={styles.welcomeTitle}>{t("onboarding.welcome").replace("{gym}", "CrossFit Aveiro")}</Text>
       <Text style={styles.welcomeSubtitle}>
-        Vamos configurar o teu perfil em poucos passos para teres a melhor experiencia possivel.
+        {t("onboarding.welcomeSubtitle")}
       </Text>
     </View>
   );
@@ -51,48 +52,48 @@ function StepProfile({
   const styles = makeStyles(C);
   return (
     <View style={styles.stepContainer}>
-      <Text style={styles.stepTitle}>Completa o teu perfil</Text>
+      <Text style={styles.stepTitle}>{t("onboarding.profileTitle")}</Text>
 
       {/* Photo Placeholder */}
       <View style={styles.photoPlaceholder}>
-        <Text style={styles.photoPlaceholderText}>Foto</Text>
+        <Text style={styles.photoPlaceholderText}>{t("onboarding.photo")}</Text>
       </View>
 
       <View style={styles.formFields}>
         <View style={styles.inputGroup}>
-          <Text style={styles.label}>NOME</Text>
+          <Text style={styles.label}>{t("onboarding.name")}</Text>
           <TextInput
             style={styles.input}
             value={profile.name}
             onChangeText={(v) => setProfile({ ...profile, name: v })}
-            placeholder="Nome completo"
+            placeholder={t("onboarding.namePlaceholder")}
             placeholderTextColor={C.muted + "60"}
           />
         </View>
         <View style={styles.inputGroup}>
-          <Text style={styles.label}>NICKNAME</Text>
+          <Text style={styles.label}>{t("onboarding.nickname")}</Text>
           <TextInput
             style={styles.input}
             value={profile.nickname}
             onChangeText={(v) => setProfile({ ...profile, nickname: v })}
-            placeholder="Como queres ser chamado"
+            placeholder={t("onboarding.nicknamePlaceholder")}
             placeholderTextColor={C.muted + "60"}
           />
         </View>
         <View style={styles.inputGroup}>
-          <Text style={styles.label}>DATA DE NASCIMENTO</Text>
+          <Text style={styles.label}>{t("onboarding.dob")}</Text>
           <TextInput
             style={styles.input}
             value={profile.dob}
             onChangeText={(v) => setProfile({ ...profile, dob: v })}
-            placeholder="DD/MM/AAAA"
+            placeholder={t("onboarding.dobPlaceholder")}
             placeholderTextColor={C.muted + "60"}
           />
         </View>
         <View style={styles.inputGroup}>
-          <Text style={styles.label}>GENERO</Text>
+          <Text style={styles.label}>{t("onboarding.gender")}</Text>
           <View style={styles.genderRow}>
-            {["Masculino", "Feminino"].map((g) => (
+            {[t("label.male"), t("label.female")].map((g) => (
               <TouchableOpacity
                 key={g}
                 style={[
@@ -114,12 +115,12 @@ function StepProfile({
           </View>
         </View>
         <View style={styles.inputGroup}>
-          <Text style={styles.label}>CONTACTO DE EMERGENCIA</Text>
+          <Text style={styles.label}>{t("onboarding.emergency")}</Text>
           <TextInput
             style={styles.input}
             value={profile.emergencyContact}
             onChangeText={(v) => setProfile({ ...profile, emergencyContact: v })}
-            placeholder="Telefone de emergencia"
+            placeholder={t("onboarding.emergencyPlaceholder")}
             placeholderTextColor={C.muted + "60"}
             keyboardType="phone-pad"
           />
@@ -145,15 +146,15 @@ function StepPreferences({
   const styles = makeStyles(C);
   return (
     <View style={styles.stepContainer}>
-      <Text style={styles.stepTitle}>Preferências</Text>
+      <Text style={styles.stepTitle}>{t("onboarding.prefsTitle")}</Text>
 
       <View style={styles.prefsSection}>
-        <Text style={styles.prefsGroupTitle}>Notificações</Text>
+        <Text style={styles.prefsGroupTitle}>{t("screen.notifications")}</Text>
 
         <View style={styles.toggleRow}>
           <View style={styles.toggleInfo}>
-            <Text style={styles.toggleLabel}>Lembretes de aulas</Text>
-            <Text style={styles.toggleSublabel}>Recebe lembretes antes das aulas</Text>
+            <Text style={styles.toggleLabel}>{t("onboarding.classReminders")}</Text>
+            <Text style={styles.toggleSublabel}>{t("onboarding.classRemindersSub")}</Text>
           </View>
           <Switch
             value={prefs.classReminders}
@@ -165,8 +166,8 @@ function StepPreferences({
 
         <View style={styles.toggleRow}>
           <View style={styles.toggleInfo}>
-            <Text style={styles.toggleLabel}>WOD publicado</Text>
-            <Text style={styles.toggleSublabel}>Notificacao quando o WOD e publicado</Text>
+            <Text style={styles.toggleLabel}>{t("onboarding.wodPublished")}</Text>
+            <Text style={styles.toggleSublabel}>{t("onboarding.wodPublishedSub")}</Text>
           </View>
           <Switch
             value={prefs.wodPublished}
@@ -178,8 +179,8 @@ function StepPreferences({
 
         <View style={styles.toggleRow}>
           <View style={styles.toggleInfo}>
-            <Text style={styles.toggleLabel}>PRs</Text>
-            <Text style={styles.toggleSublabel}>Celebra os teus recordes pessoais</Text>
+            <Text style={styles.toggleLabel}>{t("label.prs")}</Text>
+            <Text style={styles.toggleSublabel}>{t("onboarding.prsSub")}</Text>
           </View>
           <Switch
             value={prefs.prNotifications}
@@ -191,12 +192,12 @@ function StepPreferences({
       </View>
 
       <View style={styles.prefsSection}>
-        <Text style={styles.prefsGroupTitle}>Privacidade</Text>
+        <Text style={styles.prefsGroupTitle}>{t("screen.privacy")}</Text>
         {(["public", "box_only", "private"] as const).map((level) => {
           const labels = {
-            public: { title: "Publico", sub: "Visivel para todos" },
-            box_only: { title: "Apenas Box", sub: "Visivel so para membros" },
-            private: { title: "Privado", sub: "So tu podes ver" },
+            public: { title: t("onboarding.privacyPublic"), sub: t("onboarding.privacyPublicSub") },
+            box_only: { title: t("onboarding.privacyBoxOnly"), sub: t("onboarding.privacyBoxOnlySub") },
+            private: { title: t("onboarding.privacyPrivate"), sub: t("onboarding.privacyPrivateSub") },
           };
           const isSelected = prefs.privacy === level;
           return (
@@ -234,9 +235,9 @@ function StepFirstBooking() {
 
   return (
     <View style={styles.stepContainer}>
-      <Text style={styles.stepTitle}>A tua primeira aula!</Text>
+      <Text style={styles.stepTitle}>{t("onboarding.firstClassTitle")}</Text>
       <Text style={styles.stepSubtitle}>
-        Escolhe uma aula de hoje para comecar a tua jornada.
+        {t("onboarding.firstClassSubtitle")}
       </Text>
 
       <View style={styles.classesListOnboarding}>
@@ -268,7 +269,9 @@ function StepFirstBooking() {
                   {cls.coaches.length > 0 ? cls.coaches[0].name : "TBD"}
                 </Text>
                 <Text style={[styles.classSpotsOnboarding, isFull && { color: C.amber }]}>
-                  {isFull ? "Lotada" : `${cls.maxCapacity - cls.enrolledCount} vagas`}
+                  {isFull
+                    ? t("onboarding.full")
+                    : t("onboarding.spots").replace("{n}", String(cls.maxCapacity - cls.enrolledCount))}
                 </Text>
               </View>
             </TouchableOpacity>
@@ -278,7 +281,7 @@ function StepFirstBooking() {
 
       {selectedClassId && (
         <TouchableOpacity style={styles.bookFirstButton}>
-          <Text style={styles.bookFirstButtonText}>RESERVAR A TUA PRIMEIRA AULA!</Text>
+          <Text style={styles.bookFirstButtonText}>{t("onboarding.bookFirst")}</Text>
         </TouchableOpacity>
       )}
     </View>
@@ -365,17 +368,17 @@ export default function OnboardingScreen() {
           <View style={styles.bottomNavRow}>
             {step > 1 ? (
               <TouchableOpacity style={styles.navBackButton} onPress={handleBack}>
-                <Text style={styles.navBackText}>VOLTAR</Text>
+                <Text style={styles.navBackText}>{t("onboarding.back")}</Text>
               </TouchableOpacity>
             ) : (
               <View style={{ flex: 1 }} />
             )}
             <TouchableOpacity onPress={handleSkip}>
-              <Text style={styles.skipText}>Saltar</Text>
+              <Text style={styles.skipText}>{t("onboarding.skip")}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.navNextButton} onPress={handleNext}>
               <Text style={styles.navNextText}>
-                {step === TOTAL_STEPS ? "COMECAR" : "SEGUINTE"}
+                {step === TOTAL_STEPS ? t("onboarding.start") : t("btn.next")}
               </Text>
             </TouchableOpacity>
           </View>

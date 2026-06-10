@@ -10,6 +10,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { ArrowLeft, Play, Pause, RotateCcw } from "lucide-react-native";
+import { t } from "@/i18n";
 import { useTheme } from "./_layout";
 import type { Colors } from "@/colors";
 
@@ -174,7 +175,7 @@ export default function TimerScreen() {
           <TouchableOpacity style={styles.backButton} onPress={() => router.back()} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
             <ArrowLeft size={24} color={C.text} strokeWidth={1.8} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Timer</Text>
+          <Text style={styles.headerTitle}>{t("screen.timer")}</Text>
           <View style={{ width: 44 }} />
         </View>
 
@@ -200,7 +201,7 @@ export default function TimerScreen() {
                   mode === m.key && styles.modePillTextActive,
                 ]}
               >
-                {m.label}
+                {m.key === "stopwatch" ? t("timer.stopwatch") : m.label}
               </Text>
             </TouchableOpacity>
           ))}
@@ -211,7 +212,7 @@ export default function TimerScreen() {
           <View style={styles.configSection}>
             {(mode === "amrap" || mode === "for_time") && (
               <View style={styles.configRow}>
-                <Text style={styles.configLabel}>Tempo (min)</Text>
+                <Text style={styles.configLabel}>{t("timer.time")}</Text>
                 <View style={styles.configInputGroup}>
                   <TouchableOpacity
                     style={styles.configBtn}
@@ -266,7 +267,7 @@ export default function TimerScreen() {
             {mode === "tabata" && (
               <>
                 <View style={styles.configRow}>
-                  <Text style={styles.configLabel}>Work (seg)</Text>
+                  <Text style={styles.configLabel}>{t("timer.work")}</Text>
                   <View style={styles.configInputGroup}>
                     <TouchableOpacity
                       style={styles.configBtn}
@@ -290,7 +291,7 @@ export default function TimerScreen() {
                   </View>
                 </View>
                 <View style={styles.configRow}>
-                  <Text style={styles.configLabel}>Rest (seg)</Text>
+                  <Text style={styles.configLabel}>{t("timer.rest")}</Text>
                   <View style={styles.configInputGroup}>
                     <TouchableOpacity
                       style={styles.configBtn}
@@ -334,7 +335,7 @@ export default function TimerScreen() {
           {mode === "tabata" && isActive && (
             <View style={[styles.phaseBadge, { backgroundColor: (isRestPhase ? C.red : C.green) + "20" }]}>
               <Text style={[styles.phaseText, { color: isRestPhase ? C.red : C.green }]}>
-                {isRestPhase ? "REST" : "WORK"}
+                {isRestPhase ? t("timer.restPhase") : t("timer.workPhase")}
               </Text>
             </View>
           )}
@@ -347,7 +348,7 @@ export default function TimerScreen() {
           <View style={styles.soundIndicator}>
             <View style={[styles.soundDot, { backgroundColor: isActive ? C.green : C.muted }]} />
             <Text style={styles.soundText}>
-              {isActive ? "Ativo" : "Pronto"}
+              {isActive ? t("status.active") : t("status.ready")}
             </Text>
           </View>
         </View>
@@ -381,7 +382,7 @@ export default function TimerScreen() {
             style={styles.controlBtnSecondary}
             onPress={reset}
           >
-            <Text style={styles.controlBtnLabel}>Reset</Text>
+            <Text style={styles.controlBtnLabel}>{t("timer.reset")}</Text>
           </TouchableOpacity>
         </View>
       </View>

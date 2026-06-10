@@ -15,9 +15,14 @@ import { mockCoaches } from "@vytal-fit/shared";
 // ─── Colors ──────────────────────────────────────────────
 import { useTheme } from "./_layout";
 import type { Colors } from "@/colors";
+import { t } from "@/i18n";
 
 type Tab = "box" | "vytal";
-const feedbackTypes = ["Questao", "Sugestao", "Bug"];
+const feedbackTypeKeys = [
+  "feedback.typeQuestion",
+  "feedback.typeSuggestion",
+  "feedback.typeBug",
+];
 
 // ─── Screen ──────────────────────────────────────────────
 export default function FeedbackScreen() {
@@ -44,7 +49,7 @@ export default function FeedbackScreen() {
   }
 
   function cycleFeedbackType() {
-    setFeedbackType((prev) => (prev + 1) % feedbackTypes.length);
+    setFeedbackType((prev) => (prev + 1) % feedbackTypeKeys.length);
   }
 
   function handleSendBox() {
@@ -75,7 +80,7 @@ export default function FeedbackScreen() {
           >
             <ArrowLeft size={22} color={C.text} strokeWidth={2} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Feedback</Text>
+          <Text style={styles.headerTitle}>{t("screen.feedback")}</Text>
           <View style={{ width: 44 }} />
         </View>
 
@@ -91,7 +96,7 @@ export default function FeedbackScreen() {
                 activeTab === "box" && styles.tabTextActive,
               ]}
             >
-              A minha box
+              {t("feedback.tabBox")}
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
@@ -118,13 +123,13 @@ export default function FeedbackScreen() {
               {boxSent ? (
                 <View style={styles.successCard}>
                   <CheckCircle size={40} color={C.green} strokeWidth={2} />
-                  <Text style={styles.successTitle}>Mensagem enviada!</Text>
-                  <Text style={styles.successSubtitle}>A tua mensagem foi enviada para a box.</Text>
+                  <Text style={styles.successTitle}>{t("feedback.boxSentTitle")}</Text>
+                  <Text style={styles.successSubtitle}>{t("feedback.boxSentSubtitle")}</Text>
                 </View>
               ) : (
                 <>
                   {/* To (Coach Selector) */}
-                  <Text style={styles.fieldLabel}>Para</Text>
+                  <Text style={styles.fieldLabel}>{t("feedback.to")}</Text>
                   <TouchableOpacity
                     style={styles.selector}
                     onPress={cycleCoach}
@@ -136,22 +141,22 @@ export default function FeedbackScreen() {
                   </TouchableOpacity>
 
                   {/* Subject */}
-                  <Text style={styles.fieldLabel}>Assunto</Text>
+                  <Text style={styles.fieldLabel}>{t("feedback.subject")}</Text>
                   <TextInput
                     style={styles.fieldInput}
                     value={subject}
                     onChangeText={setSubject}
-                    placeholder="Assunto da mensagem..."
+                    placeholder={t("feedback.subjectPlaceholder")}
                     placeholderTextColor={C.muted + "60"}
                   />
 
                   {/* Message */}
-                  <Text style={styles.fieldLabel}>Mensagem</Text>
+                  <Text style={styles.fieldLabel}>{t("feedback.message")}</Text>
                   <TextInput
                     style={styles.textArea}
                     value={message}
                     onChangeText={setMessage}
-                    placeholder="Escreve a tua mensagem..."
+                    placeholder={t("feedback.messagePlaceholder")}
                     placeholderTextColor={C.muted + "60"}
                     multiline
                     numberOfLines={6}
@@ -164,7 +169,7 @@ export default function FeedbackScreen() {
                     onPress={handleSendBox}
                   >
                     <Send size={18} color="#080c0a" strokeWidth={2.5} />
-                    <Text style={styles.sendButtonText}>ENVIAR</Text>
+                    <Text style={styles.sendButtonText}>{t("feedback.send")}</Text>
                   </TouchableOpacity>
                 </>
               )}
@@ -174,30 +179,30 @@ export default function FeedbackScreen() {
               {vytalSent ? (
                 <View style={styles.successCard}>
                   <CheckCircle size={40} color={C.green} strokeWidth={2} />
-                  <Text style={styles.successTitle}>Feedback enviado!</Text>
-                  <Text style={styles.successSubtitle}>Obrigado! A equipa Vytal vai rever o teu feedback.</Text>
+                  <Text style={styles.successTitle}>{t("feedback.vytalSentTitle")}</Text>
+                  <Text style={styles.successSubtitle}>{t("feedback.vytalSentSubtitle")}</Text>
                 </View>
               ) : (
                 <>
                   {/* Feedback Type */}
-                  <Text style={styles.fieldLabel}>Tipo</Text>
+                  <Text style={styles.fieldLabel}>{t("feedback.type")}</Text>
                   <TouchableOpacity
                     style={styles.selector}
                     onPress={cycleFeedbackType}
                   >
                     <Text style={styles.selectorText}>
-                      {feedbackTypes[feedbackType]}
+                      {t(feedbackTypeKeys[feedbackType])}
                     </Text>
                     <ChevronDown size={16} color={C.green} strokeWidth={2.5} />
                   </TouchableOpacity>
 
                   {/* Description */}
-                  <Text style={styles.fieldLabel}>Descricao</Text>
+                  <Text style={styles.fieldLabel}>{t("feedback.description")}</Text>
                   <TextInput
                     style={styles.textArea}
                     value={description}
                     onChangeText={setDescription}
-                    placeholder="Descreve em detalhe..."
+                    placeholder={t("feedback.descriptionPlaceholder")}
                     placeholderTextColor={C.muted + "60"}
                     multiline
                     numberOfLines={8}
@@ -206,10 +211,7 @@ export default function FeedbackScreen() {
 
                   {/* Info */}
                   <View style={styles.infoBanner}>
-                    <Text style={styles.infoText}>
-                      O teu feedback ajuda-nos a melhorar a app. Respondemos em ate
-                      48 horas uteis.
-                    </Text>
+                    <Text style={styles.infoText}>{t("feedback.info")}</Text>
                   </View>
 
                   {/* Send */}
@@ -218,7 +220,7 @@ export default function FeedbackScreen() {
                     onPress={handleSendVytal}
                   >
                     <Send size={18} color="#080c0a" strokeWidth={2.5} />
-                    <Text style={styles.sendButtonText}>ENVIAR</Text>
+                    <Text style={styles.sendButtonText}>{t("feedback.send")}</Text>
                   </TouchableOpacity>
                 </>
               )}
