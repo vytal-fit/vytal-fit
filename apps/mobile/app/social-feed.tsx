@@ -15,6 +15,7 @@ import { ArrowLeft, Heart, MessageCircle, Send } from "lucide-react-native";
 // ─── Colors ──────────────────────────────────────────────
 import { useTheme } from "./_layout";
 import type { Colors } from "@/colors";
+import { t } from "@/i18n";
 
 // ─── Types ───────────────────────────────────────────────
 type PostType = "pr" | "result" | "checkin" | "photo";
@@ -36,11 +37,11 @@ function getPostTypeBadge(type: PostType, C: Colors): { label: string; color: st
     case "pr":
       return { label: "PR", color: C.amber };
     case "result":
-      return { label: "Resultado", color: C.green };
+      return { label: t("socialFeed.result"), color: C.green };
     case "checkin":
       return { label: "Check-in", color: C.blue };
     case "photo":
-      return { label: "Foto", color: C.purple };
+      return { label: t("socialFeed.photo"), color: C.purple };
   }
 }
 
@@ -202,7 +203,7 @@ export default function SocialFeedScreen() {
           <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
             <ArrowLeft size={22} color={C.text} strokeWidth={2} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Comunidade</Text>
+          <Text style={styles.headerTitle}>{t("screen.community")}</Text>
           <View style={{ width: 44 }} />
         </View>
 
@@ -238,7 +239,7 @@ export default function SocialFeedScreen() {
                 {/* Photo placeholder for photo posts */}
                 {post.postType === "photo" && (
                   <View style={styles.photoPlaceholder}>
-                    <Text style={styles.photoPlaceholderText}>Foto</Text>
+                    <Text style={styles.photoPlaceholderText}>{t("socialFeed.photo")}</Text>
                   </View>
                 )}
 
@@ -276,7 +277,7 @@ export default function SocialFeedScreen() {
                   <View style={styles.commentInputRow}>
                     <TextInput
                       style={styles.commentInput}
-                      placeholder="Escreve um comentario..."
+                      placeholder={t("socialFeed.commentPlaceholder")}
                       placeholderTextColor={C.muted}
                       value={commentText}
                       onChangeText={setCommentText}

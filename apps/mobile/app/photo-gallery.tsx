@@ -12,6 +12,7 @@ import { ArrowLeft, Camera, Plus } from "lucide-react-native";
 
 import { useTheme } from "./_layout";
 import type { Colors } from "@/colors";
+import { t } from "@/i18n";
 
 const mockPhotos = [
   { id: "p-1", date: "2026-06-01" },
@@ -34,7 +35,7 @@ export default function PhotoGalleryScreen() {
           <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
             <ArrowLeft size={22} color={C.text} strokeWidth={2} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Fotos de Progresso</Text>
+          <Text style={styles.headerTitle}>{t("photoGallery.title")}</Text>
           <View style={{ width: 44 }} />
         </View>
 
@@ -55,7 +56,7 @@ export default function PhotoGalleryScreen() {
 
           <TouchableOpacity style={styles.addButton}>
             <Plus size={20} color="#080c0a" strokeWidth={2.5} />
-            <Text style={styles.addButtonText}>Adicionar Foto</Text>
+            <Text style={styles.addButtonText}>{t("photoGallery.addPhoto")}</Text>
           </TouchableOpacity>
 
           <View style={{ height: 30 }} />

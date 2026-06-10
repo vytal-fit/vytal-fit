@@ -15,6 +15,7 @@ import { mockCoaches } from "@vytal-fit/shared";
 // ─── Colors ──────────────────────────────────────────────
 import { useTheme } from "./_layout";
 import type { Colors } from "@/colors";
+import { t } from "@/i18n";
 
 function getInitials(name: string): string {
   return name
@@ -32,7 +33,7 @@ function getRoleLabel(role: string): string {
     case "coach":
       return "Coach";
     case "assistant":
-      return "Assistente";
+      return t("coachProfile.assistant");
     default:
       return role;
   }
@@ -86,7 +87,7 @@ export default function CoachProfileScreen() {
 
   const coach = mockCoaches.find((c) => c.id === id) || mockCoaches[0];
   const roleColor = getRoleColor(coach.role, C);
-  const bio = mockCoachBios[coach.id] || "Informacao nao disponivel.";
+  const bio = mockCoachBios[coach.id] || t("coachProfile.noBio");
   const phone = mockCoachPhones[coach.id] || "";
 
   return (
@@ -100,7 +101,7 @@ export default function CoachProfileScreen() {
           >
             <ArrowLeft size={22} color={C.text} strokeWidth={2} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Perfil do Coach</Text>
+          <Text style={styles.headerTitle}>{t("coachProfile.title")}</Text>
           <View style={{ width: 44 }} />
         </View>
 
@@ -141,13 +142,13 @@ export default function CoachProfileScreen() {
 
           {/* Bio */}
           <View style={styles.bioCard}>
-            <Text style={styles.bioTitle}>Sobre</Text>
+            <Text style={styles.bioTitle}>{t("coachProfile.about")}</Text>
             <Text style={styles.bioText}>{bio}</Text>
           </View>
 
           {/* Weekly Classes */}
           <View style={styles.classesCard}>
-            <Text style={styles.classesTitle}>Aulas esta semana</Text>
+            <Text style={styles.classesTitle}>{t("coachProfile.weeklyClasses")}</Text>
             {mockWeeklyClasses.map((cls, i) => (
               <View key={i} style={styles.classRow}>
                 <View style={styles.classLeft}>
@@ -168,7 +169,7 @@ export default function CoachProfileScreen() {
             onPress={() => Linking.openURL(`mailto:${coach.email}`)}
           >
             <Mail size={18} color="#080c0a" strokeWidth={2.5} />
-            <Text style={styles.emailButtonText}>ENVIAR EMAIL</Text>
+            <Text style={styles.emailButtonText}>{t("coachProfile.sendEmail")}</Text>
           </TouchableOpacity>
 
           <View style={{ height: 30 }} />

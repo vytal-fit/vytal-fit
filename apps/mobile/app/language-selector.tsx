@@ -11,11 +11,12 @@ import { ArrowLeft, Check } from "lucide-react-native";
 
 import { useTheme } from "./_layout";
 import type { Colors } from "@/colors";
+import { t } from "@/i18n";
 
 const languages = [
-  { code: "pt", label: "Portugues", flag: "PT" },
-  { code: "en", label: "English", flag: "EN" },
-  { code: "es", label: "Espanol", flag: "ES" },
+  { code: "pt", labelKey: "language.pt", flag: "PT" },
+  { code: "en", labelKey: "language.en", flag: "EN" },
+  { code: "es", labelKey: "language.es", flag: "ES" },
 ];
 
 export default function LanguageSelectorScreen() {
@@ -31,7 +32,7 @@ export default function LanguageSelectorScreen() {
           <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
             <ArrowLeft size={22} color={C.text} strokeWidth={2} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Idioma</Text>
+          <Text style={styles.headerTitle}>{t("screen.language")}</Text>
           <View style={{ width: 44 }} />
         </View>
 
@@ -50,7 +51,7 @@ export default function LanguageSelectorScreen() {
                   </Text>
                 </View>
                 <Text style={[styles.langLabel, isSelected && styles.langLabelActive]}>
-                  {lang.label}
+                  {t(lang.labelKey)}
                 </Text>
                 {isSelected && (
                   <View style={styles.checkBadge}>

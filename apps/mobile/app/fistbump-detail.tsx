@@ -12,6 +12,7 @@ import { ArrowLeft, Heart } from "lucide-react-native";
 
 import { useTheme } from "./_layout";
 import type { Colors } from "@/colors";
+import { t } from "@/i18n";
 
 const mockReactors = [
   { id: "r-1", name: "Pedro Almeida", timeAgo: "2 min" },
@@ -40,7 +41,7 @@ export default function FistbumpDetailScreen() {
           <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
             <ArrowLeft size={22} color={C.text} strokeWidth={2} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Fistbumps</Text>
+          <Text style={styles.headerTitle}>{t("fistbumpDetail.title")}</Text>
           <View style={{ width: 44 }} />
         </View>
 
@@ -48,7 +49,7 @@ export default function FistbumpDetailScreen() {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
         >
-          <Text style={styles.heading}>Quem reagiu ao teu resultado</Text>
+          <Text style={styles.heading}>{t("fistbumpDetail.whoReacted")}</Text>
 
           {/* WOD + Score */}
           <View style={styles.wodCard}>

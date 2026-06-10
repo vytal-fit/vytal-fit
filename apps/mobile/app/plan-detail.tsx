@@ -14,6 +14,7 @@ import { ArrowLeft, Check, Calendar, CreditCard } from "lucide-react-native";
 // ─── Colors ──────────────────────────────────────────────
 import { useTheme } from "./_layout";
 import type { Colors } from "@/colors";
+import { t } from "@/i18n";
 
 // Current user's subscription (first one, member m-1)
 const userSub = mockSubscriptions.find((s) => s.memberId === "m-1")!;
@@ -22,19 +23,19 @@ const plan = userSub.plan;
 function getTypeLabel(type: string): string {
   switch (type) {
     case "monthly":
-      return "Mensal";
+      return t("planDetail.monthly");
     case "quarterly":
-      return "Trimestral";
+      return t("planDetail.quarterly");
     case "semester":
-      return "Semestral";
+      return t("planDetail.semester");
     case "annual":
-      return "Anual";
+      return t("planDetail.annual");
     case "session_pack":
-      return "Pack Sessoes";
+      return t("planDetail.sessionPack");
     case "day_pass":
-      return "Day Pass";
+      return t("planDetail.dayPass");
     case "trial":
-      return "Trial";
+      return t("planDetail.trial");
     default:
       return type;
   }
@@ -42,10 +43,7 @@ function getTypeLabel(type: string): string {
 
 function formatDate(dateStr: string): string {
   const d = new Date(dateStr);
-  const months = [
-    "Jan", "Fev", "Mar", "Abr", "Mai", "Jun",
-    "Jul", "Ago", "Set", "Out", "Nov", "Dez",
-  ];
+  const months = t("planDetail.months").split(",");
   return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
 }
 
@@ -73,7 +71,7 @@ export default function PlanDetailScreen() {
           <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
             <ArrowLeft size={24} color={C.text} strokeWidth={1.8} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>O Meu Plano</Text>
+          <Text style={styles.headerTitle}>{t("menu.plan")}</Text>
           <View style={{ width: 44 }} />
         </View>
 
@@ -96,7 +94,7 @@ export default function PlanDetailScreen() {
             </View>
             <View style={styles.statusBadge}>
               <View style={styles.statusDot} />
-              <Text style={styles.statusText}>Ativo</Text>
+              <Text style={styles.statusText}>{t("status.active")}</Text>
             </View>
           </View>
 
@@ -104,7 +102,7 @@ export default function PlanDetailScreen() {
           {hasSessionLimit && (
             <View style={styles.sectionCard}>
               <View style={styles.sectionHeader}>
-                <Text style={styles.sectionTitle}>Sessoes</Text>
+                <Text style={styles.sectionTitle}>{t("planDetail.sessions")}</Text>
                 <Text style={styles.sectionBadge}>
                   {sessionsUsed}/{plan.maxSessions}
                 </Text>
@@ -122,14 +120,17 @@ export default function PlanDetailScreen() {
                 />
               </View>
               <Text style={styles.sessionNote}>
-                {(plan.maxSessions || 0) - sessionsUsed} sessoes restantes
+                {t("planDetail.sessionsLeft").replace(
+                  "{count}",
+                  String((plan.maxSessions || 0) - sessionsUsed)
+                )}
               </Text>
             </View>
           )}
 
           {/* Allowed Class Types */}
           <View style={styles.sectionCard}>
-            <Text style={styles.sectionTitle}>Aulas Incluidas</Text>
+            <Text style={styles.sectionTitle}>{t("planDetail.includedClasses")}</Text>
             <View style={styles.classTypeList}>
               {allowedTypes.map((ct) => (
                 <View key={ct.id} style={styles.classTypeRow}>
@@ -147,12 +148,12 @@ export default function PlanDetailScreen() {
 
           {/* Billing Info */}
           <View style={styles.sectionCard}>
-            <Text style={styles.sectionTitle}>Informacao de Faturacao</Text>
+            <Text style={styles.sectionTitle}>{t("planDetail.billingInfo")}</Text>
             <View style={styles.billingList}>
               <View style={styles.billingRow}>
                 <View style={styles.billingLeft}>
                   <Calendar size={16} color={C.muted} strokeWidth={1.8} />
-                  <Text style={styles.billingLabel}>Inicio</Text>
+                  <Text style={styles.billingLabel}>{t("planDetail.start")}</Text>
                 </View>
                 <Text style={styles.billingValue}>{formatDate(userSub.startDate)}</Text>
               </View>
@@ -160,7 +161,7 @@ export default function PlanDetailScreen() {
                 <View style={styles.billingRow}>
                   <View style={styles.billingLeft}>
                     <Calendar size={16} color={C.green} strokeWidth={1.8} />
-                    <Text style={styles.billingLabel}>Proxima faturacao</Text>
+                    <Text style={styles.billingLabel}>{t("planDetail.nextBilling")}</Text>
                   </View>
                   <Text style={[styles.billingValue, { color: C.green }]}>
                     {formatDate(userSub.nextBillingDate)}
@@ -171,7 +172,7 @@ export default function PlanDetailScreen() {
                 <View style={styles.billingRow}>
                   <View style={styles.billingLeft}>
                     <Calendar size={16} color={C.amber} strokeWidth={1.8} />
-                    <Text style={styles.billingLabel}>Fim</Text>
+                    <Text style={styles.billingLabel}>{t("planDetail.end")}</Text>
                   </View>
                   <Text style={[styles.billingValue, { color: C.amber }]}>
                     {formatDate(userSub.endDate)}

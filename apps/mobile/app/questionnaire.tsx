@@ -13,6 +13,7 @@ import { ArrowLeft, Star } from "lucide-react-native";
 
 import { useTheme } from "./_layout";
 import type { Colors } from "@/colors";
+import { t } from "@/i18n";
 
 export default function QuestionnaireScreen() {
   const C = useTheme();
@@ -36,7 +37,7 @@ export default function QuestionnaireScreen() {
       case 0:
         return (
           <View style={styles.questionCard}>
-            <Text style={styles.questionText}>Como classificas a aula de hoje?</Text>
+            <Text style={styles.questionText}>{t("questionnaire.q1")}</Text>
             <View style={styles.starsRow}>
               {[1, 2, 3, 4, 5].map((val) => (
                 <TouchableOpacity key={val} onPress={() => setRating(val)}>
@@ -54,8 +55,8 @@ export default function QuestionnaireScreen() {
       case 1:
         return (
           <View style={styles.questionCard}>
-            <Text style={styles.questionText}>Qual parte do treino preferiste?</Text>
-            {["Aquecimento", "Strength", "WOD", "Cool-down"].map((opt) => (
+            <Text style={styles.questionText}>{t("questionnaire.q2")}</Text>
+            {[t("questionnaire.warmup"), "Strength", "WOD", "Cool-down"].map((opt) => (
               <TouchableOpacity
                 key={opt}
                 style={[styles.choicePill, multiChoice === opt && styles.choicePillActive]}
@@ -71,10 +72,10 @@ export default function QuestionnaireScreen() {
       case 2:
         return (
           <View style={styles.questionCard}>
-            <Text style={styles.questionText}>Tens alguma sugestao para melhorarmos?</Text>
+            <Text style={styles.questionText}>{t("questionnaire.q3")}</Text>
             <TextInput
               style={styles.textInput}
-              placeholder="Escreve aqui..."
+              placeholder={t("questionnaire.textPlaceholder")}
               placeholderTextColor={C.muted}
               multiline
               numberOfLines={4}
@@ -87,19 +88,19 @@ export default function QuestionnaireScreen() {
       case 3:
         return (
           <View style={styles.questionCard}>
-            <Text style={styles.questionText}>Recomendarias esta box a um amigo?</Text>
+            <Text style={styles.questionText}>{t("questionnaire.q4")}</Text>
             <View style={styles.yesNoRow}>
               <TouchableOpacity
                 style={[styles.yesNoPill, yesNo === true && styles.yesNoPillYes]}
                 onPress={() => setYesNo(true)}
               >
-                <Text style={[styles.yesNoText, yesNo === true && styles.yesNoTextActive]}>Sim</Text>
+                <Text style={[styles.yesNoText, yesNo === true && styles.yesNoTextActive]}>{t("questionnaire.yes")}</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={[styles.yesNoPill, yesNo === false && styles.yesNoPillNo]}
                 onPress={() => setYesNo(false)}
               >
-                <Text style={[styles.yesNoText, yesNo === false && styles.yesNoTextActive]}>Nao</Text>
+                <Text style={[styles.yesNoText, yesNo === false && styles.yesNoTextActive]}>{t("questionnaire.no")}</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -107,7 +108,7 @@ export default function QuestionnaireScreen() {
       case 4:
         return (
           <View style={styles.questionCard}>
-            <Text style={styles.questionText}>Nivel de esforco percebido (RPE)</Text>
+            <Text style={styles.questionText}>{t("questionnaire.q5")}</Text>
             <Text style={[styles.rpeValue, { color: rpe <= 3 ? C.green : rpe <= 6 ? C.amber : C.red }]}>
               {rpe}
             </Text>
@@ -128,8 +129,8 @@ export default function QuestionnaireScreen() {
               ))}
             </View>
             <View style={styles.rpeLabels}>
-              <Text style={styles.rpeLabelText}>Facil</Text>
-              <Text style={styles.rpeLabelText}>Maximo</Text>
+              <Text style={styles.rpeLabelText}>{t("questionnaire.easy")}</Text>
+              <Text style={styles.rpeLabelText}>{t("questionnaire.max")}</Text>
             </View>
           </View>
         );
@@ -145,7 +146,7 @@ export default function QuestionnaireScreen() {
           <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
             <ArrowLeft size={22} color={C.text} strokeWidth={2} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Questionario</Text>
+          <Text style={styles.headerTitle}>{t("questionnaire.title")}</Text>
           <View style={{ width: 44 }} />
         </View>
 
@@ -153,7 +154,11 @@ export default function QuestionnaireScreen() {
         <View style={styles.progressBar}>
           <View style={[styles.progressFill, { width: `${((currentQ + 1) / totalQuestions) * 100}%` }]} />
         </View>
-        <Text style={styles.progressText}>Pergunta {currentQ + 1} de {totalQuestions}</Text>
+        <Text style={styles.progressText}>
+          {t("questionnaire.progress")
+            .replace("{current}", String(currentQ + 1))
+            .replace("{total}", String(totalQuestions))}
+        </Text>
 
         <ScrollView
           showsVerticalScrollIndicator={false}
@@ -169,7 +174,7 @@ export default function QuestionnaireScreen() {
               style={styles.prevButton}
               onPress={() => setCurrentQ(currentQ - 1)}
             >
-              <Text style={styles.prevButtonText}>ANTERIOR</Text>
+              <Text style={styles.prevButtonText}>{t("questionnaire.prev")}</Text>
             </TouchableOpacity>
           )}
           <View style={{ flex: 1 }} />
@@ -178,11 +183,11 @@ export default function QuestionnaireScreen() {
               style={styles.nextButton}
               onPress={() => setCurrentQ(currentQ + 1)}
             >
-              <Text style={styles.nextButtonText}>SEGUINTE</Text>
+              <Text style={styles.nextButtonText}>{t("questionnaire.next")}</Text>
             </TouchableOpacity>
           ) : (
             <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
-              <Text style={styles.submitButtonText}>ENVIAR</Text>
+              <Text style={styles.submitButtonText}>{t("questionnaire.submit")}</Text>
             </TouchableOpacity>
           )}
         </View>

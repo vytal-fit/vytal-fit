@@ -12,6 +12,7 @@ import { ArrowLeft, FileText, File, Shield } from "lucide-react-native";
 
 import { useTheme } from "./_layout";
 import type { Colors } from "@/colors";
+import { t } from "@/i18n";
 
 type DocStatus = "signed" | "pending";
 type DocIcon = "pdf" | "contract" | "waiver";
@@ -44,7 +45,7 @@ export default function DossierViewerScreen() {
           <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
             <ArrowLeft size={22} color={C.text} strokeWidth={2} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Documentos</Text>
+          <Text style={styles.headerTitle}>{t("dossier.title")}</Text>
           <View style={{ width: 44 }} />
         </View>
 
@@ -71,7 +72,7 @@ export default function DossierViewerScreen() {
                   styles.statusText,
                   { color: doc.status === "signed" ? C.green : C.amber },
                 ]}>
-                  {doc.status === "signed" ? "Assinado" : "Pendente"}
+                  {doc.status === "signed" ? t("dossier.signed") : t("dossier.pending")}
                 </Text>
               </View>
             </TouchableOpacity>

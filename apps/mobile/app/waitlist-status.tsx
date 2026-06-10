@@ -11,6 +11,7 @@ import { ArrowLeft, Clock, Users, Info } from "lucide-react-native";
 
 import { useTheme } from "./_layout";
 import type { Colors } from "@/colors";
+import { t } from "@/i18n";
 
 export default function WaitlistStatusScreen() {
   const C = useTheme();
@@ -24,7 +25,7 @@ export default function WaitlistStatusScreen() {
           <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
             <ArrowLeft size={22} color={C.text} strokeWidth={2} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Lista de Espera</Text>
+          <Text style={styles.headerTitle}>{t("waitlist.title")}</Text>
           <View style={{ width: 44 }} />
         </View>
 
@@ -38,28 +39,26 @@ export default function WaitlistStatusScreen() {
             </View>
             <View style={styles.row}>
               <Users size={14} color={C.muted} strokeWidth={2} />
-              <Text style={styles.detail}>20/20 inscritos</Text>
+              <Text style={styles.detail}>20/20 {t("status.enrolled")}</Text>
             </View>
           </View>
 
           {/* Position */}
           <View style={styles.positionCard}>
-            <Text style={styles.positionLabel}>Posicao na lista de espera</Text>
+            <Text style={styles.positionLabel}>{t("waitlist.position")}</Text>
             <Text style={styles.positionNumber}>#3</Text>
-            <Text style={styles.estimatedTime}>Tempo estimado: ~15 min</Text>
+            <Text style={styles.estimatedTime}>{t("waitlist.estimated")} ~15 min</Text>
           </View>
 
           {/* Info */}
           <View style={styles.infoCard}>
             <Info size={18} color={C.blue} strokeWidth={2} />
-            <Text style={styles.infoText}>
-              Seras automaticamente promovido quando um lugar ficar disponivel. Recebes uma notificacao quando isso acontecer.
-            </Text>
+            <Text style={styles.infoText}>{t("waitlist.info")}</Text>
           </View>
 
           {/* Cancel */}
           <TouchableOpacity style={styles.cancelButton} onPress={() => router.back()}>
-            <Text style={styles.cancelButtonText}>CANCELAR ESPERA</Text>
+            <Text style={styles.cancelButtonText}>{t("waitlist.cancel")}</Text>
           </TouchableOpacity>
         </View>
       </View>

@@ -13,6 +13,7 @@ import { ArrowLeft, Mail, Check } from "lucide-react-native";
 // ─── Colors ──────────────────────────────────────────────
 import { useTheme } from "./_layout";
 import type { Colors } from "@/colors";
+import { t } from "@/i18n";
 
 // ─── Mock Birthdays ─────────────────────────────────────
 const todayBirthdays = [
@@ -60,7 +61,7 @@ export default function BirthdaysScreen() {
           >
             <ArrowLeft size={22} color={C.text} strokeWidth={2} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Aniversarios</Text>
+          <Text style={styles.headerTitle}>{t("birthdays.title")}</Text>
           <View style={{ width: 44 }} />
         </View>
 
@@ -74,7 +75,7 @@ export default function BirthdaysScreen() {
               <Text style={styles.partyEmoji}>
                 {String.fromCodePoint(0x1f389)}
               </Text>
-              <Text style={styles.todaySectionTitle}>Hoje</Text>
+              <Text style={styles.todaySectionTitle}>{t("birthdays.today")}</Text>
             </View>
 
             {todayBirthdays.map((person) => (
@@ -88,7 +89,7 @@ export default function BirthdaysScreen() {
                   <View>
                     <Text style={styles.birthdayName}>{person.name}</Text>
                     <Text style={styles.birthdayAge}>
-                      Faz {person.age} anos hoje!{" "}
+                      {t("birthdays.turnsToday").replace("{age}", String(person.age))}{" "}
                       {String.fromCodePoint(0x1f382)}
                     </Text>
                   </View>
@@ -101,12 +102,12 @@ export default function BirthdaysScreen() {
                   {sentIds.includes(person.id) ? (
                     <>
                       <Check size={16} color="#080c0a" strokeWidth={2.5} />
-                      <Text style={styles.sendButtonText}>Enviado</Text>
+                      <Text style={styles.sendButtonText}>{t("birthdays.sent")}</Text>
                     </>
                   ) : (
                     <>
                       <Mail size={16} color="#080c0a" strokeWidth={2.5} />
-                      <Text style={styles.sendButtonText}>Enviar</Text>
+                      <Text style={styles.sendButtonText}>{t("btn.send")}</Text>
                     </>
                   )}
                 </TouchableOpacity>
@@ -115,7 +116,7 @@ export default function BirthdaysScreen() {
           </View>
 
           {/* Upcoming */}
-          <Text style={styles.sectionTitle}>Esta semana</Text>
+          <Text style={styles.sectionTitle}>{t("birthdays.thisWeek")}</Text>
           {upcomingBirthdays.map((person) => (
             <View key={person.id} style={styles.upcomingCard}>
               <View style={styles.birthdayLeft}>
@@ -127,7 +128,9 @@ export default function BirthdaysScreen() {
                 <View>
                   <Text style={styles.birthdayName}>{person.name}</Text>
                   <Text style={styles.upcomingDays}>
-                    Daqui a {person.daysUntil} dias - Faz {person.age} anos
+                    {t("birthdays.upcomingIn")
+                      .replace("{days}", String(person.daysUntil))
+                      .replace("{age}", String(person.age))}
                   </Text>
                 </View>
               </View>
