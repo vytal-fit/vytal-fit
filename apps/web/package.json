@@ -30,6 +30,7 @@
     "@vytal-fit/auth": "*",
     "@vytal-fit/db": "*",
     "@vytal-fit/shared": "*",
+    "better-auth": "^1.6.16",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
@@ -38,6 +39,7 @@
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "recharts": "^3.8.1",
+    "superjson": "^2.2.6",
     "tailwind-merge": "^3.5.0",
     "zod": "^4.3.6",
     "zustand": "^5.0.12"
