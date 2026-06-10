@@ -10,9 +10,9 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { ArrowLeft, Play, Pause, RotateCcw } from "lucide-react-native";
-import { colors } from "@/colors";
+import { useTheme } from "./_layout";
+import type { Colors } from "@/colors";
 
-const C = { ...colors, cardBg: colors.card };
 
 // ─── Timer Modes ────────────────────────────────────────
 const timerModes = [
@@ -33,7 +33,7 @@ function formatTime(totalSeconds: number): string {
   return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
 }
 
-function getDisplayColor(state: TimerState, remaining: number): string {
+function getDisplayColor(state: TimerState, remaining: number, C: Colors): string {
   if (state === "rest") return C.red;
   if (state === "paused") return C.amber;
   if (state === "running" && remaining <= 10 && remaining > 0) return C.red;
@@ -43,6 +43,8 @@ function getDisplayColor(state: TimerState, remaining: number): string {
 
 // ─── Screen ──────────────────────────────────────────────
 export default function TimerScreen() {
+  const C = useTheme();
+  const styles = makeStyles(C);
   const router = useRouter();
   const [mode, setMode] = useState<TimerMode>("amrap");
   const [timerState, setTimerState] = useState<TimerState>("idle");
@@ -159,7 +161,7 @@ export default function TimerScreen() {
 
   const displayTime = getDisplayTime();
   const remaining = getRemaining();
-  const displayColor = getDisplayColor(timerState === "idle" ? "idle" : isRestPhase ? "rest" : timerState, remaining);
+  const displayColor = getDisplayColor(timerState === "idle" ? "idle" : isRestPhase ? "rest" : timerState, remaining, C);
   const isActive = timerState === "running" || timerState === "rest";
 
   const showConfig = timerState === "idle";
@@ -388,7 +390,7 @@ export default function TimerScreen() {
 }
 
 // ─── Styles ──────────────────────────────────────────────
-const styles = StyleSheet.create({
+function makeStyles(C: Colors) { return StyleSheet.create({
   safe: {
     flex: 1,
     backgroundColor: C.bg,
@@ -460,7 +462,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    backgroundColor: C.cardBg,
+    backgroundColor: C.card,
     borderRadius: 14,
     borderWidth: 1,
     borderColor: C.border,
@@ -590,4 +592,4 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     color: C.muted,
   },
-});
+}); }

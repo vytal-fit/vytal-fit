@@ -10,9 +10,9 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { mockClasses, mockMembers } from "@vytal-fit/shared";
 import { ArrowLeft, MapPin, Clock, Users, CheckCircle } from "lucide-react-native";
-import { colors } from "@/colors";
+import { useTheme } from "./_layout";
+import type { Colors } from "@/colors";
 
-const C = { ...colors, cardBg: colors.card };
 
 // Mock enrolled members (first 5 members)
 const enrolledMembers = mockMembers.slice(0, 5);
@@ -28,6 +28,8 @@ function getInitials(name: string): string {
 
 // ─── Screen ──────────────────────────────────────────────
 export default function ClassDetailScreen() {
+  const C = useTheme();
+  const styles = makeStyles(C);
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
   const [isBooked, setIsBooked] = useState(false);
@@ -228,7 +230,7 @@ export default function ClassDetailScreen() {
 }
 
 // ─── Styles ──────────────────────────────────────────────
-const styles = StyleSheet.create({
+function makeStyles(C: Colors) { return StyleSheet.create({
   safe: {
     flex: 1,
     backgroundColor: C.bg,
@@ -270,7 +272,7 @@ const styles = StyleSheet.create({
 
   // Banner
   banner: {
-    backgroundColor: C.cardBg,
+    backgroundColor: C.card,
     borderRadius: 16,
     borderWidth: 1,
     borderColor: C.border,
@@ -315,7 +317,7 @@ const styles = StyleSheet.create({
   },
   infoCard: {
     flex: 1,
-    backgroundColor: C.cardBg,
+    backgroundColor: C.card,
     borderRadius: 14,
     borderWidth: 1,
     borderColor: C.border,
@@ -340,7 +342,7 @@ const styles = StyleSheet.create({
 
   // Section Card
   sectionCard: {
-    backgroundColor: C.cardBg,
+    backgroundColor: C.card,
     borderRadius: 14,
     borderWidth: 1,
     borderColor: C.border,
@@ -509,4 +511,4 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: C.muted,
   },
-});
+}); }

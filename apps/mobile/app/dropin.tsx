@@ -10,23 +10,9 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { ArrowLeft, Star, MapPin, Search } from "lucide-react-native";
+import { useTheme } from "./_layout";
+import type { Colors } from "@/colors";
 
-// ─── Colors ──────────────────────────────────────────────
-const C = {
-  bg: "#080c0a",
-  surface: "#0f1610",
-  surface2: "#162018",
-  green: "#3dff6e",
-  blue: "#00d4ff",
-  amber: "#ffb300",
-  red: "#ff4757",
-  purple: "#c084fc",
-  orange: "#ff8c42",
-  text: "#dceee0",
-  muted: "#6b8c72",
-  cardBg: "rgba(22,32,24,0.9)",
-  border: "rgba(61,255,110,0.1)",
-};
 
 // ─── Types ───────────────────────────────────────────────
 type DropInGym = {
@@ -39,7 +25,7 @@ type DropInGym = {
   price: string;
   address: string;
   schedule: string;
-  color: string;
+  color: keyof Colors;
 };
 
 // ─── Mock Data ───────────────────────────────────────────
@@ -54,7 +40,7 @@ const mockGyms: DropInGym[] = [
     price: "15 EUR / sessão",
     address: "Rua das Flores 123, Porto",
     schedule: "06:30 - 21:00",
-    color: C.green,
+    color: "green",
   },
   {
     id: "gym-2",
@@ -66,7 +52,7 @@ const mockGyms: DropInGym[] = [
     price: "12 EUR / sessão",
     address: "Av. da Liberdade 45, Aveiro",
     schedule: "07:00 - 20:00",
-    color: C.purple,
+    color: "purple",
   },
   {
     id: "gym-3",
@@ -78,7 +64,7 @@ const mockGyms: DropInGym[] = [
     price: "10 EUR / sessão",
     address: "Rua do Ferro 78, Aveiro",
     schedule: "06:00 - 22:00",
-    color: C.amber,
+    color: "amber",
   },
   {
     id: "gym-4",
@@ -90,7 +76,7 @@ const mockGyms: DropInGym[] = [
     price: "18 EUR / sessão",
     address: "Rua Augusta 200, Lisboa",
     schedule: "07:00 - 21:30",
-    color: C.blue,
+    color: "blue",
   },
   {
     id: "gym-5",
@@ -102,7 +88,7 @@ const mockGyms: DropInGym[] = [
     price: "8 EUR / sessão",
     address: "Rua Nova 55, Coimbra",
     schedule: "08:00 - 20:00",
-    color: C.orange,
+    color: "orange",
   },
 ];
 
@@ -114,6 +100,8 @@ function renderStars(rating: number): string {
 
 // ─── Screen ──────────────────────────────────────────────
 export default function DropInScreen() {
+  const C = useTheme();
+  const styles = makeStyles(C);
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedGym, setSelectedGym] = useState<string | null>(null);
@@ -178,8 +166,8 @@ export default function DropInScreen() {
                   activeOpacity={0.8}
                 >
                   <View style={styles.gymCardTop}>
-                    <View style={[styles.gymLogo, { borderColor: gym.color }]}>
-                      <Text style={[styles.gymLogoText, { color: gym.color }]}>
+                    <View style={[styles.gymLogo, { borderColor: C[gym.color] }]}>
+                      <Text style={[styles.gymLogoText, { color: C[gym.color] }]}>
                         {gym.initials}
                       </Text>
                     </View>
@@ -221,14 +209,14 @@ export default function DropInScreen() {
           >
             {/* Detail View */}
             <View style={styles.detailHeader}>
-              <View style={[styles.detailLogo, { borderColor: detailGym.color }]}>
-                <Text style={[styles.detailLogoText, { color: detailGym.color }]}>
+              <View style={[styles.detailLogo, { borderColor: C[detailGym.color] }]}>
+                <Text style={[styles.detailLogoText, { color: C[detailGym.color] }]}>
                   {detailGym.initials}
                 </Text>
               </View>
               <Text style={styles.detailName}>{detailGym.name}</Text>
-              <View style={[styles.typeBadge, { backgroundColor: detailGym.color + "20" }]}>
-                <Text style={[styles.typeBadgeText, { color: detailGym.color }]}>
+              <View style={[styles.typeBadge, { backgroundColor: C[detailGym.color] + "20" }]}>
+                <Text style={[styles.typeBadgeText, { color: C[detailGym.color] }]}>
                   {detailGym.type}
                 </Text>
               </View>
@@ -282,7 +270,7 @@ export default function DropInScreen() {
 }
 
 // ─── Styles ──────────────────────────────────────────────
-const styles = StyleSheet.create({
+function makeStyles(C: Colors) { return StyleSheet.create({
   safe: {
     flex: 1,
     backgroundColor: C.bg,
@@ -346,7 +334,7 @@ const styles = StyleSheet.create({
 
   // Gym Card
   gymCard: {
-    backgroundColor: C.cardBg,
+    backgroundColor: C.card,
     borderRadius: 14,
     borderWidth: 1,
     borderColor: C.border,
@@ -446,7 +434,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
   detailCard: {
-    backgroundColor: C.cardBg,
+    backgroundColor: C.card,
     borderRadius: 14,
     borderWidth: 1,
     borderColor: C.border,
@@ -511,4 +499,4 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: C.muted,
   },
-});
+}); }

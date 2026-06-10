@@ -10,11 +10,11 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { mockLeaderboard } from "@vytal-fit/shared";
 import { ArrowLeft, Zap, Heart } from "lucide-react-native";
-import { colors } from "@/colors";
+import { useTheme } from "./_layout";
+import type { Colors } from "@/colors";
 
 const CURRENT_USER_NAME = "Jose Fonte";
 
-const C = { ...colors, cardBg: colors.card };
 
 function getMedalEmoji(rank: number): string {
   switch (rank) {
@@ -29,7 +29,7 @@ function getMedalEmoji(rank: number): string {
   }
 }
 
-function getMedalColor(rank: number): string {
+function getMedalColor(rank: number, C: Colors): string {
   switch (rank) {
     case 1:
       return C.amber;
@@ -55,7 +55,7 @@ function getScaleLabel(scale: string): string {
   }
 }
 
-function getScaleColor(scale: string): string {
+function getScaleColor(scale: string, C: Colors): string {
   switch (scale) {
     case "rx":
       return C.green;
@@ -79,6 +79,8 @@ function getInitials(name: string): string {
 
 // ─── Screen ──────────────────────────────────────────────
 export default function LeaderboardScreen() {
+  const C = useTheme();
+  const styles = makeStyles(C);
   const router = useRouter();
   const [fistbumpedRanks, setFistbumpedRanks] = useState<Set<number>>(new Set());
 
@@ -115,7 +117,7 @@ export default function LeaderboardScreen() {
         {/* Top 3 Podium */}
         <View style={styles.podium}>
           {mockLeaderboard.slice(0, 3).map((entry) => {
-            const medalColor = getMedalColor(entry.rank);
+            const medalColor = getMedalColor(entry.rank, C);
             const isFirst = entry.rank === 1;
             return (
               <View
@@ -165,8 +167,8 @@ export default function LeaderboardScreen() {
           contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}
           renderItem={({ item }) => {
-            const medalColor = getMedalColor(item.rank);
-            const scaleColor = getScaleColor(item.scale);
+            const medalColor = getMedalColor(item.rank, C);
+            const scaleColor = getScaleColor(item.scale, C);
             const isCurrentUser = item.memberName === CURRENT_USER_NAME;
             const isBumped = fistbumpedRanks.has(item.rank);
             return (
@@ -232,7 +234,7 @@ export default function LeaderboardScreen() {
 }
 
 // ─── Styles ──────────────────────────────────────────────
-const styles = StyleSheet.create({
+function makeStyles(C: Colors) { return StyleSheet.create({
   safe: {
     flex: 1,
     backgroundColor: C.bg,
@@ -356,7 +358,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    backgroundColor: C.cardBg,
+    backgroundColor: C.card,
     borderRadius: 14,
     borderWidth: 1,
     borderColor: C.border,
@@ -451,4 +453,4 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-});
+}); }

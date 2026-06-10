@@ -10,23 +10,9 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { ArrowLeft } from "lucide-react-native";
+import { useTheme } from "./_layout";
+import type { Colors } from "@/colors";
 
-// ─── Colors ──────────────────────────────────────────────
-const C = {
-  bg: "#080c0a",
-  surface: "#0f1610",
-  surface2: "#162018",
-  green: "#3dff6e",
-  blue: "#00d4ff",
-  amber: "#ffb300",
-  red: "#ff4757",
-  purple: "#c084fc",
-  orange: "#ff8c42",
-  text: "#dceee0",
-  muted: "#6b8c72",
-  cardBg: "rgba(22,32,24,0.9)",
-  border: "rgba(61,255,110,0.1)",
-};
 
 // ─── Brzycki Formula ────────────────────────────────────
 // 1RM = weight / (1.0278 - 0.0278 * reps)
@@ -44,7 +30,7 @@ const percentages = [
 
 const rmOptions = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
-function getPercentColor(pct: number): string {
+function getPercentColor(pct: number, C: Colors): string {
   if (pct >= 90) return C.red;
   if (pct >= 80) return C.orange;
   if (pct >= 70) return C.amber;
@@ -54,6 +40,8 @@ function getPercentColor(pct: number): string {
 
 // ─── Screen ──────────────────────────────────────────────
 export default function CalculatorScreen() {
+  const C = useTheme();
+  const styles = makeStyles(C);
   const router = useRouter();
   const [weight, setWeight] = useState("");
   const [selectedRM, setSelectedRM] = useState(1);
@@ -175,7 +163,7 @@ export default function CalculatorScreen() {
                 <Text style={styles.tableHeaderText}>Peso</Text>
               </View>
               {percentageTable.map((row) => {
-                const pctColor = getPercentColor(row.percent);
+                const pctColor = getPercentColor(row.percent, C);
                 return (
                   <View key={row.percent} style={styles.tableRow}>
                     <View style={styles.tablePercentRow}>
@@ -197,7 +185,7 @@ export default function CalculatorScreen() {
 }
 
 // ─── Styles ──────────────────────────────────────────────
-const styles = StyleSheet.create({
+function makeStyles(C: Colors) { return StyleSheet.create({
   safe: {
     flex: 1,
     backgroundColor: C.bg,
@@ -239,7 +227,7 @@ const styles = StyleSheet.create({
 
   // Section Card
   sectionCard: {
-    backgroundColor: C.cardBg,
+    backgroundColor: C.card,
     borderRadius: 14,
     borderWidth: 1,
     borderColor: C.border,
@@ -412,4 +400,4 @@ const styles = StyleSheet.create({
     color: C.text,
     fontVariant: ["tabular-nums"],
   },
-});
+}); }

@@ -10,20 +10,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { ArrowLeft, Trophy, ChevronDown, ChevronUp } from "lucide-react-native";
 
-const C = {
-  bg: "#080c0a",
-  surface: "#0f1610",
-  surface2: "#162018",
-  green: "#3dff6e",
-  blue: "#00d4ff",
-  amber: "#ffb300",
-  red: "#ff4757",
-  purple: "#c084fc",
-  text: "#dceee0",
-  muted: "#6b8c72",
-  cardBg: "rgba(22,32,24,0.9)",
-  border: "rgba(61,255,110,0.1)",
-};
+import { useTheme } from "./_layout";
+import type { Colors } from "@/colors";
 
 const leaderboard = [
   { id: "l-1", rank: 1, name: "Pedro Almeida", score: "4:22 Rx", isYou: false },
@@ -40,7 +28,7 @@ function getInitials(name: string): string {
   return name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
 }
 
-function getMedalColor(rank: number): string | undefined {
+function getMedalColor(rank: number, C: Colors): string | undefined {
   if (rank === 1) return C.amber;
   if (rank === 2) return C.muted;
   if (rank === 3) return "#cd7f32";
@@ -48,6 +36,8 @@ function getMedalColor(rank: number): string | undefined {
 }
 
 export default function ChallengeDetailScreen() {
+  const C = useTheme();
+  const styles = makeStyles(C);
   const router = useRouter();
   const [rulesExpanded, setRulesExpanded] = useState(false);
 
@@ -83,7 +73,7 @@ export default function ChallengeDetailScreen() {
           {/* Leaderboard */}
           <Text style={styles.sectionTitle}>Classificacao</Text>
           {leaderboard.map((entry) => {
-            const medal = getMedalColor(entry.rank);
+            const medal = getMedalColor(entry.rank, C);
             return (
               <View
                 key={entry.id}
@@ -140,7 +130,7 @@ export default function ChallengeDetailScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+function makeStyles(C: Colors) { return StyleSheet.create({
   safe: { flex: 1, backgroundColor: C.bg },
   container: { flex: 1 },
   header: {
@@ -154,7 +144,7 @@ const styles = StyleSheet.create({
   headerTitle: { fontSize: 18, fontWeight: "700", color: C.text },
   scrollContent: { paddingHorizontal: 16, paddingBottom: 20, gap: 10 },
   infoCard: {
-    backgroundColor: C.cardBg, borderRadius: 16, borderWidth: 1,
+    backgroundColor: C.card, borderRadius: 16, borderWidth: 1,
     borderColor: C.border, padding: 20, alignItems: "center",
   },
   trophyBox: {
@@ -170,7 +160,7 @@ const styles = StyleSheet.create({
   sectionTitle: { fontSize: 16, fontWeight: "700", color: C.text, marginTop: 8 },
   leaderRow: {
     flexDirection: "row", alignItems: "center", gap: 10,
-    backgroundColor: C.cardBg, borderRadius: 14, borderWidth: 1,
+    backgroundColor: C.card, borderRadius: 14, borderWidth: 1,
     borderColor: C.border, padding: 14,
   },
   leaderRowYou: { borderColor: C.green + "40", backgroundColor: C.green + "08" },
@@ -190,13 +180,13 @@ const styles = StyleSheet.create({
   registerText: { fontSize: 15, fontWeight: "800", color: "#080c0a", letterSpacing: 1.5 },
   rulesHeader: {
     flexDirection: "row", alignItems: "center", justifyContent: "space-between",
-    backgroundColor: C.cardBg, borderRadius: 14, borderWidth: 1,
+    backgroundColor: C.card, borderRadius: 14, borderWidth: 1,
     borderColor: C.border, padding: 16,
   },
   rulesTitle: { fontSize: 15, fontWeight: "700", color: C.text },
   rulesBody: {
-    backgroundColor: C.cardBg, borderRadius: 14, borderWidth: 1,
+    backgroundColor: C.card, borderRadius: 14, borderWidth: 1,
     borderColor: C.border, padding: 16, gap: 8,
   },
   ruleText: { fontSize: 13, color: C.muted, lineHeight: 20 },
-});
+}); }

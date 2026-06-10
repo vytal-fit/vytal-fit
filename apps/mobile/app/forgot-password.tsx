@@ -11,21 +11,14 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import { Lock } from "lucide-react-native";
-
-// ─── Colors ──────────────────────────────────────────────
-const COLORS = {
-  bg: "#080c0a",
-  bg2: "#0f1610",
-  bg3: "#162018",
-  green: "#3dff6e",
-  text: "#dceee0",
-  muted: "#6b8c72",
-  border: "rgba(61,255,110,0.1)",
-};
+import { useTheme } from "./_layout";
+import type { Colors } from "@/colors";
 
 // ─── Screen ──────────────────────────────────────────────
 export default function ForgotPasswordScreen() {
   const router = useRouter();
+  const C = useTheme();
+  const styles = makeStyles(C);
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
@@ -50,14 +43,14 @@ export default function ForgotPasswordScreen() {
       >
         {/* Logo */}
         <View style={styles.logoContainer}>
-          <Text style={styles.logo}><Text style={{ fontSize: 18, color: "#6b8c72" }}>my</Text>VYTAL</Text>
+          <Text style={styles.logo}><Text style={{ fontSize: 18, color: C.muted }}>my</Text>VYTAL</Text>
         </View>
 
         {sent ? (
           /* Success State */
           <View style={styles.successContainer}>
             <View style={styles.lockIconContainer}>
-              <Lock size={40} color={COLORS.green} strokeWidth={1.8} />
+              <Lock size={40} color={C.green} strokeWidth={1.8} />
             </View>
             <Text style={styles.successTitle}>Verifica o teu email</Text>
             <Text style={styles.successBody}>
@@ -86,7 +79,7 @@ export default function ForgotPasswordScreen() {
                 value={email}
                 onChangeText={setEmail}
                 placeholder="voce@exemplo.com"
-                placeholderTextColor={`${COLORS.muted}80`}
+                placeholderTextColor={`${C.muted}80`}
                 keyboardType="email-address"
                 autoCapitalize="none"
                 autoCorrect={false}
@@ -119,10 +112,10 @@ export default function ForgotPasswordScreen() {
 }
 
 // ─── Styles ──────────────────────────────────────────────
-const styles = StyleSheet.create({
+function makeStyles(C: Colors) { return StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.bg,
+    backgroundColor: C.bg,
   },
   scroll: {
     flexGrow: 1,
@@ -137,7 +130,7 @@ const styles = StyleSheet.create({
   logo: {
     fontSize: 40,
     fontWeight: "800",
-    color: COLORS.green,
+    color: C.green,
     letterSpacing: 4,
   },
 
@@ -148,13 +141,13 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: "800",
-    color: COLORS.text,
+    color: C.text,
     textAlign: "center",
     marginBottom: 4,
   },
   subtitle: {
     fontSize: 14,
-    color: COLORS.muted,
+    color: C.muted,
     textAlign: "center",
     lineHeight: 20,
     marginBottom: 8,
@@ -165,21 +158,21 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 11,
     fontWeight: "600",
-    color: COLORS.muted,
+    color: C.muted,
     letterSpacing: 1.5,
   },
   input: {
-    backgroundColor: COLORS.bg2,
+    backgroundColor: C.surface,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: C.border,
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 14,
     fontSize: 15,
-    color: COLORS.text,
+    color: C.text,
   },
   button: {
-    backgroundColor: COLORS.green,
+    backgroundColor: C.green,
     borderRadius: 12,
     paddingVertical: 16,
     alignItems: "center",
@@ -191,7 +184,7 @@ const styles = StyleSheet.create({
   buttonText: {
     fontSize: 15,
     fontWeight: "700",
-    color: COLORS.bg,
+    color: C.bg,
     letterSpacing: 1,
   },
   backContainer: {
@@ -201,7 +194,7 @@ const styles = StyleSheet.create({
   backLink: {
     fontSize: 14,
     fontWeight: "600",
-    color: COLORS.green,
+    color: C.green,
   },
 
   // Success State
@@ -213,7 +206,7 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: COLORS.green + "15",
+    backgroundColor: C.green + "15",
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 8,
@@ -221,17 +214,17 @@ const styles = StyleSheet.create({
   successTitle: {
     fontSize: 22,
     fontWeight: "800",
-    color: COLORS.text,
+    color: C.text,
   },
   successBody: {
     fontSize: 14,
-    color: COLORS.muted,
+    color: C.muted,
     textAlign: "center",
     lineHeight: 20,
     paddingHorizontal: 20,
   },
   backToLoginButton: {
-    backgroundColor: COLORS.green,
+    backgroundColor: C.green,
     borderRadius: 12,
     paddingVertical: 16,
     paddingHorizontal: 40,
@@ -241,7 +234,7 @@ const styles = StyleSheet.create({
   backToLoginText: {
     fontSize: 15,
     fontWeight: "700",
-    color: COLORS.bg,
+    color: C.bg,
     letterSpacing: 1,
   },
-});
+}); }

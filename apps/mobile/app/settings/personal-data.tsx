@@ -13,26 +13,16 @@ import { ArrowLeft, Save, CheckCircle } from "lucide-react-native";
 import { mockMembers } from "@vytal-fit/shared";
 
 // ─── Colors ──────────────────────────────────────────────
-const C = {
-  bg: "#080c0a",
-  surface: "#0f1610",
-  surface2: "#162018",
-  green: "#3dff6e",
-  blue: "#00d4ff",
-  amber: "#ffb300",
-  red: "#ff4757",
-  purple: "#c084fc",
-  text: "#dceee0",
-  muted: "#6b8c72",
-  cardBg: "rgba(22,32,24,0.9)",
-  border: "rgba(61,255,110,0.1)",
-};
+import { useTheme } from "../_layout";
+import type { Colors } from "@/colors";
 
 const tshirtSizes = ["XS", "S", "M", "L", "XL", "XXL"];
 const currentUser = mockMembers[0];
 
 // ─── Screen ──────────────────────────────────────────────
 export default function PersonalDataScreen() {
+  const C = useTheme();
+  const styles = makeStyles(C);
   const router = useRouter();
 
   const [name, setName] = useState(currentUser.name);
@@ -253,6 +243,8 @@ function FormField({
   placeholder?: string;
   keyboardType?: "default" | "email-address" | "phone-pad" | "numeric";
 }) {
+  const C = useTheme();
+  const styles = makeStyles(C);
   return (
     <View style={styles.fieldContainer}>
       <Text style={styles.fieldLabel}>{label}</Text>
@@ -269,7 +261,7 @@ function FormField({
 }
 
 // ─── Styles ──────────────────────────────────────────────
-const styles = StyleSheet.create({
+function makeStyles(C: Colors) { return StyleSheet.create({
   safe: {
     flex: 1,
     backgroundColor: C.bg,
@@ -321,7 +313,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
   fieldInput: {
-    backgroundColor: C.cardBg,
+    backgroundColor: C.card,
     borderRadius: 12,
     borderWidth: 1,
     borderColor: C.border,
@@ -353,7 +345,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     borderWidth: 1,
     borderColor: C.border,
-    backgroundColor: C.cardBg,
+    backgroundColor: C.card,
     alignItems: "center",
   },
   genderPillActive: {
@@ -381,7 +373,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     borderWidth: 1,
     borderColor: C.border,
-    backgroundColor: C.cardBg,
+    backgroundColor: C.card,
     alignItems: "center",
   },
   sizePillActive: {
@@ -453,4 +445,4 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     color: C.bg,
   },
-});
+}); }

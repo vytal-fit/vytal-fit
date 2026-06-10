@@ -10,23 +10,9 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { ArrowLeft, Clock, Trophy, Calendar } from "lucide-react-native";
 import { mockWODs } from "@vytal-fit/shared";
+import { useTheme } from "./_layout";
+import type { Colors } from "@/colors";
 
-// ─── Colors ──────────────────────────────────────────────
-const C = {
-  bg: "#080c0a",
-  surface: "#0f1610",
-  surface2: "#162018",
-  green: "#3dff6e",
-  blue: "#00d4ff",
-  amber: "#ffb300",
-  red: "#ff4757",
-  purple: "#c084fc",
-  orange: "#ff8c42",
-  text: "#dceee0",
-  muted: "#6b8c72",
-  cardBg: "rgba(22,32,24,0.9)",
-  border: "rgba(61,255,110,0.1)",
-};
 
 // ─── Mock History ────────────────────────────────────────
 const mockHistory = [
@@ -35,7 +21,7 @@ const mockHistory = [
   { id: "h-3", date: "2025-08-22", score: "4:38", scale: "Scaled", isPR: false },
 ];
 
-function getWODTypeBadge(type: string): { label: string; color: string } {
+function getWODTypeBadge(type: string, C: Colors): { label: string; color: string } {
   switch (type) {
     case "amrap":
       return { label: "AMRAP", color: C.green };
@@ -63,6 +49,8 @@ function formatDate(dateStr: string): string {
 
 // ─── Screen ──────────────────────────────────────────────
 export default function WODDetailScreen() {
+  const C = useTheme();
+  const styles = makeStyles(C);
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
 
@@ -119,7 +107,7 @@ export default function WODDetailScreen() {
           {/* Workout Breakdown */}
           <Text style={styles.sectionTitle}>Detalhes do Treino</Text>
           {wod.parts.map((part, i) => {
-            const badge = getWODTypeBadge(part.type);
+            const badge = getWODTypeBadge(part.type, C);
             return (
               <View key={i} style={styles.partCard}>
                 <View style={styles.partHeader}>
@@ -228,7 +216,7 @@ export default function WODDetailScreen() {
 }
 
 // ─── Styles ──────────────────────────────────────────────
-const styles = StyleSheet.create({
+function makeStyles(C: Colors) { return StyleSheet.create({
   safe: {
     flex: 1,
     backgroundColor: C.bg,
@@ -270,7 +258,7 @@ const styles = StyleSheet.create({
 
   // Title Section
   titleSection: {
-    backgroundColor: C.cardBg,
+    backgroundColor: C.card,
     borderRadius: 16,
     borderWidth: 1,
     borderColor: C.border,
@@ -353,7 +341,7 @@ const styles = StyleSheet.create({
 
   // Part Card
   partCard: {
-    backgroundColor: C.cardBg,
+    backgroundColor: C.card,
     borderRadius: 16,
     borderWidth: 1,
     borderColor: C.border,
@@ -472,7 +460,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    backgroundColor: C.cardBg,
+    backgroundColor: C.card,
     borderRadius: 14,
     borderWidth: 1,
     borderColor: C.border,
@@ -503,4 +491,4 @@ const styles = StyleSheet.create({
     fontWeight: "800",
     color: C.green,
   },
-});
+}); }

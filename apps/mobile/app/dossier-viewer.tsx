@@ -10,19 +10,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { ArrowLeft, FileText, File, Shield } from "lucide-react-native";
 
-const C = {
-  bg: "#080c0a",
-  surface: "#0f1610",
-  surface2: "#162018",
-  green: "#3dff6e",
-  blue: "#00d4ff",
-  amber: "#ffb300",
-  red: "#ff4757",
-  text: "#dceee0",
-  muted: "#6b8c72",
-  cardBg: "rgba(22,32,24,0.9)",
-  border: "rgba(61,255,110,0.1)",
-};
+import { useTheme } from "./_layout";
+import type { Colors } from "@/colors";
 
 type DocStatus = "signed" | "pending";
 type DocIcon = "pdf" | "contract" | "waiver";
@@ -35,7 +24,7 @@ const documents = [
   { id: "d-5", name: "Atualizacao de Dados 2026", icon: "pdf" as DocIcon, date: "2026-06-01", status: "pending" as DocStatus },
 ];
 
-function getIcon(type: DocIcon) {
+function getIcon(type: DocIcon, C: Colors) {
   switch (type) {
     case "pdf": return <FileText size={22} color={C.red} strokeWidth={2} />;
     case "contract": return <File size={22} color={C.blue} strokeWidth={2} />;
@@ -44,6 +33,8 @@ function getIcon(type: DocIcon) {
 }
 
 export default function DossierViewerScreen() {
+  const C = useTheme();
+  const styles = makeStyles(C);
   const router = useRouter();
 
   return (
@@ -64,7 +55,7 @@ export default function DossierViewerScreen() {
           {documents.map((doc) => (
             <TouchableOpacity key={doc.id} style={styles.docCard}>
               <View style={styles.iconBox}>
-                {getIcon(doc.icon)}
+                {getIcon(doc.icon, C)}
               </View>
               <View style={styles.docInfo}>
                 <Text style={styles.docName}>{doc.name}</Text>
@@ -93,7 +84,7 @@ export default function DossierViewerScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+function makeStyles(C: Colors) { return StyleSheet.create({
   safe: { flex: 1, backgroundColor: C.bg },
   container: { flex: 1 },
   header: {
@@ -108,7 +99,7 @@ const styles = StyleSheet.create({
   scrollContent: { paddingHorizontal: 16, paddingBottom: 20, gap: 10 },
   docCard: {
     flexDirection: "row", alignItems: "center", gap: 14,
-    backgroundColor: C.cardBg, borderRadius: 14, borderWidth: 1,
+    backgroundColor: C.card, borderRadius: 14, borderWidth: 1,
     borderColor: C.border, padding: 16,
   },
   iconBox: {
@@ -120,4 +111,4 @@ const styles = StyleSheet.create({
   docDate: { fontSize: 12, color: C.muted, marginTop: 2 },
   statusBadge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8 },
   statusText: { fontSize: 11, fontWeight: "700" },
-});
+}); }

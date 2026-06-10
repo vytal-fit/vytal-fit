@@ -13,21 +13,8 @@ import { ArrowLeft, Mail, Phone } from "lucide-react-native";
 import { mockCoaches } from "@vytal-fit/shared";
 
 // ─── Colors ──────────────────────────────────────────────
-const C = {
-  bg: "#080c0a",
-  surface: "#0f1610",
-  surface2: "#162018",
-  green: "#3dff6e",
-  blue: "#00d4ff",
-  amber: "#ffb300",
-  red: "#ff4757",
-  purple: "#c084fc",
-  orange: "#ff8c42",
-  text: "#dceee0",
-  muted: "#6b8c72",
-  cardBg: "rgba(22,32,24,0.9)",
-  border: "rgba(61,255,110,0.1)",
-};
+import { useTheme } from "./_layout";
+import type { Colors } from "@/colors";
 
 function getInitials(name: string): string {
   return name
@@ -51,7 +38,7 @@ function getRoleLabel(role: string): string {
   }
 }
 
-function getRoleColor(role: string): string {
+function getRoleColor(role: string, C: Colors): string {
   switch (role) {
     case "head_coach":
       return C.green;
@@ -92,11 +79,13 @@ const mockWeeklyClasses = [
 
 // ─── Screen ──────────────────────────────────────────────
 export default function CoachProfileScreen() {
+  const C = useTheme();
+  const styles = makeStyles(C);
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
 
   const coach = mockCoaches.find((c) => c.id === id) || mockCoaches[0];
-  const roleColor = getRoleColor(coach.role);
+  const roleColor = getRoleColor(coach.role, C);
   const bio = mockCoachBios[coach.id] || "Informacao nao disponivel.";
   const phone = mockCoachPhones[coach.id] || "";
 
@@ -190,7 +179,7 @@ export default function CoachProfileScreen() {
 }
 
 // ─── Styles ──────────────────────────────────────────────
-const styles = StyleSheet.create({
+function makeStyles(C: Colors) { return StyleSheet.create({
   safe: {
     flex: 1,
     backgroundColor: C.bg,
@@ -268,7 +257,7 @@ const styles = StyleSheet.create({
 
   // Contact
   contactCard: {
-    backgroundColor: C.cardBg,
+    backgroundColor: C.card,
     borderRadius: 14,
     borderWidth: 1,
     borderColor: C.border,
@@ -288,7 +277,7 @@ const styles = StyleSheet.create({
 
   // Bio
   bioCard: {
-    backgroundColor: C.cardBg,
+    backgroundColor: C.card,
     borderRadius: 14,
     borderWidth: 1,
     borderColor: C.border,
@@ -308,7 +297,7 @@ const styles = StyleSheet.create({
 
   // Classes
   classesCard: {
-    backgroundColor: C.cardBg,
+    backgroundColor: C.card,
     borderRadius: 14,
     borderWidth: 1,
     borderColor: C.border,
@@ -380,4 +369,4 @@ const styles = StyleSheet.create({
     color: "#080c0a",
     letterSpacing: 1,
   },
-});
+}); }

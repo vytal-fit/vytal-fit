@@ -10,19 +10,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { ArrowLeft, Heart } from "lucide-react-native";
 
-const C = {
-  bg: "#080c0a",
-  surface: "#0f1610",
-  surface2: "#162018",
-  green: "#3dff6e",
-  blue: "#00d4ff",
-  amber: "#ffb300",
-  red: "#ff4757",
-  text: "#dceee0",
-  muted: "#6b8c72",
-  cardBg: "rgba(22,32,24,0.9)",
-  border: "rgba(61,255,110,0.1)",
-};
+import { useTheme } from "./_layout";
+import type { Colors } from "@/colors";
 
 const mockReactors = [
   { id: "r-1", name: "Pedro Almeida", timeAgo: "2 min" },
@@ -40,6 +29,8 @@ function getInitials(name: string): string {
 }
 
 export default function FistbumpDetailScreen() {
+  const C = useTheme();
+  const styles = makeStyles(C);
   const router = useRouter();
 
   return (
@@ -88,7 +79,7 @@ export default function FistbumpDetailScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+function makeStyles(C: Colors) { return StyleSheet.create({
   safe: { flex: 1, backgroundColor: C.bg },
   container: { flex: 1 },
   header: {
@@ -111,7 +102,7 @@ const styles = StyleSheet.create({
   wodScore: { fontSize: 18, fontWeight: "800", color: C.text },
   reactorCard: {
     flexDirection: "row", alignItems: "center", justifyContent: "space-between",
-    backgroundColor: C.cardBg, borderRadius: 14, borderWidth: 1,
+    backgroundColor: C.card, borderRadius: 14, borderWidth: 1,
     borderColor: C.border, padding: 14,
   },
   reactorLeft: { flexDirection: "row", alignItems: "center", gap: 12 },
@@ -123,4 +114,4 @@ const styles = StyleSheet.create({
   reactorName: { fontSize: 15, fontWeight: "600", color: C.text },
   reactorRight: { flexDirection: "row", alignItems: "center", gap: 6 },
   reactorTime: { fontSize: 12, color: C.muted, fontWeight: "500" },
-});
+}); }

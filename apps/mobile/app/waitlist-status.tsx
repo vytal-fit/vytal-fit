@@ -9,21 +9,12 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { ArrowLeft, Clock, Users, Info } from "lucide-react-native";
 
-const C = {
-  bg: "#080c0a",
-  surface: "#0f1610",
-  surface2: "#162018",
-  green: "#3dff6e",
-  blue: "#00d4ff",
-  amber: "#ffb300",
-  red: "#ff4757",
-  text: "#dceee0",
-  muted: "#6b8c72",
-  cardBg: "rgba(22,32,24,0.9)",
-  border: "rgba(61,255,110,0.1)",
-};
+import { useTheme } from "./_layout";
+import type { Colors } from "@/colors";
 
 export default function WaitlistStatusScreen() {
+  const C = useTheme();
+  const styles = makeStyles(C);
   const router = useRouter();
 
   return (
@@ -76,7 +67,7 @@ export default function WaitlistStatusScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+function makeStyles(C: Colors) { return StyleSheet.create({
   safe: { flex: 1, backgroundColor: C.bg },
   container: { flex: 1 },
   header: {
@@ -90,7 +81,7 @@ const styles = StyleSheet.create({
   headerTitle: { fontSize: 18, fontWeight: "700", color: C.text },
   content: { flex: 1, paddingHorizontal: 16, paddingTop: 20, gap: 16 },
   classCard: {
-    backgroundColor: C.cardBg, borderRadius: 14, borderWidth: 1,
+    backgroundColor: C.card, borderRadius: 14, borderWidth: 1,
     borderColor: C.border, padding: 16,
   },
   classType: { fontSize: 20, fontWeight: "800", color: C.green, marginBottom: 12 },
@@ -114,4 +105,4 @@ const styles = StyleSheet.create({
     alignItems: "center", marginTop: 8,
   },
   cancelButtonText: { fontSize: 15, fontWeight: "800", color: C.red, letterSpacing: 1 },
-});
+}); }

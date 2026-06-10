@@ -19,11 +19,11 @@ import {
   CreditCard,
   CheckCheck,
 } from "lucide-react-native";
-import { colors } from "@/colors";
 
-const C = { ...colors, cardBg: colors.card };
+import { useTheme } from "./_layout";
+import type { Colors } from "@/colors";
 
-function getNotificationIcon(type: string): { icon: React.ReactNode; color: string } {
+function getNotificationIcon(type: string, C: Colors): { icon: React.ReactNode; color: string } {
   switch (type) {
     case "pr_achieved":
       return { icon: <Trophy size={20} color={C.amber} strokeWidth={1.8} />, color: C.amber };
@@ -61,6 +61,8 @@ function timeAgo(dateStr: string): string {
 
 // ─── Screen ──────────────────────────────────────────────
 export default function NotificationsScreen() {
+  const C = useTheme();
+  const styles = makeStyles(C);
   const router = useRouter();
   const [readIds, setReadIds] = useState<Set<string>>(() => {
     const initial = new Set<string>();
@@ -116,7 +118,7 @@ export default function NotificationsScreen() {
           contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}
           renderItem={({ item }) => {
-            const { icon, color } = getNotificationIcon(item.type);
+            const { icon, color } = getNotificationIcon(item.type, C);
             const isRead = readIds.has(item.id);
             return (
               <TouchableOpacity
@@ -156,7 +158,7 @@ export default function NotificationsScreen() {
 }
 
 // ─── Styles ──────────────────────────────────────────────
-const styles = StyleSheet.create({
+function makeStyles(C: Colors) { return StyleSheet.create({
   safe: {
     flex: 1,
     backgroundColor: C.bg,
@@ -219,7 +221,7 @@ const styles = StyleSheet.create({
   notifCard: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: C.cardBg,
+    backgroundColor: C.card,
     borderRadius: 14,
     borderWidth: 1,
     borderColor: C.border,
@@ -296,4 +298,4 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: C.muted,
   },
-});
+}); }

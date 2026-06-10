@@ -9,16 +9,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { ArrowLeft, Check } from "lucide-react-native";
 
-const C = {
-  bg: "#080c0a",
-  surface: "#0f1610",
-  surface2: "#162018",
-  green: "#3dff6e",
-  text: "#dceee0",
-  muted: "#6b8c72",
-  cardBg: "rgba(22,32,24,0.9)",
-  border: "rgba(61,255,110,0.1)",
-};
+import { useTheme } from "./_layout";
+import type { Colors } from "@/colors";
 
 const languages = [
   { code: "pt", label: "Portugues", flag: "PT" },
@@ -27,6 +19,8 @@ const languages = [
 ];
 
 export default function LanguageSelectorScreen() {
+  const C = useTheme();
+  const styles = makeStyles(C);
   const router = useRouter();
   const [selected, setSelected] = useState("pt");
 
@@ -72,7 +66,7 @@ export default function LanguageSelectorScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+function makeStyles(C: Colors) { return StyleSheet.create({
   safe: { flex: 1, backgroundColor: C.bg },
   container: { flex: 1 },
   header: {
@@ -87,7 +81,7 @@ const styles = StyleSheet.create({
   content: { paddingHorizontal: 16, paddingTop: 16, gap: 12 },
   langCard: {
     flexDirection: "row", alignItems: "center", gap: 14,
-    backgroundColor: C.cardBg, borderRadius: 16, borderWidth: 1.5,
+    backgroundColor: C.card, borderRadius: 16, borderWidth: 1.5,
     borderColor: C.border, padding: 18,
   },
   langCardActive: { borderColor: C.green + "50", backgroundColor: C.green + "08" },
@@ -104,4 +98,4 @@ const styles = StyleSheet.create({
     width: 32, height: 32, borderRadius: 16, backgroundColor: C.green,
     alignItems: "center", justifyContent: "center",
   },
-});
+}); }

@@ -10,16 +10,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { ArrowLeft } from "lucide-react-native";
 
-const C = {
-  bg: "#080c0a",
-  surface: "#0f1610",
-  surface2: "#162018",
-  green: "#3dff6e",
-  text: "#dceee0",
-  muted: "#6b8c72",
-  cardBg: "rgba(22,32,24,0.9)",
-  border: "rgba(61,255,110,0.1)",
-};
+import { useTheme } from "./_layout";
+import type { Colors } from "@/colors";
 
 interface NotifCategory {
   title: string;
@@ -69,6 +61,8 @@ const categories: NotifCategory[] = [
 ];
 
 export default function NotificationPrefsScreen() {
+  const C = useTheme();
+  const styles = makeStyles(C);
   const router = useRouter();
   const [toggles, setToggles] = useState<Record<string, boolean>>(() => {
     const initial: Record<string, boolean> = {};
@@ -137,7 +131,7 @@ export default function NotificationPrefsScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+function makeStyles(C: Colors) { return StyleSheet.create({
   safe: { flex: 1, backgroundColor: C.bg },
   container: { flex: 1 },
   header: {
@@ -151,7 +145,7 @@ const styles = StyleSheet.create({
   headerTitle: { fontSize: 18, fontWeight: "700", color: C.text },
   scrollContent: { paddingHorizontal: 16, paddingBottom: 20, gap: 12 },
   categoryCard: {
-    backgroundColor: C.cardBg, borderRadius: 16, borderWidth: 1,
+    backgroundColor: C.card, borderRadius: 16, borderWidth: 1,
     borderColor: C.border, padding: 16,
   },
   categoryTitle: {
@@ -175,4 +169,4 @@ const styles = StyleSheet.create({
   },
   thumbOn: { alignSelf: "flex-end" },
   thumbOff: { alignSelf: "flex-start" },
-});
+}); }

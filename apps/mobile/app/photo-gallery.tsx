@@ -10,16 +10,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { ArrowLeft, Camera, Plus } from "lucide-react-native";
 
-const C = {
-  bg: "#080c0a",
-  surface: "#0f1610",
-  surface2: "#162018",
-  green: "#3dff6e",
-  text: "#dceee0",
-  muted: "#6b8c72",
-  cardBg: "rgba(22,32,24,0.9)",
-  border: "rgba(61,255,110,0.1)",
-};
+import { useTheme } from "./_layout";
+import type { Colors } from "@/colors";
 
 const mockPhotos = [
   { id: "p-1", date: "2026-06-01" },
@@ -31,6 +23,8 @@ const mockPhotos = [
 ];
 
 export default function PhotoGalleryScreen() {
+  const C = useTheme();
+  const styles = makeStyles(C);
   const router = useRouter();
 
   return (
@@ -71,7 +65,7 @@ export default function PhotoGalleryScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+function makeStyles(C: Colors) { return StyleSheet.create({
   safe: { flex: 1, backgroundColor: C.bg },
   container: { flex: 1 },
   header: {
@@ -106,4 +100,4 @@ const styles = StyleSheet.create({
   addButtonText: {
     fontSize: 15, fontWeight: "800", color: "#080c0a", letterSpacing: 1,
   },
-});
+}); }

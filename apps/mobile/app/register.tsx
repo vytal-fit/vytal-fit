@@ -11,22 +11,13 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import { ArrowLeft, ArrowRight, Eye, EyeOff, Check } from "lucide-react-native";
-
-const COLORS = {
-  bg: "#080c0a",
-  bg2: "#0f1610",
-  bg3: "#162018",
-  green: "#3dff6e",
-  greenDim: "rgba(61,255,110,0.1)",
-  greenMid: "rgba(61,255,110,0.2)",
-  text: "#dceee0",
-  muted: "#6b8c72",
-  border: "rgba(61,255,110,0.1)",
-  red: "#ff4757",
-};
+import { useTheme } from "./_layout";
+import type { Colors } from "@/colors";
 
 export default function RegisterScreen() {
   const router = useRouter();
+  const C = useTheme();
+  const styles = makeStyles(C);
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -93,9 +84,9 @@ export default function RegisterScreen() {
               else router.back();
             }}
           >
-            <ArrowLeft size={20} color={COLORS.muted} />
+            <ArrowLeft size={20} color={C.muted} />
           </TouchableOpacity>
-          <Text style={styles.logo}><Text style={{ fontSize: 18, color: "#6b8c72" }}>my</Text>VYTAL</Text>
+          <Text style={styles.logo}><Text style={{ fontSize: 18, color: C.muted }}>my</Text>VYTAL</Text>
           <View style={styles.backButton} />
         </View>
 
@@ -136,7 +127,7 @@ export default function RegisterScreen() {
                 value={name}
                 onChangeText={setName}
                 placeholder="O seu nome"
-                placeholderTextColor={`${COLORS.muted}80`}
+                placeholderTextColor={`${C.muted}80`}
                 autoCapitalize="words"
               />
               {errors.name && (
@@ -152,7 +143,7 @@ export default function RegisterScreen() {
                 value={email}
                 onChangeText={setEmail}
                 placeholder="voce@exemplo.com"
-                placeholderTextColor={`${COLORS.muted}80`}
+                placeholderTextColor={`${C.muted}80`}
                 keyboardType="email-address"
                 autoCapitalize="none"
                 autoCorrect={false}
@@ -171,7 +162,7 @@ export default function RegisterScreen() {
                   value={password}
                   onChangeText={setPassword}
                   placeholder="Minimo 10 caracteres"
-                  placeholderTextColor={`${COLORS.muted}80`}
+                  placeholderTextColor={`${C.muted}80`}
                   secureTextEntry={!showPassword}
                   autoCapitalize="none"
                 />
@@ -180,9 +171,9 @@ export default function RegisterScreen() {
                   onPress={() => setShowPassword(!showPassword)}
                 >
                   {showPassword ? (
-                    <EyeOff size={18} color={COLORS.muted} />
+                    <EyeOff size={18} color={C.muted} />
                   ) : (
-                    <Eye size={18} color={COLORS.muted} />
+                    <Eye size={18} color={C.muted} />
                   )}
                 </TouchableOpacity>
               </View>
@@ -200,7 +191,7 @@ export default function RegisterScreen() {
                   value={confirmPassword}
                   onChangeText={setConfirmPassword}
                   placeholder="Repita a password"
-                  placeholderTextColor={`${COLORS.muted}80`}
+                  placeholderTextColor={`${C.muted}80`}
                   secureTextEntry={!showConfirm}
                   autoCapitalize="none"
                 />
@@ -209,9 +200,9 @@ export default function RegisterScreen() {
                   onPress={() => setShowConfirm(!showConfirm)}
                 >
                   {showConfirm ? (
-                    <EyeOff size={18} color={COLORS.muted} />
+                    <EyeOff size={18} color={C.muted} />
                   ) : (
-                    <Eye size={18} color={COLORS.muted} />
+                    <Eye size={18} color={C.muted} />
                   )}
                 </TouchableOpacity>
               </View>
@@ -227,7 +218,7 @@ export default function RegisterScreen() {
               activeOpacity={0.8}
             >
               <Text style={styles.buttonText}>SEGUINTE</Text>
-              <ArrowRight size={18} color={COLORS.bg} />
+              <ArrowRight size={18} color={C.bg} />
             </TouchableOpacity>
           </View>
         )}
@@ -282,7 +273,7 @@ export default function RegisterScreen() {
                 value={dob}
                 onChangeText={setDob}
                 placeholder="DD/MM/AAAA"
-                placeholderTextColor={`${COLORS.muted}80`}
+                placeholderTextColor={`${C.muted}80`}
                 keyboardType="numeric"
               />
             </View>
@@ -295,7 +286,7 @@ export default function RegisterScreen() {
                 value={country}
                 onChangeText={setCountry}
                 placeholder="Portugal"
-                placeholderTextColor={`${COLORS.muted}80`}
+                placeholderTextColor={`${C.muted}80`}
               />
             </View>
 
@@ -311,7 +302,7 @@ export default function RegisterScreen() {
                   acceptedTerms && styles.checkboxActive,
                 ]}
               >
-                {acceptedTerms && <Check size={14} color={COLORS.bg} />}
+                {acceptedTerms && <Check size={14} color={C.bg} />}
               </View>
               <Text style={styles.termsText}>
                 Aceito os{" "}
@@ -351,10 +342,10 @@ export default function RegisterScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+function makeStyles(C: Colors) { return StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.bg,
+    backgroundColor: C.bg,
   },
   scroll: {
     flexGrow: 1,
@@ -377,7 +368,7 @@ const styles = StyleSheet.create({
   logo: {
     fontSize: 24,
     fontWeight: "800",
-    color: COLORS.green,
+    color: C.green,
     letterSpacing: 3,
   },
   progressContainer: {
@@ -391,30 +382,30 @@ const styles = StyleSheet.create({
     width: 10,
     height: 10,
     borderRadius: 5,
-    backgroundColor: COLORS.bg3,
+    backgroundColor: C.surface2,
   },
   progressDotActive: {
-    backgroundColor: COLORS.green,
+    backgroundColor: C.green,
   },
   progressLine: {
     width: 40,
     height: 2,
-    backgroundColor: COLORS.bg3,
+    backgroundColor: C.surface2,
     borderRadius: 1,
   },
   progressLineActive: {
-    backgroundColor: COLORS.green,
+    backgroundColor: C.green,
   },
   title: {
     fontSize: 22,
     fontWeight: "700",
-    color: COLORS.text,
+    color: C.text,
     textAlign: "center",
     marginBottom: 4,
   },
   subtitle: {
     fontSize: 14,
-    color: COLORS.muted,
+    color: C.muted,
     textAlign: "center",
     marginBottom: 32,
   },
@@ -427,18 +418,18 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 11,
     fontWeight: "600",
-    color: COLORS.muted,
+    color: C.muted,
     letterSpacing: 1.5,
   },
   input: {
-    backgroundColor: COLORS.bg2,
+    backgroundColor: C.surface,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: C.border,
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 14,
     fontSize: 15,
-    color: COLORS.text,
+    color: C.text,
   },
   passwordContainer: {
     position: "relative",
@@ -455,7 +446,7 @@ const styles = StyleSheet.create({
   },
   errorText: {
     fontSize: 12,
-    color: COLORS.red,
+    color: C.red,
     marginTop: 2,
   },
   genderRow: {
@@ -465,23 +456,23 @@ const styles = StyleSheet.create({
   genderOption: {
     flex: 1,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: C.border,
     borderRadius: 12,
     paddingVertical: 14,
     alignItems: "center",
-    backgroundColor: COLORS.bg2,
+    backgroundColor: C.surface,
   },
   genderOptionActive: {
-    borderColor: COLORS.green,
-    backgroundColor: COLORS.greenDim,
+    borderColor: C.green,
+    backgroundColor: C.green + "15",
   },
   genderText: {
     fontSize: 14,
     fontWeight: "600",
-    color: COLORS.muted,
+    color: C.muted,
   },
   genderTextActive: {
-    color: COLORS.green,
+    color: C.green,
   },
   termsRow: {
     flexDirection: "row",
@@ -494,28 +485,28 @@ const styles = StyleSheet.create({
     height: 22,
     borderRadius: 6,
     borderWidth: 1.5,
-    borderColor: COLORS.border,
-    backgroundColor: COLORS.bg2,
+    borderColor: C.border,
+    backgroundColor: C.surface,
     alignItems: "center",
     justifyContent: "center",
     marginTop: 1,
   },
   checkboxActive: {
-    backgroundColor: COLORS.green,
-    borderColor: COLORS.green,
+    backgroundColor: C.green,
+    borderColor: C.green,
   },
   termsText: {
     flex: 1,
     fontSize: 13,
-    color: COLORS.muted,
+    color: C.muted,
     lineHeight: 20,
   },
   termsLink: {
-    color: COLORS.green,
+    color: C.green,
     fontWeight: "600",
   },
   button: {
-    backgroundColor: COLORS.green,
+    backgroundColor: C.green,
     borderRadius: 12,
     paddingVertical: 16,
     alignItems: "center",
@@ -530,7 +521,7 @@ const styles = StyleSheet.create({
   buttonText: {
     fontSize: 15,
     fontWeight: "700",
-    color: COLORS.bg,
+    color: C.bg,
     letterSpacing: 1,
   },
   loginContainer: {
@@ -540,11 +531,11 @@ const styles = StyleSheet.create({
   },
   loginText: {
     fontSize: 14,
-    color: COLORS.muted,
+    color: C.muted,
   },
   loginLink: {
     fontSize: 14,
     fontWeight: "600",
-    color: COLORS.green,
+    color: C.green,
   },
-});
+}); }
