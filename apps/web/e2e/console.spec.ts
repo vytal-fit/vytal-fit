@@ -1,34 +1,9 @@
 import { test, expect } from "@playwright/test";
+import { DEMO_PASSWORD, DEMO_USERS } from "./fixtures/test";
 
-// Mock auth object matching mockCurrentUser from @vytal-fit/shared
-const MOCK_AUTH = JSON.stringify({
-  user: {
-    id: "user-1",
-    name: "Jose Fonte",
-    email: "jcunhafonte@gmail.com",
-    phone: "931918000",
-    language: "pt",
-    createdAt: "2024-01-01",
-  },
-  memberships: [
-    {
-      id: "mem-1",
-      userId: "user-1",
-      organizationId: "org-1",
-      role: "owner",
-      status: "active",
-      memberNumber: 1,
-      joinedAt: "2024-01-15",
-      organization: {
-        id: "org-1",
-        name: "CrossFit Aveiro",
-        type: "crossfit_box",
-        slug: "crossfit-aveiro",
-      },
-    },
-  ],
-  activeOrganizationId: "org-1",
-});
+// Authenticated console tests rely on the real Better Auth session captured
+// by global.setup.ts (storage state = session cookie + "vytal-auth" cache).
+// The seeded demo owner (Jose Fonte) is a member of org-1 CrossFit Aveiro.
 
 test.describe("Console: Login Page", () => {
   // Unauthenticated context — do NOT use stored auth state
@@ -61,20 +36,18 @@ test.describe("Console: Login Page", () => {
 
   test("login form submits and redirects to console home", async ({ page }) => {
     await page.goto("/console/login");
-    await page.locator('input[type="email"]').fill("test@vytal.fit");
-    await page.locator('input[type="password"]').fill("testpassword123");
+    await page.locator('input[type="email"]').fill(DEMO_USERS.owner.email);
+    await page.locator('input[type="password"]').fill(DEMO_PASSWORD);
     await page.getByRole("button", { name: /entrar|login/i }).click();
-    await page.waitForURL(/\/console$|\/console\//, { timeout: 8000 });
+    // Real auth: credential check + org hydration round-trips
+    await page.waitForURL(/\/console$|\/console\//, { timeout: 20000 });
     await expect(page).toHaveURL(/\/console/);
   });
 });
 
 test.describe("Console: Home (authenticated)", () => {
   test.beforeEach(async ({ page }) => {
-    // Ensure auth is present even if storageState didn't populate it
-    await page.addInitScript((auth) => {
-      localStorage.setItem("vytal-auth", auth);
-    }, MOCK_AUTH);
+    // Uses the real session from storage state (global.setup.ts)
     await page.goto("/console");
   });
 
@@ -98,9 +71,6 @@ test.describe("Console: Home (authenticated)", () => {
 
 test.describe("Console: Schedule", () => {
   test.beforeEach(async ({ page }) => {
-    await page.addInitScript((auth) => {
-      localStorage.setItem("vytal-auth", auth);
-    }, MOCK_AUTH);
     await page.goto("/console/schedule");
   });
 
@@ -137,9 +107,6 @@ test.describe("Console: Schedule", () => {
 
 test.describe("Console: WOD", () => {
   test.beforeEach(async ({ page }) => {
-    await page.addInitScript((auth) => {
-      localStorage.setItem("vytal-auth", auth);
-    }, MOCK_AUTH);
     await page.goto("/console/wod");
   });
 

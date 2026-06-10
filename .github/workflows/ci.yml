@@ -44,6 +44,26 @@ jobs:
     timeout-minutes: 20
     needs: ci
 
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: vytal
+          POSTGRES_PASSWORD: vytal
+          POSTGRES_DB: vytal
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DATABASE_URL: postgresql://vytal:vytal@localhost:5432/vytal
+      BETTER_AUTH_SECRET: e2e-ci-secret-not-for-prod
+      BETTER_AUTH_URL: http://localhost:3000
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -59,6 +79,12 @@ jobs:
 
       - name: Install Playwright browsers
         run: npx --workspace @vytal-fit/web playwright install --with-deps
+
+      - name: Run database migrations
+        run: npm run db:migrate -w @vytal-fit/db
+
+      - name: Seed demo data
+        run: npm run db:seed -w @vytal-fit/db
 
       - name: Run Playwright tests
         run: npm run test:e2e

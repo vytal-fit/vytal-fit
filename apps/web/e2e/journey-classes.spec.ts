@@ -55,6 +55,9 @@ test.describe("Journey: Class Management", () => {
   });
 
   test("create a new class and verify it exists", async ({ page }) => {
+    // Class CRUD is persisted in the org-scoped localStorage data store
+    // (per browser context), not the database — the created class is
+    // discarded when this test's context closes, so no cleanup is needed.
     // 1. Navigate to /classes/create
     await page.goto("/classes/create");
     await page.waitForTimeout(1000);

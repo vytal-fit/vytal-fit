@@ -11,9 +11,35 @@ async function closeRightSidebar(page: Page) {
 }
 
 test.describe("Journey: Full Member Lifecycle", () => {
-  const testMemberName = "E2E Test Member";
-  const testMemberEmail = "e2e-test-member@vytal.fit";
+  // Members are persisted in the REAL database via tRPC (members.create /
+  // members.archive). The "E2E-" prefix + unique run id mark rows created by
+  // this suite; the test deletes (archives) its row through the UI, and the
+  // afterEach below is a belt-and-braces sweep that archives any leftover
+  // "E2E-" rows via the tRPC API (real session cookie) when a mid-test
+  // assertion fails before the UI cleanup step runs.
+  const runId = Date.now().toString(36);
+  const testMemberName = `E2E-Member ${runId}`;
+  const testMemberEmail = `e2e-member-${runId}@vytal.fit`;
   const testMemberPhone = "+351999888777";
+
+  test.afterEach(async ({ page }) => {
+    const listRes = await page.request.get(
+      "/api/trpc/members.list?input=" +
+        encodeURIComponent(JSON.stringify({ json: { limit: 100 } }))
+    );
+    if (!listRes.ok()) return;
+    const body = (await listRes.json()) as {
+      result?: { data?: { json?: { items?: { id: string; name: string; status: string }[] } } };
+    };
+    const items = body.result?.data?.json?.items ?? [];
+    for (const member of items) {
+      if (member.name.startsWith("E2E-") && member.status !== "inactive") {
+        await page.request.post("/api/trpc/members.archive", {
+          data: { json: { id: member.id } },
+        });
+      }
+    }
+  });
 
   test("create, view, and delete a member", async ({ page }) => {
     // 1. Navigate to /members
@@ -72,7 +98,8 @@ test.describe("Journey: Full Member Lifecycle", () => {
     );
     if (await viewProfileLink.count() > 0) {
       await viewProfileLink.first().click();
-      await page.waitForURL(/\/members\/m-/, { timeout: 5000 });
+      // Newly created members get generated ids (not the seeded "m-" prefix)
+      await page.waitForURL(/\/members\/[^/]+$/, { timeout: 5000 });
       await expect(page.getByText(testMemberName).first()).toBeVisible();
     }
 

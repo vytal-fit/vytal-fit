@@ -10,6 +10,17 @@ import { test as base, expect } from "@playwright/test";
  *   import { test, expect } from "./fixtures/test";
  */
 
+/**
+ * Seeded demo accounts (created by `npm run db:seed -w @vytal-fit/db`).
+ * All share the same password. `jose` is the owner of org-1 (CrossFit Aveiro).
+ */
+export const DEMO_PASSWORD = "VytalDemo2026!";
+export const DEMO_USERS = {
+  owner: { email: "jose@vytal.fit", name: "Jose Fonte" },
+  coach: { email: "coach@vytal.fit", name: "Demo Coach" },
+  athlete: { email: "athlete@vytal.fit", name: "Demo Athlete" },
+} as const;
+
 // Persona types matching the PRD
 type Persona = "gestor" | "coach" | "pt" | "athlete";
 
