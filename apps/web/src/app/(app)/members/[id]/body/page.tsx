@@ -122,13 +122,13 @@ export default function BodyCompositionPage() {
   const id = params.id as string;
   const members = useDataStore((s) => s.members);
 
-  const member = members.find((m) => m.id === id);
-  if (!member) return notFound();
-
   const [showForm, setShowForm] = useState(false);
   const [formWeight, setFormWeight] = useState("");
   const [formBodyFat, setFormBodyFat] = useState("");
   const [formDate, setFormDate] = useState(new Date().toISOString().split("T")[0]);
+
+  const member = members.find((m) => m.id === id);
+  if (!member) return notFound();
 
   function handleSave() {
     toast(t("body.measurementSaved"), "success");

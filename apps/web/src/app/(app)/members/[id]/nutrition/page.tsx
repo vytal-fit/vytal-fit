@@ -139,8 +139,6 @@ export default function NutritionPage() {
   const [addCarbs, setAddCarbs] = useState("");
   const [addFat, setAddFat] = useState("");
 
-  if (!member) return notFound();
-
   // Totals
   const totals = meals.reduce(
     (acc, meal) => {
@@ -188,6 +186,8 @@ export default function NutritionPage() {
     },
     [selectedDate]
   );
+
+  if (!member) return notFound();
 
   return (
     <div className="space-y-6">
