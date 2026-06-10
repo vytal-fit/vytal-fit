@@ -1,7 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useDataStore, formatCurrency } from "@/stores/data-store";
+import { trpc } from "@/lib/trpc";
+import { rowToMember } from "@/lib/member-mapper";
+import { Skeleton } from "@/components/skeleton";
+import { EmptyState } from "@/components/empty-state";
+import { ConfirmDialog } from "@/components/confirm-dialog";
 import type { MemberStatus } from "@vytal-fit/shared";
 import {
   Mail,
@@ -32,6 +37,9 @@ import {
   RefreshCw,
   Send,
   Bell,
+  Archive,
+  Check,
+  X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
@@ -319,23 +327,126 @@ function CommunicationsTab({ memberName, memberEmail }: { memberName: string; me
 export default function MemberDetailPage() {
   const { t } = useI18n();
   const { toast } = useToast();
-  const members = useDataStore((s) => s.members);
   const subscriptions = useDataStore((s) => s.subscriptions);
   const personalRecords = useDataStore((s) => s.personalRecords);
   const params = useParams();
   const id = params.id as string;
-  const member = members.find((m) => m.id === id);
+
+  // ── tRPC: member detail + mutations ──
+  const utils = trpc.useUtils();
+  const memberQuery = trpc.members.byId.useQuery(
+    { id },
+    { retry: (failureCount, error) => error.data?.code !== "NOT_FOUND" && failureCount < 2 },
+  );
+  const member = useMemo(
+    () => (memberQuery.data ? rowToMember(memberQuery.data) : null),
+    [memberQuery.data],
+  );
 
   const [activeTab, setActiveTab] = useState<Tab>("overview");
   const [noteText, setNoteText] = useState("");
   const [staffNotes, setStaffNotes] = useState(mockStaffNotes);
 
-  if (!member) {
+  // Inline profile editing
+  const [isEditing, setIsEditing] = useState(false);
+  const [editName, setEditName] = useState("");
+  const [editEmail, setEditEmail] = useState("");
+  const [editPhone, setEditPhone] = useState("");
+  const [editStatus, setEditStatus] = useState<MemberStatus>("active");
+  const [showArchiveConfirm, setShowArchiveConfirm] = useState(false);
+
+  const updateMember = trpc.members.update.useMutation({
+    onSuccess: (row) => {
+      utils.members.byId.setData({ id }, row);
+      void utils.members.list.invalidate();
+      setIsEditing(false);
+      toast(t("members.memberUpdated"), "success");
+    },
+    onError: () => toast(t("ui.error"), "error"),
+  });
+
+  const archiveMember = trpc.members.archive.useMutation({
+    onSuccess: (row) => {
+      utils.members.byId.setData({ id }, row);
+      void utils.members.list.invalidate();
+      toast(t("members.memberArchived"), "success");
+    },
+    onError: () => toast(t("ui.error"), "error"),
+  });
+
+  if (memberQuery.error?.data?.code === "NOT_FOUND") {
     notFound();
+  }
+
+  if (memberQuery.isPending) {
+    return (
+      <div className="space-y-6">
+        <Skeleton className="h-4 w-44" />
+        <Skeleton className="h-4 w-32" />
+        <div className="rounded-xl border border-vytal-border bg-vytal-card p-6">
+          <div className="flex items-start gap-5">
+            <Skeleton className="h-16 w-16 rounded-full" />
+            <div className="flex-1 space-y-3">
+              <Skeleton className="h-7 w-56" />
+              <Skeleton className="h-4 w-80" />
+            </div>
+          </div>
+        </div>
+        <Skeleton className="h-12 w-full rounded-xl" />
+        <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Skeleton key={i} className="h-20 rounded-xl" />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (memberQuery.isError || !member) {
+    return (
+      <div className="space-y-6">
+        <Link
+          href="/members"
+          className="inline-flex items-center gap-1.5 text-sm text-vytal-muted transition-colors hover:text-vytal-text"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          {t("memberDetail.backToMembers")}
+        </Link>
+        <EmptyState
+          icon={AlertTriangle}
+          title={t("ui.error")}
+          description={t("members.loadError")}
+          action={{ label: t("billing.retry"), onClick: () => void memberQuery.refetch() }}
+        />
+      </div>
+    );
   }
 
   const subscription = subscriptions.find((s) => s.memberId === member.id);
   const records = personalRecords.filter((r) => r.memberId === member.id);
+
+  function handleStartEdit() {
+    if (!member) return;
+    setEditName(member.name);
+    setEditEmail(member.email);
+    setEditPhone(member.phone ?? "");
+    setEditStatus(member.status);
+    setIsEditing(true);
+  }
+
+  function handleSaveEdit() {
+    if (!editName.trim()) { toast(t("members.nameRequired"), "error"); return; }
+    if (!editEmail.trim()) { toast(t("members.emailRequired"), "error"); return; }
+    updateMember.mutate({
+      id,
+      data: {
+        name: editName.trim(),
+        email: editEmail.trim(),
+        phone: editPhone.trim() || undefined,
+        status: editStatus,
+      },
+    });
+  }
 
   const initials = member.name
     .split(" ")
@@ -392,29 +503,96 @@ export default function MemberDetailPage() {
           <div className="flex h-16 w-16 items-center justify-center rounded-full bg-vytal-green/10 text-xl font-bold text-vytal-green">
             {initials}
           </div>
-          <div className="flex-1">
-            <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-bold text-vytal-text">
-                {member.name}
-              </h1>
-              <StatusBadge status={member.status} />
-            </div>
-            <div className="mt-2 flex flex-wrap items-center gap-4 text-sm text-vytal-muted">
-              <span className="font-mono text-xs">
-                #{member.memberNumber}
-              </span>
-              <div className="flex items-center gap-1.5">
-                <Mail className="h-3.5 w-3.5" />
-                {member.email}
-              </div>
-              {member.phone && (
-                <div className="flex items-center gap-1.5">
-                  <Phone className="h-3.5 w-3.5" />
-                  {member.phone}
+          {isEditing ? (
+            <div className="flex-1 space-y-3">
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div>
+                  <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("members.name")}</label>
+                  <input type="text" value={editName} onChange={(e) => setEditName(e.target.value)} className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-2 text-sm text-vytal-text placeholder:text-vytal-muted focus:border-vytal-green/30 focus:outline-none focus:ring-1 focus:ring-vytal-green/20" />
                 </div>
-              )}
+                <div>
+                  <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("members.email")}</label>
+                  <input type="email" value={editEmail} onChange={(e) => setEditEmail(e.target.value)} className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-2 text-sm text-vytal-text placeholder:text-vytal-muted focus:border-vytal-green/30 focus:outline-none focus:ring-1 focus:ring-vytal-green/20" />
+                </div>
+                <div>
+                  <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("members.phone")}</label>
+                  <input type="text" value={editPhone} onChange={(e) => setEditPhone(e.target.value)} placeholder="+351..." className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-2 text-sm text-vytal-text placeholder:text-vytal-muted focus:border-vytal-green/30 focus:outline-none focus:ring-1 focus:ring-vytal-green/20" />
+                </div>
+                <div>
+                  <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("members.status")}</label>
+                  <select value={editStatus} onChange={(e) => setEditStatus(e.target.value as MemberStatus)} className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-2 text-sm text-vytal-text focus:border-vytal-green/30 focus:outline-none focus:ring-1 focus:ring-vytal-green/20">
+                    <option value="active">{t("members.active")}</option>
+                    <option value="trial">{t("members.trial")}</option>
+                    <option value="suspended">{t("members.suspended")}</option>
+                    <option value="inactive">{t("members.inactive")}</option>
+                  </select>
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={handleSaveEdit}
+                  disabled={updateMember.isPending}
+                  className="inline-flex items-center gap-2 rounded-lg bg-vytal-green px-4 py-2 text-sm font-semibold text-vytal-bg transition-colors hover:bg-vytal-green/90 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <Check className="h-4 w-4" />
+                  {t("action.save")}
+                </button>
+                <button
+                  onClick={() => setIsEditing(false)}
+                  disabled={updateMember.isPending}
+                  className="inline-flex items-center gap-2 rounded-lg border border-vytal-border px-4 py-2 text-sm font-medium text-vytal-text transition-colors hover:bg-vytal-bg3 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <X className="h-4 w-4" />
+                  {t("action.cancel")}
+                </button>
+              </div>
             </div>
-          </div>
+          ) : (
+            <>
+              <div className="flex-1">
+                <div className="flex items-center gap-3">
+                  <h1 className="text-2xl font-bold text-vytal-text">
+                    {member.name}
+                  </h1>
+                  <StatusBadge status={member.status} />
+                </div>
+                <div className="mt-2 flex flex-wrap items-center gap-4 text-sm text-vytal-muted">
+                  <span className="font-mono text-xs">
+                    #{member.memberNumber}
+                  </span>
+                  <div className="flex items-center gap-1.5">
+                    <Mail className="h-3.5 w-3.5" />
+                    {member.email}
+                  </div>
+                  {member.phone && (
+                    <div className="flex items-center gap-1.5">
+                      <Phone className="h-3.5 w-3.5" />
+                      {member.phone}
+                    </div>
+                  )}
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={handleStartEdit}
+                  className="inline-flex items-center gap-2 rounded-lg border border-vytal-border px-3 py-2 text-sm font-medium text-vytal-text transition-colors hover:bg-vytal-bg3"
+                >
+                  <Pencil className="h-3.5 w-3.5" />
+                  {t("action.edit")}
+                </button>
+                {member.status !== "inactive" && (
+                  <button
+                    onClick={() => setShowArchiveConfirm(true)}
+                    disabled={archiveMember.isPending}
+                    className="inline-flex items-center gap-2 rounded-lg border border-vytal-border px-3 py-2 text-sm font-medium text-vytal-muted transition-colors hover:bg-vytal-red/10 hover:text-vytal-red disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    <Archive className="h-3.5 w-3.5" />
+                    {t("members.archiveMember")}
+                  </button>
+                )}
+              </div>
+            </>
+          )}
         </div>
       </div>
 
@@ -560,13 +738,13 @@ export default function MemberDetailPage() {
 
           {/* Quick Actions */}
           <div className="flex flex-wrap gap-3">
-            <Link
-              href={`/members/${member.id}/edit`}
+            <button
+              onClick={handleStartEdit}
               className="inline-flex items-center gap-2 rounded-lg border border-vytal-border px-4 py-2 text-sm font-medium text-vytal-text transition-colors hover:bg-vytal-bg3"
             >
               <Pencil className="h-4 w-4" />
               {t("memberOverview.editProfile")}
-            </Link>
+            </button>
             <button
               onClick={() => toast(t("memberOverview.planChangeToast"), "info")}
               className="inline-flex items-center gap-2 rounded-lg border border-vytal-border px-4 py-2 text-sm font-medium text-vytal-text transition-colors hover:bg-vytal-bg3"
@@ -941,6 +1119,20 @@ export default function MemberDetailPage() {
           </div>
         </div>
       )}
+
+      <ConfirmDialog
+        open={showArchiveConfirm}
+        title={t("members.archiveMember")}
+        description={t("ui.areYouSure")}
+        confirmLabel={t("action.confirm")}
+        cancelLabel={t("action.cancel")}
+        variant="danger"
+        onConfirm={() => {
+          archiveMember.mutate({ id });
+          setShowArchiveConfirm(false);
+        }}
+        onCancel={() => setShowArchiveConfirm(false)}
+      />
     </div>
   );
 }

@@ -6,9 +6,13 @@ import type { MemberStatus } from "@vytal-fit/shared";
 import {
   Search, Users, UserCheck, UserX, Clock, Upload, Download, FileText,
   Mail, Smartphone, CreditCard, AlertTriangle, Eye, SearchX,
-  ArrowUp, ArrowDown, Plus, Trash2, X, Check,
+  ArrowUp, ArrowDown, Plus, Archive, X, Check,
   CalendarDays, Flame, DollarSign, Activity,
 } from "lucide-react";
+import { trpc } from "@/lib/trpc";
+import { rowsToMembers } from "@/lib/member-mapper";
+import { Skeleton } from "@/components/skeleton";
+import { EmptyState } from "@/components/empty-state";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -103,17 +107,40 @@ export default function MembersPage() {
   const PAGE_SIZE = 10;
   const { t } = useI18n();
   const router = useRouter();
-  const storeMembers = useDataStore((s) => s.members);
   const storePlans = useDataStore((s) => s.plans);
-  const addMember = useDataStore((s) => s.addMember);
-  const deleteMember = useDataStore((s) => s.deleteMember);
   const { toast } = useToast();
   const formatDate = useFormatDate();
+
+  // ── tRPC: members list (status filter mapped to the router contract) ──
+  const utils = trpc.useUtils();
+  const statusFilter =
+    filter === "active" || filter === "inactive" || filter === "trial" ? filter : undefined;
+  const listQuery = trpc.members.list.useInfiniteQuery(
+    { limit: 100, status: statusFilter },
+    { getNextPageParam: (page) => page.nextCursor },
+  );
+  // Drain remaining cursor pages so client-side search/sort/pagination operate
+  // on the full (org-scoped) set, matching the previous store behaviour.
+  const { hasNextPage, isFetchingNextPage, fetchNextPage } = listQuery;
+  useEffect(() => {
+    if (hasNextPage && !isFetchingNextPage) void fetchNextPage();
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
+
+  const fetchedMembers = useMemo(
+    () => rowsToMembers(listQuery.data?.pages.flatMap((p) => p.items) ?? []),
+    [listQuery.data],
+  );
+
+  // Unfiltered query powers the stats bar + filter pill counts.
+  const countsQuery = trpc.members.list.useQuery({ limit: 100 });
+
+  const createMember = trpc.members.create.useMutation();
+  const archiveMember = trpc.members.archive.useMutation();
 
   // Detail panel state
   const [panelMemberId, setPanelMemberId] = useState<string | null>(null);
   const [panelTab, setPanelTab] = useState<PanelTab>("overview");
-  const panelMember = panelMemberId ? storeMembers.find((m) => m.id === panelMemberId) : null;
+  const panelMember = panelMemberId ? fetchedMembers.find((m) => m.id === panelMemberId) : null;
 
   // Advanced filter state
   const [advancedFilters, setAdvancedFilters] = useState<Record<string, unknown>>({});
@@ -187,28 +214,37 @@ export default function MembersPage() {
   function handleAdd() {
     if (!addName.trim()) { toast(t("members.nameRequired"), "error"); return; }
     if (!addEmail.trim()) { toast(t("members.emailRequired"), "error"); return; }
-    const maxNum = storeMembers.reduce((max, m) => Math.max(max, m.memberNumber), 0);
-    addMember({
-      organizationId: "org-1",
-      memberNumber: maxNum + 1,
-      name: addName.trim(),
-      email: addEmail.trim(),
-      phone: addPhone.trim() || undefined,
-      status: addStatus,
-      joinedAt: new Date().toISOString(),
-      lastCheckIn: undefined,
-      streakWeeks: 0,
-      totalCheckIns: 0,
-    });
-    toast(t("members.memberAdded"), "success");
-    setAddName(""); setAddEmail(""); setAddPhone(""); setAddStatus("active");
-    setShowAddForm(false);
+    createMember.mutate(
+      {
+        name: addName.trim(),
+        email: addEmail.trim(),
+        phone: addPhone.trim() || undefined,
+        status: addStatus,
+      },
+      {
+        onSuccess: () => {
+          void utils.members.list.invalidate();
+          toast(t("members.memberAdded"), "success");
+          setAddName(""); setAddEmail(""); setAddPhone(""); setAddStatus("active");
+          setShowAddForm(false);
+        },
+        onError: () => toast(t("ui.error"), "error"),
+      },
+    );
   }
 
   function handleConfirmDelete() {
     if (!deleteTarget) return;
-    deleteMember(deleteTarget.id);
-    toast(t("members.memberDeleted"), "success");
+    archiveMember.mutate(
+      { id: deleteTarget.id },
+      {
+        onSuccess: () => {
+          void utils.members.list.invalidate();
+          toast(t("members.memberArchived"), "success");
+        },
+        onError: () => toast(t("ui.error"), "error"),
+      },
+    );
     setDeleteTarget(null);
   }
 
@@ -227,9 +263,10 @@ export default function MembersPage() {
   }
 
   const members = useMemo(() => {
-    let list = [...storeMembers];
+    let list = [...fetchedMembers];
 
-    // Quick filters
+    // Quick filters (active/inactive/trial are already applied server-side via
+    // the `status` input; re-applying here is a harmless safety net)
     if (filter === "active") list = list.filter((m) => m.status === "active");
     else if (filter === "inactive") list = list.filter((m) => m.status === "inactive");
     else if (filter === "trial") list = list.filter((m) => m.status === "trial");
@@ -275,7 +312,7 @@ export default function MembersPage() {
       return sortDir === "asc" ? cmp : -cmp;
     });
     return list;
-  }, [search, filter, sortKey, sortDir, storeMembers, advancedFilters]);
+  }, [search, filter, sortKey, sortDir, fetchedMembers, advancedFilters]);
 
   useEffect(() => { setCurrentPage(1); }, [search, filter, sortKey, sortDir, advancedFilters]);
 
@@ -286,14 +323,14 @@ export default function MembersPage() {
   }, [members, currentPage]);
 
   const counts = useMemo(() => {
-    const all = storeMembers;
+    const all = countsQuery.data?.items ?? [];
     return {
       total: all.length,
       active: all.filter((m) => m.status === "active").length,
       inactive: all.filter((m) => m.status === "inactive").length,
       trial: all.filter((m) => m.status === "trial").length,
     };
-  }, [storeMembers]);
+  }, [countsQuery.data]);
 
   const toggleSelect = (id: string) => {
     setSelectedIds((prev) => { const next = new Set(prev); if (next.has(id)) next.delete(id); else next.add(id); return next; });
@@ -306,14 +343,14 @@ export default function MembersPage() {
 
   const handleExportCSV = useCallback(() => {
     const headers = ["#", "Name", "Email", "Phone", "Status", "Plan", "Last Check-in", "Streak", "Check-ins"];
-    const rows = storeMembers.map((m) => [m.memberNumber, m.name, m.email, m.phone ?? "", m.status, planMap[m.id] ?? "N/A", m.lastCheckIn ?? "Never", m.streakWeeks, m.totalCheckIns]);
+    const rows = fetchedMembers.map((m) => [m.memberNumber, m.name, m.email, m.phone ?? "", m.status, planMap[m.id] ?? "N/A", m.lastCheckIn ?? "Never", m.streakWeeks, m.totalCheckIns]);
     const csv = [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a"); a.href = url; a.download = "members.csv"; a.click();
     URL.revokeObjectURL(url);
     toast(t("members.csvExported"), "success");
-  }, [toast, storeMembers, t]);
+  }, [toast, fetchedMembers, t]);
 
   const handleExportPDF = useCallback(() => { toast(t("members.pdfGenerated"), "success"); }, [toast, t]);
 
@@ -405,7 +442,7 @@ export default function MembersPage() {
                 <option value="inactive">{t("members.inactive")}</option>
               </select>
             </div>
-            <button onClick={handleAdd} className="flex items-center gap-2 rounded-lg bg-vytal-green px-5 py-2 text-sm font-semibold text-vytal-bg hover:bg-vytal-green/90">
+            <button onClick={handleAdd} disabled={createMember.isPending} className="flex items-center gap-2 rounded-lg bg-vytal-green px-5 py-2 text-sm font-semibold text-vytal-bg hover:bg-vytal-green/90 disabled:cursor-not-allowed disabled:opacity-50">
               <Check className="h-4 w-4" /> {t("action.save")}
             </button>
           </div>
@@ -414,10 +451,16 @@ export default function MembersPage() {
 
       {/* Stats Bar */}
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <MiniStat label={t("members.total")} value={counts.total} icon={<Users className="h-4 w-4 text-vytal-blue" />} color="bg-vytal-blue/10" />
-        <MiniStat label={t("members.active")} value={counts.active} icon={<UserCheck className="h-4 w-4 text-vytal-green" />} color="bg-vytal-green/10" />
-        <MiniStat label={t("members.inactive")} value={counts.inactive} icon={<UserX className="h-4 w-4 text-vytal-red" />} color="bg-vytal-red/10" />
-        <MiniStat label={t("members.trial")} value={counts.trial} icon={<Clock className="h-4 w-4 text-vytal-amber" />} color="bg-vytal-amber/10" />
+        {countsQuery.isPending ? (
+          Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-[58px] rounded-lg" />)
+        ) : (
+          <>
+            <MiniStat label={t("members.total")} value={counts.total} icon={<Users className="h-4 w-4 text-vytal-blue" />} color="bg-vytal-blue/10" />
+            <MiniStat label={t("members.active")} value={counts.active} icon={<UserCheck className="h-4 w-4 text-vytal-green" />} color="bg-vytal-green/10" />
+            <MiniStat label={t("members.inactive")} value={counts.inactive} icon={<UserX className="h-4 w-4 text-vytal-red" />} color="bg-vytal-red/10" />
+            <MiniStat label={t("members.trial")} value={counts.trial} icon={<Clock className="h-4 w-4 text-vytal-amber" />} color="bg-vytal-amber/10" />
+          </>
+        )}
       </div>
 
       {/* Quick Filters */}
@@ -466,6 +509,20 @@ export default function MembersPage() {
       )}
 
       {/* Table */}
+      {listQuery.isError ? (
+        <EmptyState
+          icon={AlertTriangle}
+          title={t("ui.error")}
+          description={t("members.loadError")}
+          action={{ label: t("billing.retry"), onClick: () => void listQuery.refetch() }}
+        />
+      ) : listQuery.isPending ? (
+        <div className="space-y-2 rounded-xl border border-vytal-border bg-vytal-card p-4">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <Skeleton key={i} className="h-12 w-full" />
+          ))}
+        </div>
+      ) : (
       <div className="overflow-x-auto rounded-xl border border-vytal-border">
         <table className="zebra-table sticky-thead w-full min-w-[800px]">
           <thead>
@@ -519,8 +576,8 @@ export default function MembersPage() {
                     <Link href={`/members/${member.id}`} className="flex h-7 w-7 items-center justify-center rounded-lg text-vytal-muted transition-colors hover:bg-vytal-bg3 hover:text-vytal-green" title={t("members.viewMember")}>
                       <Eye className="h-3.5 w-3.5" />
                     </Link>
-                    <button onClick={() => setDeleteTarget({ id: member.id, name: member.name })} className="flex h-7 w-7 items-center justify-center rounded-lg text-vytal-muted transition-colors hover:bg-vytal-red/10 hover:text-vytal-red" title={t("members.deleteMember")}>
-                      <Trash2 className="h-3.5 w-3.5" />
+                    <button onClick={() => setDeleteTarget({ id: member.id, name: member.name })} className="flex h-7 w-7 items-center justify-center rounded-lg text-vytal-muted transition-colors hover:bg-vytal-red/10 hover:text-vytal-red" title={t("members.archiveMember")}>
+                      <Archive className="h-3.5 w-3.5" />
                     </button>
                   </div>
                 </td>
@@ -544,14 +601,15 @@ export default function MembersPage() {
           </div>
         )}
       </div>
+      )}
 
       <Pagination currentPage={currentPage} totalPages={totalPages} totalItems={members.length} pageSize={PAGE_SIZE} onPageChange={setCurrentPage} />
 
       <ConfirmDialog
         open={!!deleteTarget}
-        title={t("members.deleteMember")}
-        description={t("members.confirmDelete").replace("{name}", deleteTarget?.name ?? "")}
-        confirmLabel={t("action.delete")}
+        title={t("members.archiveMember")}
+        description={t("ui.areYouSure")}
+        confirmLabel={t("action.confirm")}
         cancelLabel={t("action.cancel")}
         variant="danger"
         onConfirm={handleConfirmDelete}
