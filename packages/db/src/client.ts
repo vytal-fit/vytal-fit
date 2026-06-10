@@ -5,6 +5,7 @@
  * DATABASE_URL set (type-check and tests run anywhere). Use `createDb(url)`
  * to build a client explicitly, or `getDb()` for the env-driven default.
  */
+import { sql } from "drizzle-orm";
 import { drizzle, type PostgresJsDatabase } from "drizzle-orm/postgres-js";
 import type { PgDatabase, PgQueryResultHKT } from "drizzle-orm/pg-core";
 import postgres from "postgres";
@@ -20,6 +21,14 @@ export type Database = PgDatabase<PgQueryResultHKT, typeof schema>;
 export function createDb(url: string): PostgresJsDatabase<typeof schema> {
   const client = postgres(url, { prepare: false });
   return drizzle(client, { schema });
+}
+
+/**
+ * Cheap connectivity check (`SELECT 1`). Throws when the database is
+ * unreachable — callers decide how to surface that (e.g. /api/health).
+ */
+export async function pingDb(db: Database): Promise<void> {
+  await db.execute(sql`select 1`);
 }
 
 let defaultDb: Database | null = null;

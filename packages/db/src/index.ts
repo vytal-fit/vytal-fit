@@ -1,3 +1,3 @@
 export * as schema from "./schema";
 export * from "./schema";
-export { createDb, getDb, type Database } from "./client";
+export { createDb, getDb, pingDb, type Database } from "./client";
