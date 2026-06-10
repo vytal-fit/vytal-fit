@@ -1,4 +1,10 @@
 import { defineConfig } from "drizzle-kit";
+import { loadEnvFiles } from "./scripts/load-env";
+
+// Fill DATABASE_URL from .env files (repo root / apps/web) when the shell
+// doesn't provide it — lets `db:migrate`/`db:push` run right after
+// `npx vercel env pull .env.local`. Shell env always wins.
+loadEnvFiles();
 
 export default defineConfig({
   dialect: "postgresql",
