@@ -34,6 +34,8 @@ import {
   X as XIcon,
 } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
+import { trpc } from "@/lib/trpc";
+import { Skeleton } from "@/components/skeleton";
 import Link from "next/link";
 import {
   ResponsiveContainer,
@@ -58,7 +60,7 @@ import { cn } from "@/lib/utils";
 
 interface StatCardProps {
   label: string;
-  value: string | number;
+  value: React.ReactNode;
   icon: React.ReactNode;
   color: "green" | "red" | "amber" | "blue" | "purple";
   subtitle?: string;
@@ -646,8 +648,10 @@ export default function DashboardPage() {
     (m) => new Date(m.joinedAt) >= monthStart
   ).length;
 
-  // Check-ins today: members whose lastCheckIn is today
-  const checkInsToday = storeMembers.filter((m) => m.lastCheckIn?.startsWith(today)).length;
+  // Check-ins today: real data from the checkIns router (the only live stat on
+  // this page — everything else stays on the mock data store for now).
+  const todayStatsQuery = trpc.checkIns.todayStats.useQuery();
+  const checkInsToday = todayStatsQuery.data?.total ?? 0;
 
   // PRs today
   const prsToday = storePersonalRecords.filter((pr) => pr.achievedAt?.startsWith(today)).length;
@@ -853,10 +857,20 @@ export default function DashboardPage() {
         />
         <StatCard
           label={t("dashboard.checkInsToday")}
-          value={stats.checkInsToday}
+          value={
+            todayStatsQuery.isPending ? (
+              <Skeleton className="h-8 w-12" />
+            ) : (
+              todayStatsQuery.data?.total ?? 0
+            )
+          }
           icon={<ScanLine className="h-5 w-5" />}
           color="green"
-          trend={{ value: "+12%", up: true }}
+          subtitle={
+            todayStatsQuery.data
+              ? `${todayStatsQuery.data.uniqueMembers} ${t("dashboard.uniqueMembersToday")}`
+              : undefined
+          }
         />
       </div>
       )}

@@ -1104,6 +1104,7 @@ export const en: Record<string, string> = {
     "branding.splashColor": "Splash Screen Color",
     "branding.appIconPreview": "App Icon Preview",
     "branding.saveBranding": "Save Branding",
+    "branding.invalidColor": "Enter a valid hex color (#rrggbb)",
 
     // Invoices hardcoded string
     "invoices.noInvoices": "No invoices",
@@ -1439,6 +1440,8 @@ export const en: Record<string, string> = {
 
     // Settings page hardcoded strings (already have most, adding missing)
     "settings.addressSection": "Address",
+    "settings.adminOnly": "Only administrators can change these settings",
+    "settings.loadError": "Could not load settings. Please try again.",
 
     // Help page
     "help.subtitle": "Resources and shortcuts to help you get the most out of Vytal.",
@@ -2736,6 +2739,11 @@ export const en: Record<string, string> = {
     // Member Overview - new links
     "memberOverview.view360": "360 View",
     "memberOverview.bodyComposition": "Body Composition",
+    "memberOverview.recentCheckIns": "Recent Check-ins",
+    "memberOverview.manualCheckIn": "Manual Check-in",
+    "memberOverview.checkInRecorded": "Check-in recorded successfully",
+    "memberOverview.checkInForbidden": "Only staff can record check-ins",
+    "memberOverview.noCheckIns": "No check-ins recorded yet.",
 
     // Store / POS
     "nav.store": "Store",
@@ -2818,6 +2826,7 @@ export const en: Record<string, string> = {
     "dashboard.customize": "Customize",
     "dashboard.customizeWidgets": "Customize Dashboard Widgets",
     "dashboard.resetDefault": "Reset to Default",
+    "dashboard.uniqueMembersToday": "unique members",
 
     // Navigation - new
     "nav.tasks": "Tasks",
@@ -3599,4 +3608,9 @@ export const en: Record<string, string> = {
     "my.progress.prTimeline": "PR timeline",
     "my.progress.prNew": "New!",
     "my.progress.toastGoalUpdated": "Goal updated!",
-  };
+    "checkIns.loadError": "Could not load check-ins. Please try again.",
+  "checkInMethod.qr": "QR",
+  "checkInMethod.kiosk": "Kiosk",
+  "checkInMethod.manual": "Manual",
+  "checkInMethod.app": "App",
+};
