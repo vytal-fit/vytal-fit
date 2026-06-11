@@ -3,13 +3,16 @@
 import { useState } from "react";
 import { useDataStore } from "@/stores/data-store";
 import type { Coach } from "@vytal-fit/shared";
-import { Users, Plus, Calendar, TrendingUp, Trash2, X, Check } from "lucide-react";
+import { Users, Plus, Calendar, TrendingUp, Trash2, X, Check, AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { trpc } from "@/lib/trpc";
+import { rowsToCoaches } from "@/lib/reference-mappers";
 import { useI18n } from "@/lib/i18n";
 import { useToast } from "@/components/toast";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { EmptyState } from "@/components/empty-state";
+import { Skeleton } from "@/components/skeleton";
 
 const roleBadgeConfig: Record<Coach["role"], { labelKey: string; className: string }> = {
   head_coach: { labelKey: "staff.headCoach", className: "bg-vytal-green/10 text-vytal-green" },
@@ -100,9 +103,13 @@ function CoachCard({ coach, onDelete }: { coach: Coach; onDelete: (id: string, n
 export default function StaffPage() {
   const { t } = useI18n();
   const { toast } = useToast();
-  const storeCoaches = useDataStore((s) => s.coaches);
-  const addCoach = useDataStore((s) => s.addCoach);
-  const deleteCoach = useDataStore((s) => s.deleteCoach);
+
+  // ── tRPC: coach roster ──
+  const utils = trpc.useUtils();
+  const listQuery = trpc.coaches.list.useQuery();
+  const coaches = rowsToCoaches(listQuery.data ?? []);
+  const createCoach = trpc.coaches.create.useMutation();
+  const deleteCoach = trpc.coaches.delete.useMutation();
 
   const [showAddForm, setShowAddForm] = useState(false);
   const [addName, setAddName] = useState("");
@@ -111,36 +118,51 @@ export default function StaffPage() {
 
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
 
-  const headCoaches = storeCoaches.filter((c) => c.role === "head_coach").length;
-  const coachCount = storeCoaches.filter((c) => c.role === "coach").length;
-  const assistants = storeCoaches.filter((c) => c.role === "assistant").length;
+  const headCoaches = coaches.filter((c) => c.role === "head_coach").length;
+  const coachCount = coaches.filter((c) => c.role === "coach").length;
+  const assistants = coaches.filter((c) => c.role === "assistant").length;
 
   function handleAdd() {
     if (!addName.trim()) { toast(t("staff.nameRequired"), "error"); return; }
     if (!addEmail.trim()) { toast(t("staff.emailRequired"), "error"); return; }
-    addCoach({
-      organizationId: "org-1",
-      name: addName.trim(),
-      email: addEmail.trim(),
-      role: addRole,
-    });
-    toast(t("staff.coachAdded"), "success");
-    setAddName(""); setAddEmail(""); setAddRole("coach");
-    setShowAddForm(false);
+    createCoach.mutate(
+      { name: addName.trim(), email: addEmail.trim(), role: addRole },
+      {
+        onSuccess: () => {
+          void utils.coaches.list.invalidate();
+          toast(t("staff.coachAdded"), "success");
+          setAddName(""); setAddEmail(""); setAddRole("coach");
+          setShowAddForm(false);
+        },
+        onError: () => toast(t("ui.error"), "error"),
+      },
+    );
   }
 
   function handleConfirmDelete() {
     if (!deleteTarget) return;
-    const removed = storeCoaches.find((c) => c.id === deleteTarget.id);
-    deleteCoach(deleteTarget.id);
-    toast(t("staff.coachDeleted"), "success", {
-      action: removed
-        ? {
-            label: t("action.undo"),
-            onClick: () => addCoach({ organizationId: removed.organizationId, name: removed.name, email: removed.email, role: removed.role }),
-          }
-        : undefined,
-    });
+    const removed = coaches.find((c) => c.id === deleteTarget.id);
+    deleteCoach.mutate(
+      { id: deleteTarget.id },
+      {
+        onSuccess: () => {
+          void utils.coaches.list.invalidate();
+          toast(t("staff.coachDeleted"), "success", {
+            action: removed
+              ? {
+                  label: t("action.undo"),
+                  onClick: () =>
+                    createCoach.mutate(
+                      { name: removed.name, email: removed.email, role: removed.role, photo: removed.photo },
+                      { onSuccess: () => void utils.coaches.list.invalidate() },
+                    ),
+                }
+              : undefined,
+          });
+        },
+        onError: () => toast(t("ui.error"), "error"),
+      },
+    );
     setDeleteTarget(null);
   }
 
@@ -201,42 +223,62 @@ export default function StaffPage() {
                 <option value="assistant">{t("staff.assistantOption")}</option>
               </select>
             </div>
-            <button onClick={handleAdd} className="flex items-center gap-2 rounded-lg bg-vytal-green px-5 py-2 text-sm font-semibold text-vytal-bg hover:bg-vytal-green/90">
+            <button onClick={handleAdd} disabled={createCoach.isPending} className="flex items-center gap-2 rounded-lg bg-vytal-green px-5 py-2 text-sm font-semibold text-vytal-bg hover:bg-vytal-green/90 disabled:cursor-not-allowed disabled:opacity-50">
               <Check className="h-4 w-4" /> {t("action.save")}
             </button>
           </div>
         </div>
       )}
 
-      {/* Stats */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <div className="flex items-center gap-3 rounded-lg border border-vytal-border bg-vytal-card px-4 py-3">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-vytal-blue/10"><Users className="h-4 w-4 text-vytal-blue" /></div>
-          <div><p className="text-lg font-bold text-vytal-text">{storeCoaches.length}</p><p className="text-xs text-vytal-muted">{t("staff.totalStaff")}</p></div>
-        </div>
-        <div className="flex items-center gap-3 rounded-lg border border-vytal-border bg-vytal-card px-4 py-3">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-vytal-green/10"><Users className="h-4 w-4 text-vytal-green" /></div>
-          <div><p className="text-lg font-bold text-vytal-text">{headCoaches}</p><p className="text-xs text-vytal-muted">{t("staff.headCoaches")}</p></div>
-        </div>
-        <div className="flex items-center gap-3 rounded-lg border border-vytal-border bg-vytal-card px-4 py-3">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-vytal-blue/10"><Users className="h-4 w-4 text-vytal-blue" /></div>
-          <div><p className="text-lg font-bold text-vytal-text">{coachCount}</p><p className="text-xs text-vytal-muted">{t("staff.coaches")}</p></div>
-        </div>
-        <div className="flex items-center gap-3 rounded-lg border border-vytal-border bg-vytal-card px-4 py-3">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-vytal-amber/10"><Users className="h-4 w-4 text-vytal-amber" /></div>
-          <div><p className="text-lg font-bold text-vytal-text">{assistants}</p><p className="text-xs text-vytal-muted">{t("staff.assistants")}</p></div>
-        </div>
-      </div>
-
-      {/* Coach Grid */}
-      {storeCoaches.length > 0 ? (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {storeCoaches.map((coach) => (
-            <CoachCard key={coach.id} coach={coach} onDelete={(id, name) => setDeleteTarget({ id, name })} />
-          ))}
-        </div>
+      {listQuery.isError ? (
+        <EmptyState
+          icon={AlertTriangle}
+          title={t("ui.error")}
+          description={t("staff.loadError")}
+          action={{ label: t("billing.retry"), onClick: () => void listQuery.refetch() }}
+        />
+      ) : listQuery.isPending ? (
+        <>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            {Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-[58px] rounded-lg" />)}
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-[180px] rounded-xl" />)}
+          </div>
+        </>
       ) : (
-        <EmptyState icon={Users} title={t("staff.noStaff")} description={t("staff.noStaffDesc")} />
+        <>
+          {/* Stats */}
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <div className="flex items-center gap-3 rounded-lg border border-vytal-border bg-vytal-card px-4 py-3">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-vytal-blue/10"><Users className="h-4 w-4 text-vytal-blue" /></div>
+              <div><p className="text-lg font-bold text-vytal-text">{coaches.length}</p><p className="text-xs text-vytal-muted">{t("staff.totalStaff")}</p></div>
+            </div>
+            <div className="flex items-center gap-3 rounded-lg border border-vytal-border bg-vytal-card px-4 py-3">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-vytal-green/10"><Users className="h-4 w-4 text-vytal-green" /></div>
+              <div><p className="text-lg font-bold text-vytal-text">{headCoaches}</p><p className="text-xs text-vytal-muted">{t("staff.headCoaches")}</p></div>
+            </div>
+            <div className="flex items-center gap-3 rounded-lg border border-vytal-border bg-vytal-card px-4 py-3">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-vytal-blue/10"><Users className="h-4 w-4 text-vytal-blue" /></div>
+              <div><p className="text-lg font-bold text-vytal-text">{coachCount}</p><p className="text-xs text-vytal-muted">{t("staff.coaches")}</p></div>
+            </div>
+            <div className="flex items-center gap-3 rounded-lg border border-vytal-border bg-vytal-card px-4 py-3">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-vytal-amber/10"><Users className="h-4 w-4 text-vytal-amber" /></div>
+              <div><p className="text-lg font-bold text-vytal-text">{assistants}</p><p className="text-xs text-vytal-muted">{t("staff.assistants")}</p></div>
+            </div>
+          </div>
+
+          {/* Coach Grid */}
+          {coaches.length > 0 ? (
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {coaches.map((coach) => (
+                <CoachCard key={coach.id} coach={coach} onDelete={(id, name) => setDeleteTarget({ id, name })} />
+              ))}
+            </div>
+          ) : (
+            <EmptyState icon={Users} title={t("staff.noStaff")} description={t("staff.noStaffDesc")} />
+          )}
+        </>
       )}
 
       <ConfirmDialog

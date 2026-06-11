@@ -11,11 +11,15 @@ import {
   Trophy,
   ArrowUpRight,
   Flame,
+  AlertTriangle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useDataStore } from "@/stores/data-store";
+import { trpc } from "@/lib/trpc";
+import { rowToExercise, rowToPersonalRecord } from "@/lib/reference-mappers";
 import { useI18n } from "@/lib/i18n";
 import { Breadcrumbs } from "@/components/breadcrumbs";
+import { EmptyState } from "@/components/empty-state";
+import { Skeleton } from "@/components/skeleton";
 import type { ExerciseCategory } from "@vytal-fit/shared";
 
 const categoryColors: Record<ExerciseCategory, { bg: string; text: string }> = {
@@ -94,16 +98,58 @@ export default function ExerciseDetailPage() {
   const params = useParams();
   const id = params.id as string;
 
-  const exercises = useDataStore((s) => s.exercises);
-  const personalRecords = useDataStore((s) => s.personalRecords);
+  // ── tRPC: global exercise library (read-only) + PRs for this movement ──
+  const exerciseQuery = trpc.exercises.byId.useQuery({ id });
+  const prsQuery = trpc.personalRecords.list.useQuery({ exerciseId: id, limit: 100 });
 
-  const exercise = useMemo(() => exercises.find((e) => e.id === id), [exercises, id]);
+  const exercise = useMemo(
+    () => (exerciseQuery.data ? rowToExercise(exerciseQuery.data) : undefined),
+    [exerciseQuery.data],
+  );
   const exercisePRs = useMemo(
-    () => personalRecords.filter((pr) => pr.exerciseId === id),
-    [personalRecords, id]
+    () =>
+      exercise
+        ? (prsQuery.data?.items ?? []).map((row) => rowToPersonalRecord(row, exercise))
+        : [],
+    [prsQuery.data, exercise],
   );
 
-  if (!exercise) return notFound();
+  if (exerciseQuery.isError) {
+    if (exerciseQuery.error.data?.code === "NOT_FOUND") return notFound();
+    return (
+      <EmptyState
+        icon={AlertTriangle}
+        title={t("ui.error")}
+        description={t("exercises.loadError")}
+        action={{ label: t("billing.retry"), onClick: () => void exerciseQuery.refetch() }}
+      />
+    );
+  }
+
+  if (exerciseQuery.isPending || !exercise) {
+    return (
+      <div className="space-y-6">
+        <Skeleton className="h-5 w-48" />
+        <div className="flex items-start gap-4">
+          <Skeleton className="h-14 w-14 rounded-xl" />
+          <div className="space-y-2">
+            <Skeleton className="h-7 w-56" />
+            <Skeleton className="h-6 w-40 rounded-full" />
+          </div>
+        </div>
+        <div className="grid gap-6 lg:grid-cols-3">
+          <div className="space-y-6 lg:col-span-2">
+            <Skeleton className="h-64 rounded-xl" />
+            <Skeleton className="h-32 rounded-xl" />
+          </div>
+          <div className="space-y-6">
+            <Skeleton className="h-32 rounded-xl" />
+            <Skeleton className="h-40 rounded-xl" />
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const catColor = categoryColors[exercise.category];
   const description = generateDescription(exercise.name, exercise.category);

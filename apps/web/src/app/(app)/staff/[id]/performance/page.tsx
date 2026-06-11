@@ -1,6 +1,5 @@
 "use client";
 
-import { useDataStore } from "@/stores/data-store";
 import {
   ArrowLeft,
   Calendar,
@@ -9,13 +8,18 @@ import {
   Star,
   ThumbsUp,
   ThumbsDown,
+  AlertTriangle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { useParams } from "next/navigation";
+import { trpc } from "@/lib/trpc";
+import { rowToCoach } from "@/lib/reference-mappers";
 import { useI18n } from "@/lib/i18n";
 import { Breadcrumbs } from "@/components/breadcrumbs";
+import { EmptyState } from "@/components/empty-state";
+import { Skeleton } from "@/components/skeleton";
 import {
   LineChart,
   Line,
@@ -88,11 +92,36 @@ export default function CoachPerformancePage() {
   const { t } = useI18n();
   const params = useParams();
   const id = params.id as string;
-  const storeCoaches = useDataStore((s) => s.coaches);
-  const coach = storeCoaches.find((c) => c.id === id);
+  // ── tRPC: coach record ──
+  const coachQuery = trpc.coaches.byId.useQuery({ id });
+  const coach = coachQuery.data ? rowToCoach(coachQuery.data) : undefined;
 
-  if (!coach) {
-    notFound();
+  if (coachQuery.isError) {
+    if (coachQuery.error.data?.code === "NOT_FOUND") notFound();
+    return (
+      <EmptyState
+        icon={AlertTriangle}
+        title={t("ui.error")}
+        description={t("staff.loadError")}
+        action={{ label: t("billing.retry"), onClick: () => void coachQuery.refetch() }}
+      />
+    );
+  }
+
+  if (coachQuery.isPending || !coach) {
+    return (
+      <div className="space-y-6">
+        <Skeleton className="h-5 w-64" />
+        <Skeleton className="h-[90px] rounded-xl" />
+        <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+          {Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-[74px] rounded-xl" />)}
+        </div>
+        <div className="grid gap-6 lg:grid-cols-2">
+          <Skeleton className="h-[300px] rounded-xl" />
+          <Skeleton className="h-[300px] rounded-xl" />
+        </div>
+      </div>
+    );
   }
 
   const role = roleConfig[coach.role] ?? roleConfig.coach;
