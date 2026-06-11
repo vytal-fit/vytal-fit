@@ -57,31 +57,42 @@ test.describe("Admin Dashboard", () => {
     ).toBeVisible();
   });
 
-  test("navigates to members page", async ({ page }) => {
+  test("navigates to members page", async ({ page, isMobile }) => {
     // Sidebar uses expandable buttons; click the "Resumo" sub-link under Membros
-    // or navigate directly to /members
-    const membrosLink = page.getByRole("link", { name: /^resumo$|^members$/i }).first();
-    const directLink = page.getByRole("link", { name: /membros|members/i }).first();
+    // or navigate directly to /members. On mobile the nav lives in an
+    // off-screen drawer — open it via the hamburger first, then scope all
+    // locators to the visible <aside> so we never hit the hidden desktop nav.
+    if (isMobile) {
+      await page.locator("header button").first().click();
+    }
+    const sidebar = page.locator("aside").filter({ visible: true }).first();
+    const membrosLink = sidebar.getByRole("link", { name: /^resumo$|^members$/i }).first();
+    const directLink = sidebar.getByRole("link", { name: /membros|members/i }).first();
     if (await directLink.isVisible({ timeout: 2000 }).catch(() => false)) {
       await directLink.click();
     } else {
       // Expand the Membros section first
-      await page.getByRole("button", { name: /membros|members/i }).first().click();
+      await sidebar.getByRole("button", { name: /membros|members/i }).first().click();
       await membrosLink.click();
     }
     await page.waitForURL(/members/);
     await expect(page).toHaveURL(/members/);
   });
 
-  test("navigates to classes page", async ({ page }) => {
-    // Sidebar uses expandable buttons; click "Agenda" sub-link under Aulas
-    const agendaLink = page.getByRole("link", { name: /^agenda$|^schedule$/i }).first();
-    const directLink = page.getByRole("link", { name: /aulas|classes/i }).first();
+  test("navigates to classes page", async ({ page, isMobile }) => {
+    // Sidebar uses expandable buttons; click "Agenda" sub-link under Aulas.
+    // Same mobile-drawer handling as the members navigation test above.
+    if (isMobile) {
+      await page.locator("header button").first().click();
+    }
+    const sidebar = page.locator("aside").filter({ visible: true }).first();
+    const agendaLink = sidebar.getByRole("link", { name: /^agenda$|^schedule$/i }).first();
+    const directLink = sidebar.getByRole("link", { name: /aulas|classes/i }).first();
     if (await directLink.isVisible({ timeout: 2000 }).catch(() => false)) {
       await directLink.click();
     } else {
       // Expand the Aulas section first
-      await page.getByRole("button", { name: /aulas|classes/i }).first().click();
+      await sidebar.getByRole("button", { name: /aulas|classes/i }).first().click();
       await agendaLink.click();
     }
     await page.waitForURL(/classes/);

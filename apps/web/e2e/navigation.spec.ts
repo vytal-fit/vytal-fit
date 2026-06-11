@@ -8,19 +8,31 @@ test.describe("Admin Navigation", () => {
     });
   });
 
-  test("sidebar persists across pages", async ({ page }) => {
+  test("sidebar persists across pages", async ({ page, isMobile }) => {
+    // The org name lives in the sidebar org-switcher. On mobile the desktop
+    // sidebar is display:none and the nav lives in a drawer — open it via the
+    // hamburger (first header button) before asserting, on every page.
+    const expectOrgVisible = async () => {
+      if (isMobile) {
+        await page.locator("header button").first().click();
+      }
+      await expect(
+        page.getByText("CrossFit Aveiro").filter({ visible: true }).first()
+      ).toBeVisible();
+    };
+
     await page.goto("/dashboard");
-    await expect(page.getByText("CrossFit Aveiro").first()).toBeVisible();
+    await expectOrgVisible();
 
     // Navigate to members via direct URL (sidebar uses expandable buttons, not direct links)
     await page.goto("/members");
     await page.waitForURL(/members/);
-    await expect(page.getByText("CrossFit Aveiro").first()).toBeVisible();
+    await expectOrgVisible();
 
     // Navigate to classes
     await page.goto("/classes");
     await page.waitForURL(/classes/);
-    await expect(page.getByText("CrossFit Aveiro").first()).toBeVisible();
+    await expectOrgVisible();
   });
 
   test("active nav item is highlighted", async ({ page }) => {
