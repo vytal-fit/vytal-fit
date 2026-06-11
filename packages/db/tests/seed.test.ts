@@ -16,6 +16,7 @@ import { migrate } from "drizzle-orm/pglite/migrator";
 import { beforeAll, describe, expect, it } from "vitest";
 import { createAuth, type Auth } from "@vytal-fit/auth";
 import {
+  ORGANIZATION_CONFIGS,
   mockClasses,
   mockClassTypes,
   mockCoaches,
@@ -33,6 +34,7 @@ import {
 import type { Database } from "../src/client";
 import * as schema from "../src/schema";
 import {
+  CHECK_IN_SEED,
   CLASS_DATE_OFFSETS,
   DEMO_PASSWORD,
   DEMO_USERS,
@@ -72,7 +74,8 @@ async function countWhereOrg1(
     | typeof schema.subscriptions
     | typeof schema.leads
     | typeof schema.personalRecords
-    | typeof schema.notifications,
+    | typeof schema.notifications
+    | typeof schema.checkIns,
 ): Promise<number> {
   const rows = await db
     .select({ n: count() })
@@ -127,6 +130,11 @@ describe("seedDatabase — first run", () => {
     expect(firstRun.inserted.personalRecords).toBe(mockPersonalRecords.length);
     expect(firstRun.inserted.notifications).toBe(mockNotifications.length);
     expect(firstRun.inserted.bookings).toBeGreaterThan(0);
+    expect(firstRun.inserted.checkIns).toBe(CHECK_IN_SEED.length);
+  });
+
+  it("inserts one organization_settings row per demo org", () => {
+    expect(firstRun.inserted.organizationSettings).toBe(3);
   });
 });
 
@@ -192,9 +200,31 @@ describe("org-1 row counts", () => {
     expect(await countWhereOrg1(schema.notifications)).toBe(
       mockNotifications.length,
     );
+    expect(await countWhereOrg1(schema.checkIns)).toBe(CHECK_IN_SEED.length);
 
     const exerciseCount = await db.select({ n: count() }).from(schema.exercises);
     expect(exerciseCount[0]?.n).toBe(mockExercises.length);
+  });
+});
+
+describe("organization settings", () => {
+  it("seeds one row per org with the ORGANIZATION_CONFIGS feature defaults", async () => {
+    const rows = await db.select().from(schema.organizationSettings);
+    expect(rows).toHaveLength(3);
+    expect(rows.map((r) => r.organizationId).sort()).toEqual([
+      "org-1",
+      "org-2",
+      "org-3",
+    ]);
+
+    const org1 = rows.find((r) => r.organizationId === ORG_1);
+    expect(org1?.features).toEqual(ORGANIZATION_CONFIGS["crossfit_box"]?.features);
+    expect(org1?.branding.accentColor).toBe("#22c55e");
+    expect(org1?.publicSite.enabled).toBe(false);
+    expect(org1?.terminologyOverrides).toBeNull();
+
+    const org2 = rows.find((r) => r.organizationId === "org-2");
+    expect(org2?.features).toEqual(ORGANIZATION_CONFIGS["yoga_studio"]?.features);
   });
 });
 
@@ -231,7 +261,30 @@ describe("relative seed dates", () => {
     expect(rows.some((r) => r.date < isoDateFromToday(0))).toBe(true);
   });
 
-  it("re-running refreshes stale class/WOD dates without inserting rows", async () => {
+  it("check-ins span today plus the last 14 days", async () => {
+    const rows = await db
+      .select({
+        id: schema.checkIns.id,
+        checkedInAt: schema.checkIns.checkedInAt,
+        classId: schema.checkIns.classId,
+      })
+      .from(schema.checkIns)
+      .where(eq(schema.checkIns.organizationId, ORG_1));
+    expect(rows).toHaveLength(CHECK_IN_SEED.length);
+
+    const today = isoDateFromToday(0);
+    const dates = rows.map((r) => r.checkedInAt.toISOString().split("T")[0] as string);
+    // A few check-ins today (tied to today's classes), the rest history.
+    expect(dates.filter((d) => d === today).length).toBeGreaterThanOrEqual(3);
+    expect(dates.some((d) => d < today)).toBe(true);
+    expect(dates.every((d) => d <= today && d >= isoDateFromToday(-14))).toBe(true);
+    // Today's class-tied check-ins reference today's classes.
+    expect(rows.some((r) => r.classId === "cl-1")).toBe(true);
+    // Open-gym check-ins carry no class.
+    expect(rows.some((r) => r.classId === null)).toBe(true);
+  });
+
+  it("re-running refreshes stale class/WOD/check-in dates without inserting rows", async () => {
     // Simulate a database seeded long ago: pin rows to an ancient date.
     await db
       .update(schema.classes)
@@ -241,6 +294,10 @@ describe("relative seed dates", () => {
       .update(schema.wods)
       .set({ date: "2020-01-01" })
       .where(eq(schema.wods.id, "wod-1"));
+    await db
+      .update(schema.checkIns)
+      .set({ checkedInAt: new Date("2020-01-01T07:00:00.000Z") })
+      .where(eq(schema.checkIns.id, "checkin-1"));
 
     const thirdRun = await seedDatabase(db, { auth });
 
@@ -261,6 +318,12 @@ describe("relative seed dates", () => {
       .from(schema.wods)
       .where(eq(schema.wods.id, "wod-1"));
     expect(wod?.date).toBe(isoDateFromToday(WOD_DATE_OFFSETS["wod-1"] ?? 0));
+
+    const [checkIn] = await db
+      .select({ checkedInAt: schema.checkIns.checkedInAt })
+      .from(schema.checkIns)
+      .where(eq(schema.checkIns.id, "checkin-1"));
+    expect(checkIn?.checkedInAt.toISOString().split("T")[0]).toBe(isoDateFromToday(0));
   });
 });
 
