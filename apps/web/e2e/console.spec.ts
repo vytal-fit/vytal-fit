@@ -59,7 +59,12 @@ test.describe("Console: Home (authenticated)", () => {
   });
 
   test("console home shows athlete name", async ({ page }) => {
-    await expect(page.getByText(/Jose Fonte|Jose/i).first()).toBeVisible({ timeout: 5000 });
+    // Scope to <main>: the desktop sidebar also renders the athlete name but is
+    // display:none on mobile viewports, and an unscoped .first() resolves to it.
+    // The greeting hero renders the first name ("Jose") as the page heading.
+    await expect(
+      page.locator("main").getByText(/Jose Fonte|Jose/i).first()
+    ).toBeVisible({ timeout: 15000 });
   });
 
   test("console home shows today's WOD section", async ({ page }) => {
@@ -75,12 +80,14 @@ test.describe("Console: Schedule", () => {
   });
 
   test("console schedule shows day selector", async ({ page }) => {
-    // The schedule page renders a horizontal day strip (7 days)
-    // At least today's date button should be visible OR the short day label buttons
+    // The schedule page renders a horizontal day strip (7 days). The page
+    // streams a shell first and shows a client-mount spinner with ZERO buttons,
+    // so wait for the strip to actually render instead of counting immediately.
+    await expect(page.locator("main button").first()).toBeVisible({ timeout: 15000 });
     const buttonCount = await page.locator("button").count();
     expect(buttonCount).toBeGreaterThan(0);
     // There should be at least one button per day (7 days shown)
-    const dayStrip = page.locator("div").filter({ hasText: /seg|ter|qua|qui|sex|sáb|dom|mon|tue|wed|thu|fri|sat|sun/i }).first();
+    const dayStrip = page.locator("div").filter({ hasText: /hoje|today|seg|ter|qua|qui|sex|sáb|dom|mon|tue|wed|thu|fri|sat|sun/i }).first();
     await expect(dayStrip).toBeVisible({ timeout: 5000 });
   });
 
@@ -115,14 +122,12 @@ test.describe("Console: WOD", () => {
   });
 
   test("console wod shows timer", async ({ page }) => {
-    // Timer is rendered as a large clock / countdown display
-    // The play/pause button or time display should be visible
-    const timerEl = page.getByRole("button", { name: /play|pause|start|iniciar|parar/i }).first();
-    const clockEl = page.locator("text=/\\d{1,2}:\\d{2}/").first();
-    const timerVisible =
-      (await timerEl.isVisible({ timeout: 3000 }).catch(() => false)) ||
-      (await clockEl.isVisible({ timeout: 3000 }).catch(() => false));
-    expect(timerVisible).toBeTruthy();
+    // Timer is rendered as a large clock / countdown display once the client
+    // mounts and today's WOD resolves. Wait on either the start/pause control
+    // (PT "Iniciar"/"Pausa") or the mm:ss clock with a mount-tolerant timeout.
+    const timerEl = page.getByRole("button", { name: /play|pause|start|iniciar|parar|pausa/i });
+    const clockEl = page.locator("main").locator("text=/\\d{1,2}:\\d{2}/");
+    await expect(timerEl.or(clockEl).first()).toBeVisible({ timeout: 15000 });
   });
 
   test("console wod shows WOD list or empty state", async ({ page }) => {

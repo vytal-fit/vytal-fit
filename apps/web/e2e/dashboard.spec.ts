@@ -35,15 +35,26 @@ test.describe("Admin Dashboard", () => {
     await expect(main.getByText("WOD").first()).toBeVisible();
   });
 
-  test("sidebar navigation is visible", async ({ page }) => {
-    const sidebar = page.locator("aside, nav").first();
+  test("sidebar navigation is visible", async ({ page, isMobile }) => {
+    if (isMobile) {
+      // On mobile the desktop sidebar is display:none and the nav lives in a
+      // drawer — open it through the hamburger button (first header button).
+      await page.locator("header button").first().click();
+    }
+    const sidebar = page.locator("aside").filter({ visible: true }).first();
     await expect(sidebar.getByText(/dashboard/i).first()).toBeVisible();
     // PT: "Membros", EN: "Members"
     await expect(sidebar.getByText(/membros|members/i).first()).toBeVisible();
   });
 
-  test("sidebar shows active organization", async ({ page }) => {
-    await expect(page.getByText("CrossFit Aveiro").first()).toBeVisible();
+  test("sidebar shows active organization", async ({ page, isMobile }) => {
+    if (isMobile) {
+      // Org name renders in the sidebar org-switcher — open the mobile drawer.
+      await page.locator("header button").first().click();
+    }
+    await expect(
+      page.getByText("CrossFit Aveiro").filter({ visible: true }).first()
+    ).toBeVisible();
   });
 
   test("navigates to members page", async ({ page }) => {

@@ -27,43 +27,60 @@ test.describe("Admin - All Pages Load", () => {
   }
 });
 
+// The wods/crm/members/staff/exercises admin pages load their data through
+// tRPC (live DB) — content appears only after a query round-trip, which on a
+// cold dev server (route compile + DB) can take a while. Give those
+// assertions a realistic timeout instead of the 5s default.
+const TRPC_TIMEOUT = 20000;
+
 test.describe("Admin - WODs Page", () => {
   test("shows WOD cards with exercises", async ({ page }) => {
     await page.goto("/wods");
-    await expect(page.getByText("FRAN").first()).toBeVisible();
+    await expect(page.getByText("FRAN").first()).toBeVisible({ timeout: TRPC_TIMEOUT });
   });
 
   test("shows WOD type badges", async ({ page }) => {
     await page.goto("/wods");
     const main = page.locator("main");
-    await expect(main.getByText(/for time|amrap|emom|strength/i).first()).toBeVisible();
+    await expect(main.getByText(/for time|amrap|emom|strength/i).first()).toBeVisible({
+      timeout: TRPC_TIMEOUT,
+    });
   });
 });
 
 test.describe("Admin - CRM Pipeline", () => {
   test("shows pipeline columns", async ({ page }) => {
     await page.goto("/crm");
-    await expect(page.getByText(/lead/i).first()).toBeVisible();
+    await expect(page.getByText(/lead/i).first()).toBeVisible({ timeout: TRPC_TIMEOUT });
     await expect(page.getByText(/contact|contactado/i).first()).toBeVisible();
     await expect(page.getByText(/prospect|prospeto/i).first()).toBeVisible();
   });
 
   test("shows lead cards", async ({ page }) => {
     await page.goto("/crm");
-    await expect(page.getByText("Carlos Mendes").first()).toBeVisible();
+    await expect(page.getByText("Carlos Mendes").first()).toBeVisible({
+      timeout: TRPC_TIMEOUT,
+    });
   });
 });
 
 test.describe("Admin - Member Detail", () => {
   test("loads member by ID", async ({ page }) => {
     await page.goto("/members/m-1");
-    await expect(page.getByText("Jose Fonte").first()).toBeVisible();
+    // The member name renders as the page <h1> once members.byId resolves.
+    // (The header user menu also says "Jose Fonte" but is hidden on mobile
+    // viewports, so an unscoped getByText().first() resolves to a hidden node.)
+    await expect(
+      page.getByRole("heading", { name: /Jose Fonte/i }).first()
+    ).toBeVisible({ timeout: TRPC_TIMEOUT });
   });
 
   test("shows member stats", async ({ page }) => {
     await page.goto("/members/m-1");
     // PT: "Sequência", EN: "Streak"
-    await expect(page.getByText(/streak|sequ[êe]ncia|check-in/i).first()).toBeVisible();
+    await expect(
+      page.locator("main").getByText(/streak|sequ[êe]ncia|check-in/i).first()
+    ).toBeVisible({ timeout: TRPC_TIMEOUT });
   });
 });
 
@@ -77,16 +94,21 @@ test.describe("Admin - Financials", () => {
 test.describe("Admin - Communications", () => {
   test("shows tabs for News, Email, SMS", async ({ page }) => {
     await page.goto("/communications");
-    await expect(page.getByText(/news|notícias|noticias/i).first()).toBeVisible();
-    await expect(page.getByText(/email/i).first()).toBeVisible();
-    await expect(page.getByText(/sms/i).first()).toBeVisible();
+    // Scope to <main>: the sidebar nav also contains an "SMS" entry which is
+    // hidden on mobile viewports (collapsed/display:none sidebar).
+    const content = page.locator("main");
+    await expect(content.getByText(/news|notícias|noticias/i).first()).toBeVisible();
+    await expect(content.getByText(/email/i).first()).toBeVisible();
+    await expect(content.getByText(/sms/i).first()).toBeVisible();
   });
 });
 
 test.describe("Admin - Exercises", () => {
   test("shows exercise list", async ({ page }) => {
     await page.goto("/exercises");
-    await expect(page.getByText("Back Squat").first()).toBeVisible();
+    await expect(page.getByText("Back Squat").first()).toBeVisible({
+      timeout: TRPC_TIMEOUT,
+    });
     await expect(page.getByText("Deadlift").first()).toBeVisible();
   });
 
@@ -101,7 +123,9 @@ test.describe("Admin - Exercises", () => {
 test.describe("Admin - Staff", () => {
   test("shows coach cards", async ({ page }) => {
     await page.goto("/staff");
-    await expect(page.getByText("Andre Loureiro").first()).toBeVisible();
+    await expect(page.getByText("Andre Loureiro").first()).toBeVisible({
+      timeout: TRPC_TIMEOUT,
+    });
   });
 });
 
