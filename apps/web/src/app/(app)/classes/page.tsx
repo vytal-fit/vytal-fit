@@ -1,11 +1,16 @@
 "use client";
 
-import { useDataStore } from "@/stores/data-store";
+import { useMemo } from "react";
 import type { Class } from "@vytal-fit/shared";
-import { MapPin, User, Clock, Users, CalendarOff, CalendarDays, Plus, Copy, ListChecks } from "lucide-react";
+import { MapPin, User, Clock, Users, CalendarOff, CalendarDays, Plus, Copy, ListChecks, AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useI18n } from "@/lib/i18n";
+import { trpc } from "@/lib/trpc";
+import { rowsToClasses, type ClassCounts } from "@/lib/class-mapper";
+import { rowsToClassTypes, rowsToCoaches, rowsToLocations } from "@/lib/reference-mappers";
+import { Skeleton } from "@/components/skeleton";
+import { EmptyState } from "@/components/empty-state";
 
 function getEnrollmentStatus(enrolled: number, capacity: number) {
   const pct = (enrolled / capacity) * 100;
@@ -211,11 +216,50 @@ function ClassCard({ cls }: { cls: Class }) {
 
 export default function ClassesPage() {
   const { t } = useI18n();
-  const allClasses = useDataStore((s) => s.classes);
   const today = new Date().toISOString().split("T")[0];
-  const todayClasses = allClasses
-    .filter((c) => c.date === today)
-    .sort((a, b) => a.startTime.localeCompare(b.startTime));
+
+  // ── tRPC: today's classes + reference data for joins ──
+  const listQuery = trpc.classes.list.useQuery({ from: today, to: today });
+  const classTypesQuery = trpc.classTypes.list.useQuery();
+  const locationsQuery = trpc.locations.list.useQuery();
+  const coachesQuery = trpc.coaches.list.useQuery();
+
+  const activeRows = useMemo(
+    () => (listQuery.data ?? []).filter((row) => !row.cancelledAt),
+    [listQuery.data],
+  );
+
+  // Enrollment/waitlist counts are computed from bookings server-side and only
+  // exposed on `classes.byId` — fan out one query per (small) agenda row.
+  const countQueries = trpc.useQueries((q) =>
+    activeRows.map((row) => q.classes.byId({ id: row.id })),
+  );
+
+  const todayClasses = useMemo(() => {
+    const refs = {
+      classTypes: rowsToClassTypes(classTypesQuery.data ?? []),
+      locations: rowsToLocations(locationsQuery.data ?? []),
+      coaches: rowsToCoaches(coachesQuery.data ?? []),
+    };
+    const countsById = new Map<string, ClassCounts>();
+    for (const query of countQueries) {
+      if (query.data) {
+        countsById.set(query.data.id, {
+          enrolledCount: query.data.enrolledCount,
+          waitlistCount: query.data.waitlistCount,
+        });
+      }
+    }
+    return rowsToClasses(activeRows, refs, countsById).sort((a, b) =>
+      a.startTime.localeCompare(b.startTime),
+    );
+  }, [activeRows, classTypesQuery.data, locationsQuery.data, coachesQuery.data, countQueries]);
+
+  const isPending =
+    listQuery.isPending ||
+    classTypesQuery.isPending ||
+    locationsQuery.isPending ||
+    coachesQuery.isPending;
 
   const totalEnrolled = todayClasses.reduce((s, c) => s + c.enrolledCount, 0);
   const totalCapacity = todayClasses.reduce((s, c) => s + c.maxCapacity, 0);
@@ -295,7 +339,20 @@ export default function ClassesPage() {
       </div>
 
       {/* Class Cards Grid */}
-      {todayClasses.length > 0 ? (
+      {listQuery.isError ? (
+        <EmptyState
+          icon={AlertTriangle}
+          title={t("ui.error")}
+          description={t("classes.loadError")}
+          action={{ label: t("billing.retry"), onClick: () => void listQuery.refetch() }}
+        />
+      ) : isPending ? (
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <Skeleton key={i} className="h-[220px] rounded-xl" />
+          ))}
+        </div>
+      ) : todayClasses.length > 0 ? (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
           {todayClasses.map((cls) => (
             <ClassCard key={cls.id} cls={cls} />

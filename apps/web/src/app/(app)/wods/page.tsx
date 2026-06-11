@@ -1,13 +1,17 @@
 "use client";
 
-import { useDataStore } from "@/stores/data-store";
-import type { WOD, WODPart, WODType } from "@vytal-fit/shared";
-import { Dumbbell, Clock, Flame, Zap, Timer, Repeat, ChevronRight, Plus, Copy, Check, Pencil, X } from "lucide-react";
+import type { ClassType, WOD, WODPart, WODType } from "@vytal-fit/shared";
+import { Dumbbell, Clock, Flame, Zap, Timer, Repeat, ChevronRight, Plus, Copy, Check, Pencil, X, Send, AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useI18n } from "@/lib/i18n";
 import { useToast } from "@/components/toast";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
+import { trpc } from "@/lib/trpc";
+import { rowsToWODs, type WodRow } from "@/lib/wod-mapper";
+import { rowsToClassTypes, rowsToExercises } from "@/lib/reference-mappers";
+import { Skeleton } from "@/components/skeleton";
+import { EmptyState } from "@/components/empty-state";
 
 const wodTypeConfig: Record<
   WODType,
@@ -162,12 +166,21 @@ interface EditWODForm {
   timeCap: string;
 }
 
-function WODCard({ wod }: { wod: WOD }) {
+function WODCard({
+  wod,
+  classType,
+  onSave,
+  onPublish,
+  publishPending,
+}: {
+  wod: WOD;
+  classType: ClassType | undefined;
+  onSave: (wodId: string, updates: { title?: string; description?: string; parts: WODPart[] }) => void;
+  onPublish: (wodId: string) => void;
+  publishPending: boolean;
+}) {
   const { t } = useI18n();
   const { toast } = useToast();
-  const storeClassTypes = useDataStore((s) => s.classTypes);
-  const updateWOD = useDataStore((s) => s.updateWOD);
-  const classType = storeClassTypes.find((ct: { id: string }) => ct.id === wod.classTypeId);
   const mainPart = wod.parts.find(
     (p) => p.type !== "custom" && p.name !== "Warm Up" && p.name !== "Cool Down"
   );
@@ -217,14 +230,14 @@ function WODCard({ wod }: { wod: WOD }) {
       }
       return part;
     });
-    updateWOD(wod.id, {
+    onSave(wod.id, {
       title: editForm.title.trim() || undefined,
       description: editForm.description.trim() || undefined,
       parts: updatedParts,
     });
     toast(t("wods.wodSaved"), "success");
     setEditOpen(false);
-  }, [wod, editForm, updateWOD, toast, t]);
+  }, [wod, editForm, onSave, toast, t]);
 
   return (
     <>
@@ -239,12 +252,29 @@ function WODCard({ wod }: { wod: WOD }) {
                 </h3>
               )}
               <WODTypeBadge type={mainType} />
+              {!wod.publishedAt && (
+                <span className="inline-flex items-center rounded-full bg-vytal-amber/10 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-vytal-amber">
+                  {t("status.draft")}
+                </span>
+              )}
             </div>
             {wod.description && (
               <p className="mt-1 text-sm text-vytal-muted">{wod.description}</p>
             )}
           </div>
           <div className="flex items-center gap-2 shrink-0">
+            {/* Publish button (drafts only) */}
+            {!wod.publishedAt && (
+              <button
+                onClick={() => onPublish(wod.id)}
+                disabled={publishPending}
+                className="flex h-8 items-center gap-1.5 rounded-lg bg-vytal-green px-3 text-xs font-semibold text-vytal-bg transition-colors hover:bg-vytal-green/90 disabled:cursor-not-allowed disabled:opacity-50"
+                title={t("action.publish")}
+              >
+                <Send className="h-3 w-3" />
+                {t("action.publish")}
+              </button>
+            )}
             {/* Duration badge */}
             <div className="flex items-center gap-1 rounded-full bg-vytal-bg2 px-2.5 py-1 text-[10px] font-medium text-vytal-muted">
               <Clock className="h-3 w-3" />
@@ -413,10 +443,108 @@ function WODCard({ wod }: { wod: WOD }) {
 
 export default function WODsPage() {
   const { t } = useI18n();
-  const storeWODs = useDataStore((s) => s.wods);
+  const { toast } = useToast();
+  const utils = trpc.useUtils();
+
+  // ── tRPC: WODs + reference data for joins ──
+  const listQuery = trpc.wods.list.useQuery({});
+  const exercisesQuery = trpc.exercises.list.useQuery({});
+  const classTypesQuery = trpc.classTypes.list.useQuery();
+  const publishWod = trpc.wods.publish.useMutation();
+
+  const classTypes = useMemo(
+    () => rowsToClassTypes(classTypesQuery.data ?? []),
+    [classTypesQuery.data],
+  );
+
+  const wods = useMemo(() => {
+    const exercisesById = new Map(
+      rowsToExercises(exercisesQuery.data ?? []).map((ex) => [ex.id, ex]),
+    );
+    return rowsToWODs(listQuery.data ?? [], exercisesById);
+  }, [listQuery.data, exercisesQuery.data]);
+
+  const handlePublish = useCallback(
+    (wodId: string) => {
+      publishWod.mutate(
+        { id: wodId },
+        {
+          onSuccess: (published) => {
+            void utils.wods.list.invalidate();
+            toast(t("toast.wodPublished").replace("{date}", published.date), "success");
+          },
+          onError: () => toast(t("ui.error"), "error"),
+        },
+      );
+    },
+    [publishWod, utils, toast, t],
+  );
+
+  // There is no `wods.update` procedure yet — the edit modal updates the
+  // query cache (setData) so the UI reflects the change immediately.
+  const handleSave = useCallback(
+    (wodId: string, updates: { title?: string; description?: string; parts: WODPart[] }) => {
+      const storedParts: WodRow["parts"] = updates.parts.map((part) => ({
+        name: part.name,
+        type: part.type,
+        timeCap: part.timeCap,
+        rounds: part.rounds,
+        intervalSeconds: part.intervalSeconds,
+        exercises: part.exercises.map((ex) => ({
+          exerciseId: ex.exerciseId,
+          reps: ex.reps,
+          weight: ex.weight,
+          notes: ex.notes,
+        })),
+      }));
+      utils.wods.list.setData({}, (old) =>
+        old?.map((row) =>
+          row.id === wodId
+            ? {
+                ...row,
+                title: updates.title ?? null,
+                description: updates.description ?? null,
+                parts: storedParts,
+              }
+            : row,
+        ),
+      );
+    },
+    [utils],
+  );
+
+  const isPending = listQuery.isPending || exercisesQuery.isPending || classTypesQuery.isPending;
   const today = new Date().toISOString().split("T")[0];
-  const todayWODs = storeWODs.filter((w) => w.date === today);
-  const pastWODs = storeWODs.filter((w) => w.date !== today);
+  const todayWODs = wods.filter((w) => w.date === today);
+  const pastWODs = wods.filter((w) => w.date !== today);
+
+  const renderCard = (wod: WOD) => (
+    <WODCard
+      key={wod.id}
+      wod={wod}
+      classType={classTypes.find((ct) => ct.id === wod.classTypeId)}
+      onSave={handleSave}
+      onPublish={handlePublish}
+      publishPending={publishWod.isPending}
+    />
+  );
+
+  if (listQuery.isError) {
+    return (
+      <div className="space-y-8">
+        <div>
+          <h1 className="text-2xl font-bold text-vytal-text">{t("wods.title")}</h1>
+          <p className="mt-1 text-sm text-vytal-muted">{t("wods.todaysProgramming")}</p>
+        </div>
+        <EmptyState
+          icon={AlertTriangle}
+          title={t("ui.error")}
+          description={t("wods.loadError")}
+          action={{ label: t("billing.retry"), onClick: () => void listQuery.refetch() }}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">
@@ -466,12 +594,14 @@ export default function WODsPage() {
             {todayWODs.length} {todayWODs.length === 1 ? "WOD" : "WODs"}
           </span>
         </div>
-        {todayWODs.length > 0 ? (
+        {isPending ? (
           <div className="space-y-4">
-            {todayWODs.map((wod) => (
-              <WODCard key={wod.id} wod={wod} />
+            {Array.from({ length: 2 }).map((_, i) => (
+              <Skeleton key={i} className="h-[240px] w-full rounded-xl" />
             ))}
           </div>
+        ) : todayWODs.length > 0 ? (
+          <div className="space-y-4">{todayWODs.map(renderCard)}</div>
         ) : (
           <div className="rounded-xl border border-vytal-border bg-vytal-card p-8 text-center">
             <Dumbbell className="mx-auto h-8 w-8 text-vytal-muted" />
@@ -488,11 +618,7 @@ export default function WODsPage() {
           <h2 className="mb-4 text-lg font-semibold text-vytal-text">
             {t("wods.previous")}
           </h2>
-          <div className="space-y-4">
-            {pastWODs.map((wod) => (
-              <WODCard key={wod.id} wod={wod} />
-            ))}
-          </div>
+          <div className="space-y-4">{pastWODs.map(renderCard)}</div>
         </div>
       )}
     </div>

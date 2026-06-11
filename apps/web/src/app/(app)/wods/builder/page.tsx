@@ -17,11 +17,14 @@ import {
   GripVertical,
   Eye,
 } from "lucide-react";
-import { useDataStore } from "@/stores/data-store";
 import type { WODType, Exercise } from "@vytal-fit/shared";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/components/toast";
 import { useI18n } from "@/lib/i18n";
+import { useRouter } from "next/navigation";
+import { useMemo } from "react";
+import { trpc } from "@/lib/trpc";
+import { rowsToClassTypes, rowsToExercises } from "@/lib/reference-mappers";
 
 const PART_NAMES = ["Warm Up", "Skill", "Strength", "WOD", "Cool Down", "Custom"];
 
@@ -66,7 +69,11 @@ function ExerciseSearch({
   onSelect: (ex: Exercise) => void;
 }) {
   const { t } = useI18n();
-  const storeExercises = useDataStore((s) => s.exercises);
+  const exercisesQuery = trpc.exercises.list.useQuery({});
+  const storeExercises = useMemo(
+    () => rowsToExercises(exercisesQuery.data ?? []),
+    [exercisesQuery.data],
+  );
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
 
@@ -127,10 +134,19 @@ let partIdCounter = 0;
 
 export default function WODBuilderPage() {
   const { t } = useI18n();
-  const storeClassTypes = useDataStore((s) => s.classTypes);
+  const router = useRouter();
+  const utils = trpc.useUtils();
+  const classTypesQuery = trpc.classTypes.list.useQuery();
+  const storeClassTypes = useMemo(
+    () => rowsToClassTypes(classTypesQuery.data ?? []),
+    [classTypesQuery.data],
+  );
+  const createWod = trpc.wods.create.useMutation();
+  const publishWod = trpc.wods.publish.useMutation();
   const [title, setTitle] = useState("");
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
-  const [classTypeId, setClassTypeId] = useState(storeClassTypes[0]?.id ?? "ct-1");
+  const [classTypeId, setClassTypeId] = useState("");
+  const effectiveClassTypeId = classTypeId || storeClassTypes[0]?.id || "";
   const { toast } = useToast();
   const [parts, setParts] = useState<Part[]>([
     {
@@ -269,15 +285,62 @@ export default function WODBuilderPage() {
     [dragExercise]
   );
 
+  /** Builder part state → `wods.create` parts input (references only). */
+  function buildPartsInput() {
+    return parts.map((part) => {
+      const timeCap = parseInt(part.timeCap, 10);
+      const rounds = parseInt(part.rounds, 10);
+      return {
+        name: part.name,
+        type: part.type,
+        timeCap: Number.isFinite(timeCap) && timeCap > 0 ? timeCap : undefined,
+        rounds: Number.isFinite(rounds) && rounds > 0 ? rounds : undefined,
+        exercises: part.exercises.map((ex) => ({
+          exerciseId: ex.exerciseId,
+          reps: ex.reps.trim() || undefined,
+          weight: ex.weight.trim() || undefined,
+          notes: ex.notes.trim() || undefined,
+        })),
+      };
+    });
+  }
+
+  async function handleCreate(publish: boolean) {
+    if (!effectiveClassTypeId) {
+      toast(t("toast.requiredFields"), "error");
+      return;
+    }
+    try {
+      const created = await createWod.mutateAsync({
+        classTypeId: effectiveClassTypeId,
+        date,
+        title: title.trim() || undefined,
+        parts: buildPartsInput(),
+      });
+      if (publish) {
+        await publishWod.mutateAsync({ id: created.id });
+      }
+      void utils.wods.list.invalidate();
+      toast(
+        publish ? t("toast.wodPublished").replace("{date}", date) : t("toast.draftSaved"),
+        publish ? "success" : "info",
+      );
+      router.push("/wods");
+    } catch {
+      toast(t("ui.error"), "error");
+    }
+  }
+
   function handlePublish() {
-    toast(t("toast.wodPublished").replace("{date}", date), "success");
+    void handleCreate(true);
   }
 
   function handleSaveDraft() {
-    toast(t("toast.draftSaved"), "info");
+    void handleCreate(false);
   }
 
-  const selectedClassType = storeClassTypes.find((ct) => ct.id === classTypeId);
+  const savePending = createWod.isPending || publishWod.isPending;
+  const selectedClassType = storeClassTypes.find((ct) => ct.id === effectiveClassTypeId);
 
   // Determine which fields to show per type
   function showTimeCap(type: WODType) {
@@ -340,7 +403,7 @@ export default function WODBuilderPage() {
                   {t("wodBuilder.classType")}
                 </label>
                 <select
-                  value={classTypeId}
+                  value={effectiveClassTypeId}
                   onChange={(e) => setClassTypeId(e.target.value)}
                   className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 px-4 py-2.5 text-sm text-vytal-text focus:border-vytal-green/30 focus:outline-none focus:ring-1 focus:ring-vytal-green/20"
                 >
@@ -573,14 +636,16 @@ export default function WODBuilderPage() {
             <button
               type="button"
               onClick={handlePublish}
-              className="flex items-center gap-2 rounded-lg bg-vytal-green px-6 py-2.5 text-sm font-semibold text-vytal-bg transition-all hover:bg-vytal-green/90"
+              disabled={savePending}
+              className="flex items-center gap-2 rounded-lg bg-vytal-green px-6 py-2.5 text-sm font-semibold text-vytal-bg transition-all hover:bg-vytal-green/90 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {t("action.publish")}
             </button>
             <button
               type="button"
               onClick={handleSaveDraft}
-              className="flex items-center gap-2 rounded-lg border border-vytal-border px-6 py-2.5 text-sm font-medium text-vytal-text transition-colors hover:bg-vytal-bg3"
+              disabled={savePending}
+              className="flex items-center gap-2 rounded-lg border border-vytal-border px-6 py-2.5 text-sm font-medium text-vytal-text transition-colors hover:bg-vytal-bg3 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {t("action.saveDraft")}
             </button>

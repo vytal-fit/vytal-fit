@@ -1,8 +1,12 @@
 "use client";
 
 import { useMemo, useState, useCallback, useRef } from "react";
-import { useDataStore } from "@/stores/data-store";
 import type { Lead, LeadStage } from "@vytal-fit/shared";
+import { trpc } from "@/lib/trpc";
+import { rowsToLeads } from "@/lib/lead-mapper";
+import { rowsToCoaches } from "@/lib/reference-mappers";
+import { Skeleton } from "@/components/skeleton";
+import { EmptyState } from "@/components/empty-state";
 import {
   Phone,
   User,
@@ -25,6 +29,7 @@ import {
   BarChart3,
   Activity,
   Filter,
+  AlertTriangle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/components/toast";
@@ -436,9 +441,10 @@ function LeadCard({
   draggingId: string | null;
 }) {
   const { t } = useI18n();
-  const coaches = useDataStore((s) => s.coaches);
+  // React Query dedupes this across all cards into a single request.
+  const coachesQuery = trpc.coaches.list.useQuery();
   const coach = lead.assignedCoachId
-    ? coaches.find((c) => c.id === lead.assignedCoachId)
+    ? rowsToCoaches(coachesQuery.data ?? []).find((c) => c.id === lead.assignedCoachId)
     : null;
 
   const isDragging = draggingId === lead.id;
@@ -726,12 +732,38 @@ export default function CRMPage() {
   const { t } = useI18n();
   const [showAddForm, setShowAddForm] = useState(false);
   const [view, setView] = useState<CRMView>("pipeline");
-  const leads = useDataStore((s) => s.leads);
-  const storeAddLead = useDataStore((s) => s.addLead);
-  const storeMoveLead = useDataStore((s) => s.moveLead);
   const [draggingId, setDraggingId] = useState<string | null>(null);
   const [dropTarget, setDropTarget] = useState<LeadStage | null>(null);
   const { toast } = useToast();
+
+  // ── tRPC: pipeline leads + mutations ──
+  const utils = trpc.useUtils();
+  const listQuery = trpc.leads.list.useQuery({});
+  const createLead = trpc.leads.create.useMutation();
+  const updateStage = trpc.leads.updateStage.useMutation();
+
+  const leads = useMemo(() => rowsToLeads(listQuery.data ?? []), [listQuery.data]);
+
+  const moveLead = useCallback(
+    (leadId: string, targetStage: LeadStage, leadName: string) => {
+      updateStage.mutate(
+        { id: leadId, stage: targetStage },
+        {
+          onSuccess: () => {
+            void utils.leads.list.invalidate();
+            toast(
+              t("crm.movedTo")
+                .replace("{name}", leadName)
+                .replace("{stage}", t(stageConfig[targetStage].labelKey)),
+              "success",
+            );
+          },
+          onError: () => toast(t("ui.error"), "error"),
+        },
+      );
+    },
+    [updateStage, utils, toast, t],
+  );
 
   const grouped = useMemo(() => {
     const map: Record<LeadStage, Lead[]> = {
@@ -778,33 +810,36 @@ export default function CRMPage() {
       e.preventDefault();
       const leadId = e.dataTransfer.getData("text/plain");
       if (leadId) {
-        storeMoveLead(leadId, targetStage);
         const lead = leads.find((l) => l.id === leadId);
-        if (lead) {
-          toast(
-            t("crm.movedTo").replace("{name}", lead.name).replace("{stage}", t(stageConfig[targetStage].labelKey)),
-            "success"
-          );
+        if (lead && lead.stage !== targetStage) {
+          moveLead(leadId, targetStage, lead.name);
         }
       }
       setDraggingId(null);
       setDropTarget(null);
     },
-    [leads, toast, storeMoveLead, t]
+    [leads, moveLead]
   );
 
   const handleAddLead = useCallback(
     (name: string, phone: string, source: string) => {
-      storeAddLead({
-        organizationId: "org-1",
-        name,
-        phone: phone || undefined,
-        stage: "lead",
-        source: source || undefined,
-      });
-      toast(t("crm.leadAdded").replace("{name}", name), "success");
+      createLead.mutate(
+        {
+          name,
+          phone: phone || undefined,
+          stage: "lead",
+          source: source || undefined,
+        },
+        {
+          onSuccess: () => {
+            void utils.leads.list.invalidate();
+            toast(t("crm.leadAdded").replace("{name}", name), "success");
+          },
+          onError: () => toast(t("ui.error"), "error"),
+        },
+      );
     },
-    [toast, storeAddLead, t]
+    [createLead, utils, toast, t]
   );
 
   const handleCall = useCallback(
@@ -823,10 +858,9 @@ export default function CRMPage() {
 
   const handleBookTrial = useCallback(
     (lead: Lead) => {
-      storeMoveLead(lead.id, "trial_booked");
-      toast(t("crm.movedTo").replace("{name}", lead.name).replace("{stage}", t("crm.stage.trial_booked")), "success");
+      moveLead(lead.id, "trial_booked", lead.name);
     },
-    [toast, storeMoveLead, t]
+    [moveLead]
   );
 
   const importInputRef = useRef<HTMLInputElement>(null);
@@ -841,24 +875,31 @@ export default function CRMPage() {
         const lines = text.trim().split("\n").filter(Boolean);
         // Skip header row, parse name from first column
         const dataLines = lines.slice(1);
-        let added = 0;
+        const rows: { name: string; phone?: string; source?: string }[] = [];
         for (const line of dataLines) {
           const cols = line.split(",");
           const name = cols[0]?.replace(/"/g, "").trim();
           const phone = cols[1]?.replace(/"/g, "").trim() || undefined;
           const source = cols[2]?.replace(/"/g, "").trim() || undefined;
-          if (name) {
-            storeAddLead({ organizationId: "org-1", name, phone, stage: "lead", source });
-            added++;
-          }
+          if (name) rows.push({ name, phone, source });
         }
-        toast(t("crm.importStarted").replace("{count}", String(added)), "success");
+        void Promise.all(
+          rows.map((row) => createLead.mutateAsync({ ...row, stage: "lead" })),
+        )
+          .then(() => {
+            void utils.leads.list.invalidate();
+            toast(t("crm.importStarted").replace("{count}", String(rows.length)), "success");
+          })
+          .catch(() => {
+            void utils.leads.list.invalidate();
+            toast(t("ui.error"), "error");
+          });
       };
       reader.readAsText(file);
       // Reset so same file can be re-imported
       e.target.value = "";
     },
-    [toast, storeAddLead, t]
+    [toast, createLead, utils, t]
   );
 
   return (
@@ -1009,6 +1050,26 @@ export default function CRMPage() {
           </div>
 
           {/* Pipeline Board */}
+          {listQuery.isError ? (
+            <EmptyState
+              icon={AlertTriangle}
+              title={t("ui.error")}
+              description={t("crm.loadError")}
+              action={{ label: t("billing.retry"), onClick: () => void listQuery.refetch() }}
+            />
+          ) : listQuery.isPending ? (
+            <div className="overflow-x-auto pb-4">
+              <div className="flex gap-4" style={{ minWidth: "fit-content" }}>
+                {stages.map((stage) => (
+                  <div key={stage} className="min-w-[260px] space-y-3">
+                    <Skeleton className="h-10 w-full rounded-lg" />
+                    <Skeleton className="h-32 w-full rounded-lg" />
+                    <Skeleton className="h-32 w-full rounded-lg" />
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : (
           <div className="overflow-x-auto pb-4">
             <div className="flex gap-4" style={{ minWidth: "fit-content" }}>
               {stages.map((stage) => (
@@ -1031,6 +1092,7 @@ export default function CRMPage() {
               ))}
             </div>
           </div>
+          )}
         </>
       )}
 

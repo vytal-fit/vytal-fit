@@ -1371,6 +1371,7 @@ export const es: Record<string, string> = {
     "classes.liveNow": "EN VIVO",
     "classes.startingSoon": "PRONTO",
     "classes.openBoxNoCoach": "Open Box (sin coach)",
+    "classes.loadError": "No se pudieron cargar las clases. Inténtalo de nuevo.",
     "crm.totalLeads": "Total de Leads",
     "crm.activePipeline": "Pipeline Activo",
     "crm.conversionRate": "Tasa de Conversi\u00f3n",
@@ -1716,6 +1717,7 @@ export const es: Record<string, string> = {
     "staff.headCoachOption": "Head Coach",
     "staff.coachOption": "Coach",
     "staff.assistantOption": "Asistente",
+    "staff.loadError": "No se pudo cargar el equipo. Inténtelo de nuevo.",
 
     // Members page
     "members.addMember": "Añadir Miembro",
@@ -1742,6 +1744,8 @@ export const es: Record<string, string> = {
     "classTypes.name": "Nombre",
     "classTypes.abbreviation": "Abreviatura",
     "classTypes.color": "Color",
+    "classTypes.loadError": "No se pudieron cargar los tipos de clase. Inténtelo de nuevo.",
+    "classTypes.deleteInUse": "Este tipo de clase está siendo usado por clases o WODs y no se puede eliminar.",
 
     // Locations page
     "locations.nameRequired": "El nombre es obligatorio",
@@ -1749,6 +1753,8 @@ export const es: Record<string, string> = {
     "locations.locationUpdated": "Ubicación actualizada",
     "locations.locationDeleted": "Ubicación eliminada",
     "locations.confirmDelete": "¿Seguro que quiere eliminar",
+    "locations.loadError": "No se pudieron cargar los espacios. Inténtelo de nuevo.",
+    "locations.deleteInUse": "Este espacio está siendo usado por clases y no se puede eliminar.",
 
     // Financials page
     "financials.monthlyTarget": "Objetivo Mensual",
@@ -1762,6 +1768,7 @@ export const es: Record<string, string> = {
     "plans.planActivated": "Plan activado",
     "plans.planDeleted": "Plan eliminado",
     "plans.deletePlan": "Eliminar Plan",
+    "plans.loadError": "No se pudieron cargar los planes. Inténtalo de nuevo.",
     "plans.confirmDelete": "¿Seguro que quiere eliminar \"{name}\"? Los suscriptores activos necesitarán ser migrados.",
 
     // Reports page
@@ -1855,6 +1862,7 @@ export const es: Record<string, string> = {
     "wods.wodType": "Tipo",
     "wods.wodDate": "Fecha",
     "wods.saveChanges": "Guardar cambios",
+    "wods.loadError": "No se pudieron cargar los WODs. Inténtalo de nuevo.",
     "programming.wodUpdated": "WOD actualizado con \u00e9xito",
 
     // Dashboard extra
@@ -3199,12 +3207,14 @@ export const es: Record<string, string> = {
     "financials.invoiceCreated": "Factura {ref} creada y lista para descargar",
     "financials.exportedCsv": "Transacciones exportadas como CSV",
     "crm.importStarted": "Importación iniciada — {count} leads añadidos",
+    "crm.loadError": "No se pudieron cargar los leads. Inténtalo de nuevo.",
     "attendance.exportedCsv": "Informe de asistencia exportado como CSV",
     "sepa.fileUploaded": "Fichero {name} cargado correctamente",
     "sepa.fileInvalid": "Por favor selecciona un fichero XML o ZIP",
     "exercises.watchOnYouTube": "Ver en YouTube",
     "exercises.videoPlaceholder": "Demo de movimiento en YouTube",
     "exercises.videoSubtitle": "Haz clic para buscar la demo de {name}",
+    "exercises.loadError": "No se pudieron cargar los ejercicios. Inténtelo de nuevo.",
 
     // API Keys
     "apiKeys.title": "Claves API",
