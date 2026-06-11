@@ -43,10 +43,12 @@ test.describe("Public Org: @crossfit-aveiro/schedule", () => {
   });
 
   test("/@crossfit-aveiro/schedule shows classes", async ({ page }) => {
-    // The schedule page displays day buttons (Segunda, Terça, …)
-    await expect(page.getByText(/segunda|terça|quarta|quinta|sexta/i).first()).toBeVisible({
-      timeout: 6000,
-    });
+    // The schedule page displays day buttons. Full names ("Segunda") are
+    // hidden below the sm breakpoint where the abbreviation ("Seg") shows,
+    // so target the day buttons, which carry both labels.
+    await expect(
+      page.getByRole("button", { name: /\bseg\b|\bter\b|\bqua\b|segunda|terça|quarta/i }).first()
+    ).toBeVisible({ timeout: 6000 });
   });
 
   test("schedule page shows CrossFit class entries", async ({ page }) => {

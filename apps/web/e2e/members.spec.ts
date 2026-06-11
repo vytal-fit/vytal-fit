@@ -19,9 +19,13 @@ test.describe("Admin Members Page", () => {
   });
 
   test("displays member table with data", async ({ page }) => {
-    const main = page.locator("main");
-    await expect(main.getByText("Jose Fonte").first()).toBeVisible();
-    await expect(main.getByText("Ana Silva").first()).toBeVisible();
+    // Scope to the data table: the header user menu (inside <main>) also
+    // renders "Jose Fonte" but is hidden on mobile viewports. Rows load via
+    // tRPC, so wait for the table to replace the loading skeleton first.
+    const table = page.locator("main").locator("table").first();
+    await expect(table).toBeVisible({ timeout: 15000 });
+    await expect(table.getByText("Jose Fonte").first()).toBeVisible();
+    await expect(table.getByText("Ana Silva").first()).toBeVisible();
   });
 
   test("shows status badges", async ({ page }) => {
@@ -46,12 +50,14 @@ test.describe("Admin Members Page", () => {
 
   test("clearing search shows all members", async ({ page }) => {
     const search = page.getByPlaceholder(/pesquisar|search/i);
-    const main = page.locator("main");
+    // Scope to the data table (the header user menu also contains
+    // "Jose Fonte" and is hidden on mobile viewports).
+    const table = page.locator("main").locator("table").first();
     await search.fill("zzzzz");
     // Wait for filtering
     await page.waitForTimeout(300);
     await search.clear();
-    await expect(main.getByText("Jose Fonte").first()).toBeVisible();
-    await expect(main.getByText("Ana Silva").first()).toBeVisible();
+    await expect(table.getByText("Jose Fonte").first()).toBeVisible();
+    await expect(table.getByText("Ana Silva").first()).toBeVisible();
   });
 });

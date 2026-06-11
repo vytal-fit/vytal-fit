@@ -75,16 +75,29 @@ test.describe("Journey: Dashboard & Preferences", () => {
     const statCards = page.locator(".stat-card-hover");
     await expect(statCards.first()).toBeVisible({ timeout: 5000 });
 
-    // Verify org name appears in the subtitle
+    // Verify org name appears in the subtitle. Scope to <main>: the org name
+    // also renders in the desktop sidebar org-switcher, which is the first
+    // DOM match but display:none on mobile viewports.
     await expect(
-      page.getByText(/CrossFit Aveiro/i).first()
+      page.locator("main").getByText(/CrossFit Aveiro/i).first()
     ).toBeVisible();
   });
 
-  test("sidebar collapse changes layout", async ({ page }) => {
+  test("sidebar collapse changes layout", async ({ page, isMobile }) => {
     await page.goto("/dashboard");
     await expect(page).toHaveURL(/dashboard/);
     await closeRightSidebar(page);
+
+    if (isMobile) {
+      // There is no collapsible desktop sidebar on mobile — the nav lives in
+      // an off-screen drawer. The mobile equivalent of a layout change is the
+      // drawer sliding into the viewport when the hamburger is tapped.
+      const drawer = page.locator("aside").filter({ visible: true }).first();
+      await expect(drawer).not.toBeInViewport();
+      await page.locator("header button").first().click();
+      await expect(drawer).toBeInViewport();
+      return;
+    }
 
     // The left sidebar has a collapse toggle. Find the sidebar <aside> or <nav>.
     // On desktop, the sidebar has a toggle button (usually a chevron or hamburger).
