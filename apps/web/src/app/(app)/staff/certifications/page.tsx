@@ -13,7 +13,8 @@ import {
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/lib/i18n";
 import { useToast } from "@/components/toast";
-import { useDataStore } from "@/stores/data-store";
+import { trpc } from "@/lib/trpc";
+import { rowsToCoaches } from "@/lib/reference-mappers";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 
 interface Certification {
@@ -59,7 +60,9 @@ const statusConfig = {
 export default function CertificationsPage() {
   const { t } = useI18n();
   const { toast } = useToast();
-  const coaches = useDataStore((s) => s.coaches);
+  // ── tRPC: coach roster (certifications themselves are still mock data) ──
+  const coachesQuery = trpc.coaches.list.useQuery();
+  const coaches = rowsToCoaches(coachesQuery.data ?? []);
   const [certs, setCerts] = useState(mockCertifications);
   const [showAdd, setShowAdd] = useState(false);
   const [filterStatus, setFilterStatus] = useState<"all" | Certification["status"]>("all");

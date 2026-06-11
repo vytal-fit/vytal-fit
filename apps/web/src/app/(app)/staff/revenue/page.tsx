@@ -6,7 +6,9 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/lib/i18n";
-import { useDataStore, formatCurrency } from "@/stores/data-store";
+import { formatCurrency } from "@/stores/data-store";
+import { trpc } from "@/lib/trpc";
+import { rowsToCoaches } from "@/lib/reference-mappers";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 
 interface CoachRevenue {
@@ -33,7 +35,12 @@ const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun"];
 
 export default function CoachRevenuePage() {
   const { t } = useI18n();
-  const coaches = useDataStore((s) => s.coaches);
+  // ── tRPC: coach roster (revenue figures themselves are still mock data) ──
+  const coachesQuery = trpc.coaches.list.useQuery();
+  const coaches = useMemo(
+    () => rowsToCoaches(coachesQuery.data ?? []),
+    [coachesQuery.data],
+  );
   const [selectedMonth, setSelectedMonth] = useState("Jun");
 
   const revenueData: CoachRevenue[] = useMemo(() => {

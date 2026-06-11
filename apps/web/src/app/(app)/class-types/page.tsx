@@ -1,12 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { useDataStore } from "@/stores/data-store";
-import { Plus, Dumbbell, Pencil, Trash2, X, Check } from "lucide-react";
+import { Plus, Dumbbell, Pencil, Trash2, X, Check, AlertTriangle } from "lucide-react";
+import { trpc } from "@/lib/trpc";
+import { rowsToClassTypes } from "@/lib/reference-mappers";
 import { useI18n } from "@/lib/i18n";
 import { useToast } from "@/components/toast";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { EmptyState } from "@/components/empty-state";
+import { Skeleton } from "@/components/skeleton";
 
 const defaultColors = [
   "#22c55e", "#3b82f6", "#eab308", "#ef4444", "#8b5cf6",
@@ -16,10 +18,14 @@ const defaultColors = [
 export default function ClassTypesPage() {
   const { t } = useI18n();
   const { toast } = useToast();
-  const classTypes = useDataStore((s) => s.classTypes);
-  const addClassType = useDataStore((s) => s.addClassType);
-  const updateClassType = useDataStore((s) => s.updateClassType);
-  const deleteClassType = useDataStore((s) => s.deleteClassType);
+
+  // ── tRPC: class types (small reference data, no pagination) ──
+  const utils = trpc.useUtils();
+  const listQuery = trpc.classTypes.list.useQuery();
+  const classTypes = rowsToClassTypes(listQuery.data ?? []);
+  const createClassType = trpc.classTypes.create.useMutation();
+  const updateClassType = trpc.classTypes.update.useMutation();
+  const deleteClassType = trpc.classTypes.delete.useMutation();
 
   const [showAddForm, setShowAddForm] = useState(false);
   const [addName, setAddName] = useState("");
@@ -38,18 +44,25 @@ export default function ClassTypesPage() {
       toast(t("classTypes.nameRequired"), "error");
       return;
     }
-    addClassType({
-      organizationId: "org-1",
-      name: addName.trim(),
-      abbreviation: addAbbr.trim() || addName.trim().slice(0, 3).toUpperCase(),
-      color: addColor,
-      active: true,
-    });
-    toast(t("classTypes.classTypeAdded"), "success");
-    setAddName("");
-    setAddAbbr("");
-    setAddColor(defaultColors[0]);
-    setShowAddForm(false);
+    createClassType.mutate(
+      {
+        name: addName.trim(),
+        abbreviation: addAbbr.trim() || addName.trim().slice(0, 3).toUpperCase(),
+        color: addColor,
+        active: true,
+      },
+      {
+        onSuccess: () => {
+          void utils.classTypes.list.invalidate();
+          toast(t("classTypes.classTypeAdded"), "success");
+          setAddName("");
+          setAddAbbr("");
+          setAddColor(defaultColors[0]);
+          setShowAddForm(false);
+        },
+        onError: () => toast(t("ui.error"), "error"),
+      },
+    );
   }
 
   function startEdit(ct: { id: string; name: string; abbreviation: string; color: string }) {
@@ -61,27 +74,76 @@ export default function ClassTypesPage() {
 
   function handleSaveEdit() {
     if (!editingId || !editName.trim()) return;
-    updateClassType(editingId, {
-      name: editName.trim(),
-      abbreviation: editAbbr.trim(),
-      color: editColor,
-    });
-    toast(t("classTypes.classTypeUpdated"), "success");
-    setEditingId(null);
+    updateClassType.mutate(
+      {
+        id: editingId,
+        data: {
+          name: editName.trim(),
+          abbreviation: editAbbr.trim(),
+          color: editColor,
+        },
+      },
+      {
+        onSuccess: () => {
+          void utils.classTypes.list.invalidate();
+          toast(t("classTypes.classTypeUpdated"), "success");
+          setEditingId(null);
+        },
+        onError: () => toast(t("ui.error"), "error"),
+      },
+    );
+  }
+
+  function handleToggleActive(ct: { id: string; active: boolean }) {
+    updateClassType.mutate(
+      { id: ct.id, data: { active: !ct.active } },
+      {
+        onSuccess: () => {
+          void utils.classTypes.list.invalidate();
+          toast(
+            ct.active ? t("classTypes.classTypeDeactivated") : t("classTypes.classTypeActivated"),
+            "success",
+          );
+        },
+        onError: () => toast(t("ui.error"), "error"),
+      },
+    );
   }
 
   function handleConfirmDelete() {
     if (!deleteTarget) return;
     const removed = classTypes.find((ct) => ct.id === deleteTarget.id);
-    deleteClassType(deleteTarget.id);
-    toast(t("classTypes.classTypeDeleted"), "success", {
-      action: removed
-        ? {
-            label: t("action.undo"),
-            onClick: () => addClassType({ organizationId: removed.organizationId, name: removed.name, abbreviation: removed.abbreviation, color: removed.color, active: removed.active }),
-          }
-        : undefined,
-    });
+    deleteClassType.mutate(
+      { id: deleteTarget.id },
+      {
+        onSuccess: () => {
+          void utils.classTypes.list.invalidate();
+          toast(t("classTypes.classTypeDeleted"), "success", {
+            action: removed
+              ? {
+                  label: t("action.undo"),
+                  onClick: () =>
+                    createClassType.mutate(
+                      {
+                        name: removed.name,
+                        abbreviation: removed.abbreviation,
+                        color: removed.color,
+                        icon: removed.icon,
+                        active: removed.active,
+                      },
+                      { onSuccess: () => void utils.classTypes.list.invalidate() },
+                    ),
+                }
+              : undefined,
+          });
+        },
+        onError: (err) =>
+          toast(
+            err.data?.code === "CONFLICT" ? t("classTypes.deleteInUse") : t("ui.error"),
+            "error",
+          ),
+      },
+    );
     setDeleteTarget(null);
   }
 
@@ -124,11 +186,11 @@ export default function ClassTypesPage() {
               <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("classTypes.color")}</label>
               <div className="flex items-center gap-1.5">
                 {defaultColors.map((c) => (
-                  <button key={c} type="button" onClick={() => setAddColor(c)} className={`h-7 w-7 rounded-full border-2 transition-all ${addColor === c ? "border-white scale-110" : "border-transparent"}`} style={{ backgroundColor: c }} />
+                  <button key={c} type="button" onClick={() => setAddColor(c)} className={`h-7 w-7 rounded-full border-2 transition-all ${addColor === c ? "border-vytal-text scale-110" : "border-transparent"}`} style={{ backgroundColor: c }} />
                 ))}
               </div>
             </div>
-            <button onClick={handleAdd} className="flex items-center gap-2 rounded-lg bg-vytal-green px-5 py-2 text-sm font-semibold text-vytal-bg transition-colors hover:bg-vytal-green/90">
+            <button onClick={handleAdd} disabled={createClassType.isPending} className="flex items-center gap-2 rounded-lg bg-vytal-green px-5 py-2 text-sm font-semibold text-vytal-bg transition-colors hover:bg-vytal-green/90 disabled:cursor-not-allowed disabled:opacity-50">
               <Check className="h-4 w-4" />
               {t("action.save")}
             </button>
@@ -137,7 +199,20 @@ export default function ClassTypesPage() {
       )}
 
       {/* Table */}
-      {classTypes.length === 0 ? (
+      {listQuery.isError ? (
+        <EmptyState
+          icon={AlertTriangle}
+          title={t("ui.error")}
+          description={t("classTypes.loadError")}
+          action={{ label: t("billing.retry"), onClick: () => void listQuery.refetch() }}
+        />
+      ) : listQuery.isPending ? (
+        <div className="space-y-2 rounded-xl border border-vytal-border bg-vytal-card p-4">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <Skeleton key={i} className="h-12 w-full" />
+          ))}
+        </div>
+      ) : classTypes.length === 0 ? (
         <EmptyState
           icon={Dumbbell}
           title={t("classTypes.noClassTypes")}
@@ -164,7 +239,7 @@ export default function ClassTypesPage() {
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-1">
                           {defaultColors.map((c) => (
-                            <button key={c} type="button" onClick={() => setEditColor(c)} className={`h-5 w-5 rounded-full border-2 transition-all ${editColor === c ? "border-white scale-110" : "border-transparent"}`} style={{ backgroundColor: c }} />
+                            <button key={c} type="button" onClick={() => setEditColor(c)} className={`h-5 w-5 rounded-full border-2 transition-all ${editColor === c ? "border-vytal-text scale-110" : "border-transparent"}`} style={{ backgroundColor: c }} />
                           ))}
                         </div>
                       </td>
@@ -178,7 +253,7 @@ export default function ClassTypesPage() {
                       <td />
                       <td className="px-4 py-3 text-right">
                         <div className="flex items-center justify-end gap-2">
-                          <button onClick={handleSaveEdit} className="inline-flex items-center gap-1.5 rounded-lg bg-vytal-green px-3 py-1.5 text-xs font-semibold text-vytal-bg hover:bg-vytal-green/90">
+                          <button onClick={handleSaveEdit} disabled={updateClassType.isPending} className="inline-flex items-center gap-1.5 rounded-lg bg-vytal-green px-3 py-1.5 text-xs font-semibold text-vytal-bg hover:bg-vytal-green/90 disabled:cursor-not-allowed disabled:opacity-50">
                             <Check className="h-3 w-3" /> {t("action.save")}
                           </button>
                           <button onClick={() => setEditingId(null)} className="inline-flex items-center gap-1.5 rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-1.5 text-xs text-vytal-text hover:bg-vytal-bg3">
@@ -198,10 +273,7 @@ export default function ClassTypesPage() {
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">
                           <div
-                            onClick={() => {
-                              updateClassType(ct.id, { active: !ct.active });
-                              toast(ct.active ? t("classTypes.classTypeDeactivated") : t("classTypes.classTypeActivated"), "success");
-                            }}
+                            onClick={() => handleToggleActive(ct)}
                             className={`relative inline-flex h-5 w-9 cursor-pointer items-center rounded-full transition-colors ${ct.active ? "bg-vytal-green" : "bg-vytal-bg3"}`}
                           >
                             <span className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform ${ct.active ? "translate-x-4" : "translate-x-0.5"}`} />

@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { useDataStore, formatCurrency } from "@/stores/data-store";
+import { formatCurrency } from "@/stores/data-store";
+import { trpc } from "@/lib/trpc";
+import { rowsToCoaches } from "@/lib/reference-mappers";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { useI18n } from "@/lib/i18n";
 import { useToast } from "@/components/toast";
@@ -52,7 +54,9 @@ const months = [
 export default function StaffPayrollPage() {
   const { t } = useI18n();
   const { toast } = useToast();
-  const coaches = useDataStore((s) => s.coaches);
+  // ── tRPC: coach roster (payroll figures themselves are still mock data) ──
+  const coachesQuery = trpc.coaches.list.useQuery();
+  const coaches = rowsToCoaches(coachesQuery.data ?? []);
 
   const [selectedMonth, setSelectedMonth] = useState("2026-06");
   const [paidCoaches, setPaidCoaches] = useState<Set<string>>(new Set());

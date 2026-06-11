@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import { useDataStore } from "@/stores/data-store";
+import { useState, useMemo, useEffect } from "react";
+import { trpc } from "@/lib/trpc";
+import { rowsToCoaches } from "@/lib/reference-mappers";
 import { useI18n } from "@/lib/i18n";
 import { useToast } from "@/components/toast";
 import { Breadcrumbs } from "@/components/breadcrumbs";
@@ -121,7 +122,12 @@ function generateMockShifts(): Record<string, Shift[]> {
 export default function StaffSchedulePage() {
   const { t } = useI18n();
   const { toast } = useToast();
-  const storeCoaches = useDataStore((s) => s.coaches);
+  // ── tRPC: coach roster (shift assignments themselves are still mock data) ──
+  const coachesQuery = trpc.coaches.list.useQuery();
+  const storeCoaches = useMemo(
+    () => rowsToCoaches(coachesQuery.data ?? []),
+    [coachesQuery.data],
+  );
 
   const [weekOffset, setWeekOffset] = useState(0);
   const [addShiftCell, setAddShiftCell] = useState<{
@@ -141,9 +147,12 @@ export default function StaffSchedulePage() {
     return addDays(getMonday(today), weekOffset * 7);
   }, [weekOffset]);
 
-  // Initialize schedules
-  const [schedules, setSchedules] = useState<CoachSchedule[]>(() =>
-    storeCoaches.map((coach, ci) => {
+  // Initialize schedules once the coach roster arrives (mock shift patterns).
+  const [schedules, setSchedules] = useState<CoachSchedule[]>([]);
+  useEffect(() => {
+    setSchedules((prev) => {
+      if (prev.length > 0 || storeCoaches.length === 0) return prev;
+      return storeCoaches.map((coach, ci) => {
       const base = generateMockShifts();
       // Vary shifts per coach
       if (ci === 1) {
@@ -189,13 +198,14 @@ export default function StaffSchedulePage() {
         base["3"] = [];
         base["5"] = [];
       }
-      return {
-        coachId: coach.id,
-        coachName: coach.name,
-        shifts: base,
-      };
-    })
-  );
+        return {
+          coachId: coach.id,
+          coachName: coach.name,
+          shifts: base,
+        };
+      });
+    });
+  }, [storeCoaches]);
 
   function handleAddShift() {
     if (!addShiftCell) return;

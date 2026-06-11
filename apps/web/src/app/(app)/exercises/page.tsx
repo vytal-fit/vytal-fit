@@ -4,12 +4,15 @@ import { useState, useMemo } from "react";
 import { useDataStore } from "@/stores/data-store";
 import type { ExerciseCategory } from "@vytal-fit/shared";
 import Link from "next/link";
-import { Search, Dumbbell, Plus, Pencil, Trash2, X, Check } from "lucide-react";
+import { Search, Dumbbell, Plus, Pencil, Trash2, X, Check, AlertTriangle } from "lucide-react";
+import { trpc } from "@/lib/trpc";
+import { rowsToExercises } from "@/lib/reference-mappers";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/lib/i18n";
 import { useToast } from "@/components/toast";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { EmptyState } from "@/components/empty-state";
+import { Skeleton } from "@/components/skeleton";
 
 const categoryConfig: Record<ExerciseCategory, { labelKey: string; className: string }> = {
   weightlifting: { labelKey: "exercises.category.weightlifting", className: "bg-vytal-amber/10 text-vytal-amber" },
@@ -25,7 +28,19 @@ const categories: ExerciseCategory[] = ["weightlifting", "gymnastics", "cardio",
 export default function ExercisesPage() {
   const { t } = useI18n();
   const { toast } = useToast();
-  const storeExercises = useDataStore((s) => s.exercises);
+
+  // ── tRPC: global exercise library (read-only router) ──
+  // Category filtering/search stays client-side so the pill counts work off a
+  // single fetch, mirroring the previous store behaviour.
+  const listQuery = trpc.exercises.list.useQuery({});
+  const fetchedExercises = useMemo(
+    () => rowsToExercises(listQuery.data ?? []),
+    [listQuery.data],
+  );
+
+  // NOTE: the exercises router is read-only (global library, no org scope).
+  // Create/edit/delete below still talk to the local mock store and do NOT
+  // affect the DB-backed list shown on this page.
   const addExercise = useDataStore((s) => s.addExercise);
   const updateExercise = useDataStore((s) => s.updateExercise);
   const deleteExercise = useDataStore((s) => s.deleteExercise);
@@ -51,7 +66,7 @@ export default function ExercisesPage() {
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
 
   const exercises = useMemo(() => {
-    let filtered = storeExercises;
+    let filtered = fetchedExercises;
     if (activeCategory !== "all") {
       filtered = filtered.filter((e) => e.category === activeCategory);
     }
@@ -60,7 +75,7 @@ export default function ExercisesPage() {
       filtered = filtered.filter((e) => e.name.toLowerCase().includes(q));
     }
     return filtered;
-  }, [search, activeCategory, storeExercises]);
+  }, [search, activeCategory, fetchedExercises]);
 
   function handleAdd() {
     if (!addName.trim()) { toast(t("exercises.nameRequired"), "error"); return; }
@@ -97,7 +112,7 @@ export default function ExercisesPage() {
 
   function handleConfirmDelete() {
     if (!deleteTarget) return;
-    const removed = storeExercises.find((e) => e.id === deleteTarget.id);
+    const removed = fetchedExercises.find((e) => e.id === deleteTarget.id);
     deleteExercise(deleteTarget.id);
     toast(t("exercises.exerciseDeleted"), "success", {
       action: removed
@@ -119,7 +134,7 @@ export default function ExercisesPage() {
       <div className="mb-8 flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-vytal-text">{t("exercises.title")}</h1>
-          <p className="mt-1 text-sm text-vytal-muted">{t("exercises.subtitle")} ({storeExercises.length})</p>
+          <p className="mt-1 text-sm text-vytal-muted">{t("exercises.subtitle")} ({fetchedExercises.length})</p>
         </div>
         <button
           onClick={() => setShowAddForm((v) => !v)}
@@ -162,111 +177,132 @@ export default function ExercisesPage() {
         </div>
       )}
 
-      {/* Category Filters */}
-      <div className="flex flex-wrap gap-2">
-        <button onClick={() => setActiveCategory("all")} className={cn("rounded-full px-3.5 py-1.5 text-xs font-medium transition-colors", activeCategory === "all" ? "bg-vytal-green/10 text-vytal-green" : "bg-vytal-bg2 text-vytal-muted hover:text-vytal-text")}>
-          {t("expenses.all")}
-        </button>
-        {categories.map((cat) => {
-          const config = categoryConfig[cat];
-          const count = storeExercises.filter((e) => e.category === cat).length;
-          return (
-            <button key={cat} onClick={() => setActiveCategory(cat)} className={cn("rounded-full px-3.5 py-1.5 text-xs font-medium transition-colors", activeCategory === cat ? config.className : "bg-vytal-bg2 text-vytal-muted hover:text-vytal-text")}>
-              {t(config.labelKey)} ({count})
-            </button>
-          );
-        })}
-      </div>
-
-      {/* Search */}
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-vytal-muted" />
-        <input type="text" placeholder={t("exercises.searchPlaceholder")} value={search} onChange={(e) => setSearch(e.target.value)} className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 py-2.5 pl-10 pr-4 text-sm text-vytal-text placeholder:text-vytal-muted focus:border-vytal-green/30 focus:outline-none focus:ring-1 focus:ring-vytal-green/20" />
-      </div>
-
-      {/* Exercise Grid */}
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        {exercises.map((exercise) => {
-          const catConfig = categoryConfig[exercise.category];
-          const isEditing = editingId === exercise.id;
-
-          if (isEditing) {
-            return (
-              <div key={exercise.id} className="rounded-xl border border-vytal-green/30 bg-vytal-green/5 p-4">
-                <div className="space-y-3">
-                  <input type="text" value={editName} onChange={(e) => setEditName(e.target.value)} className={inputClass} autoFocus />
-                  <select value={editCategory} onChange={(e) => setEditCategory(e.target.value as ExerciseCategory)} className={inputClass}>
-                    {categories.map((c) => <option key={c} value={c}>{t(categoryConfig[c].labelKey)}</option>)}
-                  </select>
-                  <input type="text" value={editEquipment} onChange={(e) => setEditEquipment(e.target.value)} placeholder={t("exercises.equipmentComma")} className={inputClass} />
-                  <input type="text" value={editMuscleGroups} onChange={(e) => setEditMuscleGroups(e.target.value)} placeholder={t("exercises.muscleGroupsComma")} className={inputClass} />
-                  <div className="flex gap-2">
-                    <button onClick={handleSaveEdit} className="flex-1 flex items-center justify-center gap-1.5 rounded-lg bg-vytal-green px-3 py-1.5 text-xs font-semibold text-vytal-bg hover:bg-vytal-green/90">
-                      <Check className="h-3 w-3" /> {t("action.save")}
-                    </button>
-                    <button onClick={() => setEditingId(null)} className="flex-1 flex items-center justify-center gap-1.5 rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-1.5 text-xs text-vytal-text hover:bg-vytal-bg3">
-                      <X className="h-3 w-3" /> {t("action.cancel")}
-                    </button>
-                  </div>
-                </div>
-              </div>
-            );
-          }
-
-          return (
-            <div key={exercise.id} className="rounded-xl border border-vytal-border bg-vytal-card p-4 card-interactive transition-colors hover:border-[rgba(34,197,94,0.22)]">
-              <div className="mb-3 flex items-start justify-between">
-                <Link href={`/exercises/${exercise.id}`} className="flex items-center gap-2 hover:opacity-80">
-                  <Dumbbell className="h-4 w-4 text-vytal-green" />
-                  <span className="text-sm font-semibold text-vytal-text">{exercise.name}</span>
-                </Link>
-                <div className="flex items-center gap-1">
-                  <button onClick={() => startEdit(exercise)} className="rounded p-1 text-vytal-muted transition-colors hover:bg-vytal-bg3 hover:text-vytal-text">
-                    <Pencil className="h-3 w-3" />
-                  </button>
-                  <button onClick={() => setDeleteTarget({ id: exercise.id, name: exercise.name })} className="rounded p-1 text-vytal-muted transition-colors hover:bg-vytal-red/10 hover:text-vytal-red">
-                    <Trash2 className="h-3 w-3" />
-                  </button>
-                </div>
-              </div>
-
-              <div className="mb-3">
-                <span className={cn("inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-medium", catConfig.className)}>
-                  {t(catConfig.labelKey)}
-                </span>
-              </div>
-
-              {exercise.equipment && exercise.equipment.length > 0 && (
-                <div className="mb-2 flex flex-wrap gap-1">
-                  {exercise.equipment.map((eq) => (
-                    <span key={eq} className="rounded bg-vytal-bg3 px-1.5 py-0.5 text-[10px] text-vytal-muted">{eq}</span>
-                  ))}
-                </div>
-              )}
-
-              {exercise.muscleGroups && exercise.muscleGroups.length > 0 && (
-                <div className="flex flex-wrap gap-1">
-                  {exercise.muscleGroups.map((mg) => (
-                    <span key={mg} className="rounded border border-vytal-border px-1.5 py-0.5 text-[10px] text-vytal-muted">{mg}</span>
-                  ))}
-                </div>
-              )}
-            </div>
-          );
-        })}
-      </div>
-
-      {exercises.length === 0 && (
+      {listQuery.isError ? (
         <EmptyState
-          icon={Dumbbell}
-          title={t("exercises.noResults")}
-          description={search ? t("exercises.noResultsFor").replace("{query}", search) : t("exercises.noResultsInCategory")}
-          action={
-            search || activeCategory !== "all"
-              ? { label: t("exercises.clearFilters"), onClick: () => { setSearch(""); setActiveCategory("all"); } }
-              : undefined
-          }
+          icon={AlertTriangle}
+          title={t("ui.error")}
+          description={t("exercises.loadError")}
+          action={{ label: t("billing.retry"), onClick: () => void listQuery.refetch() }}
         />
+      ) : listQuery.isPending ? (
+        <>
+          <div className="flex flex-wrap gap-2">
+            {Array.from({ length: 7 }).map((_, i) => <Skeleton key={i} className="h-7 w-24 rounded-full" />)}
+          </div>
+          <Skeleton className="h-10 w-full rounded-lg" />
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {Array.from({ length: 8 }).map((_, i) => <Skeleton key={i} className="h-[140px] rounded-xl" />)}
+          </div>
+        </>
+      ) : (
+        <>
+          {/* Category Filters */}
+          <div className="flex flex-wrap gap-2">
+            <button onClick={() => setActiveCategory("all")} className={cn("rounded-full px-3.5 py-1.5 text-xs font-medium transition-colors", activeCategory === "all" ? "bg-vytal-green/10 text-vytal-green" : "bg-vytal-bg2 text-vytal-muted hover:text-vytal-text")}>
+              {t("expenses.all")}
+            </button>
+            {categories.map((cat) => {
+              const config = categoryConfig[cat];
+              const count = fetchedExercises.filter((e) => e.category === cat).length;
+              return (
+                <button key={cat} onClick={() => setActiveCategory(cat)} className={cn("rounded-full px-3.5 py-1.5 text-xs font-medium transition-colors", activeCategory === cat ? config.className : "bg-vytal-bg2 text-vytal-muted hover:text-vytal-text")}>
+                  {t(config.labelKey)} ({count})
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Search */}
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-vytal-muted" />
+            <input type="text" placeholder={t("exercises.searchPlaceholder")} value={search} onChange={(e) => setSearch(e.target.value)} className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 py-2.5 pl-10 pr-4 text-sm text-vytal-text placeholder:text-vytal-muted focus:border-vytal-green/30 focus:outline-none focus:ring-1 focus:ring-vytal-green/20" />
+          </div>
+
+          {/* Exercise Grid */}
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {exercises.map((exercise) => {
+              const catConfig = categoryConfig[exercise.category];
+              const isEditing = editingId === exercise.id;
+
+              if (isEditing) {
+                return (
+                  <div key={exercise.id} className="rounded-xl border border-vytal-green/30 bg-vytal-green/5 p-4">
+                    <div className="space-y-3">
+                      <input type="text" value={editName} onChange={(e) => setEditName(e.target.value)} className={inputClass} autoFocus />
+                      <select value={editCategory} onChange={(e) => setEditCategory(e.target.value as ExerciseCategory)} className={inputClass}>
+                        {categories.map((c) => <option key={c} value={c}>{t(categoryConfig[c].labelKey)}</option>)}
+                      </select>
+                      <input type="text" value={editEquipment} onChange={(e) => setEditEquipment(e.target.value)} placeholder={t("exercises.equipmentComma")} className={inputClass} />
+                      <input type="text" value={editMuscleGroups} onChange={(e) => setEditMuscleGroups(e.target.value)} placeholder={t("exercises.muscleGroupsComma")} className={inputClass} />
+                      <div className="flex gap-2">
+                        <button onClick={handleSaveEdit} className="flex-1 flex items-center justify-center gap-1.5 rounded-lg bg-vytal-green px-3 py-1.5 text-xs font-semibold text-vytal-bg hover:bg-vytal-green/90">
+                          <Check className="h-3 w-3" /> {t("action.save")}
+                        </button>
+                        <button onClick={() => setEditingId(null)} className="flex-1 flex items-center justify-center gap-1.5 rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-1.5 text-xs text-vytal-text hover:bg-vytal-bg3">
+                          <X className="h-3 w-3" /> {t("action.cancel")}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                );
+              }
+
+              return (
+                <div key={exercise.id} className="rounded-xl border border-vytal-border bg-vytal-card p-4 card-interactive transition-colors hover:border-[rgba(34,197,94,0.22)]">
+                  <div className="mb-3 flex items-start justify-between">
+                    <Link href={`/exercises/${exercise.id}`} className="flex items-center gap-2 hover:opacity-80">
+                      <Dumbbell className="h-4 w-4 text-vytal-green" />
+                      <span className="text-sm font-semibold text-vytal-text">{exercise.name}</span>
+                    </Link>
+                    <div className="flex items-center gap-1">
+                      <button onClick={() => startEdit(exercise)} className="rounded p-1 text-vytal-muted transition-colors hover:bg-vytal-bg3 hover:text-vytal-text">
+                        <Pencil className="h-3 w-3" />
+                      </button>
+                      <button onClick={() => setDeleteTarget({ id: exercise.id, name: exercise.name })} className="rounded p-1 text-vytal-muted transition-colors hover:bg-vytal-red/10 hover:text-vytal-red">
+                        <Trash2 className="h-3 w-3" />
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="mb-3">
+                    <span className={cn("inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-medium", catConfig.className)}>
+                      {t(catConfig.labelKey)}
+                    </span>
+                  </div>
+
+                  {exercise.equipment && exercise.equipment.length > 0 && (
+                    <div className="mb-2 flex flex-wrap gap-1">
+                      {exercise.equipment.map((eq) => (
+                        <span key={eq} className="rounded bg-vytal-bg3 px-1.5 py-0.5 text-[10px] text-vytal-muted">{eq}</span>
+                      ))}
+                    </div>
+                  )}
+
+                  {exercise.muscleGroups && exercise.muscleGroups.length > 0 && (
+                    <div className="flex flex-wrap gap-1">
+                      {exercise.muscleGroups.map((mg) => (
+                        <span key={mg} className="rounded border border-vytal-border px-1.5 py-0.5 text-[10px] text-vytal-muted">{mg}</span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
+          {exercises.length === 0 && (
+            <EmptyState
+              icon={Dumbbell}
+              title={t("exercises.noResults")}
+              description={search ? t("exercises.noResultsFor").replace("{query}", search) : t("exercises.noResultsInCategory")}
+              action={
+                search || activeCategory !== "all"
+                  ? { label: t("exercises.clearFilters"), onClick: () => { setSearch(""); setActiveCategory("all"); } }
+                  : undefined
+              }
+            />
+          )}
+        </>
       )}
 
       <ConfirmDialog
