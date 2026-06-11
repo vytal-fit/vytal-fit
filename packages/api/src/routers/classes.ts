@@ -2,7 +2,7 @@ import { TRPCError } from "@trpc/server";
 import { and, asc, count, eq, gte, inArray, isNull, lte } from "drizzle-orm";
 import { bookings, classes, classTypes, locations } from "@vytal-fit/db";
 import { z } from "zod";
-import { orgProcedure, router } from "../trpc";
+import { orgProcedure, router, staffProcedure } from "../trpc";
 
 const dateString = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Expected YYYY-MM-DD");
 const timeString = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/, "Expected HH:MM");
@@ -81,7 +81,7 @@ export const classesRouter = router({
       };
     }),
 
-  create: orgProcedure.input(classInput).mutation(async ({ ctx, input }) => {
+  create: staffProcedure.input(classInput).mutation(async ({ ctx, input }) => {
     // Referenced rows must belong to the active org (NOT_FOUND, never leak).
     const [classType] = await ctx.db
       .select({ id: classTypes.id })
@@ -123,7 +123,7 @@ export const classesRouter = router({
   }),
 
   /** Cancel a class: mark it cancelled and cancel its active bookings. */
-  cancel: orgProcedure
+  cancel: staffProcedure
     .input(z.object({ id: z.string().min(1) }))
     .mutation(async ({ ctx, input }) => {
       const [existing] = await ctx.db

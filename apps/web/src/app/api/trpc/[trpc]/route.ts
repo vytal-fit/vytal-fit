@@ -13,7 +13,12 @@
  */
 import { TRPCError } from "@trpc/server";
 import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
-import { appRouter, createContext, type Context } from "@vytal-fit/api";
+import {
+  appRouter,
+  createContext,
+  resolveOrgRole,
+  type Context,
+} from "@vytal-fit/api";
 import { getDb } from "@vytal-fit/db";
 import { getAuth, isBackendConfigured } from "@/lib/auth-server";
 
@@ -30,18 +35,32 @@ async function buildContext(request: Request): Promise<Context> {
     headers: request.headers,
   });
 
+  const db = getDb();
+
+  if (!sessionData) {
+    return createContext({ db, session: null });
+  }
+
+  const activeOrganizationId =
+    sessionData.session.activeOrganizationId ?? null;
+
+  // Resolve the caller's role in the active org server-side from the Better
+  // Auth `member` table (one indexed select). Never client-supplied.
+  const role = activeOrganizationId
+    ? await resolveOrgRole(db, sessionData.user.id, activeOrganizationId)
+    : null;
+
   return createContext({
-    db: getDb(),
-    session: sessionData
-      ? {
-          user: {
-            id: sessionData.user.id,
-            email: sessionData.user.email,
-            name: sessionData.user.name,
-          },
-          activeOrganizationId: sessionData.session.activeOrganizationId ?? null,
-        }
-      : null,
+    db,
+    session: {
+      user: {
+        id: sessionData.user.id,
+        email: sessionData.user.email,
+        name: sessionData.user.name,
+      },
+      activeOrganizationId,
+      role,
+    },
   });
 }
 

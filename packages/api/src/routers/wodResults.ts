@@ -9,7 +9,7 @@ import {
   WOD_SCORE_TYPES,
 } from "@vytal-fit/db";
 import { z } from "zod";
-import { orgProcedure, router } from "../trpc";
+import { adminProcedure, orgProcedure, router, staffProcedure } from "../trpc";
 import type { Context } from "../trpc";
 
 const dateString = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Expected YYYY-MM-DD");
@@ -121,7 +121,12 @@ export const wodResultsRouter = router({
       return { items: rows, nextCursor };
     }),
 
-  create: orgProcedure.input(resultInput).mutation(async ({ ctx, input }) => {
+  // TODO(athlete-self): athletes should log results for THEMSELVES from the
+  // athlete app. That requires a user→gym_member linkage (e.g. a
+  // `gym_members.user_id` column) which does not exist in the schema yet.
+  // Until then create is coach+; relax to any org member with an
+  // own-memberId check once the linkage lands.
+  create: staffProcedure.input(resultInput).mutation(async ({ ctx, input }) => {
     await assertRefsInOrg(ctx.db, ctx.activeOrganizationId, input);
 
     const [created] = await ctx.db
@@ -135,7 +140,7 @@ export const wodResultsRouter = router({
     return created;
   }),
 
-  update: orgProcedure
+  update: staffProcedure
     .input(z.object({ id: z.string().min(1), data: resultInput.partial() }))
     .mutation(async ({ ctx, input }) => {
       // Re-fetch scoped to the org before mutating — never trust a client id.
@@ -167,7 +172,7 @@ export const wodResultsRouter = router({
       return updated;
     }),
 
-  delete: orgProcedure
+  delete: adminProcedure
     .input(z.object({ id: z.string().min(1) }))
     .mutation(async ({ ctx, input }) => {
       const [deleted] = await ctx.db

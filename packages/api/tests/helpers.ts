@@ -9,6 +9,7 @@ import { PGlite } from "@electric-sql/pglite";
 import { drizzle } from "drizzle-orm/pglite";
 import { migrate } from "drizzle-orm/pglite/migrator";
 import { schema, type Database } from "@vytal-fit/db";
+import { ORGANIZATION_CONFIGS } from "@vytal-fit/shared";
 import { appRouter } from "../src/router";
 import { createCallerFactory, createContext, type SessionContext } from "../src/trpc";
 
@@ -31,6 +32,8 @@ export const IDS = {
   orgB: "org-b",
   userA: "user-a",
   userB: "user-b",
+  userCoachA: "user-coach-a",
+  userAthleteA: "user-athlete-a",
   // org A domain rows
   memberA1: "member-a1",
   memberA2: "member-a2",
@@ -53,6 +56,9 @@ export const IDS = {
   wodResultA2: "wr-a2",
   notifA1: "notif-a1",
   notifA2: "notif-a2",
+  checkInA1: "checkin-a1",
+  checkInA2: "checkin-a2",
+  checkInA3: "checkin-a3",
   // org B domain rows
   memberB1: "member-b1",
   coachB: "coach-b",
@@ -67,6 +73,7 @@ export const IDS = {
   prB: "pr-b",
   wodResultB: "wr-b",
   notifB: "notif-b",
+  checkInB: "checkin-b",
   // global
   exercise1: "ex-1",
   exercise2: "ex-2",
@@ -83,18 +90,32 @@ export async function seed(db: Database): Promise<void> {
   const today = todayString();
 
   await db.insert(schema.organization).values([
-    { id: IDS.orgA, name: "CrossFit Aveiro", slug: "crossfit-aveiro" },
-    { id: IDS.orgB, name: "Iron Temple", slug: "iron-temple" },
+    {
+      id: IDS.orgA,
+      name: "CrossFit Aveiro",
+      slug: "crossfit-aveiro",
+      metadata: JSON.stringify({ type: "crossfit_box" }),
+    },
+    {
+      id: IDS.orgB,
+      name: "Iron Temple",
+      slug: "iron-temple",
+      metadata: JSON.stringify({ type: "weightlifting_club" }),
+    },
   ]);
 
   await db.insert(schema.user).values([
     { id: IDS.userA, name: "Owner A", email: "owner-a@vytal.fit" },
     { id: IDS.userB, name: "Owner B", email: "owner-b@vytal.fit" },
+    { id: IDS.userCoachA, name: "Coach A", email: "coach-a@vytal.fit" },
+    { id: IDS.userAthleteA, name: "Athlete A", email: "athlete-a@vytal.fit" },
   ]);
 
   await db.insert(schema.member).values([
     { id: "ba-member-a", organizationId: IDS.orgA, userId: IDS.userA, role: "owner" },
     { id: "ba-member-b", organizationId: IDS.orgB, userId: IDS.userB, role: "owner" },
+    { id: "ba-coach-a", organizationId: IDS.orgA, userId: IDS.userCoachA, role: "coach" },
+    { id: "ba-athlete-a", organizationId: IDS.orgA, userId: IDS.userAthleteA, role: "athlete" },
   ]);
 
   await db.insert(schema.coaches).values([
@@ -398,6 +419,59 @@ export async function seed(db: Database): Promise<void> {
       read: false,
     },
   ]);
+
+  const now = new Date();
+  const yesterday = new Date(now.getTime() - 86_400_000);
+  await db.insert(schema.checkIns).values([
+    {
+      id: IDS.checkInA1,
+      organizationId: IDS.orgA,
+      memberId: IDS.memberA1,
+      classId: IDS.classA,
+      bookingId: IDS.bookingA,
+      method: "qr",
+      checkedInAt: now,
+    },
+    {
+      id: IDS.checkInA2,
+      organizationId: IDS.orgA,
+      memberId: IDS.memberA2,
+      classId: null,
+      bookingId: null,
+      method: "manual",
+      checkedInAt: yesterday,
+    },
+    {
+      id: IDS.checkInA3,
+      organizationId: IDS.orgA,
+      memberId: IDS.memberA3,
+      classId: null,
+      bookingId: null,
+      method: "kiosk",
+      checkedInAt: now,
+    },
+    {
+      id: IDS.checkInB,
+      organizationId: IDS.orgB,
+      memberId: IDS.memberB1,
+      classId: IDS.classB,
+      bookingId: IDS.bookingB,
+      method: "app",
+      checkedInAt: now,
+    },
+  ]);
+
+  // Settings row for org B ONLY — org A exercises the defaults-derivation
+  // path in orgSettings.get.
+  const orgBConfig = ORGANIZATION_CONFIGS["weightlifting_club"];
+  if (!orgBConfig) throw new Error("Missing weightlifting_club config.");
+  await db.insert(schema.organizationSettings).values({
+    organizationId: IDS.orgB,
+    features: orgBConfig.features,
+    branding: { accentColor: "#ef4444", logoUrl: null },
+    publicSite: { enabled: true, slogan: "Lift heavy.", sections: { hero: true } },
+    terminologyOverrides: { member: "Lifter" },
+  });
 }
 
 const createCaller = createCallerFactory(appRouter);
@@ -406,10 +480,14 @@ export type TestCaller = ReturnType<typeof createCaller>;
 
 export interface TestHarness {
   db: Database;
-  /** Authenticated, active org = org-a. */
+  /** Authenticated, active org = org-a, role = owner. */
   callerA: TestCaller;
-  /** Authenticated, active org = org-b. */
+  /** Authenticated, active org = org-b, role = owner. */
   callerB: TestCaller;
+  /** Authenticated, active org = org-a, role = coach. */
+  callerCoachA: TestCaller;
+  /** Authenticated, active org = org-a, role = athlete. */
+  callerAthleteA: TestCaller;
   /** No session at all. */
   callerNoSession: TestCaller;
   /** Session but no active organization. */
@@ -431,15 +509,32 @@ export async function createHarness(): Promise<TestHarness> {
     callerA: buildCaller(db, {
       user: { id: IDS.userA, email: "owner-a@vytal.fit", name: "Owner A" },
       activeOrganizationId: IDS.orgA,
+      role: "owner",
     }),
     callerB: buildCaller(db, {
       user: { id: IDS.userB, email: "owner-b@vytal.fit", name: "Owner B" },
       activeOrganizationId: IDS.orgB,
+      role: "owner",
+    }),
+    callerCoachA: buildCaller(db, {
+      user: { id: IDS.userCoachA, email: "coach-a@vytal.fit", name: "Coach A" },
+      activeOrganizationId: IDS.orgA,
+      role: "coach",
+    }),
+    callerAthleteA: buildCaller(db, {
+      user: {
+        id: IDS.userAthleteA,
+        email: "athlete-a@vytal.fit",
+        name: "Athlete A",
+      },
+      activeOrganizationId: IDS.orgA,
+      role: "athlete",
     }),
     callerNoSession: buildCaller(db, null),
     callerNoOrg: buildCaller(db, {
       user: { id: IDS.userA, email: "owner-a@vytal.fit", name: "Owner A" },
       activeOrganizationId: null,
+      role: null,
     }),
   };
 }

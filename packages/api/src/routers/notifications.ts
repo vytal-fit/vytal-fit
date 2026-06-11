@@ -2,7 +2,7 @@ import { TRPCError } from "@trpc/server";
 import { and, asc, eq, gt } from "drizzle-orm";
 import { notifications, NOTIFICATION_TYPES } from "@vytal-fit/db";
 import { z } from "zod";
-import { orgProcedure, router } from "../trpc";
+import { adminProcedure, orgProcedure, router } from "../trpc";
 
 export const notificationsRouter = router({
   list: orgProcedure
@@ -84,7 +84,7 @@ export const notificationsRouter = router({
       return { updated: rows.length };
     }),
 
-  delete: orgProcedure
+  delete: adminProcedure
     .input(z.object({ id: z.string().min(1) }))
     .mutation(async ({ ctx, input }) => {
       const [deleted] = await ctx.db

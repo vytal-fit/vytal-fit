@@ -9,7 +9,7 @@ import {
   subscriptions,
 } from "@vytal-fit/db";
 import { z } from "zod";
-import { orgProcedure, router } from "../trpc";
+import { adminProcedure, orgProcedure, router } from "../trpc";
 
 const dateString = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Expected YYYY-MM-DD");
 
@@ -51,7 +51,7 @@ export const subscriptionsRouter = router({
           .orderBy(asc(subscriptionPlans.name));
       }),
 
-    create: orgProcedure.input(planInput).mutation(async ({ ctx, input }) => {
+    create: adminProcedure.input(planInput).mutation(async ({ ctx, input }) => {
       // Every allowed class type must belong to the active org.
       for (const classTypeId of input.allowedClassTypes) {
         const [classType] = await ctx.db
@@ -126,7 +126,7 @@ export const subscriptionsRouter = router({
         .orderBy(desc(subscriptions.startDate));
     }),
 
-  create: orgProcedure.input(subscriptionInput).mutation(async ({ ctx, input }) => {
+  create: adminProcedure.input(subscriptionInput).mutation(async ({ ctx, input }) => {
     const [member] = await ctx.db
       .select({ id: gymMembers.id })
       .from(gymMembers)

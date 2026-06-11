@@ -2,15 +2,21 @@ import { TRPCError } from "@trpc/server";
 import { and, count, desc, eq, inArray } from "drizzle-orm";
 import { bookings, classes, gymMembers } from "@vytal-fit/db";
 import { z } from "zod";
-import { orgProcedure, router } from "../trpc";
+import { orgProcedure, router, staffProcedure } from "../trpc";
 
 export const bookingsRouter = router({
   /**
    * Book a member into a class. Capacity-checked: when the class is full the
    * booking is created as `waitlisted` instead of `confirmed`. Duplicate
    * active bookings are rejected with CONFLICT.
+   *
+   * TODO(athlete-self): athletes should be able to book/cancel for THEMSELVES
+   * from the athlete app. That requires a user→gym_member linkage (e.g. a
+   * `gym_members.user_id` column) which does not exist in the schema yet.
+   * Until then book/cancel are coach+; relax to any org member with an
+   * own-memberId check once the linkage lands.
    */
-  book: orgProcedure
+  book: staffProcedure
     .input(z.object({ classId: z.string().min(1), memberId: z.string().min(1) }))
     .mutation(async ({ ctx, input }) => {
       const [klass] = await ctx.db
@@ -94,7 +100,7 @@ export const bookingsRouter = router({
       });
     }),
 
-  cancel: orgProcedure
+  cancel: staffProcedure
     .input(z.object({ id: z.string().min(1) }))
     .mutation(async ({ ctx, input }) => {
       const [existing] = await ctx.db

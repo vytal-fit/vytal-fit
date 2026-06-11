@@ -2,7 +2,7 @@ import { TRPCError } from "@trpc/server";
 import { and, desc, eq, gte, lte } from "drizzle-orm";
 import { classTypes, wods } from "@vytal-fit/db";
 import { z } from "zod";
-import { orgProcedure, router } from "../trpc";
+import { orgProcedure, router, staffProcedure } from "../trpc";
 
 const dateString = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Expected YYYY-MM-DD");
 
@@ -72,7 +72,7 @@ export const wodsRouter = router({
       return row;
     }),
 
-  create: orgProcedure.input(wodInput).mutation(async ({ ctx, input }) => {
+  create: staffProcedure.input(wodInput).mutation(async ({ ctx, input }) => {
     const [classType] = await ctx.db
       .select({ id: classTypes.id })
       .from(classTypes)
@@ -99,7 +99,7 @@ export const wodsRouter = router({
     return created;
   }),
 
-  publish: orgProcedure
+  publish: staffProcedure
     .input(z.object({ id: z.string().min(1) }))
     .mutation(async ({ ctx, input }) => {
       const [existing] = await ctx.db
