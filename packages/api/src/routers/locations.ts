@@ -2,7 +2,7 @@ import { TRPCError } from "@trpc/server";
 import { and, asc, eq } from "drizzle-orm";
 import { classes, locations } from "@vytal-fit/db";
 import { z } from "zod";
-import { orgProcedure, router } from "../trpc";
+import { adminProcedure, orgProcedure, router } from "../trpc";
 
 const locationInput = z.object({
   name: z.string().min(1).max(200),
@@ -38,7 +38,7 @@ export const locationsRouter = router({
       return row;
     }),
 
-  create: orgProcedure.input(locationInput).mutation(async ({ ctx, input }) => {
+  create: adminProcedure.input(locationInput).mutation(async ({ ctx, input }) => {
     const [created] = await ctx.db
       .insert(locations)
       .values({
@@ -50,7 +50,7 @@ export const locationsRouter = router({
     return created;
   }),
 
-  update: orgProcedure
+  update: adminProcedure
     .input(z.object({ id: z.string().min(1), data: locationInput.partial() }))
     .mutation(async ({ ctx, input }) => {
       // Re-fetch scoped to the org before mutating — never trust a client id.
@@ -86,7 +86,7 @@ export const locationsRouter = router({
    * still referenced by a class is rejected with CONFLICT instead of leaking
    * a raw FK violation.
    */
-  delete: orgProcedure
+  delete: adminProcedure
     .input(z.object({ id: z.string().min(1) }))
     .mutation(async ({ ctx, input }) => {
       const [existing] = await ctx.db

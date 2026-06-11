@@ -2,7 +2,7 @@ import { TRPCError } from "@trpc/server";
 import { and, asc, eq, gt } from "drizzle-orm";
 import { exercises, gymMembers, personalRecords, PR_UNITS } from "@vytal-fit/db";
 import { z } from "zod";
-import { orgProcedure, router } from "../trpc";
+import { adminProcedure, orgProcedure, router, staffProcedure } from "../trpc";
 import type { Context } from "../trpc";
 
 const prInput = z.object({
@@ -104,7 +104,12 @@ export const personalRecordsRouter = router({
       return row;
     }),
 
-  create: orgProcedure.input(prInput).mutation(async ({ ctx, input }) => {
+  // TODO(athlete-self): athletes should log results for THEMSELVES from the
+  // athlete app. That requires a user→gym_member linkage (e.g. a
+  // `gym_members.user_id` column) which does not exist in the schema yet.
+  // Until then create is coach+; relax to any org member with an
+  // own-memberId check once the linkage lands.
+  create: staffProcedure.input(prInput).mutation(async ({ ctx, input }) => {
     await assertMemberInOrg(ctx.db, ctx.activeOrganizationId, input.memberId);
     await assertExerciseExists(ctx.db, input.exerciseId);
 
@@ -119,7 +124,7 @@ export const personalRecordsRouter = router({
     return created;
   }),
 
-  update: orgProcedure
+  update: staffProcedure
     .input(z.object({ id: z.string().min(1), data: prInput.partial() }))
     .mutation(async ({ ctx, input }) => {
       // Re-fetch scoped to the org before mutating — never trust a client id.
@@ -159,7 +164,7 @@ export const personalRecordsRouter = router({
       return updated;
     }),
 
-  delete: orgProcedure
+  delete: adminProcedure
     .input(z.object({ id: z.string().min(1) }))
     .mutation(async ({ ctx, input }) => {
       const [deleted] = await ctx.db

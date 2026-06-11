@@ -1,5 +1,6 @@
 import { router } from "./trpc";
 import { bookingsRouter } from "./routers/bookings";
+import { checkInsRouter } from "./routers/checkIns";
 import { classTypesRouter } from "./routers/classTypes";
 import { classesRouter } from "./routers/classes";
 import { coachesRouter } from "./routers/coaches";
@@ -9,6 +10,7 @@ import { leadsRouter } from "./routers/leads";
 import { locationsRouter } from "./routers/locations";
 import { membersRouter } from "./routers/members";
 import { notificationsRouter } from "./routers/notifications";
+import { orgSettingsRouter } from "./routers/orgSettings";
 import { personalRecordsRouter } from "./routers/personalRecords";
 import { subscriptionsRouter } from "./routers/subscriptions";
 import { wodResultsRouter } from "./routers/wodResults";
@@ -21,6 +23,7 @@ export const appRouter = router({
   classTypes: classTypesRouter,
   classes: classesRouter,
   bookings: bookingsRouter,
+  checkIns: checkInsRouter,
   exercises: exercisesRouter,
   wods: wodsRouter,
   wodResults: wodResultsRouter,
@@ -28,6 +31,7 @@ export const appRouter = router({
   leads: leadsRouter,
   subscriptions: subscriptionsRouter,
   notifications: notificationsRouter,
+  orgSettings: orgSettingsRouter,
   dashboard: dashboardRouter,
 });
 

@@ -2,7 +2,7 @@ import { TRPCError } from "@trpc/server";
 import { and, desc, eq } from "drizzle-orm";
 import { coaches, leads, LEAD_STAGES } from "@vytal-fit/db";
 import { z } from "zod";
-import { orgProcedure, router } from "../trpc";
+import { orgProcedure, router, staffProcedure } from "../trpc";
 
 const leadInput = z.object({
   name: z.string().min(1).max(200),
@@ -30,7 +30,7 @@ export const leadsRouter = router({
         .orderBy(desc(leads.createdAt));
     }),
 
-  create: orgProcedure.input(leadInput).mutation(async ({ ctx, input }) => {
+  create: staffProcedure.input(leadInput).mutation(async ({ ctx, input }) => {
     if (input.assignedCoachId) {
       const [coach] = await ctx.db
         .select({ id: coaches.id })
@@ -58,7 +58,7 @@ export const leadsRouter = router({
     return created;
   }),
 
-  updateStage: orgProcedure
+  updateStage: staffProcedure
     .input(z.object({ id: z.string().min(1), stage: z.enum(LEAD_STAGES) }))
     .mutation(async ({ ctx, input }) => {
       const [updated] = await ctx.db

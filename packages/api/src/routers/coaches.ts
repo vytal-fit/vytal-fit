@@ -2,7 +2,7 @@ import { TRPCError } from "@trpc/server";
 import { and, asc, eq } from "drizzle-orm";
 import { coaches, COACH_ROLES } from "@vytal-fit/db";
 import { z } from "zod";
-import { orgProcedure, router } from "../trpc";
+import { adminProcedure, orgProcedure, router } from "../trpc";
 
 const coachInput = z.object({
   name: z.string().min(1).max(200),
@@ -40,7 +40,7 @@ export const coachesRouter = router({
       return row;
     }),
 
-  create: orgProcedure.input(coachInput).mutation(async ({ ctx, input }) => {
+  create: adminProcedure.input(coachInput).mutation(async ({ ctx, input }) => {
     const [created] = await ctx.db
       .insert(coaches)
       .values({
@@ -52,7 +52,7 @@ export const coachesRouter = router({
     return created;
   }),
 
-  update: orgProcedure
+  update: adminProcedure
     .input(z.object({ id: z.string().min(1), data: coachInput.partial() }))
     .mutation(async ({ ctx, input }) => {
       // Re-fetch scoped to the org before mutating — never trust a client id.
@@ -87,7 +87,7 @@ export const coachesRouter = router({
    * Hard delete — the coaches table carries no status/active column.
    * `leads.assignedCoachId` is `set null` on delete, so removal is safe.
    */
-  delete: orgProcedure
+  delete: adminProcedure
     .input(z.object({ id: z.string().min(1) }))
     .mutation(async ({ ctx, input }) => {
       const [deleted] = await ctx.db

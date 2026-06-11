@@ -2,7 +2,7 @@ import { TRPCError } from "@trpc/server";
 import { and, asc, eq } from "drizzle-orm";
 import { classTypes, classes, wods } from "@vytal-fit/db";
 import { z } from "zod";
-import { orgProcedure, router } from "../trpc";
+import { adminProcedure, orgProcedure, router } from "../trpc";
 
 const classTypeInput = z.object({
   name: z.string().min(1).max(200),
@@ -41,7 +41,7 @@ export const classTypesRouter = router({
       return row;
     }),
 
-  create: orgProcedure.input(classTypeInput).mutation(async ({ ctx, input }) => {
+  create: adminProcedure.input(classTypeInput).mutation(async ({ ctx, input }) => {
     const [created] = await ctx.db
       .insert(classTypes)
       .values({
@@ -53,7 +53,7 @@ export const classTypesRouter = router({
     return created;
   }),
 
-  update: orgProcedure
+  update: adminProcedure
     .input(z.object({ id: z.string().min(1), data: classTypeInput.partial() }))
     .mutation(async ({ ctx, input }) => {
       // Re-fetch scoped to the org before mutating — never trust a client id.
@@ -90,7 +90,7 @@ export const classTypesRouter = router({
    * instead of leaking a raw FK violation. (To retire a class type that has
    * history, set `active: false` via `update` instead.)
    */
-  delete: orgProcedure
+  delete: adminProcedure
     .input(z.object({ id: z.string().min(1) }))
     .mutation(async ({ ctx, input }) => {
       const [existing] = await ctx.db

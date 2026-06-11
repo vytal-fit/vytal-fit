@@ -2,7 +2,7 @@ import { TRPCError } from "@trpc/server";
 import { and, asc, desc, eq, gt } from "drizzle-orm";
 import { gymMembers, GENDERS, MEMBER_STATUSES } from "@vytal-fit/db";
 import { z } from "zod";
-import { orgProcedure, router } from "../trpc";
+import { adminProcedure, orgProcedure, router } from "../trpc";
 
 const memberInput = z.object({
   name: z.string().min(1).max(200),
@@ -69,7 +69,7 @@ export const membersRouter = router({
       return row;
     }),
 
-  create: orgProcedure.input(memberInput).mutation(async ({ ctx, input }) => {
+  create: adminProcedure.input(memberInput).mutation(async ({ ctx, input }) => {
     const [last] = await ctx.db
       .select({ memberNumber: gymMembers.memberNumber })
       .from(gymMembers)
@@ -89,7 +89,7 @@ export const membersRouter = router({
     return created;
   }),
 
-  update: orgProcedure
+  update: adminProcedure
     .input(z.object({ id: z.string().min(1), data: memberInput.partial() }))
     .mutation(async ({ ctx, input }) => {
       // Re-fetch scoped to the org before mutating — never trust a client id.
@@ -120,7 +120,7 @@ export const membersRouter = router({
       return updated;
     }),
 
-  archive: orgProcedure
+  archive: adminProcedure
     .input(z.object({ id: z.string().min(1) }))
     .mutation(async ({ ctx, input }) => {
       const [archived] = await ctx.db
