@@ -1104,6 +1104,7 @@ export const es: Record<string, string> = {
     "branding.splashColor": "Color de Pantalla de Inicio",
     "branding.appIconPreview": "Vista Previa del Icono",
     "branding.saveBranding": "Guardar Identidad",
+    "branding.invalidColor": "Introduzca un color hexadecimal válido (#rrggbb)",
 
     // Invoices hardcoded string
     "invoices.noInvoices": "Sin facturas",
@@ -1425,6 +1426,8 @@ export const es: Record<string, string> = {
     "plans.perMonthLabel": "por mes",
     "plans.total": "total",
     "settings.addressSection": "Direcci\u00f3n",
+    "settings.adminOnly": "Solo los administradores pueden cambiar esta configuración",
+    "settings.loadError": "No se pudo cargar la configuración. Inténtelo de nuevo.",
     "help.subtitle": "Recursos y atajos para sacar el m\u00e1ximo partido de Vytal.",
     "help.helpCenter": "Centro de Ayuda",
     "help.helpCenterDesc": "Gu\u00edas, tutoriales y preguntas frecuentes.",
@@ -2716,6 +2719,11 @@ export const es: Record<string, string> = {
     // Member Overview - new links
     "memberOverview.view360": "Vista 360",
     "memberOverview.bodyComposition": "Composicion Corporal",
+    "memberOverview.recentCheckIns": "Check-ins recientes",
+    "memberOverview.manualCheckIn": "Check-in manual",
+    "memberOverview.checkInRecorded": "Check-in registrado con éxito",
+    "memberOverview.checkInForbidden": "Solo el personal puede registrar check-ins",
+    "memberOverview.noCheckIns": "Aún no hay check-ins registrados.",
 
     // Store / POS
     "nav.store": "Tienda",
@@ -2798,6 +2806,7 @@ export const es: Record<string, string> = {
     "dashboard.customize": "Personalizar",
     "dashboard.customizeWidgets": "Personalizar Widgets del Dashboard",
     "dashboard.resetDefault": "Restablecer Predeterminado",
+    "dashboard.uniqueMembersToday": "miembros únicos",
 
     // Navigation - new
     "nav.tasks": "Tareas",
@@ -3579,4 +3588,9 @@ export const es: Record<string, string> = {
     "my.progress.prTimeline": "Línea de tiempo de PRs",
     "my.progress.prNew": "¡Nuevo!",
     "my.progress.toastGoalUpdated": "¡Objetivo actualizado!",
-  };
+    "checkIns.loadError": "No se pudieron cargar los check-ins. Inténtelo de nuevo.",
+  "checkInMethod.qr": "QR",
+  "checkInMethod.kiosk": "Quiosco",
+  "checkInMethod.manual": "Manual",
+  "checkInMethod.app": "App",
+};

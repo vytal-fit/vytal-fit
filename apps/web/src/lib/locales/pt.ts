@@ -1106,6 +1106,7 @@ export const pt: Record<string, string> = {
     "branding.splashColor": "Cor do Ecrã de Arranque",
     "branding.appIconPreview": "Pré-visualização do Ícone",
     "branding.saveBranding": "Guardar Identidade",
+    "branding.invalidColor": "Introduza uma cor hexadecimal válida (#rrggbb)",
 
     // Invoices hardcoded string
     "invoices.noInvoices": "Sem faturas",
@@ -1481,6 +1482,8 @@ export const pt: Record<string, string> = {
     "settings.settingsSaved": "Definições guardadas com sucesso!",
     "settings.orgDeleted": "Organização eliminada (simulação)",
     "settings.bookClass": "Reservar Aula",
+    "settings.adminOnly": "Apenas administradores podem alterar estas definições",
+    "settings.loadError": "Não foi possível carregar as definições. Tente novamente.",
 
     // Invoices
     "invoices.all": "Todas",
@@ -2720,6 +2723,11 @@ export const pt: Record<string, string> = {
 
     // Member Overview - assessments link
     "memberOverview.assessments": "Avaliações",
+    "memberOverview.recentCheckIns": "Check-ins recentes",
+    "memberOverview.manualCheckIn": "Check-in manual",
+    "memberOverview.checkInRecorded": "Check-in registado com sucesso",
+    "memberOverview.checkInForbidden": "Apenas a equipa pode registar check-ins",
+    "memberOverview.noCheckIns": "Ainda sem check-ins registados.",
 
     // Store / POS
     "nav.store": "Loja",
@@ -2802,6 +2810,7 @@ export const pt: Record<string, string> = {
     "dashboard.customize": "Personalizar",
     "dashboard.customizeWidgets": "Personalizar Widgets do Dashboard",
     "dashboard.resetDefault": "Repor Predefinicao",
+    "dashboard.uniqueMembersToday": "membros únicos",
 
     // Navigation - new
     "nav.tasks": "Tarefas",
@@ -3583,4 +3592,9 @@ export const pt: Record<string, string> = {
     "my.progress.prTimeline": "Linha do tempo de PRs",
     "my.progress.prNew": "Novo!",
     "my.progress.toastGoalUpdated": "Objetivo atualizado!",
-  };
+    "checkIns.loadError": "Não foi possível carregar os check-ins. Tente novamente.",
+  "checkInMethod.qr": "QR",
+  "checkInMethod.kiosk": "Quiosque",
+  "checkInMethod.manual": "Manual",
+  "checkInMethod.app": "App",
+};

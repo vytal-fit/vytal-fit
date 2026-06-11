@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { useDataStore, formatCurrency } from "@/stores/data-store";
 import { trpc } from "@/lib/trpc";
 import { rowToMember } from "@/lib/member-mapper";
+import { rowsToCheckIns } from "@/lib/checkin-mapper";
 import { Skeleton } from "@/components/skeleton";
 import { EmptyState } from "@/components/empty-state";
 import { ConfirmDialog } from "@/components/confirm-dialog";
@@ -372,6 +373,33 @@ export default function MemberDetailPage() {
       toast(t("members.memberArchived"), "success");
     },
     onError: () => toast(t("ui.error"), "error"),
+  });
+
+  // ── tRPC: check-ins (recent history + staff manual check-in) ──
+  const checkInsQuery = trpc.checkIns.list.useQuery({ memberId: id, limit: 100 });
+  const recentCheckIns = useMemo(
+    () =>
+      rowsToCheckIns(checkInsQuery.data?.items ?? [])
+        .sort((a, b) => b.checkedInAt.localeCompare(a.checkedInAt))
+        .slice(0, 10),
+    [checkInsQuery.data],
+  );
+
+  const createCheckIn = trpc.checkIns.create.useMutation({
+    onSuccess: () => {
+      void utils.checkIns.list.invalidate();
+      void utils.checkIns.todayStats.invalidate();
+      void utils.members.byId.invalidate({ id });
+      void utils.members.list.invalidate();
+      toast(t("memberOverview.checkInRecorded"), "success");
+    },
+    onError: (error) =>
+      toast(
+        error.data?.code === "FORBIDDEN"
+          ? t("memberOverview.checkInForbidden")
+          : t("ui.error"),
+        "error",
+      ),
   });
 
   if (memberQuery.error?.data?.code === "NOT_FOUND") {
@@ -787,6 +815,63 @@ export default function MemberDetailPage() {
               <Activity className="h-4 w-4" />
               {t("memberOverview.assessments") || "Assessments"}
             </Link>
+          </div>
+
+          {/* Recent Check-ins (live) */}
+          <div className="rounded-xl border border-vytal-border bg-vytal-card p-6">
+            <div className="mb-4 flex items-center justify-between gap-3">
+              <h2 className="text-lg font-semibold text-vytal-text">
+                {t("memberOverview.recentCheckIns")}
+              </h2>
+              <button
+                onClick={() => createCheckIn.mutate({ memberId: id, method: "manual" })}
+                disabled={createCheckIn.isPending}
+                className="inline-flex items-center gap-2 rounded-lg bg-vytal-green px-4 py-2 text-sm font-semibold text-vytal-bg transition-colors hover:bg-vytal-green/90 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <ScanLine className="h-4 w-4" />
+                {t("memberOverview.manualCheckIn")}
+              </button>
+            </div>
+            {checkInsQuery.isError ? (
+              <EmptyState
+                icon={AlertTriangle}
+                title={t("ui.error")}
+                description={t("checkIns.loadError")}
+                action={{ label: t("billing.retry"), onClick: () => void checkInsQuery.refetch() }}
+              />
+            ) : checkInsQuery.isPending ? (
+              <div className="space-y-2">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <Skeleton key={i} className="h-10 w-full" />
+                ))}
+              </div>
+            ) : recentCheckIns.length === 0 ? (
+              <p className="text-sm text-vytal-muted">{t("memberOverview.noCheckIns")}</p>
+            ) : (
+              <div className="divide-y divide-vytal-border/50">
+                {recentCheckIns.map((checkIn) => (
+                  <div key={checkIn.id} className="flex items-center justify-between py-2.5">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-vytal-green/10">
+                        <ScanLine className="h-3.5 w-3.5 text-vytal-green" />
+                      </div>
+                      <span className="text-sm text-vytal-text">
+                        {new Date(checkIn.checkedInAt).toLocaleString("pt-PT", {
+                          day: "2-digit",
+                          month: "short",
+                          year: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </span>
+                    </div>
+                    <span className="rounded-full bg-vytal-bg3 px-2.5 py-0.5 text-[10px] font-semibold uppercase text-vytal-muted">
+                      {t(`checkInMethod.${checkIn.method}`)}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Personal Records */}

@@ -1,10 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Check, Save, RotateCcw, ToggleLeft, ToggleRight } from "lucide-react";
+import { AlertTriangle, Check, Save, RotateCcw, ToggleLeft, ToggleRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/lib/i18n";
 import { useToast } from "@/components/toast";
+import { trpc } from "@/lib/trpc";
+import { Skeleton } from "@/components/skeleton";
+import { EmptyState } from "@/components/empty-state";
 import { useDataStore } from "@/stores/data-store";
 import { useAuthStore } from "@/stores/auth-store";
 import { Breadcrumbs } from "@/components/breadcrumbs";
@@ -43,7 +46,8 @@ const FEATURE_GROUPS: FeatureGroup[] = [
 export default function SettingsFeaturesPage() {
   const { t } = useI18n();
   const { toast } = useToast();
-  const orgSettings = useDataStore((s) => s.orgSettings);
+  // Local mock-app store kept in sync on save so the rest of the (still mock)
+  // admin UI — e.g. sidebar feature gating — reflects the server state.
   const updateOrgSettings = useDataStore((s) => s.updateOrgSettings);
   const user = useAuthStore((s) => s.user);
   const activeOrg = user?.memberships.find(
@@ -52,22 +56,37 @@ export default function SettingsFeaturesPage() {
   const orgType = activeOrg?.organization.type ?? "other";
   const orgConfig = ORGANIZATION_CONFIGS[orgType];
 
-  const defaultFeatures = orgConfig?.features ?? {};
-  const [features, setFeatures] = useState<OrganizationFeatures>(() => {
-    return orgSettings.features
-      ? { ...defaultFeatures, ...orgSettings.features } as OrganizationFeatures
-      : defaultFeatures as OrganizationFeatures;
+  // ── tRPC: org settings (server is the source of truth for feature flags) ──
+  const utils = trpc.useUtils();
+  const settingsQuery = trpc.orgSettings.get.useQuery();
+  const updateSettings = trpc.orgSettings.update.useMutation({
+    onSuccess: (saved) => {
+      void utils.orgSettings.get.invalidate();
+      updateOrgSettings({ features: saved.features });
+      toast(t("settings.saved"), "success");
+    },
+    onError: (error) =>
+      toast(
+        error.data?.code === "FORBIDDEN" ? t("settings.adminOnly") : t("ui.error"),
+        "error",
+      ),
   });
 
+  const defaultFeatures = orgConfig?.features ?? {};
+  const [features, setFeatures] = useState<OrganizationFeatures>(
+    () => defaultFeatures as OrganizationFeatures,
+  );
+
+  // Seed the editable state from the server (get returns type defaults when
+  // the org has no settings row yet).
   useEffect(() => {
-    if (orgConfig) {
-      setFeatures(
-        orgSettings.features
-          ? { ...(orgConfig.features as OrganizationFeatures), ...orgSettings.features } as OrganizationFeatures
-          : orgConfig.features as OrganizationFeatures
-      );
+    if (settingsQuery.data) {
+      setFeatures({
+        ...(orgConfig?.features ?? {}),
+        ...settingsQuery.data.features,
+      } as OrganizationFeatures);
     }
-  }, [orgConfig, orgSettings.features]);
+  }, [orgConfig, settingsQuery.data]);
 
   function toggleFeature(key: keyof OrganizationFeatures) {
     if (REQUIRED_FEATURES.has(key)) return;
@@ -75,8 +94,9 @@ export default function SettingsFeaturesPage() {
   }
 
   function handleSave() {
-    updateOrgSettings({ features });
-    toast(t("settings.saved"), "success");
+    updateSettings.mutate({
+      features: features as unknown as Record<string, boolean>,
+    });
   }
 
   function handleResetDefaults() {
@@ -119,7 +139,8 @@ export default function SettingsFeaturesPage() {
         </div>
         <button
           onClick={handleSave}
-          className="flex items-center gap-2 rounded-lg bg-vytal-green px-5 py-2.5 text-sm font-semibold text-vytal-bg transition-colors hover:bg-vytal-green/90"
+          disabled={updateSettings.isPending || settingsQuery.isPending}
+          className="flex items-center gap-2 rounded-lg bg-vytal-green px-5 py-2.5 text-sm font-semibold text-vytal-bg transition-colors hover:bg-vytal-green/90 disabled:cursor-not-allowed disabled:opacity-50"
         >
           <Save className="h-4 w-4" />
           {t("action.save")}
@@ -152,6 +173,20 @@ export default function SettingsFeaturesPage() {
       </div>
 
       {/* Feature groups */}
+      {settingsQuery.isError ? (
+        <EmptyState
+          icon={AlertTriangle}
+          title={t("ui.error")}
+          description={t("settings.loadError")}
+          action={{ label: t("billing.retry"), onClick: () => void settingsQuery.refetch() }}
+        />
+      ) : settingsQuery.isPending ? (
+        <div className="space-y-6">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Skeleton key={i} className="h-48 w-full rounded-xl" />
+          ))}
+        </div>
+      ) : (
       <div className="space-y-6">
         {FEATURE_GROUPS.map((group) => {
           const groupFeatures = group.keys.filter((k) => k in features);
@@ -244,6 +279,7 @@ export default function SettingsFeaturesPage() {
           );
         })}
       </div>
+      )}
     </div>
   );
 }

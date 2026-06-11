@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import {
   Palette,
   Upload,
@@ -18,9 +18,12 @@ import {
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { useI18n } from "@/lib/i18n";
 import { useToast } from "@/components/toast";
+import { trpc } from "@/lib/trpc";
 import { useAppStore } from "@/stores/app-store";
 import { useAuthStore } from "@/stores/auth-store";
 import { cn } from "@/lib/utils";
+
+const HEX_COLOR_RE = /^#[0-9a-fA-F]{6}$/;
 
 const fontOptions = [
   { label: "Inter", value: "Inter" },
@@ -73,6 +76,33 @@ export default function BrandingPage() {
 
   const [copiedDns, setCopiedDns] = useState(false);
 
+  // ── tRPC: org settings (accent color persisted server-side) ──
+  const utils = trpc.useUtils();
+  const settingsQuery = trpc.orgSettings.get.useQuery();
+  const updateSettings = trpc.orgSettings.update.useMutation({
+    onSuccess: (saved) => {
+      void utils.orgSettings.get.invalidate();
+      // Keep the local app store in sync so the live accent theme matches.
+      setOrgAccentColor(activeOrgId, saved.branding.accentColor);
+      toast(t("toast.brandingSettingsSaved"), "success");
+    },
+    onError: (error) =>
+      toast(
+        error.data?.code === "FORBIDDEN" ? t("settings.adminOnly") : t("ui.error"),
+        "error",
+      ),
+  });
+
+  // Seed the primary color from the server settings (defaults derived from the
+  // org type when no settings row exists yet).
+  useEffect(() => {
+    if (settingsQuery.data) {
+      const serverAccent = settingsQuery.data.branding.accentColor;
+      setColors((prev) => ({ ...prev, primary: serverAccent }));
+      setAppBranding((prev) => ({ ...prev, splashColor: serverAccent }));
+    }
+  }, [settingsQuery.data]);
+
   function updateColor(key: string, value: string) {
     setColors((prev) => ({ ...prev, [key]: value }));
     if (key === "primary") {
@@ -81,7 +111,11 @@ export default function BrandingPage() {
   }
 
   function handleSave() {
-    toast(t("toast.brandingSettingsSaved"), "success");
+    if (!HEX_COLOR_RE.test(colors.primary)) {
+      toast(t("branding.invalidColor"), "error");
+      return;
+    }
+    updateSettings.mutate({ branding: { accentColor: colors.primary } });
   }
 
   function handleCopyDns() {
@@ -109,7 +143,8 @@ export default function BrandingPage() {
         </div>
         <button
           onClick={handleSave}
-          className="flex items-center gap-2 rounded-lg bg-vytal-green px-5 py-2.5 text-sm font-semibold text-vytal-bg transition-colors hover:bg-vytal-green/90"
+          disabled={updateSettings.isPending || settingsQuery.isPending}
+          className="flex items-center gap-2 rounded-lg bg-vytal-green px-5 py-2.5 text-sm font-semibold text-vytal-bg transition-colors hover:bg-vytal-green/90 disabled:cursor-not-allowed disabled:opacity-50"
         >
           <Save className="h-4 w-4" />
           {t("action.save")}
