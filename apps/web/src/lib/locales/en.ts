@@ -1373,6 +1373,7 @@ export const en: Record<string, string> = {
     "classes.liveNow": "LIVE NOW",
     "classes.startingSoon": "STARTING SOON",
     "classes.openBoxNoCoach": "Open Box (no coach)",
+    "classes.loadError": "Could not load classes. Please try again.",
 
     // CRM page hardcoded strings
     "crm.totalLeads": "Total Leads",
@@ -1736,6 +1737,7 @@ export const en: Record<string, string> = {
     "staff.headCoachOption": "Head Coach",
     "staff.coachOption": "Coach",
     "staff.assistantOption": "Assistant",
+    "staff.loadError": "Could not load staff. Please try again.",
 
     // Members page
     "members.addMember": "Add Member",
@@ -1762,6 +1764,8 @@ export const en: Record<string, string> = {
     "classTypes.name": "Name",
     "classTypes.abbreviation": "Abbreviation",
     "classTypes.color": "Color",
+    "classTypes.loadError": "Could not load class types. Please try again.",
+    "classTypes.deleteInUse": "This class type is in use by classes or WODs and cannot be deleted.",
 
     // Locations page
     "locations.nameRequired": "Name is required",
@@ -1769,6 +1773,8 @@ export const en: Record<string, string> = {
     "locations.locationUpdated": "Location updated",
     "locations.locationDeleted": "Location deleted",
     "locations.confirmDelete": "Are you sure you want to delete",
+    "locations.loadError": "Could not load locations. Please try again.",
+    "locations.deleteInUse": "This location is in use by classes and cannot be deleted.",
 
     // Financials page
     "financials.monthlyTarget": "Monthly Target",
@@ -1782,6 +1788,7 @@ export const en: Record<string, string> = {
     "plans.planActivated": "Plan activated",
     "plans.planDeleted": "Plan deleted",
     "plans.deletePlan": "Delete Plan",
+    "plans.loadError": "Could not load plans. Please try again.",
     "plans.confirmDelete": "Are you sure you want to delete \"{name}\"? Active subscribers will need to be migrated.",
 
     // Reports page
@@ -1875,6 +1882,7 @@ export const en: Record<string, string> = {
     "wods.wodType": "Type",
     "wods.wodDate": "Date",
     "wods.saveChanges": "Save changes",
+    "wods.loadError": "Could not load WODs. Please try again.",
     "programming.wodUpdated": "WOD updated successfully",
 
     // Dashboard extra
@@ -3219,12 +3227,14 @@ export const en: Record<string, string> = {
     "financials.invoiceCreated": "Invoice {ref} created and ready to download",
     "financials.exportedCsv": "Transactions exported as CSV",
     "crm.importStarted": "Import started — {count} leads added",
+    "crm.loadError": "Could not load leads. Please try again.",
     "attendance.exportedCsv": "Attendance report exported as CSV",
     "sepa.fileUploaded": "File {name} uploaded successfully",
     "sepa.fileInvalid": "Please select an XML or ZIP file",
     "exercises.watchOnYouTube": "Watch on YouTube",
     "exercises.videoPlaceholder": "YouTube movement demo",
     "exercises.videoSubtitle": "Click to search demo for {name}",
+    "exercises.loadError": "Could not load exercises. Please try again.",
 
     // API Keys
     "apiKeys.title": "API Keys",

@@ -2,13 +2,17 @@
 
 import { useState, useMemo, useCallback } from "react";
 import Link from "next/link";
-import { ChevronLeft, ChevronRight, ArrowLeft, X, Trash2, Users, Copy, ClipboardPaste, Check } from "lucide-react";
-import { useDataStore } from "@/stores/data-store";
-import type { Class } from "@vytal-fit/shared";
+import { ChevronLeft, ChevronRight, ArrowLeft, X, Trash2, Users, Copy, ClipboardPaste, Check, AlertTriangle } from "lucide-react";
+import type { Class, ClassType, Coach, Location } from "@vytal-fit/shared";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/components/toast";
 import { useI18n } from "@/lib/i18n";
 import { Breadcrumbs } from "@/components/breadcrumbs";
+import { trpc } from "@/lib/trpc";
+import { rowsToClasses, type ClassCounts } from "@/lib/class-mapper";
+import { rowsToClassTypes, rowsToCoaches, rowsToLocations } from "@/lib/reference-mappers";
+import { Skeleton } from "@/components/skeleton";
+import { EmptyState } from "@/components/empty-state";
 
 const TIME_SLOTS = [
   "06:00", "07:00", "08:00", "09:00", "10:00", "11:00",
@@ -31,61 +35,15 @@ function formatDateShort(date: Date): string {
   return date.toLocaleDateString("pt-PT", { day: "2-digit", month: "short" });
 }
 
-function generateWeekClasses(monday: Date, classTypes: import("@vytal-fit/shared").ClassType[], coaches: import("@vytal-fit/shared").Coach[], locations: import("@vytal-fit/shared").Location[]): Class[] {
-  const templates = [
-    { time: "07:00", end: "08:00", ctIdx: 0, coachIdx: 0, cap: 20, enrolled: 18, waitlist: 2 },
-    { time: "09:00", end: "10:00", ctIdx: 0, coachIdx: 1, cap: 20, enrolled: 14, waitlist: 0 },
-    { time: "10:00", end: "11:30", ctIdx: 1, coachIdx: -1, cap: 15, enrolled: 6, waitlist: 0 },
-    { time: "12:00", end: "13:00", ctIdx: 2, coachIdx: 2, cap: 12, enrolled: 10, waitlist: 0 },
-    { time: "17:30", end: "18:30", ctIdx: 0, coachIdx: 0, cap: 20, enrolled: 20, waitlist: 4 },
-    { time: "18:30", end: "19:30", ctIdx: 0, coachIdx: 1, cap: 20, enrolled: 16, waitlist: 0 },
-    { time: "19:30", end: "20:30", ctIdx: 3, coachIdx: 2, cap: 30, enrolled: 22, waitlist: 0 },
-  ];
-
-  const satTemplates = [
-    { time: "09:00", end: "10:00", ctIdx: 0, coachIdx: 0, cap: 20, enrolled: 12, waitlist: 0 },
-    { time: "10:00", end: "11:00", ctIdx: 4, coachIdx: 1, cap: 15, enrolled: 8, waitlist: 0 },
-  ];
-
-  const sunTemplates = [
-    { time: "10:00", end: "11:30", ctIdx: 1, coachIdx: -1, cap: 15, enrolled: 4, waitlist: 0 },
-  ];
-
-  const classes: Class[] = [];
-  let idCounter = 100;
-
-  for (let dayOffset = 0; dayOffset < 7; dayOffset++) {
-    const date = new Date(monday);
-    date.setDate(date.getDate() + dayOffset);
-    const dateStr = date.toISOString().split("T")[0];
-
-    let dayTemplates = templates;
-    if (dayOffset === 5) dayTemplates = satTemplates;
-    if (dayOffset === 6) dayTemplates = sunTemplates;
-
-    for (const t of dayTemplates) {
-      const ct = classTypes[t.ctIdx] ?? classTypes[0];
-      const coach = t.coachIdx >= 0 ? coaches[t.coachIdx] : undefined;
-      classes.push({
-        id: `cal-${idCounter++}`,
-        organizationId: "org-1",
-        classTypeId: ct.id,
-        classType: ct,
-        locationId: locations[0].id,
-        location: locations[0],
-        coachIds: coach ? [coach.id] : [],
-        coaches: coach ? [coach] : [],
-        date: dateStr,
-        startTime: t.time,
-        endTime: t.end,
-        maxCapacity: t.cap,
-        enrolledCount: t.enrolled,
-        waitlistCount: t.waitlist,
-      });
-    }
-  }
-
-  return classes;
+/** Fields needed to create a class through `classes.create`. */
+interface NewClassInput {
+  classTypeId: string;
+  locationId: string;
+  coachIds: string[];
+  date: string;
+  startTime: string;
+  endTime: string;
+  maxCapacity: number;
 }
 
 function ClassBlock({
@@ -158,10 +116,12 @@ function ClassDetailPopup({
   cls,
   onClose,
   onDelete,
+  deletePending,
 }: {
   cls: Class;
   onClose: () => void;
   onDelete: () => void;
+  deletePending: boolean;
 }) {
   const { t } = useI18n();
   const pct = Math.min((cls.enrolledCount / cls.maxCapacity) * 100, 100);
@@ -229,7 +189,8 @@ function ClassDetailPopup({
         <div className="flex gap-2">
           <button
             onClick={onDelete}
-            className="flex items-center gap-2 rounded-lg border border-vytal-red/30 bg-vytal-red/5 px-4 py-2 text-sm font-medium text-vytal-red transition-colors hover:bg-vytal-red/10"
+            disabled={deletePending}
+            className="flex items-center gap-2 rounded-lg border border-vytal-red/30 bg-vytal-red/5 px-4 py-2 text-sm font-medium text-vytal-red transition-colors hover:bg-vytal-red/10 disabled:cursor-not-allowed disabled:opacity-50"
           >
             <Trash2 className="h-4 w-4" />
             {t("action.delete")}
@@ -249,20 +210,25 @@ function ClassDetailPopup({
 function CreateClassModal({
   date,
   time,
+  classTypes,
+  coaches,
+  locations,
   onClose,
   onCreate,
+  createPending,
 }: {
   date: string;
   time: string;
+  classTypes: ClassType[];
+  coaches: Coach[];
+  locations: Location[];
   onClose: () => void;
-  onCreate: (cls: Class) => void;
+  onCreate: (input: NewClassInput) => void;
+  createPending: boolean;
 }) {
   const { t } = useI18n();
-  const classTypes = useDataStore((s) => s.classTypes);
-  const coaches = useDataStore((s) => s.coaches);
-  const locations = useDataStore((s) => s.locations);
-  const [classTypeId, setClassTypeId] = useState(classTypes[0].id);
-  const [coachId, setCoachId] = useState(coaches[0].id);
+  const [classTypeId, setClassTypeId] = useState(classTypes[0]?.id ?? "");
+  const [coachId, setCoachId] = useState(coaches[0]?.id ?? "");
   const [endTime, setEndTime] = useState(() => {
     const [h, m] = time.split(":").map(Number);
     return `${String(h + 1).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
@@ -270,25 +236,16 @@ function CreateClassModal({
   const [maxCapacity, setMaxCapacity] = useState("20");
 
   function handleCreate() {
-    const ct = classTypes.find((c) => c.id === classTypeId) ?? classTypes[0];
-    const coach = coaches.find((c) => c.id === coachId);
-    const newClass: Class = {
-      id: `cal-new-${Date.now()}`,
-      organizationId: "org-1",
-      classTypeId: ct.id,
-      classType: ct,
+    if (!classTypeId || locations.length === 0) return;
+    onCreate({
+      classTypeId,
       locationId: locations[0].id,
-      location: locations[0],
-      coachIds: coach ? [coach.id] : [],
-      coaches: coach ? [coach] : [],
+      coachIds: coachId ? [coachId] : [],
       date,
       startTime: time,
       endTime,
       maxCapacity: parseInt(maxCapacity) || 20,
-      enrolledCount: 0,
-      waitlistCount: 0,
-    };
-    onCreate(newClass);
+    });
   }
 
   return (
@@ -378,7 +335,8 @@ function CreateClassModal({
           </button>
           <button
             onClick={handleCreate}
-            className="rounded-lg bg-vytal-green px-4 py-2 text-sm font-semibold text-vytal-bg transition-colors hover:bg-vytal-green/90"
+            disabled={createPending}
+            className="rounded-lg bg-vytal-green px-4 py-2 text-sm font-semibold text-vytal-bg transition-colors hover:bg-vytal-green/90 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {t("action.create")}
           </button>
@@ -392,9 +350,7 @@ export default function ClassCalendarPage() {
   const [weekOffset, setWeekOffset] = useState(0);
   const { toast } = useToast();
   const { t } = useI18n();
-  const classTypes = useDataStore((s) => s.classTypes);
-  const coaches = useDataStore((s) => s.coaches);
-  const locations = useDataStore((s) => s.locations);
+  const utils = trpc.useUtils();
 
   const monday = useMemo(() => {
     const m = getMonday(new Date());
@@ -408,18 +364,67 @@ export default function ClassCalendarPage() {
     return s;
   }, [monday]);
 
-  const [extraClasses, setExtraClasses] = useState<Class[]>([]);
-  const [deletedIds, setDeletedIds] = useState<Set<string>>(new Set());
+  const mondayStr = monday.toISOString().split("T")[0];
+  const sundayStr = sunday.toISOString().split("T")[0];
 
-  // Copy/Paste state (declared before weekClasses so displayClasses can use them)
+  // ── tRPC: week classes + reference data ──
+  const listQuery = trpc.classes.list.useQuery({ from: mondayStr, to: sundayStr });
+  const classTypesQuery = trpc.classTypes.list.useQuery();
+  const locationsQuery = trpc.locations.list.useQuery();
+  const coachesQuery = trpc.coaches.list.useQuery();
+
+  const classTypes = useMemo(
+    () => rowsToClassTypes(classTypesQuery.data ?? []),
+    [classTypesQuery.data],
+  );
+  const coaches = useMemo(() => rowsToCoaches(coachesQuery.data ?? []), [coachesQuery.data]);
+  const locations = useMemo(
+    () => rowsToLocations(locationsQuery.data ?? []),
+    [locationsQuery.data],
+  );
+
+  const activeRows = useMemo(
+    () => (listQuery.data ?? []).filter((row) => !row.cancelledAt),
+    [listQuery.data],
+  );
+
+  // Enrollment counts only exist on `classes.byId` — fan out per row.
+  const countQueries = trpc.useQueries((q) =>
+    activeRows.map((row) => q.classes.byId({ id: row.id })),
+  );
+
+  const weekClasses = useMemo(() => {
+    const countsById = new Map<string, ClassCounts>();
+    for (const query of countQueries) {
+      if (query.data) {
+        countsById.set(query.data.id, {
+          enrolledCount: query.data.enrolledCount,
+          waitlistCount: query.data.waitlistCount,
+        });
+      }
+    }
+    return rowsToClasses(activeRows, { classTypes, locations, coaches }, countsById);
+  }, [activeRows, classTypes, locations, coaches, countQueries]);
+
+  const isPending =
+    listQuery.isPending ||
+    classTypesQuery.isPending ||
+    locationsQuery.isPending ||
+    coachesQuery.isPending;
+
+  // ── Mutations ──
+  const createClass = trpc.classes.create.useMutation();
+  const cancelClass = trpc.classes.cancel.useMutation();
+
+  const invalidateClasses = useCallback(() => {
+    void utils.classes.list.invalidate();
+    void utils.classes.byId.invalidate();
+  }, [utils]);
+
+  // Copy/Paste state
   const [copiedClasses, setCopiedClasses] = useState<Class[] | null>(null);
   const [pastedPreview, setPastedPreview] = useState<Class[]>([]);
   const [showPastePreview, setShowPastePreview] = useState(false);
-
-  const weekClasses = useMemo(() => {
-    const base = generateWeekClasses(monday, classTypes, coaches, locations);
-    return [...base, ...extraClasses].filter((c) => !deletedIds.has(c.id));
-  }, [monday, extraClasses, deletedIds, classTypes, coaches, locations]);
 
   // Combine weekClasses with paste preview for display
   const displayClasses = useMemo(() => {
@@ -457,7 +462,7 @@ export default function ClassCalendarPage() {
   }, [weekClasses, toast, t]);
 
   const handlePasteWeek = useCallback(() => {
-    if (!copiedClasses) return;
+    if (!copiedClasses || copiedClasses.length === 0) return;
     // Generate pasted classes for the current week by adjusting dates
     const copiedMonday = getMonday(new Date(copiedClasses[0]?.date ?? new Date()));
     const targetMonday = monday;
@@ -473,6 +478,8 @@ export default function ClassCalendarPage() {
         ...cls,
         id: `cal-paste-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
         date: dateStr,
+        enrolledCount: 0,
+        waitlistCount: 0,
       };
     });
 
@@ -480,13 +487,32 @@ export default function ClassCalendarPage() {
     setShowPastePreview(true);
   }, [copiedClasses, monday]);
 
-  const handleConfirmPaste = useCallback(() => {
-    setExtraClasses((prev) => [...prev, ...pastedPreview]);
-    setPastedPreview([]);
-    setShowPastePreview(false);
-    setCopiedClasses(null);
-    toast(t("toast.classesPasted").replace("{count}", String(pastedPreview.length)), "success");
-  }, [pastedPreview, toast, t]);
+  const handleConfirmPaste = useCallback(async () => {
+    const toCreate = pastedPreview;
+    try {
+      await Promise.all(
+        toCreate.map((cls) =>
+          createClass.mutateAsync({
+            classTypeId: cls.classTypeId,
+            locationId: cls.locationId,
+            coachIds: cls.coachIds,
+            date: cls.date,
+            startTime: cls.startTime,
+            endTime: cls.endTime,
+            maxCapacity: cls.maxCapacity,
+          }),
+        ),
+      );
+      invalidateClasses();
+      toast(t("toast.classesPasted").replace("{count}", String(toCreate.length)), "success");
+      setPastedPreview([]);
+      setShowPastePreview(false);
+      setCopiedClasses(null);
+    } catch {
+      invalidateClasses();
+      toast(t("ui.error"), "error");
+    }
+  }, [pastedPreview, createClass, invalidateClasses, toast, t]);
 
   const handleCancelPaste = useCallback(() => {
     setPastedPreview([]);
@@ -514,20 +540,34 @@ export default function ClassCalendarPage() {
 
   const handleDelete = useCallback(
     (cls: Class) => {
-      setDeletedIds((prev) => new Set([...prev, cls.id]));
-      setSelectedClass(null);
-      toast(`${t("action.delete")}: ${cls.classType.name} ${cls.date}`, "success");
+      cancelClass.mutate(
+        { id: cls.id },
+        {
+          onSuccess: () => {
+            invalidateClasses();
+            setSelectedClass(null);
+            toast(`${t("action.delete")}: ${cls.classType.name} ${cls.date}`, "success");
+          },
+          onError: () => toast(t("ui.error"), "error"),
+        },
+      );
     },
-    [toast, t]
+    [cancelClass, invalidateClasses, toast, t]
   );
 
   const handleCreate = useCallback(
-    (cls: Class) => {
-      setExtraClasses((prev) => [...prev, cls]);
-      setCreateModal(null);
-      toast(`${t("action.create")}: ${cls.classType.name} ${cls.date} ${cls.startTime}`, "success");
+    (input: NewClassInput) => {
+      createClass.mutate(input, {
+        onSuccess: (created) => {
+          invalidateClasses();
+          setCreateModal(null);
+          const ctName = classTypes.find((ct) => ct.id === created.classTypeId)?.name ?? "";
+          toast(`${t("action.create")}: ${ctName} ${created.date} ${created.startTime}`, "success");
+        },
+        onError: () => toast(t("ui.error"), "error"),
+      });
     },
-    [toast, t]
+    [createClass, invalidateClasses, classTypes, toast, t]
   );
 
   const handleDragStart = useCallback(
@@ -553,28 +593,18 @@ export default function ClassCalendarPage() {
   }, []);
 
   const handleDrop = useCallback(
-    (e: React.DragEvent, dateStr: string, time: string) => {
+    async (e: React.DragEvent, dateStr: string, time: string) => {
       e.preventDefault();
       setDropTarget(null);
 
       if (!draggedClassId) return;
+      const draggedClass = weekClasses.find((c) => c.id === draggedClassId);
+      setDraggedClassId(null);
 
-      // Find the dragged class in all sources
-      const allClasses = [...generateWeekClasses(monday, classTypes, coaches, locations), ...extraClasses].filter(
-        (c) => !deletedIds.has(c.id)
-      );
-      const draggedClass = allClasses.find((c) => c.id === draggedClassId);
-
-      if (!draggedClass) {
-        setDraggedClassId(null);
-        return;
-      }
+      if (!draggedClass) return;
 
       // If dropped on same slot, do nothing
-      if (draggedClass.date === dateStr && draggedClass.startTime === time) {
-        setDraggedClassId(null);
-        return;
-      }
+      if (draggedClass.date === dateStr && draggedClass.startTime === time) return;
 
       // Calculate new end time preserving duration
       const [startH, startM] = draggedClass.startTime.split(":").map(Number);
@@ -584,21 +614,27 @@ export default function ClassCalendarPage() {
       const newEndTotalMin = newStartH * 60 + newStartM + durationMin;
       const newEndTime = `${String(Math.floor(newEndTotalMin / 60)).padStart(2, "0")}:${String(newEndTotalMin % 60).padStart(2, "0")}`;
 
-      // Delete original and create moved copy
-      setDeletedIds((prev) => new Set([...prev, draggedClassId]));
-      const movedClass: Class = {
-        ...draggedClass,
-        id: `cal-moved-${Date.now()}`,
-        date: dateStr,
-        startTime: time,
-        endTime: newEndTime,
-      };
-      setExtraClasses((prev) => [...prev, movedClass]);
-
-      setDraggedClassId(null);
-      toast(`${draggedClass.classType.name} → ${dateStr} ${time}`, "success");
+      // No `classes.update` procedure exists yet — a move is modelled as
+      // create-at-new-slot + cancel-original.
+      try {
+        await createClass.mutateAsync({
+          classTypeId: draggedClass.classTypeId,
+          locationId: draggedClass.locationId,
+          coachIds: draggedClass.coachIds,
+          date: dateStr,
+          startTime: time,
+          endTime: newEndTime,
+          maxCapacity: draggedClass.maxCapacity,
+        });
+        await cancelClass.mutateAsync({ id: draggedClass.id });
+        invalidateClasses();
+        toast(`${draggedClass.classType.name} → ${dateStr} ${time}`, "success");
+      } catch {
+        invalidateClasses();
+        toast(t("ui.error"), "error");
+      }
     },
-    [draggedClassId, monday, extraClasses, deletedIds, toast, classTypes, coaches, locations]
+    [draggedClassId, weekClasses, createClass, cancelClass, invalidateClasses, toast, t]
   );
 
   const handleDragEnd = useCallback(() => {
@@ -655,8 +691,9 @@ export default function ClassCalendarPage() {
           {showPastePreview && (
             <>
               <button
-                onClick={handleConfirmPaste}
-                className="flex items-center gap-1.5 rounded-lg bg-vytal-green px-3 py-1.5 text-xs font-semibold text-vytal-bg transition-colors hover:bg-vytal-green/90"
+                onClick={() => void handleConfirmPaste()}
+                disabled={createClass.isPending}
+                className="flex items-center gap-1.5 rounded-lg bg-vytal-green px-3 py-1.5 text-xs font-semibold text-vytal-bg transition-colors hover:bg-vytal-green/90 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <Check className="h-3.5 w-3.5" />
                 {t("calendar.confirmPaste")}
@@ -693,6 +730,20 @@ export default function ClassCalendarPage() {
       </div>
 
       {/* Calendar Grid */}
+      {listQuery.isError ? (
+        <EmptyState
+          icon={AlertTriangle}
+          title={t("ui.error")}
+          description={t("classes.loadError")}
+          action={{ label: t("billing.retry"), onClick: () => void listQuery.refetch() }}
+        />
+      ) : isPending ? (
+        <div className="space-y-2 rounded-xl border border-vytal-border bg-vytal-card p-4">
+          {Array.from({ length: 10 }).map((_, i) => (
+            <Skeleton key={i} className="h-10 w-full" />
+          ))}
+        </div>
+      ) : (
       <div className="overflow-x-auto rounded-xl border border-vytal-border">
         <table className="w-full min-w-[900px] table-fixed">
           <thead>
@@ -758,7 +809,7 @@ export default function ClassCalendarPage() {
                       onClick={() => handleCellClick(dateStr, time)}
                       onDragOver={(e) => handleDragOver(e, key)}
                       onDragLeave={handleDragLeave}
-                      onDrop={(e) => handleDrop(e, dateStr, time)}
+                      onDrop={(e) => void handleDrop(e, dateStr, time)}
                     >
                       <div className="space-y-1">
                         {classes.map((cls) => (
@@ -784,6 +835,7 @@ export default function ClassCalendarPage() {
           </tbody>
         </table>
       </div>
+      )}
 
       {/* Handle drag end globally */}
       {draggedClassId && (
@@ -800,16 +852,21 @@ export default function ClassCalendarPage() {
           cls={selectedClass}
           onClose={() => setSelectedClass(null)}
           onDelete={() => handleDelete(selectedClass)}
+          deletePending={cancelClass.isPending}
         />
       )}
 
       {/* Create class modal */}
-      {createModal && (
+      {createModal && classTypes.length > 0 && locations.length > 0 && (
         <CreateClassModal
           date={createModal.date}
           time={createModal.time}
+          classTypes={classTypes}
+          coaches={coaches}
+          locations={locations}
           onClose={() => setCreateModal(null)}
           onCreate={handleCreate}
+          createPending={createClass.isPending}
         />
       )}
     </div>

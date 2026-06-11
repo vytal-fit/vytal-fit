@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { useDataStore } from "@/stores/data-store";
 import type { SubscriptionPlan } from "@vytal-fit/shared";
 import {
   CreditCard, CheckCircle, XCircle, Tag, Dumbbell, Users, Star, TrendingUp, Trash2, Plus,
+  AlertTriangle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
@@ -12,6 +12,14 @@ import { useI18n } from "@/lib/i18n";
 import { useToast } from "@/components/toast";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { formatCurrency as formatCurrencyStore } from "@/stores/data-store";
+import { trpc } from "@/lib/trpc";
+import { rowsToPlans, type PlanRow } from "@/lib/plan-mapper";
+import { rowsToClassTypes } from "@/lib/reference-mappers";
+import { Skeleton } from "@/components/skeleton";
+import { EmptyState } from "@/components/empty-state";
+
+/** Input the plans list is queried (and its cache keyed) with. */
+const PLANS_LIST_INPUT = { activeOnly: false } as const;
 
 const typeLabels: Record<string, { labelKey: string; className: string }> = {
   monthly: { labelKey: "plans.monthly", className: "bg-vytal-green/10 text-vytal-green" },
@@ -21,16 +29,6 @@ const typeLabels: Record<string, { labelKey: string; className: string }> = {
   session_pack: { labelKey: "plans.sessionPack", className: "bg-vytal-amber/10 text-vytal-amber" },
   day_pass: { labelKey: "plans.dayPass", className: "bg-vytal-orange/10 text-vytal-orange" },
   trial: { labelKey: "plans.trialType", className: "bg-vytal-amber/10 text-vytal-amber" },
-};
-
-const planSubscribers: Record<string, number> = {
-  "plan-1": 145, "plan-2": 89, "plan-3": 62, "plan-4": 34,
-  "plan-5": 28, "plan-6": 15, "plan-7": 22, "plan-8": 8,
-};
-
-const planMonthlyRevenue: Record<string, number> = {
-  "plan-1": 10875, "plan-2": 5340, "plan-3": 3100, "plan-4": 2210,
-  "plan-5": 2800, "plan-6": 449, "plan-7": 880, "plan-8": 120,
 };
 
 function formatCurrency(value: number): string {
@@ -46,7 +44,9 @@ function PlanCard({
   onToggleActive: () => void; onDelete: () => void;
 }) {
   const { t } = useI18n();
-  const storeClassTypes = useDataStore((s) => s.classTypes);
+  // React Query dedupes this across all cards into a single request.
+  const classTypesQuery = trpc.classTypes.list.useQuery();
+  const storeClassTypes = rowsToClassTypes(classTypesQuery.data ?? []);
   const typeConfig = typeLabels[plan.type] ?? { labelKey: plan.type, className: "bg-vytal-muted/10 text-vytal-muted" };
   const allowedTypes = plan.allowedClassTypes.map((ctId) => storeClassTypes.find((ct) => ct.id === ctId)).filter(Boolean);
   const subscriberPct = maxSubscribers > 0 ? (subscriberCount / maxSubscribers) * 100 : 0;
@@ -152,36 +152,71 @@ function PlanCard({
 export default function PlansPage() {
   const { t } = useI18n();
   const { toast } = useToast();
-  const storePlans = useDataStore((s) => s.plans);
-  const addPlan = useDataStore((s) => s.addPlan);
-  const updatePlan = useDataStore((s) => s.updatePlan);
-  const deletePlan = useDataStore((s) => s.deletePlan);
   const [showInactive, setShowInactive] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
+
+  // ── tRPC: plans + member subscriptions (for per-plan counts/revenue) ──
+  const utils = trpc.useUtils();
+  const plansQuery = trpc.subscriptions.plans.list.useQuery(PLANS_LIST_INPUT);
+  const subscriptionsQuery = trpc.subscriptions.list.useQuery({});
+
+  const storePlans = useMemo(() => rowsToPlans(plansQuery.data ?? []), [plansQuery.data]);
 
   const plans = useMemo(() => {
     return showInactive ? storePlans : storePlans.filter((p) => p.active);
   }, [showInactive, storePlans]);
 
-  const totalSubscribers = Object.values(planSubscribers).reduce((s, v) => s + v, 0);
-  const totalMonthlyRevenue = Object.values(planMonthlyRevenue).reduce((s, v) => s + v, 0);
-  const mostPopularPlanId = Object.entries(planSubscribers).reduce((max, [id, count]) => (count > max[1] ? [id, count] : max), ["", 0])[0];
-  const maxSubscribers = Math.max(...Object.values(planSubscribers));
+  // Active member subscriptions, grouped per plan.
+  const planSubscribers = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const sub of subscriptionsQuery.data ?? []) {
+      if (sub.status !== "active") continue;
+      counts.set(sub.planId, (counts.get(sub.planId) ?? 0) + 1);
+    }
+    return counts;
+  }, [subscriptionsQuery.data]);
 
+  const planMonthlyRevenue = useMemo(() => {
+    const revenue = new Map<string, number>();
+    for (const plan of storePlans) {
+      revenue.set(plan.id, (planSubscribers.get(plan.id) ?? 0) * plan.price);
+    }
+    return revenue;
+  }, [storePlans, planSubscribers]);
+
+  const totalSubscribers = [...planSubscribers.values()].reduce((s, v) => s + v, 0);
+  const totalMonthlyRevenue = [...planMonthlyRevenue.values()].reduce((s, v) => s + v, 0);
+  const mostPopularPlanId = [...planSubscribers.entries()].reduce(
+    (max, [id, count]) => (count > max[1] ? ([id, count] as [string, number]) : max),
+    ["", 0] as [string, number],
+  )[0];
+  const maxSubscribers = Math.max(0, ...planSubscribers.values());
+
+  // There are no `subscriptions.plans.update/delete` procedures yet — these
+  // actions update the query cache (setData) so the UI responds immediately.
   function handleToggleActive(id: string, currentActive: boolean) {
-    updatePlan(id, { active: !currentActive });
+    utils.subscriptions.plans.list.setData(PLANS_LIST_INPUT, (old) =>
+      old?.map((row) => (row.id === id ? { ...row, active: !currentActive } : row)),
+    );
     toast(currentActive ? t("plans.planDeactivated") : t("plans.planActivated"), "success");
   }
 
   function handleConfirmDelete() {
     if (!deleteTarget) return;
-    const removed = storePlans.find((p) => p.id === deleteTarget.id);
-    deletePlan(deleteTarget.id);
+    const removed: PlanRow | undefined = (plansQuery.data ?? []).find(
+      (p) => p.id === deleteTarget.id,
+    );
+    utils.subscriptions.plans.list.setData(PLANS_LIST_INPUT, (old) =>
+      old?.filter((row) => row.id !== deleteTarget.id),
+    );
     toast(t("plans.planDeleted"), "success", {
       action: removed
         ? {
             label: t("action.undo"),
-            onClick: () => addPlan({ organizationId: removed.organizationId, name: removed.name, type: removed.type, price: removed.price, currency: removed.currency, maxSessions: removed.maxSessions, allowedClassTypes: removed.allowedClassTypes, active: removed.active }),
+            onClick: () =>
+              utils.subscriptions.plans.list.setData(PLANS_LIST_INPUT, (old) =>
+                old ? [...old, removed] : [removed],
+              ),
           }
         : undefined,
     });
@@ -219,20 +254,35 @@ export default function PlansPage() {
       </div>
 
       {/* Grid */}
+      {plansQuery.isError ? (
+        <EmptyState
+          icon={AlertTriangle}
+          title={t("ui.error")}
+          description={t("plans.loadError")}
+          action={{ label: t("billing.retry"), onClick: () => void plansQuery.refetch() }}
+        />
+      ) : plansQuery.isPending ? (
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <Skeleton key={i} className="h-[380px] rounded-xl" />
+          ))}
+        </div>
+      ) : (
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
         {plans.map((plan) => (
           <PlanCard
             key={plan.id}
             plan={plan}
             isPopular={plan.id === mostPopularPlanId}
-            subscriberCount={planSubscribers[plan.id] ?? 0}
-            monthlyRevenue={planMonthlyRevenue[plan.id] ?? 0}
+            subscriberCount={planSubscribers.get(plan.id) ?? 0}
+            monthlyRevenue={planMonthlyRevenue.get(plan.id) ?? 0}
             maxSubscribers={maxSubscribers}
             onToggleActive={() => handleToggleActive(plan.id, plan.active)}
             onDelete={() => setDeleteTarget({ id: plan.id, name: plan.name })}
           />
         ))}
       </div>
+      )}
 
       <ConfirmDialog
         open={!!deleteTarget}
