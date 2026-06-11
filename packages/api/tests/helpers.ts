@@ -47,6 +47,12 @@ export const IDS = {
   leadA2: "lead-a2",
   planA: "plan-a",
   subA: "sub-a",
+  prA1: "pr-a1",
+  prA2: "pr-a2",
+  wodResultA1: "wr-a1",
+  wodResultA2: "wr-a2",
+  notifA1: "notif-a1",
+  notifA2: "notif-a2",
   // org B domain rows
   memberB1: "member-b1",
   coachB: "coach-b",
@@ -58,8 +64,12 @@ export const IDS = {
   leadB: "lead-b",
   planB: "plan-b",
   subB: "sub-b",
+  prB: "pr-b",
+  wodResultB: "wr-b",
+  notifB: "notif-b",
   // global
   exercise1: "ex-1",
+  exercise2: "ex-2",
 } as const;
 
 export async function createTestDb(): Promise<Database> {
@@ -216,6 +226,7 @@ export async function seed(db: Database): Promise<void> {
 
   await db.insert(schema.exercises).values([
     { id: IDS.exercise1, name: "Back Squat", category: "weightlifting" },
+    { id: IDS.exercise2, name: "Pull Up", category: "gymnastics" },
   ]);
 
   await db.insert(schema.wods).values([
@@ -297,6 +308,94 @@ export async function seed(db: Database): Promise<void> {
       planId: IDS.planB,
       startDate: "2026-01-01",
       status: "active",
+    },
+  ]);
+
+  await db.insert(schema.personalRecords).values([
+    {
+      id: IDS.prA1,
+      organizationId: IDS.orgA,
+      memberId: IDS.memberA1,
+      exerciseId: IDS.exercise1,
+      value: "120",
+      unit: "kg",
+    },
+    {
+      id: IDS.prA2,
+      organizationId: IDS.orgA,
+      memberId: IDS.memberA2,
+      exerciseId: IDS.exercise2,
+      value: "15",
+      unit: "reps",
+    },
+    {
+      id: IDS.prB,
+      organizationId: IDS.orgB,
+      memberId: IDS.memberB1,
+      exerciseId: IDS.exercise1,
+      value: "90",
+      unit: "kg",
+    },
+  ]);
+
+  await db.insert(schema.wodResults).values([
+    {
+      id: IDS.wodResultA1,
+      organizationId: IDS.orgA,
+      memberId: IDS.memberA1,
+      wodId: IDS.wodA,
+      classId: IDS.classA,
+      score: "3:45",
+      scoreType: "time",
+      scale: "rx",
+    },
+    {
+      id: IDS.wodResultA2,
+      organizationId: IDS.orgA,
+      memberId: IDS.memberA2,
+      wodId: IDS.wodAPublished,
+      score: "20+5",
+      scoreType: "rounds_reps",
+      scale: "scaled",
+    },
+    {
+      id: IDS.wodResultB,
+      organizationId: IDS.orgB,
+      memberId: IDS.memberB1,
+      wodId: IDS.wodB,
+      score: "100",
+      scoreType: "weight",
+      scale: "rx",
+    },
+  ]);
+
+  await db.insert(schema.notifications).values([
+    {
+      id: IDS.notifA1,
+      organizationId: IDS.orgA,
+      memberId: IDS.memberA1,
+      type: "booking_confirmed",
+      title: "Booking confirmed",
+      body: "You are in for the 07:00 WOD.",
+      read: false,
+    },
+    {
+      id: IDS.notifA2,
+      organizationId: IDS.orgA,
+      memberId: IDS.memberA1,
+      type: "wod_published",
+      title: "WOD published",
+      body: "CINDY is live.",
+      read: true,
+    },
+    {
+      id: IDS.notifB,
+      organizationId: IDS.orgB,
+      memberId: IDS.memberB1,
+      type: "booking_confirmed",
+      title: "Booking confirmed",
+      body: "You are in for the 07:00 Strength.",
+      read: false,
     },
   ]);
 }
