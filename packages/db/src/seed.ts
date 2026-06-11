@@ -21,6 +21,13 @@
  * ids; users are looked up by email and memberships by (organization, user)
  * before insertion. Re-running is always safe and inserts zero new rows.
  *
+ * Date relativity: classes and WODs are seeded across a RELATIVE window
+ * (yesterday / today / tomorrow) computed at seed time, so "today" agenda
+ * views always have data regardless of when the seed ran. Because
+ * `ON CONFLICT DO NOTHING` would leave previously-seeded rows pinned to the
+ * old run date, every run also REFRESHES the date columns of the seeded
+ * class/WOD ids — re-seeding an old database moves its agenda back to "now".
+ *
  * This module is deliberately NOT exported from the package root so that the
  * mock dataset never ends up in app bundles — import it via
  * `@vytal-fit/db/seed` (or a relative path inside this package).
@@ -94,6 +101,61 @@ export const DEMO_USERS: readonly DemoUserSpec[] = [
     memberships: [{ organizationId: "org-1", role: "athlete" }],
   },
 ];
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Relative seed dates — computed at seed time, refreshed on every run
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** ISO date (YYYY-MM-DD, UTC — same convention the app uses) offset by N days. */
+function isoDateFromToday(offsetDays: number): string {
+  return new Date(Date.now() + offsetDays * 86_400_000)
+    .toISOString()
+    .split("T")[0] as string;
+}
+
+/**
+ * Day offsets (relative to the seed run) per seeded class id. The window spans
+ * yesterday → today → tomorrow so agenda views ("today") always have data:
+ *  - cl-1…cl-7  → today   (full day of classes, 07:00–20:30)
+ *  - cl-8, cl-9 → tomorrow
+ *  - cl-10      → yesterday (history views)
+ */
+export const CLASS_DATE_OFFSETS: Readonly<Record<string, number>> = {
+  "cl-1": 0,
+  "cl-2": 0,
+  "cl-3": 0,
+  "cl-4": 0,
+  "cl-5": 0,
+  "cl-6": 0,
+  "cl-7": 0,
+  "cl-8": 1,
+  "cl-9": 1,
+  "cl-10": -1,
+};
+
+/** Day offsets per seeded WOD id: FRAN + HEAVY DAY today, CINDY yesterday. */
+export const WOD_DATE_OFFSETS: Readonly<Record<string, number>> = {
+  "wod-1": 0,
+  "wod-2": 0,
+  "wod-3": -1,
+};
+
+function classSeedDate(id: string, fallback: string): string {
+  const offset = CLASS_DATE_OFFSETS[id];
+  return offset === undefined ? fallback : isoDateFromToday(offset);
+}
+
+function wodSeedDate(id: string, fallback: string): string {
+  const offset = WOD_DATE_OFFSETS[id];
+  return offset === undefined ? fallback : isoDateFromToday(offset);
+}
+
+/** publishedAt = 12h before "now", shifted by the WOD's day offset. */
+function wodSeedPublishedAt(id: string, fallback: Date | null): Date | null {
+  const offset = WOD_DATE_OFFSETS[id];
+  if (offset === undefined) return fallback;
+  return new Date(Date.now() + offset * 86_400_000 - 12 * 3_600_000);
+}
 
 /** Demo bookings into org-1 classes (mock dataset has none of its own). */
 const DEMO_BOOKINGS: ReadonlyArray<{
@@ -341,7 +403,7 @@ export async function seedDatabase(
           classTypeId: klass.classTypeId,
           locationId: klass.locationId,
           coachIds: [...klass.coachIds],
-          date: klass.date,
+          date: classSeedDate(klass.id, klass.date),
           startTime: klass.startTime,
           endTime: klass.endTime,
           maxCapacity: klass.maxCapacity,
@@ -395,17 +457,38 @@ export async function seedDatabase(
           id: wod.id,
           organizationId: wod.organizationId,
           classTypeId: wod.classTypeId,
-          date: wod.date,
+          date: wodSeedDate(wod.id, wod.date),
           title: wod.title ?? null,
           description: wod.description ?? null,
           parts: toStoredParts(wod.parts),
-          publishedAt: toOptionalDate(wod.publishedAt),
+          publishedAt: wodSeedPublishedAt(wod.id, toOptionalDate(wod.publishedAt)),
           createdBy: wod.createdBy,
         })),
       )
       .onConflictDoNothing()
       .returning({ id: schema.wods.id })
   ).length;
+
+  // Date refresh — `ON CONFLICT DO NOTHING` never touches existing rows, so a
+  // re-run on an old database would leave classes/WODs pinned to the previous
+  // seed date. Upsert the date columns for the seeded ids on every run so the
+  // relative window (yesterday/today/tomorrow) always tracks "now".
+  for (const klass of mockClasses) {
+    await db
+      .update(schema.classes)
+      .set({ date: classSeedDate(klass.id, klass.date) })
+      .where(eq(schema.classes.id, klass.id));
+  }
+  for (const wod of mockWODs) {
+    await db
+      .update(schema.wods)
+      .set({
+        date: wodSeedDate(wod.id, wod.date),
+        publishedAt: wodSeedPublishedAt(wod.id, toOptionalDate(wod.publishedAt)),
+      })
+      .where(eq(schema.wods.id, wod.id));
+  }
+  log("classes/wods: dates refreshed to relative window (yesterday/today/tomorrow)");
 
   inserted.subscriptionPlans = (
     await db

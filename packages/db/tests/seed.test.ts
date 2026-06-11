@@ -33,12 +33,21 @@ import {
 import type { Database } from "../src/client";
 import * as schema from "../src/schema";
 import {
+  CLASS_DATE_OFFSETS,
   DEMO_PASSWORD,
   DEMO_USERS,
   ORG_1,
+  WOD_DATE_OFFSETS,
   seedDatabase,
   type SeedSummary,
 } from "../src/seed";
+
+/** Same ISO-UTC date convention the seed (and the app) uses. */
+function isoDateFromToday(offsetDays: number): string {
+  return new Date(Date.now() + offsetDays * 86_400_000)
+    .toISOString()
+    .split("T")[0] as string;
+}
 
 const MIGRATIONS_FOLDER = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -186,6 +195,72 @@ describe("org-1 row counts", () => {
 
     const exerciseCount = await db.select({ n: count() }).from(schema.exercises);
     expect(exerciseCount[0]?.n).toBe(mockExercises.length);
+  });
+});
+
+describe("relative seed dates", () => {
+  it("classes span a relative yesterday/today/tomorrow window", async () => {
+    const rows = await db
+      .select({ id: schema.classes.id, date: schema.classes.date })
+      .from(schema.classes)
+      .where(eq(schema.classes.organizationId, ORG_1));
+
+    const byId = new Map(rows.map((r) => [r.id, r.date]));
+    for (const [id, offset] of Object.entries(CLASS_DATE_OFFSETS)) {
+      expect(byId.get(id), `class ${id}`).toBe(isoDateFromToday(offset));
+    }
+
+    const today = isoDateFromToday(0);
+    const todayCount = rows.filter((r) => r.date === today).length;
+    expect(todayCount).toBeGreaterThanOrEqual(2); // "today" agenda is never empty
+    expect(rows.some((r) => r.date > today)).toBe(true); // upcoming
+    expect(rows.some((r) => r.date < today)).toBe(true); // history
+  });
+
+  it("WODs include today's WOD plus history", async () => {
+    const rows = await db
+      .select({ id: schema.wods.id, date: schema.wods.date })
+      .from(schema.wods)
+      .where(eq(schema.wods.organizationId, ORG_1));
+
+    const byId = new Map(rows.map((r) => [r.id, r.date]));
+    for (const [id, offset] of Object.entries(WOD_DATE_OFFSETS)) {
+      expect(byId.get(id), `wod ${id}`).toBe(isoDateFromToday(offset));
+    }
+    expect(rows.some((r) => r.date === isoDateFromToday(0))).toBe(true);
+    expect(rows.some((r) => r.date < isoDateFromToday(0))).toBe(true);
+  });
+
+  it("re-running refreshes stale class/WOD dates without inserting rows", async () => {
+    // Simulate a database seeded long ago: pin rows to an ancient date.
+    await db
+      .update(schema.classes)
+      .set({ date: "2020-01-01" })
+      .where(eq(schema.classes.id, "cl-1"));
+    await db
+      .update(schema.wods)
+      .set({ date: "2020-01-01" })
+      .where(eq(schema.wods.id, "wod-1"));
+
+    const thirdRun = await seedDatabase(db, { auth });
+
+    // Still idempotent — no new rows…
+    for (const [table, n] of Object.entries(thirdRun.inserted)) {
+      expect(n, `expected 0 new rows in ${table} on refresh run`).toBe(0);
+    }
+
+    // …but the stale dates were moved back into the relative window.
+    const [klass] = await db
+      .select({ date: schema.classes.date })
+      .from(schema.classes)
+      .where(eq(schema.classes.id, "cl-1"));
+    expect(klass?.date).toBe(isoDateFromToday(CLASS_DATE_OFFSETS["cl-1"] ?? 0));
+
+    const [wod] = await db
+      .select({ date: schema.wods.date })
+      .from(schema.wods)
+      .where(eq(schema.wods.id, "wod-1"));
+    expect(wod?.date).toBe(isoDateFromToday(WOD_DATE_OFFSETS["wod-1"] ?? 0));
   });
 });
 

@@ -133,9 +133,14 @@ test.describe("Journey: Logout", () => {
     });
 
     // Reload dashboard — either the guard bounces to /login before the
-    // session revalidation finishes, or hydration wins and we stay.
-    await page.goto("/dashboard", { waitUntil: "domcontentloaded" });
-    await page.waitForTimeout(3000);
+    // session revalidation finishes, or hydration wins and we stay. The
+    // client-side redirect can interrupt the navigation itself (WebKit races
+    // this reliably), which makes goto() throw — both outcomes are fine, so
+    // swallow the interruption and assert on the final URL instead.
+    await page
+      .goto("/dashboard", { waitUntil: "domcontentloaded" })
+      .catch(() => undefined);
+    await page.waitForURL(/login|dashboard/, { timeout: 15000 });
 
     const url = page.url();
     expect(url).toMatch(/login|dashboard/);
