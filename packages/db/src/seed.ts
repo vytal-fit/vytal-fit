@@ -13,20 +13,23 @@
  *       - athlete@vytal.fit → athlete in org-1
  *     All share the password `DEMO_PASSWORD` ("VytalDemo2026!").
  *  3. The full domain mock dataset into org-1 (coaches, locations, class
- *     types, classes, bookings, exercises, WODs, plans, subscriptions, gym
- *     members, leads, personal records, notifications). Mock ids are kept
- *     verbatim — every domain table uses text PKs.
+ *     types, classes, bookings, check-ins, exercises, WODs, plans,
+ *     subscriptions, gym members, leads, personal records, notifications).
+ *     Mock ids are kept verbatim — every domain table uses text PKs.
+ *  4. One organization_settings row per org, derived from the
+ *     ORGANIZATION_CONFIGS defaults for its type.
  *
  * Idempotency: domain rows use `ON CONFLICT DO NOTHING` on their stable mock
  * ids; users are looked up by email and memberships by (organization, user)
  * before insertion. Re-running is always safe and inserts zero new rows.
  *
- * Date relativity: classes and WODs are seeded across a RELATIVE window
- * (yesterday / today / tomorrow) computed at seed time, so "today" agenda
- * views always have data regardless of when the seed ran. Because
- * `ON CONFLICT DO NOTHING` would leave previously-seeded rows pinned to the
- * old run date, every run also REFRESHES the date columns of the seeded
- * class/WOD ids — re-seeding an old database moves its agenda back to "now".
+ * Date relativity: classes, WODs and check-ins are seeded across a RELATIVE
+ * window (check-ins span the last 14 days; classes/WODs yesterday / today /
+ * tomorrow) computed at seed time, so "today" agenda views always have data
+ * regardless of when the seed ran. Because `ON CONFLICT DO NOTHING` would
+ * leave previously-seeded rows pinned to the old run date, every run also
+ * REFRESHES the date columns of the seeded class/WOD/check-in ids —
+ * re-seeding an old database moves its agenda back to "now".
  *
  * This module is deliberately NOT exported from the package root so that the
  * mock dataset never ends up in app bundles — import it via
@@ -34,6 +37,7 @@
  */
 import { and, eq } from "drizzle-orm";
 import {
+  ORGANIZATION_CONFIGS,
   mockClasses,
   mockClassTypes,
   mockCoaches,
@@ -43,6 +47,7 @@ import {
   mockLocations,
   mockMembers,
   mockNotifications,
+  mockOrgAccentColors,
   mockPersonalRecords,
   mockPlans,
   mockSubscriptions,
@@ -52,7 +57,7 @@ import {
 } from "@vytal-fit/shared";
 import type { Database } from "./client";
 import * as schema from "./schema";
-import type { StoredWODPart } from "./schema";
+import { defaultPublicSite, type CheckInMethod, type StoredWODPart } from "./schema";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Demo credentials — documented in docs/BACKEND_WIRING.md
@@ -155,6 +160,60 @@ function wodSeedPublishedAt(id: string, fallback: Date | null): Date | null {
   const offset = WOD_DATE_OFFSETS[id];
   if (offset === undefined) return fallback;
   return new Date(Date.now() + offset * 86_400_000 - 12 * 3_600_000);
+}
+
+/**
+ * Demo check-ins into org-1 (mock dataset has none of its own). Date-relative
+ * like classes: a handful today tied to today's classes/bookings, the rest a
+ * deterministic open-gym pattern spread over the last 13 days (no
+ * Math.random — same ids/offsets/methods on every run). `checkedInAt` is
+ * refreshed on re-run so the window always tracks "now".
+ */
+export interface CheckInSeedSpec {
+  id: string;
+  memberId: string;
+  classId: string | null;
+  bookingId: string | null;
+  method: CheckInMethod;
+  /** Days relative to the seed run (0 = today, negative = past). */
+  dayOffset: number;
+  /** HH:MM, combined with the offset day (UTC, same convention as classes). */
+  time: string;
+}
+
+const CHECK_IN_METHOD_CYCLE: readonly CheckInMethod[] = ["qr", "kiosk", "manual", "app"];
+
+function buildCheckInSeed(): readonly CheckInSeedSpec[] {
+  const specs: CheckInSeedSpec[] = [
+    // Today — tied to today's classes and their demo bookings.
+    { id: "checkin-1", memberId: "m-1", classId: "cl-1", bookingId: "bk-1", method: "qr", dayOffset: 0, time: "07:02" },
+    { id: "checkin-2", memberId: "m-2", classId: "cl-1", bookingId: "bk-2", method: "app", dayOffset: 0, time: "07:05" },
+    { id: "checkin-3", memberId: "m-3", classId: "cl-2", bookingId: "bk-3", method: "kiosk", dayOffset: 0, time: "09:01" },
+    { id: "checkin-4", memberId: "m-7", classId: "cl-5", bookingId: "bk-5", method: "manual", dayOffset: 0, time: "17:58" },
+    // Yesterday — tied to the history class cl-10.
+    { id: "checkin-5", memberId: "m-4", classId: "cl-10", bookingId: null, method: "qr", dayOffset: -1, time: "18:03" },
+  ];
+  // Open-gym history: 25 deterministic entries over the last 13 days.
+  for (let i = 6; i <= 30; i++) {
+    const n = i - 6; // 0..24
+    specs.push({
+      id: `checkin-${i}`,
+      memberId: `m-${(n % 7) + 1}`,
+      classId: null,
+      bookingId: null,
+      method: CHECK_IN_METHOD_CYCLE[n % CHECK_IN_METHOD_CYCLE.length] as CheckInMethod,
+      dayOffset: -((n % 13) + 1),
+      time: `${String(7 + ((n * 3) % 12)).padStart(2, "0")}:15`,
+    });
+  }
+  return specs;
+}
+
+export const CHECK_IN_SEED: readonly CheckInSeedSpec[] = buildCheckInSeed();
+
+/** Timestamp for a check-in spec — offset day + HH:MM, UTC like class dates. */
+function checkInSeedTimestamp(spec: CheckInSeedSpec): Date {
+  return new Date(`${isoDateFromToday(spec.dayOffset)}T${spec.time}:00.000Z`);
 }
 
 /** Demo bookings into org-1 classes (mock dataset has none of its own). */
@@ -429,6 +488,24 @@ export async function seedDatabase(
       .returning({ id: schema.bookings.id })
   ).length;
 
+  inserted.checkIns = (
+    await db
+      .insert(schema.checkIns)
+      .values(
+        CHECK_IN_SEED.map((spec) => ({
+          id: spec.id,
+          organizationId: ORG_1,
+          memberId: spec.memberId,
+          classId: spec.classId,
+          bookingId: spec.bookingId,
+          method: spec.method,
+          checkedInAt: checkInSeedTimestamp(spec),
+        })),
+      )
+      .onConflictDoNothing()
+      .returning({ id: schema.checkIns.id })
+  ).length;
+
   // Exercises are global (no organizationId).
   inserted.exercises = (
     await db
@@ -488,7 +565,13 @@ export async function seedDatabase(
       })
       .where(eq(schema.wods.id, wod.id));
   }
-  log("classes/wods: dates refreshed to relative window (yesterday/today/tomorrow)");
+  for (const spec of CHECK_IN_SEED) {
+    await db
+      .update(schema.checkIns)
+      .set({ checkedInAt: checkInSeedTimestamp(spec) })
+      .where(eq(schema.checkIns.id, spec.id));
+  }
+  log("classes/wods/check-ins: dates refreshed to the relative window");
 
   inserted.subscriptionPlans = (
     await db
@@ -590,6 +673,37 @@ export async function seedDatabase(
       )
       .onConflictDoNothing()
       .returning({ id: schema.notifications.id })
+  ).length;
+
+  // One organization_settings row per demo org, derived from the
+  // ORGANIZATION_CONFIGS defaults for its type (accent colors per mock org).
+  // ON CONFLICT DO NOTHING — never clobber settings edited through the app.
+  inserted.organizationSettings = (
+    await db
+      .insert(schema.organizationSettings)
+      .values(
+        mockCurrentUser.memberships.map((membership) => {
+          const org = membership.organization;
+          const config =
+            ORGANIZATION_CONFIGS[org.type] ?? ORGANIZATION_CONFIGS["other"];
+          if (!config) {
+            throw new Error(`No ORGANIZATION_CONFIGS entry for type "${org.type}".`);
+          }
+          return {
+            organizationId: org.id,
+            features: config.features,
+            branding: {
+              accentColor:
+                mockOrgAccentColors[org.id] ?? config.accentColor ?? "#22c55e",
+              logoUrl: null,
+            },
+            publicSite: defaultPublicSite(),
+            terminologyOverrides: null,
+          };
+        }),
+      )
+      .onConflictDoNothing()
+      .returning({ organizationId: schema.organizationSettings.organizationId })
   ).length;
 
   for (const [table, n] of Object.entries(inserted)) {

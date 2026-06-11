@@ -30,6 +30,8 @@ import type {
   LeadStage,
   MemberStatus,
   NotificationType,
+  OrganizationFeatures,
+  OrganizationTerminology,
   WODType,
 } from "@vytal-fit/shared";
 
@@ -135,6 +137,39 @@ export const NOTIFICATION_TYPES = [
   "streak_milestone",
 ] as const satisfies readonly NotificationType[];
 
+export const CHECK_IN_METHODS = ["qr", "kiosk", "manual", "app"] as const;
+
+export type CheckInMethod = (typeof CHECK_IN_METHODS)[number];
+
+// ─────────────────────────────────────────────────────────────────────────────
+// JSONB storage shapes for organization settings
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** Branding blob stored on `organization_settings.branding`. */
+export interface OrganizationBranding {
+  accentColor: string;
+  logoUrl: string | null;
+}
+
+/** Public-website config blob stored on `organization_settings.public_site`. */
+export interface OrganizationPublicSite {
+  enabled: boolean;
+  slogan?: string;
+  description?: string;
+  seo?: {
+    title?: string;
+    description?: string;
+  };
+  /** Per-section visibility flags (hero, schedule, pricing, shop, team, …). */
+  sections: Record<string, boolean>;
+  customDomain?: string | null;
+}
+
+/** Default public-site blob for orgs that never configured their website. */
+export function defaultPublicSite(): OrganizationPublicSite {
+  return { enabled: false, sections: {} };
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // pgEnums
 // ─────────────────────────────────────────────────────────────────────────────
@@ -151,6 +186,7 @@ export const planTypeEnum = pgEnum("plan_type", PLAN_TYPES);
 export const subscriptionStatusEnum = pgEnum("subscription_status", SUBSCRIPTION_STATUSES);
 export const leadStageEnum = pgEnum("lead_stage", LEAD_STAGES);
 export const notificationTypeEnum = pgEnum("notification_type", NOTIFICATION_TYPES);
+export const checkInMethodEnum = pgEnum("check_in_method", CHECK_IN_METHODS);
 
 // ─────────────────────────────────────────────────────────────────────────────
 // 1. Better Auth core tables
@@ -608,3 +644,49 @@ export const notifications = pgTable(
     index("notifications_org_member_idx").on(t.organizationId, t.memberId),
   ],
 );
+
+/**
+ * Check-ins — every gym entry, whether tied to a class booking or open gym.
+ * `classId`/`bookingId` are nullable: open-gym check-ins carry neither.
+ */
+export const checkIns = pgTable(
+  "check_ins",
+  {
+    id: text("id").primaryKey(),
+    organizationId: text("organization_id")
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    memberId: text("member_id")
+      .notNull()
+      .references(() => gymMembers.id, { onDelete: "cascade" }),
+    classId: text("class_id").references(() => classes.id, { onDelete: "set null" }),
+    bookingId: text("booking_id").references(() => bookings.id, { onDelete: "set null" }),
+    method: checkInMethodEnum("method").notNull().default("manual"),
+    checkedInAt: timestamp("checked_in_at").notNull().defaultNow(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (t) => [
+    index("check_ins_org_idx").on(t.organizationId),
+    index("check_ins_org_member_idx").on(t.organizationId, t.memberId),
+    index("check_ins_org_checked_in_at_idx").on(t.organizationId, t.checkedInAt),
+    index("check_ins_org_class_idx").on(t.organizationId, t.classId),
+  ],
+);
+
+/**
+ * Per-organization settings — exactly one row per org (PK = organizationId).
+ * Orgs without a row fall back to the `ORGANIZATION_CONFIGS` defaults for
+ * their type (resolved at read time by the API layer).
+ */
+export const organizationSettings = pgTable("organization_settings", {
+  organizationId: text("organization_id")
+    .primaryKey()
+    .references(() => organization.id, { onDelete: "cascade" }),
+  features: jsonb("features").$type<OrganizationFeatures>().notNull(),
+  branding: jsonb("branding").$type<OrganizationBranding>().notNull(),
+  publicSite: jsonb("public_site").$type<OrganizationPublicSite>().notNull(),
+  terminologyOverrides: jsonb("terminology_overrides").$type<
+    Partial<OrganizationTerminology>
+  >(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
