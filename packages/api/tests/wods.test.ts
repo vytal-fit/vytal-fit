@@ -164,3 +164,82 @@ describe("wods.publish", () => {
     });
   });
 });
+
+describe("wods.update", () => {
+  it("coach can partially update a draft WOD (title/date/parts)", async () => {
+    const draft = await h.callerCoachA.wods.create({
+      classTypeId: IDS.classTypeA,
+      date: todayString(3),
+      title: "DRAFT",
+      parts: [],
+    });
+    const updated = await h.callerCoachA.wods.update({
+      id: draft.id,
+      data: {
+        title: "DRAFT v2",
+        date: todayString(4),
+        parts: [
+          {
+            name: "WOD",
+            type: "amrap",
+            timeCap: 12,
+            exercises: [{ exerciseId: IDS.exercise2, reps: "10" }],
+          },
+        ],
+      },
+    });
+    expect(updated?.title).toBe("DRAFT v2");
+    expect(updated?.date).toBe(todayString(4));
+    expect(updated?.parts).toHaveLength(1);
+    // Untouched fields survive a partial update.
+    expect(updated?.classTypeId).toBe(IDS.classTypeA);
+    expect(updated?.publishedAt).toBeNull();
+  });
+
+  it("also works on a published WOD without altering publishedAt", async () => {
+    const updated = await h.callerA.wods.update({
+      id: IDS.wodAPublished,
+      data: { title: "CINDY RX" },
+    });
+    expect(updated?.title).toBe("CINDY RX");
+    expect(updated?.publishedAt).toBeInstanceOf(Date);
+  });
+
+  it("athlete gets FORBIDDEN (coach+)", async () => {
+    await expect(
+      h.callerAthleteA.wods.update({ id: IDS.wodA, data: { title: "NOPE" } }),
+    ).rejects.toMatchObject({ code: "FORBIDDEN" });
+  });
+
+  it("throws UNAUTHORIZED without a session", async () => {
+    await expect(
+      h.callerNoSession.wods.update({ id: IDS.wodA, data: { title: "X" } }),
+    ).rejects.toMatchObject({ code: "UNAUTHORIZED" });
+  });
+
+  it("throws FORBIDDEN without an active organization", async () => {
+    await expect(
+      h.callerNoOrg.wods.update({ id: IDS.wodA, data: { title: "X" } }),
+    ).rejects.toMatchObject({ code: "FORBIDDEN" });
+  });
+
+  it("cross-tenant: org B caller cannot update an org A WOD (NOT_FOUND)", async () => {
+    await expect(
+      h.callerB.wods.update({ id: IDS.wodA, data: { title: "HACKED" } }),
+    ).rejects.toMatchObject({ code: "NOT_FOUND" });
+    const row = await h.callerA.wods.byId({ id: IDS.wodA });
+    expect(row.title).not.toBe("HACKED");
+  });
+
+  it("cross-tenant: cannot re-target an org B class type (NOT_FOUND)", async () => {
+    await expect(
+      h.callerA.wods.update({ id: IDS.wodA, data: { classTypeId: IDS.classTypeB } }),
+    ).rejects.toMatchObject({ code: "NOT_FOUND" });
+  });
+
+  it("rejects invalid input (Zod)", async () => {
+    await expect(
+      h.callerA.wods.update({ id: IDS.wodA, data: { date: "June 1st" } }),
+    ).rejects.toMatchObject({ code: "BAD_REQUEST" });
+  });
+});

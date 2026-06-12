@@ -32,6 +32,13 @@ const wodInput = z.object({
   parts: z.array(wodPartSchema).default([]),
 });
 
+/**
+ * Update payload: `wodInput` with the `parts` default stripped — a defaulted
+ * field inside `.partial()` would otherwise coerce `undefined` back to `[]`
+ * and silently wipe stored parts on partial updates.
+ */
+const wodUpdateInput = wodInput.extend({ parts: z.array(wodPartSchema) }).partial();
+
 export const wodsRouter = router({
   list: orgProcedure
     .input(
@@ -98,6 +105,53 @@ export const wodsRouter = router({
       .returning();
     return created;
   }),
+
+  /**
+   * Partial update of a WOD (title/date/parts/classTypeId/description).
+   * Works on both draft and published WODs — publication state is managed
+   * exclusively via `publish`.
+   */
+  update: staffProcedure
+    .input(z.object({ id: z.string().min(1), data: wodUpdateInput }))
+    .mutation(async ({ ctx, input }) => {
+      // Re-fetch scoped to the org before mutating — never trust a client id.
+      const [existing] = await ctx.db
+        .select({ id: wods.id })
+        .from(wods)
+        .where(
+          and(eq(wods.id, input.id), eq(wods.organizationId, ctx.activeOrganizationId)),
+        )
+        .limit(1);
+      if (!existing) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "WOD not found." });
+      }
+
+      // A re-targeted class type must belong to the active org.
+      if (input.data.classTypeId) {
+        const [classType] = await ctx.db
+          .select({ id: classTypes.id })
+          .from(classTypes)
+          .where(
+            and(
+              eq(classTypes.id, input.data.classTypeId),
+              eq(classTypes.organizationId, ctx.activeOrganizationId),
+            ),
+          )
+          .limit(1);
+        if (!classType) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "Class type not found." });
+        }
+      }
+
+      const [updated] = await ctx.db
+        .update(wods)
+        .set(input.data)
+        .where(
+          and(eq(wods.id, input.id), eq(wods.organizationId, ctx.activeOrganizationId)),
+        )
+        .returning();
+      return updated;
+    }),
 
   publish: staffProcedure
     .input(z.object({ id: z.string().min(1) }))

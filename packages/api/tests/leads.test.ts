@@ -127,3 +127,53 @@ describe("leads.updateStage", () => {
     ).rejects.toMatchObject({ code: "BAD_REQUEST" });
   });
 });
+
+describe("leads.delete", () => {
+  it("athlete and coach get FORBIDDEN (admin+)", async () => {
+    await expect(
+      h.callerAthleteA.leads.delete({ id: IDS.leadA }),
+    ).rejects.toMatchObject({ code: "FORBIDDEN" });
+    await expect(
+      h.callerCoachA.leads.delete({ id: IDS.leadA }),
+    ).rejects.toMatchObject({ code: "FORBIDDEN" });
+  });
+
+  it("throws UNAUTHORIZED without a session", async () => {
+    await expect(
+      h.callerNoSession.leads.delete({ id: IDS.leadA }),
+    ).rejects.toMatchObject({ code: "UNAUTHORIZED" });
+  });
+
+  it("throws FORBIDDEN without an active organization", async () => {
+    await expect(h.callerNoOrg.leads.delete({ id: IDS.leadA })).rejects.toMatchObject({
+      code: "FORBIDDEN",
+    });
+  });
+
+  it("cross-tenant: org B caller cannot delete an org A lead (NOT_FOUND)", async () => {
+    await expect(h.callerB.leads.delete({ id: IDS.leadA })).rejects.toMatchObject({
+      code: "NOT_FOUND",
+    });
+    const rows = await h.callerA.leads.list();
+    expect(rows.some((l) => l.id === IDS.leadA)).toBe(true);
+  });
+
+  it("throws NOT_FOUND for an unknown id", async () => {
+    await expect(h.callerA.leads.delete({ id: "nope" })).rejects.toMatchObject({
+      code: "NOT_FOUND",
+    });
+  });
+
+  it("rejects invalid input (Zod)", async () => {
+    await expect(h.callerA.leads.delete({ id: "" })).rejects.toMatchObject({
+      code: "BAD_REQUEST",
+    });
+  });
+
+  it("owner hard-deletes a lead", async () => {
+    const deleted = await h.callerA.leads.delete({ id: IDS.leadA2 });
+    expect(deleted?.id).toBe(IDS.leadA2);
+    const rows = await h.callerA.leads.list();
+    expect(rows.some((l) => l.id === IDS.leadA2)).toBe(false);
+  });
+});

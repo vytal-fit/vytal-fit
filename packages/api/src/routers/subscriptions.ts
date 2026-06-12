@@ -24,6 +24,19 @@ const planInput = z.object({
   active: z.boolean().default(true),
 });
 
+/**
+ * Update payload: `planInput` with the `.default()`s stripped — a defaulted
+ * field inside `.partial()` would otherwise coerce `undefined` back to its
+ * default and silently reset stored values on partial updates.
+ */
+const planUpdateInput = planInput
+  .extend({
+    currency: z.string().length(3),
+    allowedClassTypes: z.array(z.string().min(1)),
+    active: z.boolean(),
+  })
+  .partial();
+
 const subscriptionInput = z.object({
   memberId: z.string().min(1),
   planId: z.string().min(1),
@@ -80,6 +93,122 @@ export const subscriptionsRouter = router({
         .returning();
       return created;
     }),
+
+    /**
+     * Partial update of a plan (name/price/active/…). Activate/deactivate is
+     * just `data: { active }` — no separate procedure.
+     */
+    update: adminProcedure
+      .input(z.object({ id: z.string().min(1), data: planUpdateInput }))
+      .mutation(async ({ ctx, input }) => {
+        // Re-fetch scoped to the org before mutating — never trust a client id.
+        const [existing] = await ctx.db
+          .select({ id: subscriptionPlans.id })
+          .from(subscriptionPlans)
+          .where(
+            and(
+              eq(subscriptionPlans.id, input.id),
+              eq(subscriptionPlans.organizationId, ctx.activeOrganizationId),
+            ),
+          )
+          .limit(1);
+        if (!existing) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "Plan not found." });
+        }
+
+        // Every allowed class type must belong to the active org.
+        for (const classTypeId of input.data.allowedClassTypes ?? []) {
+          const [classType] = await ctx.db
+            .select({ id: classTypes.id })
+            .from(classTypes)
+            .where(
+              and(
+                eq(classTypes.id, classTypeId),
+                eq(classTypes.organizationId, ctx.activeOrganizationId),
+              ),
+            )
+            .limit(1);
+          if (!classType) {
+            throw new TRPCError({ code: "NOT_FOUND", message: "Class type not found." });
+          }
+        }
+
+        const { price, ...rest } = input.data;
+        const [updated] = await ctx.db
+          .update(subscriptionPlans)
+          .set({
+            ...rest,
+            ...(price !== undefined ? { price: price.toFixed(2) } : {}),
+          })
+          .where(
+            and(
+              eq(subscriptionPlans.id, input.id),
+              eq(subscriptionPlans.organizationId, ctx.activeOrganizationId),
+            ),
+          )
+          .returning();
+        return updated;
+      }),
+
+    /**
+     * Hard delete of a plan. `subscriptions.planId` is FK `restrict`, so a
+     * plan referenced by ANY subscription (active or historical) is rejected
+     * with CONFLICT instead of leaking a raw FK violation — member
+     * subscriptions are never orphaned or cascade-deleted. To retire a plan
+     * that has history, set `active: false` via `update` instead.
+     */
+    delete: adminProcedure
+      .input(z.object({ id: z.string().min(1) }))
+      .mutation(async ({ ctx, input }) => {
+        const [existing] = await ctx.db
+          .select({ id: subscriptionPlans.id })
+          .from(subscriptionPlans)
+          .where(
+            and(
+              eq(subscriptionPlans.id, input.id),
+              eq(subscriptionPlans.organizationId, ctx.activeOrganizationId),
+            ),
+          )
+          .limit(1);
+        if (!existing) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "Plan not found." });
+        }
+
+        const referencing = await ctx.db
+          .select({ status: subscriptions.status })
+          .from(subscriptions)
+          // By planId alone (not org-scoped): the FK is `restrict` regardless
+          // of org, so any reference must surface as CONFLICT, never a raw
+          // FK violation.
+          .where(eq(subscriptions.planId, input.id));
+        const activeCount = referencing.filter((s) => s.status === "active").length;
+        if (activeCount > 0) {
+          throw new TRPCError({
+            code: "CONFLICT",
+            message: `Plan has ${activeCount} active subscription${activeCount === 1 ? "" : "s"}. Cancel or move them first, or deactivate the plan instead.`,
+          });
+        }
+        if (referencing.length > 0) {
+          throw new TRPCError({
+            code: "CONFLICT",
+            message: `Plan is referenced by ${referencing.length} past subscription${referencing.length === 1 ? "" : "s"}. Deactivate the plan instead of deleting it.`,
+          });
+        }
+
+        const [deleted] = await ctx.db
+          .delete(subscriptionPlans)
+          .where(
+            and(
+              eq(subscriptionPlans.id, input.id),
+              eq(subscriptionPlans.organizationId, ctx.activeOrganizationId),
+            ),
+          )
+          .returning();
+        if (!deleted) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "Plan not found." });
+        }
+        return deleted;
+      }),
   }),
 
   list: orgProcedure

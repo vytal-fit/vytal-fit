@@ -240,3 +240,170 @@ describe("subscriptions.create", () => {
     ).rejects.toMatchObject({ code: "BAD_REQUEST" });
   });
 });
+
+describe("subscriptions.plans.update", () => {
+  it("owner can partially update a plan (name/price/active)", async () => {
+    const updated = await h.callerA.subscriptions.plans.update({
+      id: IDS.planA,
+      data: { name: "Unlimited Plus", price: 85, active: false },
+    });
+    expect(updated?.name).toBe("Unlimited Plus");
+    expect(updated?.price).toBe("85.00");
+    expect(updated?.active).toBe(false);
+    // Untouched fields survive a partial update.
+    expect(updated?.type).toBe("monthly");
+    expect(updated?.allowedClassTypes).toEqual([IDS.classTypeA]);
+
+    // Re-activate (covers activate/deactivate via `active`).
+    const reactivated = await h.callerA.subscriptions.plans.update({
+      id: IDS.planA,
+      data: { active: true },
+    });
+    expect(reactivated?.active).toBe(true);
+    expect(reactivated?.name).toBe("Unlimited Plus");
+  });
+
+  it("coach and athlete get FORBIDDEN (admin+)", async () => {
+    await expect(
+      h.callerCoachA.subscriptions.plans.update({
+        id: IDS.planA,
+        data: { active: false },
+      }),
+    ).rejects.toMatchObject({ code: "FORBIDDEN" });
+    await expect(
+      h.callerAthleteA.subscriptions.plans.update({
+        id: IDS.planA,
+        data: { active: false },
+      }),
+    ).rejects.toMatchObject({ code: "FORBIDDEN" });
+  });
+
+  it("throws UNAUTHORIZED without a session", async () => {
+    await expect(
+      h.callerNoSession.subscriptions.plans.update({
+        id: IDS.planA,
+        data: { name: "X" },
+      }),
+    ).rejects.toMatchObject({ code: "UNAUTHORIZED" });
+  });
+
+  it("throws FORBIDDEN without an active organization", async () => {
+    await expect(
+      h.callerNoOrg.subscriptions.plans.update({
+        id: IDS.planA,
+        data: { name: "X" },
+      }),
+    ).rejects.toMatchObject({ code: "FORBIDDEN" });
+  });
+
+  it("cross-tenant: org B caller cannot update an org A plan (NOT_FOUND)", async () => {
+    await expect(
+      h.callerB.subscriptions.plans.update({
+        id: IDS.planA,
+        data: { name: "HACKED" },
+      }),
+    ).rejects.toMatchObject({ code: "NOT_FOUND" });
+    const rows = await h.callerA.subscriptions.plans.list();
+    expect(rows.some((p) => p.name === "HACKED")).toBe(false);
+  });
+
+  it("cross-tenant: cannot reference an org B class type (NOT_FOUND)", async () => {
+    await expect(
+      h.callerA.subscriptions.plans.update({
+        id: IDS.planA,
+        data: { allowedClassTypes: [IDS.classTypeB] },
+      }),
+    ).rejects.toMatchObject({ code: "NOT_FOUND" });
+  });
+
+  it("rejects invalid input (Zod)", async () => {
+    await expect(
+      h.callerA.subscriptions.plans.update({
+        id: IDS.planA,
+        data: { price: -10 },
+      }),
+    ).rejects.toMatchObject({ code: "BAD_REQUEST" });
+  });
+});
+
+describe("subscriptions.plans.delete", () => {
+  it("coach and athlete get FORBIDDEN (admin+)", async () => {
+    await expect(
+      h.callerCoachA.subscriptions.plans.delete({ id: IDS.planA }),
+    ).rejects.toMatchObject({ code: "FORBIDDEN" });
+    await expect(
+      h.callerAthleteA.subscriptions.plans.delete({ id: IDS.planA }),
+    ).rejects.toMatchObject({ code: "FORBIDDEN" });
+  });
+
+  it("throws UNAUTHORIZED without a session", async () => {
+    await expect(
+      h.callerNoSession.subscriptions.plans.delete({ id: IDS.planA }),
+    ).rejects.toMatchObject({ code: "UNAUTHORIZED" });
+  });
+
+  it("throws FORBIDDEN without an active organization", async () => {
+    await expect(
+      h.callerNoOrg.subscriptions.plans.delete({ id: IDS.planA }),
+    ).rejects.toMatchObject({ code: "FORBIDDEN" });
+  });
+
+  it("cross-tenant: org B caller cannot delete an org A plan (NOT_FOUND)", async () => {
+    await expect(
+      h.callerB.subscriptions.plans.delete({ id: IDS.planA }),
+    ).rejects.toMatchObject({ code: "NOT_FOUND" });
+    const rows = await h.callerA.subscriptions.plans.list();
+    expect(rows.some((p) => p.id === IDS.planA)).toBe(true);
+  });
+
+  it("throws CONFLICT (with a count) when ACTIVE subscriptions reference the plan", async () => {
+    // Seed: subA is active on planA; subscriptions.create above added a 2nd.
+    await expect(
+      h.callerA.subscriptions.plans.delete({ id: IDS.planA }),
+    ).rejects.toMatchObject({
+      code: "CONFLICT",
+      message: expect.stringMatching(/2 active subscriptions/),
+    });
+    const rows = await h.callerA.subscriptions.plans.list();
+    expect(rows.some((p) => p.id === IDS.planA)).toBe(true);
+  });
+
+  it("throws CONFLICT when only historical (cancelled) subscriptions reference the plan", async () => {
+    const plan = await h.callerA.subscriptions.plans.create({
+      name: "Retired Plan",
+      type: "monthly",
+      price: 30,
+    });
+    await h.callerA.subscriptions.create({
+      memberId: IDS.memberA2,
+      planId: plan.id,
+      startDate: "2026-01-01",
+      status: "cancelled",
+    });
+    // FK is `restrict`: never orphan or cascade-delete member subscriptions.
+    await expect(
+      h.callerA.subscriptions.plans.delete({ id: plan.id }),
+    ).rejects.toMatchObject({
+      code: "CONFLICT",
+      message: expect.stringContaining("past subscription"),
+    });
+  });
+
+  it("rejects invalid input (Zod)", async () => {
+    await expect(
+      h.callerA.subscriptions.plans.delete({ id: "" }),
+    ).rejects.toMatchObject({ code: "BAD_REQUEST" });
+  });
+
+  it("owner deletes an unreferenced plan", async () => {
+    const plan = await h.callerA.subscriptions.plans.create({
+      name: "Throwaway Plan",
+      type: "day_pass",
+      price: 12,
+    });
+    const deleted = await h.callerA.subscriptions.plans.delete({ id: plan.id });
+    expect(deleted?.id).toBe(plan.id);
+    const rows = await h.callerA.subscriptions.plans.list();
+    expect(rows.some((p) => p.id === plan.id)).toBe(false);
+  });
+});
