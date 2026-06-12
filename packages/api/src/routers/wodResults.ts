@@ -141,7 +141,16 @@ export const wodResultsRouter = router({
   }),
 
   update: staffProcedure
-    .input(z.object({ id: z.string().min(1), data: resultInput.partial() }))
+    // Strip defaults before .partial() — zod applies .default() even for
+    // omitted keys in a partial, silently resetting scale to "rx" and isPR.
+    .input(
+      z.object({
+        id: z.string().min(1),
+        data: resultInput
+          .extend({ scale: z.enum(WOD_SCALES), isPR: z.boolean() })
+          .partial(),
+      }),
+    )
     .mutation(async ({ ctx, input }) => {
       // Re-fetch scoped to the org before mutating — never trust a client id.
       const [existing] = await ctx.db

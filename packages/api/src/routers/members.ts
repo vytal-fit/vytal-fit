@@ -90,7 +90,15 @@ export const membersRouter = router({
   }),
 
   update: adminProcedure
-    .input(z.object({ id: z.string().min(1), data: memberInput.partial() }))
+    // Strip defaults before .partial() — zod applies .default() even for
+    // omitted keys in a partial, which would silently reset status to
+    // "active" (resurrecting archived members on any field edit).
+    .input(
+      z.object({
+        id: z.string().min(1),
+        data: memberInput.extend({ status: z.enum(MEMBER_STATUSES) }).partial(),
+      }),
+    )
     .mutation(async ({ ctx, input }) => {
       // Re-fetch scoped to the org before mutating — never trust a client id.
       const [existing] = await ctx.db

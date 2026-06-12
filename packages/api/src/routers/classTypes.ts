@@ -54,7 +54,14 @@ export const classTypesRouter = router({
   }),
 
   update: adminProcedure
-    .input(z.object({ id: z.string().min(1), data: classTypeInput.partial() }))
+    // Strip defaults before .partial() — zod applies .default() even for
+    // omitted keys in a partial, silently re-activating the class type.
+    .input(
+      z.object({
+        id: z.string().min(1),
+        data: classTypeInput.extend({ active: z.boolean() }).partial(),
+      }),
+    )
     .mutation(async ({ ctx, input }) => {
       // Re-fetch scoped to the org before mutating — never trust a client id.
       const [existing] = await ctx.db
