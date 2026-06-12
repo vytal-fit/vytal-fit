@@ -1,16 +1,13 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { useDataStore } from "@/stores/data-store";
 import type { ExerciseCategory } from "@vytal-fit/shared";
 import Link from "next/link";
-import { Search, Dumbbell, Plus, Pencil, Trash2, X, Check, AlertTriangle } from "lucide-react";
+import { Search, Dumbbell, AlertTriangle } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { rowsToExercises } from "@/lib/reference-mappers";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/lib/i18n";
-import { useToast } from "@/components/toast";
-import { ConfirmDialog } from "@/components/confirm-dialog";
 import { EmptyState } from "@/components/empty-state";
 import { Skeleton } from "@/components/skeleton";
 
@@ -27,43 +24,19 @@ const categories: ExerciseCategory[] = ["weightlifting", "gymnastics", "cardio",
 
 export default function ExercisesPage() {
   const { t } = useI18n();
-  const { toast } = useToast();
 
-  // ── tRPC: global exercise library (read-only router) ──
-  // Category filtering/search stays client-side so the pill counts work off a
-  // single fetch, mirroring the previous store behaviour.
+  // ── tRPC: global exercise library (read-only router by design — the
+  // library is shared across orgs, so there are no create/edit/delete
+  // controls on this page). Category filtering/search stays client-side so
+  // the pill counts work off a single fetch.
   const listQuery = trpc.exercises.list.useQuery({});
   const fetchedExercises = useMemo(
     () => rowsToExercises(listQuery.data ?? []),
     [listQuery.data],
   );
 
-  // NOTE: the exercises router is read-only (global library, no org scope).
-  // Create/edit/delete below still talk to the local mock store and do NOT
-  // affect the DB-backed list shown on this page.
-  const addExercise = useDataStore((s) => s.addExercise);
-  const updateExercise = useDataStore((s) => s.updateExercise);
-  const deleteExercise = useDataStore((s) => s.deleteExercise);
-
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState<ExerciseCategory | "all">("all");
-
-  // Add form
-  const [showAddForm, setShowAddForm] = useState(false);
-  const [addName, setAddName] = useState("");
-  const [addCategory, setAddCategory] = useState<ExerciseCategory>("weightlifting");
-  const [addEquipment, setAddEquipment] = useState("");
-  const [addMuscleGroups, setAddMuscleGroups] = useState("");
-
-  // Edit
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [editName, setEditName] = useState("");
-  const [editCategory, setEditCategory] = useState<ExerciseCategory>("weightlifting");
-  const [editEquipment, setEditEquipment] = useState("");
-  const [editMuscleGroups, setEditMuscleGroups] = useState("");
-
-  // Delete
-  const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
 
   const exercises = useMemo(() => {
     let filtered = fetchedExercises;
@@ -77,105 +50,13 @@ export default function ExercisesPage() {
     return filtered;
   }, [search, activeCategory, fetchedExercises]);
 
-  function handleAdd() {
-    if (!addName.trim()) { toast(t("exercises.nameRequired"), "error"); return; }
-    addExercise({
-      name: addName.trim(),
-      category: addCategory,
-      equipment: addEquipment ? addEquipment.split(",").map((s) => s.trim()).filter(Boolean) : [],
-      muscleGroups: addMuscleGroups ? addMuscleGroups.split(",").map((s) => s.trim()).filter(Boolean) : [],
-    });
-    toast(t("exercises.exerciseAdded"), "success");
-    setAddName(""); setAddEquipment(""); setAddMuscleGroups("");
-    setShowAddForm(false);
-  }
-
-  function startEdit(ex: { id: string; name: string; category: ExerciseCategory; equipment?: string[]; muscleGroups?: string[] }) {
-    setEditingId(ex.id);
-    setEditName(ex.name);
-    setEditCategory(ex.category);
-    setEditEquipment(ex.equipment?.join(", ") ?? "");
-    setEditMuscleGroups(ex.muscleGroups?.join(", ") ?? "");
-  }
-
-  function handleSaveEdit() {
-    if (!editingId || !editName.trim()) return;
-    updateExercise(editingId, {
-      name: editName.trim(),
-      category: editCategory,
-      equipment: editEquipment ? editEquipment.split(",").map((s) => s.trim()).filter(Boolean) : [],
-      muscleGroups: editMuscleGroups ? editMuscleGroups.split(",").map((s) => s.trim()).filter(Boolean) : [],
-    });
-    toast(t("exercises.exerciseUpdated"), "success");
-    setEditingId(null);
-  }
-
-  function handleConfirmDelete() {
-    if (!deleteTarget) return;
-    const removed = fetchedExercises.find((e) => e.id === deleteTarget.id);
-    deleteExercise(deleteTarget.id);
-    toast(t("exercises.exerciseDeleted"), "success", {
-      action: removed
-        ? {
-            label: t("action.undo"),
-            onClick: () => addExercise({ name: removed.name, category: removed.category, equipment: removed.equipment, muscleGroups: removed.muscleGroups }),
-          }
-        : undefined,
-    });
-    setDeleteTarget(null);
-  }
-
-  const inputClass =
-    "w-full rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-2 text-sm text-vytal-text placeholder:text-vytal-muted focus:border-vytal-green/30 focus:outline-none focus:ring-1 focus:ring-vytal-green/20";
-
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="mb-8 flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-vytal-text">{t("exercises.title")}</h1>
-          <p className="mt-1 text-sm text-vytal-muted">{t("exercises.subtitle")} ({fetchedExercises.length})</p>
-        </div>
-        <button
-          onClick={() => setShowAddForm((v) => !v)}
-          className="flex items-center gap-2 rounded-lg bg-vytal-green px-4 py-2.5 text-sm font-semibold text-vytal-bg transition-colors hover:bg-vytal-green/90"
-        >
-          {showAddForm ? <X className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
-          {showAddForm ? t("action.cancel") : t("exercises.addExercise")}
-        </button>
+      <div className="mb-8">
+        <h1 className="text-2xl font-bold text-vytal-text">{t("exercises.title")}</h1>
+        <p className="mt-1 text-sm text-vytal-muted">{t("exercises.subtitle")} ({fetchedExercises.length})</p>
       </div>
-
-      {/* Add Form */}
-      {showAddForm && (
-        <div className="rounded-xl border border-vytal-green/20 bg-vytal-green/5 p-5">
-          <h3 className="mb-4 text-sm font-semibold text-vytal-text">{t("exercises.addExercise")}</h3>
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            <div>
-              <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("table.name")}</label>
-              <input type="text" value={addName} onChange={(e) => setAddName(e.target.value)} placeholder="e.g. Clean & Jerk" className={inputClass} />
-            </div>
-            <div>
-              <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("exercises.category")}</label>
-              <select value={addCategory} onChange={(e) => setAddCategory(e.target.value as ExerciseCategory)} className={inputClass}>
-                {categories.map((c) => <option key={c} value={c}>{t(categoryConfig[c].labelKey)}</option>)}
-              </select>
-            </div>
-            <div>
-              <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("exercises.equipmentComma")}</label>
-              <input type="text" value={addEquipment} onChange={(e) => setAddEquipment(e.target.value)} placeholder="barbell, plates" className={inputClass} />
-            </div>
-            <div>
-              <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("exercises.muscleGroupsComma")}</label>
-              <input type="text" value={addMuscleGroups} onChange={(e) => setAddMuscleGroups(e.target.value)} placeholder="legs, shoulders" className={inputClass} />
-            </div>
-          </div>
-          <div className="mt-4 flex justify-end">
-            <button onClick={handleAdd} className="flex items-center gap-2 rounded-lg bg-vytal-green px-5 py-2 text-sm font-semibold text-vytal-bg hover:bg-vytal-green/90">
-              <Check className="h-4 w-4" /> {t("action.save")}
-            </button>
-          </div>
-        </div>
-      )}
 
       {listQuery.isError ? (
         <EmptyState
@@ -222,46 +103,14 @@ export default function ExercisesPage() {
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {exercises.map((exercise) => {
               const catConfig = categoryConfig[exercise.category];
-              const isEditing = editingId === exercise.id;
-
-              if (isEditing) {
-                return (
-                  <div key={exercise.id} className="rounded-xl border border-vytal-green/30 bg-vytal-green/5 p-4">
-                    <div className="space-y-3">
-                      <input type="text" value={editName} onChange={(e) => setEditName(e.target.value)} className={inputClass} autoFocus />
-                      <select value={editCategory} onChange={(e) => setEditCategory(e.target.value as ExerciseCategory)} className={inputClass}>
-                        {categories.map((c) => <option key={c} value={c}>{t(categoryConfig[c].labelKey)}</option>)}
-                      </select>
-                      <input type="text" value={editEquipment} onChange={(e) => setEditEquipment(e.target.value)} placeholder={t("exercises.equipmentComma")} className={inputClass} />
-                      <input type="text" value={editMuscleGroups} onChange={(e) => setEditMuscleGroups(e.target.value)} placeholder={t("exercises.muscleGroupsComma")} className={inputClass} />
-                      <div className="flex gap-2">
-                        <button onClick={handleSaveEdit} className="flex-1 flex items-center justify-center gap-1.5 rounded-lg bg-vytal-green px-3 py-1.5 text-xs font-semibold text-vytal-bg hover:bg-vytal-green/90">
-                          <Check className="h-3 w-3" /> {t("action.save")}
-                        </button>
-                        <button onClick={() => setEditingId(null)} className="flex-1 flex items-center justify-center gap-1.5 rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-1.5 text-xs text-vytal-text hover:bg-vytal-bg3">
-                          <X className="h-3 w-3" /> {t("action.cancel")}
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                );
-              }
 
               return (
                 <div key={exercise.id} className="rounded-xl border border-vytal-border bg-vytal-card p-4 card-interactive transition-colors hover:border-[rgba(34,197,94,0.22)]">
-                  <div className="mb-3 flex items-start justify-between">
+                  <div className="mb-3">
                     <Link href={`/exercises/${exercise.id}`} className="flex items-center gap-2 hover:opacity-80">
                       <Dumbbell className="h-4 w-4 text-vytal-green" />
                       <span className="text-sm font-semibold text-vytal-text">{exercise.name}</span>
                     </Link>
-                    <div className="flex items-center gap-1">
-                      <button onClick={() => startEdit(exercise)} className="rounded p-1 text-vytal-muted transition-colors hover:bg-vytal-bg3 hover:text-vytal-text">
-                        <Pencil className="h-3 w-3" />
-                      </button>
-                      <button onClick={() => setDeleteTarget({ id: exercise.id, name: exercise.name })} className="rounded p-1 text-vytal-muted transition-colors hover:bg-vytal-red/10 hover:text-vytal-red">
-                        <Trash2 className="h-3 w-3" />
-                      </button>
-                    </div>
                   </div>
 
                   <div className="mb-3">
@@ -304,17 +153,6 @@ export default function ExercisesPage() {
           )}
         </>
       )}
-
-      <ConfirmDialog
-        open={!!deleteTarget}
-        title={t("exercises.deleteExercise")}
-        description={t("exercises.confirmDelete").replace("{name}", deleteTarget?.name ?? "")}
-        confirmLabel={t("action.delete")}
-        cancelLabel={t("action.cancel")}
-        variant="danger"
-        onConfirm={handleConfirmDelete}
-        onCancel={() => setDeleteTarget(null)}
-      />
     </div>
   );
 }
