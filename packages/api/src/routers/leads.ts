@@ -2,7 +2,7 @@ import { TRPCError } from "@trpc/server";
 import { and, desc, eq } from "drizzle-orm";
 import { coaches, leads, LEAD_STAGES } from "@vytal-fit/db";
 import { z } from "zod";
-import { orgProcedure, router, staffProcedure } from "../trpc";
+import { adminProcedure, orgProcedure, router, staffProcedure } from "../trpc";
 
 const leadInput = z.object({
   name: z.string().min(1).max(200),
@@ -72,5 +72,33 @@ export const leadsRouter = router({
         throw new TRPCError({ code: "NOT_FOUND", message: "Lead not found." });
       }
       return updated;
+    }),
+
+  /** Hard delete of a CRM lead. No domain rows reference leads. */
+  delete: adminProcedure
+    .input(z.object({ id: z.string().min(1) }))
+    .mutation(async ({ ctx, input }) => {
+      // Re-fetch scoped to the org before mutating — never trust a client id.
+      const [existing] = await ctx.db
+        .select({ id: leads.id })
+        .from(leads)
+        .where(
+          and(eq(leads.id, input.id), eq(leads.organizationId, ctx.activeOrganizationId)),
+        )
+        .limit(1);
+      if (!existing) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Lead not found." });
+      }
+
+      const [deleted] = await ctx.db
+        .delete(leads)
+        .where(
+          and(eq(leads.id, input.id), eq(leads.organizationId, ctx.activeOrganizationId)),
+        )
+        .returning();
+      if (!deleted) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Lead not found." });
+      }
+      return deleted;
     }),
 });
