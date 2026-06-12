@@ -8,7 +8,7 @@ import { useI18n } from "@/lib/i18n";
 import { useToast } from "@/components/toast";
 import { useState, useCallback, useMemo } from "react";
 import { trpc } from "@/lib/trpc";
-import { rowsToWODs, type WodRow } from "@/lib/wod-mapper";
+import { rowsToWODs } from "@/lib/wod-mapper";
 import { rowsToClassTypes, rowsToExercises } from "@/lib/reference-mappers";
 import { Skeleton } from "@/components/skeleton";
 import { EmptyState } from "@/components/empty-state";
@@ -172,12 +172,18 @@ function WODCard({
   onSave,
   onPublish,
   publishPending,
+  savePending,
 }: {
   wod: WOD;
   classType: ClassType | undefined;
-  onSave: (wodId: string, updates: { title?: string; description?: string; parts: WODPart[] }) => void;
+  onSave: (
+    wodId: string,
+    updates: { title: string; description: string; parts: WODPart[] },
+    onDone: () => void,
+  ) => void;
   onPublish: (wodId: string) => void;
   publishPending: boolean;
+  savePending: boolean;
 }) {
   const { t } = useI18n();
   const { toast } = useToast();
@@ -230,14 +236,16 @@ function WODCard({
       }
       return part;
     });
-    onSave(wod.id, {
-      title: editForm.title.trim() || undefined,
-      description: editForm.description.trim() || undefined,
-      parts: updatedParts,
-    });
-    toast(t("wods.wodSaved"), "success");
-    setEditOpen(false);
-  }, [wod, editForm, onSave, toast, t]);
+    onSave(
+      wod.id,
+      {
+        title: editForm.title.trim(),
+        description: editForm.description.trim(),
+        parts: updatedParts,
+      },
+      () => setEditOpen(false),
+    );
+  }, [wod, editForm, onSave]);
 
   return (
     <>
@@ -428,7 +436,8 @@ function WODCard({
                 </button>
                 <button
                   onClick={handleEditSave}
-                  className="rounded-lg bg-vytal-green px-6 py-2 text-sm font-semibold text-vytal-bg transition-colors hover:bg-vytal-green/90"
+                  disabled={savePending}
+                  className="rounded-lg bg-vytal-green px-6 py-2 text-sm font-semibold text-vytal-bg transition-colors hover:bg-vytal-green/90 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {t("wods.saveChanges")}
                 </button>
@@ -451,6 +460,7 @@ export default function WODsPage() {
   const exercisesQuery = trpc.exercises.list.useQuery({});
   const classTypesQuery = trpc.classTypes.list.useQuery();
   const publishWod = trpc.wods.publish.useMutation();
+  const updateWod = trpc.wods.update.useMutation();
 
   const classTypes = useMemo(
     () => rowsToClassTypes(classTypesQuery.data ?? []),
@@ -480,11 +490,15 @@ export default function WODsPage() {
     [publishWod, utils, toast, t],
   );
 
-  // There is no `wods.update` procedure yet — the edit modal updates the
-  // query cache (setData) so the UI reflects the change immediately.
   const handleSave = useCallback(
-    (wodId: string, updates: { title?: string; description?: string; parts: WODPart[] }) => {
-      const storedParts: WodRow["parts"] = updates.parts.map((part) => ({
+    (
+      wodId: string,
+      updates: { title: string; description: string; parts: WODPart[] },
+      onDone: () => void,
+    ) => {
+      // The shared `WODPart` embeds the full exercise; the router stores
+      // exercise *references* only, so strip back down to ids before sending.
+      const storedParts = updates.parts.map((part) => ({
         name: part.name,
         type: part.type,
         timeCap: part.timeCap,
@@ -497,20 +511,26 @@ export default function WODsPage() {
           notes: ex.notes,
         })),
       }));
-      utils.wods.list.setData({}, (old) =>
-        old?.map((row) =>
-          row.id === wodId
-            ? {
-                ...row,
-                title: updates.title ?? null,
-                description: updates.description ?? null,
-                parts: storedParts,
-              }
-            : row,
-        ),
+      updateWod.mutate(
+        {
+          id: wodId,
+          data: {
+            title: updates.title,
+            description: updates.description,
+            parts: storedParts,
+          },
+        },
+        {
+          onSuccess: () => {
+            void utils.wods.list.invalidate();
+            toast(t("wods.wodSaved"), "success");
+            onDone();
+          },
+          onError: () => toast(t("ui.error"), "error"),
+        },
       );
     },
-    [utils],
+    [updateWod, utils, toast, t],
   );
 
   const isPending = listQuery.isPending || exercisesQuery.isPending || classTypesQuery.isPending;
@@ -526,6 +546,7 @@ export default function WODsPage() {
       onSave={handleSave}
       onPublish={handlePublish}
       publishPending={publishWod.isPending}
+      savePending={updateWod.isPending}
     />
   );
 

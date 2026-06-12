@@ -13,7 +13,7 @@ import { useToast } from "@/components/toast";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { formatCurrency as formatCurrencyStore } from "@/stores/data-store";
 import { trpc } from "@/lib/trpc";
-import { rowsToPlans, type PlanRow } from "@/lib/plan-mapper";
+import { rowsToPlans } from "@/lib/plan-mapper";
 import { rowsToClassTypes } from "@/lib/reference-mappers";
 import { Skeleton } from "@/components/skeleton";
 import { EmptyState } from "@/components/empty-state";
@@ -37,11 +37,11 @@ function formatCurrency(value: number): string {
 
 function PlanCard({
   plan, isPopular, subscriberCount, monthlyRevenue, maxSubscribers,
-  onToggleActive, onDelete,
+  onToggleActive, togglePending, onDelete,
 }: {
   plan: SubscriptionPlan; isPopular: boolean; subscriberCount: number;
   monthlyRevenue: number; maxSubscribers: number;
-  onToggleActive: () => void; onDelete: () => void;
+  onToggleActive: () => void; togglePending: boolean; onDelete: () => void;
 }) {
   const { t } = useI18n();
   // React Query dedupes this across all cards into a single request.
@@ -71,7 +71,7 @@ function PlanCard({
           <div className="mt-1 flex items-center gap-2">
             <span className={cn("inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider", typeConfig.className)}>{t(typeConfig.labelKey)}</span>
             {/* Active toggle */}
-            <button onClick={onToggleActive} className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium transition-colors hover:opacity-80">
+            <button onClick={onToggleActive} disabled={togglePending} className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium transition-colors hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-50">
               {plan.active ? (
                 <span className="inline-flex items-center gap-1 bg-vytal-green/10 rounded-full px-2 py-0.5 text-vytal-green"><CheckCircle className="h-2.5 w-2.5" /> {t("plans.active")}</span>
               ) : (
@@ -159,6 +159,8 @@ export default function PlansPage() {
   const utils = trpc.useUtils();
   const plansQuery = trpc.subscriptions.plans.list.useQuery(PLANS_LIST_INPUT);
   const subscriptionsQuery = trpc.subscriptions.list.useQuery({});
+  const updatePlan = trpc.subscriptions.plans.update.useMutation();
+  const deletePlan = trpc.subscriptions.plans.delete.useMutation();
 
   const storePlans = useMemo(() => rowsToPlans(plansQuery.data ?? []), [plansQuery.data]);
 
@@ -192,34 +194,35 @@ export default function PlansPage() {
   )[0];
   const maxSubscribers = Math.max(0, ...planSubscribers.values());
 
-  // There are no `subscriptions.plans.update/delete` procedures yet — these
-  // actions update the query cache (setData) so the UI responds immediately.
   function handleToggleActive(id: string, currentActive: boolean) {
-    utils.subscriptions.plans.list.setData(PLANS_LIST_INPUT, (old) =>
-      old?.map((row) => (row.id === id ? { ...row, active: !currentActive } : row)),
+    updatePlan.mutate(
+      { id, data: { active: !currentActive } },
+      {
+        onSuccess: () => {
+          void utils.subscriptions.plans.list.invalidate();
+          toast(currentActive ? t("plans.planDeactivated") : t("plans.planActivated"), "success");
+        },
+        onError: () => toast(t("ui.error"), "error"),
+      },
     );
-    toast(currentActive ? t("plans.planDeactivated") : t("plans.planActivated"), "success");
   }
 
   function handleConfirmDelete() {
     if (!deleteTarget) return;
-    const removed: PlanRow | undefined = (plansQuery.data ?? []).find(
-      (p) => p.id === deleteTarget.id,
+    deletePlan.mutate(
+      { id: deleteTarget.id },
+      {
+        onSuccess: () => {
+          void utils.subscriptions.plans.list.invalidate();
+          void utils.subscriptions.list.invalidate();
+          toast(t("plans.planDeleted"), "success");
+        },
+        onError: (err) =>
+          // CONFLICT carries an actionable server message (active/past
+          // subscriptions reference the plan) — surface it as-is.
+          toast(err.data?.code === "CONFLICT" ? err.message : t("ui.error"), "error"),
+      },
     );
-    utils.subscriptions.plans.list.setData(PLANS_LIST_INPUT, (old) =>
-      old?.filter((row) => row.id !== deleteTarget.id),
-    );
-    toast(t("plans.planDeleted"), "success", {
-      action: removed
-        ? {
-            label: t("action.undo"),
-            onClick: () =>
-              utils.subscriptions.plans.list.setData(PLANS_LIST_INPUT, (old) =>
-                old ? [...old, removed] : [removed],
-              ),
-          }
-        : undefined,
-    });
     setDeleteTarget(null);
   }
 
@@ -278,6 +281,7 @@ export default function PlansPage() {
             monthlyRevenue={planMonthlyRevenue.get(plan.id) ?? 0}
             maxSubscribers={maxSubscribers}
             onToggleActive={() => handleToggleActive(plan.id, plan.active)}
+            togglePending={updatePlan.isPending}
             onDelete={() => setDeleteTarget({ id: plan.id, name: plan.name })}
           />
         ))}
