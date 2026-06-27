@@ -1,11 +1,11 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Eye, EyeOff, UserPlus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/lib/i18n";
+import { useAuthStore } from "@/stores/auth-store";
 
 function getPasswordStrength(password: string): { score: number; label: string; color: string } {
   let score = 0;
@@ -41,8 +41,8 @@ function AppleIcon() {
 }
 
 export default function RegisterPage() {
-  const router = useRouter();
   const { t } = useI18n();
+  const register = useAuthStore((s) => s.register);
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -74,13 +74,21 @@ export default function RegisterPage() {
     return Object.keys(errs).length === 0;
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!validate()) return;
     setLoading(true);
-    setTimeout(() => {
-      router.push("/onboarding");
-    }, 600);
+    const ok = await register(form.name.trim(), form.email.trim(), form.password);
+    if (!ok) {
+      setLoading(false);
+      setErrors({ email: t("auth.registerFailed") });
+      return;
+    }
+    // Hard navigation (not router.push): a fresh signup has no active org yet,
+    // so a soft SPA transition into /onboarding leaves the Better Auth session/
+    // org hooks "pending" and the loader wedges. A full document load
+    // re-initialises them cleanly. (Pattern from kloser.)
+    window.location.assign("/onboarding");
   }
 
   function updateField(field: string, value: string) {

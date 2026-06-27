@@ -161,6 +161,7 @@ export const es: Record<string, string> = {
     "auth.optional": "opcional",
     "auth.confirmPassword": "Confirmar Contraseña",
     "auth.registerSubtitle": "Crea tu cuenta para empezar",
+    "auth.registerFailed": "No se pudo crear la cuenta. Revisa los datos o prueba con otro email.",
     "auth.namePlaceholder": "Tu nombre",
     "auth.emailPlaceholder": "tu@ejemplo.com",
     "auth.passwordPlaceholder": "Tu contraseña",
