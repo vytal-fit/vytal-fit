@@ -327,6 +327,12 @@ export const gymMembers = pgTable(
     organizationId: text("organization_id")
       .notNull()
       .references(() => organization.id, { onDelete: "cascade" }),
+    /**
+     * Links this gym member to a platform user account so an athlete can act on
+     * their own data (self-service booking, results, profile). Nullable — most
+     * members have no login. One member per user per org (unique index below).
+     */
+    userId: text("user_id").references(() => user.id, { onDelete: "set null" }),
     memberNumber: integer("member_number").notNull(),
     name: text("name").notNull(),
     email: text("email").notNull(),
@@ -346,7 +352,9 @@ export const gymMembers = pgTable(
   (t) => [
     index("gym_members_org_idx").on(t.organizationId),
     index("gym_members_org_status_idx").on(t.organizationId, t.status),
+    index("gym_members_user_id_idx").on(t.userId),
     uniqueIndex("gym_members_org_member_number_idx").on(t.organizationId, t.memberNumber),
+    uniqueIndex("gym_members_org_user_id_idx").on(t.organizationId, t.userId),
   ],
 );
 

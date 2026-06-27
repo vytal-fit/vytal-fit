@@ -63,6 +63,8 @@ O DB já existe (Neon Postgres + Drizzle + migrações + seed + Better Auth + tR
 - [ ] Aceitação F3
 
 ## F4 · App do Atleta (`my.vytal.fit`) + Bem-estar — S6–S7 (€60.000)
+- [x] **`gym_members.user_id`** (atleta ↔ membro) — migração `0002`, FK + unique por org; desbloqueia self-service
+- [ ] Self-service de bookings/resultados (atleta age sobre o SEU membro) — usa a ligação acima
 - [ ] Marcação ≤3 toques · check-in QR
 - [ ] Ver WOD · registar resultado · leaderboards · PRs · %RM · gamificação
 - [ ] Perfil de estilo de vida
