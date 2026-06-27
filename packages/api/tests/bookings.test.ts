@@ -137,3 +137,30 @@ describe("bookings.listByMember", () => {
     ).rejects.toMatchObject({ code: "BAD_REQUEST" });
   });
 });
+
+describe("bookings.listByClass", () => {
+  it("lists the roster for an org A class with member info", async () => {
+    const rows = await h.callerA.bookings.listByClass({ classId: IDS.classA });
+    expect(rows.length).toBeGreaterThanOrEqual(1);
+    expect(rows.every((b) => b.classId === IDS.classA)).toBe(true);
+    expect(rows.every((b) => typeof b.memberName === "string")).toBe(true);
+  });
+
+  it("throws UNAUTHORIZED without a session", async () => {
+    await expect(
+      h.callerNoSession.bookings.listByClass({ classId: IDS.classA }),
+    ).rejects.toMatchObject({ code: "UNAUTHORIZED" });
+  });
+
+  it("cross-tenant: org B caller cannot read an org A class roster (NOT_FOUND)", async () => {
+    await expect(
+      h.callerB.bookings.listByClass({ classId: IDS.classA }),
+    ).rejects.toMatchObject({ code: "NOT_FOUND" });
+  });
+
+  it("rejects invalid input (Zod)", async () => {
+    await expect(
+      h.callerA.bookings.listByClass({ classId: "" }),
+    ).rejects.toMatchObject({ code: "BAD_REQUEST" });
+  });
+});

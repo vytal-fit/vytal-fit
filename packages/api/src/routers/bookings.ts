@@ -161,4 +161,49 @@ export const bookingsRouter = router({
         )
         .orderBy(desc(bookings.bookedAt));
     }),
+
+  /**
+   * Roster for a class: every booking (any status) joined with the member's
+   * name and number, newest first. Org-scoped — the class is re-fetched within
+   * the active org and 404s if absent, so a caller can't read another org's
+   * roster. Backs the attendance and waitlist views.
+   */
+  listByClass: orgProcedure
+    .input(z.object({ classId: z.string().min(1) }))
+    .query(async ({ ctx, input }) => {
+      const [klass] = await ctx.db
+        .select({ id: classes.id })
+        .from(classes)
+        .where(
+          and(
+            eq(classes.id, input.classId),
+            eq(classes.organizationId, ctx.activeOrganizationId),
+          ),
+        )
+        .limit(1);
+      if (!klass) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Class not found." });
+      }
+
+      return ctx.db
+        .select({
+          id: bookings.id,
+          memberId: bookings.memberId,
+          classId: bookings.classId,
+          status: bookings.status,
+          bookedAt: bookings.bookedAt,
+          checkedInAt: bookings.checkedInAt,
+          memberName: gymMembers.name,
+          memberNumber: gymMembers.memberNumber,
+        })
+        .from(bookings)
+        .innerJoin(gymMembers, eq(bookings.memberId, gymMembers.id))
+        .where(
+          and(
+            eq(bookings.organizationId, ctx.activeOrganizationId),
+            eq(bookings.classId, input.classId),
+          ),
+        )
+        .orderBy(desc(bookings.bookedAt));
+    }),
 });
