@@ -675,6 +675,101 @@ export async function seedDatabase(
       .returning({ id: schema.notifications.id })
   ).length;
 
+  // 3b. Core domain dataset → org-2 (Yoga Flow Porto) and org-3 (Iron Temple).
+  // Ids mirror the app's demo mock so the two converge when these orgs' pages
+  // move onto the API. Date-relative entities (classes/WODs/check-ins) land with
+  // the F2 wiring; this seeds the static core (coaches, locations, class types,
+  // members, plans, leads). FK-safe and idempotent (ON CONFLICT DO NOTHING).
+  inserted.coachesOrg23 = (
+    await db
+      .insert(schema.coaches)
+      .values([
+        { id: "coach-21", organizationId: "org-2", name: "Sofia Menezes", email: "sofia@yogaflowporto.pt", photo: null, role: "head_coach" },
+        { id: "coach-22", organizationId: "org-2", name: "Beatriz Ramos", email: "beatriz@yogaflowporto.pt", photo: null, role: "coach" },
+        { id: "coach-31", organizationId: "org-3", name: "Rui Lameira", email: "rui@irontemple.pt", photo: null, role: "head_coach" },
+        { id: "coach-32", organizationId: "org-3", name: "Sandro Pires", email: "sandro@irontemple.pt", photo: null, role: "coach" },
+      ])
+      .onConflictDoNothing()
+      .returning({ id: schema.coaches.id })
+  ).length;
+
+  inserted.locationsOrg23 = (
+    await db
+      .insert(schema.locations)
+      .values([
+        { id: "loc-21", organizationId: "org-2", name: "Sala Principal", capacity: 20 },
+        { id: "loc-22", organizationId: "org-2", name: "Sala de Meditação", capacity: 10 },
+        { id: "loc-31", organizationId: "org-3", name: "Plataforma Principal", capacity: 25 },
+        { id: "loc-32", organizationId: "org-3", name: "Sala de Levantamento", capacity: 12 },
+      ])
+      .onConflictDoNothing()
+      .returning({ id: schema.locations.id })
+  ).length;
+
+  inserted.classTypesOrg23 = (
+    await db
+      .insert(schema.classTypes)
+      .values([
+        { id: "ct-21", organizationId: "org-2", name: "Vinyasa Flow", abbreviation: "VIN", color: "#8b5cf6", icon: null, active: true },
+        { id: "ct-22", organizationId: "org-2", name: "Hatha Yoga", abbreviation: "HAT", color: "#a78bfa", icon: null, active: true },
+        { id: "ct-23", organizationId: "org-2", name: "Yin Yoga", abbreviation: "YIN", color: "#c4b5fd", icon: null, active: true },
+        { id: "ct-24", organizationId: "org-2", name: "Meditação", abbreviation: "MED", color: "#7c3aed", icon: null, active: true },
+        { id: "ct-31", organizationId: "org-3", name: "Levantamento Olímpico", abbreviation: "OLY", color: "#ef4444", icon: null, active: true },
+        { id: "ct-32", organizationId: "org-3", name: "Powerlifting", abbreviation: "PL", color: "#dc2626", icon: null, active: true },
+        { id: "ct-33", organizationId: "org-3", name: "Força Geral", abbreviation: "STR", color: "#f87171", icon: null, active: true },
+        { id: "ct-34", organizationId: "org-3", name: "Acessórios", abbreviation: "ACC", color: "#fca5a5", icon: null, active: true },
+      ])
+      .onConflictDoNothing()
+      .returning({ id: schema.classTypes.id })
+  ).length;
+
+  inserted.gymMembersOrg23 = (
+    await db
+      .insert(schema.gymMembers)
+      .values([
+        { id: "m2-21", organizationId: "org-2", memberNumber: 1, name: "Leonor Azevedo", email: "leonor@example.com", phone: "912111001", gender: "female", status: "active", joinedAt: toDate("2025-01-10"), lastCheckIn: toDate("2026-06-03"), streakWeeks: 10, totalCheckIns: 198 },
+        { id: "m2-22", organizationId: "org-2", memberNumber: 2, name: "Marta Vieira", email: "marta@example.com", phone: "913222002", gender: "female", status: "active", joinedAt: toDate("2025-03-15"), lastCheckIn: toDate("2026-06-02"), streakWeeks: 7, totalCheckIns: 142 },
+        { id: "m2-23", organizationId: "org-2", memberNumber: 3, name: "Joana Pinto", email: "joana@example.com", phone: "914333003", gender: "female", status: "active", joinedAt: toDate("2025-06-01"), lastCheckIn: toDate("2026-06-01"), streakWeeks: 4, totalCheckIns: 87 },
+        { id: "m2-24", organizationId: "org-2", memberNumber: 4, name: "Ricardo Faria", email: "ricardo@example.com", phone: "915444004", gender: "male", status: "trial", joinedAt: toDate("2026-05-20"), lastCheckIn: toDate("2026-06-02"), streakWeeks: 1, totalCheckIns: 5 },
+        { id: "m2-25", organizationId: "org-2", memberNumber: 5, name: "Catarina Braga", email: "catarina@example.com", phone: "916555005", gender: "female", status: "inactive", joinedAt: toDate("2024-09-01"), lastCheckIn: toDate("2026-03-10"), streakWeeks: 0, totalCheckIns: 320 },
+        { id: "m-31", organizationId: "org-3", memberNumber: 1, name: "Goncalo Vieira", email: "goncalo@example.com", phone: "912100011", gender: "male", status: "active", joinedAt: toDate("2024-05-01"), lastCheckIn: toDate("2026-06-03"), streakWeeks: 20, totalCheckIns: 410 },
+        { id: "m-32", organizationId: "org-3", memberNumber: 2, name: "Vitor Santos", email: "vitor@example.com", phone: "913200022", gender: "male", status: "active", joinedAt: toDate("2024-09-10"), lastCheckIn: toDate("2026-06-02"), streakWeeks: 14, totalCheckIns: 280 },
+        { id: "m-33", organizationId: "org-3", memberNumber: 3, name: "Patricia Lima", email: "patricia@example.com", phone: "914300033", gender: "female", status: "active", joinedAt: toDate("2025-02-20"), lastCheckIn: toDate("2026-06-01"), streakWeeks: 9, totalCheckIns: 165 },
+        { id: "m-34", organizationId: "org-3", memberNumber: 4, name: "Hugo Rodrigues", email: "hugo@example.com", phone: "915400044", gender: "male", status: "trial", joinedAt: toDate("2026-05-28"), lastCheckIn: toDate("2026-06-03"), streakWeeks: 1, totalCheckIns: 4 },
+      ])
+      .onConflictDoNothing()
+      .returning({ id: schema.gymMembers.id })
+  ).length;
+
+  inserted.subscriptionPlansOrg23 = (
+    await db
+      .insert(schema.subscriptionPlans)
+      .values([
+        { id: "plan-21", organizationId: "org-2", name: "Mensal Livre", type: "monthly", price: "55.00", currency: "EUR", allowedClassTypes: ["ct-21", "ct-22", "ct-23", "ct-24"], active: true },
+        { id: "plan-22", organizationId: "org-2", name: "8 Aulas/Mês", type: "monthly", price: "45.00", currency: "EUR", maxSessions: 8, allowedClassTypes: ["ct-21", "ct-22"], active: true },
+        { id: "plan-23", organizationId: "org-2", name: "Trimestral Livre", type: "semester", price: "150.00", currency: "EUR", allowedClassTypes: ["ct-21", "ct-22", "ct-23", "ct-24"], active: true },
+        { id: "plan-24", organizationId: "org-2", name: "Aula Avulso", type: "day_pass", price: "12.00", currency: "EUR", allowedClassTypes: ["ct-21", "ct-22"], active: true },
+        { id: "plan-31", organizationId: "org-3", name: "Mensal Completo", type: "monthly", price: "80.00", currency: "EUR", allowedClassTypes: ["ct-31", "ct-32", "ct-33", "ct-34"], active: true },
+        { id: "plan-32", organizationId: "org-3", name: "Levantamento Olímpico", type: "monthly", price: "65.00", currency: "EUR", allowedClassTypes: ["ct-31"], active: true },
+        { id: "plan-33", organizationId: "org-3", name: "Semestral Completo", type: "semester", price: "440.00", currency: "EUR", allowedClassTypes: ["ct-31", "ct-32", "ct-33", "ct-34"], active: true },
+      ])
+      .onConflictDoNothing()
+      .returning({ id: schema.subscriptionPlans.id })
+  ).length;
+
+  inserted.leadsOrg23 = (
+    await db
+      .insert(schema.leads)
+      .values([
+        { id: "lead-21", organizationId: "org-2", name: "Ana Peixoto", email: "ana.p@email.com", phone: "912100001", stage: "lead", source: "Instagram", createdAt: toDate("2026-06-01T10:00:00Z") },
+        { id: "lead-22", organizationId: "org-2", name: "Vera Carvalho", email: "vera.c@email.com", phone: "913200002", stage: "contacted", source: "Website", assignedCoachId: "coach-21", createdAt: toDate("2026-05-28T09:00:00Z"), lastContactAt: toDate("2026-05-30T11:00:00Z") },
+        { id: "lead-23", organizationId: "org-2", name: "Nuno Seabra", email: "nuno.s@email.com", phone: "914300003", stage: "prospect", source: "Referral", assignedCoachId: "coach-22", createdAt: toDate("2026-05-20T11:00:00Z"), lastContactAt: toDate("2026-06-01T15:00:00Z"), trialDate: toDate("2026-06-07") },
+        { id: "lead-24", organizationId: "org-2", name: "Filipa Monteiro", email: "filipa.m@email.com", phone: "915400004", stage: "subscribed", source: "Walk-in", assignedCoachId: "coach-21", createdAt: toDate("2026-04-10T12:00:00Z"), lastContactAt: toDate("2026-05-15T10:00:00Z") },
+      ])
+      .onConflictDoNothing()
+      .returning({ id: schema.leads.id })
+  ).length;
+
   // One organization_settings row per demo org, derived from the
   // ORGANIZATION_CONFIGS defaults for its type (accent colors per mock org).
   // ON CONFLICT DO NOTHING — never clobber settings edited through the app.

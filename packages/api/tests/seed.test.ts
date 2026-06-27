@@ -3,9 +3,8 @@
  * an in-memory PGlite database with the real migrations. Locks the F1 seed
  * contract: 3 demo orgs, org-1 fully populated, settings for all, idempotent.
  *
- * It also pins the known F1 gap — org-2/org-3 have organization + settings rows
- * but NO domain data yet (NEXT_STEPS F1). When org-2/3 domain seeding lands,
- * the gap assertion flips and this test is updated alongside it.
+ * org-2/org-3 now also receive a core domain dataset (coaches, locations, class
+ * types, members, plans, leads); date-relative entities follow with F2 wiring.
  */
 import { describe, it, expect } from "vitest";
 import { eq } from "drizzle-orm";
@@ -36,7 +35,7 @@ describe("seedDatabase — production seed", () => {
     expect(settings.length).toBe(3);
   });
 
-  it("does not seed domain data for org-2/org-3 yet (documents the F1 gap)", async () => {
+  it("seeds core domain data for org-2 and org-3", async () => {
     const db = await createTestDb();
     await seedDatabase(db);
 
@@ -45,7 +44,13 @@ describe("seedDatabase — production seed", () => {
         .select({ id: schema.gymMembers.id })
         .from(schema.gymMembers)
         .where(eq(schema.gymMembers.organizationId, orgId));
-      expect(members.length, `${orgId} should have no domain rows yet`).toBe(0);
+      expect(members.length, `${orgId} should have members`).toBeGreaterThan(0);
+
+      const plans = await db
+        .select({ id: schema.subscriptionPlans.id })
+        .from(schema.subscriptionPlans)
+        .where(eq(schema.subscriptionPlans.organizationId, orgId));
+      expect(plans.length, `${orgId} should have plans`).toBeGreaterThan(0);
     }
   });
 
