@@ -13,6 +13,7 @@ import {
   mockSubscriptions,
   mockWODs,
   ORGANIZATION_CONFIGS,
+  STORAGE_KEYS,
 } from "@vytal-fit/shared";
 import type {
   Member,
@@ -211,7 +212,7 @@ export interface OrgSettings {
 // Per-org settings defaults
 // ---------------------------------------------------------------------------
 
-const ORG_SETTINGS_KEY_PREFIX = "vytal-org-settings";
+const ORG_SETTINGS_KEY_PREFIX = STORAGE_KEYS.orgSettings;
 
 const defaultOrgSettingsMap: Record<string, OrgSettings> = {
   "org-1": {
@@ -335,8 +336,8 @@ export function formatCurrencyCompact(amount: number, currency?: string): string
 // Unified data persistence
 // ---------------------------------------------------------------------------
 
-const DATA_KEY_PREFIX = "vytal-data";
-const MESSAGES_KEY_PREFIX = "vytal-messages";
+const DATA_KEY_PREFIX = STORAGE_KEYS.data;
+const MESSAGES_KEY_PREFIX = STORAGE_KEYS.messages;
 
 function getDataKey(orgId: string): string {
   return `${DATA_KEY_PREFIX}-${orgId}`;
@@ -944,7 +945,7 @@ function snapshotData(state: DataStore): PersistedData {
 function getInitialOrgId(): string {
   if (typeof window === "undefined") return "org-1";
   try {
-    const raw = localStorage.getItem("vytal-auth");
+    const raw = localStorage.getItem(STORAGE_KEYS.auth);
     if (!raw) return "org-1";
     const auth = JSON.parse(raw) as { activeOrganizationId?: string };
     return auth.activeOrganizationId ?? "org-1";

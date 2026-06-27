@@ -9,9 +9,10 @@
  */
 import { create } from "zustand";
 import type { OrgMembership, UserRole, UserWithOrgs } from "@vytal-fit/shared";
+import { STORAGE_KEYS } from "@vytal-fit/shared";
 import { authClient } from "@/lib/auth-client";
 
-const AUTH_STORAGE_KEY = "vytal-auth";
+const AUTH_STORAGE_KEY = STORAGE_KEYS.auth;
 
 const USER_ROLES: readonly UserRole[] = [
   "owner",

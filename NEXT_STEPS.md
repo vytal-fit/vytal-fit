@@ -15,12 +15,16 @@
 ---
 
 ## F1 · Fundação, Infraestrutura & Multi-Tenant — S1 (€40.000)
-- [ ] Provisionar ambientes dev / staging / produção
-- [ ] Arquitetura multi-tenant (modelo de dados org-scoped)
-- [ ] Autenticação + RBAC
-- [ ] Pipeline CI/CD
-- [ ] Design system base
-- [ ] Backlog detalhado F2–F6
+- [x] Auditoria da fundação vs critérios de aceitação F1
+- [x] Arquitetura multi-tenant (modelo de dados org-scoped) — todas as tabelas com `organizationId` + índices `org`/compostos
+- [x] Autenticação + RBAC (`orgProcedure`, Better Auth)
+- [x] Pipeline CI/CD (`ci.yml`, `e2e.yml`, `mirror-to-vercel.yml`)
+- [x] Provisionamento de ambientes dev / staging / produção (Vercel + Neon)
+- [x] Design system base (shadcn/ui + tokens, light/dark)
+- [x] Backlog detalhado F2–F6 (este ficheiro + `docs/PLANO_SPRINTS.md`)
+- [x] **Clareza do data layer:** fonte única de chaves localStorage (`STORAGE_KEYS` em `@vytal-fit/shared`); stores centrais migradas; literal duplicado `"vytal-auth"` removido
+- [~] Migrar chaves localStorage restantes (páginas `console/*`) — saem no wiring tRPC da F2/F4
+- [ ] Seed das **org-2 / org-3** com dataset de domínio (hoje só org-1) → remove o fallback de mock
 - [ ] (A-3) Confirmar domínio próprio + identidade visual
 
 ## F2 · Backoffice de Gestão (`pro.vytal.fit`) — S2–S3 (€55.000)
