@@ -26,6 +26,7 @@ interface AuthState {
   isAuthenticated: boolean;
   user: UserWithOrgs | null;
   login: (email: string, password: string) => Promise<boolean>;
+  register: (name: string, email: string, password: string) => Promise<boolean>;
   logout: () => void;
   switchOrg: (orgId: string) => void;
   hydrate: () => void;
@@ -173,6 +174,22 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   login: async (email: string, password: string) => {
     const { error } = await authClient.signIn.email({ email, password });
+    if (error) return false;
+
+    try {
+      const user = await buildUserWithOrgs();
+      if (!user) return false;
+      persistAuth(user);
+      setOrgSlugCookie(user);
+      set({ isAuthenticated: true, user });
+      return true;
+    } catch {
+      return false;
+    }
+  },
+
+  register: async (name: string, email: string, password: string) => {
+    const { error } = await authClient.signUp.email({ name, email, password });
     if (error) return false;
 
     try {
