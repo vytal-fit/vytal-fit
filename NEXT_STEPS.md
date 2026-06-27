@@ -14,6 +14,14 @@
 
 ---
 
+## Pacotes (guia kloser) — o que adotar e quando
+O DB já existe (Neon Postgres + Drizzle + migrações + seed + Better Auth + tRPC) — **não recriar**. Adotar pacotes do kloser à medida das fases:
+- [ ] **`authz`** — matriz de permissões pura e testada (substitui o gating inline). Clareza — prioritário.
+- [ ] **`email`** — emails transacionais (dunning, convites, go-live). → F2.
+- [ ] **`agents` + `vectors`/pgvector** — vector store para o RAG do Coach Assist AI. → F5.
+- [ ] *(opcional)* **`comms`** — gate RGPD de marketing/campanhas. → pós-MVP.
+- ❌ Não aplicáveis (específicos do kloser): `portals`, `ocr`, `whatsapp`, `ads`, `connectors`, `calendar-sync`.
+
 ## F1 · Fundação, Infraestrutura & Multi-Tenant — S1 (€40.000)
 - [x] Auditoria da fundação vs critérios de aceitação F1
 - [x] Arquitetura multi-tenant (modelo de dados org-scoped) — todas as tabelas com `organizationId` + índices `org`/compostos
