@@ -16,11 +16,15 @@
 
 ## Pacotes (guia kloser) — o que adotar e quando
 O DB já existe (Neon Postgres + Drizzle + migrações + seed + Better Auth + tRPC) — **não recriar**. Adotar pacotes do kloser à medida das fases:
-- [ ] **`authz`** — matriz de permissões pura e testada (substitui o gating inline). Clareza — prioritário.
+- [ ] **`authz`** — *adiado (reality-check)*: o vytal já tem hierarquia de roles testada em `shared` (`ROLE_HIERARCHY` + `minRole` → `staffProcedure`/`adminProcedure`). Extrair pacote com matriz de capacidades como o kloser só vale a pena quando o modelo de **6 perfis × capacidades × scope** for mesmo necessário (fase posterior). Hoje seria over-engineering.
 - [ ] **`email`** — emails transacionais (dunning, convites, go-live). → F2.
 - [ ] **`agents` + `vectors`/pgvector** — vector store para o RAG do Coach Assist AI. → F5.
 - [ ] *(opcional)* **`comms`** — gate RGPD de marketing/campanhas. → pós-MVP.
-- ❌ Não aplicáveis (específicos do kloser): `portals`, `ocr`, `whatsapp`, `ads`, `connectors`, `calendar-sync`.
+- [ ] **`whatsapp`** — comunicação com membros/leads (lembretes de aula, follow-up, dunning); forte no mercado PT. → pós-MVP / Fase 2.
+- [ ] **`ads`** — Google/Meta Ads → leads no CRM (aquisição de membros). → pós-MVP / Fase 2.
+- [ ] **`calendar-sync`** — sincronizar aulas/sessões PT com Google/Apple Calendar. → pós-MVP / Fase 2.
+- [ ] *(talvez)* **`ocr`** — digitalização de waivers/contratos/ID dos membros. Baixa prioridade.
+- ❌ Só `portals` (portais imobiliários) não tem uso no vytal; `connectors` fica genérico/baixa prioridade.
 
 ## F1 · Fundação, Infraestrutura & Multi-Tenant — S1 (€40.000)
 - [x] Auditoria da fundação vs critérios de aceitação F1
