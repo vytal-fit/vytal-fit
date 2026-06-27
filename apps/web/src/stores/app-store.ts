@@ -1,11 +1,11 @@
 import { create } from "zustand";
-import { mockOrgAccentColors } from "@vytal-fit/shared";
+import { mockOrgAccentColors, STORAGE_KEYS } from "@vytal-fit/shared";
 
-const THEME_STORAGE_KEY = "vytal-theme";
-const SIDEBAR_STORAGE_KEY = "vytal-sidebar-collapsed";
-const RIGHT_SIDEBAR_STORAGE_KEY = "vytal-right-sidebar-open";
-const ACCENT_STORAGE_KEY = "vytal-accent-color";
-const ORG_ACCENT_COLORS_KEY = "vytal-org-accent-colors";
+const THEME_STORAGE_KEY = STORAGE_KEYS.theme;
+const SIDEBAR_STORAGE_KEY = STORAGE_KEYS.sidebarCollapsed;
+const RIGHT_SIDEBAR_STORAGE_KEY = STORAGE_KEYS.rightSidebarOpen;
+const ACCENT_STORAGE_KEY = STORAGE_KEYS.accentColor;
+const ORG_ACCENT_COLORS_KEY = STORAGE_KEYS.orgAccentColors;
 
 type Theme = "dark" | "light";
 

@@ -36,6 +36,8 @@ packages/
 
 - Package names use `@vytal-fit/` scope
 - All UI must support PT/ES/EN
+- **Data layer:** persistent app/domain data flows through the tRPC API (`packages/api`), never `localStorage`. `localStorage` holds only preferences and demo/offline caches.
+- **Storage keys:** reference `STORAGE_KEYS` from `@vytal-fit/shared` — never hardcode `vytal-*` strings.
 
 ## Commands
 

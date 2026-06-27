@@ -10,10 +10,11 @@ import {
 } from "react";
 
 import { pt, en, es } from "./locales";
+import { STORAGE_KEYS } from "@vytal-fit/shared";
 
 export type Language = "pt" | "en" | "es";
 
-const LANG_STORAGE_KEY = "vytal-language";
+const LANG_STORAGE_KEY = STORAGE_KEYS.language;
 
 // ---------------------------------------------------------------------------
 // Translations
