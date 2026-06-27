@@ -1,0 +1,29 @@
+name: Setup Node + install
+description: Node 20 with cached node_modules; skips `npm ci` on a package-lock cache hit.
+
+runs:
+  using: composite
+  steps:
+    - name: Setup Node
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: npm
+
+    # Cache the installed tree, not just the npm download cache, so a hit skips
+    # `npm ci` outright. Keyed on the lockfile: any dependency change misses and
+    # reinstalls. Safe because CI is always ubuntu-x64 + Node 20.
+    - name: Cache node_modules
+      id: modules
+      uses: actions/cache@v4
+      with:
+        path: |
+          node_modules
+          apps/*/node_modules
+          packages/*/node_modules
+        key: ${{ runner.os }}-node20-modules-${{ hashFiles('package-lock.json') }}
+
+    - name: Install dependencies
+      if: steps.modules.outputs.cache-hit != 'true'
+      shell: bash
+      run: npm ci
