@@ -1,0 +1,79 @@
+# Vytal — NEXT STEPS / Backlog
+
+> Backlog vivo, atualizado a cada sprint. Ligado a [`docs/PLANO_SPRINTS.md`](docs/PLANO_SPRINTS.md) e ao contrato (JCUNHAFONTE ↔ Musas & Vikings · €290.000 · go-live 30 Out 2026).
+> Legenda: `[ ]` por fazer · `[~]` em curso · `[x]` feito · `(D#)` decisão · `(A#)` ponto em aberto.
+> Última atualização: 2026-06-27.
+
+## Decisões em vigor *(ref. Adenda 01)*
+- **D1** Questionário pós-treino no MVP (F4), **sem** mapa de lesões.
+- **D2** SAF-T/ATCUD **faseado** (F5, via fornecedor certificado).
+- **D3** Candidatura PRR em nome de **Musas & Vikings, Lda**.
+- **D4** Conteúdo das BD de exercícios/WODs **validado pelo Juvenal** (âmbito → A-1).
+- **D5** LLM = **Claude** (gateway trocável).
+- **D6** Diferidos: white-label, site builder, Google Reviews, avaliação de treinadores, mapa de lesões, wearables, nutrição IA.
+
+---
+
+## F1 · Fundação, Infraestrutura & Multi-Tenant — S1 (€40.000)
+- [ ] Provisionar ambientes dev / staging / produção
+- [ ] Arquitetura multi-tenant (modelo de dados org-scoped)
+- [ ] Autenticação + RBAC
+- [ ] Pipeline CI/CD
+- [ ] Design system base
+- [ ] Backlog detalhado F2–F6
+- [ ] (A-3) Confirmar domínio próprio + identidade visual
+
+## F2 · Backoffice de Gestão (`pro.vytal.fit`) — S2–S3 (€55.000)
+- [ ] Membros e perfis (com lifestyle)
+- [ ] Planos + dunning
+- [ ] Importação CSV
+- [ ] Waivers digitais
+- [ ] CRM kanban + automations de leads
+- [ ] Staff + RBAC
+- [ ] Dashboard / KPIs
+- [ ] Aceitação F2
+
+## F3 · Treino — S4–S5 (€55.000)
+- [ ] WOD Builder (tipos de estímulo, timers)
+- [ ] BD ≥300 exercícios (5 metodologias) — (D4/A-1) conteúdo validado pelo Juvenal
+- [ ] BD ≥200 WODs pré-construídos
+- [ ] Motor de planeamento (semanal/ciclos)
+- [ ] Cálculo de %RM
+- [ ] PRs + leaderboards
+- [ ] Whiteboard / TV
+- [ ] Aceitação F3
+
+## F4 · App do Atleta (`my.vytal.fit`) + Bem-estar — S6–S7 (€60.000)
+- [ ] Marcação ≤3 toques · check-in QR
+- [ ] Ver WOD · registar resultado · leaderboards · PRs · %RM · gamificação
+- [ ] Perfil de estilo de vida
+- [ ] Check-in diário (sono/fadiga/stress 1–10)
+- [ ] **(D1) Questionário pós-treino: RPE + gosto + limitação por lesão (1–9), sem mapa interativo**
+- [ ] Perfil de performance e saúde (base, a partir dos dados acima)
+- [ ] Aceitação F4
+
+## F5 · Coach Assist AI + Faturação — S8 (€55.000)
+- [ ] (A-2) Escolher fornecedor de faturação certificado (InvoiceXpress / Moloni / Vendus)
+- [ ] Coach Assist AI (D5: Claude + RAG + revisão humana)
+- [ ] Faturação base: MB Way / SEPA / cartão
+- [ ] (D2) Emissão fiscal ATCUD/QR + SAF-T via fornecedor certificado
+- [ ] Aceitação F5
+
+## F6 · Testes, Pilotagem & Go-Live (30 Out) — S9 (€25.000)
+- [ ] Landing `vytal.fit`
+- [ ] Testes de integração e carga
+- [ ] UAT com 3–5 atletas piloto
+- [ ] Correção de bugs críticos/altos
+- [ ] Runbook + alarmes + manual PT-PT
+- [ ] **Go-live 30 Out 2026**
+- [ ] Acompanhamento 30 dias (garantia até 29 Nov 2026)
+
+---
+
+## Pontos em aberto
+- **A-1** Âmbito exato da produção de conteúdo das BD (exercícios/WODs) — *Bruno + Juvenal*.
+- **A-2** Selecionar fornecedor de faturação certificado — *antes da F5*.
+- **A-3** Domínio próprio + identidade visual final — *até fim da F1*.
+
+## Diferido (fase seguinte)
+Mapa de lesões SVG · dashboard cruzado saúde/performance (A3-04) · white-label · site builder + domínio/SSL · Google Reviews · avaliação de treinadores · wearables · nutrição IA · marketplace · corporate wellness · multi-localização · VOD.
