@@ -10,7 +10,7 @@
 # the deploy repo's `main`. Vercel then builds and publishes.
 #
 # ── One-time setup ──────────────────────────────────────────────────────────
-#   Deploy repo : vytalfit-eu/vytalfit-eu-private (connected to Vercel)
+#   Deploy repo : vytalfiteu-web/vytalfit-eu-private (connected to Vercel)
 #   Deploy email: vytal.fit.eu@gmail.com (the Vercel-connected GitHub account)
 #   Only secret needed: VERCEL_DEPLOY_TOKEN — a fine-grained PAT created on the
 #   vytalfit-eu GitHub account with, on vytalfit-eu-private:
@@ -56,7 +56,7 @@ jobs:
       - name: Mirror push
         env:
           DEPLOY_TOKEN: ${{ secrets.VERCEL_DEPLOY_TOKEN }}
-          DEPLOY_REPO: vytalfit-eu/vytalfit-eu-private
+          DEPLOY_REPO: vytalfiteu-web/vytalfit-eu-private
           DEPLOY_AUTHOR_EMAIL: vytal.fit.eu@gmail.com
         run: |
           set -euo pipefail
