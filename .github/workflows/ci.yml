@@ -1,3 +1,16 @@
+# CI for the Vytal monorepo.
+#
+# Runs on every PR targeting `main` plus pushes to `main`. Cheap checks only —
+# lint, type-check, unit tests — so we DON'T burn the free Actions minute
+# budget. The Playwright E2E suite is deliberately NOT here; it runs on demand
+# via `.github/workflows/e2e.yml` (workflow_dispatch).
+#
+# (A gitleaks secret-scan job can be added once a `.gitleaks.toml` allowlist
+# exists — omitted for now to avoid false-positive CI failures.)
+#
+# Deployment is NOT done here either — see `mirror-to-vercel.yml`. Vercel
+# builds and publishes from its connected deploy repo.
+
 name: CI
 
 on:
@@ -6,6 +19,10 @@ on:
   push:
     branches: [main]
 
+permissions:
+  contents: read
+
+# Cancel in-flight runs on the same branch when a new commit is pushed.
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
@@ -20,15 +37,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
+      - name: Setup Node + install
+        uses: ./.github/actions/setup
 
-      - name: Install dependencies
-        run: npm ci
-
+      # Order matters: cheap checks fail first.
       - name: Type-check
         run: npx turbo type-check
 
@@ -37,62 +49,3 @@ jobs:
 
       - name: Test
         run: npm test
-
-  e2e:
-    name: Playwright E2E
-    runs-on: ubuntu-latest
-    timeout-minutes: 40
-    needs: ci
-
-    services:
-      postgres:
-        image: postgres:16
-        env:
-          POSTGRES_USER: vytal
-          POSTGRES_PASSWORD: vytal
-          POSTGRES_DB: vytal
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
-    env:
-      DATABASE_URL: postgresql://vytal:vytal@localhost:5432/vytal
-      BETTER_AUTH_SECRET: e2e-ci-secret-not-for-prod
-      BETTER_AUTH_URL: http://localhost:3000
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Install Playwright browsers
-        run: npx --workspace @vytal-fit/web playwright install --with-deps
-
-      - name: Run database migrations
-        run: npm run db:migrate -w @vytal-fit/db
-
-      - name: Seed demo data
-        run: npm run db:seed -w @vytal-fit/db
-
-      - name: Run Playwright tests
-        run: npm run test:e2e
-
-      - name: Upload Playwright report
-        uses: actions/upload-artifact@v4
-        if: ${{ !cancelled() }}
-        with:
-          name: playwright-report
-          path: apps/web/e2e/html-report/
-          retention-days: 14
