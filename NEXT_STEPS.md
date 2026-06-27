@@ -38,6 +38,8 @@ O DB já existe (Neon Postgres + Drizzle + migrações + seed + Better Auth + tR
 - [~] Migrar chaves localStorage restantes (páginas `console/*`) — saem no wiring tRPC da F2/F4
 - [x] Seed de produção coberto por teste de regressão (PGlite): 3 orgs, org-1 populada, idempotência
 - [x] Seed de domínio das **org-2 / org-3** (core: coaches, locations, class types, membros, planos, leads) — ids alinhados ao mock; classes/WODs/check-ins seguem no wiring F2
+- [x] Register real (Better Auth `signUp`) — era stub; hard-nav para `/onboarding` (padrão kloser)
+- [x] Página `/welcome` (seleção de ginásio pós-login, padrão kloser); login → `/welcome` → escolher ginásio → `/dashboard` *(QA em browser pendente)*
 - [ ] (A-3) Confirmar domínio próprio + identidade visual
 
 ## F2 · Backoffice de Gestão (`pro.vytal.fit`) — S2–S3 (€55.000)

@@ -42,7 +42,7 @@ export default function LoginPage() {
     setLoading(true);
     const success = await login(email, password);
     if (success) {
-      router.push("/dashboard");
+      router.push("/welcome");
     } else {
       setError(true);
       setLoading(false);
