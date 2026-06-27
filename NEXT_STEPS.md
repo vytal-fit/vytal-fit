@@ -24,6 +24,7 @@
 - [x] Backlog detalhado F2–F6 (este ficheiro + `docs/PLANO_SPRINTS.md`)
 - [x] **Clareza do data layer:** fonte única de chaves localStorage (`STORAGE_KEYS` em `@vytal-fit/shared`); stores centrais migradas; literal duplicado `"vytal-auth"` removido
 - [~] Migrar chaves localStorage restantes (páginas `console/*`) — saem no wiring tRPC da F2/F4
+- [x] Seed de produção coberto por teste de regressão (PGlite): 3 orgs, org-1 populada, idempotência; gap org-2/3 fixado em teste
 - [ ] Seed das **org-2 / org-3** com dataset de domínio (hoje só org-1) → remove o fallback de mock
 - [ ] (A-3) Confirmar domínio próprio + identidade visual
 
