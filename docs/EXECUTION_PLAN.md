@@ -99,7 +99,7 @@ Wire the remaining backoffice routers onto the POC UI:
 2. **E2E moved to manual** (`e2e.yml`, `workflow_dispatch` only): the full Playwright suite is preserved and run on demand / before go-live, not on every commit. *(Mirrors kloser's intent of not paying ~20–40 runner-minutes per push.)*
 3. **Deployment** (`mirror-to-vercel.yml`): replicate kloser's model — Vercel deploys from a **separate connected repo** via its native Git integration. On push to `main`, this workflow synthesizes an orphan commit pointing at `HEAD`'s tree, authored by the **deploy account's email** (Vercel Hobby only deploys commits whose author is on the connected account), and force-pushes it to the deploy repo's `main`. Vercel then auto-builds and publishes.
 
-**Deploy target (hardcoded in the workflow, matching kloser):** repo `vytalfit-eu/vytalfit-eu-private`, deploy identity `vytal.fit.eu@gmail.com`.
+**Deploy target (hardcoded in the workflow, matching kloser):** repo `vytalfiteu-web/vytalfit-eu-private`, deploy identity `vytal.fit.eu@gmail.com`.
 
 **One-time setup required — only the token:**
 - `VERCEL_DEPLOY_TOKEN` *(repo secret)* — a fine-grained PAT created on the **vytalfit-eu** GitHub account, scoped to `vytalfit-eu-private` with **Contents: Read and write** + **Workflows: Read and write**.
