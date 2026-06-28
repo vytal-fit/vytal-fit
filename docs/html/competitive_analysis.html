@@ -1,0 +1,313 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Competitive Analysis · Vytal docs</title><style>
+:root{--bg:#fff;--fg:#1a1d24;--muted:#5b6573;--border:#e4e8ee;--code-bg:#f4f6f9;--accent:#0d9488;--accent-soft:#0d948814;--th-bg:#f7f9fb;--quote:#f0fdfa;--quote-bar:#0d9488}
+@media(prefers-color-scheme:dark){:root{--bg:#0f1318;--fg:#dfe5ec;--muted:#8a94a3;--border:#252b34;--code-bg:#1a1f27;--accent:#2dd4bf;--accent-soft:#2dd4bf1a;--th-bg:#161b22;--quote:#0c1f1c;--quote-bar:#2dd4bf}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+.layout{display:grid;grid-template-columns:260px 1fr;max-width:1180px;margin:0 auto;min-height:100vh}
+.toc{position:sticky;top:0;align-self:start;max-height:100vh;overflow:auto;padding:28px 18px;border-right:1px solid var(--border);font-size:13.5px}
+.toc a{display:block;color:var(--muted);text-decoration:none;padding:3px 8px;border-radius:6px;line-height:1.4}
+.toc a:hover{color:var(--fg);background:var(--accent-soft)}
+.toc a.lvl3{padding-left:20px;font-size:12.5px}
+.toc .home{color:var(--accent);font-weight:600;margin-bottom:14px}
+.content{padding:40px 56px;min-width:0;max-width:860px}
+.content h1{font-size:30px;margin:.2em 0 .6em;line-height:1.2}
+.content h2{font-size:23px;margin:1.6em 0 .5em;padding-bottom:.25em;border-bottom:1px solid var(--border)}
+.content h3{font-size:18.5px;margin:1.4em 0 .4em}
+.content h4{font-size:16px;margin:1.2em 0 .3em}
+a{color:var(--accent)}
+.anchor{margin-left:8px;color:var(--border);text-decoration:none;font-weight:400;opacity:0}
+h1:hover .anchor,h2:hover .anchor,h3:hover .anchor{opacity:1}
+code{background:var(--code-bg);padding:.12em .4em;border-radius:5px;font:13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace}
+pre{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:16px;overflow:auto}
+pre code{background:none;padding:0;font-size:13px}
+.table-wrap{overflow-x:auto;margin:1em 0}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{border:1px solid var(--border);padding:8px 11px;text-align:left;vertical-align:top}
+th{background:var(--th-bg);font-weight:600}
+tr:nth-child(even) td{background:var(--accent-soft)}
+blockquote{margin:1em 0;padding:.6em 1.1em;background:var(--quote);border-left:3px solid var(--quote-bar);border-radius:0 8px 8px 0;color:var(--fg)}
+hr{border:none;border-top:1px solid var(--border);margin:2em 0}
+ul,ol{padding-left:1.5em}li{margin:.25em 0}
+.docnav{display:flex;justify-content:space-between;margin-top:48px;padding-top:20px;border-top:1px solid var(--border);font-size:14px;gap:12px}
+.docnav a{text-decoration:none;padding:10px 14px;border:1px solid var(--border);border-radius:8px;flex:1}
+.docnav a:hover{background:var(--accent-soft)}
+.docnav .next{text-align:right}
+@media(max-width:820px){.layout{grid-template-columns:1fr}.toc{display:none}.content{padding:24px}}
+</style></head>
+<body><div class="layout">
+<aside class="toc"><a class="home" href="index.html">← Vytal docs</a><a class="lvl2" href="#executive-summary">Executive Summary</a>
+<a class="lvl2" href="#1-admin-module-map">1. Admin Module Map</a>
+<a class="lvl2" href="#2-classes-services-module">2. Classes / Services Module</a>
+<a class="lvl3" href="#21-class-calendar-manage-classes">2.1 Class Calendar (Manage Classes)</a>
+<a class="lvl3" href="#22-class-types">2.2 Class Types</a>
+<a class="lvl3" href="#23-membership-plans-permissions">2.3 Membership Plans &amp; Permissions</a>
+<a class="lvl3" href="#24-locations-rooms">2.4 Locations / Rooms</a>
+<a class="lvl3" href="#25-drop-ins">2.5 Drop-ins</a>
+<a class="lvl3" href="#26-listings-reports">2.6 Listings &amp; Reports</a>
+<a class="lvl3" href="#27-bulk-operations">2.7 Bulk Operations</a>
+<a class="lvl3" href="#28-class-history">2.8 Class History</a>
+<a class="lvl2" href="#3-workouts-module">3. Workouts Module</a>
+<a class="lvl3" href="#31-exercise-library">3.1 Exercise Library</a>
+<a class="lvl3" href="#32-group-workouts-wod-programming">3.2 Group Workouts (WOD Programming)</a>
+<a class="lvl3" href="#33-personal-training">3.3 Personal Training</a>
+<a class="lvl3" href="#34-regy-screen-tv-display">3.4 Regy Screen (TV Display)</a>
+<a class="lvl3" href="#35-workout-options">3.5 Workout Options</a>
+<a class="lvl2" href="#4-crm-module">4. CRM Module</a>
+<a class="lvl3" href="#41-lead-pipeline">4.1 Lead Pipeline</a>
+<a class="lvl3" href="#42-lead-management">4.2 Lead Management</a>
+<a class="lvl3" href="#43-email-templates-crm">4.3 Email Templates (CRM)</a>
+<a class="lvl3" href="#44-crm-statistics">4.4 CRM Statistics</a>
+<a class="lvl3" href="#45-new-member-retention-16-week-monitoring">4.5 New Member Retention (16-Week Monitoring)</a>
+<a class="lvl3" href="#46-member-monitor">4.6 Member Monitor</a>
+<a class="lvl3" href="#47-site-integrations">4.7 Site Integrations</a>
+<a class="lvl3" href="#48-crm-options">4.8 CRM Options</a>
+<a class="lvl2" href="#5-members-module">5. Members Module</a>
+<a class="lvl3" href="#51-member-search-stats">5.1 Member Search &amp; Stats</a>
+<a class="lvl3" href="#52-member-options">5.2 Member Options</a>
+<a class="lvl3" href="#53-member-import">5.3 Member Import</a>
+<a class="lvl2" href="#6-financial-module">6. Financial Module</a>
+<a class="lvl3" href="#61-direct-debit-sepa">6.1 Direct Debit (SEPA)</a>
+<a class="lvl3" href="#62-expense-tracking">6.2 Expense Tracking</a>
+<a class="lvl3" href="#63-monthly-budget">6.3 Monthly Budget</a>
+<a class="lvl3" href="#64-payment-methods">6.4 Payment Methods</a>
+<a class="lvl2" href="#7-pos-module">7. POS Module</a>
+<a class="lvl3" href="#71-member-credit">7.1 Member Credit</a>
+<a class="lvl3" href="#72-pos-options">7.2 POS Options</a>
+<a class="lvl2" href="#8-communications-module">8. Communications Module</a>
+<a class="lvl3" href="#81-channels">8.1 Channels</a>
+<a class="lvl3" href="#82-communication-targeting">8.2 Communication Targeting</a>
+<a class="lvl2" href="#9-activities-events-module">9. Activities / Events Module</a>
+<a class="lvl2" href="#10-tablet-kiosk-module">10. Tablet / Kiosk Module</a>
+<a class="lvl2" href="#11-mobile-app-configuration">11. Mobile App Configuration</a>
+<a class="lvl2" href="#12-client-app-athlete-facing-features">12. Client App (Athlete-Facing) Features</a>
+<a class="lvl2" href="#13-box-settings">13. Box Settings</a>
+<a class="lvl2" href="#14-premiumupsell-features-regyplus">14. Premium/Upsell Features (RegyPlus+)</a>
+<a class="lvl2" href="#15-integration-points">15. Integration Points</a>
+<a class="lvl2" href="#16-gaps-features-to-add-to-vytal-prd">16. Gaps — Features to ADD to Vytal PRD</a>
+<a class="lvl3" href="#must-add-mvp">Must Add (MVP)</a>
+<a class="lvl3" href="#should-add-phase-2">Should Add (Phase 2)</a>
+<a class="lvl2" href="#17-client-app-deep-dive-132-routes">17. Client App Deep Dive (132 Routes)</a>
+<a class="lvl3" href="#additional-client-app-features">Additional Client App Features</a>
+<a class="lvl3" href="#client-app-route-statistics">Client App Route Statistics</a>
+<a class="lvl3" href="#additional-gaps-to-add-to-vytal-prd">Additional Gaps to Add to Vytal PRD</a>
+<a class="lvl3" href="#platform-scale">Platform Scale</a>
+<a class="lvl2" href="#18-vytal-competitive-advantages-over-regibox">18. Vytal Competitive Advantages Over Regibox</a></aside>
+<main class="content"><h1 id="regibox-competitive-analysis">Regibox Competitive Analysis<a class="anchor" href="#regibox-competitive-analysis">#</a></h1>
+<p><strong>Source:</strong> Live exploration of Regibox admin panel and client app (CrossFit Aveiro, box #38) <strong>Date:</strong> 2026-06-03 <strong>Purpose:</strong> Feature inventory to ensure Vytal matches or exceeds Regibox in every area</p>
+<hr>
+<h2 id="executive-summary">Executive Summary<a class="anchor" href="#executive-summary">#</a></h2>
+<p>Regibox is a mature PHP-based platform with 17 admin modules and a Framework7 mobile web app. It serves CrossFit boxes, gyms, and training centers across Portugal and Brazil. Key strengths: comprehensive class management with FullCalendar, 7-stage CRM pipeline, SEPA direct debit integration, and a modular upsell model. Key weaknesses: legacy PHP/iframe architecture, no real-time capabilities, limited AI features, no offline mode, and a dated UI.</p>
+<p><strong>Vytal's opportunity:</strong> Modern stack (Next.js + React Native), real-time WebSocket features (coachboard, timers, leaderboard), offline-first coach app, AI-powered insights, and a superior UX — while matching every feature Regibox currently offers.</p>
+<hr>
+<h2 id="1-admin-module-map">1. Admin Module Map<a class="anchor" href="#1-admin-module-map">#</a></h2>
+<p>Regibox admin has 17 top-level modules:</p>
+<div class='table-wrap'><table><thead><tr><th>Module</th><th>Regibox</th><th>Vytal PRD Coverage</th><th>Gap</th></tr></thead><tbody><tr><td>Box Settings</td><td>Details, logo, GPS, social links, timezone, currency</td><td>G1-01 Dashboard</td><td>Add box profile settings</td></tr><tr><td>Members (alunos)</td><td>Search, import, permissions, options, login tracking</td><td>G2-01 to G2-09</td><td>Covered</td></tr><tr><td>Staff (profs)</td><td>Permissions, admin logins</td><td>G5-01 to G5-04</td><td>Covered</td></tr><tr><td>Classes (aulas)</td><td>Calendar, types, plans, bulk ops, reports, drop-ins, history</td><td>C2-01 to C2-06, G2-02</td><td>Covered</td></tr><tr><td>Workouts</td><td>Exercises, group WODs, personal training, Regy Screen</td><td>C1-01 to C1-07, C3-01 to C3-04</td><td>Covered</td></tr><tr><td>CRM</td><td>Integrations, leads, new members, monitoring, options</td><td>G4-01 to G4-05</td><td>Covered</td></tr><tr><td>Communications</td><td>News, emails, SMS, meetings</td><td>G4-02, G4-03</td><td>Add meetings module</td></tr><tr><td>Financial</td><td>Direct debit, expenses, monthly budget, options</td><td>G3-01 to G3-06</td><td>Add expense tracking + budget</td></tr><tr><td>POS</td><td>Credit, options</td><td>G3-04</td><td>Covered</td></tr><tr><td>Activities</td><td>Competitions, challenges, races, awards, tournaments</td><td>Not in PRD</td><td><strong>NEW: Add activities/events engine</strong></td></tr><tr><td>Tablet/Kiosk</td><td>Check-in, score logging, digital signature, rotating images</td><td>A1-02</td><td>Add kiosk customization</td></tr><tr><td>Mobile APP</td><td>Colors, menus, content toggles, PWA, QR install</td><td>-</td><td>Add app customization settings</td></tr><tr><td>Dashboard</td><td>Dashboard 2.0 (separate module)</td><td>G1-01 to G1-08</td><td>Covered</td></tr><tr><td>Partnerships</td><td>NControl integration</td><td>-</td><td>Low priority</td></tr><tr><td>Omni</td><td>Omni channel</td><td>-</td><td>Low priority</td></tr><tr><td>Additional Modules</td><td>Upsell: Graduations, Physical Eval 2.0, Training Plans</td><td>-</td><td>Build natively, no upsell gates</td></tr><tr><td>Updates</td><td>Video tutorials</td><td>-</td><td>Add in-app help system</td></tr></tbody></table></div>
+<hr>
+<h2 id="2-classes-services-module">2. Classes / Services Module<a class="anchor" href="#2-classes-services-module">#</a></h2>
+<h3 id="21-class-calendar-manage-classes">2.1 Class Calendar (Manage Classes)<a class="anchor" href="#21-class-calendar-manage-classes">#</a></h3>
+<p><strong>What Regibox has:</strong></p>
+<ul><li>FullCalendar weekly/monthly/day views with zoom controls</li><li>Click-to-create on empty time slots</li><li>Drag-and-drop event editing</li><li>Copy/paste entire weeks</li><li>Copy individual classes</li><li>Delete entire weeks</li><li>Active/Inactive toggle for all classes (with custom APP message)</li><li>Filter by: location, coach, class type</li><li>Color-coded events per class type</li><li>Events show: title, coach, registrations/capacity count</li><li>Date range navigation with valid boundaries</li></ul>
+<p><strong>Create/Edit class form fields:</strong></p>
+<ul><li>Date, start time, end time</li><li>Location (8 locations: Empresa, First Floor, Open Box, Outdoors, PT, Strength Box, White Box, Yellow Box)</li><li>Class type (30+ types: WOD, Open Box, Strength, Hyrox, CF Teens, Workshops, etc.)</li><li>Maximum capacity (toggle + number)</li><li>Multiple coaches (checkbox with photos)</li><li>Registration rules: according to defined rules OR custom per-class<ul><li>Allow registrations until: beginning / custom (days+hours+mins before) / end</li><li>Allow cancellation until: beginning / custom / end</li><li>Allow registrations with advance of: days + hours + minutes</li></ul></li><li>Waiting list: general options / no / unlimited / up to N (1-100)</li><li>Bilingual daily message (PT + EN) associated to a date</li></ul>
+<p><strong>Search/filter view:</strong></p>
+<ul><li>Date range with 10+ presets (today, yesterday, this week, last week, etc.)</li><li>Filter by: location, class type, coach</li><li>Order by: date/time, class type, location</li><li>Records per page: 10-200</li></ul>
+<p><strong>Vytal must have:</strong> All of the above, plus real-time occupancy updates, WebSocket sync between coach app and admin.</p>
+<h3 id="22-class-types">2.2 Class Types<a class="anchor" href="#22-class-types">#</a></h3>
+<p><strong>What Regibox has:</strong></p>
+<ul><li>Name + abbreviation (auto-generated, editable)</li><li>SVG icon selector (200+ icons)</li><li>Color picker per type</li><li>Active/inactive toggle</li><li>Email notification toggle</li><li>Registration list visibility toggle</li><li>DataTable with search</li></ul>
+<p><strong>Vytal must have:</strong> All of the above.</p>
+<h3 id="23-membership-plans-permissions">2.3 Membership Plans &amp; Permissions<a class="anchor" href="#23-membership-plans-permissions">#</a></h3>
+<p><strong>What Regibox has:</strong></p>
+<ul><li>Three financial categories: Memberships, Services, Products</li><li>Membership plans: Monthly (9/13/unlimited sessions), semester, annual, weekly, daily, trial 30 days, voucher packs (10 sessions), corporate protocols, team building, direct debit variants</li><li>Services: PTs, osteo/physio, physical assessment, workshops, nutrition, space rental, coaching, vouchers, Hyrox doubles</li><li>Products: Clothing, shop items, consumables, brand partnerships</li><li>Per-plan class type permissions (which classes each plan can book)</li></ul>
+<p><strong>Vytal must have:</strong> All of the above, plus configurable per-plan weekly class limits and time slot restrictions (already in PRD G2-02).</p>
+<h3 id="24-locations-rooms">2.4 Locations / Rooms<a class="anchor" href="#24-locations-rooms">#</a></h3>
+<p><strong>What Regibox has:</strong></p>
+<ul><li>8 configurable locations/rooms</li><li>Per-class location assignment</li><li>Filter classes by location</li></ul>
+<p><strong>Vytal must have:</strong> Same, with future multi-location (multi-box) support.</p>
+<h3 id="25-drop-ins">2.5 Drop-ins<a class="anchor" href="#25-drop-ins">#</a></h3>
+<p><strong>What Regibox has:</strong></p>
+<ul><li>Price/description configuration</li><li>Active/inactive toggle</li><li>GPS coordinates with draggable map marker</li><li>Accept registrations from: box members + visitors / members only</li><li>Email validation for visitors</li><li>Required details: full (name, email, phone, gender, DOB) / basic (name, email)</li><li>Email notification on new drop-in</li><li>Absence limit filter (0-5 max absences)</li><li>WOD visibility for drop-ins</li><li>Participant list visibility: full / count only / hidden</li><li>Multi-language details (PT/EN): About, Equipment, Parking, Showers, Bar, Payment methods</li><li>Photo gallery with drag-and-drop upload and reorder</li></ul>
+<p><strong>Vytal must have:</strong> All of the above. Cross-box drop-in network is a major Regibox feature.</p>
+<h3 id="26-listings-reports">2.6 Listings &amp; Reports<a class="anchor" href="#26-listings-reports">#</a></h3>
+<p><strong>What Regibox has:</strong></p>
+<ul><li>Report 1: Registrations, attendances, absences (PDF) — by date range, group, member, type</li><li>Report 2: Totals (Excel + PDF) — same filters</li><li>Report 3: Monthly map (Excel + PDF) — by month/year, class type, group, status, include free transit</li><li>Report 4: Members by class type (PDF) — class type, status, order by</li><li>Report 5: Members by membership plan (PDF)</li><li>Report 6: Athletes with complementary plans (PDF)</li><li>Report 7: Total classes/services (PDF) — by date range</li><li>Groups/Teams support for filtering</li></ul>
+<p><strong>Vytal must have:</strong> All reports, plus interactive dashboards (not just static PDF/Excel exports).</p>
+<h3 id="27-bulk-operations">2.7 Bulk Operations<a class="anchor" href="#27-bulk-operations">#</a></h3>
+<p><strong>What Regibox has:</strong></p>
+<ul><li>Bulk class deletion by date range</li><li>Bulk class creation tools</li></ul>
+<p><strong>Vytal must have:</strong> Same.</p>
+<h3 id="28-class-history">2.8 Class History<a class="anchor" href="#28-class-history">#</a></h3>
+<p><strong>What Regibox has:</strong></p>
+<ul><li>Historical view of all past classes with filters</li></ul>
+<p><strong>Vytal must have:</strong> Same.</p>
+<hr>
+<h2 id="3-workouts-module">3. Workouts Module<a class="anchor" href="#3-workouts-module">#</a></h2>
+<h3 id="31-exercise-library">3.1 Exercise Library<a class="anchor" href="#31-exercise-library">#</a></h3>
+<p><strong>What Regibox has:</strong></p>
+<ul><li>Exercise management with video</li><li>Categories for organizing exercises</li><li>Rich text descriptions (Summernote editor)</li><li>Tagging/categories (Select2 dropdowns)</li><li>Toggle active/inactive</li></ul>
+<p><strong>Vytal must have:</strong> All of the above, plus 200+ pre-loaded movements with demo videos and scaling variations (already in PRD C1-02).</p>
+<h3 id="32-group-workouts-wod-programming">3.2 Group Workouts (WOD Programming)<a class="anchor" href="#32-group-workouts-wod-programming">#</a></h3>
+<p><strong>What Regibox has:</strong></p>
+<ul><li>Weekly/multi-week timeline (1-10 weeks, default 8)</li><li>Per-class-type workout programming</li><li>Date picker navigation</li><li>Class type selector with icons (30+ types)</li><li>Show/hide weeks, toolbar, descriptions</li><li>Sharing functionality</li><li>Category management</li><li>Export to Excel and PDF</li><li>Drag-and-drop workout builder</li></ul>
+<p><strong>Vytal must have:</strong> All of the above, plus structured WOD parts (Warm Up / Skill / WOD / Cool Down), 1-click publish to athlete app + TV display, and auto-saved drafts (already in PRD C1-01, C1-03).</p>
+<h3 id="33-personal-training">3.3 Personal Training<a class="anchor" href="#33-personal-training">#</a></h3>
+<p><strong>What Regibox has:</strong></p>
+<ul><li><strong>Programs tab:</strong> Create named programs (e.g., "WENDLER 531 - 4 sessions/week"), view/edit/delete/rename</li><li><strong>Athletes tab:</strong> Search by membership number, name, program filter (all / without / with / finished / in progress)</li><li><strong>Feedback Scales tab:</strong> Create custom feedback questionnaires (e.g., "Did you like this exercise?", "Difficulty level", "Did you feel pain?"), with editable items per scale, lock when associated</li><li><strong>Legacy PT tab:</strong> Read-only consultation of old PT plans</li></ul>
+<p><strong>Vytal must have:</strong> All of the above. Feedback scales are a nice feature — add them to the RPE system (PRD C2-05).</p>
+<h3 id="34-regy-screen-tv-display">3.4 Regy Screen (TV Display)<a class="anchor" href="#34-regy-screen-tv-display">#</a></h3>
+<p><strong>What Regibox has:</strong></p>
+<ul><li>Dedicated TV display web app</li><li>Controlled from admin panel</li></ul>
+<p><strong>Vytal must have:</strong> Same — already in PRD C2-04 (1080p/4K optimized, auto-mode, remote control from coach phone).</p>
+<h3 id="35-workout-options">3.5 Workout Options<a class="anchor" href="#35-workout-options">#</a></h3>
+<p><strong>What Regibox has:</strong></p>
+<ul><li>Group workout visibility and scoring settings</li><li>Special permissions for specific members/coaches</li><li>Individual workout settings</li><li>Movement library configuration</li></ul>
+<p><strong>Vytal must have:</strong> Same, with more granular permissions.</p>
+<hr>
+<h2 id="4-crm-module">4. CRM Module<a class="anchor" href="#4-crm-module">#</a></h2>
+<h3 id="41-lead-pipeline">4.1 Lead Pipeline<a class="anchor" href="#41-lead-pipeline">#</a></h3>
+<p><strong>What Regibox has:</strong></p>
+<ul><li>7 pipeline stages with auto-progression rules:<ul><li>Leads (28) — manually added or imported</li><li>Contacted (27) — auto when form filled or communication logged</li><li>Prospects (82) — auto when trial class booked</li><li>Subscribed (0) — auto when converted to athlete</li><li>Failures (0) — manually flagged</li><li>Drop-ins (2,524) — auto when guest class booked</li><li>Others (644) — catch-all</li></ul></li></ul>
+<p><strong>Vytal must have:</strong> Same pipeline with additional automation (PRD G4-01 kanban + G4-02 automations), but with AI-powered lead scoring (Phase 2).</p>
+<h3 id="42-lead-management">4.2 Lead Management<a class="anchor" href="#42-lead-management">#</a></h3>
+<p><strong>What Regibox has:</strong></p>
+<ul><li>Add lead: name, email, mobile, language (PT/EN), recommended by (dropdown of all members), how heard about us (customizable), initial contact method (customizable), assign to staff, notes</li><li>Excel import with drag-and-drop, column mapping, template download, batch staff assignment</li><li>Search/filter: date range (10+ presets), name, email, mobile, notes, type (7 stages), assigned staff, how heard, initial contact, order by (6 options), per page 10-100</li><li>Bulk delete with multi-select checkboxes</li><li>Contact detail modal: book trial, send confirmation/feedback email, convert to member, mark as failed, communication history</li></ul>
+<p><strong>Vytal must have:</strong> All of the above.</p>
+<h3 id="43-email-templates-crm">4.3 Email Templates (CRM)<a class="anchor" href="#43-email-templates-crm">#</a></h3>
+<p><strong>What Regibox has:</strong></p>
+<ul><li>Trial class confirmation (PT + EN): subject, greeting, body, class details toggle, Google Calendar button toggle, map link toggle, closing text, responsible person photo toggle, contacts/social toggle</li><li>Feedback email after trial: same structure + questionnaire selector (3 built-in questionnaires)</li><li>Send test email to self</li><li>Rich text editing</li></ul>
+<p><strong>Vytal must have:</strong> Same, with more templates and an email builder.</p>
+<h3 id="44-crm-statistics">4.4 CRM Statistics<a class="anchor" href="#44-crm-statistics">#</a></h3>
+<p><strong>What Regibox has:</strong></p>
+<ul><li>Date range filter</li><li>Staff filter</li><li>Chart.js visualization</li><li>Activity log with date/time/staff filters</li></ul>
+<p><strong>Vytal must have:</strong> Same, with interactive dashboards.</p>
+<h3 id="45-new-member-retention-16-week-monitoring">4.5 New Member Retention (16-Week Monitoring)<a class="anchor" href="#45-new-member-retention-16-week-monitoring">#</a></h3>
+<p><strong>What Regibox has:</strong></p>
+<ul><li>4 tabs: Week 1-4, 5-8, 9-12, 13-16</li><li>Per-member cards with photo, membership number, name, assigned coach</li><li>Color-coded attendance indicators (green/yellow/orange/red/gray)</li><li>"Advantage index" engagement scoring (0-100% with 5 color zones)</li><li>Configurable attendance thresholds (slider: 1-30 range with 5 handles)</li><li>Configurable advantage index thresholds (slider: 1-100 range with 5 handles)</li><li>Bulk selection with checkboxes</li><li>Bulk communication: APP notification, email, SMS, push, schedule meeting</li></ul>
+<p><strong>Vytal must have:</strong> All of the above — this is a critical retention tool. Map to PRD G2-06 (30-day onboarding) but extend to 16 weeks.</p>
+<h3 id="46-member-monitor">4.6 Member Monitor<a class="anchor" href="#46-member-monitor">#</a></h3>
+<p><strong>What Regibox has:</strong></p>
+<ul><li>Full member list with attendance tracking</li><li>Photo hover zoom</li><li>Assigned coach column</li><li>Bulk communication tools (same 5 channels)</li><li>DataTable with sorting and search</li></ul>
+<p><strong>Vytal must have:</strong> Same, integrated with the dashboard alerts (PRD G1-03).</p>
+<h3 id="47-site-integrations">4.7 Site Integrations<a class="anchor" href="#47-site-integrations">#</a></h3>
+<p><strong>What Regibox has:</strong></p>
+<ul><li>7 embeddable form types:<ol><li>Contact/Callback Request → auto-inserts into CRM as "Contacted"</li><li>New Member Registration → auto-sends APP login, configurable auto-active/inactive</li><li>Trial Class Booking → confirmation email, CRM integration</li><li>Voucher Pack Sales → online purchase, self-registration for classes</li><li>Membership Plan Sales → online purchase, choose start date</li><li>Class/Service Sales → individual class purchase (1-9 per booking), per-type pricing</li><li>Custom form</li></ol></li><li>Configurable form fields (16 fields, each mandatory/optional toggle)</li><li>Multi-language text (PT/EN with auto-translate)</li><li>Layout customization: margins, colors (bg, text, buttons, links), font family, font size, border radius, logo</li></ul>
+<p><strong>Vytal must have:</strong> All 7 integration types — this is how Regibox captures leads from gym websites. Add to PRD G4-05 (Landing pages &amp; capture forms).</p>
+<h3 id="48-crm-options">4.8 CRM Options<a class="anchor" href="#48-crm-options">#</a></h3>
+<p><strong>What Regibox has:</strong></p>
+<ul><li>Advantage index calculation basis: registrations vs attendances</li><li>New member monitoring period: 4/8/12/16 weeks</li><li>Advantage index calculation window: 7-180 days</li><li>Absence notification threshold: 1-30+ days</li><li>Advantage index notification threshold: 10-90%</li><li>Contact suppression window: 2-72 hours (avoid spamming)</li><li>Manual "UPDATE NOW" for recalculation (auto-runs 2x daily)</li></ul>
+<p><strong>Vytal must have:</strong> All settings, with real-time calculation instead of 2x daily batch.</p>
+<hr>
+<h2 id="5-members-module">5. Members Module<a class="anchor" href="#5-members-module">#</a></h2>
+<h3 id="51-member-search-stats">5.1 Member Search &amp; Stats<a class="anchor" href="#51-member-search-stats">#</a></h3>
+<p><strong>What Regibox has:</strong></p>
+<ul><li>Stats bar: Total (1,057), Active (428), With/Without member number, Inactive (629), Regularized (92), Suspended (0)</li><li>PDF export per segment</li><li>Search by: membership number, name, email, ID card, NIF, mobile</li><li>Filter by: frequency (1-14x/week, 1-30x/month), payment period (weekly to annually + vouchers + free transit), gender, box, active/inactive/suspended</li><li>Order by: member number, name, ID card, gender, email, birthdate, login times, registration date, inactive date</li></ul>
+<p><strong>Vytal must have:</strong> All of the above.</p>
+<h3 id="52-member-options">5.2 Member Options<a class="anchor" href="#52-member-options">#</a></h3>
+<p><strong>What Regibox has:</strong></p>
+<ul><li>Auto-numbering: sequential / sequential + suffix (multi-box)</li><li>Self-service toggles: change password, change photo (with photo upload suggestion), change personal details</li><li>Profile completion enforcement: require X% complete with access block after N warnings</li><li>Required field enforcement: 15 configurable fields (nickname, email, DOB, ID card, NIF, mobile, emergency contact, gender, profession, address, zip, weight, height)</li></ul>
+<p><strong>Vytal must have:</strong> All self-service options.</p>
+<h3 id="53-member-import">5.3 Member Import<a class="anchor" href="#53-member-import">#</a></h3>
+<p><strong>What Regibox has:</strong></p>
+<ul><li>Excel import (.xls) with drag-and-drop</li><li>Template sheet download</li><li>Progress bar</li><li>Batch staff assignment</li></ul>
+<p><strong>Vytal must have:</strong> Same, plus Regybox and Wodify format support (PRD G2-04).</p>
+<hr>
+<h2 id="6-financial-module">6. Financial Module<a class="anchor" href="#6-financial-module">#</a></h2>
+<h3 id="61-direct-debit-sepa">6.1 Direct Debit (SEPA)<a class="anchor" href="#61-direct-debit-sepa">#</a></h3>
+<p><strong>What Regibox has:</strong></p>
+<ul><li>Creditor entity setup</li><li>Debtor management per member (search by IBAN, mandate ID, name, etc.)</li><li>C2B SEPA billing file generation</li><li>Bank XML return file import for payment validation</li><li>Return/refund/chargeback processing</li><li>Revenue category association (3-tier: Memberships/Services/Products with 50+ subcategories)</li><li>Vendus invoicing integration</li></ul>
+<p><strong>Vytal must have:</strong> SEPA DD support — critical for Portuguese market. Map to PRD G3-01.</p>
+<h3 id="62-expense-tracking">6.2 Expense Tracking<a class="anchor" href="#62-expense-tracking">#</a></h3>
+<p><strong>What Regibox has:</strong></p>
+<ul><li>Full expense CRUD with categorization:<ul><li>Fixed: water, electricity, gas, rent, cleaning, staff, internet, accountant, social security, tax, bank, meal cards</li><li>Variable: gear, drinks, lawyer, maintenance, insurance, subscriptions, marketing, stationery, bank charges, clothing</li><li>Tax: VAT, payments on account, rent withholding, IRC, social security, IRS</li></ul></li><li>9 payment methods</li><li>Warranty tracking</li><li>Staff attribution</li><li>Date range search with 10+ presets</li><li>Two views: LIST (paginated) and TOTAL (aggregated by category)</li><li>Vendus invoice integration</li></ul>
+<p><strong>Vytal must have:</strong> Expense tracking is NOT in current PRD. <strong>ADD as new epic G3-07.</strong></p>
+<h3 id="63-monthly-budget">6.3 Monthly Budget<a class="anchor" href="#63-monthly-budget">#</a></h3>
+<p><strong>What Regibox has:</strong></p>
+<ul><li>Per-subcategory monthly spending limits</li><li>Previous month actual vs limit comparison</li><li>Running total animation</li><li>Grouped by category (Fixed/Variable/Tax)</li></ul>
+<p><strong>Vytal must have:</strong> Budget management is NOT in current PRD. <strong>ADD as new epic G3-08.</strong></p>
+<h3 id="64-payment-methods">6.4 Payment Methods<a class="anchor" href="#64-payment-methods">#</a></h3>
+<p><strong>What Regibox supports:</strong> Credit card, Bank Check, Direct Debit (SEPA), Cash, MBWAY, Multibanco, ATM Reference, Bank Transfer, Other</p>
+<p><strong>Vytal PRD already covers:</strong> Stripe (card), MBWay, SEPA DD, Multibanco reference. Add: Cash, Bank Transfer, Bank Check.</p>
+<hr>
+<h2 id="7-pos-module">7. POS Module<a class="anchor" href="#7-pos-module">#</a></h2>
+<h3 id="71-member-credit">7.1 Member Credit<a class="anchor" href="#71-member-credit">#</a></h3>
+<p><strong>What Regibox has:</strong></p>
+<ul><li>Member search (all members with photos)</li><li>Current credit display</li><li>Add credit with live calculation</li><li>Optional financial category association (auto-registers as revenue)</li><li>Recent operations list with cancel/undo</li><li>9 payment methods</li></ul>
+<h3 id="72-pos-options">7.2 POS Options<a class="anchor" href="#72-pos-options">#</a></h3>
+<p><strong>What Regibox has:</strong></p>
+<ul><li>Block class registrations for negative-balance members (configurable deadline: 1-90 days)</li><li>Credit category/subcategory mapping</li><li>APP self-service credit adds auto-register as revenue</li></ul>
+<p><strong>Vytal must have:</strong> Both, plus a proper product catalog (PRD G3-04).</p>
+<hr>
+<h2 id="8-communications-module">8. Communications Module<a class="anchor" href="#8-communications-module">#</a></h2>
+<h3 id="81-channels">8.1 Channels<a class="anchor" href="#81-channels">#</a></h3>
+<p><strong>What Regibox has (5 channels):</strong></p>
+<ol><li><strong>Email</strong> — Bulk/individual, Summernote rich text editor, bilingual templates, member selection from full list</li><li><strong>SMS</strong> — Via RegySMS Android APK (uses phone's SIM as gateway), schedule sending, filter by frequency/gender/status/class type/age range/group</li><li><strong>APP News</strong> — Rich text + image upload, target audience (all or specific), comments/likes moderation, active/inactive/featured status</li><li><strong>Push notifications</strong> — In-app messaging</li><li><strong>Meetings</strong> — Schedule with members, email notifications, reminders (days/hours/minutes before)</li></ol>
+<p><strong>Vytal must have:</strong> All 5 channels. SMS via native integration (Twilio) instead of requiring an Android phone. Add meeting scheduling to PRD — <strong>NEW epic G5-05.</strong></p>
+<h3 id="82-communication-targeting">8.2 Communication Targeting<a class="anchor" href="#82-communication-targeting">#</a></h3>
+<p><strong>What Regibox has:</strong></p>
+<ul><li>Filter by: frequency, gender, status, class types, groups/teams, membership plan, age range</li><li>Target: all active / specific members</li><li>Bulk selection with checkboxes</li></ul>
+<p><strong>Vytal must have:</strong> Same, with more advanced segmentation (PRD G4-04).</p>
+<hr>
+<h2 id="9-activities-events-module">9. Activities / Events Module<a class="anchor" href="#9-activities-events-module">#</a></h2>
+<p><strong>What Regibox has (NOT in Vytal PRD):</strong></p>
+<p>8 activity types:</p>
+<ol><li><strong>Cross-training Competition</strong> — Full competition management with heats, scores, leaderboards</li><li><strong>Challenge</strong> — Month/week challenges with score logging and video submission</li><li><strong>Race</strong> — Running, cycling, triathlon with time tracking</li><li><strong>Member of the Month</strong> — Qualifying phase + voting phase</li><li><strong>Awards Ceremony</strong> — Category-based voting with bar chart results</li><li><strong>Secret Friend</strong> — Gift exchange for parties</li><li><strong>Tournament</strong> — Multiple sports (handball, badminton, basketball, soccer, padel, tennis, etc.)</li><li><strong>Other Activities</strong> — Generic registration + payment collection</li></ol>
+<p>Per activity:</p>
+<ul><li>Title, type (unchangeable after creation), privacy (all/personal), visibility (box members/everyone)</li><li>Icon selector (SVG picker)</li><li>APP highlight options: no / yes / until registration deadline / until activity start</li><li>Status tracking (completed/active)</li><li>Terms of use (PDF), poster image, video tutorials</li></ul>
+<p><strong>Vytal must add:</strong> Activities/events engine as a new module. <strong>NEW epic: Activities (Phase 2).</strong> This covers competitions, challenges, social events — great for community engagement.</p>
+<hr>
+<h2 id="10-tablet-kiosk-module">10. Tablet / Kiosk Module<a class="anchor" href="#10-tablet-kiosk-module">#</a></h2>
+<p><strong>What Regibox has:</strong></p>
+<ul><li>6 rotating display images with custom text overlays (30 chars each)</li><li>Check-in timing: beginning of class / 5-60 minutes before</li><li>4 animation types + random</li><li>Theme color: 8 options (red, green, blue, pink, yellow, orange, grey, black)</li><li>7 customizable button colors (outer shadow, ellipses, arc/dots, background, circles, text bg, text)</li><li>Toggleable buttons: new member registration, digital signature, check-in, score logging, training plans</li><li>QR code for tablet app launch</li><li>Multi-tablet support (different configs per tablet)</li></ul>
+<p><strong>Vytal must have:</strong> All of the above for the kiosk check-in (PRD G3-04 mentions POS on tablet). Extend kiosk module.</p>
+<hr>
+<h2 id="11-mobile-app-configuration">11. Mobile App Configuration<a class="anchor" href="#11-mobile-app-configuration">#</a></h2>
+<p><strong>What Regibox has (configurable from admin):</strong></p>
+<ul><li><strong>Theme:</strong> Background (dark/light), theme color (8 + custom), member color override toggle</li><li><strong>Custom menus:</strong> Add URL-based menu items</li><li><strong>Content toggles (20+ sections):</strong><ul><li>Classes/Services (+ COVID cert, book class, drop-in sub-options)</li><li>Workouts (box workouts, individual, movements, historic)</li><li>Records (personal, box)</li><li>Physical Evaluation</li><li>Digital Dossiers</li><li>News</li><li>Store (box store, Prozis)</li><li>Challenge</li><li>Ranking</li><li>Best WOD Results</li><li>Fistbumps and Comments</li><li>My Box (rules, birthdays, members, coaches, contacts)</li><li>Converters (unit converters)</li><li>Timers</li><li>Settings (personal details, password, photo, locations, class types, account, privacy, email options, other)</li></ul></li><li><strong>PWA:</strong> Custom icon (512px+), title, splash screen color, QR code for installation</li><li><strong>Activities visibility:</strong> All / own box only / custom</li><li><strong>Birthday visibility:</strong> Yes / No / HR staff only</li></ul>
+<p><strong>Vytal must have:</strong> Admin-configurable mobile app content. This is a huge feature — the box owner controls what athletes see in the app.</p>
+<hr>
+<h2 id="12-client-app-athlete-facing-features">12. Client App (Athlete-Facing) Features<a class="anchor" href="#12-client-app-athlete-facing-features">#</a></h2>
+<p>From admin configuration and login page analysis:</p>
+<div class='table-wrap'><table><thead><tr><th>Feature</th><th>Description</th></tr></thead><tbody><tr><td><strong>Class Booking</strong></td><td>View schedule, book/cancel classes, waiting list</td></tr><tr><td><strong>QR Check-in</strong></td><td>At kiosk tablet</td></tr><tr><td><strong>WOD View</strong></td><td>Daily workout with details</td></tr><tr><td><strong>Score Logging</strong></td><td>Enter results on tablet or app</td></tr><tr><td><strong>Workouts</strong></td><td>Box workouts, individual plans, movement library, history</td></tr><tr><td><strong>Records/PRs</strong></td><td>Personal records, box records</td></tr><tr><td><strong>Ranking</strong></td><td>Box ranking/leaderboard</td></tr><tr><td><strong>Best Results</strong></td><td>Highlighted WOD performances</td></tr><tr><td><strong>Fistbumps &amp; Comments</strong></td><td>Social reactions on results</td></tr><tr><td><strong>News</strong></td><td>Box news feed with comments/likes</td></tr><tr><td><strong>Store</strong></td><td>In-app store (box products + Prozis integration)</td></tr><tr><td><strong>Challenge</strong></td><td>Participate in box challenges</td></tr><tr><td><strong>Activities</strong></td><td>Competition registration, challenges, events</td></tr><tr><td><strong>Physical Evaluation</strong></td><td>Body composition, fitness assessments</td></tr><tr><td><strong>Digital Dossiers</strong></td><td>Document storage</td></tr><tr><td><strong>Timers</strong></td><td>AMRAP, EMOM, Tabata, Stopwatch</td></tr><tr><td><strong>Converters</strong></td><td>Unit converters (lbs/kg, etc.)</td></tr><tr><td><strong>My Box</strong></td><td>Class rules, birthdays, member/coach directory, contacts</td></tr><tr><td><strong>Settings</strong></td><td>Personal details, password, photo, notifications, privacy</td></tr><tr><td><strong>Feedback</strong></td><td>Post-class questionnaires</td></tr><tr><td><strong>Messages</strong></td><td>In-app messaging</td></tr></tbody></table></div>
+<hr>
+<h2 id="13-box-settings">13. Box Settings<a class="anchor" href="#13-box-settings">#</a></h2>
+<p><strong>What Regibox has:</strong></p>
+<ul><li>Business type: Box, Gym, Studio, Academy, Training Center, Health Club, School, Therapy Center</li><li>Name, slogan, email, phone, mobile (with Portuguese legal compliance text)</li><li>Timezone (UTC -12 to +14)</li><li>Currency: EUR, BRL, GBP, MZN, MAD, AOA, CVE, CHF</li><li>Social links: website, Facebook, YouTube, Instagram, Twitter</li><li>Logo upload (JPG)</li><li>Address, zip code, city, country (full world list)</li><li>GPS coordinates with draggable Google Maps marker</li></ul>
+<p><strong>Vytal must have:</strong> All box profile settings. Add to admin settings module.</p>
+<hr>
+<h2 id="14-premiumupsell-features-regyplus">14. Premium/Upsell Features (RegyPlus+)<a class="anchor" href="#14-premiumupsell-features-regyplus">#</a></h2>
+<p>Regibox gates these features behind a premium plan:</p>
+<ul><li>IBAN search in Direct Debit</li><li>Filter by Box in Direct Debit</li><li>Digital signature on tablet (generates PDF contracts)</li><li>Training plans on tablet</li><li>Sequential numbering with suffix for multi-box</li></ul>
+<p><strong>Vytal advantage:</strong> Include ALL features natively — no upsell gates. This is a key differentiator.</p>
+<p>Additional paid modules (EUR 17-20/month each):</p>
+<ul><li>Graduations (belt/level progression)</li><li>Physical Evaluation 2.0 (advanced body composition)</li><li>Standardized Training Plans</li></ul>
+<p><strong>Vytal advantage:</strong> Build these natively in the platform.</p>
+<hr>
+<h2 id="15-integration-points">15. Integration Points<a class="anchor" href="#15-integration-points">#</a></h2>
+<p><strong>What Regibox integrates with:</strong></p>
+<ul><li>Vendus (Portuguese invoicing software)</li><li>SEPA banking (C2B file generation + XML return)</li><li>Google Maps API (box location, drop-in map)</li><li>Google Calendar (add trial class to calendar)</li><li>RegySMS (Android APK as SMS gateway)</li><li>Prozis Store (nutrition/supplement store in APP)</li><li>ManyChat (chatbot — listed as expense category)</li><li>NControl (access control partnership)</li><li>FullCalendar, DataTables, Select2, Summernote, Chart.js (internal libs)</li></ul>
+<p><strong>Vytal will integrate with:</strong></p>
+<ul><li>Stripe (cards, SCA), MBWay, SEPA DD, Multibanco (PRD MVP)</li><li>SendGrid (email), Firebase (push), Twilio (SMS) (PRD MVP)</li><li>AWS S3 (media) (PRD MVP)</li><li>Portuguese Tax Authority (SAF-T, ATCUD, QR fiscal) (PRD MVP)</li><li>Garmin, Apple Health, Google Fit, Strava (Phase 2)</li><li>Xero/QuickBooks, Zapier (Phase 2)</li></ul>
+<hr>
+<h2 id="16-gaps-features-to-add-to-vytal-prd">16. Gaps — Features to ADD to Vytal PRD<a class="anchor" href="#16-gaps-features-to-add-to-vytal-prd">#</a></h2>
+<p>Based on this analysis, the following features are present in Regibox but missing from the current Vytal PRD:</p>
+<h3 id="must-add-mvp">Must Add (MVP)<a class="anchor" href="#must-add-mvp">#</a></h3>
+<div class='table-wrap'><table><thead><tr><th>#</th><th>Feature</th><th>Regibox Module</th><th>Suggested Vytal Epic</th></tr></thead><tbody><tr><td>1</td><td>Box profile settings (name, logo, GPS, social, timezone, currency, business type)</td><td>Box Settings</td><td>G-NEW-01</td></tr><tr><td>2</td><td>Expense tracking with categorization (fixed/variable/tax) + payment method</td><td>Financial &gt; Expenses</td><td>G3-07</td></tr><tr><td>3</td><td>Monthly budget per expense category with actual vs limit comparison</td><td>Financial &gt; Budget</td><td>G3-08</td></tr><tr><td>4</td><td>Drop-in system (cross-box visiting athletes with GPS map, photos, details)</td><td>Classes &gt; Drop-ins</td><td>G-NEW-02</td></tr><tr><td>5</td><td>16-week new member retention monitoring with attendance scoring</td><td>CRM &gt; New Members</td><td>Extend G2-06 to 16 weeks</td></tr><tr><td>6</td><td>"Advantage index" — engagement scoring with configurable thresholds + coach alerts</td><td>CRM &gt; Options</td><td>G-NEW-03</td></tr><tr><td>7</td><td>Contact suppression window (avoid spamming recently contacted members)</td><td>CRM &gt; Options</td><td>G4-03 enhancement</td></tr><tr><td>8</td><td>Website embeddable forms (7 types: contact, register, trial, voucher sale, plan sale, class sale, custom)</td><td>CRM &gt; Site Integrations</td><td>Extend G4-05</td></tr><tr><td>9</td><td>Configurable mobile app content (admin controls what athletes see)</td><td>Mobile APP Options</td><td>G-NEW-04</td></tr><tr><td>10</td><td>Kiosk/tablet customization (images, colors, buttons, animations, multi-tablet)</td><td>Tablet Options</td><td>Extend A1-02</td></tr><tr><td>11</td><td>Member auto-inactivation after N days absent</td><td>Class Options</td><td>G-NEW-05</td></tr><tr><td>12</td><td>Groups/Teams for member segmentation and filtering</td><td>Cross-cutting</td><td>G-NEW-06</td></tr></tbody></table></div>
+<h3 id="should-add-phase-2">Should Add (Phase 2)<a class="anchor" href="#should-add-phase-2">#</a></h3>
+<div class='table-wrap'><table><thead><tr><th>#</th><th>Feature</th><th>Regibox Module</th><th>Suggested Vytal Epic</th></tr></thead><tbody><tr><td>13</td><td>Activities/events engine (competitions, challenges, races, awards, tournaments, secret friend)</td><td>Activities</td><td>Activities Epic (Phase 2)</td></tr><tr><td>14</td><td>Meeting scheduling with members (email notifications, reminders)</td><td>Communications &gt; Meetings</td><td>G5-05</td></tr><tr><td>15</td><td>Custom feedback scales/questionnaires</td><td>Workouts &gt; PT</td><td>Extend C2-05</td></tr><tr><td>16</td><td>SEPA C2B file generation + bank return XML processing</td><td>Financial &gt; DD</td><td>Extend G3-01</td></tr><tr><td>17</td><td>In-app store (box products + partner stores like Prozis)</td><td>POS + APP</td><td>POS Epic (Phase 2)</td></tr><tr><td>18</td><td>Digital dossiers (document storage for members)</td><td>Dossiers</td><td>Phase 2</td></tr><tr><td>19</td><td>Physical evaluation / body composition assessments</td><td>Phys Eval</td><td>Extend to include FMS (P2-04)</td></tr><tr><td>20</td><td>Graduations / belt system</td><td>Additional Modules</td><td>Extend C3-03 (skills &amp; levels)</td></tr><tr><td>21</td><td>Unit converters (lbs/kg, etc.) in athlete app</td><td>APP &gt; Converters</td><td>A-NEW-01</td></tr><tr><td>22</td><td>Birthday visibility in athlete app</td><td>APP &gt; My Box</td><td>A-NEW-02</td></tr></tbody></table></div>
+<hr>
+<h2 id="17-client-app-deep-dive-132-routes">17. Client App Deep Dive (132 Routes)<a class="anchor" href="#17-client-app-deep-dive-132-routes">#</a></h2>
+<p>The athlete-facing app is a Framework7 SPA with 132 routes across 17 sections. Key features not captured in admin analysis:</p>
+<h3 id="additional-client-app-features">Additional Client App Features<a class="anchor" href="#additional-client-app-features">#</a></h3>
+<div class='table-wrap'><table><thead><tr><th>Feature</th><th>Routes</th><th>Notes</th></tr></thead><tbody><tr><td><strong>Bet Game</strong></td><td>5 routes</td><td>Gamified betting on WOD outcomes — bet on who wins, leaderboard, most-bet-on athletes, all-time standings</td></tr><tr><td><strong>Social Feed</strong></td><td><code>/regi_social_main/</code></td><td>Instagram-style social feed within the box community</td></tr><tr><td><strong>Photo Contests</strong></td><td>2 routes</td><td>Photo upload + community voting</td></tr><tr><td><strong>Quizzes</strong></td><td><code>/quiz_main/</code></td><td>Interactive quizzes</td></tr><tr><td><strong>Certificates</strong></td><td><code>/certifica_pdf/</code></td><td>PDF diploma/certificate generation for competitions</td></tr><tr><td><strong>Percentage Calculator</strong></td><td><code>/calculadora/</code></td><td>RM percentage calculator (e.g., 85% of 1RM)</td></tr><tr><td><strong>Calendar Integrations</strong></td><td><code>/int_cals/</code></td><td>Sync classes to Google Calendar / Apple Calendar</td></tr><tr><td><strong>Partner/Affiliate System</strong></td><td>5 routes</td><td>Partner box calendar, rules, history, sales tracking</td></tr><tr><td><strong>Competition Screen</strong></td><td><code>/ecra_competicao/</code></td><td>Large-screen display for live competitions</td></tr><tr><td><strong>Import PRs</strong></td><td><code>/records_pessoais_importar/</code></td><td>Import PRs from another source or box</td></tr><tr><td><strong>3-Step Registration</strong></td><td>3 routes</td><td>Wizard: name/email/password → gender/gym/DOB → country/confirm</td></tr><tr><td><strong>Guest Registration</strong></td><td><code>/login_convidados/</code></td><td>Simplified registration with Facebook Login</td></tr><tr><td><strong>Coach Monitoring</strong></td><td>3 routes</td><td>Coach view of athletes within the same app</td></tr><tr><td><strong>PT Progress Photos</strong></td><td><code>/pt_fotos/</code></td><td>Photo tracking for PT clients</td></tr><tr><td><strong>Questionnaires</strong></td><td><code>/responder_quest/</code></td><td>Surveys sent by management</td></tr><tr><td><strong>4 Languages</strong></td><td>PT, EN, ES, FR</td><td>French support in addition to PT/EN/ES</td></tr></tbody></table></div>
+<h3 id="client-app-route-statistics">Client App Route Statistics<a class="anchor" href="#client-app-route-statistics">#</a></h3>
+<div class='table-wrap'><table><thead><tr><th>Section</th><th>Routes</th></tr></thead><tbody><tr><td>Login/Auth/Registration</td><td>10</td></tr><tr><td>Classes/Booking</td><td>15</td></tr><tr><td>Drop-In</td><td>6</td></tr><tr><td>Workouts (WODs)</td><td>13</td></tr><tr><td>Personal Training</td><td>4</td></tr><tr><td>Personal Records</td><td>11</td></tr><tr><td>Activities/Competitions</td><td>23</td></tr><tr><td>Ranking/Leaderboard</td><td>4</td></tr><tr><td>Social (Fist Bumps/Comments)</td><td>3</td></tr><tr><td>Timers</td><td>5</td></tr><tr><td>Settings/Profile</td><td>10</td></tr><tr><td>My Box (Community)</td><td>4</td></tr><tr><td>Shop/Commerce</td><td>4</td></tr><tr><td>Financial</td><td>3</td></tr><tr><td>Partner System</td><td>5</td></tr><tr><td>Other (News, Feedback, Docs)</td><td>7</td></tr><tr><td>Admin/Coach (in same app)</td><td>5</td></tr><tr><td><strong>Total</strong></td><td><strong>~132</strong></td></tr></tbody></table></div>
+<h3 id="additional-gaps-to-add-to-vytal-prd">Additional Gaps to Add to Vytal PRD<a class="anchor" href="#additional-gaps-to-add-to-vytal-prd">#</a></h3>
+<div class='table-wrap'><table><thead><tr><th>#</th><th>Feature</th><th>Priority</th></tr></thead><tbody><tr><td>23</td><td>Bet Game — gamified WOD outcome betting with leaderboard</td><td>Phase 2 (gamification)</td></tr><tr><td>24</td><td>RM Percentage Calculator (built-in tool)</td><td>MVP (low effort, high value)</td></tr><tr><td>25</td><td>Calendar sync (Google Calendar, Apple Calendar for booked classes)</td><td>MVP</td></tr><tr><td>26</td><td>Photo contests with community voting</td><td>Phase 2</td></tr><tr><td>27</td><td>PDF certificates for competition finishers</td><td>Phase 2</td></tr><tr><td>28</td><td>Import PRs from another box or source</td><td>MVP</td></tr><tr><td>29</td><td>French language support (PT, EN, ES, FR)</td><td>Phase 2</td></tr><tr><td>30</td><td>Partner/affiliate box system (cross-box partnerships)</td><td>Phase 3</td></tr><tr><td>31</td><td>Facebook Login for guest registration</td><td>MVP</td></tr><tr><td>32</td><td>PT progress photos</td><td>MVP</td></tr><tr><td>33</td><td>In-app questionnaires/surveys from management</td><td>Phase 2</td></tr></tbody></table></div>
+<h3 id="platform-scale">Platform Scale<a class="anchor" href="#platform-scale">#</a></h3>
+<ul><li><strong>849 affiliated gyms/boxes</strong> across Portugal and Portuguese-speaking countries</li><li>Primarily CrossFit but also: Pilates, martial arts, surf, yoga, fitness centers</li><li>Framework7 webview (PWA) — not native mobile</li></ul>
+<hr>
+<h2 id="18-vytal-competitive-advantages-over-regibox">18. Vytal Competitive Advantages Over Regibox<a class="anchor" href="#18-vytal-competitive-advantages-over-regibox">#</a></h2>
+<div class='table-wrap'><table><thead><tr><th>Area</th><th>Regibox</th><th>Vytal</th></tr></thead><tbody><tr><td><strong>Architecture</strong></td><td>Legacy PHP + iframes, jQuery, Bootstrap 4</td><td>Next.js 15, React 19, tRPC, Tailwind CSS 4</td></tr><tr><td><strong>Mobile</strong></td><td>Framework7 webview (PWA)</td><td>Native React Native (Expo) — offline-first</td></tr><tr><td><strong>Real-time</strong></td><td>Polling (30s refresh)</td><td>WebSocket (sub-second for coachboard, timers, leaderboard)</td></tr><tr><td><strong>Offline</strong></td><td>No offline support</td><td>Coach app + kiosk work without internet</td></tr><tr><td><strong>AI</strong></td><td>None</td><td>AI-powered: churn prediction, WOD suggestions, nutrition assistant (Phase 2+)</td></tr><tr><td><strong>Fiscal</strong></td><td>Via Vendus (3rd party)</td><td>Native SAF-T, ATCUD, QR fiscal — no 3rd party dependency</td></tr><tr><td><strong>SMS</strong></td><td>Requires Android phone as gateway</td><td>Twilio (proper SMS API)</td></tr><tr><td><strong>UX/UI</strong></td><td>Dated Bootstrap 4, iframes, popups</td><td>Modern dark theme, Space Grotesk, glassmorphism cards</td></tr><tr><td><strong>Pricing</strong></td><td>Feature gates (RegyPlus+), paid modules (EUR 17-20/mo each)</td><td>All features included — no upsell gates</td></tr><tr><td><strong>WOD Builder</strong></td><td>Basic drag-and-drop</td><td>Structured (Warm Up/Skill/WOD/Cool Down), auto %RM calc, 1-click publish</td></tr><tr><td><strong>Coachboard</strong></td><td>Static page</td><td>Real-time score entry, auto-sort, PR highlights, timer sync</td></tr><tr><td><strong>TV Display</strong></td><td>Basic</td><td>1080p/4K optimized, auto-mode, remote control from coach phone</td></tr><tr><td><strong>Gamification</strong></td><td>Ranking, best results</td><td>Streaks, medals, milestones, social feed with fistbumps</td></tr><tr><td><strong>RGPD</strong></td><td>Basic</td><td>RGPD by design — Art. 9 health data encryption, consent, audit logs</td></tr><tr><td><strong>Multi-language</strong></td><td>PT + EN</td><td>PT + EN + ES</td></tr></tbody></table></div><nav class="docnav"><a class="prev" href="prd.html">← PRD</a><a class="next" href="regibox_client_app.html">Regibox Client App →</a></nav></main>
+</div></body></html>
