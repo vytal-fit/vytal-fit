@@ -11,6 +11,13 @@
 - **D4** Conteúdo das BD de exercícios/WODs **validado pelo Juvenal** (âmbito → A-1).
 - **D5** LLM = **Claude** (gateway trocável).
 - **D6** Diferidos: white-label, site builder, Google Reviews, avaliação de treinadores, mapa de lesões, wearables, nutrição IA.
+- **D7** Loja online + catálogo de merch com integração a fornecedores chineses/dealers: o gestor escolhe modelo/cor/tamanho e a plataforma trata da ligação, encomenda e sincronização.
+
+## Mapa de superfícies
+- **landing** = presença pública (`vytal.fit`)
+- **pro** = backoffice operacional (`pro.vytal.fit`)
+- **my** = portal do atleta / membro (`my.vytal.fit`)
+- No repo atual, o web app cobre **landing + pro + my console**; o mobile cobre **my** agora e o eventual **pro mobile** quando entrar no roadmap.
 
 ---
 
@@ -50,6 +57,7 @@ O DB já existe (Neon Postgres + Drizzle + migrações + seed + Better Auth + tR
 - [ ] CRM kanban + automations de leads
 - [ ] Staff + RBAC
 - [ ] Dashboard / KPIs
+- [~] Loja online / merch conectado a fornecedores externos (catálogo, variantes, encomenda, tracking) — protótipo web em curso; fulfillment real e integrações externas continuam para fase posterior
 - [ ] Aceitação F2
 
 ## F3 · Treino — S4–S5 (€55.000)
@@ -97,4 +105,4 @@ O DB já existe (Neon Postgres + Drizzle + migrações + seed + Better Auth + tR
 - **A-3** Domínio próprio + identidade visual final — *até fim da F1*.
 
 ## Diferido (fase seguinte)
-Mapa de lesões SVG · dashboard cruzado saúde/performance (A3-04) · white-label · site builder + domínio/SSL · Google Reviews · avaliação de treinadores · wearables · nutrição IA · marketplace · corporate wellness · multi-localização · VOD.
+Mapa de lesões SVG · dashboard cruzado saúde/performance (A3-04) · white-label · site builder + domínio/SSL · Google Reviews · avaliação de treinadores · wearables · nutrição IA · marketplace · corporate wellness · multi-localização · VOD · loja/merch com ligação a fornecedores externos (protótipo web já em linha; fulfillment real pendente).

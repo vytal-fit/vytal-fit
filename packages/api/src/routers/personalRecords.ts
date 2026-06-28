@@ -1,5 +1,5 @@
 import { TRPCError } from "@trpc/server";
-import { and, asc, eq, gt } from "drizzle-orm";
+import { and, asc, eq, gt, inArray } from "drizzle-orm";
 import { exercises, gymMembers, personalRecords, PR_UNITS } from "@vytal-fit/db";
 import { hasMinRole } from "@vytal-fit/shared";
 import { z } from "zod";
@@ -104,12 +104,32 @@ export const personalRecordsRouter = router({
         .orderBy(asc(personalRecords.id))
         .limit(input.limit + 1);
 
+      const exerciseIds = [...new Set(rows.map((row) => row.exerciseId))];
+      const exerciseRows =
+        exerciseIds.length === 0
+          ? []
+          : await ctx.db
+              .select({
+                id: exercises.id,
+                name: exercises.name,
+                category: exercises.category,
+              })
+              .from(exercises)
+              .where(inArray(exercises.id, exerciseIds));
+      const exerciseById = new Map(exerciseRows.map((row) => [row.id, row]));
+
       let nextCursor: string | null = null;
       if (rows.length > input.limit) {
         rows.pop();
         nextCursor = rows[rows.length - 1]?.id ?? null;
       }
-      return { items: rows, nextCursor };
+      return {
+        items: rows.map((row) => ({
+          ...row,
+          exercise: exerciseById.get(row.exerciseId) ?? null,
+        })),
+        nextCursor,
+      };
     }),
 
   byId: orgProcedure
@@ -131,7 +151,20 @@ export const personalRecordsRouter = router({
           message: "Personal record not found.",
         });
       }
-      return row;
+      const [exercise] = await ctx.db
+        .select({
+          id: exercises.id,
+          name: exercises.name,
+          category: exercises.category,
+        })
+        .from(exercises)
+        .where(eq(exercises.id, row.exerciseId))
+        .limit(1);
+
+      return {
+        ...row,
+        exercise: exercise ?? null,
+      };
     }),
 
   create: orgProcedure.input(prInput).mutation(async ({ ctx, input }) => {

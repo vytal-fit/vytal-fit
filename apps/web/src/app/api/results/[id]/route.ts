@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 import { getRestCaller } from "@/lib/rest-caller";
 import { isBackendConfigured } from "@/lib/auth-server";
 
@@ -7,8 +7,8 @@ export const dynamic = "force-dynamic";
 type Params = { id: string };
 
 export async function PATCH(
-  request: Request,
-  context: { params: Params },
+  request: NextRequest,
+  context: { params: Promise<Params> },
 ): Promise<NextResponse> {
   if (!isBackendConfigured()) {
     return NextResponse.json(
@@ -19,8 +19,9 @@ export async function PATCH(
 
   const body = (await request.json()) as Record<string, unknown>;
   const caller = await getRestCaller(request);
+  const { id } = await context.params;
   const updated = await caller.wodResults.update({
-    id: context.params.id,
+    id,
     data: {
       wodId: typeof body.wodId === "string" ? body.wodId : undefined,
       memberId: typeof body.memberId === "string" ? body.memberId : undefined,

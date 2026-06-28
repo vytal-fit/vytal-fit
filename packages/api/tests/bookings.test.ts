@@ -111,6 +111,8 @@ describe("bookings.listByMember", () => {
     expect(rows.length).toBeGreaterThanOrEqual(1);
     expect(rows.every((b) => b.organizationId === IDS.orgA)).toBe(true);
     expect(rows.every((b) => b.memberId === IDS.memberA1)).toBe(true);
+    expect(rows.every((b) => b.class?.classType?.name)).toBe(true);
+    expect(rows.every((b) => b.class?.location?.name)).toBe(true);
   });
 
   it("throws UNAUTHORIZED without a session", async () => {

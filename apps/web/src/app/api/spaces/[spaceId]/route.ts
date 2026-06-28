@@ -3,6 +3,7 @@
  */
 import { NextResponse } from "next/server";
 import { getAuth, isBackendConfigured } from "@/lib/auth-server";
+import type { NextRequest } from "next/server";
 
 export const dynamic = "force-dynamic";
 
@@ -11,8 +12,8 @@ type Params = {
 };
 
 export async function GET(
-  request: Request,
-  context: { params: Params },
+  request: NextRequest,
+  context: { params: Promise<Params> },
 ): Promise<NextResponse> {
   if (!isBackendConfigured()) {
     return NextResponse.json(
@@ -25,7 +26,7 @@ export async function GET(
     );
   }
 
-  const { spaceId } = context.params;
+  const { spaceId } = await context.params;
   const space = await getAuth().api.getFullOrganization({
     headers: request.headers,
     query: { organizationId: spaceId },
