@@ -1,0 +1,445 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Regibox Client App · Vytal docs</title><style>
+:root{--bg:#fff;--fg:#1a1d24;--muted:#5b6573;--border:#e4e8ee;--code-bg:#f4f6f9;--accent:#0d9488;--accent-soft:#0d948814;--th-bg:#f7f9fb;--quote:#f0fdfa;--quote-bar:#0d9488}
+@media(prefers-color-scheme:dark){:root{--bg:#0f1318;--fg:#dfe5ec;--muted:#8a94a3;--border:#252b34;--code-bg:#1a1f27;--accent:#2dd4bf;--accent-soft:#2dd4bf1a;--th-bg:#161b22;--quote:#0c1f1c;--quote-bar:#2dd4bf}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+.layout{display:grid;grid-template-columns:260px 1fr;max-width:1180px;margin:0 auto;min-height:100vh}
+.toc{position:sticky;top:0;align-self:start;max-height:100vh;overflow:auto;padding:28px 18px;border-right:1px solid var(--border);font-size:13.5px}
+.toc a{display:block;color:var(--muted);text-decoration:none;padding:3px 8px;border-radius:6px;line-height:1.4}
+.toc a:hover{color:var(--fg);background:var(--accent-soft)}
+.toc a.lvl3{padding-left:20px;font-size:12.5px}
+.toc .home{color:var(--accent);font-weight:600;margin-bottom:14px}
+.content{padding:40px 56px;min-width:0;max-width:860px}
+.content h1{font-size:30px;margin:.2em 0 .6em;line-height:1.2}
+.content h2{font-size:23px;margin:1.6em 0 .5em;padding-bottom:.25em;border-bottom:1px solid var(--border)}
+.content h3{font-size:18.5px;margin:1.4em 0 .4em}
+.content h4{font-size:16px;margin:1.2em 0 .3em}
+a{color:var(--accent)}
+.anchor{margin-left:8px;color:var(--border);text-decoration:none;font-weight:400;opacity:0}
+h1:hover .anchor,h2:hover .anchor,h3:hover .anchor{opacity:1}
+code{background:var(--code-bg);padding:.12em .4em;border-radius:5px;font:13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace}
+pre{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:16px;overflow:auto}
+pre code{background:none;padding:0;font-size:13px}
+.table-wrap{overflow-x:auto;margin:1em 0}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{border:1px solid var(--border);padding:8px 11px;text-align:left;vertical-align:top}
+th{background:var(--th-bg);font-weight:600}
+tr:nth-child(even) td{background:var(--accent-soft)}
+blockquote{margin:1em 0;padding:.6em 1.1em;background:var(--quote);border-left:3px solid var(--quote-bar);border-radius:0 8px 8px 0;color:var(--fg)}
+hr{border:none;border-top:1px solid var(--border);margin:2em 0}
+ul,ol{padding-left:1.5em}li{margin:.25em 0}
+.docnav{display:flex;justify-content:space-between;margin-top:48px;padding-top:20px;border-top:1px solid var(--border);font-size:14px;gap:12px}
+.docnav a{text-decoration:none;padding:10px 14px;border:1px solid var(--border);border-radius:8px;flex:1}
+.docnav a:hover{background:var(--accent-soft)}
+.docnav .next{text-align:right}
+@media(max-width:820px){.layout{grid-template-columns:1fr}.toc{display:none}.content{padding:24px}}
+</style></head>
+<body><div class="layout">
+<aside class="toc"><a class="home" href="index.html">← Vytal docs</a><a class="lvl2" href="#table-of-contents">TABLE OF CONTENTS</a>
+<a class="lvl2" href="#1-classes-booking">1. CLASSES / BOOKING</a>
+<a class="lvl3" href="#1a-class-calendar-calendario_aulas">1a. Class Calendar (calendario_aulas)</a>
+<a class="lvl3" href="#1b-classes-list-for-a-day-aulas">1b. Classes List for a Day (aulas)</a>
+<a class="lvl3" href="#1c-class-details-detalhes_aula">1c. Class Details (detalhes_aula)</a>
+<a class="lvl2" href="#2-workouts-wods">2. WORKOUTS / WODs</a>
+<a class="lvl3" href="#2a-wod-main-page-wod">2a. WOD Main Page (wod)</a>
+<a class="lvl3" href="#2b-wod-details-wod_details">2b. WOD Details (wod_details)</a>
+<a class="lvl3" href="#2c-register-score-registar_score">2c. Register Score (registar_score)</a>
+<a class="lvl3" href="#2d-leaderboard-tabela_classificativa">2d. Leaderboard (tabela_classificativa)</a>
+<a class="lvl3" href="#2e-movement-library-movimentos">2e. Movement Library (movimentos)</a>
+<a class="lvl3" href="#2f-wod-history-historico">2f. WOD History (historico)</a>
+<a class="lvl2" href="#3-personal-records">3. PERSONAL RECORDS</a>
+<a class="lvl3" href="#3a-records-main-recordes">3a. Records Main (recordes)</a>
+<a class="lvl3" href="#3b-personal-records---category-list-records_pessoais0">3b. Personal Records - Category List (records_pessoais0)</a>
+<a class="lvl3" href="#3c-personal-records---entry-form-records_pessoais1">3c. Personal Records - Entry Form (records_pessoais1)</a>
+<a class="lvl3" href="#3d-box-records-records_box">3d. Box Records (records_box)</a>
+<a class="lvl3" href="#3e-pr-history-prs_historico">3e. PR History (prs_historico)</a>
+<a class="lvl2" href="#4-community">4. COMMUNITY</a>
+<a class="lvl3" href="#4a-my-box-minha_box----5-tab-layout">4a. My Box (minha_box) -- 5-tab layout</a>
+<a class="lvl3" href="#4b-birthday-detail-aniversario">4b. Birthday Detail (aniversario)</a>
+<a class="lvl3" href="#4c-news-feed-noticias">4c. News Feed (noticias)</a>
+<a class="lvl3" href="#4d-fistbumps-comments-fist_coments">4d. Fistbumps &amp; Comments (fist_coments)</a>
+<a class="lvl3" href="#4e-best-results-melhores_res">4e. Best Results (melhores_res)</a>
+<a class="lvl2" href="#5-activities-challenges">5. ACTIVITIES &amp; CHALLENGES</a>
+<a class="lvl3" href="#5a-activities-atividades">5a. Activities (atividades)</a>
+<a class="lvl3" href="#5b-challengesgamification-desafios">5b. Challenges/Gamification (desafios)</a>
+<a class="lvl2" href="#6-tools">6. TOOLS</a>
+<a class="lvl3" href="#6a-timers-timers">6a. Timers (timers)</a>
+<a class="lvl3" href="#6b-calculator-calc_perc">6b. Calculator (calc_perc)</a>
+<a class="lvl2" href="#7-store-pos">7. STORE (POS)</a>
+<a class="lvl3" href="#store-pos_loja_atletas">Store (pos_loja_atletas)</a>
+<a class="lvl2" href="#8-training">8. TRAINING</a>
+<a class="lvl3" href="#8a-training-planning-planeamento">8a. Training Planning (planeamento)</a>
+<a class="lvl3" href="#8b-individual-workouts-workouts_ind">8b. Individual Workouts (workouts_ind)</a>
+<a class="lvl2" href="#9-settings">9. SETTINGS</a>
+<a class="lvl3" href="#9a-settings-menu-configuracoes_submenu">9a. Settings Menu (configuracoes_submenu)</a>
+<a class="lvl3" href="#9b-personal-data-dados_pessoais">9b. Personal Data (dados_pessoais)</a>
+<a class="lvl3" href="#9c-password-change-dados_acesso">9c. Password Change (dados_acesso)</a>
+<a class="lvl3" href="#9d-your-account-sua_conta">9d. Your Account (sua_conta)</a>
+<a class="lvl3" href="#9e-notifications-opcoes">9e. Notifications (opcoes)</a>
+<a class="lvl3" href="#9f-class-options-opt_aulas">9f. Class Options (opt_aulas)</a>
+<a class="lvl3" href="#9g-email-options-opt_emails">9g. Email Options (opt_emails)</a>
+<a class="lvl3" href="#9h-privacy-options-opt_privacidade">9h. Privacy Options (opt_privacidade)</a>
+<a class="lvl3" href="#9i-photo-upload-foto">9i. Photo Upload (foto)</a>
+<a class="lvl3" href="#9j-visual-appearance-color-theme-cores">9j. Visual Appearance / Color Theme (cores)</a>
+<a class="lvl2" href="#10-feedback">10. FEEDBACK</a>
+<a class="lvl3" href="#feedback-page-feedback">Feedback Page (feedback)</a>
+<a class="lvl2" href="#11-digital-dossiers">11. DIGITAL DOSSIERS</a>
+<a class="lvl3" href="#dossiers-page-dossies">Dossiers Page (dossies)</a>
+<a class="lvl2" href="#cross-cutting-patterns">CROSS-CUTTING PATTERNS</a>
+<a class="lvl3" href="#navigation">Navigation</a>
+<a class="lvl3" href="#social-features">Social Features</a>
+<a class="lvl3" href="#authentication">Authentication</a>
+<a class="lvl3" href="#theming">Theming</a>
+<a class="lvl3" href="#internationalization">Internationalization</a>
+<a class="lvl3" href="#data-loading">Data Loading</a>
+<a class="lvl3" href="#form-patterns">Form Patterns</a>
+<a class="lvl3" href="#cross-box-features">Cross-Box Features</a></aside>
+<main class="content"><h1 id="regibox-regybox-clientathlete-app----complete-ui-feature-analysis">Regibox (RegyBox) Client/Athlete App -- Complete UI &amp; Feature Analysis<a class="anchor" href="#regibox-regybox-clientathlete-app----complete-ui-feature-analysis">#</a></h1>
+<p><strong>Source:</strong> 38 authenticated page fragments from the production app <strong>Platform:</strong> Framework7 hybrid mobile app (iOS/Android), PHP backend <strong>Language:</strong> Portuguese (pt), with English option <strong>Theme:</strong> Dark mode default, light mode available</p>
+<hr>
+<h2 id="table-of-contents">TABLE OF CONTENTS<a class="anchor" href="#table-of-contents">#</a></h2>
+<ol><li><a href="#1-classes--booking">Classes / Booking</a></li><li><a href="#2-workouts--wods">Workouts / WODs</a></li><li><a href="#3-personal-records">Personal Records</a></li><li><a href="#4-community">Community</a></li><li><a href="#5-activities--challenges">Activities &amp; Challenges</a></li><li><a href="#6-tools">Tools (Timers &amp; Calculator)</a></li><li><a href="#7-store">Store (POS)</a></li><li><a href="#8-training">Training Planning &amp; Individual Workouts</a></li><li><a href="#9-settings">Settings</a></li><li><a href="#10-feedback">Feedback</a></li><li><a href="#11-digital-dossiers">Digital Dossiers</a></li></ol>
+<hr>
+<h2 id="1-classes-booking">1. CLASSES / BOOKING<a class="anchor" href="#1-classes-booking">#</a></h2>
+<h3 id="1a-class-calendar-calendario_aulas">1a. Class Calendar (<code>calendario_aulas</code>)<a class="anchor" href="#1a-class-calendar-calendario_aulas">#</a></h3>
+<p><strong>Page header:</strong> "Aulas de [Month], [Year]"</p>
+<p><strong>Navigation:</strong></p>
+<ul><li>Back button (arrow_left_circle_fill icon)</li><li>Calendar scroll-to-top button (calendar icon, top right)</li></ul>
+<p><strong>Calendar widget:</strong></p>
+<ul><li>Full month calendar (Framework7 calendar component)</li><li>Tap any day to load that day's classes</li><li>Month/year navigation via swipe</li><li>Responsive: landscape mode splits calendar left / events right</li></ul>
+<p><strong>Class type filter (horizontal scrollable pill bar):</strong></p>
+<ul><li>"TODAS" (all) -- selected by default</li><li>Each class type shown as a pill with color-coded circle indicator:<ul><li>ANI_FLO, BRE_WOR, CF_OPEN, CHU_NOR_BR, CHU_NOR_RE, DES_SEM, DIN_TIM, ENDURAN, GAM, GRA, HYROX, HYR_COM, LIFTOFF, MIS, MISSA, MISSB, MOB, NUT, RAB_KIL, STA, STRENG, TBOX, TEE, WOD, WOR, WORKSHO, WOR_HYR</li></ul></li><li>Filter toggle via "more_horiz" (three dots) icon button</li></ul>
+<p><strong>Hidden form fields:</strong></p>
+<ul><li><code>box</code> (box ID)</li><li><code>plano</code> (plan ID, default 0)</li><li><code>dia_atual</code> (current day timestamp)</li><li><code>filtro</code> (active filter ID)</li></ul>
+<p><strong>Loading indicator:</strong> Full-screen spinner overlay</p>
+<h3 id="1b-classes-list-for-a-day-aulas">1b. Classes List for a Day (<code>aulas</code>)<a class="anchor" href="#1b-classes-list-for-a-day-aulas">#</a></h3>
+<p><strong>Content when no classes:</strong> "Nao ha aulas neste dia" (No classes on this day) with illustration</p>
+<p><strong>Content when classes exist (per time slot):</strong></p>
+<ul><li>Date header (e.g., "Quinta, 1 de Janeiro de 1970")</li><li>Each class card shows:<ul><li>Class type name and icon</li><li>Time slot</li><li>Coach name(s)</li><li>Enrollment count / capacity</li><li>Countdown timer (digital-7 font, shows days:hours:mins:secs until enrollment deadline)</li></ul></li></ul>
+<p><strong>Action buttons per class:</strong></p>
+<ul><li><strong>Book/Sign up</strong> -- <code>escolha_horario()</code> function</li><li><strong>View enrollment list</strong> -- <code>quadro_insc()</code> function (opens popup)</li></ul>
+<p><strong>Auto-scroll:</strong> When viewing today, auto-scrolls to current time slot</p>
+<p><strong>Timers:</strong> Live countdown timers update every 999ms showing time remaining for enrollment</p>
+<h3 id="1c-class-details-detalhes_aula">1c. Class Details (<code>detalhes_aula</code>)<a class="anchor" href="#1c-class-details-detalhes_aula">#</a></h3>
+<p><strong>Page header:</strong> "Detalhes da aula"</p>
+<p><strong>Popup overlay with:</strong></p>
+<ul><li>Back/close button</li><li>Class type name with icon and color</li><li>Class type secondary icon</li><li>Date and day of week</li><li>Time range (start - end)</li><li>Coach(es) section (<code>feed_coachs</code>)</li><li>Footer section</li></ul>
+<p><strong>Section: "Inscricoes" (Enrollments)</strong></p>
+<ul><li>List of enrolled athletes (rendered as <code>&lt;ul&gt;</code> list items)</li></ul>
+<hr>
+<h2 id="2-workouts-wods">2. WORKOUTS / WODs<a class="anchor" href="#2-workouts-wods">#</a></h2>
+<h3 id="2a-wod-main-page-wod">2a. WOD Main Page (<code>wod</code>)<a class="anchor" href="#2a-wod-main-page-wod">#</a></h3>
+<p><strong>Navigation bar:</strong></p>
+<ul><li>Back button ("Voltar")</li><li>Horizontal date selector (scrollable): shows ~10 days with month abbreviation, day number, weekday abbreviation</li><li>Star indicator under days that have scored results</li><li>Today highlighted</li></ul>
+<p><strong>Quick day selector bar:</strong></p>
+<ul><li>Row of day buttons: SAB, DOM, SEG, TER, HOJE, QUI, SEX, SAB, DOM</li><li>Each clickable to load that day's WODs via <code>wods_dia('YYYY-MM-DD')</code></li></ul>
+<p><strong>WOD sections (collapsible panels):</strong> Each workout category is a collapsible accordion panel with:</p>
+<ul><li>Category header (e.g., "WOD", "Strength", "Hyrox", "Miss WOD")</li><li>"Workout de [date]" subtitle</li><li>Expand/collapse toggle icon (format_line_spacing)</li><li>Color-coded left border</li></ul>
+<p><strong>Per workout card:</strong></p>
+<ul><li><strong>Workout title</strong> (e.g., "BACK SQUAT", "E2MOM for 18min")</li><li><strong>Workout description</strong> (full prescription text with sets, reps, weights, notes)</li><li><strong>Score type chip</strong> with icon:<ul><li>"Carga" (Load) -- fitness_center icon</li><li>"Repeticoes" (Reps) -- more_horiz icon</li><li>"Sem resultado/Para qualidade" (No score/For quality) -- block icon</li></ul></li><li><strong>Trophy icon</strong> (cup image, links to box ranking popup) for ranked workouts</li><li><strong>Coach notes</strong> (intensity, volume, RPE, focus)</li></ul>
+<p><strong>4-button action row per workout:</strong></p>
+<ol><li><strong>"+ Infos"</strong> -- Opens WOD details page (check_box icon)</li><li><strong>"Teu resultado"</strong> (Your result) -- Opens score registration popup (assignment icon)</li><li><strong>"Tabela"</strong> (Leaderboard) -- Opens leaderboard page (insert_chart icon with badge showing participant count)</li><li><strong>"Comentarios"</strong> (Comments) -- Opens comment form popup (speaker_notes icon)</li></ol>
+<p><strong>Note:</strong> Workouts without scoring (quality-only) hide the "Teu resultado" and "Tabela" buttons</p>
+<p><strong>Comments section:</strong> Hidden div per workout, toggled to show inline comments</p>
+<h3 id="2b-wod-details-wod_details">2b. WOD Details (<code>wod_details</code>)<a class="anchor" href="#2b-wod-details-wod_details">#</a></h3>
+<p><strong>Page header:</strong> "HISTORICO E DETALHES"</p>
+<p><strong>Content:</strong></p>
+<ul><li>Workout name in card header</li><li><strong>Personal record card:</strong> Shows personal best for this workout (or "---" if none)</li><li><strong>Workout history card:</strong> Shows all past results for this workout (or "Nao existem registos para este treino")</li></ul>
+<h3 id="2c-register-score-registar_score">2c. Register Score (<code>registar_score</code>)<a class="anchor" href="#2c-register-score-registar_score">#</a></h3>
+<p><strong>Page header:</strong> "REGISTA O TEU RESULTADO"</p>
+<p><strong>Popup with:</strong></p>
+<ul><li>Back/close button</li><li>Score entry form loaded via iframe (<code>registar_score_js.php</code>)</li><li>Parameters passed: workout ID, date, source</li></ul>
+<h3 id="2d-leaderboard-tabela_classificativa">2d. Leaderboard (<code>tabela_classificativa</code>)<a class="anchor" href="#2d-leaderboard-tabela_classificativa">#</a></h3>
+<p><strong>Page header:</strong> "[Date] TABELA CLASSIFICATIVA"</p>
+<p><strong>Fist bump button</strong> (top right): Opens power fist bumps popup</p>
+<p><strong>Age group filter (smart select dropdown):</strong></p>
+<ul><li>Geral (General/All)</li><li>13 ou menos</li><li>Entre 14 e 15</li><li>Entre 16 e 17</li><li>Entre 18 e 34</li><li>Entre 35 e 39</li><li>Entre 40 e 44</li><li>Entre 45 e 49</li><li>Entre 50 e 54</li><li>Entre 55 e 59</li><li>60 ou mais</li></ul>
+<p><strong>Workout description:</strong> Shown in collapsible accordion at top</p>
+<p><strong>Results table:</strong> Ranked list of athletes with scores</p>
+<ul><li>Fist bump icons per result (power.png / power_off.png)</li><li>Confirmation dialog for giving fist bumps</li></ul>
+<p><strong>Empty state:</strong> "Nao existem resultados"</p>
+<h3 id="2e-movement-library-movimentos">2e. Movement Library (<code>movimentos</code>)<a class="anchor" href="#2e-movement-library-movimentos">#</a></h3>
+<p><strong>Page header:</strong> "MOVIMENTOS (520)" -- 520 movements in library</p>
+<p><strong>Search bar:</strong></p>
+<ul><li>Text input: "Pesquisar..." (Search...)</li><li>Cancel button</li><li>Searchbar backdrop</li></ul>
+<p><strong>Movement list:</strong></p>
+<ul><li>Alphabetically sorted list of 520 movements</li><li>Each item shows:<ul><li>Video camera icon (videocam) if video exists</li><li>Video-off icon (videocam_off) if no video</li><li>Movement name as clickable link</li></ul></li><li>Clicking opens video popup (<code>ver_video.php</code>) with YouTube video ID</li></ul>
+<p><strong>Sample movements include:</strong> Air Squat, Back Squat, Barbell Row, Bench Press, Box Jump, Burpee, Clean, Clean and Jerk, Deadlift, Double Under, Front Squat, Handstand Push-Up, Hang Clean, Hip Thrust, Inverted Row, Jump Squats, KB Swing, Kipping Pull-Up, Lateral Raise, Lunge, Muscle-Up, Overhead Squat, Plank, Power Clean, Pull-Up, Push Press, Push-Up, Ring Dip, Rope Climb, Row, Run, Sit-Up, Snatch, Squat, Strict Press, Sumo Deadlift, Thruster, Toes to Bar, Turkish Get-Up, Wall Ball, and hundreds more</p>
+<p><strong>Not found state:</strong> "Nenhum movimento encontrado"</p>
+<h3 id="2f-wod-history-historico">2f. WOD History (<code>historico</code>)<a class="anchor" href="#2f-wod-history-historico">#</a></h3>
+<p><strong>Page header:</strong> "HISTORICO DE TREINOS"</p>
+<p><strong>Filter form:</strong></p>
+<ul><li><strong>Date from</strong> (<code>data_ini</code>): date input</li><li><strong>Date to</strong> (<code>data_fim</code>): date input</li><li><strong>Sort by</strong> (<code>ordem</code>): select dropdown<ul><li>"Data mais recente" (Most recent date)</li><li>"Data mais antiga" (Oldest date)</li><li>"Treinos com PR primeiro" (Workouts with PR first)</li><li>"Treinos com Fist Bumps primeiro" (Workouts with Fist Bumps first)</li></ul></li></ul>
+<p><strong>Action buttons:</strong></p>
+<ul><li>"Cancelar" (Cancel) -- resets form</li><li>"Pesquisar treinos" (Search workouts) -- executes search</li></ul>
+<hr>
+<h2 id="3-personal-records">3. PERSONAL RECORDS<a class="anchor" href="#3-personal-records">#</a></h2>
+<h3 id="3a-records-main-recordes">3a. Records Main (<code>recordes</code>)<a class="anchor" href="#3a-records-main-recordes">#</a></h3>
+<p><strong>Page header area:</strong></p>
+<p><strong>Welcome card:</strong></p>
+<ul><li>Title: "Recordes pessoais" (Personal Records)</li><li>Description: Welcome to the personal records area. If you used RegyBox at another box, you can import your data.</li></ul>
+<p><strong>Action buttons:</strong></p>
+<ul><li><strong>"REGISTAR"</strong> -- Go to record entry (current box)</li><li><strong>"IMPORTAR"</strong> -- Import records from another box</li></ul>
+<h3 id="3b-personal-records---category-list-records_pessoais0">3b. Personal Records - Category List (<code>records_pessoais0</code>)<a class="anchor" href="#3b-personal-records---category-list-records_pessoais0">#</a></h3>
+<p><strong>List of movement categories:</strong> Each item links to detail form showing:</p>
+<ul><li>Movement name</li><li>Current score/value</li></ul>
+<h3 id="3c-personal-records---entry-form-records_pessoais1">3c. Personal Records - Entry Form (<code>records_pessoais1</code>)<a class="anchor" href="#3c-personal-records---entry-form-records_pessoais1">#</a></h3>
+<p><strong>Page header:</strong> "PRS - [Movement Name]"</p>
+<p><strong>Form fields (grid of number inputs):</strong></p>
+<ul><li><strong>1RM</strong> through <strong>10RM</strong> -- 10 separate number inputs for rep maxes (placeholder "KG")</li><li>Fields arranged in 2 rows of 5</li><li>All accept decimal values (<code>step="any"</code>)</li></ul>
+<p><strong>Additional fields:</strong></p>
+<ul><li><strong>Observacoes</strong> (Notes): textarea</li></ul>
+<p><strong>Buttons:</strong></p>
+<ul><li><strong>"GUARDAR"</strong> (Save) -- submits the form</li></ul>
+<p><strong>Hidden fields:</strong> <code>id_mov</code> (movement ID), <code>rx</code> (RX flag), <code>z</code> (auth token)</p>
+<p><strong>History section:</strong> Shows previous records for this lift (or "Nao existem registos para este levantamento")</p>
+<h3 id="3d-box-records-records_box">3d. Box Records (<code>records_box</code>)<a class="anchor" href="#3d-box-records-records_box">#</a></h3>
+<p><strong>Page header:</strong> "RECORDES DA BOX"</p>
+<p><strong>Search form:</strong></p>
+<ul><li><strong>Tipo de recorde</strong> (Record type): dropdown<ul><li>Masculino RX</li><li>Feminino RX</li><li>Masculino Scaled</li><li>Feminino Scaled</li></ul></li><li><strong>Nome do atleta</strong> (Athlete name): text input with clear button</li></ul>
+<p><strong>Action buttons:</strong></p>
+<ul><li>"Cancelar" (Cancel)</li><li>"Pesquisar" (Search)</li></ul>
+<h3 id="3e-pr-history-prs_historico">3e. PR History (<code>prs_historico</code>)<a class="anchor" href="#3e-pr-history-prs_historico">#</a></h3>
+<p><strong>Page header:</strong> "Prs e Historico"</p>
+<p><strong>Search form:</strong></p>
+<ul><li>Search icon with text input: "Digite parte do nome do atleta" (Type part of the athlete's name)</li><li>Clear button</li></ul>
+<p><strong>Action button:</strong></p>
+<ul><li>"Pesquisar" (Search) -- searches for athlete's PR history</li></ul>
+<p><strong>Results area:</strong> Dynamic content loaded after search</p>
+<hr>
+<h2 id="4-community">4. COMMUNITY<a class="anchor" href="#4-community">#</a></h2>
+<h3 id="4a-my-box-minha_box----5-tab-layout">4a. My Box (<code>minha_box</code>) -- 5-tab layout<a class="anchor" href="#4a-my-box-minha_box----5-tab-layout">#</a></h3>
+<p><strong>Bottom tab bar:</strong></p>
+<ul><li>Back button</li><li>Tab 1: Rules (assignment icon) -- active by default</li><li>Tab 2: Birthdays (cake icon)</li><li>Tab 3: Athletes (supervisor_account icon)</li><li>Tab 4: Coaches (person icon)</li><li>Tab 5: Contact (mail icon)</li></ul>
+<h4 id="tab-1-regras-de-marcacao-de-aulas-class-booking-rules">Tab 1: REGRAS DE MARCACAO DE AULAS (Class Booking Rules)<a class="anchor" href="#tab-1-regras-de-marcacao-de-aulas-class-booking-rules">#</a></h4>
+<p><strong>PRAZOS (Deadlines):</strong></p>
+<ul><li>Calendar+ icon: "Podes inscrever-te em aulas com uma antecedencia de 14 dias e 45 minutos"</li><li>Alarm icon: "Sao permitidas inscricoes ate 5 minutos antes da aula"</li><li>Calendar- icon: "Podes cancelar uma inscricao ate 1 hora antes da aula"</li></ul>
+<p><strong>PENALIZACOES (Penalties):</strong></p>
+<ul><li>Flag icon: "Atletas com 3 ou mais faltas nos ultimos 15 dias, apenas poderao marcar aulas com uma antecedencia de 1 hora"</li></ul>
+<p><strong>WORKOUTS section:</strong></p>
+<ul><li>Search icon: "Os workouts ficam disponiveis para consulta: Sempre"</li><li>Pencil icon: Score registration available as soon as workout is published</li><li>Star icon: Virtual trophies (1st, 2nd, 3rd) assigned next day at 00:00</li></ul>
+<h4 id="tab-2-aniversarios-hoje-todays-birthdays">Tab 2: ANIVERSARIOS HOJE (Today's Birthdays)<a class="anchor" href="#tab-2-aniversarios-hoje-todays-birthdays">#</a></h4>
+<ul><li>List of athletes with birthdays today</li><li>Each shows: photo (circle avatar), name</li><li>Clicking opens birthday congratulations popup</li><li><strong>"MOSTRAR ANTERIORES"</strong> button to view past birthdays</li></ul>
+<h4 id="tab-3-atletas-athletes">Tab 3: ATLETAS (Athletes)<a class="anchor" href="#tab-3-atletas-athletes">#</a></h4>
+<p><strong>Search form:</strong></p>
+<ul><li>"Nome do atleta" (Athlete name): text input</li><li>"Genero" (Gender): dropdown<ul><li>Masculino e Feminino (Both)</li><li>Masculino</li><li>Feminino</li></ul></li></ul>
+<p><strong>Action buttons:</strong></p>
+<ul><li>"Anular" (Cancel) -- resets form</li><li>"Pesquisar atletas" (Search athletes)</li></ul>
+<h4 id="tab-4-treinadores-coaches">Tab 4: TREINADORES (Coaches)<a class="anchor" href="#tab-4-treinadores-coaches">#</a></h4>
+<ul><li>List of coaches with photos (circle avatars) and names</li><li>Each clickable to open coach profile popup (<code>perfil_coach.php</code>)</li><li>Example coaches: Coach Andre Loureiro, Coach David Sanchez, Coach Juvenal Fernandes, Coach Luis Mendes, Coach Marine Robba, Coach Ricardo Ribeiro, Coach Silvina Resende, Coach Tiago Neves</li></ul>
+<h4 id="tab-5-contactos-contacts">Tab 5: CONTACTOS (Contacts)<a class="anchor" href="#tab-5-contactos-contacts">#</a></h4>
+<p><strong>Box info displayed:</strong></p>
+<ul><li>Box name, address, postal code, GPS coordinates</li><li>Email address</li><li>Phone number (with note "Chamada para rede movel nacional")</li><li>Facebook link</li></ul>
+<p><strong>Email form:</strong></p>
+<ul><li><strong>"Enviar e-mail para"</strong> (Send email to): dropdown of all coaches/staff</li><li><strong>"Assunto"</strong> (Subject): text input</li><li><strong>"Mensagem"</strong> (Message): textarea (resizable)</li><li><strong>"Cancelar"</strong> (Cancel) button</li><li><strong>"Enviar email"</strong> (Send email) button</li></ul>
+<h3 id="4b-birthday-detail-aniversario">4b. Birthday Detail (<code>aniversario</code>)<a class="anchor" href="#4b-birthday-detail-aniversario">#</a></h3>
+<p><strong>Popup with:</strong></p>
+<ul><li>Confetti background image</li><li>Athlete photo (circle, 200px)</li><li>Crowd image at bottom</li><li>Header: "Parabens [Name]!"</li><li>Birthday messages from other athletes</li></ul>
+<p><strong>Action buttons:</strong></p>
+<ul><li><strong>"ENVIA UMA MENSAGEM DE PARABENS"</strong> (Send a birthday message) -- opens form</li><li><strong>"ESCREVE UMA MENSAGEM DE AGRADECIMENTO"</strong> (Write a thank-you message) -- hidden by default, shown to birthday person</li></ul>
+<h3 id="4c-news-feed-noticias">4c. News Feed (<code>noticias</code>)<a class="anchor" href="#4c-news-feed-noticias">#</a></h3>
+<p><strong>Page header:</strong> "NOTICIAS"</p>
+<p><strong>News cards (repeating pattern per post):</strong></p>
+<ul><li><strong>Title</strong> (bold, uppercase)</li><li><strong>Optional image</strong> (full width, clickable to zoom)</li><li><strong>Body text</strong> (rich HTML content with links)</li><li><strong>Author and date</strong> (e.g., "Coach Marine Robba, 14 Abr 2026")</li><li><strong>Like count</strong> with thumb_up icon and count</li><li><strong>Comment count</strong> with chat_bubble_fill icon and count (when &gt; 0)</li></ul>
+<p><strong>Social actions per post:</strong></p>
+<ul><li><strong>"GOSTO"</strong> (Like) button with hand_thumbsup_fill icon -- toggles, fades out after click</li><li><strong>"COMENTARIO"</strong> (Comment) button with bubble_left_bubble_right_fill icon -- opens comment form popup</li></ul>
+<p><strong>Like details:</strong> Clicking the like count expands to show who liked the post</p>
+<p><strong>Content types observed:</strong> Event announcements, schedule changes, merchandise orders, community WhatsApp links, staff introductions, competition registrations</p>
+<h3 id="4d-fistbumps-comments-fist_coments">4d. Fistbumps &amp; Comments (<code>fist_coments</code>)<a class="anchor" href="#4d-fistbumps-comments-fist_coments">#</a></h3>
+<p><strong>Page header:</strong> "REACOES E COMENTARIOS"</p>
+<p><strong>Summary table (2x2 grid):</strong></p>
+<ul><li><strong>Recebidos (Received):</strong><ul><li>Fistbumps received (icon 197.png) with count</li><li>Comments received (icon 203.png) with count -- links to received comments page</li></ul></li><li><strong>Enviados (Sent):</strong><ul><li>Fistbumps sent with count</li><li>Comments sent with count -- links to sent comments page</li></ul></li></ul>
+<p><strong>Fan list:</strong></p>
+<ul><li>"A tua lista de fas" (Your fan list)</li><li>Shows people who gave you the most reactions</li><li>"Reacoes" column header on right</li></ul>
+<h3 id="4e-best-results-melhores_res">4e. Best Results (<code>melhores_res</code>)<a class="anchor" href="#4e-best-results-melhores_res">#</a></h3>
+<p><strong>Page header:</strong> "MELHORES RESULTADOS NOS WODS"</p>
+<p><strong>Search form:</strong></p>
+<ul><li><strong>"Nome do atleta"</strong> (Athlete name): text input</li><li><strong>"Tipo"</strong> (Type): dropdown<ul><li>Masculino RX</li><li>Feminino RX</li><li>Masculino Scaled</li><li>Feminino Scaled</li></ul></li></ul>
+<p><strong>Action buttons:</strong></p>
+<ul><li>"Cancelar" (Cancel)</li><li>"Pesquisar" (Search)</li></ul>
+<hr>
+<h2 id="5-activities-challenges">5. ACTIVITIES &amp; CHALLENGES<a class="anchor" href="#5-activities-challenges">#</a></h2>
+<h3 id="5a-activities-atividades">5a. Activities (<code>atividades</code>)<a class="anchor" href="#5a-activities-atividades">#</a></h3>
+<p><strong>Page header:</strong> "Atividades (2)"</p>
+<p><strong>Box logo</strong> displayed top right</p>
+<p><strong>Search form:</strong></p>
+<ul><li><strong>"Atividades de"</strong> (Activities from): dropdown of ALL RegyBox-networked boxes (200+ boxes listed!)<ul><li>Includes boxes across Portugal, Angola, Mozambique</li><li>Current box pre-selected (CrossFit Aveiro)</li><li>Changing box dynamically loads that box's activities</li></ul></li><li><strong>"Digite parte do titulo"</strong> (Type part of the title): text input</li><li><strong>"Ordenar por"</strong> (Sort by): dropdown<ul><li>Titulo (Title)</li><li>Mais antigo (Oldest)</li><li>Mais recente (Most recent) -- default</li></ul></li></ul>
+<p><strong>Action buttons:</strong></p>
+<ul><li>"Cancelar" (Cancel)</li><li>"Pesquisar" (Search)</li></ul>
+<p><strong>Results area:</strong> Dynamic content loaded after search <strong>Note:</strong> Activities require reading and accepting a regulation ("Tem que ler e aceitar o regulamento")</p>
+<h3 id="5b-challengesgamification-desafios">5b. Challenges/Gamification (<code>desafios</code>)<a class="anchor" href="#5b-challengesgamification-desafios">#</a></h3>
+<p><strong>3-tab layout:</strong></p>
+<ul><li>Tab 1: "Desafios" (Challenges) -- active by default</li><li>Tab 2: "Atividades" (Activities)</li><li>Tab 3: "Pontos" (Points)</li></ul>
+<h4 id="tab-1-challenges">Tab 1: Challenges<a class="anchor" href="#tab-1-challenges">#</a></h4>
+<p><strong>Player stats card:</strong></p>
+<ul><li>Points: "Pts: 11"</li><li>Ranking: "Rnk: 328o"</li><li>Level progress bar (e.g., "92%" toward next level)</li><li>Level badge (circular, clickable to leaderboard)</li><li>Current level number (e.g., "1")</li></ul>
+<p><strong>Link:</strong> "Ver tabela classificativa" (View leaderboard)</p>
+<p><strong>Medal grid:</strong> 63 medals displayed in a grid</p>
+<ul><li>Each medal is clickable to view challenge details</li><li>Medal images (medal1.png through medal63.png)</li><li>Faded appearance for unearned medals</li></ul>
+<p><strong>Explanation text:</strong> "Por cada desafio que consigas concluir ganhas os respetivos pontos..."</p>
+<h4 id="tab-2-activities">Tab 2: Activities<a class="anchor" href="#tab-2-activities">#</a></h4>
+<p><strong>Status display:</strong></p>
+<ul><li>Error state: "AINDA NAO PARTICIPASTE EM NENHUMA ATIVIDADE" (You haven't participated in any activity yet)</li><li>When active: shows participated activities</li></ul>
+<h4 id="tab-3-points----how-to-earn">Tab 3: Points -- How to Earn<a class="anchor" href="#tab-3-points----how-to-earn">#</a></h4>
+<p>Point-earning mechanisms:</p>
+<ol><li><strong>Class attendance:</strong> 1 point per attended class/training</li><li><strong>Activity participation:</strong> Points from organized activities</li><li><strong>Athlete of the Month voting:</strong> 5 points per vote cast</li><li><strong>Questionnaires:</strong> 5 points per completed questionnaire</li><li><strong>Password change:</strong> 5 points (one-time)</li><li><strong>Profile photo:</strong> 5 points (one-time)</li><li><strong>Complete profile data:</strong> 15 points (one-time)</li></ol>
+<hr>
+<h2 id="6-tools">6. TOOLS<a class="anchor" href="#6-tools">#</a></h2>
+<h3 id="6a-timers-timers">6a. Timers (<code>timers</code>)<a class="anchor" href="#6a-timers-timers">#</a></h3>
+<p><strong>Tab bar (6 timer modes):</strong></p>
+<ul><li>Back button</li><li><strong>TABATA</strong> (filter_tilt_shift icon) -- default active</li><li><strong>EMOM</strong> (adjust icon)</li><li><strong>AMRAP</strong> (update icon)</li><li><strong>FOR TIME</strong> (access_time icon)</li><li><strong>STOPWATCH</strong> (timer icon)</li><li><strong>GUARDADO</strong> (Saved) (favorite_border icon) -- opens saved timers popup, pulsing icon for unseen</li></ul>
+<p><strong>Timer configuration form:</strong></p>
+<ul><li><strong>Contagem inicial</strong> (Initial countdown / Preparation time): picker (0-99 min : 0-59 sec), default "0m 10s"</li><li><strong>Exercicio</strong> (Exercise duration): picker (0-99 min : 0-59 sec), default "7m 00s"</li><li><strong>Pausa</strong> (Rest/Recovery time): picker (0-99 min : 0-59 sec), default "0m 30s"</li><li><strong>Numero de Rondas</strong> (Number of rounds): picker (1-99), default "1"</li><li><strong>Ascending/Descending toggle:</strong> Button toggles between:<ul><li>"Descendente" / "Contagem ate zero" (Countdown to zero)</li><li>"Ascendente" / "Contagem crescente" (Count up)</li><li>Animated arrow rotation</li></ul></li></ul>
+<p><strong>Save timer section:</strong></p>
+<ul><li>"Titulo:" (Title) text input, max 30 characters</li><li>"GUARDAR" (Save) button</li></ul>
+<p><strong>Launch buttons:</strong></p>
+<ul><li><strong>"ABRIR NA APP"</strong> (Open in app) -- opens timer in app view</li><li><strong>"ENVIAR PARA ECRA"</strong> (Send to screen) -- sends timer to home screen / external display</li></ul>
+<h3 id="6b-calculator-calc_perc">6b. Calculator (<code>calc_perc</code>)<a class="anchor" href="#6b-calculator-calc_perc">#</a></h3>
+<p><strong>3-tab layout:</strong></p>
+<ul><li><strong>"% RM"</strong> -- active by default</li><li><strong>"Calculadora"</strong> (Calculator)</li><li><strong>"Conversores"</strong> (Converters)</li></ul>
+<h4 id="tab-1-rm-percentage-of-rep-max">Tab 1: % RM (Percentage of Rep Max)<a class="anchor" href="#tab-1-rm-percentage-of-rep-max">#</a></h4>
+<p><strong>RM selector:</strong> Dropdown (1RM through 10RM)</p>
+<p><strong>Weight input:</strong></p>
+<ul><li>-5 button, -1 button, weight input (number, default 100), +1 button, +5 button</li></ul>
+<p><strong>Percentage table (two columns):</strong></p>
+<ul><li>Left column: 110%, 105%, 100%, 95%, 90%, 85%, 80%, 75%, 70%, 65%, 60%</li><li>Right column: 55%, 50%, 45%, 40%, 35%, 30%, 25%, 20%, 15%, 10%, 5%</li><li>Each shows calculated weight based on input</li></ul>
+<p><strong>Footer:</strong> "Tabela calculada com base na 'Formula de Brzycki'"</p>
+<h4 id="tab-2-calculadora">Tab 2: Calculadora<a class="anchor" href="#tab-2-calculadora">#</a></h4>
+<ul><li>General calculator embedded via iframe</li></ul>
+<h4 id="tab-3-conversores-converters">Tab 3: Conversores (Converters)<a class="anchor" href="#tab-3-conversores-converters">#</a></h4>
+<p><strong>4 conversion fields:</strong></p>
+<ul><li>Miles to Km (input + result)</li><li>Km to Miles (input + result)</li><li>Libras (Pounds) to Kg (input + result)</li><li>Kg to Libras (Pounds) (input + result)</li><li>All update in real-time on keyup</li></ul>
+<hr>
+<h2 id="7-store-pos">7. STORE (POS)<a class="anchor" href="#7-store-pos">#</a></h2>
+<h3 id="store-pos_loja_atletas">Store (<code>pos_loja_atletas</code>)<a class="anchor" href="#store-pos_loja_atletas">#</a></h3>
+<p><strong>2-tab layout:</strong></p>
+<ul><li><strong>"A minha conta"</strong> (My account) -- wallet icon, active by default</li><li><strong>"Ver produtos"</strong> (View products) -- dvr icon</li></ul>
+<h4 id="tab-1-my-account">Tab 1: My Account<a class="anchor" href="#tab-1-my-account">#</a></h4>
+<p><strong>Balance display:</strong></p>
+<ul><li>"O teu saldo" (Your balance): large text (e.g., "0,00 EUR")</li><li>Hidden credit top-up form:<ul><li>"Credito a ser acrescentado" (Credit to be added): number input</li><li>Dynamic display of new balance</li><li><strong>"EFETUAR PAGAMENTO"</strong> (Make payment) button -- hidden until amount entered</li></ul></li></ul>
+<p><strong>Info text:</strong> "Fala com os gestores da tua box para acrescentar saldo a tua conta..."</p>
+<p><strong>Purchase history:</strong> Shows credit purchases (or empty state "Ainda nao fizeste nenhuma compra a credito")</p>
+<h4 id="tab-2-product-catalog">Tab 2: Product Catalog<a class="anchor" href="#tab-2-product-catalog">#</a></h4>
+<p><strong>Product grid (2-column float layout):</strong> Each product card shows:</p>
+<ul><li>Product name</li><li>Product image (clickable to zoom with multi-image gallery)</li><li>Price in EUR</li><li>Stock count</li></ul>
+<p><strong>Products observed (50+ items):</strong> T-shirts, crop tops, sweaters, jackets, backpacks, socks, speed ropes, grips (multiple models), knee sleeves, wrist wraps, belts, patches, keychains, mugs, hats, tape, cables</p>
+<hr>
+<h2 id="8-training">8. TRAINING<a class="anchor" href="#8-training">#</a></h2>
+<h3 id="8a-training-planning-planeamento">8a. Training Planning (<code>planeamento</code>)<a class="anchor" href="#8a-training-planning-planeamento">#</a></h3>
+<p><strong>Page header:</strong> "[Month], [Year]"</p>
+<p><strong>Navigation:</strong></p>
+<ul><li>Back button</li><li>Calendar icon (scrolls to top)</li></ul>
+<p><strong>Calendar widget:</strong> Full month calendar for date selection</p>
+<p><strong>Class type selector:</strong> Dropdown with all class types:</p>
+<ul><li>Animal Flow, Avaliacao Fisica, Breath Work, CF Endurance, CF Teens, CFA Games, Chuck Norris variants, CrossFit OPEN, Desafio Semanal, Dinner Time, Gratidao, Hyrox, HYROX Competition, Lift Off, Miss WOD (A/B), Mobility, Nutribox WOD, Open Box, Programa Iniciacao, Rabanada Killer, STAFF DAY OFF, Strength, Tasca Box, WOD, Workshop, Workshop + Hyrox, Workshop + WOD</li></ul>
+<p><strong>Create new button (+):</strong> Reveals 3 options:</p>
+<ol><li><strong>"Inserir notas de treinador"</strong> (Insert coach notes) -- assignment icon</li><li><strong>"Escolher de uma categoria"</strong> (Choose from a category) -- menu icon</li><li><strong>"Criar um novo workout"</strong> (Create a new workout) -- add_to_photos icon</li></ol>
+<p><strong>Events area:</strong> Shows workouts planned for the selected date and class type</p>
+<h3 id="8b-individual-workouts-workouts_ind">8b. Individual Workouts (<code>workouts_ind</code>)<a class="anchor" href="#8b-individual-workouts-workouts_ind">#</a></h3>
+<p><strong>Scrollable category tab bar (21 categories):</strong></p>
+<ul><li>Levantamentos (Lifts)</li><li>Monoestruturados (Monostructural)</li><li>PRs Gimnicos (Gymnastic PRs)</li><li>Girls</li><li>Heroes</li><li>Notables</li><li>Games</li><li>CFA Secret Formula</li><li>CFA Benchmarks</li><li>CFA Partner Games</li><li>APRE</li><li>CONDITIONING</li><li>CONDITIONING TESTs</li><li>PT</li><li>Warm Up</li><li>Tabatas</li><li>PRs Monostruturais</li><li>Nutricao</li><li>PRs Levantamentos</li><li>ChalKIron Tests</li><li>Breathwork</li></ul>
+<p><strong>Category list (also shown as vertical list):</strong></p>
+<ul><li>Each category links to load that category's workouts</li><li>Icon per category (SVG icons)</li></ul>
+<p><strong>Suggestion button:</strong></p>
+<ul><li>"Escolhe uma categoria da lista acima, ou aceita uma sugestao do RegyBox"</li><li><strong>"QUERO UMA SUGESTAO"</strong> (I want a suggestion) -- RegyBox suggests a workout</li></ul>
+<hr>
+<h2 id="9-settings">9. SETTINGS<a class="anchor" href="#9-settings">#</a></h2>
+<h3 id="9a-settings-menu-configuracoes_submenu">9a. Settings Menu (<code>configuracoes_submenu</code>)<a class="anchor" href="#9a-settings-menu-configuracoes_submenu">#</a></h3>
+<p><strong>Page header:</strong> "CONFIGURACOES"</p>
+<p><strong>Menu items (list):</strong></p>
+<ol><li><strong>Dados pessoais</strong> (Personal data) -- library_books icon</li><li><strong>Password de acesso</strong> (Access password) -- featured_play_list icon</li><li><strong>A tua foto</strong> (Your photo) -- photo_camera icon</li><li><strong>Tipos de aulas</strong> (Class types) -- accessibility icon</li><li><strong>A tua conta</strong> (Your account) -- work icon</li><li><strong>Opcoes de privacidade</strong> (Privacy options) -- do_not_disturb_on icon</li><li><strong>Opcoes de e-mails</strong> (Email options) -- at_fill icon</li><li><strong>Notificacoes</strong> (Notifications) -- notifications icon</li><li><strong>Aspeto visual</strong> (Visual appearance) -- color_lens icon</li><li><strong>Idioma</strong> (Language) -- public icon -- smart select:<ul><li>Portugues (selected)</li><li>English</li></ul></li></ol>
+<h3 id="9b-personal-data-dados_pessoais">9b. Personal Data (<code>dados_pessoais</code>)<a class="anchor" href="#9b-personal-data-dados_pessoais">#</a></h3>
+<p><strong>Page header:</strong> "DADOS PESSOAIS"</p>
+<p><strong>Save button</strong> (top right): "GUARDAR"</p>
+<p><strong>Form fields:</strong></p>
+<ol><li><strong>Nome apresentado</strong> (Display name): dropdown with variations:<ul><li>Primeiro e ultimo nome (First and last)</li><li>Segundo e ultimo nome</li><li>Primeiro e segundo nome</li><li>Primeiro e inicial do ultimo (First + last initial)</li><li>Segundo e inicial do ultimo</li><li>Apenas o primeiro nome (First only)</li><li>Apenas o segundo nome</li><li>Apenas o ultimo nome (Last only)</li></ul></li><li><strong>Alcunha / Nickname</strong>: text input</li><li><strong>E-mail</strong>: text input</li><li><strong>Data de nascimento</strong> (Date of birth): date picker</li><li><strong>B.I./C.C.</strong> (ID card): text, max 20 chars</li><li><strong>Validade B.I./C.C.</strong> (ID expiry): date picker</li><li><strong>No utente de saude</strong> (Health number): text, max 14 chars</li><li><strong>NIF</strong> (Tax ID): number, max 14 chars</li><li><strong>Telemovel</strong> (Mobile phone): number, max 9 chars</li><li><strong>Contacto de emergencia</strong> (Emergency contact): number, max 9 chars</li><li><strong>Genero</strong> (Gender): dropdown -- Masculino / Feminino</li><li><strong>Profissao</strong> (Profession): text, max 50 chars</li><li><strong>Morada</strong> (Address): text, max 250 chars</li><li><strong>Localidade</strong> (City): text, max 100 chars</li><li><strong>Codigo postal</strong> (Postal code): text, max 9 chars</li><li><strong>Pais</strong> (Country): dropdown with 240 countries</li><li><strong>T-shirt</strong>: dropdown -- XS, S, M, L, XL, XXL</li><li><strong>Peso (Kg)</strong> (Weight): dropdown 10-230 kg</li><li><strong>Estatura (cm)</strong> (Height): dropdown 40-230 cm</li><li><strong>Indice de massa corporal</strong> (BMI): auto-calculated read-only field (WHO formula)</li></ol>
+<p><strong>Bottom button:</strong> "GUARDAR ALTERACOES" (Save changes)</p>
+<p><strong>Validation messages:</strong> Invalid nickname, invalid email, duplicate email, success</p>
+<h3 id="9c-password-change-dados_acesso">9c. Password Change (<code>dados_acesso</code>)<a class="anchor" href="#9c-password-change-dados_acesso">#</a></h3>
+<p><strong>Page header:</strong> "PASSWORD DE ACESSO"</p>
+<p><strong>Form fields:</strong></p>
+<ol><li><strong>Palavra passe atual</strong> (Current password): password input (unlock icon)</li><li><strong>Nova palavra passe</strong> (New password): password input (unlock_fill icon)</li><li><strong>Confirma a nova palavra passe</strong> (Confirm new password): password input (unlock_fill icon)</li></ol>
+<p><strong>Button:</strong> "ALTERAR PALAVRA PASSE" (Change password)</p>
+<p><strong>Validation messages:</strong> Missing current, incorrect current, missing new, missing confirm, mismatch, success</p>
+<h3 id="9d-your-account-sua_conta">9d. Your Account (<code>sua_conta</code>)<a class="anchor" href="#9d-your-account-sua_conta">#</a></h3>
+<p><strong>Page header:</strong> "A TUA CONTA"</p>
+<p><strong>Plan details card:</strong></p>
+<ul><li>Editable plan name ("Plano principal") -- contentEditable div, auto-saves on blur</li><li>Payment type: "Livre-transito" (Unlimited pass)</li><li><strong>Allowed class types</strong> (26 types listed with icons):<ul><li>Animal Flow, Breath Work, CF Endurance, CF Teens, CFA Games, Chuck Norris variants, CrossFit OPEN, Desafio Semanal, Dinner Time, Gratidao, Hyrox, HYROX Competition, Lift Off, Miss WOD (A/B), Mobility, Nutribox WOD, Open Box, Rabanada Killer, STAFF DAY OFF, Strength, Tasca Box, WOD, Workshop, Workshop + Hyrox, Workshop + WOD</li></ul></li></ul>
+<p><strong>Account deletion section:</strong></p>
+<ul><li>Explanation text about permanent data deletion</li><li><strong>"Pede a eliminacao da tua conta"</strong> (Request account deletion) -- link with confirmation dialog</li></ul>
+<h3 id="9e-notifications-opcoes">9e. Notifications (<code>opcoes</code>)<a class="anchor" href="#9e-notifications-opcoes">#</a></h3>
+<p><strong>Page header:</strong> "NOTIFICACOES"</p>
+<p><strong>Toggle switches (all green):</strong></p>
+<ol><li><strong>Notificacoes de comentarios</strong> (Comment notifications): toggle, default ON</li><li><strong>Notificacoes de fist bumps</strong>: toggle, default ON</li><li><strong>Notificacoes de aniversarios</strong> (Birthday notifications): toggle, default ON</li><li><strong>Notificacoes de medalhas do challenge</strong> (Challenge medal notifications): toggle, default ON</li></ol>
+<p>All auto-save on change.</p>
+<h3 id="9f-class-options-opt_aulas">9f. Class Options (<code>opt_aulas</code>)<a class="anchor" href="#9f-class-options-opt_aulas">#</a></h3>
+<p><strong>Page header:</strong> "Locais das aulas" (Class locations)</p>
+<p><strong>Content:</strong> Loaded via iframe -- allows configuring which class locations to show</p>
+<h3 id="9g-email-options-opt_emails">9g. Email Options (<code>opt_emails</code>)<a class="anchor" href="#9g-email-options-opt_emails">#</a></h3>
+<p><strong>Page header:</strong> "OPCOES DE E-MAILS"</p>
+<p><strong>Instruction:</strong> "Assinala os e-mails que pretendes receber" (Select the emails you want to receive)</p>
+<p><strong>Checkboxes:</strong></p>
+<ol><li>Comprovativos de pagamentos de mensalidades (Payment receipts)</li><li>Confirmacao de marcacao de aula, quando a marcacao e feita por um treinador (Class booking confirmation when booked by coach)</li><li>Informacao de abertura de vaga para uma aula, quando o atleta se encontra em lista de espera (Waitlist spot opened notification)</li><li>Emails enviados pelos gestores da box (Emails sent by box managers)</li></ol>
+<p>All auto-save on change.</p>
+<h3 id="9h-privacy-options-opt_privacidade">9h. Privacy Options (<code>opt_privacidade</code>)<a class="anchor" href="#9h-privacy-options-opt_privacidade">#</a></h3>
+<p><strong>Page header:</strong> "OPCOES DE PRIVACIDADE"</p>
+<p><strong>4 privacy settings (smart select dropdowns):</strong></p>
+<ol><li><strong>Quem pode ver os meus recordes pessoais</strong> (Who can see my personal records):<ul><li>Todos (Everyone) -- default</li><li>A minha box (My box only)</li><li>So eu (Only me)</li></ul></li><li><strong>Quem pode ver os resultados das atividades em que participei</strong> (Who can see my activity results):<ul><li>Todos / A minha box / So eu</li></ul></li><li><strong>Quem pode ver o meu nome na lista de inscricoes para as aulas</strong> (Who can see my name in class enrollments):<ul><li>Todos / A minha box</li></ul></li><li><strong>Quem pode ver os meus resultados na tabela classificativa dos workouts</strong> (Who can see my leaderboard results):<ul><li>So eu / A minha box -- default "A minha box"</li></ul></li></ol>
+<p><strong>Save button:</strong> "GUARDAR ALTERACOES"</p>
+<p><strong>Important restriction:</strong> Changes can only be made once every 48 hours (with confirmation dialog)</p>
+<p><strong>Expandable details section:</strong> Explains each privacy option in detail</p>
+<h3 id="9i-photo-upload-foto">9i. Photo Upload (<code>foto</code>)<a class="anchor" href="#9i-photo-upload-foto">#</a></h3>
+<p><strong>Page header:</strong> "A TUA FOTO"</p>
+<p><strong>Actions:</strong></p>
+<ul><li><strong>"ESCOLHER FOTO"</strong> (Choose photo) -- triggers image import</li><li><strong>"GUARDAR"</strong> (Save) -- saves cropped image</li><li><strong>"ELIMINAR FOTO"</strong> (Delete photo) -- with confirmation dialog</li></ul>
+<p><strong>Image cropper:</strong> Embedded iframe with crop functionality (<code>crop_imagem/index.php</code>)</p>
+<h3 id="9j-visual-appearance-color-theme-cores">9j. Visual Appearance / Color Theme (<code>cores</code>)<a class="anchor" href="#9j-visual-appearance-color-theme-cores">#</a></h3>
+<p><strong>Page header:</strong> "ASPETO VISUAL"</p>
+<p><strong>Section 1: Cor do fundo (Background color)</strong></p>
+<ul><li>White swatch (light theme)</li><li>Black swatch (dark theme)</li></ul>
+<p><strong>Section 2: Padrao do fundo (Background pattern)</strong> -- only shown in dark mode</p>
+<ul><li>6 background pattern options (back1.jpg through back6.jpg)</li><li>Grid of 3x2 pattern swatches</li></ul>
+<p><strong>Section 3: Cor do tema (Theme color)</strong></p>
+<ul><li>6 color options as buttons:<ul><li>Red, Green, Blue, Pink, Orange, Gray</li></ul></li></ul>
+<p>All changes apply immediately with visual preview.</p>
+<hr>
+<h2 id="10-feedback">10. FEEDBACK<a class="anchor" href="#10-feedback">#</a></h2>
+<h3 id="feedback-page-feedback">Feedback Page (<code>feedback</code>)<a class="anchor" href="#feedback-page-feedback">#</a></h3>
+<p><strong>2-tab layout:</strong></p>
+<ul><li>Tab 1: "A minha box" (My box) -- active</li><li>Tab 2: "Equipa RegyBox" (RegyBox Team) -- hidden by default</li></ul>
+<h4 id="tab-1-contact-box-staff">Tab 1: Contact Box Staff<a class="anchor" href="#tab-1-contact-box-staff">#</a></h4>
+<p><strong>Info text:</strong> Instructions to contact box managers for payments, schedules, bookings, etc.</p>
+<p><strong>Email form (identical to My Box contact):</strong></p>
+<ul><li><strong>"Enviar e-mail para"</strong> (Send to): dropdown of coaches/staff</li><li><strong>"Assunto"</strong> (Subject): text input</li><li><strong>"Mensagem"</strong> (Message): textarea (resizable)</li><li><strong>"Cancelar"</strong> / <strong>"Enviar email"</strong> buttons</li></ul>
+<h4 id="tab-2-contact-regybox-team">Tab 2: Contact RegyBox Team<a class="anchor" href="#tab-2-contact-regybox-team">#</a></h4>
+<p><strong>Info text:</strong> For reporting bugs, sending suggestions, or requesting help</p>
+<p><strong>Feedback form:</strong></p>
+<ul><li><strong>"Duvida, sugestao, bug?"</strong> (Question, suggestion, bug?): dropdown<ul><li>Tenho uma duvida (I have a question)</li><li>Tenho uma sugestao (I have a suggestion)</li><li>Encontrei um bug (I found a bug)</li></ul></li><li><strong>"Descricao"</strong> (Description): textarea with placeholder</li><li><strong>"CANCELAR"</strong> / <strong>"ENVIAR"</strong> buttons</li></ul>
+<p><strong>Social links:</strong> Facebook iframe, RegyBox logo</p>
+<hr>
+<h2 id="11-digital-dossiers">11. DIGITAL DOSSIERS<a class="anchor" href="#11-digital-dossiers">#</a></h2>
+<h3 id="dossiers-page-dossies">Dossiers Page (<code>dossies</code>)<a class="anchor" href="#dossiers-page-dossies">#</a></h3>
+<p><strong>Page header:</strong> "DOSSIES DIGITAIS"</p>
+<p><strong>Content:</strong></p>
+<ul><li>Items count label (top right: "Items")</li><li>Empty list (no dossiers available in captured state)</li><li>Likely contains documents, waivers, contracts, or informational files from the box</li></ul>
+<hr>
+<h2 id="cross-cutting-patterns">CROSS-CUTTING PATTERNS<a class="anchor" href="#cross-cutting-patterns">#</a></h2>
+<h3 id="navigation">Navigation<a class="anchor" href="#navigation">#</a></h3>
+<ul><li>Every page has a back button (arrow_left_circle_fill icon)</li><li>Framework7 routing with <code>open_page()</code>, <code>popup()</code>, and <code>atual()</code> functions</li><li>Popups used extensively for detail views, forms, and modals</li><li>iframes used for JS controllers and form submissions</li></ul>
+<h3 id="social-features">Social Features<a class="anchor" href="#social-features">#</a></h3>
+<ul><li><strong>Fist bumps</strong> (like/reaction system) -- used on WOD results, news posts</li><li><strong>Comments</strong> -- available on WODs, news posts, birthday messages</li><li><strong>Like counts</strong> with expandable viewer lists</li><li><strong>Fan list</strong> tracking who gives you the most reactions</li></ul>
+<h3 id="authentication">Authentication<a class="anchor" href="#authentication">#</a></h3>
+<ul><li>Token-based auth via <code>z</code> parameter (SHA hash)</li><li>Session maintained across all pages</li></ul>
+<h3 id="theming">Theming<a class="anchor" href="#theming">#</a></h3>
+<ul><li>Dark/light mode toggle</li><li>6 background patterns (dark mode only)</li><li>6 accent colors (red, green, blue, pink, orange, gray)</li><li>Saved per-user</li></ul>
+<h3 id="internationalization">Internationalization<a class="anchor" href="#internationalization">#</a></h3>
+<ul><li>Portuguese (default) and English</li><li>All UI strings are in Portuguese in the captured state</li></ul>
+<h3 id="data-loading">Data Loading<a class="anchor" href="#data-loading">#</a></h3>
+<ul><li>AJAX content loading via <code>carrega_pagina()</code> function</li><li>iframes for JS controllers (<code>prov_*</code> naming convention)</li><li>Spinner overlay during loads</li><li>Fade/slide animations</li></ul>
+<h3 id="form-patterns">Form Patterns<a class="anchor" href="#form-patterns">#</a></h3>
+<ul><li>Framework7 list inputs with labels</li><li>Clear buttons on text inputs</li><li>Smart selects for dropdowns (open as bottom sheets)</li><li>Inline form validation with hidden error message fields</li><li>Form submission via hidden iframes (<code>target="prov"</code>)</li></ul>
+<h3 id="cross-box-features">Cross-Box Features<a class="anchor" href="#cross-box-features">#</a></h3>
+<ul><li>Activities can be viewed across ALL RegyBox-networked boxes (200+)</li><li>PR import from other boxes</li><li>Box records searchable across the network</li></ul><nav class="docnav"><a class="prev" href="competitive_analysis.html">← Competitive Analysis</a><span></span></nav></main>
+</div></body></html>

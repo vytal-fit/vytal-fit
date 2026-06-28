@@ -1,0 +1,75 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PRD Decisions (Jun 26) · Vytal docs</title><style>
+:root{--bg:#fff;--fg:#1a1d24;--muted:#5b6573;--border:#e4e8ee;--code-bg:#f4f6f9;--accent:#0d9488;--accent-soft:#0d948814;--th-bg:#f7f9fb;--quote:#f0fdfa;--quote-bar:#0d9488}
+@media(prefers-color-scheme:dark){:root{--bg:#0f1318;--fg:#dfe5ec;--muted:#8a94a3;--border:#252b34;--code-bg:#1a1f27;--accent:#2dd4bf;--accent-soft:#2dd4bf1a;--th-bg:#161b22;--quote:#0c1f1c;--quote-bar:#2dd4bf}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+.layout{display:grid;grid-template-columns:260px 1fr;max-width:1180px;margin:0 auto;min-height:100vh}
+.toc{position:sticky;top:0;align-self:start;max-height:100vh;overflow:auto;padding:28px 18px;border-right:1px solid var(--border);font-size:13.5px}
+.toc a{display:block;color:var(--muted);text-decoration:none;padding:3px 8px;border-radius:6px;line-height:1.4}
+.toc a:hover{color:var(--fg);background:var(--accent-soft)}
+.toc a.lvl3{padding-left:20px;font-size:12.5px}
+.toc .home{color:var(--accent);font-weight:600;margin-bottom:14px}
+.content{padding:40px 56px;min-width:0;max-width:860px}
+.content h1{font-size:30px;margin:.2em 0 .6em;line-height:1.2}
+.content h2{font-size:23px;margin:1.6em 0 .5em;padding-bottom:.25em;border-bottom:1px solid var(--border)}
+.content h3{font-size:18.5px;margin:1.4em 0 .4em}
+.content h4{font-size:16px;margin:1.2em 0 .3em}
+a{color:var(--accent)}
+.anchor{margin-left:8px;color:var(--border);text-decoration:none;font-weight:400;opacity:0}
+h1:hover .anchor,h2:hover .anchor,h3:hover .anchor{opacity:1}
+code{background:var(--code-bg);padding:.12em .4em;border-radius:5px;font:13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace}
+pre{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:16px;overflow:auto}
+pre code{background:none;padding:0;font-size:13px}
+.table-wrap{overflow-x:auto;margin:1em 0}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{border:1px solid var(--border);padding:8px 11px;text-align:left;vertical-align:top}
+th{background:var(--th-bg);font-weight:600}
+tr:nth-child(even) td{background:var(--accent-soft)}
+blockquote{margin:1em 0;padding:.6em 1.1em;background:var(--quote);border-left:3px solid var(--quote-bar);border-radius:0 8px 8px 0;color:var(--fg)}
+hr{border:none;border-top:1px solid var(--border);margin:2em 0}
+ul,ol{padding-left:1.5em}li{margin:.25em 0}
+.docnav{display:flex;justify-content:space-between;margin-top:48px;padding-top:20px;border-top:1px solid var(--border);font-size:14px;gap:12px}
+.docnav a{text-decoration:none;padding:10px 14px;border:1px solid var(--border);border-radius:8px;flex:1}
+.docnav a:hover{background:var(--accent-soft)}
+.docnav .next{text-align:right}
+@media(max-width:820px){.layout{grid-template-columns:1fr}.toc{display:none}.content{padding:24px}}
+</style></head>
+<body><div class="layout">
+<aside class="toc"><a class="home" href="index.html">← Vytal docs</a><a class="lvl2" href="#context-this-is-now-a-funded-scoped-engagement">Context: this is now a funded, scoped engagement</a>
+<a class="lvl2" href="#decision-1-post-training-questionnaire-keep-without-body-map">Decision 1 — Post-training questionnaire: KEEP (without body map)</a>
+<a class="lvl2" href="#decision-2-saf-t-phased-certified-provider-not-own-software">Decision 2 — SAF-T phased (certified provider, not own software)</a>
+<a class="lvl2" href="#decision-3-prr-candidatura-in-the-name-of-musas-vikings-lda">Decision 3 — PRR candidatura in the name of Musas &amp; Vikings, Lda</a>
+<a class="lvl2" href="#decision-4-ai-provider-multi-provider-free-tier-fallback-0">Decision 4 — AI provider: multi-provider free-tier fallback (€0)</a>
+<a class="lvl2" href="#decision-5-authorization-stays-lean-for-the-mvp">Decision 5 — Authorization stays lean for the MVP</a>
+<a class="lvl2" href="#open-items-require-client-lead-input">Open items (require client / lead input)</a>
+<a class="lvl2" href="#items-the-proposal-defers-out-of-the-mvp-for-prd-13-roadmap-alignment">Items the proposal defers out of the MVP (for PRD §13 roadmap alignment)</a></aside>
+<main class="content"><h1 id="prd-decisions-log-june-2026-commercial-proposal-lead-feedback">PRD Decisions Log — June 2026 (Commercial Proposal + Lead Feedback)<a class="anchor" href="#prd-decisions-log-june-2026-commercial-proposal-lead-feedback">#</a></h1>
+<p><strong>Created:</strong> 2026-06-27 <strong>Status:</strong> Pending merge into <code>docs/PRD.md</code> <strong>Purpose:</strong> Capture the latest product/scope decisions arising from the <strong>Commercial Proposal</strong> (JCUNHAFONTE → Musas &amp; Vikings, Lda) and lead feedback, <strong>without editing <code>docs/PRD.md</code> directly</strong>. José will push his own PRD revision later and reconcile against this log.</p>
+<hr>
+<h2 id="context-this-is-now-a-funded-scoped-engagement">Context: this is now a funded, scoped engagement<a class="anchor" href="#context-this-is-now-a-funded-scoped-engagement">#</a></h2>
+<p>The PRD describes the full product (100+ POC screens, ~91–100 stories). The <strong>Commercial Proposal</strong> delimits a <strong>true MVP</strong> delivered inside the <strong>PRR funding window</strong>, for a first real client:</p>
+<div class='table-wrap'><table><thead><tr><th>Field</th><th>Value</th></tr></thead><tbody><tr><td>Prestador</td><td>JCUNHAFONTE, LDA (NIF PT515097365)</td></tr><tr><td>Cliente / beneficiário PRR</td><td><strong>MUSAS &amp; VIKINGS, LDA</strong> (NIF PT516786997) — opera sob a marca <strong>CrossFit Aveiro</strong></td></tr><tr><td>Candidatura PRR</td><td><em>"Soluções de IA para PME's"</em> · projeto <strong>CrossFit Aveiro Digital</strong></td></tr><tr><td>Valor</td><td>€290.000 (s/ IVA) · apoio 75% (~€217.500) · contrapartida ~€72.500</td></tr><tr><td>Período</td><td>1 Jun 2026 → 30 Nov 2026 (6 meses)</td></tr><tr><td><strong>Go-live</strong></td><td><strong>30 Out 2026</strong> · garantia até 29 Nov 2026</td></tr><tr><td>Surfaces</td><td><code>vytal.fit</code> (landing) · <code>my.vytal.fit</code> (atleta) · <code>pro.vytal.fit</code> (backoffice)</td></tr></tbody></table></div>
+<p>The execution roadmap lives in <code>docs/EXECUTION_PLAN.md</code> (phases F1–F6).</p>
+<hr>
+<h2 id="decision-1-post-training-questionnaire-keep-without-body-map">Decision 1 — Post-training questionnaire: KEEP (without body map)<a class="anchor" href="#decision-1-post-training-questionnaire-keep-without-body-map">#</a></h2>
+<ul><li>The proposal (§9.2) recommended <strong>deferring A3-03/A3-04</strong> out of the MVP (the post-training questionnaire <strong>with interactive injury body map</strong> + cross performance/health dashboard) because the body map (build vs license) + Art. 9 RGPD encryption carry significant cost/risk.</li><li><strong>Lead decision:</strong> <strong>keep the post-training questionnaire in the MVP</strong> so we begin building the <strong>athlete performance &amp; health profile</strong> from day one.</li><li><strong>Scope split:</strong><ul><li>✅ <strong>IN (F4):</strong> post-training questionnaire (A3-03 minus the body map) — structured questions, rating scales, text. Feeds the athlete performance/health profile.</li><li>⏸ <strong>DEFERRED:</strong> interactive injury <strong>body map (SVG)</strong> and the cross <strong>performance↔health dashboard (A3-04)</strong>.</li></ul></li><li>RGPD: collect <strong>minimal</strong> Art. 9 data in the MVP; the advanced encrypted health layer (body map) is deferred (matches risk R6 mitigation).</li><li><em>Noted "parece simples de implementar, depois falamos melhor" — exact question set TBD with the lead.</em></li></ul>
+<p><strong>PRD edits implied:</strong> update §7.4 mobile screen <code>/questionnaire</code> (G-NEW-10) and Epic <strong>A3</strong> to mark the questionnaire MVP-MUST (no body map); move body map + cross dashboard to Phase 2.</p>
+<h2 id="decision-2-saf-t-phased-certified-provider-not-own-software">Decision 2 — SAF-T phased (certified provider, not own software)<a class="anchor" href="#decision-2-saf-t-phased-certified-provider-not-own-software">#</a></h2>
+<ul><li><strong>Confirmed phased.</strong> Charging is operational in the MVP (Stripe / MB Way / SEPA / Multibanco); <strong>certified fiscal-document emission</strong> (SAF-T / ATCUD / QR) is delivered <strong>immediately after</strong>, via a <strong>certified billing provider</strong> (InvoiceXpress / Moloni / Vendus) — Vytal orchestrates the charge and delegates the fiscal document to the provider via API.</li><li>We <strong>do not</strong> build/certify our own faturação software (avoids Portaria 363/2010 regulatory effort that would blow the timeline — proposal §9.3.1, risk R2).</li></ul>
+<p><strong>PRD edits implied:</strong> G3-02 stays MVP-MUST but reframed as "via certified provider, phased activation"; update §12.1 integrations (AT) and §16 constraint #1 accordingly.</p>
+<h2 id="decision-3-prr-candidatura-in-the-name-of-musas-vikings-lda">Decision 3 — PRR candidatura in the name of Musas &amp; Vikings, Lda<a class="anchor" href="#decision-3-prr-candidatura-in-the-name-of-musas-vikings-lda">#</a></h2>
+<ul><li><strong>Confirmed.</strong> The billed/beneficiary entity is <strong>Musas &amp; Vikings, Lda</strong> (operating as CrossFit Aveiro), resolving the §17.1 "a confirmar" eligibility flag. Client signatory: <strong>Juvenal Fernandes</strong> (Sócio-Gerente).</li></ul>
+<h2 id="decision-4-ai-provider-multi-provider-free-tier-fallback-0">Decision 4 — AI provider: multi-provider free-tier fallback (€0)<a class="anchor" href="#decision-4-ai-provider-multi-provider-free-tier-fallback-0">#</a></h2>
+<ul><li>Coach Assist AI runs on a <strong>swappable gateway</strong> with a <strong>multi-provider free-tier fallback chain</strong> (Groq → NVIDIA NIM → Gemini), ported from kloser's <code>packages/agents</code> runtime. Near-zero inference cost for the pilot. Claude can be slotted behind the same gateway later if quality demands it.</li><li>Mandatory guardrails unchanged: RAG grounding on the exercise/WOD DB, <strong>human-in-the-loop</strong>, visible disclaimer, full audit trail (proposal §7, §10.2).</li></ul>
+<h2 id="decision-5-authorization-stays-lean-for-the-mvp">Decision 5 — Authorization stays lean for the MVP<a class="anchor" href="#decision-5-authorization-stays-lean-for-the-mvp">#</a></h2>
+<ul><li>Keep the current Better Auth <strong>5-role</strong> model (<code>owner &gt; admin &gt; coach &gt; pt &gt; athlete</code>) + tRPC <code>minRole</code> gating. <strong>Do not</strong> port kloser's granular <code>packages/authz</code> per-module matrix yet.</li><li>Revisit only if the <strong>G5-01 permissions matrix screen</strong> requires per-module view/edit/delete granularity.</li></ul>
+<hr>
+<h2 id="open-items-require-client-lead-input">Open items (require client / lead input)<a class="anchor" href="#open-items-require-client-lead-input">#</a></h2>
+<ul><li><strong>"Ponto 2"</strong> — José to specify exactly what's needed; <strong>Juvenal (client) validates.</strong> Most likely the <strong>§18.2 / §9.3 MVP cut-line confirmation</strong>. <strong>Blocking</strong> for final scope sign-off.</li><li>Exact post-training questionnaire question set (Decision 1).</li><li>Exercise/WOD DB seed content from CrossFit Aveiro (proposal §18.8).</li><li>Final branding/domain confirmation (by end of F1).</li></ul>
+<hr>
+<h2 id="items-the-proposal-defers-out-of-the-mvp-for-prd-13-roadmap-alignment">Items the proposal defers out of the MVP (for PRD §13 roadmap alignment)<a class="anchor" href="#items-the-proposal-defers-out-of-the-mvp-for-prd-13-roadmap-alignment">#</a></h2>
+<p>From proposal §9.2 / §9.3 — recommended to <strong>transit to a later phase</strong> (any can be reinstated via Change Request, §19):</p>
+<ul><li><strong>G6-01</strong> app white-label (theming dinâmico, apps nas stores).</li><li><strong>G6-02</strong> site builder + domínio próprio + SSL automático <em>(MVP ships a pre-configured site on a subdomain)</em>.</li><li><strong>G2-08 / G6-03</strong> drop-ins self-service + Google Reviews automático.</li><li><strong>G6-04</strong> avaliação interna de treinadores pelos atletas.</li><li><strong>A3-03 (body map) / A3-04</strong> — see Decision 1.</li><li>SHOULD not prioritized in MVP: C1-06 weekly insights, G2-06 onboarding 30d, G5-02 escalas/turnos, G5-04 chat interno, G4-03 retention automations, C3-04 injury management, P1-06 PT dashboard, P2-03 session notes.</li><li>Already Phase 2–4 in the PRD: wearables, AI nutrition, plans marketplace, corporate wellness, multi-location/franchises, VOD, nutritionist/physio modules, inter-box challenges, digital twin, mental coaching.</li></ul><nav class="docnav"><a class="prev" href="execution_plan.html">← Execution Plan</a><a class="next" href="backend_wiring.html">Backend Wiring →</a></nav></main>
+</div></body></html>
