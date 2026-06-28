@@ -65,6 +65,78 @@ export interface WebsiteFaqEntry {
   answer: string;
 }
 
+export type StoreProductCategory = "apparel" | "equipment" | "supplements" | "accessories";
+export type StoreProductFulfillment = "in_house" | "external";
+export type StoreSupplierRegion = "china" | "portugal" | "europe";
+export type StoreSupplierStatus = "active" | "paused";
+export type StoreSaleStatus = "completed" | "refunded" | "pending";
+export type StorePaymentMethod = "cash" | "card" | "mbway" | "transfer";
+export type StoreOrderStatus =
+  | "draft"
+  | "sent"
+  | "confirmed"
+  | "in_production"
+  | "shipped"
+  | "delivered"
+  | "cancelled";
+
+export interface StoreProduct {
+  id: string;
+  name: string;
+  price: number;
+  stock: number;
+  category: StoreProductCategory;
+  active: boolean;
+  style: string;
+  color: string;
+  size: string;
+  branding: string;
+  supplierId: string;
+  fulfillment: StoreProductFulfillment;
+  sku: string;
+}
+
+export interface StoreSaleItem {
+  productName: string;
+  qty: number;
+}
+
+export interface StoreSale {
+  id: string;
+  date: string;
+  memberName: string;
+  items: StoreSaleItem[];
+  total: number;
+  paymentMethod: StorePaymentMethod;
+  status: StoreSaleStatus;
+}
+
+export interface StoreSupplier {
+  id: string;
+  name: string;
+  region: StoreSupplierRegion;
+  country: string;
+  dealer: string;
+  website: string;
+  leadTimeDays: number;
+  minOrderQty: number;
+  status: StoreSupplierStatus;
+  channels: string[];
+}
+
+export interface StoreOrder {
+  id: string;
+  date: string;
+  productName: string;
+  supplierId: string;
+  quantity: number;
+  total: number;
+  status: StoreOrderStatus;
+  tracking: string;
+  eta: string;
+  source: string;
+}
+
 export interface WebsiteConfig {
   // ── Pages ──────────────────────────────────────────────────────────────────
   // Hero (always enabled)
@@ -360,6 +432,61 @@ interface PersistedData {
   exercises: Exercise[];
   personalRecords: PersonalRecord[];
   wods: WOD[];
+  storeProducts: StoreProduct[];
+  storeSales: StoreSale[];
+  storeSuppliers: StoreSupplier[];
+  storeOrders: StoreOrder[];
+}
+
+function defaultStoreData() {
+  const products: StoreProduct[] = [
+    { id: "p1", name: "Aero Tee", price: 25, stock: 48, category: "apparel", active: true, style: "Relaxed fit", color: "Black", size: "S-XXL", branding: "Front chest logo", supplierId: "sup-1", fulfillment: "external", sku: "VT-AERO-TEE-BLK" },
+    { id: "p2", name: "Crop Top", price: 22, stock: 35, category: "apparel", active: true, style: "Athletic crop", color: "Sand", size: "XS-L", branding: "Back print", supplierId: "sup-2", fulfillment: "external", sku: "VT-CROP-SND" },
+    { id: "p3", name: "Heavy Hoodie", price: 35, stock: 20, category: "apparel", active: true, style: "Oversized hoodie", color: "Graphite", size: "S-XXL", branding: "Sleeve mark", supplierId: "sup-3", fulfillment: "external", sku: "VT-HOOD-GPH" },
+    { id: "p4", name: "Training Backpack", price: 45, stock: 12, category: "accessories", active: true, style: "Daily carry", color: "Black", size: "One size", branding: "Debossed logo", supplierId: "sup-3", fulfillment: "external", sku: "VT-BACKPACK-BLK" },
+    { id: "p5", name: "Gymnastics Grips", price: 18, stock: 60, category: "equipment", active: true, style: "2-hole", color: "Tan", size: "S-L", branding: "Laser mark", supplierId: "sup-4", fulfillment: "in_house", sku: "VT-GRIPS-2H" },
+    { id: "p6", name: "Knee Sleeves", price: 30, stock: 42, category: "equipment", active: true, style: "5mm support", color: "Red", size: "S-XL", branding: "Heat transfer", supplierId: "sup-4", fulfillment: "in_house", sku: "VT-KNEE-5MM" },
+    { id: "p7", name: "Wrist Wraps", price: 12, stock: 55, category: "equipment", active: true, style: "Competition", color: "Black", size: "One size", branding: "Printed logo", supplierId: "sup-4", fulfillment: "in_house", sku: "VT-WRIST-COMP" },
+    { id: "p8", name: "Jump Rope", price: 20, stock: 30, category: "equipment", active: true, style: "Speed cable", color: "Blue", size: "Adjustable", branding: "Etched handle", supplierId: "sup-4", fulfillment: "in_house", sku: "VT-ROPE-SPD" },
+    { id: "p9", name: "Athletic Tape", price: 5, stock: 120, category: "accessories", active: true, style: "Performance", color: "White", size: "Roll", branding: "Wrapped label", supplierId: "sup-3", fulfillment: "external", sku: "VT-TAPE-WHT" },
+    { id: "p10", name: "Chalk Bag", price: 8, stock: 75, category: "accessories", active: true, style: "Magnetic clip", color: "Grey", size: "One size", branding: "Woven patch", supplierId: "sup-3", fulfillment: "external", sku: "VT-CHALK-GRY" },
+    { id: "p11", name: "Water Bottle", price: 15, stock: 50, category: "accessories", active: true, style: "Insulated", color: "Silver", size: "750ml", branding: "Laser logo", supplierId: "sup-2", fulfillment: "external", sku: "VT-BOTTLE-750" },
+    { id: "p12", name: "Protein Shaker", price: 10, stock: 65, category: "accessories", active: false, style: "Twist cap", color: "White", size: "600ml", branding: "Silk screen", supplierId: "sup-2", fulfillment: "external", sku: "VT-SHAKER-600" },
+  ];
+
+  const sales: StoreSale[] = [
+    { id: "s1", date: "2026-06-04", memberName: "Ana Silva", items: [{ productName: "T-Shirt Box", qty: 1 }, { productName: "Wrist Wraps", qty: 1 }], total: 37, paymentMethod: "card", status: "completed" },
+    { id: "s2", date: "2026-06-03", memberName: "Pedro Almeida", items: [{ productName: "Knee Sleeves", qty: 1 }], total: 30, paymentMethod: "mbway", status: "completed" },
+    { id: "s3", date: "2026-06-03", memberName: "Sofia Santos", items: [{ productName: "Jump Rope", qty: 1 }, { productName: "Chalk Bag", qty: 2 }], total: 36, paymentMethod: "cash", status: "completed" },
+    { id: "s4", date: "2026-06-02", memberName: "Miguel Costa", items: [{ productName: "Crop Top", qty: 2 }], total: 44, paymentMethod: "card", status: "completed" },
+    { id: "s5", date: "2026-06-02", memberName: "Ines Ferreira", items: [{ productName: "Gymnastics Grips", qty: 1 }], total: 18, paymentMethod: "mbway", status: "completed" },
+    { id: "s6", date: "2026-06-01", memberName: "Tiago Neves", items: [{ productName: "Sweater Vytal", qty: 1 }], total: 35, paymentMethod: "transfer", status: "refunded" },
+    { id: "s7", date: "2026-05-31", memberName: "Maria Oliveira", items: [{ productName: "Backpack", qty: 1 }, { productName: "Water Bottle", qty: 1 }], total: 60, paymentMethod: "card", status: "completed" },
+    { id: "s8", date: "2026-05-30", memberName: "Jose Fonte", items: [{ productName: "Athletic Tape", qty: 3 }, { productName: "Protein Shaker", qty: 1 }], total: 25, paymentMethod: "cash", status: "pending" },
+  ];
+
+  const suppliers: StoreSupplier[] = [
+    { id: "sup-1", name: "Yiwu Textile Hub", region: "china", country: "China", dealer: "Yiwu Sportswear Co.", website: "https://yiwutextile.example", leadTimeDays: 18, minOrderQty: 50, status: "active", channels: ["Alibaba", "1688"] },
+    { id: "sup-2", name: "Shenzhen Apparel Works", region: "china", country: "China", dealer: "Shenzhen Merch Dealer", website: "https://shenzhenapparel.example", leadTimeDays: 15, minOrderQty: 30, status: "active", channels: ["Alibaba", "Taobao"] },
+    { id: "sup-3", name: "Porto Merch Lab", region: "portugal", country: "Portugal", dealer: "Porto Print Studio", website: "https://portomerch.example", leadTimeDays: 4, minOrderQty: 10, status: "active", channels: ["Local dealer", "CSV import"] },
+    { id: "sup-4", name: "EU Athletic Supply", region: "europe", country: "Spain", dealer: "Barcelona Dealer Network", website: "https://euathletic.example", leadTimeDays: 7, minOrderQty: 20, status: "paused", channels: ["B2B portal", "API feed"] },
+  ];
+
+  const orders: StoreOrder[] = [
+    { id: "o-1", date: "2026-06-25", productName: "Aero Tee", supplierId: "sup-1", quantity: 120, total: 1440, status: "in_production", tracking: "CN-7819-AV", eta: "2026-07-14", source: "Alibaba" },
+    { id: "o-2", date: "2026-06-23", productName: "Crop Top", supplierId: "sup-2", quantity: 60, total: 720, status: "confirmed", tracking: "CN-6621-ZK", eta: "2026-07-09", source: "Taobao" },
+    { id: "o-3", date: "2026-06-21", productName: "Training Backpack", supplierId: "sup-3", quantity: 24, total: 624, status: "shipped", tracking: "PT-3348-LX", eta: "2026-06-30", source: "Dealer portal" },
+    { id: "o-4", date: "2026-06-19", productName: "Water Bottle", supplierId: "sup-2", quantity: 100, total: 900, status: "delivered", tracking: "CN-5542-QP", eta: "2026-06-27", source: "Alibaba" },
+    { id: "o-5", date: "2026-06-18", productName: "Heavy Hoodie", supplierId: "sup-1", quantity: 80, total: 2400, status: "sent", tracking: "CN-9910-DR", eta: "2026-07-18", source: "1688" },
+    { id: "o-6", date: "2026-06-17", productName: "Protein Shaker", supplierId: "sup-2", quantity: 70, total: 700, status: "cancelled", tracking: "CN-1188-PX", eta: "2026-07-05", source: "Taobao" },
+  ];
+
+  return {
+    storeProducts: products,
+    storeSales: sales,
+    storeSuppliers: suppliers,
+    storeOrders: orders,
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -380,6 +507,7 @@ function defaultDataOrg1(): PersistedData {
     exercises: [...mockExercises],
     personalRecords: [...mockPersonalRecords],
     wods: [...mockWODs],
+    ...defaultStoreData(),
   };
 }
 
@@ -469,6 +597,7 @@ function defaultDataOrg2(): PersistedData {
     exercises: [...org2Exercises],
     personalRecords: [],
     wods: [],
+    ...defaultStoreData(),
   };
 }
 
@@ -564,6 +693,7 @@ function defaultDataOrg3(): PersistedData {
     exercises: [...org3Exercises],
     personalRecords: [...org3PersonalRecords],
     wods: [],
+    ...defaultStoreData(),
   };
 }
 
@@ -593,11 +723,15 @@ function loadData(orgId = "org-1"): PersistedData {
       classTypes: parsed.classTypes ?? defaults.classTypes,
       plans: parsed.plans ?? defaults.plans,
       subscriptions: parsed.subscriptions ?? defaults.subscriptions,
-      notifications: parsed.notifications ?? defaults.notifications,
-      exercises: parsed.exercises ?? defaults.exercises,
-      personalRecords: parsed.personalRecords ?? defaults.personalRecords,
-      wods: parsed.wods ?? defaults.wods,
-    };
+    notifications: parsed.notifications ?? defaults.notifications,
+    exercises: parsed.exercises ?? defaults.exercises,
+    personalRecords: parsed.personalRecords ?? defaults.personalRecords,
+    wods: parsed.wods ?? defaults.wods,
+    storeProducts: parsed.storeProducts ?? defaults.storeProducts,
+    storeSales: parsed.storeSales ?? defaults.storeSales,
+    storeSuppliers: parsed.storeSuppliers ?? defaults.storeSuppliers,
+    storeOrders: parsed.storeOrders ?? defaults.storeOrders,
+  };
   } catch {
     return defaultData(orgId);
   }
@@ -898,6 +1032,16 @@ interface DataStore {
   markNotificationRead: (id: string) => void;
   markAllNotificationsRead: () => void;
 
+  // Store / Merch
+  storeProducts: StoreProduct[];
+  storeSales: StoreSale[];
+  storeSuppliers: StoreSupplier[];
+  storeOrders: StoreOrder[];
+  addStoreProduct: (product: Omit<StoreProduct, "id">) => string;
+  updateStoreProduct: (id: string, partial: Partial<StoreProduct>) => void;
+  deleteStoreProduct: (id: string) => void;
+  toggleStoreProductActive: (id: string) => void;
+
   // Exercises
   exercises: Exercise[];
   addExercise: (exercise: Omit<Exercise, "id">) => string;
@@ -930,10 +1074,14 @@ function snapshotData(state: DataStore): PersistedData {
     classTypes: state.classTypes,
     plans: state.plans,
     subscriptions: state.subscriptions,
-    notifications: state.notifications,
-    exercises: state.exercises,
-    personalRecords: state.personalRecords,
-    wods: state.wods,
+  notifications: state.notifications,
+  exercises: state.exercises,
+  personalRecords: state.personalRecords,
+  wods: state.wods,
+  storeProducts: state.storeProducts,
+  storeSales: state.storeSales,
+  storeSuppliers: state.storeSuppliers,
+  storeOrders: state.storeOrders,
   };
 }
 
@@ -1291,6 +1439,54 @@ export const useDataStore = create<DataStore>((set, get) => ({
       const newState = { ...state, notifications: updated };
       persistData(snapshotData(newState as unknown as DataStore), state.activeOrgId);
       return { notifications: updated };
+    });
+  },
+
+  // ---- Store / Merch ----
+  storeProducts: initialData.storeProducts,
+  storeSales: initialData.storeSales,
+  storeSuppliers: initialData.storeSuppliers,
+  storeOrders: initialData.storeOrders,
+
+  addStoreProduct: (product) => {
+    const id = `p-${generateId()}`;
+    set((state) => {
+      const updated = [...state.storeProducts, { ...product, id }];
+      const newState = { ...state, storeProducts: updated };
+      persistData(snapshotData(newState as unknown as DataStore), state.activeOrgId);
+      return { storeProducts: updated };
+    });
+    return id;
+  },
+
+  updateStoreProduct: (id, partial) => {
+    set((state) => {
+      const updated = state.storeProducts.map((product) =>
+        product.id === id ? { ...product, ...partial } : product
+      );
+      const newState = { ...state, storeProducts: updated };
+      persistData(snapshotData(newState as unknown as DataStore), state.activeOrgId);
+      return { storeProducts: updated };
+    });
+  },
+
+  deleteStoreProduct: (id) => {
+    set((state) => {
+      const updated = state.storeProducts.filter((product) => product.id !== id);
+      const newState = { ...state, storeProducts: updated };
+      persistData(snapshotData(newState as unknown as DataStore), state.activeOrgId);
+      return { storeProducts: updated };
+    });
+  },
+
+  toggleStoreProductActive: (id) => {
+    set((state) => {
+      const updated = state.storeProducts.map((product) =>
+        product.id === id ? { ...product, active: !product.active } : product
+      );
+      const newState = { ...state, storeProducts: updated };
+      persistData(snapshotData(newState as unknown as DataStore), state.activeOrgId);
+      return { storeProducts: updated };
     });
   },
 
