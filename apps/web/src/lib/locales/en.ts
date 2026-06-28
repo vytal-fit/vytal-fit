@@ -255,13 +255,13 @@ export const en: Record<string, string> = {
     "invite.role.member": "Member",
 
     // Support page
-    "supportPage.backToApp": "Back to the app",
-    "supportPage.title": "Support",
-    "supportPage.intro": "We're here to help. If you have questions about your account, billing, or any Vytal feature, reach out to our team.",
-    "supportPage.contactTitle": "Contact us",
-    "supportPage.contactBody": "Send us an email and we'll get back to you as soon as possible.",
-    "supportPage.securityTitle": "Didn't make this change?",
-    "supportPage.securityBody": "If you received an email confirming a password change you didn't request, contact us right away so we can secure your account.",
+    "contactPage.backToApp": "Back to the app",
+    "contactPage.title": "Support",
+    "contactPage.intro": "We're here to help. If you have questions about your account, billing, or any Vytal feature, reach out to our team.",
+    "contactPage.contactTitle": "Contact us",
+    "contactPage.contactBody": "Send us an email and we'll get back to you as soon as possible.",
+    "contactPage.securityTitle": "Didn't make this change?",
+    "contactPage.securityBody": "If you received an email confirming a password change you didn't request, contact us right away so we can secure your account.",
 
     // Legal
     "legal.backToRegister": "Back to registration",
