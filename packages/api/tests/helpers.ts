@@ -421,6 +421,47 @@ export async function seed(db: Database): Promise<void> {
     },
   ]);
 
+  await db.insert(schema.supportTickets).values([
+    {
+      id: "ticket-a1",
+      organizationId: IDS.orgA,
+      number: 1001,
+      subject: "Pagamento duplicado",
+      memberName: "Ana Silva",
+      priority: "high",
+      status: "open",
+      assignedTo: "Andre Loureiro",
+      description: "Cobrança duplicada no plano mensal.",
+      messages: [
+        {
+          id: "msg-a1",
+          author: "Ana Silva",
+          isStaff: false,
+          content: "A cobrança apareceu duas vezes.",
+          date: new Date(today).toISOString(),
+        },
+      ],
+      internalNotes: "",
+      createdAt: new Date(today),
+      updatedAt: new Date(today),
+    },
+    {
+      id: "ticket-a2",
+      organizationId: IDS.orgA,
+      number: 1002,
+      subject: "AC da sala 1",
+      memberName: "Catarina Reis",
+      priority: "medium",
+      status: "in_progress",
+      assignedTo: "Marine Robba",
+      description: "O AC da sala 1 não está a funcionar.",
+      messages: [],
+      internalNotes: "Tecnico agendado.",
+      createdAt: new Date(today),
+      updatedAt: new Date(today),
+    },
+  ]);
+
   const now = new Date();
   const yesterday = new Date(now.getTime() - 86_400_000);
   await db.insert(schema.checkIns).values([

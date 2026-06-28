@@ -39,6 +39,7 @@ import {
   DEMO_PASSWORD,
   DEMO_USERS,
   ORG_1,
+  SUPPORT_TICKET_SEED,
   WOD_DATE_OFFSETS,
   seedDatabase,
   type SeedSummary,
@@ -75,6 +76,7 @@ async function countWhereOrg1(
     | typeof schema.leads
     | typeof schema.personalRecords
     | typeof schema.notifications
+    | typeof schema.supportTickets
     | typeof schema.checkIns,
 ): Promise<number> {
   const rows = await db
@@ -129,6 +131,7 @@ describe("seedDatabase — first run", () => {
     expect(firstRun.inserted.leads).toBe(mockLeads.length);
     expect(firstRun.inserted.personalRecords).toBe(mockPersonalRecords.length);
     expect(firstRun.inserted.notifications).toBe(mockNotifications.length);
+    expect(firstRun.inserted.supportTickets).toBe(SUPPORT_TICKET_SEED.length);
     expect(firstRun.inserted.bookings).toBeGreaterThan(0);
     expect(firstRun.inserted.checkIns).toBe(CHECK_IN_SEED.length);
   });
@@ -200,6 +203,7 @@ describe("org-1 row counts", () => {
     expect(await countWhereOrg1(schema.notifications)).toBe(
       mockNotifications.length,
     );
+    expect(await countWhereOrg1(schema.supportTickets)).toBe(SUPPORT_TICKET_SEED.length);
     expect(await countWhereOrg1(schema.checkIns)).toBe(CHECK_IN_SEED.length);
 
     const exerciseCount = await db.select({ n: count() }).from(schema.exercises);
