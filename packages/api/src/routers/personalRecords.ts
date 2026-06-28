@@ -1,8 +1,9 @@
 import { TRPCError } from "@trpc/server";
 import { and, asc, eq, gt } from "drizzle-orm";
 import { exercises, gymMembers, personalRecords, PR_UNITS } from "@vytal-fit/db";
+import { hasMinRole } from "@vytal-fit/shared";
 import { z } from "zod";
-import { adminProcedure, orgProcedure, router, staffProcedure } from "../trpc";
+import { adminProcedure, orgProcedure, router } from "../trpc";
 import type { Context } from "../trpc";
 
 const prInput = z.object({
@@ -27,6 +28,35 @@ async function assertMemberInOrg(
     .limit(1);
   if (!row) {
     throw new TRPCError({ code: "NOT_FOUND", message: "Member not found." });
+  }
+}
+
+async function assertCanActOnMember(
+  ctx: Context & { activeOrganizationId: string },
+  memberId: string,
+  action: string,
+): Promise<void> {
+  const [member] = await ctx.db
+    .select({ id: gymMembers.id, userId: gymMembers.userId })
+    .from(gymMembers)
+    .where(
+      and(
+        eq(gymMembers.id, memberId),
+        eq(gymMembers.organizationId, ctx.activeOrganizationId),
+      ),
+    )
+    .limit(1);
+  if (!member) {
+    throw new TRPCError({ code: "NOT_FOUND", message: "Member not found." });
+  }
+  if (
+    !ctx.session?.role ||
+    (!hasMinRole(ctx.session.role, "coach") && member.userId !== ctx.session.user.id)
+  ) {
+    throw new TRPCError({
+      code: "FORBIDDEN",
+      message: `Athletes can only ${action} for their own member profile.`,
+    });
   }
 }
 
@@ -104,13 +134,9 @@ export const personalRecordsRouter = router({
       return row;
     }),
 
-  // TODO(athlete-self): athletes should log results for THEMSELVES from the
-  // athlete app. That requires a user→gym_member linkage (e.g. a
-  // `gym_members.user_id` column) which does not exist in the schema yet.
-  // Until then create is coach+; relax to any org member with an
-  // own-memberId check once the linkage lands.
-  create: staffProcedure.input(prInput).mutation(async ({ ctx, input }) => {
+  create: orgProcedure.input(prInput).mutation(async ({ ctx, input }) => {
     await assertMemberInOrg(ctx.db, ctx.activeOrganizationId, input.memberId);
+    await assertCanActOnMember(ctx, input.memberId, "log personal records");
     await assertExerciseExists(ctx.db, input.exerciseId);
 
     const [created] = await ctx.db
@@ -124,12 +150,12 @@ export const personalRecordsRouter = router({
     return created;
   }),
 
-  update: staffProcedure
+  update: orgProcedure
     .input(z.object({ id: z.string().min(1), data: prInput.partial() }))
     .mutation(async ({ ctx, input }) => {
       // Re-fetch scoped to the org before mutating — never trust a client id.
       const [existing] = await ctx.db
-        .select({ id: personalRecords.id })
+        .select({ id: personalRecords.id, memberId: personalRecords.memberId })
         .from(personalRecords)
         .where(
           and(
@@ -147,6 +173,11 @@ export const personalRecordsRouter = router({
       if (input.data.memberId) {
         await assertMemberInOrg(ctx.db, ctx.activeOrganizationId, input.data.memberId);
       }
+      await assertCanActOnMember(
+        ctx,
+        input.data.memberId ?? existing.memberId,
+        "update personal records",
+      );
       if (input.data.exerciseId) {
         await assertExerciseExists(ctx.db, input.data.exerciseId);
       }

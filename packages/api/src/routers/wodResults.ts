@@ -8,8 +8,9 @@ import {
   WOD_SCALES,
   WOD_SCORE_TYPES,
 } from "@vytal-fit/db";
+import { hasMinRole } from "@vytal-fit/shared";
 import { z } from "zod";
-import { adminProcedure, orgProcedure, router, staffProcedure } from "../trpc";
+import { adminProcedure, orgProcedure, router } from "../trpc";
 import type { Context } from "../trpc";
 
 const dateString = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Expected YYYY-MM-DD");
@@ -63,6 +64,35 @@ async function assertRefsInOrg(
     if (!row) {
       throw new TRPCError({ code: "NOT_FOUND", message: "Class not found." });
     }
+  }
+}
+
+async function assertCanActOnMember(
+  ctx: Context & { activeOrganizationId: string },
+  memberId: string,
+  action: string,
+): Promise<void> {
+  const [member] = await ctx.db
+    .select({ id: gymMembers.id, userId: gymMembers.userId })
+    .from(gymMembers)
+    .where(
+      and(
+        eq(gymMembers.id, memberId),
+        eq(gymMembers.organizationId, ctx.activeOrganizationId),
+      ),
+    )
+    .limit(1);
+  if (!member) {
+    throw new TRPCError({ code: "NOT_FOUND", message: "Member not found." });
+  }
+  if (
+    !ctx.session?.role ||
+    (!hasMinRole(ctx.session.role, "coach") && member.userId !== ctx.session.user.id)
+  ) {
+    throw new TRPCError({
+      code: "FORBIDDEN",
+      message: `Athletes can only ${action} for their own member profile.`,
+    });
   }
 }
 
@@ -121,13 +151,9 @@ export const wodResultsRouter = router({
       return { items: rows, nextCursor };
     }),
 
-  // TODO(athlete-self): athletes should log results for THEMSELVES from the
-  // athlete app. That requires a user→gym_member linkage (e.g. a
-  // `gym_members.user_id` column) which does not exist in the schema yet.
-  // Until then create is coach+; relax to any org member with an
-  // own-memberId check once the linkage lands.
-  create: staffProcedure.input(resultInput).mutation(async ({ ctx, input }) => {
+  create: orgProcedure.input(resultInput).mutation(async ({ ctx, input }) => {
     await assertRefsInOrg(ctx.db, ctx.activeOrganizationId, input);
+    await assertCanActOnMember(ctx, input.memberId, "log WOD results");
 
     const [created] = await ctx.db
       .insert(wodResults)
@@ -140,7 +166,7 @@ export const wodResultsRouter = router({
     return created;
   }),
 
-  update: staffProcedure
+  update: orgProcedure
     // Strip defaults before .partial() — zod applies .default() even for
     // omitted keys in a partial, silently resetting scale to "rx" and isPR.
     .input(
@@ -154,7 +180,7 @@ export const wodResultsRouter = router({
     .mutation(async ({ ctx, input }) => {
       // Re-fetch scoped to the org before mutating — never trust a client id.
       const [existing] = await ctx.db
-        .select({ id: wodResults.id })
+        .select({ id: wodResults.id, memberId: wodResults.memberId })
         .from(wodResults)
         .where(
           and(
@@ -167,6 +193,11 @@ export const wodResultsRouter = router({
         throw new TRPCError({ code: "NOT_FOUND", message: "WOD result not found." });
       }
       await assertRefsInOrg(ctx.db, ctx.activeOrganizationId, input.data);
+      await assertCanActOnMember(
+        ctx,
+        input.data.memberId ?? existing.memberId,
+        "update WOD results",
+      );
 
       const [updated] = await ctx.db
         .update(wodResults)

@@ -14,15 +14,18 @@ import { ArrowLeft, ArrowRight, Eye, EyeOff, Check } from "lucide-react-native";
 import { t } from "@/i18n";
 import { useTheme } from "./_layout";
 import type { Colors } from "@/colors";
+import { useAuthStore } from "@/stores/auth-store";
 
 export default function RegisterScreen() {
   const router = useRouter();
   const C = useTheme();
   const styles = makeStyles(C);
+  const { register } = useAuthStore();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [submitError, setSubmitError] = useState("");
 
   // Step 1 fields
   const [name, setName] = useState("");
@@ -56,15 +59,22 @@ export default function RegisterScreen() {
     }
   }
 
-  function handleRegister() {
+  async function handleRegister() {
     if (!acceptedTerms) {
       setErrors({ terms: t("register.errTerms") });
       return;
     }
     setLoading(true);
-    setTimeout(() => {
-      router.replace("/(tabs)/home");
-    }, 600);
+    setSubmitError("");
+    const success = await register(name, email, password);
+    setLoading(false);
+
+    if (!success) {
+      setSubmitError(t("auth.registerFailed"));
+      return;
+    }
+
+    router.replace("/(tabs)/home");
   }
 
   return (
@@ -327,6 +337,8 @@ export default function RegisterScreen() {
                 {loading ? t("register.creating") : t("register.create")}
               </Text>
             </TouchableOpacity>
+
+            {submitError ? <Text style={styles.errorText}>{submitError}</Text> : null}
           </View>
         )}
 

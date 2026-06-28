@@ -52,6 +52,7 @@ function formatJoinedAt(dateStr: string): string {
 export default function OrgSwitcherScreen() {
   const router = useRouter();
   const { user, activeOrgId, switchOrg } = useAuthStore();
+  const [pendingOrgId, setPendingOrgId] = React.useState<string | null>(null);
 
   const memberships = user?.memberships ?? [];
 
@@ -79,9 +80,19 @@ export default function OrgSwitcherScreen() {
             return (
               <TouchableOpacity
                 key={membership.id}
-                style={[styles.orgCard, isActive && styles.orgCardActive]}
-                onPress={() => switchOrg(membership.organizationId)}
+                style={[
+                  styles.orgCard,
+                  isActive && styles.orgCardActive,
+                  pendingOrgId === membership.organizationId && styles.orgCardDisabled,
+                ]}
+                onPress={async () => {
+                  if (isActive || pendingOrgId) return;
+                  setPendingOrgId(membership.organizationId);
+                  await switchOrg(membership.organizationId);
+                  setPendingOrgId(null);
+                }}
                 activeOpacity={0.8}
+                disabled={Boolean(pendingOrgId)}
               >
                 <View style={styles.orgCardTop}>
                   <View style={[styles.orgLogo, { borderColor: isActive ? C.green : C.border }]}>
@@ -186,6 +197,9 @@ const styles = StyleSheet.create({
   orgCardActive: {
     borderColor: C.green + "40",
     backgroundColor: C.green + "08",
+  },
+  orgCardDisabled: {
+    opacity: 0.6,
   },
   orgCardTop: {
     flexDirection: "row",

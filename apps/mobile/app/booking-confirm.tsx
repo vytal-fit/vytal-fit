@@ -7,11 +7,14 @@ import {
   Animated,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { ArrowLeft, Check, MapPin, Clock, User } from "lucide-react-native";
+import { mockClasses } from "@vytal-fit/shared";
 import { useTheme } from "./_layout";
 import type { Colors } from "@/colors";
 import { t } from "@/i18n";
+import { bookClass } from "@/lib/auth-api";
+import { useAuthStore } from "@/stores/auth-store";
 
 
 // ─── Screen ──────────────────────────────────────────────
@@ -19,9 +22,25 @@ export default function BookingConfirmScreen() {
   const C = useTheme();
   const styles = makeStyles(C);
   const router = useRouter();
+  const params = useLocalSearchParams<{
+    classId?: string;
+    className?: string;
+    startTime?: string;
+    coach?: string;
+    location?: string;
+  }>();
+  const { user, activeOrgId } = useAuthStore();
   const [confirmed, setConfirmed] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
 
   const scaleAnim = useRef(new Animated.Value(0)).current;
+  const classId = params.classId ?? mockClasses[0]?.id ?? "";
+  const className = params.className ?? mockClasses[0]?.classType.name ?? "WOD";
+  const startTime = params.startTime ?? "07:00 - 08:00";
+  const coach = params.coach ?? "Coach Andre Loureiro";
+  const location = params.location ?? "Main Box";
+  const memberId = user?.memberships.find((m) => m.organizationId === activeOrgId)?.id ?? user?.memberships[0]?.id ?? "";
 
   useEffect(() => {
     if (confirmed) {
@@ -37,7 +56,24 @@ export default function BookingConfirmScreen() {
       }, 2000);
       return () => clearTimeout(timer);
     }
-  }, [confirmed]);
+  }, [confirmed, scaleAnim, router]);
+
+  async function handleConfirm() {
+    if (!classId || !memberId) {
+      setError(t("auth.loginFailed"));
+      return;
+    }
+    setSaving(true);
+    setError("");
+    try {
+      await bookClass(classId, memberId);
+      setConfirmed(true);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : t("auth.loginFailed"));
+    } finally {
+      setSaving(false);
+    }
+  }
 
   if (confirmed) {
     return (
@@ -48,9 +84,9 @@ export default function BookingConfirmScreen() {
           </Animated.View>
           <Text style={styles.successTitle}>{t("bookingConfirm.confirmedTitle")}</Text>
           <View style={styles.successDetails}>
-            <Text style={styles.successDetail}>WOD - 07:00 - 08:00</Text>
-            <Text style={styles.successDetail}>Coach Andre Loureiro</Text>
-            <Text style={styles.successDetail}>Main Box</Text>
+            <Text style={styles.successDetail}>{className} - {startTime}</Text>
+            <Text style={styles.successDetail}>{coach}</Text>
+            <Text style={styles.successDetail}>{location}</Text>
           </View>
           <TouchableOpacity
             style={styles.doneButton}
@@ -98,10 +134,14 @@ export default function BookingConfirmScreen() {
           {/* Buttons */}
           <TouchableOpacity
             style={styles.confirmButton}
-            onPress={() => setConfirmed(true)}
+            onPress={handleConfirm}
+            disabled={saving}
           >
-            <Text style={styles.confirmButtonText}>{t("bookingConfirm.confirm")}</Text>
+            <Text style={styles.confirmButtonText}>
+              {saving ? t("btn.loggingIn") : t("bookingConfirm.confirm")}
+            </Text>
           </TouchableOpacity>
+          {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
           <TouchableOpacity
             style={styles.cancelButton}
@@ -150,6 +190,7 @@ function makeStyles(C: Colors) { return StyleSheet.create({
     borderColor: C.border, alignItems: "center",
   },
   cancelButtonText: { fontSize: 15, fontWeight: "700", color: C.muted, letterSpacing: 1 },
+  errorText: { fontSize: 12, color: C.red, textAlign: "center", marginTop: 12 },
   // Success State
   successContainer: {
     flex: 1, alignItems: "center", justifyContent: "center", paddingHorizontal: 24,

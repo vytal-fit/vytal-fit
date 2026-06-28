@@ -7,6 +7,7 @@
  */
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { bearer } from "better-auth/plugins/bearer";
 import { organization } from "better-auth/plugins";
 import { createAccessControl } from "better-auth/plugins/access";
 import {
@@ -60,6 +61,7 @@ export function createAuth(options: CreateAuthOptions) {
       enabled: true,
     },
     plugins: [
+      bearer(),
       organization({
         ac: accessControl,
         roles,

@@ -161,6 +161,7 @@ export async function seed(db: Database): Promise<void> {
     {
       id: IDS.memberA1,
       organizationId: IDS.orgA,
+      userId: IDS.userAthleteA,
       memberNumber: 1,
       name: "Jose Fonte",
       email: "jose@example.com",
