@@ -301,7 +301,7 @@ The admin web application lives at `apps/web/src/app/`. It uses Next.js 15 App R
 | 8 | `/(app)/classes/[id]` | Built (POC) | Individual class detail | Enrolled athletes, waitlist, coach assignment, capacity, check-in controls, real-time occupancy | C2-01, C2-03 |
 | 9 | `/(app)/class-types` | Built (POC) | Class type configuration | Name, abbreviation, color picker, icon selector, active/inactive toggle, email notification toggle | C2-01 |
 | 10 | `/(app)/wods` | Built (POC) | WOD builder and programming | Weekly calendar, structured parts (Warm Up/Skill/WOD/Cool Down), exercise selection, publish to app, auto-save drafts | C1-01, C1-03 |
-| 11 | `/(app)/exercises` | Built (POC) | Exercise/movement library | 200+ movements, video links, categories, equipment tags, muscle groups, scaled variations, search and filter | C1-02 |
+| 11 | `/(app)/exercises` | Built (POC) | Exercise/movement library | 1,300+ movements from the shared catalog, thumbnail/GIF media, demo links, PT/EN/ES coaching notes, categories, equipment tags, muscle groups, scaled variations, search and filter | C1-02 |
 | 12 | `/(app)/plans` | Built (POC) | Subscription plan management | Plan types (monthly/quarterly/annual/pack/day pass/trial), pricing, allowed class types, session limits, time slot rules | G2-02 |
 | 13 | `/(app)/financials` | Built (POC) | Billing and revenue overview | Revenue charts, payment history, overdue list, dunning config, invoice list, SAF-T export placeholder | G3-01, G3-02, G3-03 |
 | 14 | `/(app)/crm` | Built (POC) | Lead pipeline kanban | Configurable columns (Lead/Contacted/Prospect/Trial/Subscribed/Lost), lead cards, quick actions (call/email/trial), auto-lead from forms | G4-01, G4-02 |
@@ -376,7 +376,7 @@ All admin pages listed below have been built as POC (proof-of-concept) with full
 | 76 | `/(app)/inbox` | Built (POC) | Unified inbox | Aggregated conversations, filters, quick actions | NEW |
 | 77 | `/(app)/automations` | Built (POC) | Automation rules | Trigger/condition/action builder, enable/disable | G4-03 |
 | 78 | `/(app)/automations/milestones` | Built (POC) | Milestone automation | Auto-celebrate member achievements, configurable triggers | NEW |
-| 79 | `/(app)/exercises/[id]` | Built (POC) | Exercise detail | Video, description, variations, muscle groups | C1-02 |
+| 79 | `/(app)/exercises/[id]` | Built (POC) | Exercise detail | Dataset thumbnail/GIF media, description, multilingual instructions, variations, muscle groups | C1-02 |
 | 80 | `/(app)/dropins` | Built (POC) | Drop-in management | Visiting athlete tracking, pricing, GPS map | G-NEW-02 |
 | 81 | `/(app)/import` | Built (POC) | Import center | CSV/Excel import for members, plans, leads | G2-04 |
 | 82 | `/(app)/integrations` | Built (POC) | Integrations hub | Third-party connections, API status, sync config | G4-05 |
@@ -427,7 +427,7 @@ The mobile client lives at `apps/mobile/app/` using Expo Router (file-based rout
 | 13 | `/leaderboard` | Built (POC) | Class & box leaderboard | Ranked athlete list, age group filter, Rx/Scaled filter, fistbump buttons, real-time updates | A2-02, C3-02 |
 | 14 | `/pr-entry` | Built (POC) | Register personal record | 1RM-10RM grid inputs, notes field, save, history of previous records | A2-03, C3-01 |
 | 15 | `/box-records` | Built (POC) | Box-wide records | Filter by gender + Rx/Scaled, search by athlete name, movement list with best scores | C3-02 |
-| 16 | `/exercises` | Built (POC) | Movement library browser | Alphabetical list (520+ movements), video indicator icons, search, tap to view video | C1-02 |
+| 16 | `/exercises` | Built (POC) | Movement library browser | Alphabetical list (1,300+ movements), thumbnail/GIF preview, search, tap to open media | C1-02 |
 | 17 | `/timer` | Built (POC) | Workout timers | 6 modes: Tabata, EMOM, AMRAP, For Time, Stopwatch, Saved; configurable countdown/exercise/rest/rounds; save timer; send to TV display | C2-02 |
 | 18 | `/calculator` | Built (POC) | RM% calculator & converters | 3 tabs: %RM table (Brzycki formula), general calculator, unit converters (miles/km, lbs/kg) | NEW |
 | 19 | `/plan-detail` | Built (POC) | My plan details | Active plan name, payment type, allowed class types list, renewal date, account deletion option | A1-03 |
@@ -718,6 +718,8 @@ The mobile client lives at `apps/mobile/app/` using Expo Router (file-based rout
 - Supplier mappings allow the platform to route fulfillment to external partners/dealers
 - Order lifecycle includes placed, confirmed, in production, shipped, delivered, cancelled
 - Stock updates and tracking status sync back into the store view
+
+Implementation note: the current web `pro` surface already has a persisted merch/catalog prototype with supplier routing and order state controls. Treat that as partial implementation, not full external fulfillment.
 
 ---
 

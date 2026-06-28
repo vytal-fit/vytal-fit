@@ -1041,6 +1041,8 @@ interface DataStore {
   updateStoreProduct: (id: string, partial: Partial<StoreProduct>) => void;
   deleteStoreProduct: (id: string) => void;
   toggleStoreProductActive: (id: string) => void;
+  updateStoreSupplier: (id: string, partial: Partial<StoreSupplier>) => void;
+  updateStoreOrder: (id: string, partial: Partial<StoreOrder>) => void;
 
   // Exercises
   exercises: Exercise[];
@@ -1487,6 +1489,28 @@ export const useDataStore = create<DataStore>((set, get) => ({
       const newState = { ...state, storeProducts: updated };
       persistData(snapshotData(newState as unknown as DataStore), state.activeOrgId);
       return { storeProducts: updated };
+    });
+  },
+
+  updateStoreSupplier: (id, partial) => {
+    set((state) => {
+      const updated = state.storeSuppliers.map((supplier) =>
+        supplier.id === id ? { ...supplier, ...partial } : supplier
+      );
+      const newState = { ...state, storeSuppliers: updated };
+      persistData(snapshotData(newState as unknown as DataStore), state.activeOrgId);
+      return { storeSuppliers: updated };
+    });
+  },
+
+  updateStoreOrder: (id, partial) => {
+    set((state) => {
+      const updated = state.storeOrders.map((order) =>
+        order.id === id ? { ...order, ...partial } : order
+      );
+      const newState = { ...state, storeOrders: updated };
+      persistData(snapshotData(newState as unknown as DataStore), state.activeOrgId);
+      return { storeOrders: updated };
     });
   },
 

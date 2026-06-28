@@ -41,8 +41,6 @@ type PaymentMethod = "cash" | "card" | "mbway" | "transfer";
 type Product = StoreProduct;
 
 type Sale = StoreSale;
-type Supplier = StoreSupplier;
-type MerchOrder = StoreOrder;
 
 // ---------------------------------------------------------------------------
 // Config
@@ -76,6 +74,15 @@ const orderStatusConfig: Record<StoreOrderStatus, { color: string }> = {
   cancelled: { color: "bg-vytal-red/10 text-vytal-red" },
 };
 
+const orderStatusFlow: StoreOrderStatus[] = [
+  "draft",
+  "sent",
+  "confirmed",
+  "in_production",
+  "shipped",
+  "delivered",
+];
+
 const paymentMethodLabels: Record<PaymentMethod, string> = {
   cash: "Cash",
   card: "Card",
@@ -108,10 +115,10 @@ export default function StorePage() {
   const updateStoreProduct = useDataStore((s) => s.updateStoreProduct);
   const deleteStoreProduct = useDataStore((s) => s.deleteStoreProduct);
   const toggleStoreProductActive = useDataStore((s) => s.toggleStoreProductActive);
+  const updateStoreSupplier = useDataStore((s) => s.updateStoreSupplier);
+  const updateStoreOrder = useDataStore((s) => s.updateStoreOrder);
   const [tab, setTab] = useState<"products" | "sales" | "suppliers">("products");
   const [products, setProducts] = useState<Product[]>(storeProducts);
-  const [suppliers] = useState<Supplier[]>(storeSuppliers);
-  const [orders] = useState<MerchOrder[]>(storeOrders);
   const [sales] = useState<Sale[]>(storeSales);
   const [search, setSearch] = useState("");
   const [showForm, setShowForm] = useState(false);
@@ -139,6 +146,8 @@ export default function StorePage() {
   useEffect(() => {
     setProducts(storeProducts);
   }, [storeProducts]);
+  const suppliers: StoreSupplier[] = storeSuppliers;
+  const orders: StoreOrder[] = storeOrders;
   const supplierById = useMemo(
     () => new Map(suppliers.map((supplier) => [supplier.id, supplier] as const)),
     [suppliers]
@@ -282,6 +291,17 @@ export default function StorePage() {
   const handleSyncOrders = useCallback(() => {
     toast(t("store.ordersSynced"), "success");
   }, [toast, t]);
+
+  const handleToggleSupplierStatus = useCallback((id: string, nextStatus: StoreSupplier["status"]) => {
+    updateStoreSupplier(id, { status: nextStatus });
+  }, [updateStoreSupplier]);
+
+  const handleAdvanceOrderStatus = useCallback((id: string, currentStatus: StoreOrderStatus) => {
+    if (currentStatus === "cancelled") return;
+    const index = orderStatusFlow.indexOf(currentStatus);
+    const nextStatus = orderStatusFlow[Math.min(index + 1, orderStatusFlow.length - 1)];
+    updateStoreOrder(id, { status: nextStatus });
+  }, [updateStoreOrder]);
 
   return (
     <div className="space-y-6">
@@ -818,9 +838,22 @@ export default function StorePage() {
                       </div>
                       <p className="mt-1 text-sm text-vytal-muted">{supplier.dealer}</p>
                     </div>
-                    <span className={cn("inline-flex rounded-full px-2 py-0.5 text-xs font-medium", supplier.status === "active" ? "bg-vytal-green/10 text-vytal-green" : "bg-vytal-bg3 text-vytal-muted")}>
+                    <button
+                      onClick={() =>
+                        handleToggleSupplierStatus(
+                          supplier.id,
+                          supplier.status === "active" ? "paused" : "active"
+                        )
+                      }
+                      className={cn(
+                        "inline-flex rounded-full px-2 py-0.5 text-xs font-medium transition-colors",
+                        supplier.status === "active"
+                          ? "bg-vytal-green/10 text-vytal-green hover:bg-vytal-green/20"
+                          : "bg-vytal-bg3 text-vytal-muted hover:bg-vytal-bg2"
+                      )}
+                    >
                       {supplier.status === "active" ? t("store.statusActive") : t("store.statusPaused")}
-                    </span>
+                    </button>
                   </div>
 
                   <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
@@ -878,9 +911,16 @@ export default function StorePage() {
                     <td className="px-4 py-3 text-sm font-semibold text-vytal-text">{formatCurrency(order.total)}</td>
                     <td className="px-4 py-3 text-sm text-vytal-muted">{order.tracking}</td>
                     <td className="px-4 py-3">
-                      <span className={cn("inline-flex rounded-full px-2 py-0.5 text-xs font-medium", orderStatusConfig[order.status].color)}>
+                      <button
+                        onClick={() => handleAdvanceOrderStatus(order.id, order.status)}
+                        disabled={order.status === "delivered" || order.status === "cancelled"}
+                        className={cn(
+                          "inline-flex rounded-full px-2 py-0.5 text-xs font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-60",
+                          orderStatusConfig[order.status].color
+                        )}
+                      >
                         {orderStatusLabelMap[order.status]}
-                      </span>
+                      </button>
                     </td>
                     <td className="px-4 py-3 text-sm text-vytal-muted">{order.eta}</td>
                   </tr>

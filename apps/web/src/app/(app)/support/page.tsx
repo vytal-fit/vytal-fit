@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   Plus,
   Clock,
@@ -12,6 +12,7 @@ import {
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/lib/i18n";
 import { useToast } from "@/components/toast";
+import { trpc } from "@/lib/trpc";
 
 import { Breadcrumbs } from "@/components/breadcrumbs";
 
@@ -33,118 +34,12 @@ interface Ticket {
   memberName: string;
   priority: TicketPriority;
   status: TicketStatus;
-  createdAt: string;
+  createdAt: string | Date;
   assignedTo: string;
   description: string;
   messages: TicketMessage[];
   internalNotes: string;
 }
-
-const mockTickets: Ticket[] = [
-  {
-    id: "tk-1", number: 1001, subject: "Pagamento duplicado no mes de Maio",
-    memberName: "Ana Silva", priority: "high", status: "open", createdAt: "2026-06-03T10:30:00",
-    assignedTo: "Andre Loureiro", description: "Foi-me cobrado duas vezes o valor do plano mensal em Maio. Preciso de reembolso.",
-    messages: [
-      { id: "m1", author: "Ana Silva", isStaff: false, content: "Bom dia, verifiquei que fui cobrada duas vezes. Podem verificar?", date: "2026-06-03T10:30:00" },
-      { id: "m2", author: "Andre Loureiro", isStaff: true, content: "Bom dia Ana! Vou verificar com o departamento financeiro.", date: "2026-06-03T11:00:00" },
-      { id: "m3", author: "Ana Silva", isStaff: false, content: "Obrigada, fico a aguardar.", date: "2026-06-03T11:15:00" },
-    ],
-    internalNotes: "Verificar com Stripe - possivel duplicacao de webhook.",
-  },
-  {
-    id: "tk-2", number: 1002, subject: "Nao consigo reservar aula de quarta",
-    memberName: "Pedro Almeida", priority: "medium", status: "in_progress", createdAt: "2026-06-02T14:00:00",
-    assignedTo: "Marine Robba", description: "A app da erro quando tento reservar a aula das 18:00 de quarta-feira.",
-    messages: [
-      { id: "m1", author: "Pedro Almeida", isStaff: false, content: "A app da-me um erro 500 quando tento reservar.", date: "2026-06-02T14:00:00" },
-      { id: "m2", author: "Marine Robba", isStaff: true, content: "Pode enviar-nos um screenshot do erro?", date: "2026-06-02T14:30:00" },
-      { id: "m3", author: "Pedro Almeida", isStaff: false, content: "Ja enviei por email.", date: "2026-06-02T15:00:00" },
-    ],
-    internalNotes: "Bug reportado a equipa de dev. Ticket interno #DEV-234.",
-  },
-  {
-    id: "tk-3", number: 1003, subject: "Rower da zona 2 esta avariado",
-    memberName: "Tiago Neves", priority: "medium", status: "open", createdAt: "2026-06-02T09:00:00",
-    assignedTo: "Ricardo Ribeiro", description: "O rower numero 4 na zona 2 tem a correia partida.",
-    messages: [
-      { id: "m1", author: "Tiago Neves", isStaff: false, content: "O rower 4 na zona 2 nao funciona, a correia esta partida.", date: "2026-06-02T09:00:00" },
-    ],
-    internalNotes: "",
-  },
-  {
-    id: "tk-4", number: 1004, subject: "Quero mudar para plano anual",
-    memberName: "Sofia Santos", priority: "low", status: "resolved", createdAt: "2026-06-01T16:00:00",
-    assignedTo: "Andre Loureiro", description: "Gostaria de mudar do plano mensal para o plano anual.",
-    messages: [
-      { id: "m1", author: "Sofia Santos", isStaff: false, content: "Ola, quero mudar para o plano anual. Como faco?", date: "2026-06-01T16:00:00" },
-      { id: "m2", author: "Andre Loureiro", isStaff: true, content: "Ja atualizamos o seu plano! A diferenca sera ajustada na proxima fatura.", date: "2026-06-01T17:00:00" },
-      { id: "m3", author: "Sofia Santos", isStaff: false, content: "Excelente, obrigada!", date: "2026-06-01T17:15:00" },
-    ],
-    internalNotes: "Plano atualizado. Diferenca de 180 EUR cobrada.",
-  },
-  {
-    id: "tk-5", number: 1005, subject: "Ac nao funciona na sala 1",
-    memberName: "Catarina Reis", priority: "high", status: "in_progress", createdAt: "2026-06-01T11:00:00",
-    assignedTo: "Ricardo Ribeiro", description: "O ar condicionado da sala 1 nao esta a funcionar. A temperatura esta insuportavel.",
-    messages: [
-      { id: "m1", author: "Catarina Reis", isStaff: false, content: "O AC da sala 1 esta avariado. Esta impossivel treinar.", date: "2026-06-01T11:00:00" },
-      { id: "m2", author: "Ricardo Ribeiro", isStaff: true, content: "Ja contactamos o tecnico. Deve estar resolvido amanha.", date: "2026-06-01T12:00:00" },
-    ],
-    internalNotes: "Tecnico agendado para 2/Jun.",
-  },
-  {
-    id: "tk-6", number: 1006, subject: "Perdi o meu cartao de acesso",
-    memberName: "Miguel Costa", priority: "low", status: "resolved", createdAt: "2026-05-30T08:00:00",
-    assignedTo: "Marine Robba", description: "Perdi o meu cartao RFID de acesso ao box.",
-    messages: [
-      { id: "m1", author: "Miguel Costa", isStaff: false, content: "Perdi o cartao, como obtenho um novo?", date: "2026-05-30T08:00:00" },
-      { id: "m2", author: "Marine Robba", isStaff: true, content: "Pode passar na recepcao para pedir um novo. Custo de 5 EUR.", date: "2026-05-30T09:00:00" },
-    ],
-    internalNotes: "",
-  },
-  {
-    id: "tk-7", number: 1007, subject: "App crashou durante treino",
-    memberName: "Diogo Martins", priority: "medium", status: "open", createdAt: "2026-05-29T19:00:00",
-    assignedTo: "Andre Loureiro", description: "A app crashou durante o WOD e perdi os meus tempos.",
-    messages: [
-      { id: "m1", author: "Diogo Martins", isStaff: false, content: "A app crashou e perdi todos os dados do treino.", date: "2026-05-29T19:00:00" },
-    ],
-    internalNotes: "Bug conhec. Reportado ao dev.",
-  },
-  {
-    id: "tk-8", number: 1008, subject: "Horario de Open Box errado na app",
-    memberName: "Helena Cardoso", priority: "low", status: "resolved", createdAt: "2026-05-28T07:00:00",
-    assignedTo: "Marine Robba", description: "O horario de Open Box no sabado esta errado na app. Diz 08:00 mas e 09:00.",
-    messages: [
-      { id: "m1", author: "Helena Cardoso", isStaff: false, content: "O horario esta errado na app.", date: "2026-05-28T07:00:00" },
-      { id: "m2", author: "Marine Robba", isStaff: true, content: "Obrigada pelo aviso! Ja corrigimos.", date: "2026-05-28T08:00:00" },
-    ],
-    internalNotes: "",
-  },
-  {
-    id: "tk-9", number: 1009, subject: "Desconto de estudante nao aplicado",
-    memberName: "Francisca Nunes", priority: "medium", status: "closed", createdAt: "2026-05-27T10:00:00",
-    assignedTo: "Andre Loureiro", description: "O desconto de estudante de 15% nao foi aplicado na minha fatura.",
-    messages: [
-      { id: "m1", author: "Francisca Nunes", isStaff: false, content: "O meu desconto de estudante nao foi aplicado.", date: "2026-05-27T10:00:00" },
-      { id: "m2", author: "Andre Loureiro", isStaff: true, content: "Desculpe pelo inconveniente! Ja aplicamos o desconto e emitimos uma nota de credito.", date: "2026-05-27T11:00:00" },
-      { id: "m3", author: "Francisca Nunes", isStaff: false, content: "Obrigada pela resolucao rapida!", date: "2026-05-27T11:30:00" },
-    ],
-    internalNotes: "Nota de credito emitida: NC-2026-089.",
-  },
-  {
-    id: "tk-10", number: 1010, subject: "Solicitar fatura com NIF empresa",
-    memberName: "Rui Goncalves", priority: "low", status: "closed", createdAt: "2026-05-26T14:00:00",
-    assignedTo: "Marine Robba", description: "Preciso que a fatura seja emitida com o NIF da minha empresa.",
-    messages: [
-      { id: "m1", author: "Rui Goncalves", isStaff: false, content: "Podem emitir a fatura com NIF da empresa?", date: "2026-05-26T14:00:00" },
-      { id: "m2", author: "Marine Robba", isStaff: true, content: "Claro! Pode enviar-nos os dados da empresa por email.", date: "2026-05-26T15:00:00" },
-    ],
-    internalNotes: "",
-  },
-];
-
 const statusConfig: Record<TicketStatus, { label: string; className: string; icon: typeof CheckCircle }> = {
   open: { label: "Open", className: "bg-vytal-red/10 text-vytal-red", icon: AlertCircle },
   in_progress: { label: "In Progress", className: "bg-vytal-amber/10 text-vytal-amber", icon: Loader2 },
@@ -161,8 +56,25 @@ const priorityConfig: Record<TicketPriority, { label: string; className: string 
 export default function SupportPage() {
   const { t } = useI18n();
   const { toast } = useToast();
+  const utils = trpc.useUtils();
+  const ticketsQuery = trpc.supportTickets.list.useQuery({ limit: 100 });
+  const createTicketMutation = trpc.supportTickets.create.useMutation({
+    onSuccess: async () => {
+      await utils.supportTickets.list.invalidate();
+      toast(t("support.ticketCreated"), "success");
+      setShowCreate(false);
+      setNewTicket({ memberName: "", subject: "", description: "", priority: "medium", assignedTo: "" });
+    },
+    onError: () => toast(t("ui.error"), "error"),
+  });
+  const updateStatusMutation = trpc.supportTickets.updateStatus.useMutation({
+    onSuccess: async () => {
+      await utils.supportTickets.list.invalidate();
+      toast(t("support.statusUpdated"), "success");
+    },
+    onError: () => toast(t("ui.error"), "error"),
+  });
 
-  const [tickets, setTickets] = useState(mockTickets);
   const [statusFilter, setStatusFilter] = useState<"all" | TicketStatus>("all");
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [showCreate, setShowCreate] = useState(false);
@@ -174,8 +86,11 @@ export default function SupportPage() {
     assignedTo: "",
   });
 
-  const filteredTickets =
-    statusFilter === "all" ? tickets : tickets.filter((tk) => tk.status === statusFilter);
+  const tickets = useMemo(() => (ticketsQuery.data ?? []) as Ticket[], [ticketsQuery.data]);
+  const filteredTickets = useMemo(
+    () => (statusFilter === "all" ? tickets : tickets.filter((tk) => tk.status === statusFilter)),
+    [statusFilter, tickets],
+  );
 
   const openCount = tickets.filter((tk) => tk.status === "open").length;
   const inProgressCount = tickets.filter((tk) => tk.status === "in_progress").length;
@@ -185,28 +100,17 @@ export default function SupportPage() {
       toast(t("support.fillRequired"), "error");
       return;
     }
-    const tk: Ticket = {
-      id: `tk-${Date.now()}`,
-      number: Math.max(...tickets.map((t) => t.number)) + 1,
-      subject: newTicket.subject,
+    createTicketMutation.mutate({
       memberName: newTicket.memberName,
-      priority: newTicket.priority,
-      status: "open",
-      createdAt: new Date().toISOString(),
-      assignedTo: newTicket.assignedTo || "Unassigned",
+      subject: newTicket.subject,
       description: newTicket.description,
-      messages: [],
-      internalNotes: "",
-    };
-    setTickets([tk, ...tickets]);
-    setShowCreate(false);
-    setNewTicket({ memberName: "", subject: "", description: "", priority: "medium", assignedTo: "" });
-    toast(t("support.ticketCreated"), "success");
+      priority: newTicket.priority,
+      assignedTo: newTicket.assignedTo || "Unassigned",
+    });
   };
 
   const updateTicketStatus = (id: string, status: TicketStatus) => {
-    setTickets((prev) => prev.map((tk) => (tk.id === id ? { ...tk, status } : tk)));
-    toast(t("support.statusUpdated"), "success");
+    updateStatusMutation.mutate({ id, status });
   };
 
   return (

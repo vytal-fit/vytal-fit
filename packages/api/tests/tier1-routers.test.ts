@@ -45,7 +45,9 @@ describe("tier-1 auth gates", () => {
       code: "UNAUTHORIZED",
     });
     const rows = await h.callerNoOrg.exercises.list();
-    expect(rows.length).toBeGreaterThanOrEqual(2);
+    expect(rows.length).toBeGreaterThan(1000);
+    expect(rows.some((row) => row.id === IDS.exercise1)).toBe(true);
+    expect(rows.some((row) => row.id === IDS.exerciseDataset1)).toBe(true);
   });
 });
 
@@ -200,18 +202,31 @@ describe("classTypes", () => {
 describe("exercises", () => {
   it("lists the global library for any authenticated user", async () => {
     const rows = await h.callerA.exercises.list();
-    expect(rows.map((r) => r.id).sort()).toEqual([IDS.exercise1, IDS.exercise2]);
+    expect(rows.some((row) => row.id === IDS.exercise1)).toBe(true);
+    expect(rows.some((row) => row.id === IDS.exercise2)).toBe(true);
+    expect(rows.length).toBeGreaterThan(1000);
   });
 
   it("filters by category", async () => {
     const rows = await h.callerA.exercises.list({ category: "gymnastics" });
-    expect(rows.map((r) => r.id)).toEqual([IDS.exercise2]);
+    expect(rows.every((row) => row.category === "gymnastics")).toBe(true);
+    expect(rows.length).toBeGreaterThan(0);
   });
 
   it("byId returns NOT_FOUND for unknown ids", async () => {
     await expect(h.callerA.exercises.byId({ id: "nope" })).rejects.toMatchObject({
       code: "NOT_FOUND",
     });
+  });
+
+  it("returns structured media and bilingual instructions", async () => {
+    const row = await h.callerA.exercises.byId({ id: IDS.exerciseDataset1 });
+    expect(row.thumbnailUrl).toContain("raw.githubusercontent.com");
+    expect(row.gifUrl).toContain("raw.githubusercontent.com");
+    expect(row.description).toBeTruthy();
+    expect(row.instructions?.pt?.length).toBeGreaterThan(0);
+    expect(row.instructions?.en?.length).toBeGreaterThan(0);
+    expect(row.instructions?.es?.length).toBeGreaterThan(0);
   });
 });
 

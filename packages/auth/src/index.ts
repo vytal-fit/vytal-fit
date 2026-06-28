@@ -54,6 +54,23 @@ export function createAuth(options: CreateAuthOptions) {
   const baseURL =
     options.baseURL ?? process.env.BETTER_AUTH_URL ?? "http://localhost:3000";
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? baseURL;
+  const trustedOrigins = Array.from(
+    new Set(
+      [
+        baseURL,
+        appUrl,
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "http://[::1]:3000",
+      ].flatMap((origin) => {
+        try {
+          return [new URL(origin).origin];
+        } catch {
+          return [];
+        }
+      }),
+    ),
+  );
   const supportUrl = `${appUrl}/support`;
   // PT-first: default transactional email to Portuguese until per-user locale is wired.
   const emailLocale = "pt" as const;
@@ -77,6 +94,7 @@ export function createAuth(options: CreateAuthOptions) {
     appName: "Vytal",
     secret: options.secret ?? process.env.BETTER_AUTH_SECRET,
     baseURL: options.baseURL ?? process.env.BETTER_AUTH_URL,
+    trustedOrigins,
     database: drizzleAdapter(options.db, {
       provider: "pg",
       schema,
