@@ -103,6 +103,7 @@ A solução organiza-se em três superfícies complementares:
 - **`vytal.fit`** — *landing* e apresentação do produto;
 - **`my.vytal.fit`** — app do cliente/atleta *("my" de "a minha app de fitness")*, disponível em *browser* e, em fase posterior, como aplicação nativa iOS/Android;
 - **`pro.vytal.fit`** — *backoffice* de gestão e administração *(o lado "pro"fissional)*.
+- **`shop` / módulo de loja** — loja online e catálogo de *merch* com integração a fornecedores externos: o gestor escolhe modelo, cor e tamanho; a plataforma trata da encomenda, sincronização de stock e *tracking*.
 
 **Resultado contratual.** A 30 de Outubro de 2026 o CrossFit Aveiro terá em produção um MVP funcional, multi-tenant, em conformidade com o RGPD, com um grupo-piloto a operá-lo em contexto real — alinhado com a janela de execução do PRR *(operação piloto Set–Out 2026; relatório final Nov 2026)* e base sólida para validação e iteração subsequente.
 
@@ -300,7 +301,7 @@ Essencial à operação do piloto, a desenvolver e colocar em produção:
 
 *SHOULD que sugerimos não priorizar no MVP:* *insights* semanais (C1-06), *onboarding* 30 dias (G2-06), escalas/turnos (G5-02), chat interno (G5-04), *automations* de retenção (G4-03), gestão de lesões (C3-04), dashboard do PT (P1-06), notas de sessão (P2-03).
 
-*Fora do MVP já no próprio documento (fases F2–F4):* *wearables*, nutrição IA, *marketplace* de planos, *corporate wellness*, multi-localização/franquias, VOD, módulos de nutricionista/fisioterapia, desafios inter-box, *digital twin*, *mental coaching*.
+*Fora do MVP já no próprio documento (fases F2–F4):* *wearables*, nutrição IA, *marketplace* de planos, *corporate wellness*, multi-localização/franquias, VOD, módulos de nutricionista/fisioterapia, desafios inter-box, *digital twin*, *mental coaching*, loja online conectada a fornecedores externos.
 
 ### ▸ 9.3 · Frentes que mobilizam talento especializado
 
@@ -310,8 +311,9 @@ Estas frentes **não são incógnitas nem riscos em aberto**: são entregas que 
 2. **Coach Assist AI** (C1-08). **Decisão recomendada: Claude**, atrás de *gateway* trocável, com *RAG* sobre a BD de exercícios/WODs e revisão humana obrigatória.
 3. **App white-label** (G6-01). Entregue por talento *mobile* dedicado. **Abordagem recomendada:** app única com *theming* dinâmico — escala melhor do que apps separadas nas *stores*.
 4. **Site próprio** (G6-02). Entregue por talento de *front-end*/infra. **Abordagem recomendada:** subdomínio no arranque, com caminho para domínio próprio e SSL automático *(Let's Encrypt)*.
-5. **Body map interativo** (A3-03). Entregue por talento de UX/*front-end*. **Abordagem recomendada:** avaliar SVG próprio *vs* licenciado conforme custo/prazo.
-6. **Conteúdo das BDs — ≥300 exercícios, ≥200 WODs, vídeos** (C1-02/03). Curado por talento de conteúdo, **semeado a partir do planeamento e *logs* de WODs do CrossFit Aveiro** *(ver Secção 18)*.
+5. **Loja / merch com fornecedores externos** (G6-08). Entregue por talento de *front-end*/integração. **Abordagem recomendada:** catálogo configurável com variantes + ligação a fornecedores externos/dealers para fulfillment e tracking.
+6. **Body map interativo** (A3-03). Entregue por talento de UX/*front-end*. **Abordagem recomendada:** avaliar SVG próprio *vs* licenciado conforme custo/prazo.
+7. **Conteúdo das BDs — ≥300 exercícios, ≥200 WODs, vídeos** (C1-02/03). Curado por talento de conteúdo, **semeado a partir do planeamento e *logs* de WODs do CrossFit Aveiro** *(ver Secção 18)*.
 
 ## 10 · CONFORMIDADE, SEGURANÇA E RGPD
 
