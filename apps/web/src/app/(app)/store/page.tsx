@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { useI18n } from "@/lib/i18n";
 import { useToast } from "@/components/toast";
 import { Breadcrumbs } from "@/components/breadcrumbs";
@@ -16,6 +16,10 @@ import {
   Receipt,
   Filter,
   TrendingUp,
+  Factory,
+  Truck,
+  Globe2,
+  BadgeCheck,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ConfirmDialog } from "@/components/confirm-dialog";
@@ -27,6 +31,10 @@ import { ConfirmDialog } from "@/components/confirm-dialog";
 type ProductCategory = "apparel" | "equipment" | "supplements" | "accessories";
 type PaymentMethod = "cash" | "card" | "mbway" | "transfer";
 type SaleStatus = "completed" | "refunded" | "pending";
+type ProductFulfillment = "in_house" | "external";
+type SupplierRegion = "china" | "portugal" | "europe";
+type SupplierStatus = "active" | "paused";
+type OrderStatus = "draft" | "sent" | "confirmed" | "in_production" | "shipped" | "delivered" | "cancelled";
 
 interface Product {
   id: string;
@@ -35,6 +43,13 @@ interface Product {
   stock: number;
   category: ProductCategory;
   active: boolean;
+  style: string;
+  color: string;
+  size: string;
+  branding: string;
+  supplierId: string;
+  fulfillment: ProductFulfillment;
+  sku: string;
 }
 
 interface SaleItem {
@@ -52,6 +67,32 @@ interface Sale {
   status: SaleStatus;
 }
 
+interface Supplier {
+  id: string;
+  name: string;
+  region: SupplierRegion;
+  country: string;
+  dealer: string;
+  website: string;
+  leadTimeDays: number;
+  minOrderQty: number;
+  status: SupplierStatus;
+  channels: string[];
+}
+
+interface MerchOrder {
+  id: string;
+  date: string;
+  productName: string;
+  supplierId: string;
+  quantity: number;
+  total: number;
+  status: OrderStatus;
+  tracking: string;
+  eta: string;
+  source: string;
+}
+
 // ---------------------------------------------------------------------------
 // Config
 // ---------------------------------------------------------------------------
@@ -61,6 +102,27 @@ const categoryConfig: Record<ProductCategory, { label: string; color: string }> 
   equipment: { label: "Equipment", color: "bg-vytal-green/10 text-vytal-green" },
   supplements: { label: "Supplements", color: "bg-vytal-amber/10 text-vytal-amber" },
   accessories: { label: "Accessories", color: "bg-vytal-purple/10 text-vytal-purple" },
+};
+
+const fulfillmentConfig: Record<ProductFulfillment, { color: string }> = {
+  in_house: { color: "bg-vytal-blue/10 text-vytal-blue" },
+  external: { color: "bg-vytal-amber/10 text-vytal-amber" },
+};
+
+const supplierRegionConfig: Record<SupplierRegion, { color: string }> = {
+  china: { color: "bg-vytal-red/10 text-vytal-red" },
+  portugal: { color: "bg-vytal-green/10 text-vytal-green" },
+  europe: { color: "bg-vytal-blue/10 text-vytal-blue" },
+};
+
+const orderStatusConfig: Record<OrderStatus, { color: string }> = {
+  draft: { color: "bg-vytal-bg3 text-vytal-muted" },
+  sent: { color: "bg-vytal-blue/10 text-vytal-blue" },
+  confirmed: { color: "bg-vytal-green/10 text-vytal-green" },
+  in_production: { color: "bg-vytal-amber/10 text-vytal-amber" },
+  shipped: { color: "bg-vytal-purple/10 text-vytal-purple" },
+  delivered: { color: "bg-vytal-green/10 text-vytal-green" },
+  cancelled: { color: "bg-vytal-red/10 text-vytal-red" },
 };
 
 const paymentMethodLabels: Record<PaymentMethod, string> = {
@@ -81,18 +143,18 @@ const statusConfig: Record<SaleStatus, { label: string; color: string }> = {
 // ---------------------------------------------------------------------------
 
 const initialProducts: Product[] = [
-  { id: "p1", name: "T-Shirt Box", price: 25, stock: 48, category: "apparel", active: true },
-  { id: "p2", name: "Crop Top", price: 22, stock: 35, category: "apparel", active: true },
-  { id: "p3", name: "Sweater Vytal", price: 35, stock: 20, category: "apparel", active: true },
-  { id: "p4", name: "Backpack", price: 45, stock: 12, category: "accessories", active: true },
-  { id: "p5", name: "Gymnastics Grips", price: 18, stock: 60, category: "equipment", active: true },
-  { id: "p6", name: "Knee Sleeves", price: 30, stock: 42, category: "equipment", active: true },
-  { id: "p7", name: "Wrist Wraps", price: 12, stock: 55, category: "equipment", active: true },
-  { id: "p8", name: "Jump Rope", price: 20, stock: 30, category: "equipment", active: true },
-  { id: "p9", name: "Athletic Tape", price: 5, stock: 120, category: "accessories", active: true },
-  { id: "p10", name: "Chalk Bag", price: 8, stock: 75, category: "accessories", active: true },
-  { id: "p11", name: "Water Bottle", price: 15, stock: 50, category: "accessories", active: true },
-  { id: "p12", name: "Protein Shaker", price: 10, stock: 65, category: "accessories", active: false },
+  { id: "p1", name: "Aero Tee", price: 25, stock: 48, category: "apparel", active: true, style: "Relaxed fit", color: "Black", size: "S-XXL", branding: "Front chest logo", supplierId: "sup-1", fulfillment: "external", sku: "VT-AERO-TEE-BLK" },
+  { id: "p2", name: "Crop Top", price: 22, stock: 35, category: "apparel", active: true, style: "Athletic crop", color: "Sand", size: "XS-L", branding: "Back print", supplierId: "sup-2", fulfillment: "external", sku: "VT-CROP-SND" },
+  { id: "p3", name: "Heavy Hoodie", price: 35, stock: 20, category: "apparel", active: true, style: "Oversized hoodie", color: "Graphite", size: "S-XXL", branding: "Sleeve mark", supplierId: "sup-3", fulfillment: "external", sku: "VT-HOOD-GPH" },
+  { id: "p4", name: "Training Backpack", price: 45, stock: 12, category: "accessories", active: true, style: "Daily carry", color: "Black", size: "One size", branding: "Debossed logo", supplierId: "sup-3", fulfillment: "external", sku: "VT-BACKPACK-BLK" },
+  { id: "p5", name: "Gymnastics Grips", price: 18, stock: 60, category: "equipment", active: true, style: "2-hole", color: "Tan", size: "S-L", branding: "Laser mark", supplierId: "sup-4", fulfillment: "in_house", sku: "VT-GRIPS-2H" },
+  { id: "p6", name: "Knee Sleeves", price: 30, stock: 42, category: "equipment", active: true, style: "5mm support", color: "Red", size: "S-XL", branding: "Heat transfer", supplierId: "sup-4", fulfillment: "in_house", sku: "VT-KNEE-5MM" },
+  { id: "p7", name: "Wrist Wraps", price: 12, stock: 55, category: "equipment", active: true, style: "Competition", color: "Black", size: "One size", branding: "Printed logo", supplierId: "sup-4", fulfillment: "in_house", sku: "VT-WRIST-COMP" },
+  { id: "p8", name: "Jump Rope", price: 20, stock: 30, category: "equipment", active: true, style: "Speed cable", color: "Blue", size: "Adjustable", branding: "Etched handle", supplierId: "sup-4", fulfillment: "in_house", sku: "VT-ROPE-SPD" },
+  { id: "p9", name: "Athletic Tape", price: 5, stock: 120, category: "accessories", active: true, style: "Performance", color: "White", size: "Roll", branding: "Wrapped label", supplierId: "sup-3", fulfillment: "external", sku: "VT-TAPE-WHT" },
+  { id: "p10", name: "Chalk Bag", price: 8, stock: 75, category: "accessories", active: true, style: "Magnetic clip", color: "Grey", size: "One size", branding: "Woven patch", supplierId: "sup-3", fulfillment: "external", sku: "VT-CHALK-GRY" },
+  { id: "p11", name: "Water Bottle", price: 15, stock: 50, category: "accessories", active: true, style: "Insulated", color: "Silver", size: "750ml", branding: "Laser logo", supplierId: "sup-2", fulfillment: "external", sku: "VT-BOTTLE-750" },
+  { id: "p12", name: "Protein Shaker", price: 10, stock: 65, category: "accessories", active: false, style: "Twist cap", color: "White", size: "600ml", branding: "Silk screen", supplierId: "sup-2", fulfillment: "external", sku: "VT-SHAKER-600" },
 ];
 
 const initialSales: Sale[] = [
@@ -106,6 +168,22 @@ const initialSales: Sale[] = [
   { id: "s8", date: "2026-05-30", memberName: "Jose Fonte", items: [{ productName: "Athletic Tape", qty: 3 }, { productName: "Protein Shaker", qty: 1 }], total: 25, paymentMethod: "cash", status: "pending" },
 ];
 
+const initialSuppliers: Supplier[] = [
+  { id: "sup-1", name: "Yiwu Textile Hub", region: "china", country: "China", dealer: "Yiwu Sportswear Co.", website: "https://yiwutextile.example", leadTimeDays: 18, minOrderQty: 50, status: "active", channels: ["Alibaba", "1688"] },
+  { id: "sup-2", name: "Shenzhen Apparel Works", region: "china", country: "China", dealer: "Shenzhen Merch Dealer", website: "https://shenzhenapparel.example", leadTimeDays: 15, minOrderQty: 30, status: "active", channels: ["Alibaba", "Taobao"] },
+  { id: "sup-3", name: "Porto Merch Lab", region: "portugal", country: "Portugal", dealer: "Porto Print Studio", website: "https://portomerch.example", leadTimeDays: 4, minOrderQty: 10, status: "active", channels: ["Local dealer", "CSV import"] },
+  { id: "sup-4", name: "EU Athletic Supply", region: "europe", country: "Spain", dealer: "Barcelona Dealer Network", website: "https://euathletic.example", leadTimeDays: 7, minOrderQty: 20, status: "paused", channels: ["B2B portal", "API feed"] },
+];
+
+const initialOrders: MerchOrder[] = [
+  { id: "o-1", date: "2026-06-25", productName: "Aero Tee", supplierId: "sup-1", quantity: 120, total: 1440, status: "in_production", tracking: "CN-7819-AV", eta: "2026-07-14", source: "Alibaba" },
+  { id: "o-2", date: "2026-06-23", productName: "Crop Top", supplierId: "sup-2", quantity: 60, total: 720, status: "confirmed", tracking: "CN-6621-ZK", eta: "2026-07-09", source: "Taobao" },
+  { id: "o-3", date: "2026-06-21", productName: "Training Backpack", supplierId: "sup-3", quantity: 24, total: 624, status: "shipped", tracking: "PT-3348-LX", eta: "2026-06-30", source: "Dealer portal" },
+  { id: "o-4", date: "2026-06-19", productName: "Water Bottle", supplierId: "sup-2", quantity: 100, total: 900, status: "delivered", tracking: "CN-5542-QP", eta: "2026-06-27", source: "Alibaba" },
+  { id: "o-5", date: "2026-06-18", productName: "Heavy Hoodie", supplierId: "sup-1", quantity: 80, total: 2400, status: "sent", tracking: "CN-9910-DR", eta: "2026-07-18", source: "1688" },
+  { id: "o-6", date: "2026-06-17", productName: "Protein Shaker", supplierId: "sup-2", quantity: 70, total: 700, status: "cancelled", tracking: "CN-1188-PX", eta: "2026-07-05", source: "Taobao" },
+];
+
 function generateId(): string {
   return Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 8);
 }
@@ -117,8 +195,10 @@ function generateId(): string {
 export default function StorePage() {
   const { t } = useI18n();
   const { toast } = useToast();
-  const [tab, setTab] = useState<"products" | "sales">("products");
+  const [tab, setTab] = useState<"products" | "sales" | "suppliers">("products");
   const [products, setProducts] = useState<Product[]>(initialProducts);
+  const [suppliers] = useState<Supplier[]>(initialSuppliers);
+  const [orders] = useState<MerchOrder[]>(initialOrders);
   const [sales] = useState<Sale[]>(initialSales);
   const [search, setSearch] = useState("");
   const [showForm, setShowForm] = useState(false);
@@ -129,6 +209,12 @@ export default function StorePage() {
   const [formPrice, setFormPrice] = useState("");
   const [formStock, setFormStock] = useState("");
   const [formCategory, setFormCategory] = useState<ProductCategory>("apparel");
+  const [formStyle, setFormStyle] = useState("");
+  const [formColor, setFormColor] = useState("");
+  const [formSize, setFormSize] = useState("");
+  const [formBranding, setFormBranding] = useState("");
+  const [formSupplierId, setFormSupplierId] = useState(initialSuppliers[0]?.id ?? "");
+  const [formFulfillment, setFormFulfillment] = useState<ProductFulfillment>("external");
 
   // Delete confirmation
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
@@ -137,6 +223,28 @@ export default function StorePage() {
   const [salesSearch, setSalesSearch] = useState("");
   const [salesStatusFilter, setSalesStatusFilter] = useState<SaleStatus | "all">("all");
   const [showStatusDropdown, setShowStatusDropdown] = useState(false);
+  const supplierById = useMemo(
+    () => new Map(suppliers.map((supplier) => [supplier.id, supplier] as const)),
+    [suppliers]
+  );
+  const fulfillmentLabelMap = {
+    in_house: t("store.fulfillmentInHouse"),
+    external: t("store.fulfillmentExternal"),
+  } satisfies Record<ProductFulfillment, string>;
+  const supplierRegionLabelMap = {
+    china: t("store.regionChina"),
+    portugal: t("store.regionPortugal"),
+    europe: t("store.regionEurope"),
+  } satisfies Record<SupplierRegion, string>;
+  const orderStatusLabelMap = {
+    draft: t("store.orderDraft"),
+    sent: t("store.orderSent"),
+    confirmed: t("store.orderConfirmed"),
+    in_production: t("store.orderInProduction"),
+    shipped: t("store.orderShipped"),
+    delivered: t("store.orderDelivered"),
+    cancelled: t("store.orderCancelled"),
+  } satisfies Record<OrderStatus, string>;
 
   const filteredProducts = products.filter((p) =>
     p.name.toLowerCase().includes(search.toLowerCase())
@@ -151,12 +259,22 @@ export default function StorePage() {
   const totalRevenueThisMonth = sales
     .filter((s) => s.status === "completed" && s.date >= "2026-06-01")
     .reduce((sum, s) => sum + s.total, 0);
+  const openOrders = orders.filter((order) => !["delivered", "cancelled"].includes(order.status));
+  const chineseOrders = orders.filter((order) => supplierById.get(order.supplierId)?.region === "china");
+  const externalProducts = products.filter((product) => product.fulfillment === "external");
+  const activeSuppliers = suppliers.filter((supplier) => supplier.status === "active");
 
   const resetForm = useCallback(() => {
     setFormName("");
     setFormPrice("");
     setFormStock("");
     setFormCategory("apparel");
+    setFormStyle("");
+    setFormColor("");
+    setFormSize("");
+    setFormBranding("");
+    setFormSupplierId(initialSuppliers[0]?.id ?? "");
+    setFormFulfillment("external");
     setShowForm(false);
     setEditingId(null);
   }, []);
@@ -166,6 +284,12 @@ export default function StorePage() {
     setFormPrice(product.price.toString());
     setFormStock(product.stock.toString());
     setFormCategory(product.category);
+    setFormStyle(product.style);
+    setFormColor(product.color);
+    setFormSize(product.size);
+    setFormBranding(product.branding);
+    setFormSupplierId(product.supplierId);
+    setFormFulfillment(product.fulfillment);
     setEditingId(product.id);
     setShowForm(true);
   }, []);
@@ -176,7 +300,20 @@ export default function StorePage() {
       setProducts((prev) =>
         prev.map((p) =>
           p.id === editingId
-            ? { ...p, name: formName.trim(), price: parseFloat(formPrice) || 0, stock: parseInt(formStock) || 0, category: formCategory }
+            ? {
+                ...p,
+                name: formName.trim(),
+                price: parseFloat(formPrice) || 0,
+                stock: parseInt(formStock) || 0,
+                category: formCategory,
+                style: formStyle.trim(),
+                color: formColor.trim(),
+                size: formSize.trim(),
+                branding: formBranding.trim(),
+                supplierId: formSupplierId,
+                fulfillment: formFulfillment,
+                sku: `VT-${formName.trim().replace(/\s+/g, "-").toUpperCase().slice(0, 12)}`,
+              }
             : p
         )
       );
@@ -189,12 +326,19 @@ export default function StorePage() {
         stock: parseInt(formStock) || 0,
         category: formCategory,
         active: true,
+        style: formStyle.trim(),
+        color: formColor.trim(),
+        size: formSize.trim(),
+        branding: formBranding.trim(),
+        supplierId: formSupplierId,
+        fulfillment: formFulfillment,
+        sku: `VT-${formName.trim().replace(/\s+/g, "-").toUpperCase().slice(0, 12)}`,
       };
       setProducts((prev) => [...prev, newProduct]);
       toast(t("store.productAdded"), "success");
     }
     resetForm();
-  }, [formName, formPrice, formStock, formCategory, editingId, resetForm, toast, t]);
+  }, [formName, formPrice, formStock, formCategory, formStyle, formColor, formSize, formBranding, formSupplierId, formFulfillment, editingId, resetForm, toast, t]);
 
   const handleConfirmDelete = useCallback(() => {
     if (!deleteTarget) return;
@@ -217,6 +361,10 @@ export default function StorePage() {
     );
   }, []);
 
+  const handleSyncOrders = useCallback(() => {
+    toast(t("store.ordersSynced"), "success");
+  }, [toast, t]);
+
   return (
     <div className="space-y-6">
       <Breadcrumbs items={[{ label: t("nav.store"), href: "/store" }]} />
@@ -224,6 +372,18 @@ export default function StorePage() {
       <div>
         <h1 className="text-2xl font-bold text-vytal-text">{t("store.title")}</h1>
         <p className="mt-1 text-sm text-vytal-muted">{t("store.subtitle")}</p>
+      </div>
+
+      <div className="rounded-xl border border-vytal-border bg-vytal-card p-4">
+        <div className="flex items-start gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-vytal-green/10">
+            <Factory className="h-5 w-5 text-vytal-green" />
+          </div>
+          <div className="min-w-0">
+            <p className="text-sm font-semibold text-vytal-text">{t("store.routingTitle")}</p>
+            <p className="mt-1 text-sm text-vytal-muted">{t("store.routingSubtitle")}</p>
+          </div>
+        </div>
       </div>
 
       {/* Tabs */}
@@ -251,6 +411,18 @@ export default function StorePage() {
         >
           <Receipt className="h-4 w-4" />
           {t("store.salesHistory")}
+        </button>
+        <button
+          onClick={() => setTab("suppliers")}
+          className={cn(
+            "flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors",
+            tab === "suppliers"
+              ? "bg-vytal-green/10 text-vytal-green"
+              : "text-vytal-muted hover:text-vytal-text"
+          )}
+        >
+          <Truck className="h-4 w-4" />
+          {t("store.suppliers")}
         </button>
       </div>
 
@@ -330,6 +502,89 @@ export default function StorePage() {
                   </select>
                 </div>
               </div>
+              <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                <div>
+                  <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("store.style")}</label>
+                  <input
+                    type="text"
+                    value={formStyle}
+                    onChange={(e) => setFormStyle(e.target.value)}
+                    className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-2 text-sm text-vytal-text focus:border-vytal-green/30 focus:outline-none focus:ring-1 focus:ring-vytal-green/20"
+                  />
+                </div>
+                <div>
+                  <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("store.color")}</label>
+                  <input
+                    type="text"
+                    value={formColor}
+                    onChange={(e) => setFormColor(e.target.value)}
+                    className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-2 text-sm text-vytal-text focus:border-vytal-green/30 focus:outline-none focus:ring-1 focus:ring-vytal-green/20"
+                  />
+                </div>
+                <div>
+                  <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("store.size")}</label>
+                  <input
+                    type="text"
+                    value={formSize}
+                    onChange={(e) => setFormSize(e.target.value)}
+                    className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-2 text-sm text-vytal-text focus:border-vytal-green/30 focus:outline-none focus:ring-1 focus:ring-vytal-green/20"
+                  />
+                </div>
+                <div>
+                  <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("store.branding")}</label>
+                  <input
+                    type="text"
+                    value={formBranding}
+                    onChange={(e) => setFormBranding(e.target.value)}
+                    className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-2 text-sm text-vytal-text focus:border-vytal-green/30 focus:outline-none focus:ring-1 focus:ring-vytal-green/20"
+                  />
+                </div>
+              </div>
+              <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                <div>
+                  <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("store.supplier")}</label>
+                  <select
+                    value={formSupplierId}
+                    onChange={(e) => setFormSupplierId(e.target.value)}
+                    className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-2 text-sm text-vytal-text focus:border-vytal-green/30 focus:outline-none focus:ring-1 focus:ring-vytal-green/20"
+                  >
+                    {suppliers.map((supplier) => (
+                      <option key={supplier.id} value={supplier.id}>
+                        {supplier.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("store.fulfillment")}</label>
+                  <select
+                    value={formFulfillment}
+                    onChange={(e) => setFormFulfillment(e.target.value as ProductFulfillment)}
+                    className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-2 text-sm text-vytal-text focus:border-vytal-green/30 focus:outline-none focus:ring-1 focus:ring-vytal-green/20"
+                  >
+                    {(Object.keys(fulfillmentConfig) as ProductFulfillment[]).map((mode) => (
+                      <option key={mode} value={mode}>
+                        {fulfillmentLabelMap[mode]}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("store.sku")}</label>
+                  <input
+                    type="text"
+                    value={`VT-${formName.trim().replace(/\s+/g, "-").toUpperCase().slice(0, 12)}`}
+                    readOnly
+                    className="w-full rounded-lg border border-vytal-border bg-vytal-bg3 px-3 py-2 text-sm text-vytal-muted"
+                  />
+                </div>
+                <div>
+                  <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("store.externalRouting")}</label>
+                  <div className="flex h-10 items-center rounded-lg border border-vytal-border bg-vytal-bg3 px-3 text-sm text-vytal-muted">
+                    {formFulfillment === "external" ? t("store.externalRoutingOn") : t("store.externalRoutingOff")}
+                  </div>
+                </div>
+              </div>
               <div className="mt-4 flex justify-end">
                 <button
                   onClick={handleSubmit}
@@ -351,6 +606,8 @@ export default function StorePage() {
                   <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("store.price")}</th>
                   <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("store.stock")}</th>
                   <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("store.category")}</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("store.supplier")}</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("store.fulfillment")}</th>
                   <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("table.status")}</th>
                   <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("table.actions")}</th>
                 </tr>
@@ -363,7 +620,10 @@ export default function StorePage() {
                         <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-vytal-bg3 text-vytal-muted">
                           <ShoppingBag className="h-4 w-4" />
                         </div>
-                        <span className="text-sm font-medium text-vytal-text">{product.name}</span>
+                        <div>
+                          <div className="text-sm font-medium text-vytal-text">{product.name}</div>
+                          <div className="text-xs text-vytal-muted">{product.style}</div>
+                        </div>
                       </div>
                     </td>
                     <td className="px-4 py-3 text-sm text-vytal-text">{formatCurrency(product.price)}</td>
@@ -378,6 +638,17 @@ export default function StorePage() {
                     <td className="px-4 py-3">
                       <span className={cn("inline-flex rounded-full px-2 py-0.5 text-xs font-medium", categoryConfig[product.category].color)}>
                         {categoryConfig[product.category].label}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex flex-col gap-0.5">
+                        <span className="text-sm text-vytal-text">{supplierById.get(product.supplierId)?.name ?? t("store.unknownSupplier")}</span>
+                        <span className="text-xs text-vytal-muted">{product.sku}</span>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3">
+                      <span className={cn("inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium", fulfillmentConfig[product.fulfillment].color)}>
+                        {fulfillmentLabelMap[product.fulfillment]}
                       </span>
                     </td>
                     <td className="px-4 py-3">
@@ -453,6 +724,42 @@ export default function StorePage() {
                 <div>
                   <p className="text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("store.activeProducts")}</p>
                   <p className="text-xl font-bold text-vytal-text">{products.filter((p) => p.active).length}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <div className="rounded-xl border border-vytal-border bg-vytal-card p-4">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-vytal-amber/10">
+                  <Truck className="h-5 w-5 text-vytal-amber" />
+                </div>
+                <div>
+                  <p className="text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("store.openOrders")}</p>
+                  <p className="text-xl font-bold text-vytal-text">{openOrders.length}</p>
+                </div>
+              </div>
+            </div>
+            <div className="rounded-xl border border-vytal-border bg-vytal-card p-4">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-vytal-red/10">
+                  <Globe2 className="h-5 w-5 text-vytal-red" />
+                </div>
+                <div>
+                  <p className="text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("store.chinaOrders")}</p>
+                  <p className="text-xl font-bold text-vytal-text">{chineseOrders.length}</p>
+                </div>
+              </div>
+            </div>
+            <div className="rounded-xl border border-vytal-border bg-vytal-card p-4">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-vytal-green/10">
+                  <BadgeCheck className="h-5 w-5 text-vytal-green" />
+                </div>
+                <div>
+                  <p className="text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("store.externalProducts")}</p>
+                  <p className="text-xl font-bold text-vytal-text">{externalProducts.length}</p>
                 </div>
               </div>
             </div>
@@ -538,6 +845,126 @@ export default function StorePage() {
                         {statusConfig[sale.status].label}
                       </span>
                     </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {tab === "suppliers" && (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between gap-3">
+            <div className="min-w-0">
+              <h2 className="text-lg font-semibold text-vytal-text">{t("store.suppliersTitle")}</h2>
+              <p className="text-sm text-vytal-muted">{t("store.suppliersSubtitle")}</p>
+            </div>
+            <button
+              onClick={handleSyncOrders}
+              className="flex items-center gap-2 rounded-lg bg-vytal-green px-3 py-2 text-sm font-semibold text-vytal-bg transition-colors hover:bg-vytal-green/90"
+            >
+              <Truck className="h-4 w-4" />
+              {t("store.syncOrders")}
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <div className="rounded-xl border border-vytal-border bg-vytal-card p-4">
+              <p className="text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("store.activeSuppliers")}</p>
+              <p className="mt-2 text-2xl font-bold text-vytal-text">{activeSuppliers.length}</p>
+            </div>
+            <div className="rounded-xl border border-vytal-border bg-vytal-card p-4">
+              <p className="text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("store.openOrders")}</p>
+              <p className="mt-2 text-2xl font-bold text-vytal-text">{openOrders.length}</p>
+            </div>
+            <div className="rounded-xl border border-vytal-border bg-vytal-card p-4">
+              <p className="text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("store.chinaOrders")}</p>
+              <p className="mt-2 text-2xl font-bold text-vytal-text">{chineseOrders.length}</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+            {suppliers.map((supplier) => {
+              const supplierProducts = products.filter((product) => product.supplierId === supplier.id);
+              const supplierOrders = orders.filter((order) => order.supplierId === supplier.id);
+              return (
+                <div key={supplier.id} className="rounded-xl border border-vytal-border bg-vytal-card p-5">
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <h3 className="text-base font-semibold text-vytal-text">{supplier.name}</h3>
+                        <span className={cn("inline-flex rounded-full px-2 py-0.5 text-xs font-medium", supplierRegionConfig[supplier.region].color)}>
+                          {supplierRegionLabelMap[supplier.region]}
+                        </span>
+                      </div>
+                      <p className="mt-1 text-sm text-vytal-muted">{supplier.dealer}</p>
+                    </div>
+                    <span className={cn("inline-flex rounded-full px-2 py-0.5 text-xs font-medium", supplier.status === "active" ? "bg-vytal-green/10 text-vytal-green" : "bg-vytal-bg3 text-vytal-muted")}>
+                      {supplier.status === "active" ? t("store.statusActive") : t("store.statusPaused")}
+                    </span>
+                  </div>
+
+                  <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
+                    <div className="rounded-lg bg-vytal-bg2 p-3">
+                      <p className="text-xs uppercase tracking-wider text-vytal-muted">{t("store.leadTime")}</p>
+                      <p className="mt-1 font-semibold text-vytal-text">{supplier.leadTimeDays} {t("store.days")}</p>
+                    </div>
+                    <div className="rounded-lg bg-vytal-bg2 p-3">
+                      <p className="text-xs uppercase tracking-wider text-vytal-muted">{t("store.minQty")}</p>
+                      <p className="mt-1 font-semibold text-vytal-text">{supplier.minOrderQty}</p>
+                    </div>
+                    <div className="rounded-lg bg-vytal-bg2 p-3">
+                      <p className="text-xs uppercase tracking-wider text-vytal-muted">{t("store.products")}</p>
+                      <p className="mt-1 font-semibold text-vytal-text">{supplierProducts.length}</p>
+                    </div>
+                    <div className="rounded-lg bg-vytal-bg2 p-3">
+                      <p className="text-xs uppercase tracking-wider text-vytal-muted">{t("store.orders")}</p>
+                      <p className="mt-1 font-semibold text-vytal-text">{supplierOrders.length}</p>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    {supplier.channels.map((channel) => (
+                      <span key={channel} className="inline-flex rounded-full bg-vytal-bg3 px-2 py-0.5 text-xs font-medium text-vytal-text">
+                        {channel}
+                      </span>
+                    ))}
+                  </div>
+                  <p className="mt-3 text-sm text-vytal-muted">{supplier.website}</p>
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="overflow-x-auto rounded-xl border border-vytal-border bg-vytal-card">
+            <table className="zebra-table w-full">
+              <thead>
+                <tr className="border-b border-vytal-border bg-vytal-bg2">
+                  <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("store.order")}</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("store.supplier")}</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("table.total")}</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("store.tracking")}</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("table.status")}</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("store.eta")}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {orders.map((order) => (
+                  <tr key={order.id} className="border-b border-vytal-border/50 row-interactive hover:bg-vytal-bg3/30">
+                    <td className="px-4 py-3">
+                      <div className="text-sm font-medium text-vytal-text">{order.productName}</div>
+                      <div className="text-xs text-vytal-muted">{order.source} · {order.quantity}x</div>
+                    </td>
+                    <td className="px-4 py-3 text-sm text-vytal-text">{supplierById.get(order.supplierId)?.name ?? t("store.unknownSupplier")}</td>
+                    <td className="px-4 py-3 text-sm font-semibold text-vytal-text">{formatCurrency(order.total)}</td>
+                    <td className="px-4 py-3 text-sm text-vytal-muted">{order.tracking}</td>
+                    <td className="px-4 py-3">
+                      <span className={cn("inline-flex rounded-full px-2 py-0.5 text-xs font-medium", orderStatusConfig[order.status].color)}>
+                        {orderStatusLabelMap[order.status]}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-sm text-vytal-muted">{order.eta}</td>
                   </tr>
                 ))}
               </tbody>

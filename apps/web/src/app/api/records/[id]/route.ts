@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 import { PR_UNITS } from "@vytal-fit/db";
 import { getRestCaller } from "@/lib/rest-caller";
 import { isBackendConfigured } from "@/lib/auth-server";
@@ -19,8 +19,8 @@ function normalizePrUnit(value: unknown): (typeof PR_UNITS)[number] | undefined 
 }
 
 export async function PATCH(
-  request: Request,
-  context: { params: Params },
+  request: NextRequest,
+  context: { params: Promise<Params> },
 ): Promise<NextResponse> {
   if (!isBackendConfigured()) {
     return NextResponse.json(
@@ -31,8 +31,9 @@ export async function PATCH(
 
   const body = (await request.json()) as Record<string, unknown>;
   const caller = await getRestCaller(request);
+  const { id } = await context.params;
   const updated = await caller.personalRecords.update({
-    id: context.params.id,
+    id,
     data: {
       memberId: typeof body.memberId === "string" ? body.memberId : undefined,
       exerciseId: typeof body.exerciseId === "string" ? body.exerciseId : undefined,
