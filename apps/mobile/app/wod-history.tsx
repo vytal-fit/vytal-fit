@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   View,
   Text,
@@ -6,6 +6,7 @@ import {
   ScrollView,
   TouchableOpacity,
   TextInput,
+  ActivityIndicator,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
@@ -13,6 +14,8 @@ import { ArrowLeft, Zap, ChevronDown } from "lucide-react-native";
 import { useTheme } from "./_layout";
 import type { Colors } from "@/colors";
 import { t } from "@/i18n";
+import { listWodResults } from "@/lib/auth-api";
+import { useAuthStore } from "@/stores/auth-store";
 
 
 // ─── Types ───────────────────────────────────────────────
@@ -23,26 +26,12 @@ type WODHistoryEntry = {
   type: "amrap" | "for_time" | "emom" | "strength" | "tabata" | "custom";
   score: string | null;
   isPR: boolean;
-  fistbumps: number;
 };
-
-// ─── Mock Data ───────────────────────────────────────────
-const mockWODHistory: WODHistoryEntry[] = [
-  { id: "wh-1", date: "2026-06-02", title: "FRAN", type: "for_time", score: "3:42", isPR: true, fistbumps: 12 },
-  { id: "wh-2", date: "2026-06-01", title: "Heavy Day", type: "strength", score: "140 kg", isPR: false, fistbumps: 5 },
-  { id: "wh-3", date: "2026-05-30", title: "CINDY", type: "amrap", score: "18+4", isPR: false, fistbumps: 8 },
-  { id: "wh-4", date: "2026-05-28", title: "EMOM Chipper", type: "emom", score: "Completed", isPR: false, fistbumps: 3 },
-  { id: "wh-5", date: "2026-05-25", title: "MURPH", type: "for_time", score: "38:22", isPR: true, fistbumps: 24 },
-  { id: "wh-6", date: "2026-05-22", title: "Tabata Inferno", type: "tabata", score: "312 reps", isPR: false, fistbumps: 6 },
-  { id: "wh-7", date: "2026-05-20", title: "DIANE", type: "for_time", score: "5:15", isPR: true, fistbumps: 15 },
-  { id: "wh-8", date: "2026-05-18", title: "Strength Complex", type: "strength", score: null, isPR: false, fistbumps: 0 },
-];
 
 const SORT_OPTIONS = [
   { key: "recent", labelKey: "wodHistory.sortRecent" },
   { key: "oldest", labelKey: "wodHistory.sortOldest" },
   { key: "prs", labelKey: "wodHistory.sortPRs" },
-  { key: "fistbumps", labelKey: "wodHistory.sortFistbumps" },
 ];
 
 function getTypeBadge(type: string, C: Colors): { label: string; color: string } {
@@ -67,17 +56,71 @@ function formatDate(dateStr: string): string {
   return `${parts[2]}/${parts[1]}/${parts[0]}`;
 }
 
+function normalizeWodType(value: string): WODHistoryEntry["type"] {
+  if (value === "amrap" || value === "for_time" || value === "emom" || value === "strength" || value === "tabata") {
+    return value;
+  }
+  return "custom";
+}
+
 // ─── Screen ──────────────────────────────────────────────
 export default function WODHistoryScreen() {
   const C = useTheme();
   const styles = makeStyles(C);
   const router = useRouter();
+  const { user, activeOrgId } = useAuthStore();
+  const memberId = useMemo(
+    () => user?.memberships.find((m) => m.organizationId === activeOrgId)?.id ?? user?.memberships[0]?.id ?? "",
+    [activeOrgId, user],
+  );
+  const [items, setItems] = useState<WODHistoryEntry[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadError, setLoadError] = useState(false);
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const [sortBy, setSortBy] = useState("recent");
   const [showSortDropdown, setShowSortDropdown] = useState(false);
 
-  let filtered = [...mockWODHistory];
+  useEffect(() => {
+    if (!memberId) return;
+
+    let cancelled = false;
+    setIsLoading(true);
+    setLoadError(false);
+
+    void listWodResults(memberId)
+      .then((rows) => {
+        if (cancelled) return;
+        const hydrated = rows
+          .map<WODHistoryEntry | null>((result) => {
+            const wod = result.wod;
+            if (!wod) return null;
+            return {
+              id: result.id,
+              date: wod.date,
+              title: (wod.title || t("label.unknown")).toUpperCase(),
+              type: normalizeWodType(wod.type),
+              score: result.score,
+              isPR: result.isPR,
+            };
+          })
+          .filter((row): row is WODHistoryEntry => Boolean(row))
+          .sort((a, b) => b.date.localeCompare(a.date));
+        setItems(hydrated);
+      })
+      .catch(() => {
+        if (!cancelled) setLoadError(true);
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [memberId]);
+
+  let filtered = [...items];
 
   if (fromDate) {
     filtered = filtered.filter((e) => e.date >= fromDate);
@@ -92,9 +135,6 @@ export default function WODHistoryScreen() {
       break;
     case "prs":
       filtered.sort((a, b) => (b.isPR ? 1 : 0) - (a.isPR ? 1 : 0));
-      break;
-    case "fistbumps":
-      filtered.sort((a, b) => b.fistbumps - a.fistbumps);
       break;
     default:
       filtered.sort((a, b) => b.date.localeCompare(a.date));
@@ -191,54 +231,62 @@ export default function WODHistoryScreen() {
           </View>
         </View>
 
+        {loadError && (
+          <View style={styles.errorState}>
+            <Text style={styles.errorText}>{t("alert.error")}</Text>
+          </View>
+        )}
+
         {/* WOD History List */}
         <ScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
         >
-          {filtered.map((entry) => {
-            const badge = getTypeBadge(entry.type, C);
-            return (
-              <View key={entry.id} style={styles.card}>
-                <View style={styles.cardHeader}>
-                  <View style={styles.cardDateRow}>
-                    <Text style={styles.cardDate}>{formatDate(entry.date)}</Text>
-                    <View style={[styles.typeBadge, { backgroundColor: badge.color + "20" }]}>
-                      <Text style={[styles.typeBadgeText, { color: badge.color }]}>
-                        {badge.label}
+          {isLoading ? (
+            <View style={styles.loadingState}>
+              <ActivityIndicator color={C.green} />
+            </View>
+          ) : (
+            <>
+              {filtered.map((entry) => {
+                const badge = getTypeBadge(entry.type, C);
+                return (
+                  <View key={entry.id} style={styles.card}>
+                    <View style={styles.cardHeader}>
+                      <View style={styles.cardDateRow}>
+                        <Text style={styles.cardDate}>{formatDate(entry.date)}</Text>
+                        <View style={[styles.typeBadge, { backgroundColor: badge.color + "20" }]}>
+                          <Text style={[styles.typeBadgeText, { color: badge.color }]}>
+                            {badge.label}
+                          </Text>
+                        </View>
+                      </View>
+                      {entry.isPR && (
+                        <View style={styles.prIndicator}>
+                          <Zap size={14} color={C.amber} strokeWidth={2} fill={C.amber} />
+                          <Text style={styles.prText}>PR</Text>
+                        </View>
+                      )}
+                    </View>
+
+                    <Text style={styles.wodTitle}>{entry.title}</Text>
+
+                    <View style={styles.cardFooter}>
+                      <Text style={styles.scoreText}>
+                        {entry.score || t("wodHistory.noScore")}
                       </Text>
                     </View>
                   </View>
-                  {entry.isPR && (
-                    <View style={styles.prIndicator}>
-                      <Zap size={14} color={C.amber} strokeWidth={2} fill={C.amber} />
-                      <Text style={styles.prText}>PR</Text>
-                    </View>
-                  )}
+                );
+              })}
+
+              {filtered.length === 0 && (
+                <View style={styles.emptyState}>
+                  <Text style={styles.emptyIcon}>{"( )"}</Text>
+                  <Text style={styles.emptyText}>{t("wodHistory.empty")}</Text>
                 </View>
-
-                <Text style={styles.wodTitle}>{entry.title}</Text>
-
-                <View style={styles.cardFooter}>
-                  <Text style={styles.scoreText}>
-                    {entry.score || t("wodHistory.noScore")}
-                  </Text>
-                  {entry.fistbumps > 0 && (
-                    <View style={styles.fistbumpRow}>
-                      <Text style={styles.fistbumpIcon}>{"F"}</Text>
-                      <Text style={styles.fistbumpCount}>{entry.fistbumps}</Text>
-                    </View>
-                  )}
-                </View>
-              </View>
-            );
-          })}
-
-          {filtered.length === 0 && (
-            <View style={styles.emptyState}>
-              <Text style={styles.emptyIcon}>{"( )"}</Text>
-              <Text style={styles.emptyText}>{t("wodHistory.empty")}</Text>
-            </View>
+              )}
+            </>
           )}
 
           <View style={{ height: 30 }} />
@@ -389,11 +437,32 @@ function makeStyles(C: Colors) { return StyleSheet.create({
     letterSpacing: 1,
   },
 
+  errorState: {
+    marginHorizontal: 16,
+    marginBottom: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderRadius: 10,
+    backgroundColor: C.red + "12",
+    borderWidth: 1,
+    borderColor: C.red + "30",
+  },
+  errorText: {
+    fontSize: 13,
+    fontWeight: "600",
+    color: C.red,
+  },
+
   // Scroll
   scrollContent: {
     paddingHorizontal: 16,
     paddingBottom: 20,
     gap: 10,
+  },
+  loadingState: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 48,
   },
 
   // Card
@@ -460,28 +529,6 @@ function makeStyles(C: Colors) { return StyleSheet.create({
     fontSize: 16,
     fontWeight: "800",
     color: C.green,
-  },
-  fistbumpRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-  },
-  fistbumpIcon: {
-    fontSize: 12,
-    fontWeight: "800",
-    color: C.red,
-    backgroundColor: C.red + "18",
-    width: 22,
-    height: 22,
-    textAlign: "center",
-    lineHeight: 22,
-    borderRadius: 6,
-    overflow: "hidden",
-  },
-  fistbumpCount: {
-    fontSize: 13,
-    fontWeight: "700",
-    color: C.muted,
   },
 
   // Empty

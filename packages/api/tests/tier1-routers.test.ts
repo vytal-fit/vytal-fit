@@ -221,6 +221,7 @@ describe("personalRecords", () => {
   it("lists only org A records", async () => {
     const { items } = await h.callerA.personalRecords.list();
     expect(items.map((r) => r.id).sort()).toEqual([IDS.prA1, IDS.prA2]);
+    expect(items.every((r) => r.exercise?.name)).toBe(true);
   });
 
   it("filters by memberId and exerciseId", async () => {
@@ -294,6 +295,7 @@ describe("wodResults", () => {
   it("lists only org A results", async () => {
     const { items } = await h.callerA.wodResults.list();
     expect(items.map((r) => r.id).sort()).toEqual([IDS.wodResultA1, IDS.wodResultA2]);
+    expect(items.every((r) => r.wod?.title)).toBe(true);
   });
 
   it("filters by wodId and memberId", async () => {

@@ -24,7 +24,12 @@ export type CoachRow = RouterOutputs["coaches"]["byId"];
 export type LocationRow = RouterOutputs["locations"]["byId"];
 export type ClassTypeRow = RouterOutputs["classTypes"]["byId"];
 export type ExerciseRow = RouterOutputs["exercises"]["byId"];
-export type PersonalRecordRow = RouterOutputs["personalRecords"]["byId"];
+export type PersonalRecordRow = Omit<
+  RouterOutputs["personalRecords"]["byId"],
+  "exercise"
+> & {
+  exercise?: Exercise | null;
+};
 
 function iso(value: Date | string): string {
   return value instanceof Date ? value.toISOString() : value;
@@ -97,13 +102,18 @@ export function rowsToExercises(rows: ExerciseRow[]): Exercise[] {
  */
 export function rowToPersonalRecord(
   row: PersonalRecordRow,
-  exercise: Exercise,
+  exercise: Exercise | null | undefined,
 ): PersonalRecord {
+  const resolvedExercise = row.exercise ?? exercise;
+  if (!resolvedExercise) {
+    throw new Error("Missing exercise for personal record row.");
+  }
+
   return {
     id: row.id,
     memberId: row.memberId,
     exerciseId: row.exerciseId,
-    exercise,
+    exercise: resolvedExercise,
     value: row.value,
     unit: row.unit,
     achievedAt: iso(row.achievedAt),
