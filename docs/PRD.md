@@ -719,6 +719,8 @@ The mobile client lives at `apps/mobile/app/` using Expo Router (file-based rout
 - Order lifecycle includes placed, confirmed, in production, shipped, delivered, cancelled
 - Stock updates and tracking status sync back into the store view
 
+Implementation note: the current web `pro` surface already has a persisted merch/catalog prototype with supplier routing and order state controls. Treat that as partial implementation, not full external fulfillment.
+
 ---
 
 ### 8.2 Coach (17 stories)
