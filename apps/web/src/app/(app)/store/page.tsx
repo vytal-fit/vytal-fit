@@ -1,10 +1,22 @@
 "use client";
 
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useEffect, useMemo } from "react";
 import { useI18n } from "@/lib/i18n";
 import { useToast } from "@/components/toast";
 import { Breadcrumbs } from "@/components/breadcrumbs";
-import { formatCurrency } from "@/stores/data-store";
+import {
+  formatCurrency,
+  useDataStore,
+  type StoreProduct,
+  type StoreProductCategory,
+  type StoreProductFulfillment,
+  type StoreSale,
+  type StoreSaleStatus,
+  type StoreSupplier,
+  type StoreSupplierRegion,
+  type StoreOrder,
+  type StoreOrderStatus,
+} from "@/stores/data-store";
 import {
   ShoppingBag,
   Plus,
@@ -25,97 +37,36 @@ import { cn } from "@/lib/utils";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 
 // ---------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------
-
-type ProductCategory = "apparel" | "equipment" | "supplements" | "accessories";
 type PaymentMethod = "cash" | "card" | "mbway" | "transfer";
-type SaleStatus = "completed" | "refunded" | "pending";
-type ProductFulfillment = "in_house" | "external";
-type SupplierRegion = "china" | "portugal" | "europe";
-type SupplierStatus = "active" | "paused";
-type OrderStatus = "draft" | "sent" | "confirmed" | "in_production" | "shipped" | "delivered" | "cancelled";
+type Product = StoreProduct;
 
-interface Product {
-  id: string;
-  name: string;
-  price: number;
-  stock: number;
-  category: ProductCategory;
-  active: boolean;
-  style: string;
-  color: string;
-  size: string;
-  branding: string;
-  supplierId: string;
-  fulfillment: ProductFulfillment;
-  sku: string;
-}
-
-interface SaleItem {
-  productName: string;
-  qty: number;
-}
-
-interface Sale {
-  id: string;
-  date: string;
-  memberName: string;
-  items: SaleItem[];
-  total: number;
-  paymentMethod: PaymentMethod;
-  status: SaleStatus;
-}
-
-interface Supplier {
-  id: string;
-  name: string;
-  region: SupplierRegion;
-  country: string;
-  dealer: string;
-  website: string;
-  leadTimeDays: number;
-  minOrderQty: number;
-  status: SupplierStatus;
-  channels: string[];
-}
-
-interface MerchOrder {
-  id: string;
-  date: string;
-  productName: string;
-  supplierId: string;
-  quantity: number;
-  total: number;
-  status: OrderStatus;
-  tracking: string;
-  eta: string;
-  source: string;
-}
+type Sale = StoreSale;
+type Supplier = StoreSupplier;
+type MerchOrder = StoreOrder;
 
 // ---------------------------------------------------------------------------
 // Config
 // ---------------------------------------------------------------------------
 
-const categoryConfig: Record<ProductCategory, { label: string; color: string }> = {
+const categoryConfig: Record<StoreProductCategory, { label: string; color: string }> = {
   apparel: { label: "Apparel", color: "bg-vytal-blue/10 text-vytal-blue" },
   equipment: { label: "Equipment", color: "bg-vytal-green/10 text-vytal-green" },
   supplements: { label: "Supplements", color: "bg-vytal-amber/10 text-vytal-amber" },
   accessories: { label: "Accessories", color: "bg-vytal-purple/10 text-vytal-purple" },
 };
 
-const fulfillmentConfig: Record<ProductFulfillment, { color: string }> = {
+const fulfillmentConfig: Record<StoreProductFulfillment, { color: string }> = {
   in_house: { color: "bg-vytal-blue/10 text-vytal-blue" },
   external: { color: "bg-vytal-amber/10 text-vytal-amber" },
 };
 
-const supplierRegionConfig: Record<SupplierRegion, { color: string }> = {
+const supplierRegionConfig: Record<StoreSupplierRegion, { color: string }> = {
   china: { color: "bg-vytal-red/10 text-vytal-red" },
   portugal: { color: "bg-vytal-green/10 text-vytal-green" },
   europe: { color: "bg-vytal-blue/10 text-vytal-blue" },
 };
 
-const orderStatusConfig: Record<OrderStatus, { color: string }> = {
+const orderStatusConfig: Record<StoreOrderStatus, { color: string }> = {
   draft: { color: "bg-vytal-bg3 text-vytal-muted" },
   sent: { color: "bg-vytal-blue/10 text-vytal-blue" },
   confirmed: { color: "bg-vytal-green/10 text-vytal-green" },
@@ -132,7 +83,7 @@ const paymentMethodLabels: Record<PaymentMethod, string> = {
   transfer: "Transfer",
 };
 
-const statusConfig: Record<SaleStatus, { label: string; color: string }> = {
+const statusConfig: Record<StoreSaleStatus, { label: string; color: string }> = {
   completed: { label: "Completed", color: "bg-vytal-green/10 text-vytal-green" },
   refunded: { label: "Refunded", color: "bg-vytal-red/10 text-vytal-red" },
   pending: { label: "Pending", color: "bg-vytal-amber/10 text-vytal-amber" },
@@ -142,52 +93,6 @@ const statusConfig: Record<SaleStatus, { label: string; color: string }> = {
 // Mock Data
 // ---------------------------------------------------------------------------
 
-const initialProducts: Product[] = [
-  { id: "p1", name: "Aero Tee", price: 25, stock: 48, category: "apparel", active: true, style: "Relaxed fit", color: "Black", size: "S-XXL", branding: "Front chest logo", supplierId: "sup-1", fulfillment: "external", sku: "VT-AERO-TEE-BLK" },
-  { id: "p2", name: "Crop Top", price: 22, stock: 35, category: "apparel", active: true, style: "Athletic crop", color: "Sand", size: "XS-L", branding: "Back print", supplierId: "sup-2", fulfillment: "external", sku: "VT-CROP-SND" },
-  { id: "p3", name: "Heavy Hoodie", price: 35, stock: 20, category: "apparel", active: true, style: "Oversized hoodie", color: "Graphite", size: "S-XXL", branding: "Sleeve mark", supplierId: "sup-3", fulfillment: "external", sku: "VT-HOOD-GPH" },
-  { id: "p4", name: "Training Backpack", price: 45, stock: 12, category: "accessories", active: true, style: "Daily carry", color: "Black", size: "One size", branding: "Debossed logo", supplierId: "sup-3", fulfillment: "external", sku: "VT-BACKPACK-BLK" },
-  { id: "p5", name: "Gymnastics Grips", price: 18, stock: 60, category: "equipment", active: true, style: "2-hole", color: "Tan", size: "S-L", branding: "Laser mark", supplierId: "sup-4", fulfillment: "in_house", sku: "VT-GRIPS-2H" },
-  { id: "p6", name: "Knee Sleeves", price: 30, stock: 42, category: "equipment", active: true, style: "5mm support", color: "Red", size: "S-XL", branding: "Heat transfer", supplierId: "sup-4", fulfillment: "in_house", sku: "VT-KNEE-5MM" },
-  { id: "p7", name: "Wrist Wraps", price: 12, stock: 55, category: "equipment", active: true, style: "Competition", color: "Black", size: "One size", branding: "Printed logo", supplierId: "sup-4", fulfillment: "in_house", sku: "VT-WRIST-COMP" },
-  { id: "p8", name: "Jump Rope", price: 20, stock: 30, category: "equipment", active: true, style: "Speed cable", color: "Blue", size: "Adjustable", branding: "Etched handle", supplierId: "sup-4", fulfillment: "in_house", sku: "VT-ROPE-SPD" },
-  { id: "p9", name: "Athletic Tape", price: 5, stock: 120, category: "accessories", active: true, style: "Performance", color: "White", size: "Roll", branding: "Wrapped label", supplierId: "sup-3", fulfillment: "external", sku: "VT-TAPE-WHT" },
-  { id: "p10", name: "Chalk Bag", price: 8, stock: 75, category: "accessories", active: true, style: "Magnetic clip", color: "Grey", size: "One size", branding: "Woven patch", supplierId: "sup-3", fulfillment: "external", sku: "VT-CHALK-GRY" },
-  { id: "p11", name: "Water Bottle", price: 15, stock: 50, category: "accessories", active: true, style: "Insulated", color: "Silver", size: "750ml", branding: "Laser logo", supplierId: "sup-2", fulfillment: "external", sku: "VT-BOTTLE-750" },
-  { id: "p12", name: "Protein Shaker", price: 10, stock: 65, category: "accessories", active: false, style: "Twist cap", color: "White", size: "600ml", branding: "Silk screen", supplierId: "sup-2", fulfillment: "external", sku: "VT-SHAKER-600" },
-];
-
-const initialSales: Sale[] = [
-  { id: "s1", date: "2026-06-04", memberName: "Ana Silva", items: [{ productName: "T-Shirt Box", qty: 1 }, { productName: "Wrist Wraps", qty: 1 }], total: 37, paymentMethod: "card", status: "completed" },
-  { id: "s2", date: "2026-06-03", memberName: "Pedro Almeida", items: [{ productName: "Knee Sleeves", qty: 1 }], total: 30, paymentMethod: "mbway", status: "completed" },
-  { id: "s3", date: "2026-06-03", memberName: "Sofia Santos", items: [{ productName: "Jump Rope", qty: 1 }, { productName: "Chalk Bag", qty: 2 }], total: 36, paymentMethod: "cash", status: "completed" },
-  { id: "s4", date: "2026-06-02", memberName: "Miguel Costa", items: [{ productName: "Crop Top", qty: 2 }], total: 44, paymentMethod: "card", status: "completed" },
-  { id: "s5", date: "2026-06-02", memberName: "Ines Ferreira", items: [{ productName: "Gymnastics Grips", qty: 1 }], total: 18, paymentMethod: "mbway", status: "completed" },
-  { id: "s6", date: "2026-06-01", memberName: "Tiago Neves", items: [{ productName: "Sweater Vytal", qty: 1 }], total: 35, paymentMethod: "transfer", status: "refunded" },
-  { id: "s7", date: "2026-05-31", memberName: "Maria Oliveira", items: [{ productName: "Backpack", qty: 1 }, { productName: "Water Bottle", qty: 1 }], total: 60, paymentMethod: "card", status: "completed" },
-  { id: "s8", date: "2026-05-30", memberName: "Jose Fonte", items: [{ productName: "Athletic Tape", qty: 3 }, { productName: "Protein Shaker", qty: 1 }], total: 25, paymentMethod: "cash", status: "pending" },
-];
-
-const initialSuppliers: Supplier[] = [
-  { id: "sup-1", name: "Yiwu Textile Hub", region: "china", country: "China", dealer: "Yiwu Sportswear Co.", website: "https://yiwutextile.example", leadTimeDays: 18, minOrderQty: 50, status: "active", channels: ["Alibaba", "1688"] },
-  { id: "sup-2", name: "Shenzhen Apparel Works", region: "china", country: "China", dealer: "Shenzhen Merch Dealer", website: "https://shenzhenapparel.example", leadTimeDays: 15, minOrderQty: 30, status: "active", channels: ["Alibaba", "Taobao"] },
-  { id: "sup-3", name: "Porto Merch Lab", region: "portugal", country: "Portugal", dealer: "Porto Print Studio", website: "https://portomerch.example", leadTimeDays: 4, minOrderQty: 10, status: "active", channels: ["Local dealer", "CSV import"] },
-  { id: "sup-4", name: "EU Athletic Supply", region: "europe", country: "Spain", dealer: "Barcelona Dealer Network", website: "https://euathletic.example", leadTimeDays: 7, minOrderQty: 20, status: "paused", channels: ["B2B portal", "API feed"] },
-];
-
-const initialOrders: MerchOrder[] = [
-  { id: "o-1", date: "2026-06-25", productName: "Aero Tee", supplierId: "sup-1", quantity: 120, total: 1440, status: "in_production", tracking: "CN-7819-AV", eta: "2026-07-14", source: "Alibaba" },
-  { id: "o-2", date: "2026-06-23", productName: "Crop Top", supplierId: "sup-2", quantity: 60, total: 720, status: "confirmed", tracking: "CN-6621-ZK", eta: "2026-07-09", source: "Taobao" },
-  { id: "o-3", date: "2026-06-21", productName: "Training Backpack", supplierId: "sup-3", quantity: 24, total: 624, status: "shipped", tracking: "PT-3348-LX", eta: "2026-06-30", source: "Dealer portal" },
-  { id: "o-4", date: "2026-06-19", productName: "Water Bottle", supplierId: "sup-2", quantity: 100, total: 900, status: "delivered", tracking: "CN-5542-QP", eta: "2026-06-27", source: "Alibaba" },
-  { id: "o-5", date: "2026-06-18", productName: "Heavy Hoodie", supplierId: "sup-1", quantity: 80, total: 2400, status: "sent", tracking: "CN-9910-DR", eta: "2026-07-18", source: "1688" },
-  { id: "o-6", date: "2026-06-17", productName: "Protein Shaker", supplierId: "sup-2", quantity: 70, total: 700, status: "cancelled", tracking: "CN-1188-PX", eta: "2026-07-05", source: "Taobao" },
-];
-
-function generateId(): string {
-  return Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 8);
-}
-
 // ---------------------------------------------------------------------------
 // Page
 // ---------------------------------------------------------------------------
@@ -195,11 +100,19 @@ function generateId(): string {
 export default function StorePage() {
   const { t } = useI18n();
   const { toast } = useToast();
+  const storeProducts = useDataStore((s) => s.storeProducts);
+  const storeSales = useDataStore((s) => s.storeSales);
+  const storeSuppliers = useDataStore((s) => s.storeSuppliers);
+  const storeOrders = useDataStore((s) => s.storeOrders);
+  const addStoreProduct = useDataStore((s) => s.addStoreProduct);
+  const updateStoreProduct = useDataStore((s) => s.updateStoreProduct);
+  const deleteStoreProduct = useDataStore((s) => s.deleteStoreProduct);
+  const toggleStoreProductActive = useDataStore((s) => s.toggleStoreProductActive);
   const [tab, setTab] = useState<"products" | "sales" | "suppliers">("products");
-  const [products, setProducts] = useState<Product[]>(initialProducts);
-  const [suppliers] = useState<Supplier[]>(initialSuppliers);
-  const [orders] = useState<MerchOrder[]>(initialOrders);
-  const [sales] = useState<Sale[]>(initialSales);
+  const [products, setProducts] = useState<Product[]>(storeProducts);
+  const [suppliers] = useState<Supplier[]>(storeSuppliers);
+  const [orders] = useState<MerchOrder[]>(storeOrders);
+  const [sales] = useState<Sale[]>(storeSales);
   const [search, setSearch] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -208,21 +121,24 @@ export default function StorePage() {
   const [formName, setFormName] = useState("");
   const [formPrice, setFormPrice] = useState("");
   const [formStock, setFormStock] = useState("");
-  const [formCategory, setFormCategory] = useState<ProductCategory>("apparel");
+  const [formCategory, setFormCategory] = useState<StoreProductCategory>("apparel");
   const [formStyle, setFormStyle] = useState("");
   const [formColor, setFormColor] = useState("");
   const [formSize, setFormSize] = useState("");
   const [formBranding, setFormBranding] = useState("");
-  const [formSupplierId, setFormSupplierId] = useState(initialSuppliers[0]?.id ?? "");
-  const [formFulfillment, setFormFulfillment] = useState<ProductFulfillment>("external");
+  const [formSupplierId, setFormSupplierId] = useState(storeSuppliers[0]?.id ?? "");
+  const [formFulfillment, setFormFulfillment] = useState<StoreProductFulfillment>("external");
 
   // Delete confirmation
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
 
   // Sales filters
   const [salesSearch, setSalesSearch] = useState("");
-  const [salesStatusFilter, setSalesStatusFilter] = useState<SaleStatus | "all">("all");
+  const [salesStatusFilter, setSalesStatusFilter] = useState<StoreSaleStatus | "all">("all");
   const [showStatusDropdown, setShowStatusDropdown] = useState(false);
+  useEffect(() => {
+    setProducts(storeProducts);
+  }, [storeProducts]);
   const supplierById = useMemo(
     () => new Map(suppliers.map((supplier) => [supplier.id, supplier] as const)),
     [suppliers]
@@ -230,12 +146,12 @@ export default function StorePage() {
   const fulfillmentLabelMap = {
     in_house: t("store.fulfillmentInHouse"),
     external: t("store.fulfillmentExternal"),
-  } satisfies Record<ProductFulfillment, string>;
+  } satisfies Record<StoreProductFulfillment, string>;
   const supplierRegionLabelMap = {
     china: t("store.regionChina"),
     portugal: t("store.regionPortugal"),
     europe: t("store.regionEurope"),
-  } satisfies Record<SupplierRegion, string>;
+  } satisfies Record<StoreSupplierRegion, string>;
   const orderStatusLabelMap = {
     draft: t("store.orderDraft"),
     sent: t("store.orderSent"),
@@ -244,7 +160,7 @@ export default function StorePage() {
     shipped: t("store.orderShipped"),
     delivered: t("store.orderDelivered"),
     cancelled: t("store.orderCancelled"),
-  } satisfies Record<OrderStatus, string>;
+  } satisfies Record<StoreOrderStatus, string>;
 
   const filteredProducts = products.filter((p) =>
     p.name.toLowerCase().includes(search.toLowerCase())
@@ -273,11 +189,11 @@ export default function StorePage() {
     setFormColor("");
     setFormSize("");
     setFormBranding("");
-    setFormSupplierId(initialSuppliers[0]?.id ?? "");
+    setFormSupplierId(storeSuppliers[0]?.id ?? "");
     setFormFulfillment("external");
     setShowForm(false);
     setEditingId(null);
-  }, []);
+  }, [storeSuppliers]);
 
   const handleEdit = useCallback((product: Product) => {
     setFormName(product.name);
@@ -297,30 +213,24 @@ export default function StorePage() {
   const handleSubmit = useCallback(() => {
     if (!formName.trim()) return;
     if (editingId) {
-      setProducts((prev) =>
-        prev.map((p) =>
-          p.id === editingId
-            ? {
-                ...p,
-                name: formName.trim(),
-                price: parseFloat(formPrice) || 0,
-                stock: parseInt(formStock) || 0,
-                category: formCategory,
-                style: formStyle.trim(),
-                color: formColor.trim(),
-                size: formSize.trim(),
-                branding: formBranding.trim(),
-                supplierId: formSupplierId,
-                fulfillment: formFulfillment,
-                sku: `VT-${formName.trim().replace(/\s+/g, "-").toUpperCase().slice(0, 12)}`,
-              }
-            : p
-        )
-      );
+      const next = {
+        name: formName.trim(),
+        price: parseFloat(formPrice) || 0,
+        stock: parseInt(formStock) || 0,
+        category: formCategory,
+        style: formStyle.trim(),
+        color: formColor.trim(),
+        size: formSize.trim(),
+        branding: formBranding.trim(),
+        supplierId: formSupplierId,
+        fulfillment: formFulfillment,
+        sku: `VT-${formName.trim().replace(/\s+/g, "-").toUpperCase().slice(0, 12)}`,
+      } satisfies Partial<Product>;
+      updateStoreProduct(editingId, next);
+      setProducts((prev) => prev.map((p) => (p.id === editingId ? { ...p, ...next } : p)));
       toast(t("store.productUpdated"), "success");
     } else {
-      const newProduct: Product = {
-        id: `p-${generateId()}`,
+      const newProduct = {
         name: formName.trim(),
         price: parseFloat(formPrice) || 0,
         stock: parseInt(formStock) || 0,
@@ -333,33 +243,41 @@ export default function StorePage() {
         supplierId: formSupplierId,
         fulfillment: formFulfillment,
         sku: `VT-${formName.trim().replace(/\s+/g, "-").toUpperCase().slice(0, 12)}`,
-      };
-      setProducts((prev) => [...prev, newProduct]);
+      } satisfies Omit<Product, "id">;
+      const id = addStoreProduct(newProduct);
+      setProducts((prev) => [...prev, { ...newProduct, id }]);
       toast(t("store.productAdded"), "success");
     }
     resetForm();
-  }, [formName, formPrice, formStock, formCategory, formStyle, formColor, formSize, formBranding, formSupplierId, formFulfillment, editingId, resetForm, toast, t]);
+  }, [formName, formPrice, formStock, formCategory, formStyle, formColor, formSize, formBranding, formSupplierId, formFulfillment, editingId, resetForm, toast, t, addStoreProduct, updateStoreProduct]);
 
   const handleConfirmDelete = useCallback(() => {
     if (!deleteTarget) return;
     const removed = products.find((p) => p.id === deleteTarget.id);
+    deleteStoreProduct(deleteTarget.id);
     setProducts((prev) => prev.filter((p) => p.id !== deleteTarget.id));
     toast(t("store.productDeleted"), "success", {
       action: removed
         ? {
             label: t("action.undo"),
-            onClick: () => setProducts((prev) => [...prev, removed]),
+            onClick: () => {
+              const { id: removedId, ...rest } = removed;
+              void removedId;
+              const restoredId = addStoreProduct(rest);
+              setProducts((prev) => [...prev, { ...rest, id: restoredId }]);
+            },
           }
         : undefined,
     });
     setDeleteTarget(null);
-  }, [deleteTarget, products, toast, t]);
+  }, [deleteTarget, products, toast, t, addStoreProduct, deleteStoreProduct]);
 
   const handleToggleActive = useCallback((id: string) => {
+    toggleStoreProductActive(id);
     setProducts((prev) =>
       prev.map((p) => (p.id === id ? { ...p, active: !p.active } : p))
     );
-  }, []);
+  }, [toggleStoreProductActive]);
 
   const handleSyncOrders = useCallback(() => {
     toast(t("store.ordersSynced"), "success");
@@ -493,10 +411,10 @@ export default function StorePage() {
                   <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("store.category")}</label>
                   <select
                     value={formCategory}
-                    onChange={(e) => setFormCategory(e.target.value as ProductCategory)}
+                    onChange={(e) => setFormCategory(e.target.value as StoreProductCategory)}
                     className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-2 text-sm text-vytal-text focus:border-vytal-green/30 focus:outline-none focus:ring-1 focus:ring-vytal-green/20"
                   >
-                    {(Object.keys(categoryConfig) as ProductCategory[]).map((cat) => (
+                    {(Object.keys(categoryConfig) as StoreProductCategory[]).map((cat) => (
                       <option key={cat} value={cat}>{categoryConfig[cat].label}</option>
                     ))}
                   </select>
@@ -559,10 +477,10 @@ export default function StorePage() {
                   <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("store.fulfillment")}</label>
                   <select
                     value={formFulfillment}
-                    onChange={(e) => setFormFulfillment(e.target.value as ProductFulfillment)}
+                    onChange={(e) => setFormFulfillment(e.target.value as StoreProductFulfillment)}
                     className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-2 text-sm text-vytal-text focus:border-vytal-green/30 focus:outline-none focus:ring-1 focus:ring-vytal-green/20"
                   >
-                    {(Object.keys(fulfillmentConfig) as ProductFulfillment[]).map((mode) => (
+                    {(Object.keys(fulfillmentConfig) as StoreProductFulfillment[]).map((mode) => (
                       <option key={mode} value={mode}>
                         {fulfillmentLabelMap[mode]}
                       </option>
