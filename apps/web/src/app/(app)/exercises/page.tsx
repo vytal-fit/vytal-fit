@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import type { ExerciseCategory } from "@vytal-fit/shared";
 import Link from "next/link";
+import Image from "next/image";
 import { Search, Dumbbell, AlertTriangle } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { rowsToExercises } from "@/lib/reference-mappers";
@@ -103,9 +104,25 @@ export default function ExercisesPage() {
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {exercises.map((exercise) => {
               const catConfig = categoryConfig[exercise.category];
+              const mediaSrc = exercise.gifUrl ?? exercise.thumbnailUrl;
 
               return (
                 <div key={exercise.id} className="rounded-xl border border-vytal-border bg-vytal-card p-4 card-interactive transition-colors hover:border-[rgba(34,197,94,0.22)]">
+                  {mediaSrc && (
+                    <div className="mb-3 overflow-hidden rounded-lg border border-vytal-border bg-vytal-bg2">
+                      <div className="relative aspect-[16/10]">
+                        <Image
+                          src={mediaSrc}
+                          alt={exercise.name}
+                          fill
+                          unoptimized
+                          className="object-cover"
+                          sizes="(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 25vw"
+                        />
+                      </div>
+                    </div>
+                  )}
+
                   <div className="mb-3">
                     <Link href={`/exercises/${exercise.id}`} className="flex items-center gap-2 hover:opacity-80">
                       <Dumbbell className="h-4 w-4 text-vytal-green" />
@@ -117,6 +134,16 @@ export default function ExercisesPage() {
                     <span className={cn("inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-medium", catConfig.className)}>
                       {t(catConfig.labelKey)}
                     </span>
+                    {exercise.videoUrl && (
+                      <span className="ml-2 inline-flex items-center rounded-full bg-vytal-red/10 px-2.5 py-0.5 text-[10px] font-medium text-vytal-red">
+                        {t("exercises.demoLabel")}
+                      </span>
+                    )}
+                    {exercise.instructions && (
+                      <span className="ml-2 inline-flex items-center rounded-full bg-vytal-blue/10 px-2.5 py-0.5 text-[10px] font-medium text-vytal-blue">
+                        {t("exercises.instructionsBadge")}
+                      </span>
+                    )}
                   </div>
 
                   {exercise.equipment && exercise.equipment.length > 0 && (

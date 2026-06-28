@@ -1,7 +1,7 @@
 import { TRPCError } from "@trpc/server";
-import { and, asc, eq, gt, inArray } from "drizzle-orm";
-import { exercises, gymMembers, personalRecords, PR_UNITS } from "@vytal-fit/db";
-import { hasMinRole } from "@vytal-fit/shared";
+import { and, asc, eq, gt } from "drizzle-orm";
+import { gymMembers, personalRecords, PR_UNITS } from "@vytal-fit/db";
+import { hasMinRole, mockExercises } from "@vytal-fit/shared";
 import { z } from "zod";
 import { adminProcedure, orgProcedure, router } from "../trpc";
 import type { Context } from "../trpc";
@@ -60,17 +60,9 @@ async function assertCanActOnMember(
   }
 }
 
-/** Exercises are a global library — only existence is checked. */
-async function assertExerciseExists(
-  db: Context["db"],
-  exerciseId: string,
-): Promise<void> {
-  const [row] = await db
-    .select({ id: exercises.id })
-    .from(exercises)
-    .where(eq(exercises.id, exerciseId))
-    .limit(1);
-  if (!row) {
+/** Exercises are a global library backed by the shared catalog. */
+async function assertExerciseExists(exerciseId: string): Promise<void> {
+  if (!mockExercises.some((exercise) => exercise.id === exerciseId)) {
     throw new TRPCError({ code: "NOT_FOUND", message: "Exercise not found." });
   }
 }
@@ -105,18 +97,12 @@ export const personalRecordsRouter = router({
         .limit(input.limit + 1);
 
       const exerciseIds = [...new Set(rows.map((row) => row.exerciseId))];
-      const exerciseRows =
-        exerciseIds.length === 0
-          ? []
-          : await ctx.db
-              .select({
-                id: exercises.id,
-                name: exercises.name,
-                category: exercises.category,
-              })
-              .from(exercises)
-              .where(inArray(exercises.id, exerciseIds));
-      const exerciseById = new Map(exerciseRows.map((row) => [row.id, row]));
+      const exerciseById = new Map(
+        exerciseIds.map((exerciseId) => [
+          exerciseId,
+          mockExercises.find((exercise) => exercise.id === exerciseId) ?? null,
+        ]),
+      );
 
       let nextCursor: string | null = null;
       if (rows.length > input.limit) {
@@ -151,26 +137,17 @@ export const personalRecordsRouter = router({
           message: "Personal record not found.",
         });
       }
-      const [exercise] = await ctx.db
-        .select({
-          id: exercises.id,
-          name: exercises.name,
-          category: exercises.category,
-        })
-        .from(exercises)
-        .where(eq(exercises.id, row.exerciseId))
-        .limit(1);
 
       return {
         ...row,
-        exercise: exercise ?? null,
+        exercise: mockExercises.find((exercise) => exercise.id === row.exerciseId) ?? null,
       };
     }),
 
   create: orgProcedure.input(prInput).mutation(async ({ ctx, input }) => {
     await assertMemberInOrg(ctx.db, ctx.activeOrganizationId, input.memberId);
     await assertCanActOnMember(ctx, input.memberId, "log personal records");
-    await assertExerciseExists(ctx.db, input.exerciseId);
+    await assertExerciseExists(input.exerciseId);
 
     const [created] = await ctx.db
       .insert(personalRecords)
@@ -212,7 +189,7 @@ export const personalRecordsRouter = router({
         "update personal records",
       );
       if (input.data.exerciseId) {
-        await assertExerciseExists(ctx.db, input.data.exerciseId);
+        await assertExerciseExists(input.data.exerciseId);
       }
 
       const [updated] = await ctx.db

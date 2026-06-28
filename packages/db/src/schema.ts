@@ -468,10 +468,17 @@ export const exercises = pgTable("exercises", {
   name: text("name").notNull(),
   category: exerciseCategoryEnum("category").notNull(),
   videoUrl: text("video_url"),
+  thumbnailUrl: text("thumbnail_url"),
+  gifUrl: text("gif_url"),
   description: text("description"),
   equipment: jsonb("equipment").$type<string[]>(),
   muscleGroups: jsonb("muscle_groups").$type<string[]>(),
   scaledVariations: jsonb("scaled_variations").$type<string[]>(),
+  instructions: jsonb("instructions").$type<{
+    pt: string[];
+    en: string[];
+    es: string[];
+  }>(),
 });
 
 /** Workouts of the day — mirrors shared `WOD` (parts stored as JSONB). */

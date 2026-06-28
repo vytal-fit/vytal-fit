@@ -2194,6 +2194,18 @@ export const es: Record<string, string> = {
 
     // Exercise detail
     "exercises.description": "Descripción",
+    "exercises.demoLabel": "Demostración",
+    "exercises.demoHint": "Abrir la demo de {name}",
+    "exercises.openDemo": "Abrir demo",
+    "exercises.instructionsLabel": "Instrucciones",
+    "exercises.instructionsHint": "Cambiar entre notas técnicas en PT, EN y ES.",
+    "exercises.instructionsLanguage.pt": "Portugués",
+    "exercises.instructionsLanguage.en": "Inglés",
+    "exercises.instructionsLanguage.es": "Español",
+    "exercises.instructionsBadge": "PT / EN / ES",
+    "exercises.instructionsEmpty": "No hay notas técnicas disponibles.",
+    "exercises.datasetMediaLabel": "Medios del dataset importado",
+    "exercises.youtubeFallback": "Fallback de YouTube",
     "exercises.scalingOptions": "Opciones de Escala",
     "exercises.personalRecords": "Records Personales",
     "exercises.muscleGroupsLabel": "Grupos Musculares",

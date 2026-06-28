@@ -29,6 +29,20 @@
       "when": 1782679408291,
       "tag": "0003_lush_morlocks",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1782680900000,
+      "tag": "0004_exercise_instructions",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1782681000000,
+      "tag": "0005_exercise_media",
+      "breakpoints": true
     }
   ]
 }

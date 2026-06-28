@@ -77,6 +77,7 @@ export const IDS = {
   // global
   exercise1: "ex-1",
   exercise2: "ex-2",
+  exerciseDataset1: "ds-0001",
 } as const;
 
 export async function createTestDb(): Promise<Database> {
@@ -247,8 +248,62 @@ export async function seed(db: Database): Promise<void> {
   ]);
 
   await db.insert(schema.exercises).values([
-    { id: IDS.exercise1, name: "Back Squat", category: "weightlifting" },
-    { id: IDS.exercise2, name: "Pull Up", category: "gymnastics" },
+    {
+      id: IDS.exercise1,
+      name: "Back Squat",
+      category: "weightlifting",
+      videoUrl: "https://www.youtube.com/results?search_query=Back%20Squat%20CrossFit%20movement%20demo",
+      description:
+        "The back squat is a foundational strength movement. With the barbell resting on the upper back, the athlete squats to below parallel and drives up. It builds tremendous lower-body strength and is a staple of any strength program.",
+      equipment: ["barbell", "rack"],
+      muscleGroups: ["quads", "glutes", "core"],
+      scaledVariations: ["Reduce load and keep positions", "Use a hang or power variation", "Add a pause to remove momentum"],
+      instructions: {
+        pt: [
+          "Coloca os pés firmes, prepara o core e mantém o peito aberto durante toda a descida.",
+          "Desce com controlo até abaixo do paralelo e sobe a partir do meio do pé.",
+          "Mantém a barra estável e evita colapsar joelhos ou inclinar demasiado o tronco.",
+        ],
+        en: [
+          "Set the feet, brace the core, and keep the chest tall throughout the descent.",
+          "Descend under control to full depth and drive up through the midfoot.",
+          "Keep the bar stable and avoid knee collapse or excessive torso pitch.",
+        ],
+        es: [
+          "Coloca los pies firmes, activa el core y mantén el pecho alto durante toda la bajada.",
+          "Desciende con control hasta la profundidad completa y sube desde el medio del pie.",
+          "Mantén la barra estable y evita que las rodillas colapsen o que el tronco se incline demasiado.",
+        ],
+      },
+    },
+    {
+      id: IDS.exercise2,
+      name: "Pull Up",
+      category: "gymnastics",
+      videoUrl: "https://www.youtube.com/results?search_query=Pull%20Up%20CrossFit%20movement%20demo",
+      description:
+        "The pull-up is a fundamental gymnastics movement for developing upper-body pulling strength. Starting from a dead hang, the athlete pulls until the chin clears the bar.",
+      equipment: ["pull-up bar"],
+      muscleGroups: ["back", "biceps"],
+      scaledVariations: ["Band-assisted progression", "Strict / reduced-ROM version", "Use a low-ring or box setup"],
+      instructions: {
+        pt: [
+          "Parte de uma suspensão ativa e mantém a linha corporal controlada.",
+          "Usa tensão no tronco e o impulso correto para atravessar a transição com eficiência.",
+          "Termina com bloqueio sólido acima da barra e regressa sem perder a posição.",
+        ],
+        en: [
+          "Start from an active hang and keep the body line controlled.",
+          "Use midline tension and the right kip to move through the transition efficiently.",
+          "Finish with a solid lockout above the bar and return without losing position.",
+        ],
+        es: [
+          "Empieza desde una suspensión activa y mantén la línea corporal controlada.",
+          "Usa tensión en el tronco y el impulso correcto para pasar la transición con eficiencia.",
+          "Termina con bloqueo sólido sobre la barra y baja sin perder la posición.",
+        ],
+      },
+    },
   ]);
 
   await db.insert(schema.wods).values([
