@@ -61,6 +61,32 @@ export interface BookingRecord {
   status: string;
   bookedAt?: string;
   checkedInAt?: string | null;
+  class?: {
+    id: string;
+    classTypeId: string;
+    classType: {
+      id: string;
+      name: string;
+      abbreviation: string;
+      color: string;
+    } | null;
+    locationId: string;
+    location: {
+      id: string;
+      name: string;
+    } | null;
+    coaches: Array<{
+      id: string;
+      name: string;
+    } | null | undefined>;
+    date: string;
+    startTime: string;
+    endTime: string;
+    maxCapacity: number;
+    cancelledAt?: string | Date | null;
+    enrolledCount: number;
+    waitlistCount: number;
+  } | null;
 }
 
 export interface PersonalRecordItem {
@@ -72,6 +98,11 @@ export interface PersonalRecordItem {
   achievedAt?: string | Date;
   previousValue?: string | null;
   notes?: string | null;
+  exercise?: {
+    id: string;
+    name: string;
+    category: string;
+  } | null;
 }
 
 export interface WodResultItem {
@@ -85,6 +116,13 @@ export interface WodResultItem {
   isPR: boolean;
   rpe?: number | null;
   notes?: string | null;
+  wod?: {
+    id: string;
+    title: string;
+    date: string;
+    type: string;
+    classTypeId: string;
+  } | null;
 }
 
 let authToken: string | null = null;

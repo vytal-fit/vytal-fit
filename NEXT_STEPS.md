@@ -12,6 +12,12 @@
 - **D5** LLM = **Claude** (gateway trocável).
 - **D6** Diferidos: white-label, site builder, Google Reviews, avaliação de treinadores, mapa de lesões, wearables, nutrição IA.
 
+## Mapa de superfícies
+- **landing** = presença pública (`vytal.fit`)
+- **pro** = backoffice operacional (`pro.vytal.fit`)
+- **my** = portal do atleta / membro (`my.vytal.fit`)
+- No repo atual, o web app cobre **landing + pro + my console**; o mobile cobre **my** agora e o eventual **pro mobile** quando entrar no roadmap.
+
 ---
 
 ## Pacotes (guia kloser) — o que adotar e quando

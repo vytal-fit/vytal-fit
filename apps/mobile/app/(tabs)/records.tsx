@@ -1,11 +1,11 @@
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   View,
   Text,
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  Alert,
+  ActivityIndicator,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
@@ -13,18 +13,19 @@ import { ChevronRight, Building2, Plus, SortAsc, SortDesc, Zap, TrendingUp } fro
 import { useTheme } from "../_layout";
 import type { Colors } from "@/colors";
 import { t } from "@/i18n";
+import { listPersonalRecords } from "@/lib/auth-api";
+import { useAuthStore } from "@/stores/auth-store";
 
-// ─── Mock PR Data ────────────────────────────────────────
-const initialPRs = [
-  { id: "pr-1", exercise: "Back Squat", value: "140 kg", previousValue: "135 kg", unit: "kg" as const, achievedAt: "2026-06-02", category: "weightlifting" },
-  { id: "pr-2", exercise: "Clean & Jerk", value: "110 kg", previousValue: "107.5 kg", unit: "kg" as const, achievedAt: "2026-05-28", category: "weightlifting" },
-  { id: "pr-3", exercise: "Fran", value: "3:42", previousValue: "4:05", unit: "time" as const, achievedAt: "2026-05-25", category: "benchmark" },
-  { id: "pr-4", exercise: "Deadlift", value: "180 kg", previousValue: "175 kg", unit: "kg" as const, achievedAt: "2026-05-20", category: "weightlifting" },
-  { id: "pr-5", exercise: "Snatch", value: "85 kg", previousValue: "82.5 kg", unit: "kg" as const, achievedAt: "2026-05-15", category: "weightlifting" },
-  { id: "pr-6", exercise: "500m Row", value: "1:28", previousValue: "1:32", unit: "time" as const, achievedAt: "2026-05-10", category: "cardio" },
-  { id: "pr-7", exercise: "Strict Pull-Ups", value: "22 reps", previousValue: "18 reps", unit: "reps" as const, achievedAt: "2026-05-05", category: "gymnastics" },
-  { id: "pr-8", exercise: "Front Squat", value: "120 kg", previousValue: "115 kg", unit: "kg" as const, achievedAt: "2026-04-28", category: "weightlifting" },
-];
+type LivePR = {
+  id: string;
+  exerciseId: string;
+  exercise: string;
+  value: string;
+  previousValue?: string | null;
+  unit: "kg" | "lbs" | "time" | "reps" | "meters" | "calories";
+  achievedAt: string;
+  category: string;
+};
 
 const CATEGORIES = ["Todos", "weightlifting", "benchmark", "cardio", "gymnastics"] as const;
 type Category = typeof CATEGORIES[number];
@@ -65,21 +66,98 @@ function formatDate(dateStr: string): string {
   return `${parts[2]}/${parts[1]}/${parts[0].slice(2)}`;
 }
 
-const exerciseNameToId: Record<string, string> = {
-  "Back Squat": "ex-1", "Front Squat": "ex-2", "Deadlift": "ex-3",
-  "Clean & Jerk": "ex-4", "Snatch": "ex-5", "Bench Press": "ex-6",
-  "Overhead Press": "ex-7", "Thruster": "ex-9", "Pull-Up": "ex-10", "Strict Pull-Ups": "ex-10",
-};
+function computeMonthStreak(records: LivePR[]): number {
+  const months = [...new Set(records.map((record) => record.achievedAt.slice(0, 7)))].sort().reverse();
+  let streak = 0;
+  let expected: string | null = null;
+
+  for (const month of months) {
+    if (!expected) {
+      streak = 1;
+      const [year, monthIndex] = month.split("-").map(Number) as [number, number];
+      const prev = new Date(year, monthIndex - 1, 1);
+      prev.setMonth(prev.getMonth() - 1);
+      expected = `${prev.getFullYear()}-${String(prev.getMonth() + 1).padStart(2, "0")}`;
+      continue;
+    }
+
+    if (month === expected) {
+      streak += 1;
+      const [year, monthIndex] = month.split("-").map(Number) as [number, number];
+      const prev = new Date(year, monthIndex - 1, 1);
+      prev.setMonth(prev.getMonth() - 1);
+      expected = `${prev.getFullYear()}-${String(prev.getMonth() + 1).padStart(2, "0")}`;
+      continue;
+    }
+    break;
+  }
+
+  return streak;
+}
 
 // ─── Screen ──────────────────────────────────────────────
 export default function RecordsScreen() {
   const router = useRouter();
   const C = useTheme();
   const styles = makeStyles(C);
+  const { user, activeOrgId } = useAuthStore();
+  const memberId = useMemo(
+    () => user?.memberships.find((m) => m.organizationId === activeOrgId)?.id ?? user?.memberships[0]?.id ?? "",
+    [activeOrgId, user],
+  );
+  const [records, setRecords] = useState<LivePR[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadError, setLoadError] = useState(false);
   const [activeCategory, setActiveCategory] = useState<Category>("Todos");
   const [sortDesc, setSortDesc] = useState(true);
 
-  const filtered = initialPRs
+  useEffect(() => {
+    if (!memberId) return;
+
+    let cancelled = false;
+    setIsLoading(true);
+    setLoadError(false);
+
+    void listPersonalRecords(memberId)
+      .then((rows) => {
+        if (cancelled) return;
+        const hydrated = rows
+          .map<LivePR | null>((row) => {
+            const exercise = row.exercise;
+            if (!exercise) return null;
+            return {
+              id: row.id,
+              exerciseId: row.exerciseId,
+              exercise: exercise.name,
+              value: row.unit === "time" ? row.value : `${row.value} ${row.unit}`,
+              previousValue: row.previousValue ? (row.unit === "time" ? row.previousValue : `${row.previousValue} ${row.unit}`) : undefined,
+              unit: row.unit as LivePR["unit"],
+              achievedAt:
+                typeof row.achievedAt === "string"
+                  ? row.achievedAt
+                  : row.achievedAt instanceof Date
+                    ? row.achievedAt.toISOString().slice(0, 10)
+                    : "",
+              category: exercise.category,
+            };
+          })
+          .filter((row): row is LivePR => Boolean(row))
+          .sort((a, b) => b.achievedAt.localeCompare(a.achievedAt));
+        setRecords(hydrated);
+      })
+      .catch(() => {
+        if (!cancelled) setLoadError(true);
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [memberId]);
+
+  const filtered = records
     .filter((pr) => activeCategory === "Todos" || pr.category === activeCategory)
     .sort((a, b) => sortDesc
       ? b.achievedAt.localeCompare(a.achievedAt)
@@ -87,9 +165,9 @@ export default function RecordsScreen() {
     );
 
   const stats = {
-    totalPRs: initialPRs.length,
-    thisMonth: initialPRs.filter((pr) => pr.achievedAt >= "2026-06-01").length,
-    bestStreak: 4,
+    totalPRs: records.length,
+    thisMonth: records.filter((pr) => pr.achievedAt >= new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().slice(0, 10)).length,
+    bestStreak: computeMonthStreak(records),
   };
 
   return (
@@ -122,6 +200,12 @@ export default function RecordsScreen() {
             </View>
           </View>
         </View>
+
+        {loadError && (
+          <View style={styles.errorState}>
+            <Text style={styles.errorText}>{t("alert.error")}</Text>
+          </View>
+        )}
 
         {/* Stats Summary */}
         <View style={styles.statsRow}>
@@ -173,45 +257,58 @@ export default function RecordsScreen() {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
         >
-          {filtered.map((pr) => {
-            const catColor = getCategoryColor(pr.category, C);
-            const exerciseId = exerciseNameToId[pr.exercise];
-            return (
-              <TouchableOpacity
-                key={pr.id}
-                style={styles.prCard}
-                onPress={() => exerciseId && router.push(`/pr-entry?exerciseId=${exerciseId}`)}
-                activeOpacity={0.8}
-              >
-                <View style={[styles.prAccent, { backgroundColor: catColor }]} />
-                <View style={styles.prInfo}>
-                  <View style={styles.prTitleRow}>
-                    <Text style={styles.prExercise}>{pr.exercise}</Text>
-                    <View style={[styles.categoryBadge, { backgroundColor: catColor + "18" }]}>
-                      <Text style={[styles.categoryText, { color: catColor }]}>
-                        {getCategoryLabelFull(pr.category)}
-                      </Text>
+          {isLoading ? (
+            <View style={styles.loadingState}>
+              <ActivityIndicator color={C.green} />
+            </View>
+          ) : (
+            <>
+              {filtered.map((pr) => {
+                const catColor = getCategoryColor(pr.category, C);
+                return (
+                  <TouchableOpacity
+                    key={pr.id}
+                    style={styles.prCard}
+                    onPress={() => router.push(`/pr-entry?exerciseId=${pr.exerciseId}`)}
+                    activeOpacity={0.8}
+                  >
+                    <View style={[styles.prAccent, { backgroundColor: catColor }]} />
+                    <View style={styles.prInfo}>
+                      <View style={styles.prTitleRow}>
+                        <Text style={styles.prExercise}>{pr.exercise}</Text>
+                        <View style={[styles.categoryBadge, { backgroundColor: catColor + "18" }]}>
+                          <Text style={[styles.categoryText, { color: catColor }]}>
+                            {getCategoryLabelFull(pr.category)}
+                          </Text>
+                        </View>
+                      </View>
+                      <View style={styles.prValueRow}>
+                        <Text style={[styles.prValue, { color: catColor }]}>{pr.value}</Text>
+                        {pr.previousValue && (
+                          <Text style={styles.prPrevious}>
+                            {t("label.previous")}: {pr.previousValue}
+                          </Text>
+                        )}
+                      </View>
+                      <Text style={styles.prDate}>{formatDate(pr.achievedAt)}</Text>
                     </View>
-                  </View>
-                  <View style={styles.prValueRow}>
-                    <Text style={[styles.prValue, { color: catColor }]}>{pr.value}</Text>
-                    {pr.previousValue && (
-                      <Text style={styles.prPrevious}>
-                        {t("label.previous")}: {pr.previousValue}
-                      </Text>
-                    )}
-                  </View>
-                  <Text style={styles.prDate}>{formatDate(pr.achievedAt)}</Text>
+                    <View style={styles.prRight}>
+                      <View style={[styles.prBadge, { backgroundColor: catColor + "18" }]}>
+                        <Text style={[styles.prBadgeIcon, { color: catColor }]}>PR</Text>
+                      </View>
+                      <ChevronRight size={14} color={C.muted} strokeWidth={2} />
+                    </View>
+                  </TouchableOpacity>
+                );
+              })}
+              {filtered.length === 0 && (
+                <View style={styles.emptyState}>
+                  <Text style={styles.emptyIcon}>{"( )"}</Text>
+                  <Text style={styles.emptyText}>{t("records.empty")}</Text>
                 </View>
-                <View style={styles.prRight}>
-                  <View style={[styles.prBadge, { backgroundColor: catColor + "18" }]}>
-                    <Text style={[styles.prBadgeIcon, { color: catColor }]}>PR</Text>
-                  </View>
-                  {exerciseId && <ChevronRight size={14} color={C.muted} strokeWidth={2} />}
-                </View>
-              </TouchableOpacity>
-            );
-          })}
+              )}
+            </>
+          )}
 
           {/* Add PR CTA */}
           <TouchableOpacity
@@ -310,9 +407,29 @@ function makeStyles(C: Colors) { return StyleSheet.create({
     justifyContent: "center",
     marginLeft: 8,
   },
+  errorState: {
+    marginHorizontal: 16,
+    marginBottom: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderRadius: 10,
+    backgroundColor: C.red + "12",
+    borderWidth: 1,
+    borderColor: C.red + "30",
+  },
+  errorText: {
+    fontSize: 13,
+    fontWeight: "600",
+    color: C.red,
+  },
 
   // Scroll
   scrollContent: { paddingHorizontal: 16, paddingBottom: 24, gap: 10 },
+  loadingState: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 48,
+  },
 
   // PR Card
   prCard: {
@@ -352,4 +469,18 @@ function makeStyles(C: Colors) { return StyleSheet.create({
     paddingVertical: 16,
   },
   addPRText: { fontSize: 14, fontWeight: "700", color: C.green },
+  emptyState: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 40,
+  },
+  emptyIcon: {
+    fontSize: 36,
+    color: C.muted,
+    marginBottom: 10,
+  },
+  emptyText: {
+    fontSize: 15,
+    color: C.muted,
+  },
 }); }

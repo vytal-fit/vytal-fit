@@ -1,6 +1,6 @@
 import { TRPCError } from "@trpc/server";
 import { and, count, desc, eq, inArray } from "drizzle-orm";
-import { bookings, classes, gymMembers } from "@vytal-fit/db";
+import { bookings, classes, classTypes, coaches, gymMembers, locations } from "@vytal-fit/db";
 import { hasMinRole } from "@vytal-fit/shared";
 import { z } from "zod";
 import { orgProcedure, router } from "../trpc";
@@ -173,7 +173,7 @@ export const bookingsRouter = router({
         throw new TRPCError({ code: "NOT_FOUND", message: "Member not found." });
       }
 
-      return ctx.db
+      const rows = await ctx.db
         .select()
         .from(bookings)
         .where(
@@ -183,6 +183,139 @@ export const bookingsRouter = router({
           ),
         )
         .orderBy(desc(bookings.bookedAt));
+
+      const classIds = [...new Set(rows.map((row) => row.classId))];
+      const classRows =
+        classIds.length === 0
+          ? []
+          : await ctx.db
+              .select({
+                id: classes.id,
+                classTypeId: classes.classTypeId,
+                locationId: classes.locationId,
+                coachIds: classes.coachIds,
+                date: classes.date,
+                startTime: classes.startTime,
+                endTime: classes.endTime,
+                maxCapacity: classes.maxCapacity,
+                cancelledAt: classes.cancelledAt,
+              })
+              .from(classes)
+              .where(
+                and(
+                  eq(classes.organizationId, ctx.activeOrganizationId),
+                  inArray(classes.id, classIds),
+                ),
+              );
+      const classTypeIds = [...new Set(classRows.map((row) => row.classTypeId))];
+      const locationIds = [...new Set(classRows.map((row) => row.locationId))];
+      const coachIds = [...new Set(classRows.flatMap((row) => row.coachIds ?? []))];
+
+      const [typeRows, locationRows, coachRows, confirmedCounts, waitlistCounts] =
+        await Promise.all([
+          classTypeIds.length === 0
+            ? Promise.resolve([])
+            : ctx.db
+                .select({
+                  id: classTypes.id,
+                  name: classTypes.name,
+                  abbreviation: classTypes.abbreviation,
+                  color: classTypes.color,
+                })
+                .from(classTypes)
+                .where(
+                  and(
+                    eq(classTypes.organizationId, ctx.activeOrganizationId),
+                    inArray(classTypes.id, classTypeIds),
+                  ),
+                ),
+          locationIds.length === 0
+            ? Promise.resolve([])
+            : ctx.db
+                .select({
+                  id: locations.id,
+                  name: locations.name,
+                })
+                .from(locations)
+                .where(
+                  and(
+                    eq(locations.organizationId, ctx.activeOrganizationId),
+                    inArray(locations.id, locationIds),
+                  ),
+                ),
+          coachIds.length === 0
+            ? Promise.resolve([])
+            : ctx.db
+                .select({
+                  id: coaches.id,
+                  name: coaches.name,
+                })
+                .from(coaches)
+                .where(
+                  and(
+                    eq(coaches.organizationId, ctx.activeOrganizationId),
+                    inArray(coaches.id, coachIds),
+                  ),
+                ),
+          classIds.length === 0
+            ? Promise.resolve([])
+            : ctx.db
+                .select({
+                  classId: bookings.classId,
+                  value: count(),
+                })
+                .from(bookings)
+                .where(
+                  and(
+                    eq(bookings.organizationId, ctx.activeOrganizationId),
+                    inArray(bookings.classId, classIds),
+                    inArray(bookings.status, ["confirmed", "checked_in"]),
+                  ),
+                )
+                .groupBy(bookings.classId),
+          classIds.length === 0
+            ? Promise.resolve([])
+            : ctx.db
+                .select({
+                  classId: bookings.classId,
+                  value: count(),
+                })
+                .from(bookings)
+                .where(
+                  and(
+                    eq(bookings.organizationId, ctx.activeOrganizationId),
+                    inArray(bookings.classId, classIds),
+                    eq(bookings.status, "waitlisted"),
+                  ),
+                )
+                .groupBy(bookings.classId),
+        ]);
+
+      const classTypeById = new Map(typeRows.map((row) => [row.id, row]));
+      const locationById = new Map(locationRows.map((row) => [row.id, row]));
+      const coachById = new Map(coachRows.map((row) => [row.id, row]));
+      const confirmedByClassId = new Map(confirmedCounts.map((row) => [row.classId, row.value]));
+      const waitlistByClassId = new Map(waitlistCounts.map((row) => [row.classId, row.value]));
+      const classById = new Map(
+        classRows.map((row) => [
+          row.id,
+          {
+            ...row,
+            classType: classTypeById.get(row.classTypeId) ?? null,
+            location: locationById.get(row.locationId) ?? null,
+            coaches: (row.coachIds ?? [])
+              .map((coachId) => coachById.get(coachId))
+              .filter((coach): coach is NonNullable<typeof coach> => Boolean(coach)),
+            enrolledCount: confirmedByClassId.get(row.id) ?? 0,
+            waitlistCount: waitlistByClassId.get(row.id) ?? 0,
+          },
+        ]),
+      );
+
+      return rows.map((row) => ({
+        ...row,
+        class: classById.get(row.classId) ?? null,
+      }));
     }),
 
   /**
