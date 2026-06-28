@@ -31,6 +31,13 @@ const projects: TestProjectConfiguration[] = [
   },
   {
     test: {
+      name: "@vytal-fit/email",
+      include: ["packages/email/tests/*.test.ts"],
+      environment: "node",
+    },
+  },
+  {
+    test: {
       name: "@vytal-fit/shared",
       include: ["packages/shared/tests/*.test.ts"],
       environment: "node",

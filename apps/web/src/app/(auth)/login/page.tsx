@@ -1,14 +1,27 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Eye, EyeOff, LogIn } from "lucide-react";
 import { useAuthStore } from "@/stores/auth-store";
 import { useI18n } from "@/lib/i18n";
+import { AuthDivider, SocialLogin } from "@/components/social-login";
 
-export default function LoginPage() {
+/** Post-auth target from `?redirect=`/`?invite=`, else /welcome. Same-origin relative paths only (open-redirect guard). */
+function resolvePostAuthTarget(params: URLSearchParams): string {
+  const redirect = params.get("redirect");
+  if (redirect && redirect.startsWith("/") && !redirect.startsWith("//")) {
+    return redirect;
+  }
+  const invite = params.get("invite");
+  if (invite) return `/invite/${encodeURIComponent(invite)}`;
+  return "/welcome";
+}
+
+function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const login = useAuthStore((s) => s.login);
   const { t } = useI18n();
   const [email, setEmail] = useState("");
@@ -17,13 +30,15 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
 
+  const target = resolvePostAuthTarget(searchParams);
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(false);
     setLoading(true);
     const success = await login(email, password);
     if (success) {
-      router.push("/welcome");
+      router.push(target);
     } else {
       setError(true);
       setLoading(false);
@@ -33,7 +48,6 @@ export default function LoginPage() {
   return (
     <div className="mx-auto w-full max-w-md">
       <div className="rounded-2xl border border-vytal-border bg-vytal-card backdrop-blur-xl p-8">
-        {/* Logo */}
         <div className="mb-8 text-center">
           <h1 className="text-3xl font-bold tracking-tight">
             <span className="text-base font-medium text-vytal-muted/60">pro</span><span className="text-vytal-green">VYTAL</span>
@@ -44,7 +58,6 @@ export default function LoginPage() {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
-          {/* Error */}
           {error && (
             <div
               role="alert"
@@ -59,7 +72,6 @@ export default function LoginPage() {
             </div>
           )}
 
-          {/* Email */}
           <div>
             <label
               htmlFor="email"
@@ -78,7 +90,6 @@ export default function LoginPage() {
             />
           </div>
 
-          {/* Password */}
           <div>
             <label
               htmlFor="password"
@@ -110,7 +121,6 @@ export default function LoginPage() {
             </div>
           </div>
 
-          {/* Forgot password */}
           <div className="text-right">
             <Link
               href="/forgot-password"
@@ -120,7 +130,6 @@ export default function LoginPage() {
             </Link>
           </div>
 
-          {/* Submit */}
           <button
             type="submit"
             disabled={loading}
@@ -137,7 +146,12 @@ export default function LoginPage() {
           </button>
         </form>
 
-        {/* Register link */}
+        <div className="my-6">
+          <AuthDivider />
+        </div>
+
+        <SocialLogin callbackURL={target} />
+
         <div className="mt-6 text-center">
           <span className="text-sm text-vytal-muted">
             {t("auth.noAccount")}{" "}
@@ -150,7 +164,6 @@ export default function LoginPage() {
           </span>
         </div>
 
-        {/* Demo credentials hint */}
         <p className="mt-4 text-center text-[11px] text-vytal-muted/60">
           {t("auth.demoHint")}{" "}
           <span className="font-mono text-vytal-muted/80">
@@ -159,10 +172,17 @@ export default function LoginPage() {
         </p>
       </div>
 
-      {/* Powered by footer */}
       <p className="mt-8 text-center text-[10px] font-medium uppercase tracking-widest text-vytal-muted/40">
         Powered by Vytal
       </p>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <LoginForm />
+    </Suspense>
   );
 }
