@@ -623,6 +623,7 @@ export async function seedDatabase(
           equipment: exercise.equipment ?? null,
           muscleGroups: exercise.muscleGroups ?? null,
           scaledVariations: exercise.scaledVariations ?? null,
+          instructions: exercise.instructions ?? null,
         })),
       )
       .onConflictDoNothing()
@@ -668,13 +669,26 @@ export async function seedDatabase(
       })
       .where(eq(schema.wods.id, wod.id));
   }
+  for (const exercise of mockExercises) {
+    await db
+      .update(schema.exercises)
+      .set({
+        videoUrl: exercise.videoUrl ?? null,
+        description: exercise.description ?? null,
+        equipment: exercise.equipment ?? null,
+        muscleGroups: exercise.muscleGroups ?? null,
+        scaledVariations: exercise.scaledVariations ?? null,
+        instructions: exercise.instructions ?? null,
+      })
+      .where(eq(schema.exercises.id, exercise.id));
+  }
   for (const spec of CHECK_IN_SEED) {
     await db
       .update(schema.checkIns)
       .set({ checkedInAt: checkInSeedTimestamp(spec) })
       .where(eq(schema.checkIns.id, spec.id));
   }
-  log("classes/wods/check-ins: dates refreshed to the relative window");
+  log("classes/wods/exercises/check-ins: dates refreshed to the relative window");
 
   inserted.subscriptionPlans = (
     await db

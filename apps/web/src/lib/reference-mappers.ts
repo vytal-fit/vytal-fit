@@ -85,10 +85,13 @@ export function rowToExercise(row: ExerciseRow): Exercise {
     name: row.name,
     category: row.category,
     videoUrl: row.videoUrl ?? undefined,
+    thumbnailUrl: row.thumbnailUrl ?? undefined,
+    gifUrl: row.gifUrl ?? undefined,
     description: row.description ?? undefined,
     equipment: row.equipment ?? undefined,
     muscleGroups: row.muscleGroups ?? undefined,
     scaledVariations: row.scaledVariations ?? undefined,
+    instructions: row.instructions ?? undefined,
   };
 }
 

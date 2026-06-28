@@ -64,7 +64,7 @@ O DB já existe (Neon Postgres + Drizzle + migrações + seed + Better Auth + tR
 
 ## F3 · Treino — S4–S5 (€55.000)
 - [ ] WOD Builder (tipos de estímulo, timers)
-- [ ] BD ≥300 exercícios (5 metodologias) — (D4/A-1) conteúdo validado pelo Juvenal
+- [ ] BD ≥300 exercícios (5 metodologias) — (D4/A-1) conteúdo validado pelo Juvenal; o catálogo já vem de um JSON/TS gerado com 1.3k+ movimentos, thumbnails/GIFs e notas PT/EN/ES, mas o pipeline editorial/media ainda está parcial
 - [ ] BD ≥200 WODs pré-construídos
 - [ ] Motor de planeamento (semanal/ciclos)
 - [ ] Cálculo de %RM
