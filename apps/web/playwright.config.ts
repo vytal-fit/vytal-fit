@@ -1,6 +1,6 @@
 import { defineConfig, devices } from "@playwright/test";
 
-const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? "http://localhost:3000";
+const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? "http://localhost:3001";
 
 // CI runs a trimmed browser matrix (chromium + mobile-chrome) so every push
 // gets a verdict in ~10 minutes. The full 5-browser matrix runs locally and
