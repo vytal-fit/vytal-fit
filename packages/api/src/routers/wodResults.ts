@@ -143,12 +143,46 @@ export const wodResultsRouter = router({
         .orderBy(asc(wodResults.id))
         .limit(input.limit + 1);
 
+      const wodIds = [...new Set(rows.map((row) => row.wodId))];
+      const wodRows =
+        wodIds.length === 0
+          ? []
+          : await ctx.db
+              .select({
+                id: wods.id,
+                title: wods.title,
+                date: wods.date,
+                parts: wods.parts,
+                classTypeId: wods.classTypeId,
+              })
+              .from(wods)
+              .where(inArray(wods.id, wodIds));
+      const wodById = new Map(wodRows.map((row) => [row.id, row]));
+
       let nextCursor: string | null = null;
       if (rows.length > input.limit) {
         rows.pop();
         nextCursor = rows[rows.length - 1]?.id ?? null;
       }
-      return { items: rows, nextCursor };
+      return {
+        items: rows.map((row) => {
+          const wod = wodById.get(row.wodId) ?? null;
+          const firstPart = wod?.parts?.[0];
+          return {
+            ...row,
+            wod: wod
+              ? {
+                  id: wod.id,
+                  title: wod.title ?? "WOD",
+                  date: wod.date,
+                  type: firstPart?.type ?? "custom",
+                  classTypeId: wod.classTypeId,
+                }
+              : null,
+          };
+        }),
+        nextCursor,
+      };
     }),
 
   create: orgProcedure.input(resultInput).mutation(async ({ ctx, input }) => {
@@ -163,7 +197,30 @@ export const wodResultsRouter = router({
         ...input,
       })
       .returning();
-    return created;
+    const [wod] = await ctx.db
+      .select({
+        id: wods.id,
+        title: wods.title,
+        date: wods.date,
+        parts: wods.parts,
+        classTypeId: wods.classTypeId,
+      })
+      .from(wods)
+      .where(eq(wods.id, input.wodId))
+      .limit(1);
+
+    return {
+      ...created,
+      wod: wod
+        ? {
+            id: wod.id,
+            title: wod.title ?? "WOD",
+            date: wod.date,
+            type: wod.parts?.[0]?.type ?? "custom",
+            classTypeId: wod.classTypeId,
+          }
+        : null,
+    };
   }),
 
   update: orgProcedure
@@ -209,7 +266,30 @@ export const wodResultsRouter = router({
           ),
         )
         .returning();
-      return updated;
+      const [wod] = await ctx.db
+        .select({
+          id: wods.id,
+          title: wods.title,
+          date: wods.date,
+          parts: wods.parts,
+          classTypeId: wods.classTypeId,
+        })
+        .from(wods)
+        .where(eq(wods.id, updated.wodId))
+        .limit(1);
+
+      return {
+        ...updated,
+        wod: wod
+          ? {
+              id: wod.id,
+              title: wod.title ?? "WOD",
+              date: wod.date,
+              type: wod.parts?.[0]?.type ?? "custom",
+              classTypeId: wod.classTypeId,
+            }
+          : null,
+      };
     }),
 
   delete: adminProcedure

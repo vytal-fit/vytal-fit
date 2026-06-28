@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   View,
   Text,
@@ -6,6 +6,7 @@ import {
   ScrollView,
   TouchableOpacity,
   FlatList,
+  ActivityIndicator,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
@@ -13,6 +14,8 @@ import { ArrowLeft } from "lucide-react-native";
 import { useTheme } from "./_layout";
 import type { Colors } from "@/colors";
 import { t } from "@/i18n";
+import { listMemberBookings } from "@/lib/auth-api";
+import { useAuthStore } from "@/stores/auth-store";
 
 
 // ─── Helpers ─────────────────────────────────────────────
@@ -45,31 +48,21 @@ type BookingHistoryEntry = {
   classTypeColor: keyof Colors;
   location: string;
   coach: string;
-  status: "presente" | "falta" | "cancelada";
+  status: "confirmed" | "checked_in" | "waitlisted" | "cancelled" | "no_show";
 };
-
-// ─── Mock Data ───────────────────────────────────────────
-const mockBookingHistory: BookingHistoryEntry[] = [
-  { id: "bh-1", date: "2026-06-02", startTime: "07:00", endTime: "08:00", classType: "CrossFit", classTypeColor: "green", location: "Sala Principal", coach: "Andre Loureiro", status: "presente" },
-  { id: "bh-2", date: "2026-06-01", startTime: "09:00", endTime: "10:00", classType: "CrossFit", classTypeColor: "green", location: "Sala Principal", coach: "Marine Robba", status: "presente" },
-  { id: "bh-3", date: "2026-05-30", startTime: "17:30", endTime: "18:30", classType: "CrossFit", classTypeColor: "green", location: "Sala Principal", coach: "Andre Loureiro", status: "falta" },
-  { id: "bh-4", date: "2026-05-28", startTime: "12:00", endTime: "13:00", classType: "Halterofilismo", classTypeColor: "amber", location: "Sala Olimpica", coach: "Ricardo Ribeiro", status: "presente" },
-  { id: "bh-5", date: "2026-05-26", startTime: "07:00", endTime: "08:00", classType: "CrossFit", classTypeColor: "green", location: "Sala Principal", coach: "Andre Loureiro", status: "presente" },
-  { id: "bh-6", date: "2026-05-24", startTime: "10:00", endTime: "11:30", classType: "Yoga", classTypeColor: "purple", location: "Sala Zen", coach: "Sofia Mendes", status: "cancelada" },
-  { id: "bh-7", date: "2026-05-22", startTime: "18:30", endTime: "19:30", classType: "CrossFit", classTypeColor: "green", location: "Sala Principal", coach: "Marine Robba", status: "presente" },
-  { id: "bh-8", date: "2026-05-20", startTime: "09:00", endTime: "10:00", classType: "CrossFit", classTypeColor: "green", location: "Sala Principal", coach: "Andre Loureiro", status: "presente" },
-  { id: "bh-9", date: "2026-05-18", startTime: "17:30", endTime: "18:30", classType: "Open Gym", classTypeColor: "blue", location: "Area Outdoor", coach: "Pedro Santos", status: "presente" },
-  { id: "bh-10", date: "2026-05-15", startTime: "07:00", endTime: "08:00", classType: "CrossFit", classTypeColor: "green", location: "Sala Principal", coach: "Andre Loureiro", status: "falta" },
-];
 
 function getStatusBadge(status: BookingHistoryEntry["status"], C: Colors): { label: string; color: string; bg: string } {
   switch (status) {
-    case "presente":
+    case "checked_in":
       return { label: t("bookingHistory.present"), color: C.green, bg: C.green + "18" };
-    case "falta":
+    case "confirmed":
+      return { label: t("bookingHistory.confirmed"), color: C.blue, bg: C.blue + "18" };
+    case "waitlisted":
+      return { label: t("bookingHistory.waitlisted"), color: C.amber, bg: C.amber + "18" };
+    case "no_show":
       return { label: t("bookingHistory.absent"), color: C.red, bg: C.red + "18" };
-    case "cancelada":
-      return { label: t("bookingHistory.cancelled"), color: C.amber, bg: C.amber + "18" };
+    case "cancelled":
+      return { label: t("bookingHistory.cancelled"), color: C.muted, bg: C.muted + "18" };
   }
 }
 
@@ -79,23 +72,118 @@ function formatDate(dateStr: string): string {
 }
 
 // ─── Screen ──────────────────────────────────────────────
+function fromBookingStatus(status: string): BookingHistoryEntry["status"] {
+  if (status === "checked_in" || status === "confirmed" || status === "waitlisted" || status === "cancelled" || status === "no_show") {
+    return status;
+  }
+  return "confirmed";
+}
+
+function getClassTypeColor(name: string): keyof Colors {
+  const lower = name.toLowerCase();
+  if (lower.includes("yoga")) return "purple";
+  if (lower.includes("lift") || lower.includes("weight")) return "amber";
+  if (lower.includes("open")) return "blue";
+  return "green";
+}
+
+function deriveStreak(entries: BookingHistoryEntry[]): number {
+  const completed = entries
+    .filter((entry) => entry.status === "checked_in" || entry.status === "no_show")
+    .map((entry) => entry.date)
+    .sort((a, b) => b.localeCompare(a));
+
+  let streak = 0;
+  let lastDate: Date | null = null;
+  for (const dateStr of completed) {
+    const current = new Date(`${dateStr}T00:00:00`);
+    if (!lastDate) {
+      streak = 1;
+      lastDate = current;
+      continue;
+    }
+    const diffDays = Math.round((lastDate.getTime() - current.getTime()) / 86400000);
+    if (diffDays <= 7) {
+      streak += 1;
+      lastDate = current;
+      continue;
+    }
+    break;
+  }
+  return streak;
+}
+
 export default function BookingHistoryScreen() {
   const C = useTheme();
   const styles = makeStyles(C);
   const router = useRouter();
+  const { user, activeOrgId } = useAuthStore();
+  const memberId = useMemo(
+    () => user?.memberships.find((m) => m.organizationId === activeOrgId)?.id ?? user?.memberships[0]?.id ?? "",
+    [activeOrgId, user],
+  );
+  const [entries, setEntries] = useState<BookingHistoryEntry[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadError, setLoadError] = useState(false);
   const months = getMonths();
   const [selectedMonth, setSelectedMonth] = useState(months[0].key);
+  const selectedMonthData = months.find((m) => m.key === selectedMonth) ?? months[0];
 
-  const selectedMonthData = months.find((m) => m.key === selectedMonth)!;
-  const filteredEntries = mockBookingHistory.filter((entry) => {
+  useEffect(() => {
+    if (!memberId) return;
+
+    let cancelled = false;
+    setIsLoading(true);
+    setLoadError(false);
+
+    void listMemberBookings(memberId)
+      .then((rows) => {
+        if (cancelled) return;
+        const hydrated = rows
+          .map<BookingHistoryEntry | null>((booking) => {
+            const klass = booking.class;
+            if (!klass) return null;
+              return {
+              id: booking.id,
+              date: klass.date,
+              startTime: klass.startTime,
+              endTime: klass.endTime,
+              classType: klass.classType?.name ?? t("label.unknown"),
+              classTypeColor: getClassTypeColor(klass.classType?.name ?? ""),
+              location: klass.location?.name ?? t("label.unknown"),
+              coach:
+                klass.coaches.find(
+                  (coach): coach is NonNullable<typeof coach> => Boolean(coach),
+                )?.name ?? t("label.unknown"),
+              status: fromBookingStatus(booking.status),
+            };
+          })
+          .filter((row): row is BookingHistoryEntry => Boolean(row))
+          .sort((a, b) => b.date.localeCompare(a.date));
+        setEntries(hydrated);
+      })
+      .catch(() => {
+        if (!cancelled) setLoadError(true);
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [memberId]);
+
+  const filteredEntries = entries.filter((entry) => {
     const d = new Date(entry.date);
     return d.getMonth() === selectedMonthData.month && d.getFullYear() === selectedMonthData.year;
   });
 
   const totalThisMonth = filteredEntries.length;
-  const presentCount = filteredEntries.filter((e) => e.status === "presente").length;
-  const attendanceRate = totalThisMonth > 0 ? Math.round((presentCount / totalThisMonth) * 100) : 0;
-  const streak = 4;
+  const attendedCount = filteredEntries.filter((e) => e.status === "checked_in").length;
+  const attendanceBase = filteredEntries.filter((e) => e.status === "checked_in" || e.status === "no_show").length;
+  const attendanceRate = attendanceBase > 0 ? Math.round((attendedCount / attendanceBase) * 100) : 0;
+  const streak = deriveStreak(entries);
 
   return (
     <SafeAreaView style={styles.safe} edges={["top"]}>
@@ -135,6 +223,12 @@ export default function BookingHistoryScreen() {
           })}
         </ScrollView>
 
+        {loadError && (
+          <View style={styles.errorState}>
+            <Text style={styles.errorText}>{t("alert.error")}</Text>
+          </View>
+        )}
+
         {/* Stats Summary */}
         <View style={styles.statsRow}>
           <View style={styles.statCard}>
@@ -153,7 +247,7 @@ export default function BookingHistoryScreen() {
 
         {/* Booking List */}
         <FlatList
-          data={filteredEntries}
+          data={isLoading ? [] : filteredEntries}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => {
             const badge = getStatusBadge(item.status, C);
@@ -187,11 +281,20 @@ export default function BookingHistoryScreen() {
           }}
           contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}
+          ListHeaderComponent={
+            isLoading ? (
+              <View style={styles.loadingState}>
+                <ActivityIndicator color={C.green} />
+              </View>
+            ) : null
+          }
           ListEmptyComponent={
-            <View style={styles.emptyState}>
-              <Text style={styles.emptyIcon}>{"( )"}</Text>
-              <Text style={styles.emptyText}>{t("bookingHistory.empty")}</Text>
-            </View>
+            isLoading ? null : (
+              <View style={styles.emptyState}>
+                <Text style={styles.emptyIcon}>{"( )"}</Text>
+                <Text style={styles.emptyText}>{t("bookingHistory.empty")}</Text>
+              </View>
+            )
           }
         />
       </View>
@@ -303,12 +406,32 @@ function makeStyles(C: Colors) { return StyleSheet.create({
     textTransform: "uppercase",
     letterSpacing: 0.5,
   },
+  errorState: {
+    marginHorizontal: 16,
+    marginBottom: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderRadius: 10,
+    backgroundColor: C.red + "12",
+    borderWidth: 1,
+    borderColor: C.red + "30",
+  },
+  errorText: {
+    fontSize: 13,
+    fontWeight: "600",
+    color: C.red,
+  },
 
   // List
   listContent: {
     paddingHorizontal: 16,
     paddingBottom: 20,
     gap: 10,
+  },
+  loadingState: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 48,
   },
 
   // Card

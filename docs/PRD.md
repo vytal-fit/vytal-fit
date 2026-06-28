@@ -446,7 +446,7 @@ The mobile client lives at `apps/mobile/app/` using Expo Router (file-based rout
 | # | Route | Status | Purpose | Key Features | Stories |
 |---|---|---|---|---|---|
 | 29 | `/challenges` | Not built | Challenges & gamification | Points, ranking, level progress, 63 medals grid, point-earning mechanisms | A2-04 |
-| 30 | `/store` | Not built | In-app store | Account balance, credit top-up, product catalog with images/prices/stock, purchase history | NEW |
+| 30 | `/store` | Not built | In-app store | Account balance, credit top-up, product catalog with images/prices/stock, purchase history, supplier/dealer mappings | NEW |
 | 31 | `/activities` | Not built | Activities & events | Cross-box activity search, registration, regulation acceptance, competition details | NEW |
 | 32 | `/training-plans` | Not built | Individual workout plans | Calendar view, class type selector, create workout, coach notes, PT-assigned plans | P2-02 |
 | 33 | `/social-feed` | Not built | Box social feed | Chronological feed of PRs, results, check-ins; fistbump reactions; 1-line comments; privacy toggle | A2-05 |
@@ -712,6 +712,12 @@ The mobile client lives at `apps/mobile/app/` using Expo Router (file-based rout
 - Sub-section toggles (e.g., within Workouts: box workouts, individual, movements, history)
 - Birthday visibility control
 - Fistbumps and comments toggle
+
+**G-NEW-08 Acceptance Criteria:**
+- Product catalog supports variants for model, color, size, branding and supplier
+- Supplier mappings allow the platform to route fulfillment to external partners/dealers
+- Order lifecycle includes placed, confirmed, in production, shipped, delivered, cancelled
+- Stock updates and tracking status sync back into the store view
 
 ---
 

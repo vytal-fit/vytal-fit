@@ -193,6 +193,7 @@ const translations: Record<Language, Record<string, string>> = {
     "cat.all": "TODOS",
     "records.addPR": "Adicionar novo PR",
     "records.headerBrand": "RECORDES",
+    "records.empty": "Sem recordes encontrados",
 
     // Profile sections
     "section.tools": "FERRAMENTAS",
@@ -498,6 +499,7 @@ const translations: Record<Language, Record<string, string>> = {
     "checkin.validated": "Check-in validado!",
     "checkin.goodWorkout": "Bom treino, {name}!",
     "checkin.back": "VOLTAR",
+    "label.unknown": "Desconhecido",
 
     // Booking confirm
     "bookingConfirm.title": "Reserva",
@@ -508,6 +510,8 @@ const translations: Record<Language, Record<string, string>> = {
 
     // Booking history
     "bookingHistory.present": "Presente",
+    "bookingHistory.confirmed": "Confirmada",
+    "bookingHistory.waitlisted": "Lista de espera",
     "bookingHistory.absent": "Falta",
     "bookingHistory.cancelled": "Cancelada",
     "bookingHistory.total": "Total",
@@ -846,6 +850,7 @@ const translations: Record<Language, Record<string, string>> = {
     "cat.all": "ALL",
     "records.addPR": "Add new PR",
     "records.headerBrand": "RECORDS",
+    "records.empty": "No records found",
 
     // Profile sections
     "section.tools": "TOOLS",
@@ -1151,6 +1156,7 @@ const translations: Record<Language, Record<string, string>> = {
     "checkin.validated": "Check-in validated!",
     "checkin.goodWorkout": "Have a great workout, {name}!",
     "checkin.back": "BACK",
+    "label.unknown": "Unknown",
 
     // Booking confirm
     "bookingConfirm.title": "Booking",
@@ -1161,6 +1167,8 @@ const translations: Record<Language, Record<string, string>> = {
 
     // Booking history
     "bookingHistory.present": "Present",
+    "bookingHistory.confirmed": "Confirmed",
+    "bookingHistory.waitlisted": "Waitlisted",
     "bookingHistory.absent": "Absent",
     "bookingHistory.cancelled": "Cancelled",
     "bookingHistory.total": "Total",
@@ -1499,6 +1507,7 @@ const translations: Record<Language, Record<string, string>> = {
     "cat.all": "TODOS",
     "records.addPR": "Añadir nuevo PR",
     "records.headerBrand": "RÉCORDS",
+    "records.empty": "No se encontraron récords",
 
     // Profile sections
     "section.tools": "HERRAMIENTAS",
@@ -1804,6 +1813,7 @@ const translations: Record<Language, Record<string, string>> = {
     "checkin.validated": "¡Check-in validado!",
     "checkin.goodWorkout": "¡Buen entrenamiento, {name}!",
     "checkin.back": "VOLVER",
+    "label.unknown": "Desconocido",
 
     // Booking confirm
     "bookingConfirm.title": "Reserva",
@@ -1814,6 +1824,8 @@ const translations: Record<Language, Record<string, string>> = {
 
     // Booking history
     "bookingHistory.present": "Presente",
+    "bookingHistory.confirmed": "Confirmada",
+    "bookingHistory.waitlisted": "En lista de espera",
     "bookingHistory.absent": "Falta",
     "bookingHistory.cancelled": "Cancelada",
     "bookingHistory.total": "Total",

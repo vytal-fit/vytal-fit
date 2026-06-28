@@ -109,7 +109,9 @@ export default function ExerciseDetailPage() {
   const exercisePRs = useMemo(
     () =>
       exercise
-        ? (prsQuery.data?.items ?? []).map((row) => rowToPersonalRecord(row, exercise))
+        ? (prsQuery.data?.items ?? []).map((row) =>
+            rowToPersonalRecord(row, row.exercise ?? exercise),
+          )
         : [],
     [prsQuery.data, exercise],
   );

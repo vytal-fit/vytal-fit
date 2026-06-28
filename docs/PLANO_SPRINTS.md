@@ -2,7 +2,7 @@
 
 > Documento de execução. Liga o **contrato comercial** (6 fases, €290.000, go-live 30 Out 2026) a **sprints de 2 semanas**, com entregáveis, critérios de aceitação e tranches por fase.
 > Prestador: **JCUNHAFONTE, LDA** · Cliente: **Musas & Vikings, Lda** *(marca CrossFit Aveiro)* · Enquadramento: candidatura PRR *"Soluções de IA para PME's"* — projeto **CrossFit Aveiro Digital**.
-> Última atualização: 2026-06-27.
+> Última atualização: 2026-06-28.
 
 ---
 
@@ -16,6 +16,7 @@
 | D4 | **Conteúdo das BD de exercícios/WODs — validação pelo Juvenal** | Bruno | Pressuposto P-3; âmbito exato da produção de conteúdo **a esclarecer com o Bruno** (ponto em aberto). |
 | D5 | **LLM = Claude** *(atrás de gateway trocável)* | JCUNHAFONTE | **F5**: Coach Assist AI. |
 | D6 | Diferidos para fase seguinte: white-label, site builder/domínios+SSL, Google Reviews, avaliação de treinadores, mapa de lesões SVG, wearables, nutrição IA | §9.2 da proposta (Bruno: "concordamos") | Fora do MVP; via *Change Request* se anteciparem. |
+| D7 | **Loja online / merch com fornecedores externos** *(modelo, cor, tamanho, encomenda e tracking)* | JCUNHAFONTE + fornecedor | Fase posterior / marketplace; prever já a integração para dealers chineses e outros parceiros de produção. Protótipo de catálogo/supplier routing já existe no web app; fulfillment real continua para fase posterior. |
 
 ---
 
@@ -98,7 +99,7 @@
 
 ## 5 · Backlog diferido (fase seguinte)
 
-Mapa de lesões SVG interativo + dashboard cruzado saúde/performance avançado · white-label *(theming/stores)* · site builder + domínio próprio + SSL · Google Reviews automático · avaliação de treinadores · *wearables* (Garmin/Apple/Whoop) · nutrição IA · *marketplace*, *corporate wellness*, multi-localização, VOD.
+Mapa de lesões SVG interativo + dashboard cruzado saúde/performance avançado · white-label *(theming/stores)* · site builder + domínio próprio + SSL · Google Reviews automático · avaliação de treinadores · *wearables* (Garmin/Apple/Whoop) · nutrição IA · *marketplace* · loja/merch com fornecedores externos (incl. dealers chineses) — protótipo web em curso, fulfillment real posterior · *corporate wellness*, multi-localização, VOD.
 
 ---
 
