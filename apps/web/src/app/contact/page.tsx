@@ -6,7 +6,7 @@ import { useI18n } from "@/lib/i18n";
 
 const SUPPORT_EMAIL = "support@vytal.fit";
 
-export default function SupportPage() {
+export default function ContactPage() {
   const { t } = useI18n();
 
   return (
@@ -17,7 +17,7 @@ export default function SupportPage() {
           className="mb-8 inline-flex items-center gap-2 text-sm font-medium text-vytal-muted transition-colors hover:text-vytal-green"
         >
           <ArrowLeft className="h-4 w-4" />
-          {t("supportPage.backToApp")}
+          {t("contactPage.backToApp")}
         </Link>
 
         <article className="rounded-2xl border border-vytal-border bg-vytal-card p-8">
@@ -26,19 +26,19 @@ export default function SupportPage() {
           </div>
 
           <h1 className="mt-6 text-3xl font-bold tracking-tight">
-            {t("supportPage.title")}
+            {t("contactPage.title")}
           </h1>
           <p className="mt-3 text-sm leading-6 text-vytal-muted">
-            {t("supportPage.intro")}
+            {t("contactPage.intro")}
           </p>
 
           <div className="mt-8 space-y-4">
             <section className="space-y-1.5">
               <h2 className="text-sm font-semibold uppercase tracking-wider text-vytal-muted">
-                {t("supportPage.contactTitle")}
+                {t("contactPage.contactTitle")}
               </h2>
               <p className="text-sm leading-6 text-vytal-muted">
-                {t("supportPage.contactBody")}
+                {t("contactPage.contactBody")}
               </p>
               <a
                 href={`mailto:${SUPPORT_EMAIL}`}
@@ -51,10 +51,10 @@ export default function SupportPage() {
 
             <section className="space-y-1.5 border-t border-vytal-border pt-6">
               <h2 className="text-sm font-semibold uppercase tracking-wider text-vytal-muted">
-                {t("supportPage.securityTitle")}
+                {t("contactPage.securityTitle")}
               </h2>
               <p className="text-sm leading-6 text-vytal-muted">
-                {t("supportPage.securityBody")}
+                {t("contactPage.securityBody")}
               </p>
             </section>
           </div>

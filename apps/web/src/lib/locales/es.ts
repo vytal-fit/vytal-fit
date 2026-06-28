@@ -255,13 +255,13 @@ export const es: Record<string, string> = {
     "invite.role.member": "Miembro",
 
     // Support page
-    "supportPage.backToApp": "Volver a la aplicación",
-    "supportPage.title": "Soporte",
-    "supportPage.intro": "Estamos aquí para ayudarte. Si tienes preguntas sobre tu cuenta, facturación o cualquier función de Vytal, contacta con nuestro equipo.",
-    "supportPage.contactTitle": "Contáctanos",
-    "supportPage.contactBody": "Envíanos un correo y te responderemos lo antes posible.",
-    "supportPage.securityTitle": "¿No hiciste este cambio?",
-    "supportPage.securityBody": "Si recibiste un correo confirmando un cambio de contraseña que no solicitaste, contáctanos de inmediato para proteger tu cuenta.",
+    "contactPage.backToApp": "Volver a la aplicación",
+    "contactPage.title": "Soporte",
+    "contactPage.intro": "Estamos aquí para ayudarte. Si tienes preguntas sobre tu cuenta, facturación o cualquier función de Vytal, contacta con nuestro equipo.",
+    "contactPage.contactTitle": "Contáctanos",
+    "contactPage.contactBody": "Envíanos un correo y te responderemos lo antes posible.",
+    "contactPage.securityTitle": "¿No hiciste este cambio?",
+    "contactPage.securityBody": "Si recibiste un correo confirmando un cambio de contraseña que no solicitaste, contáctanos de inmediato para proteger tu cuenta.",
 
     // Legal
     "legal.backToRegister": "Volver al registro",
