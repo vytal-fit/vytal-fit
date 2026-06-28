@@ -1,11 +1,24 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { Suspense, useState, useMemo } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { Eye, EyeOff, UserPlus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/lib/i18n";
 import { useAuthStore } from "@/stores/auth-store";
+import { AuthDivider, SocialLogin } from "@/components/social-login";
+
+/** Post-signup target from `?redirect=`/`?invite=`, else null. Same-origin relative paths only. */
+function resolvePostAuthTarget(params: URLSearchParams): string | null {
+  const redirect = params.get("redirect");
+  if (redirect && redirect.startsWith("/") && !redirect.startsWith("//")) {
+    return redirect;
+  }
+  const invite = params.get("invite");
+  if (invite) return `/invite/${encodeURIComponent(invite)}`;
+  return null;
+}
 
 function getPasswordStrength(password: string): { score: number; labelKey: string; color: string } {
   let score = 0;
@@ -21,9 +34,11 @@ function getPasswordStrength(password: string): { score: number; labelKey: strin
   return { score: 4, labelKey: "auth.passwordStrong", color: "bg-vytal-green" };
 }
 
-export default function RegisterPage() {
+function RegisterForm() {
   const { t } = useI18n();
+  const searchParams = useSearchParams();
   const register = useAuthStore((s) => s.register);
+  const target = resolvePostAuthTarget(searchParams);
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -65,11 +80,10 @@ export default function RegisterPage() {
       setErrors({ email: t("auth.registerFailed") });
       return;
     }
-    // Hard navigation (not router.push): a fresh signup has no active org yet,
-    // so a soft SPA transition into /onboarding leaves the Better Auth session/
-    // org hooks "pending" and the loader wedges. A full document load
-    // re-initialises them cleanly. (Pattern from kloser.)
-    window.location.assign("/onboarding");
+    // Hard navigation (not router.push): a fresh signup has no active org yet, so
+    // a soft transition into /onboarding leaves the Better Auth org hooks pending
+    // and the loader wedges. A full document load re-initialises them cleanly.
+    window.location.assign(target ?? "/onboarding");
   }
 
   function updateField(field: string, value: string) {
@@ -86,7 +100,6 @@ export default function RegisterPage() {
   return (
     <div className="mx-auto w-full max-w-md">
       <div className="rounded-2xl border border-vytal-border bg-vytal-card backdrop-blur-xl p-8">
-        {/* Logo */}
         <div className="mb-8 text-center">
           <h1 className="text-3xl font-bold tracking-tight">
             <span className="text-base font-medium text-vytal-muted/60">pro</span><span className="text-vytal-green">VYTAL</span>
@@ -97,7 +110,6 @@ export default function RegisterPage() {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Name */}
           <div>
             <label
               htmlFor="name"
@@ -119,7 +131,6 @@ export default function RegisterPage() {
             )}
           </div>
 
-          {/* Email */}
           <div>
             <label
               htmlFor="email"
@@ -141,7 +152,6 @@ export default function RegisterPage() {
             )}
           </div>
 
-          {/* Phone (optional) */}
           <div>
             <label
               htmlFor="phone"
@@ -162,7 +172,6 @@ export default function RegisterPage() {
             />
           </div>
 
-          {/* Password */}
           <div>
             <label
               htmlFor="password"
@@ -192,7 +201,6 @@ export default function RegisterPage() {
                 )}
               </button>
             </div>
-            {/* Password Strength Meter */}
             {strength && (
               <div className="mt-2">
                 <div className="flex gap-1">
@@ -216,7 +224,6 @@ export default function RegisterPage() {
             )}
           </div>
 
-          {/* Confirm Password */}
           <div>
             <label
               htmlFor="confirmPassword"
@@ -253,7 +260,6 @@ export default function RegisterPage() {
             )}
           </div>
 
-          {/* Terms of Service */}
           <div className="flex items-start gap-3">
             <button
               type="button"
@@ -295,7 +301,6 @@ export default function RegisterPage() {
             <p className="text-xs text-vytal-red">{errors.terms}</p>
           )}
 
-          {/* Submit */}
           <button
             type="submit"
             disabled={loading}
@@ -312,7 +317,12 @@ export default function RegisterPage() {
           </button>
         </form>
 
-        {/* Login link */}
+        <div className="my-6">
+          <AuthDivider />
+        </div>
+
+        <SocialLogin callbackURL={target ?? "/welcome"} />
+
         <div className="mt-6 text-center">
           <span className="text-sm text-vytal-muted">
             {t("auth.hasAccount")}{" "}
@@ -326,10 +336,17 @@ export default function RegisterPage() {
         </div>
       </div>
 
-      {/* Powered by footer */}
       <p className="mt-8 text-center text-[10px] font-medium uppercase tracking-widest text-vytal-muted/40">
         Powered by Vytal
       </p>
     </div>
+  );
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense fallback={null}>
+      <RegisterForm />
+    </Suspense>
   );
 }
