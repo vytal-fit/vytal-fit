@@ -57,6 +57,12 @@ The execution roadmap lives in `docs/EXECUTION_PLAN.md` (phases F1–F6).
 - Keep the current Better Auth **5-role** model (`owner > admin > coach > pt > athlete`) + tRPC `minRole` gating. **Do not** port kloser's granular `packages/authz` per-module matrix yet.
 - Revisit only if the **G5-01 permissions matrix screen** requires per-module view/edit/delete granularity.
 
+## Decision 6 — Store / merch uses external suppliers and dealers
+
+- The online store is a configurable **merchandising channel**, not just a local POS shelf: the box picks product model, color, size, branding and quantity, and Vytal handles the supplier connection and order lifecycle.
+- The long-term target includes **Chinese manufacturing dealers** and other external suppliers behind the same product abstraction, so the platform can route orders without manual back-and-forth in the customer workflow.
+- MVP implication: keep the store deferred, but shape the data model and integration surface for product variants, supplier mappings and order tracking from the start.
+
 ---
 
 ## Open items (require client / lead input)
@@ -65,6 +71,7 @@ The execution roadmap lives in `docs/EXECUTION_PLAN.md` (phases F1–F6).
 - Exact post-training questionnaire question set (Decision 1).
 - Exercise/WOD DB seed content from CrossFit Aveiro (proposal §18.8).
 - Final branding/domain confirmation (by end of F1).
+- Supplier/dealer shortlist for the store / merch flow.
 
 ---
 
