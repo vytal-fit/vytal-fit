@@ -57,7 +57,7 @@ O DB já existe (Neon Postgres + Drizzle + migrações + seed + Better Auth + tR
 - [ ] CRM kanban + automations de leads
 - [ ] Staff + RBAC
 - [ ] Dashboard / KPIs
-- [ ] Loja online / merch conectado a fornecedores externos (catálogo, variantes, encomenda, tracking)
+- [~] Loja online / merch conectado a fornecedores externos (catálogo, variantes, encomenda, tracking) — protótipo web em curso; fulfillment real e integrações externas continuam para fase posterior
 - [ ] Aceitação F2
 
 ## F3 · Treino — S4–S5 (€55.000)
@@ -105,4 +105,4 @@ O DB já existe (Neon Postgres + Drizzle + migrações + seed + Better Auth + tR
 - **A-3** Domínio próprio + identidade visual final — *até fim da F1*.
 
 ## Diferido (fase seguinte)
-Mapa de lesões SVG · dashboard cruzado saúde/performance (A3-04) · white-label · site builder + domínio/SSL · Google Reviews · avaliação de treinadores · wearables · nutrição IA · marketplace · corporate wellness · multi-localização · VOD · loja/merch com ligação a fornecedores externos.
+Mapa de lesões SVG · dashboard cruzado saúde/performance (A3-04) · white-label · site builder + domínio/SSL · Google Reviews · avaliação de treinadores · wearables · nutrição IA · marketplace · corporate wellness · multi-localização · VOD · loja/merch com ligação a fornecedores externos (protótipo web já em linha; fulfillment real pendente).
