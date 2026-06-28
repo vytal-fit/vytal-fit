@@ -17,7 +17,7 @@
 ## Pacotes (guia kloser) — o que adotar e quando
 O DB já existe (Neon Postgres + Drizzle + migrações + seed + Better Auth + tRPC) — **não recriar**. Adotar pacotes do kloser à medida das fases:
 - [ ] **`authz`** — *adiado (reality-check)*: o vytal já tem hierarquia de roles testada em `shared` (`ROLE_HIERARCHY` + `minRole` → `staffProcedure`/`adminProcedure`). Extrair pacote com matriz de capacidades como o kloser só vale a pena quando o modelo de **6 perfis × capacidades × scope** for mesmo necessário (fase posterior). Hoje seria over-engineering.
-- [ ] **`email`** — emails transacionais (dunning, convites, go-live). → F2.
+- [~] **`email`** — infra transacional **pronta**: pacote `@vytal-fit/email` (Brevo + provider mock), templates verificação/reset/password-changed/convite/convite-aceite/welcome em PT/EN/ES, sync idempotente via `npm run brevo:sync`, hooks Better Auth ligados (verificação no signup, reset, tripwire de mudança de password, convite, welcome ao fundador). Cobertura: builders + `sendEmail`. Falta: dunning + campanhas de go-live. → F2.
 - [ ] **`agents` + `vectors`/pgvector** — vector store para o RAG do Coach Assist AI. → F5.
 - [ ] *(opcional)* **`comms`** — gate RGPD de marketing/campanhas. → pós-MVP.
 - [ ] **`whatsapp`** — comunicação com membros/leads (lembretes de aula, follow-up, dunning); forte no mercado PT. → pós-MVP / Fase 2.
