@@ -138,6 +138,9 @@ const translations: Record<Language, Record<string, string>> = {
     "login.emailPlaceholder": "voce@exemplo.com",
     "login.passwordPlaceholder": "A tua password",
     "login.noAccount": "Não tens conta?",
+    "auth.loginFailed": "Não foi possível entrar",
+    "auth.registerFailed": "Não foi possível criar a conta",
+    "auth.orgSwitchFailed": "Não foi possível trocar de espaço",
 
     // Profile menu
     "menu.personalData": "Dados Pessoais",
@@ -788,6 +791,9 @@ const translations: Record<Language, Record<string, string>> = {
     "login.emailPlaceholder": "you@example.com",
     "login.passwordPlaceholder": "Your password",
     "login.noAccount": "Don't have an account?",
+    "auth.loginFailed": "Could not sign in",
+    "auth.registerFailed": "Could not create the account",
+    "auth.orgSwitchFailed": "Could not switch spaces",
 
     // Profile menu
     "menu.personalData": "Personal Data",
@@ -1438,6 +1444,9 @@ const translations: Record<Language, Record<string, string>> = {
     "login.emailPlaceholder": "tu@ejemplo.com",
     "login.passwordPlaceholder": "Tu contraseña",
     "login.noAccount": "¿No tienes cuenta?",
+    "auth.loginFailed": "No se pudo iniciar sesión",
+    "auth.registerFailed": "No se pudo crear la cuenta",
+    "auth.orgSwitchFailed": "No se pudo cambiar de espacio",
 
     // Profile menu
     "menu.personalData": "Datos Personales",

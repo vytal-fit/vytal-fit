@@ -4,8 +4,9 @@
  * Policy:
  *  - READS (list/byId/dashboard/stats)            → any org member
  *  - notifications.markRead / markAllRead         → any org member
- *  - Operational writes (classes, wods, leads,
- *    bookings, wodResults/PRs create+update)      → coach or above
+ *  - Operational writes (classes, wods, leads)    → coach or above
+ *  - Athlete self-service writes
+ *    (bookings, wodResults/PRs create+update)     → own member only; coach+ any member
  *  - Destructive/management (members CRUD,
  *    coaches/locations/classTypes CRUD, plans &
  *    subscriptions create, deletes)               → admin or above
@@ -164,8 +165,25 @@ describe("leads create/updateStage — coach+", () => {
   });
 });
 
-describe("bookings book/cancel — coach+ (TODO athlete-self linkage)", () => {
-  it("athlete gets FORBIDDEN on book and cancel", async () => {
+describe("bookings book/cancel — athlete own member or coach+", () => {
+  it("athlete can book and cancel for their linked member profile", async () => {
+    const booked = await h.callerAthleteA.bookings.book({
+      classId: IDS.classASmall,
+      memberId: IDS.memberA1,
+    });
+    expect(booked.organizationId).toBe(IDS.orgA);
+    expect(booked.memberId).toBe(IDS.memberA1);
+
+    const cancelled = await h.callerAthleteA.bookings.cancel({ id: booked.id });
+    expect(cancelled.status).toBe("cancelled");
+  });
+
+  it("athlete gets FORBIDDEN on another member's booking", async () => {
+    const otherMemberBooking = await h.callerCoachA.bookings.book({
+      classId: IDS.classA,
+      memberId: IDS.memberA3,
+    });
+
     await expect(
       h.callerAthleteA.bookings.book({
         classId: IDS.classA,
@@ -173,7 +191,7 @@ describe("bookings book/cancel — coach+ (TODO athlete-self linkage)", () => {
       }),
     ).rejects.toMatchObject(FORBIDDEN);
     await expect(
-      h.callerAthleteA.bookings.cancel({ id: IDS.bookingA }),
+      h.callerAthleteA.bookings.cancel({ id: otherMemberBooking.id }),
     ).rejects.toMatchObject(FORBIDDEN);
   });
 
@@ -188,19 +206,35 @@ describe("bookings book/cancel — coach+ (TODO athlete-self linkage)", () => {
   });
 });
 
-describe("wodResults create/update — coach+ (TODO athlete-self linkage)", () => {
-  it("athlete gets FORBIDDEN on create and update", async () => {
+describe("wodResults create/update — athlete own member or coach+", () => {
+  it("athlete can create and update their own result", async () => {
+    const created = await h.callerAthleteA.wodResults.create({
+      wodId: IDS.wodAPublished,
+      memberId: IDS.memberA1,
+      score: "4:00",
+      scoreType: "time",
+    });
+    expect(created.memberId).toBe(IDS.memberA1);
+
+    const updated = await h.callerAthleteA.wodResults.update({
+      id: created.id,
+      data: { score: "3:50" },
+    });
+    expect(updated.score).toBe("3:50");
+  });
+
+  it("athlete gets FORBIDDEN on another member's result", async () => {
     await expect(
       h.callerAthleteA.wodResults.create({
         wodId: IDS.wodA,
-        memberId: IDS.memberA1,
+        memberId: IDS.memberA2,
         score: "4:00",
         scoreType: "time",
       }),
     ).rejects.toMatchObject(FORBIDDEN);
     await expect(
       h.callerAthleteA.wodResults.update({
-        id: IDS.wodResultA1,
+        id: IDS.wodResultA2,
         data: { score: "3:30" },
       }),
     ).rejects.toMatchObject(FORBIDDEN);
@@ -222,11 +256,27 @@ describe("wodResults create/update — coach+ (TODO athlete-self linkage)", () =
   });
 });
 
-describe("personalRecords create/update — coach+ (TODO athlete-self linkage)", () => {
-  it("athlete gets FORBIDDEN on create and update", async () => {
+describe("personalRecords create/update — athlete own member or coach+", () => {
+  it("athlete can create and update their own PR", async () => {
+    const created = await h.callerAthleteA.personalRecords.create({
+      memberId: IDS.memberA1,
+      exerciseId: IDS.exercise2,
+      value: "20",
+      unit: "reps",
+    });
+    expect(created.memberId).toBe(IDS.memberA1);
+
+    const updated = await h.callerAthleteA.personalRecords.update({
+      id: created.id,
+      data: { value: "21" },
+    });
+    expect(updated.value).toBe("21");
+  });
+
+  it("athlete gets FORBIDDEN on another member's PR", async () => {
     await expect(
       h.callerAthleteA.personalRecords.create({
-        memberId: IDS.memberA1,
+        memberId: IDS.memberA2,
         exerciseId: IDS.exercise1,
         value: "125",
         unit: "kg",
@@ -234,7 +284,7 @@ describe("personalRecords create/update — coach+ (TODO athlete-self linkage)",
     ).rejects.toMatchObject(FORBIDDEN);
     await expect(
       h.callerAthleteA.personalRecords.update({
-        id: IDS.prA1,
+        id: IDS.prA2,
         data: { value: "130" },
       }),
     ).rejects.toMatchObject(FORBIDDEN);

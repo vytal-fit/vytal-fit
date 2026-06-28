@@ -2,7 +2,7 @@
 
 > Backlog vivo, atualizado a cada sprint. Ligado a [`docs/PLANO_SPRINTS.md`](docs/PLANO_SPRINTS.md) e ao contrato (JCUNHAFONTE ↔ Musas & Vikings · €290.000 · go-live 30 Out 2026).
 > Legenda: `[ ]` por fazer · `[~]` em curso · `[x]` feito · `(D#)` decisão · `(A#)` ponto em aberto.
-> Última atualização: 2026-06-27.
+> Última atualização: 2026-06-28.
 
 ## Decisões em vigor *(ref. Adenda 01)*
 - **D1** Questionário pós-treino no MVP (F4), **sem** mapa de lesões.
@@ -64,7 +64,7 @@ O DB já existe (Neon Postgres + Drizzle + migrações + seed + Better Auth + tR
 
 ## F4 · App do Atleta (`my.vytal.fit`) + Bem-estar — S6–S7 (€60.000)
 - [x] **`gym_members.user_id`** (atleta ↔ membro) — migração `0002`, FK + unique por org; desbloqueia self-service
-- [ ] Self-service de bookings/resultados (atleta age sobre o SEU membro) — usa a ligação acima
+- [~] Self-service de bookings/resultados (atleta age sobre o SEU membro) — API + REST wrappers prontos; mobile booking/PR/WOD wiring em curso
 - [ ] Marcação ≤3 toques · check-in QR
 - [ ] Ver WOD · registar resultado · leaderboards · PRs · %RM · gamificação
 - [ ] Perfil de estilo de vida

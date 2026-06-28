@@ -10,10 +10,12 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { ArrowLeft, Save, CheckCircle } from "lucide-react-native";
-import { mockExercises, mockPersonalRecords } from "@vytal-fit/shared";
+import { mockExercises } from "@vytal-fit/shared";
 import { useTheme } from "./_layout";
 import type { Colors } from "@/colors";
 import { t } from "@/i18n";
+import { createPersonalRecord, listPersonalRecords } from "@/lib/auth-api";
+import { useAuthStore } from "@/stores/auth-store";
 
 
 const rmLabels = ["1RM", "2RM", "3RM", "4RM", "5RM", "6RM", "7RM", "8RM", "9RM", "10RM"];
@@ -24,9 +26,11 @@ export default function PREntryScreen() {
   const styles = makeStyles(C);
   const router = useRouter();
   const { exerciseId } = useLocalSearchParams<{ exerciseId: string }>();
+  const { user, activeOrgId } = useAuthStore();
+  const memberId = user?.memberships.find((m) => m.organizationId === activeOrgId)?.id ?? user?.memberships[0]?.id ?? "";
 
   const exercise = mockExercises.find((e) => e.id === exerciseId) || mockExercises[0];
-  const existingPR = mockPersonalRecords.find((pr) => pr.exerciseId === exercise.id);
+  const [existingPR, setExistingPR] = useState<{ value: string; unit: string; previousValue?: string } | null>(null);
 
   const [rmValues, setRmValues] = useState<string[]>(
     rmLabels.map((_, i) => {
@@ -37,6 +41,26 @@ export default function PREntryScreen() {
   const [notes, setNotes] = useState("");
   const [saving, setSaving] = useState(false);
 
+  React.useEffect(() => {
+    if (!memberId) return;
+    void (async () => {
+      const records = await listPersonalRecords(memberId, exercise.id);
+      const current = records[0];
+      if (current) {
+        setExistingPR({
+          value: current.value,
+          unit: current.unit,
+          previousValue: current.previousValue ?? undefined,
+        });
+        setRmValues((prev) => {
+          const next = [...prev];
+          next[0] = current.value;
+          return next;
+        });
+      }
+    })();
+  }, [exercise.id, memberId]);
+
   function updateRM(index: number, value: string) {
     const newValues = [...rmValues];
     newValues[index] = value;
@@ -44,10 +68,24 @@ export default function PREntryScreen() {
   }
 
   function handleSave() {
+    if (!memberId) return;
     setSaving(true);
-    setTimeout(() => {
-      router.back();
-    }, 800);
+    void (async () => {
+      try {
+        await createPersonalRecord({
+          memberId,
+          exerciseId: exercise.id,
+          value: rmValues[0] || "",
+          unit: "kg",
+          achievedAt: new Date().toISOString(),
+          previousValue: existingPR?.value ?? null,
+          notes: notes || null,
+        });
+        router.back();
+      } finally {
+        setSaving(false);
+      }
+    })();
   }
 
   return (

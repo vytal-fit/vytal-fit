@@ -95,6 +95,37 @@ function toIsoDate(date: Date | string): string {
   return (date instanceof Date ? date : new Date(date)).toISOString();
 }
 
+interface FullOrganizationResponse {
+  id: string;
+  name: string;
+  slug: string;
+  logo?: string | null;
+  metadata?: unknown;
+  members: Array<{
+    id: string;
+    userId: string;
+    role: string;
+    createdAt: Date | string;
+  }>;
+}
+
+async function fetchFullOrganization(
+  organizationId: string,
+): Promise<FullOrganizationResponse | null> {
+  const params = new URLSearchParams({ organizationId });
+  const response = await fetch(
+    `/api/auth/organization/get-full-organization?${params.toString()}`,
+    {
+      method: "GET",
+      credentials: "same-origin",
+    },
+  );
+  if (!response.ok) {
+    throw new Error(`Failed to fetch organization ${organizationId}`);
+  }
+  return (await response.json()) as FullOrganizationResponse | null;
+}
+
 /**
  * Build the `UserWithOrgs` shape consumed by the app from the live Better
  * Auth session + organization plugin endpoints.
@@ -117,9 +148,7 @@ async function buildUserWithOrgs(): Promise<UserWithOrgs | null> {
 
   const memberships: UserWithOrgs["memberships"] = [];
   for (const org of orgs ?? []) {
-    const { data: fullOrg } = await authClient.organization.getFullOrganization(
-      { query: { organizationId: org.id } }
-    );
+    const fullOrg = await fetchFullOrganization(org.id);
     const member = fullOrg?.members.find((m) => m.userId === session.user.id);
     if (!member) continue;
 

@@ -2,6 +2,7 @@ import React, { createContext, useContext, useEffect } from "react";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useAppStore } from "@/stores/app-store";
+import { useAuthStore } from "@/stores/auth-store";
 import { getColors, Colors } from "@/colors";
 
 // ─── Theme Context ─────────────────────────────────────────
@@ -15,11 +16,16 @@ export function useTheme(): Colors {
 export default function RootLayout() {
   const theme = useAppStore((s) => s.theme);
   const hydrate = useAppStore((s) => s.hydrate);
+  const hydrateAuth = useAuthStore((s) => s.hydrate);
   const C = getColors(theme);
 
   useEffect(() => {
     hydrate();
   }, [hydrate]);
+
+  useEffect(() => {
+    void hydrateAuth();
+  }, [hydrateAuth]);
 
   return (
     <ThemeContext.Provider value={C}>

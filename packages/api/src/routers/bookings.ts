@@ -1,8 +1,9 @@
 import { TRPCError } from "@trpc/server";
 import { and, count, desc, eq, inArray } from "drizzle-orm";
 import { bookings, classes, gymMembers } from "@vytal-fit/db";
+import { hasMinRole } from "@vytal-fit/shared";
 import { z } from "zod";
-import { orgProcedure, router, staffProcedure } from "../trpc";
+import { orgProcedure, router } from "../trpc";
 
 export const bookingsRouter = router({
   /**
@@ -10,13 +11,10 @@ export const bookingsRouter = router({
    * booking is created as `waitlisted` instead of `confirmed`. Duplicate
    * active bookings are rejected with CONFLICT.
    *
-   * TODO(athlete-self): athletes should be able to book/cancel for THEMSELVES
-   * from the athlete app. That requires a user→gym_member linkage (e.g. a
-   * `gym_members.user_id` column) which does not exist in the schema yet.
-   * Until then book/cancel are coach+; relax to any org member with an
-   * own-memberId check once the linkage lands.
+   * Athletes may book only their linked gym member row. Staff can book any
+   * member in the active org.
    */
-  book: staffProcedure
+  book: orgProcedure
     .input(z.object({ classId: z.string().min(1), memberId: z.string().min(1) }))
     .mutation(async ({ ctx, input }) => {
       const [klass] = await ctx.db
@@ -41,7 +39,7 @@ export const bookingsRouter = router({
       }
 
       const [member] = await ctx.db
-        .select({ id: gymMembers.id })
+        .select({ id: gymMembers.id, userId: gymMembers.userId })
         .from(gymMembers)
         .where(
           and(
@@ -52,6 +50,15 @@ export const bookingsRouter = router({
         .limit(1);
       if (!member) {
         throw new TRPCError({ code: "NOT_FOUND", message: "Member not found." });
+      }
+      if (
+        !ctx.session.role ||
+        (!hasMinRole(ctx.session.role, "coach") && member.userId !== ctx.session.user.id)
+      ) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Athletes can only book classes for their own member profile.",
+        });
       }
 
       return ctx.db.transaction(async (tx) => {
@@ -100,16 +107,23 @@ export const bookingsRouter = router({
       });
     }),
 
-  cancel: staffProcedure
+  cancel: orgProcedure
     .input(z.object({ id: z.string().min(1) }))
     .mutation(async ({ ctx, input }) => {
       const [existing] = await ctx.db
-        .select({ id: bookings.id, status: bookings.status })
+        .select({
+          id: bookings.id,
+          memberId: bookings.memberId,
+          status: bookings.status,
+          memberUserId: gymMembers.userId,
+        })
         .from(bookings)
+        .innerJoin(gymMembers, eq(bookings.memberId, gymMembers.id))
         .where(
           and(
             eq(bookings.id, input.id),
             eq(bookings.organizationId, ctx.activeOrganizationId),
+            eq(gymMembers.organizationId, ctx.activeOrganizationId),
           ),
         )
         .limit(1);
@@ -118,6 +132,15 @@ export const bookingsRouter = router({
       }
       if (existing.status === "cancelled") {
         throw new TRPCError({ code: "CONFLICT", message: "Booking is already cancelled." });
+      }
+      if (
+        !ctx.session.role ||
+        (!hasMinRole(ctx.session.role, "coach") && existing.memberUserId !== ctx.session.user.id)
+      ) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Athletes can only cancel bookings for their own member profile.",
+        });
       }
 
       const [cancelled] = await ctx.db

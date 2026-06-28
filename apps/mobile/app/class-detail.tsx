@@ -215,11 +215,11 @@ export default function ClassDetailScreen() {
           ) : (
             <TouchableOpacity
               style={styles.bookButton}
-              onPress={() => {
-                setIsBooked(true);
-                setShowBookedBanner(true);
-                setTimeout(() => setShowBookedBanner(false), 3000);
-              }}
+              onPress={() =>
+                router.push(
+                  `/booking-confirm?classId=${cls.id}&className=${encodeURIComponent(cls.classType.name)}&startTime=${encodeURIComponent(`${cls.startTime} - ${cls.endTime}`)}&coach=${encodeURIComponent(coachName)}&location=${encodeURIComponent(cls.location.name)}`,
+                )
+              }
             >
               <Text style={styles.bookButtonText}>{t("btn.book")}</Text>
             </TouchableOpacity>

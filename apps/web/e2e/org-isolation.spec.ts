@@ -138,8 +138,8 @@ test.describe("Org isolation: sidebar org switch (P1-3)", () => {
   // remaining specs keep seeing CrossFit Aveiro.
   test.afterEach(async ({ page }) => {
     await page.request
-      .post("/api/auth/organization/set-active", {
-        data: { organizationId: ORG_1.id },
+      .patch("/api/session", {
+        data: { activeSpaceId: ORG_1.id },
       })
       .catch(() => undefined);
   });

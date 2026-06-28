@@ -23,20 +23,27 @@ export default function LoginScreen() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { login, isAuthenticated } = useAuthStore();
+  const [error, setError] = useState("");
+  const { login, isAuthenticated, isHydrated } = useAuthStore();
 
   useEffect(() => {
-    if (isAuthenticated) {
+    if (isHydrated && isAuthenticated) {
       router.replace("/(tabs)/home");
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, isHydrated, router]);
 
-  function handleLogin() {
+  async function handleLogin() {
     setLoading(true);
-    setTimeout(() => {
-      login(email, password);
-      router.replace("/(tabs)/home");
-    }, 600);
+    setError("");
+    const success = await login(email, password);
+    setLoading(false);
+
+    if (!success) {
+      setError(t("auth.loginFailed"));
+      return;
+    }
+
+    router.replace("/(tabs)/home");
   }
 
   return (
@@ -116,6 +123,8 @@ export default function LoginScreen() {
               {loading ? t("btn.loggingIn") : t("btn.login")}
             </Text>
           </TouchableOpacity>
+
+          {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
           {/* Register link */}
           <View style={styles.registerContainer}>
@@ -233,6 +242,12 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "600",
     color: C.green,
+  },
+  errorText: {
+    fontSize: 12,
+    color: C.red,
+    textAlign: "center",
+    marginTop: -4,
   },
   poweredBy: {
     textAlign: "center",

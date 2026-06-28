@@ -13,6 +13,8 @@
 export const STORAGE_KEYS = {
   // Session & identity
   auth: "vytal-auth",
+  authToken: "vytal-auth-token",
+  authSnapshot: "vytal-auth-snapshot",
   // Preferences
   theme: "vytal-theme",
   landingTheme: "vytal-landing-theme",

@@ -10,9 +10,12 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { ArrowLeft, CheckCircle } from "lucide-react-native";
+import { mockWODs } from "@vytal-fit/shared";
 import { useTheme } from "./_layout";
 import type { Colors } from "@/colors";
 import { t } from "@/i18n";
+import { createWodResult } from "@/lib/auth-api";
+import { useAuthStore } from "@/stores/auth-store";
 
 
 // ─── Score Type Config ──────────────────────────────────
@@ -46,6 +49,7 @@ export default function ScoreEntryScreen() {
   const C = useTheme();
   const styles = makeStyles(C);
   const router = useRouter();
+  const { user, activeOrgId } = useAuthStore();
   const [scoreType, setScoreType] = useState<ScoreType>("time");
   const [scale, setScale] = useState<ScaleType>("rx");
   const [rpe, setRpe] = useState(7);
@@ -65,12 +69,38 @@ export default function ScoreEntryScreen() {
   // Reps input
   const [totalReps, setTotalReps] = useState("");
   const [saving, setSaving] = useState(false);
+  const memberId = user?.memberships.find((m) => m.organizationId === activeOrgId)?.id ?? user?.memberships[0]?.id ?? "";
+  const wod = mockWODs[0];
 
   const handleSave = () => {
+    if (!memberId) return;
     setSaving(true);
-    setTimeout(() => {
-      router.back();
-    }, 800);
+    void (async () => {
+      try {
+        const score =
+          scoreType === "time"
+            ? `${minutes || "0"}:${seconds || "00"}`
+            : scoreType === "rounds_reps"
+              ? `${rounds || "0"}+${reps || "0"}`
+              : scoreType === "weight"
+                ? `${weight || "0"}`
+                : `${totalReps || "0"}`;
+        await createWodResult({
+          wodId: wod.id,
+          memberId,
+          classId: null,
+          score,
+          scoreType,
+          scale,
+          isPR: false,
+          rpe,
+          notes: notes || null,
+        });
+        router.back();
+      } finally {
+        setSaving(false);
+      }
+    })();
   };
 
   return (
