@@ -43,6 +43,13 @@ const projects: TestProjectConfiguration[] = [
       environment: "node",
     },
   },
+  {
+    test: {
+      name: "@vytal-fit/web",
+      include: ["apps/web/src/**/*.test.ts"],
+      environment: "node",
+    },
+  },
 ];
 
 export default projects;
