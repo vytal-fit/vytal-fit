@@ -653,6 +653,41 @@ export const notifications = pgTable(
   ],
 );
 
+/** Support ticket messages stored inline on the ticket row. */
+export interface SupportTicketMessage {
+  id: string;
+  author: string;
+  isStaff: boolean;
+  content: string;
+  date: string;
+}
+
+/** Support tickets — org-scoped member issues, operationally owned by staff. */
+export const supportTickets = pgTable(
+  "support_tickets",
+  {
+    id: text("id").primaryKey(),
+    organizationId: text("organization_id")
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    number: integer("number").notNull(),
+    subject: text("subject").notNull(),
+    memberName: text("member_name").notNull(),
+    priority: text("priority").notNull(),
+    status: text("status").notNull(),
+    assignedTo: text("assigned_to").notNull(),
+    description: text("description").notNull(),
+    messages: jsonb("messages").$type<SupportTicketMessage[]>().notNull().default([]),
+    internalNotes: text("internal_notes").notNull().default(""),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (t) => [
+    index("support_tickets_org_idx").on(t.organizationId),
+    index("support_tickets_org_status_idx").on(t.organizationId, t.status),
+  ],
+);
+
 /**
  * Check-ins — every gym entry, whether tied to a class booking or open gym.
  * `classId`/`bookingId` are nullable: open-gym check-ins carry neither.

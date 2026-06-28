@@ -58,6 +58,7 @@ O DB já existe (Neon Postgres + Drizzle + migrações + seed + Better Auth + tR
 - [ ] CRM kanban + automations de leads
 - [ ] Staff + RBAC
 - [ ] Dashboard / KPIs
+- [x] Suporte / tickets operacionais — lista, criação e mudança de estado via API org-scoped
 - [~] Loja online / merch conectado a fornecedores externos (catálogo, variantes, encomenda, tracking) — protótipo web já existe com catálogo persistido por org e routing de fornecedores; fulfillment real e integrações externas continuam para fase posterior
 - [ ] Aceitação F2
 
