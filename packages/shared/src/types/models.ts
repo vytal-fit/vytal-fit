@@ -112,10 +112,19 @@ export interface Exercise {
   name: string;
   category: ExerciseCategory;
   videoUrl?: string;
+  thumbnailUrl?: string;
+  gifUrl?: string;
   description?: string;
   equipment?: string[];
   muscleGroups?: string[];
   scaledVariations?: string[];
+  instructions?: ExerciseInstructions;
+}
+
+export interface ExerciseInstructions {
+  pt: string[];
+  en: string[];
+  es: string[];
 }
 
 export type ExerciseCategory =

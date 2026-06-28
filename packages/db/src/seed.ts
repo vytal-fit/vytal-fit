@@ -14,7 +14,8 @@
  *     All share the password `DEMO_PASSWORD` ("VytalDemo2026!").
  *  3. The full domain mock dataset into org-1 (coaches, locations, class
  *     types, classes, bookings, check-ins, exercises, WODs, plans,
- *     subscriptions, gym members, leads, personal records, notifications).
+ *     subscriptions, gym members, leads, personal records, notifications,
+ *     support tickets).
  *     Mock ids are kept verbatim — every domain table uses text PKs.
  *  4. One organization_settings row per org, derived from the
  *     ORGANIZATION_CONFIGS defaults for its type.
@@ -229,6 +230,108 @@ const DEMO_BOOKINGS: ReadonlyArray<{
   { id: "bk-4", memberId: "m-4", classId: "cl-5", status: "waitlisted" },
   { id: "bk-5", memberId: "m-7", classId: "cl-5", status: "confirmed" },
 ];
+
+/** Support tickets seeded into org-1 so the support page starts populated. */
+export const SUPPORT_TICKET_SEED = [
+  {
+    id: "tk-1",
+    number: 1001,
+    subject: "Pagamento duplicado no mes de Maio",
+    memberName: "Ana Silva",
+    priority: "high",
+    status: "open",
+    createdAt: "2026-06-03T10:30:00Z",
+    assignedTo: "Andre Loureiro",
+    description: "Foi-me cobrado duas vezes o valor do plano mensal em Maio. Preciso de reembolso.",
+    messages: [
+      { id: "m1", author: "Ana Silva", isStaff: false, content: "Bom dia, verifiquei que fui cobrada duas vezes. Podem verificar?", date: "2026-06-03T10:30:00Z" },
+      { id: "m2", author: "Andre Loureiro", isStaff: true, content: "Bom dia Ana! Vou verificar com o departamento financeiro.", date: "2026-06-03T11:00:00Z" },
+      { id: "m3", author: "Ana Silva", isStaff: false, content: "Obrigada, fico a aguardar.", date: "2026-06-03T11:15:00Z" },
+    ],
+    internalNotes: "Verificar com Stripe - possivel duplicacao de webhook.",
+  },
+  {
+    id: "tk-2",
+    number: 1002,
+    subject: "Nao consigo reservar aula de quarta",
+    memberName: "Pedro Almeida",
+    priority: "medium",
+    status: "in_progress",
+    createdAt: "2026-06-02T14:00:00Z",
+    assignedTo: "Marine Robba",
+    description: "A app da erro quando tento reservar a aula das 18:00 de quarta-feira.",
+    messages: [
+      { id: "m1", author: "Pedro Almeida", isStaff: false, content: "A app da-me um erro 500 quando tento reservar.", date: "2026-06-02T14:00:00Z" },
+      { id: "m2", author: "Marine Robba", isStaff: true, content: "Pode enviar-nos um screenshot do erro?", date: "2026-06-02T14:30:00Z" },
+      { id: "m3", author: "Pedro Almeida", isStaff: false, content: "Ja enviei por email.", date: "2026-06-02T15:00:00Z" },
+    ],
+    internalNotes: "Bug reportado a equipa de dev. Ticket interno #DEV-234.",
+  },
+  {
+    id: "tk-3",
+    number: 1003,
+    subject: "Rower da zona 2 esta avariado",
+    memberName: "Tiago Neves",
+    priority: "medium",
+    status: "open",
+    createdAt: "2026-06-02T09:00:00Z",
+    assignedTo: "Ricardo Ribeiro",
+    description: "O rower numero 4 na zona 2 tem a correia partida.",
+    messages: [
+      { id: "m1", author: "Tiago Neves", isStaff: false, content: "O rower 4 na zona 2 nao funciona, a correia esta partida.", date: "2026-06-02T09:00:00Z" },
+    ],
+    internalNotes: "",
+  },
+  {
+    id: "tk-4",
+    number: 1004,
+    subject: "Quero mudar para plano anual",
+    memberName: "Sofia Santos",
+    priority: "low",
+    status: "resolved",
+    createdAt: "2026-06-01T16:00:00Z",
+    assignedTo: "Andre Loureiro",
+    description: "Gostaria de mudar do plano mensal para o plano anual.",
+    messages: [
+      { id: "m1", author: "Sofia Santos", isStaff: false, content: "Ola, quero mudar para o plano anual. Como faco?", date: "2026-06-01T16:00:00Z" },
+      { id: "m2", author: "Andre Loureiro", isStaff: true, content: "Ja atualizamos o seu plano! A diferenca sera ajustada na proxima fatura.", date: "2026-06-01T17:00:00Z" },
+      { id: "m3", author: "Sofia Santos", isStaff: false, content: "Excelente, obrigada!", date: "2026-06-01T17:15:00Z" },
+    ],
+    internalNotes: "Plano atualizado. Diferenca de 180 EUR cobrada.",
+  },
+  {
+    id: "tk-5",
+    number: 1005,
+    subject: "Ac nao funciona na sala 1",
+    memberName: "Catarina Reis",
+    priority: "high",
+    status: "in_progress",
+    createdAt: "2026-06-01T11:00:00Z",
+    assignedTo: "Ricardo Ribeiro",
+    description: "O ar condicionado da sala 1 nao esta a funcionar. A temperatura esta insuportavel.",
+    messages: [
+      { id: "m1", author: "Catarina Reis", isStaff: false, content: "O AC da sala 1 esta avariado. Esta impossivel treinar.", date: "2026-06-01T11:00:00Z" },
+      { id: "m2", author: "Ricardo Ribeiro", isStaff: true, content: "Ja contactamos o tecnico. Deve estar resolvido amanha.", date: "2026-06-01T12:00:00Z" },
+    ],
+    internalNotes: "Tecnico agendado para 2/Jun.",
+  },
+  {
+    id: "tk-6",
+    number: 1006,
+    subject: "Perdi o meu cartao de acesso",
+    memberName: "Miguel Costa",
+    priority: "low",
+    status: "resolved",
+    createdAt: "2026-05-30T08:00:00Z",
+    assignedTo: "Marine Robba",
+    description: "Perdi o meu cartao RFID de acesso ao box.",
+    messages: [
+      { id: "m1", author: "Miguel Costa", isStaff: false, content: "Perdi o cartao, como obtenho um novo?", date: "2026-05-30T08:00:00Z" },
+      { id: "m2", author: "Marine Robba", isStaff: true, content: "Pode passar na recepcao para pedir um novo. Custo de 5 EUR.", date: "2026-05-30T09:00:00Z" },
+    ],
+    internalNotes: "",
+  },
+] as const;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Options / result types
@@ -520,6 +623,7 @@ export async function seedDatabase(
           equipment: exercise.equipment ?? null,
           muscleGroups: exercise.muscleGroups ?? null,
           scaledVariations: exercise.scaledVariations ?? null,
+          instructions: exercise.instructions ?? null,
         })),
       )
       .onConflictDoNothing()
@@ -565,13 +669,26 @@ export async function seedDatabase(
       })
       .where(eq(schema.wods.id, wod.id));
   }
+  for (const exercise of mockExercises) {
+    await db
+      .update(schema.exercises)
+      .set({
+        videoUrl: exercise.videoUrl ?? null,
+        description: exercise.description ?? null,
+        equipment: exercise.equipment ?? null,
+        muscleGroups: exercise.muscleGroups ?? null,
+        scaledVariations: exercise.scaledVariations ?? null,
+        instructions: exercise.instructions ?? null,
+      })
+      .where(eq(schema.exercises.id, exercise.id));
+  }
   for (const spec of CHECK_IN_SEED) {
     await db
       .update(schema.checkIns)
       .set({ checkedInAt: checkInSeedTimestamp(spec) })
       .where(eq(schema.checkIns.id, spec.id));
   }
-  log("classes/wods/check-ins: dates refreshed to the relative window");
+  log("classes/wods/exercises/check-ins: dates refreshed to the relative window");
 
   inserted.subscriptionPlans = (
     await db
@@ -673,6 +790,30 @@ export async function seedDatabase(
       )
       .onConflictDoNothing()
       .returning({ id: schema.notifications.id })
+  ).length;
+
+  inserted.supportTickets = (
+    await db
+      .insert(schema.supportTickets)
+      .values(
+        SUPPORT_TICKET_SEED.map((ticket) => ({
+          id: ticket.id,
+          organizationId: ORG_1,
+          number: ticket.number,
+          subject: ticket.subject,
+          memberName: ticket.memberName,
+          priority: ticket.priority,
+          status: ticket.status,
+          assignedTo: ticket.assignedTo,
+          description: ticket.description,
+          messages: ticket.messages.map((message) => ({ ...message })),
+          internalNotes: ticket.internalNotes,
+          createdAt: toDate(ticket.createdAt),
+          updatedAt: toDate(ticket.createdAt),
+        })),
+      )
+      .onConflictDoNothing()
+      .returning({ id: schema.supportTickets.id })
   ).length;
 
   // 3b. Core domain dataset → org-2 (Yoga Flow Porto) and org-3 (Iron Temple).

@@ -65,6 +65,7 @@ describe("migration", () => {
       "subscriptions",
       "leads",
       "notifications",
+      "support_tickets",
     ];
     for (const table of expected) {
       expect(tables, `missing table ${table}`).toContain(table);
@@ -117,6 +118,7 @@ describe("tenant isolation columns", () => {
     "subscriptions",
     "leads",
     "notifications",
+    "support_tickets",
   ];
 
   it.each(TENANT_TABLES)("%s has a NOT NULL organization_id column", async (table) => {

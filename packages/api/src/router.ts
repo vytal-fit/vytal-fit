@@ -13,6 +13,7 @@ import { notificationsRouter } from "./routers/notifications";
 import { orgSettingsRouter } from "./routers/orgSettings";
 import { personalRecordsRouter } from "./routers/personalRecords";
 import { subscriptionsRouter } from "./routers/subscriptions";
+import { supportTicketsRouter } from "./routers/supportTickets";
 import { uploadsRouter } from "./routers/uploads";
 import { wodResultsRouter } from "./routers/wodResults";
 import { wodsRouter } from "./routers/wods";
@@ -32,6 +33,7 @@ export const appRouter = router({
   leads: leadsRouter,
   subscriptions: subscriptionsRouter,
   notifications: notificationsRouter,
+  supportTickets: supportTicketsRouter,
   orgSettings: orgSettingsRouter,
   dashboard: dashboardRouter,
   uploads: uploadsRouter,

@@ -468,10 +468,17 @@ export const exercises = pgTable("exercises", {
   name: text("name").notNull(),
   category: exerciseCategoryEnum("category").notNull(),
   videoUrl: text("video_url"),
+  thumbnailUrl: text("thumbnail_url"),
+  gifUrl: text("gif_url"),
   description: text("description"),
   equipment: jsonb("equipment").$type<string[]>(),
   muscleGroups: jsonb("muscle_groups").$type<string[]>(),
   scaledVariations: jsonb("scaled_variations").$type<string[]>(),
+  instructions: jsonb("instructions").$type<{
+    pt: string[];
+    en: string[];
+    es: string[];
+  }>(),
 });
 
 /** Workouts of the day — mirrors shared `WOD` (parts stored as JSONB). */
@@ -650,6 +657,41 @@ export const notifications = pgTable(
   (t) => [
     index("notifications_org_idx").on(t.organizationId),
     index("notifications_org_member_idx").on(t.organizationId, t.memberId),
+  ],
+);
+
+/** Support ticket messages stored inline on the ticket row. */
+export interface SupportTicketMessage {
+  id: string;
+  author: string;
+  isStaff: boolean;
+  content: string;
+  date: string;
+}
+
+/** Support tickets — org-scoped member issues, operationally owned by staff. */
+export const supportTickets = pgTable(
+  "support_tickets",
+  {
+    id: text("id").primaryKey(),
+    organizationId: text("organization_id")
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    number: integer("number").notNull(),
+    subject: text("subject").notNull(),
+    memberName: text("member_name").notNull(),
+    priority: text("priority").notNull(),
+    status: text("status").notNull(),
+    assignedTo: text("assigned_to").notNull(),
+    description: text("description").notNull(),
+    messages: jsonb("messages").$type<SupportTicketMessage[]>().notNull().default([]),
+    internalNotes: text("internal_notes").notNull().default(""),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (t) => [
+    index("support_tickets_org_idx").on(t.organizationId),
+    index("support_tickets_org_status_idx").on(t.organizationId, t.status),
   ],
 );
 
