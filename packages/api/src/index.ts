@@ -1,4 +1,5 @@
 export { appRouter, type AppRouter } from "./router";
+export { openApiSpec } from "./openapi";
 export {
   adminProcedure,
   createCallerFactory,

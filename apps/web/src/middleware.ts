@@ -35,6 +35,7 @@ const CUSTOM_DOMAIN_MAP: Record<string, string> = {
 };
 
 // Vytal subdomains
+const API_SUBDOMAINS = ["api"];
 const ADMIN_SUBDOMAINS = ["admin", "control", "pro"];
 const MEMBER_SUBDOMAINS = ["my"];
 
@@ -68,6 +69,15 @@ export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const hostname = request.headers.get("host") ?? "";
   const subdomain = getSubdomain(hostname);
+
+  if (subdomain && API_SUBDOMAINS.includes(subdomain)) {
+    if (pathname === "/" || pathname === "") {
+      const url = request.nextUrl.clone();
+      url.pathname = "/developer";
+      return NextResponse.rewrite(url);
+    }
+    return NextResponse.next();
+  }
 
   // ─── Subdomain Handling (admin.vytal.fit, console.vytal.fit) ───
   if (subdomain && ADMIN_SUBDOMAINS.includes(subdomain)) {

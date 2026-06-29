@@ -757,7 +757,7 @@ export default function HelpPage() {
 
             {/* Docs */}
             <a
-              href="https://docs.vytal.fit"
+              href="https://api.vytal.fit/developer"
               target="_blank"
               rel="noopener noreferrer"
               className="group rounded-xl border border-vytal-border bg-vytal-card p-6 transition-all duration-200 hover:border-[rgba(34,197,94,0.3)] hover:-translate-y-0.5 hover:shadow-lg hover:shadow-black/10 block"
@@ -770,7 +770,7 @@ export default function HelpPage() {
               </h3>
               <p className="mt-1 text-xs text-vytal-muted">{t("help.contactDocsDesc")}</p>
               <span className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-vytal-green group-hover:underline">
-                docs.vytal.fit <ExternalLink className="h-3 w-3" />
+                api.vytal.fit/developer <ExternalLink className="h-3 w-3" />
               </span>
             </a>
           </div>
