@@ -10,7 +10,7 @@ Status of the tRPC/Better Auth/Drizzle plumbing in the web app.
 | Better Auth routes | `apps/web/src/app/api/auth/[...all]/route.ts` | `toNextJsHandler` over a lazy handler — serves sign-in/up, sessions, org switching. |
 | Auth server singleton | `apps/web/src/lib/auth-server.ts` | `getAuth()` builds the Better Auth instance on first use from `createAuth` + `getDb()`. `isBackendConfigured()` gates on env. |
 | Typed client | `apps/web/src/lib/trpc.ts` | `createTRPCReact<AppRouter>` + `httpBatchLink` with the `superjson` transformer (matches the server). |
-| Developer docs | `apps/web/src/app/developer/page.tsx` | `api.vytal.fit/` rewrites here. Human-readable docs page with auth notes, endpoint groups, curl examples, and a link to the raw OpenAPI payload. |
+| Developer docs | `apps/web/src/app/developer/page.tsx` | `api.vytal.fit/` rewrites here. Human-readable bridge page that points to ReadMe on `docs.vytal.fit` and links the raw OpenAPI payload. |
 | OpenAPI spec | `apps/web/src/app/openapi/route.ts` | `GET /openapi` returns the machine-readable spec used by the docs page and downstream tooling. |
 | Provider | `apps/web/src/components/trpc-provider.tsx` | QueryClientProvider + `trpc.Provider`, mounted in `src/app/layout.tsx` around all existing providers. |
 | Env template | `.env.example` (repo root) | `DATABASE_URL`, `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, `NEXT_PUBLIC_APP_URL`, `NEXT_PUBLIC_API_URL`, `BETTER_AUTH_TRUSTED_ORIGINS`. |

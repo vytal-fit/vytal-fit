@@ -52,8 +52,9 @@ export default function DeveloperDocsPage() {
             <h1 className="text-4xl font-semibold tracking-tight">Developer API</h1>
             <p className="max-w-2xl text-sm leading-6 text-muted-foreground">
               OpenAPI contract, auth details, and request examples for the public
-              API origin. This surface is for integrations, mobile clients, and
-              partner tooling.
+              API origin. The canonical docs live on ReadMe at
+              <code className="mx-1 font-mono text-foreground">docs.vytal.fit</code>.
+              This surface is for integrations, mobile clients, and partner tooling.
             </p>
           </div>
           <div className="flex flex-wrap gap-3">
@@ -81,6 +82,7 @@ export default function DeveloperDocsPage() {
               Production origin: <code className="font-mono text-foreground">https://api.vytal.fit</code>
               . Web app origin: <code className="font-mono text-foreground">https://pro.vytal.fit</code>.
               Clients must send credentials and target the API origin explicitly.
+              The full docs experience lives at <code className="font-mono text-foreground">docs.vytal.fit</code>.
             </p>
           </div>
 
@@ -136,7 +138,7 @@ export default function DeveloperDocsPage() {
               <li>Better Auth sessions use secure cookies and bearer support.</li>
               <li>Org-scoped mutations require an active space on the session.</li>
               <li>The API is intended to stay separate from the pro web origin.</li>
-              <li>Mobile should use <code className="font-mono text-foreground">EXPO_PUBLIC_API_URL</code>.</li>
+              <li>Mobile clients should point to the API origin directly.</li>
             </ul>
           </div>
         </aside>

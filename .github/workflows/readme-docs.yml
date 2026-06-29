@@ -1,0 +1,39 @@
+name: ReadMe Docs
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "readme/**"
+      - "packages/api/src/openapi.ts"
+      - "apps/web/src/app/openapi/route.ts"
+      - ".github/workflows/readme-docs.yml"
+  workflow_dispatch: {}
+
+jobs:
+  sync:
+    if: ${{ secrets.README_API_KEY != '' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Sync OpenAPI
+        env:
+          README_API_KEY: ${{ secrets.README_API_KEY }}
+        run: npx rdme openapi upload https://api.vytal.fit/openapi --slug vytal-api --title "Vytal API" --branch stable --key "$README_API_KEY" --confirm-overwrite
+
+      - name: Sync guides
+        env:
+          README_API_KEY: ${{ secrets.README_API_KEY }}
+        run: npx rdme docs upload readme/docs --branch stable --key "$README_API_KEY" --confirm-overwrite

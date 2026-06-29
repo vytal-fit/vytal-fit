@@ -19,6 +19,8 @@
 - **my** = portal do atleta / membro (`my.vytal.fit`)
 - No repo atual, o web app cobre **landing + pro + my console**; o mobile cobre **my** agora e o eventual **pro mobile** quando entrar no roadmap.
 - API em produção passa a ser um origin separado (`api.vytal.fit`); `pro.vytal.fit` fica só para o web app e os clients usam `NEXT_PUBLIC_API_URL` / `EXPO_PUBLIC_API_URL`.
+- Documentação humana fica no ReadMe (`docs.vytal.fit`); `api.vytal.fit` mantém só a landing bridge e o OpenAPI.
+- O repo também publica um leitor in-app de markdown em `/docs` e `/docs/[slug]` para espelhar os guias ReadMe mais importantes sem expor segredos.
 - Estado real hoje: `pro` já tem alguns fluxos reais via tRPC/API, mas ainda mistura páginas ligadas a dados persistidos com muitas páginas de protótipo/mock. Não tratar como backoffice totalmente migrado.
 
 ---
