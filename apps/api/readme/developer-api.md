@@ -28,12 +28,13 @@ mobile clients, and partner integrations.
 - Bookings, personal records, and WOD results
 - Runtime health and deployment checks
 - Root-level REST paths on `api.vytal.fit`
+- A machine-readable contract at `/openapi.json`
 
 ## Core links
 
-- OpenAPI spec: `https://api.vytal.fit/openapi`
+- OpenAPI spec: `https://api.vytal.fit/openapi.json`
 - Health endpoint: `https://api.vytal.fit/health`
-- API bridge: `https://api.vytal.fit/developer`
+- Human docs: `https://docs.vytal.fit`
 - Web app: `https://pro.vytal.fit`
 
 ## Highlights
@@ -42,6 +43,7 @@ mobile clients, and partner integrations.
 - Browser clients send credentials cross-origin to `api.vytal.fit`.
 - Org-scoped mutations require an active space on the session.
 - Mobile clients talk to the API host directly.
+- The API host root redirects to `/openapi.json`.
 
 ## Route map
 
@@ -54,6 +56,7 @@ mobile clients, and partner integrations.
 - `/records`
 - `/results`
 - `/health`
+- `/openapi.json`
 
 ## Deployment contract
 

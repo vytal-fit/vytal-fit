@@ -10,8 +10,8 @@ Status of the tRPC/Better Auth/Drizzle plumbing in the web app.
 | Better Auth routes | `apps/pro/src/app/auth/[...all]/route.ts` | `toNextJsHandler` over a lazy handler — serves sign-in/up, sessions, org switching. The public host serves `/auth/*` directly; the `/api/auth/*` alias remains for compatibility. |
 | Auth server singleton | `apps/pro/src/lib/auth-server.ts` | `getAuth()` builds the Better Auth instance on first use from `createAuth` + `getDb()`. `isBackendConfigured()` gates on env. |
 | Typed client | `apps/pro/src/lib/trpc.ts` | `createTRPCReact<AppRouter>` + `httpBatchLink` with the `superjson` transformer (matches the server). |
-| Developer docs | `apps/api/src/app/developer/page.tsx` | `api.vytal.fit/` serves the API bridge page that points to ReadMe on `docs.vytal.fit` and links the raw OpenAPI payload. |
-| OpenAPI spec | `apps/api/src/app/openapi/route.ts` | `GET /openapi` returns the machine-readable spec used by the docs page and downstream tooling. |
+| Developer docs | `apps/api/src/app/developer/page.tsx` | `api.vytal.fit/` now redirects to `/openapi.json`; human docs live on ReadMe at `docs.vytal.fit`. |
+| OpenAPI spec | `apps/api/src/app/openapi.json/route.ts` | `GET /openapi.json` returns the machine-readable spec used by downstream tooling. |
 | Provider | `apps/pro/src/components/trpc-provider.tsx` | QueryClientProvider + `trpc.Provider`, mounted in `src/app/layout.tsx` around all existing providers. |
 | Env template | `.env.example` (repo root) | `DATABASE_URL`, `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, `NEXT_PUBLIC_APP_URL`, `NEXT_PUBLIC_API_URL`, `BETTER_AUTH_TRUSTED_ORIGINS`. |
 | Health endpoint | `apps/api/src/app/health/route.ts` | `GET /health` → `{ status, backend: configured\|unconfigured, db: ok\|error\|skipped, version }`. Cheap `SELECT 1` via the lazy client when env is present; never crashes without env; no secrets in output. The `/api/health` alias remains for compatibility until the API app is fully extracted. |
@@ -77,11 +77,12 @@ For local development, the same works against any `DATABASE_URL` in
 
 The API is its own origin. In production that means `api.vytal.fit` serves
 `/auth/*`, `/trpc`, `/health`, `/session`, `/spaces`, `/bookings`, `/records`,
-and `/results` directly, while `pro.vytal.fit` serves the user-facing web app.
-The `/api/*` tree remains only as a compatibility alias. The browser and mobile
-clients must use `NEXT_PUBLIC_API_URL` (web) or `EXPO_PUBLIC_API_URL`
-(mobile) instead of guessing same-origin. `BETTER_AUTH_URL` must match the API
-host, and `NEXT_PUBLIC_APP_URL` must match the web host for email callbacks and
+`/results`, and `/openapi.json` directly, while `pro.vytal.fit` serves the
+user-facing web app and `my.vytal.fit` serves the member portal. The `/api/*`
+tree remains only as a compatibility alias. The browser and mobile clients must
+use `NEXT_PUBLIC_API_URL` (web) or `EXPO_PUBLIC_API_URL` (mobile) instead of
+guessing same-origin. `BETTER_AUTH_URL` must match the API host, and
+`NEXT_PUBLIC_APP_URL` must match the web host for email callbacks and
 redirects.
 
 ### Demo credentials (seeded)

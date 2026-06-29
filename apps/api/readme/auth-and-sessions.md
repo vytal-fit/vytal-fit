@@ -18,6 +18,7 @@ Use the Better Auth endpoints on `api.vytal.fit` for all session management.
 - `POST /auth/sign-out`
 - `GET /auth/session`
 - `PATCH /session`
+- `GET /openapi.json`
 
 ## Auth model
 
@@ -56,3 +57,4 @@ curl -X PATCH https://api.vytal.fit/session \
 
 - Send credentials on every browser request
 - Use the session wrapper for active-space changes
+- Use `/openapi.json` for the machine-readable contract

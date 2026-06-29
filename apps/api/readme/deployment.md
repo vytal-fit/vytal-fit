@@ -9,15 +9,16 @@ parent:
 
 # Deployment
 
-Vytal uses three production origins:
+Vytal uses four production origins:
 
 - `vytal.fit` for marketing and public pages
 - `pro.vytal.fit` for the app
-- `api.vytal.fit` for API, auth, and developer docs bridge
+- `my.vytal.fit` for the athlete portal
+- `api.vytal.fit` for API, auth, and the machine-readable contract
 
 ## Notes
 
 - Auth and API are separate from the app origin.
 - The deployment config maps each client to the correct origin.
 - The docs workflow syncs to ReadMe on push to `main`.
-- The API root rewrites to the developer docs bridge page.
+- The API root redirects to `/openapi.json`.

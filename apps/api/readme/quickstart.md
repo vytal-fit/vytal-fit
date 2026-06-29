@@ -15,7 +15,7 @@ integration.
 ## 1. Read the contract
 
 Start with the [Developer API](./developer-api) hub and the
-[OpenAPI spec](https://api.vytal.fit/openapi).
+[OpenAPI spec](https://api.vytal.fit/openapi.json).
 
 ## 2. Sign in
 
