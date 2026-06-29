@@ -1,7 +1,7 @@
 import { TRPCError } from "@trpc/server";
 import { and, desc, eq, gte, lte } from "drizzle-orm";
 import { classTypes, wods } from "@vytal-fit/db";
-import { mockExercises } from "@vytal-fit/shared";
+import { hasExercise } from "@vytal-fit/shared";
 import { z } from "zod";
 import { orgProcedure, router, staffProcedure } from "../trpc";
 
@@ -42,7 +42,7 @@ const wodUpdateInput = wodInput.extend({ parts: z.array(wodPartSchema) }).partia
 
 function assertExercisesExist(exercises: Array<{ exerciseId: string }>): void {
   for (const exercise of exercises) {
-    if (!mockExercises.some((item) => item.id === exercise.exerciseId)) {
+    if (!hasExercise(exercise.exerciseId)) {
       throw new TRPCError({
         code: "NOT_FOUND",
         message: `Exercise not found: ${exercise.exerciseId}`,

@@ -1,7 +1,7 @@
 import { TRPCError } from "@trpc/server";
 import { and, asc, eq, gt } from "drizzle-orm";
 import { gymMembers, personalRecords, PR_UNITS } from "@vytal-fit/db";
-import { hasMinRole, mockExercises } from "@vytal-fit/shared";
+import { getExerciseById, hasExercise, hasMinRole } from "@vytal-fit/shared";
 import { z } from "zod";
 import { adminProcedure, orgProcedure, router } from "../trpc";
 import type { Context } from "../trpc";
@@ -62,7 +62,7 @@ async function assertCanActOnMember(
 
 /** Exercises are a global library backed by the shared catalog. */
 async function assertExerciseExists(exerciseId: string): Promise<void> {
-  if (!mockExercises.some((exercise) => exercise.id === exerciseId)) {
+  if (!hasExercise(exerciseId)) {
     throw new TRPCError({ code: "NOT_FOUND", message: "Exercise not found." });
   }
 }
@@ -98,10 +98,7 @@ export const personalRecordsRouter = router({
 
       const exerciseIds = [...new Set(rows.map((row) => row.exerciseId))];
       const exerciseById = new Map(
-        exerciseIds.map((exerciseId) => [
-          exerciseId,
-          mockExercises.find((exercise) => exercise.id === exerciseId) ?? null,
-        ]),
+        exerciseIds.map((exerciseId) => [exerciseId, getExerciseById(exerciseId) ?? null]),
       );
 
       let nextCursor: string | null = null;
@@ -140,7 +137,7 @@ export const personalRecordsRouter = router({
 
       return {
         ...row,
-        exercise: mockExercises.find((exercise) => exercise.id === row.exerciseId) ?? null,
+        exercise: getExerciseById(row.exerciseId) ?? null,
       };
     }),
 

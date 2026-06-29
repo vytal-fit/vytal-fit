@@ -52,6 +52,17 @@ describe("createAuth", () => {
     expect(pluginIds).toContain("organization");
   });
 
+  it("trusts the canonical Vytal production origins by default", () => {
+    expect(auth.options.trustedOrigins).toEqual(
+      expect.arrayContaining([
+        "https://vytal.fit",
+        "https://pro.vytal.fit",
+        "https://my.vytal.fit",
+        "https://api.vytal.fit",
+      ]),
+    );
+  });
+
   it("exposes organization endpoints", () => {
     expect(typeof auth.api.createOrganization).toBe("function");
     expect(typeof auth.api.listOrganizations).toBe("function");

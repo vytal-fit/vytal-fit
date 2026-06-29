@@ -18,6 +18,7 @@
 - **pro** = backoffice operacional (`pro.vytal.fit`)
 - **my** = portal do atleta / membro (`my.vytal.fit`)
 - No repo atual, o web app cobre **landing + pro + my console**; o mobile cobre **my** agora e o eventual **pro mobile** quando entrar no roadmap.
+- Auth em produção continua same-origin no `pro` web host; `api.vytal.fit` não é necessário para o fluxo atual, só para uma separação futura de backend.
 - Estado real hoje: `pro` já tem alguns fluxos reais via tRPC/API, mas ainda mistura páginas ligadas a dados persistidos com muitas páginas de protótipo/mock. Não tratar como backoffice totalmente migrado.
 
 ---
@@ -64,7 +65,7 @@ O DB já existe (Neon Postgres + Drizzle + migrações + seed + Better Auth + tR
 
 ## F3 · Treino — S4–S5 (€55.000)
 - [ ] WOD Builder (tipos de estímulo, timers)
-- [ ] BD ≥300 exercícios (5 metodologias) — (D4/A-1) conteúdo validado pelo Juvenal; o catálogo já vem de um JSON/TS gerado com 1.3k+ movimentos, thumbnails/GIFs e notas PT/EN/ES, mas o pipeline editorial/media ainda está parcial
+- [ ] BD ≥300 exercícios (5 metodologias) — (D4/A-1) conteúdo validado pelo Juvenal; o catálogo já vem de um JSON/TS gerado com 1.3k+ movimentos, thumbnails/GIFs e notas PT/EN/ES, o WOD builder valida `exerciseId`s contra esse catálogo, mas o pipeline editorial/media ainda está parcial
 - [ ] BD ≥200 WODs pré-construídos
 - [ ] Motor de planeamento (semanal/ciclos)
 - [ ] Cálculo de %RM
@@ -74,7 +75,7 @@ O DB já existe (Neon Postgres + Drizzle + migrações + seed + Better Auth + tR
 
 ## F4 · App do Atleta (`my.vytal.fit`) + Bem-estar — S6–S7 (€60.000)
 - [x] **`gym_members.user_id`** (atleta ↔ membro) — migração `0002`, FK + unique por org; desbloqueia self-service
-- [~] Self-service de bookings/resultados (atleta age sobre o SEU membro) — API + REST wrappers prontos; mobile booking/PR/WOD wiring em curso
+- [~] Self-service de bookings/resultados (atleta age sobre o SEU membro) — API + REST wrappers prontos; mobile booking/PR/WOD wiring em curso; exercícios/WODs já usam catálogo partilhado file-backed com validação de movimentos
 - [ ] Marcação ≤3 toques · check-in QR
 - [ ] Ver WOD · registar resultado · leaderboards · PRs · %RM · gamificação
 - [ ] Perfil de estilo de vida
