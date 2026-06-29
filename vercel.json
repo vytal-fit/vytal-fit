@@ -1,6 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "buildCommand": "npx turbo build --filter=@vytal-fit/web",
+  "buildCommand": "npx turbo build --filter=@vytal-fit/web && npm run db:migrate:deploy -w @vytal-fit/db",
   "installCommand": "npm install --ignore-scripts",
   "framework": "nextjs",
   "outputDirectory": "apps/web/.next"
