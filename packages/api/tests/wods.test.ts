@@ -126,6 +126,24 @@ describe("wods.create", () => {
       }),
     ).rejects.toMatchObject({ code: "BAD_REQUEST" });
   });
+
+  it("rejects unknown exercise ids", async () => {
+    await expect(
+      h.callerA.wods.create({
+        ...validInput,
+        parts: [
+          {
+            name: "WOD",
+            type: "amrap" as const,
+            timeCap: 20,
+            exercises: [{ exerciseId: "missing-exercise", reps: "5" }],
+          },
+        ],
+      }),
+    ).rejects.toMatchObject({
+      code: "NOT_FOUND",
+    });
+  });
 });
 
 describe("wods.publish", () => {
@@ -241,5 +259,25 @@ describe("wods.update", () => {
     await expect(
       h.callerA.wods.update({ id: IDS.wodA, data: { date: "June 1st" } }),
     ).rejects.toMatchObject({ code: "BAD_REQUEST" });
+  });
+
+  it("rejects unknown exercise ids in partial updates", async () => {
+    await expect(
+      h.callerA.wods.update({
+        id: IDS.wodA,
+        data: {
+          parts: [
+            {
+              name: "WOD",
+              type: "amrap",
+              timeCap: 10,
+              exercises: [{ exerciseId: "missing-exercise", reps: "5" }],
+            },
+          ],
+        },
+      }),
+    ).rejects.toMatchObject({
+      code: "NOT_FOUND",
+    });
   });
 });
