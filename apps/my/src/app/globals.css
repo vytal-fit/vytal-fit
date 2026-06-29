@@ -1,200 +1,281 @@
-:root {
-  color-scheme: light;
-  font-family:
-    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-    sans-serif;
+@import "tailwindcss";
+
+@theme {
+  /* Vytal Design System — dark defaults */
+  --color-vytal-bg: #080c0a;
+  --color-vytal-bg2: #0f1610;
+  --color-vytal-bg3: #162018;
+  --color-vytal-green: #22c55e;
+  --color-vytal-blue: #00d4ff;
+  --color-vytal-amber: #ffb300;
+  --color-vytal-red: #ff4757;
+  --color-vytal-purple: #c084fc;
+  --color-vytal-orange: #ff8c42;
+  --color-vytal-text: #dceee0;
+  --color-vytal-muted: #6b8c72;
+  --color-vytal-border: rgba(34, 197, 94, 0.12);
+  --color-vytal-card: rgba(22, 32, 24, 0.9);
+
+  --font-sans: "Inter", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
 }
 
-* {
-  box-sizing: border-box;
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--color-vytal-bg);
+    color: var(--color-vytal-text);
+    font-family: var(--font-sans);
+  }
+
+  /* All interactive elements get pointer cursor */
+  button, [role="button"], a[href], select, input[type="checkbox"], input[type="radio"], label[for] {
+    cursor: pointer;
+  }
+
+  /* Better focus ring */
+  *:focus-visible {
+    outline: 2px solid var(--color-vytal-green);
+    outline-offset: 2px;
+  }
+
+  /* Selection color */
+  ::selection {
+    background: rgba(34, 197, 94, 0.2);
+  }
+
+  /* Light theme overrides */
+  html.light {
+    --color-vytal-bg: #fafbfa;
+    --color-vytal-bg2: #ffffff;
+    --color-vytal-bg3: #f0f3f1;
+    --color-vytal-text: #111c14;
+    --color-vytal-muted: #5a7d63;
+    --color-vytal-border: rgba(0, 0, 0, 0.08);
+    --color-vytal-card: rgba(255, 255, 255, 0.98);
+  }
+
+  /* Light mode landing page fixes */
+  html.light .landing-float-card {
+    background: #ffffff !important;
+    border-color: rgba(0, 0, 0, 0.08) !important;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06), 0 1px 4px rgba(0, 0, 0, 0.04) !important;
+    color: #111c14 !important;
+  }
+
+  html.light .landing-glass {
+    background: rgba(255, 255, 255, 0.7) !important;
+    backdrop-filter: blur(12px) !important;
+    border-color: rgba(0, 0, 0, 0.06) !important;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04) !important;
+  }
+
+  html.light .landing-mockup {
+    background: #ffffff !important;
+    border-color: rgba(0, 0, 0, 0.1) !important;
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.08) !important;
+  }
+
+  html.light .landing-section-alt {
+    background: #f4f7f5 !important;
+  }
 }
 
-html,
-body {
-  margin: 0;
-  min-height: 100%;
-  background: #08110d;
-  color: #eef6f1;
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
 }
 
-a {
-  color: inherit;
-  text-decoration: none;
+::-webkit-scrollbar-track {
+  background: transparent;
 }
 
-body {
-  min-height: 100vh;
+::-webkit-scrollbar-thumb {
+  background: rgba(107, 140, 114, 0.2);
+  border-radius: 2px;
 }
 
-.page {
-  min-height: 100vh;
-  display: grid;
-  place-items: center;
-  padding: 48px 24px;
-  background:
-    radial-gradient(circle at top, rgba(46, 204, 113, 0.14), transparent 34%),
-    linear-gradient(180deg, #07100c 0%, #0b1711 100%);
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(107, 140, 114, 0.4);
 }
 
-.shell {
-  width: min(980px, 100%);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 24px;
-  background: rgba(8, 17, 13, 0.92);
-  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.34);
-  padding: 32px;
+/* Page enter animation */
+.page-enter {
+  animation: page-fade-in 0.3s ease-out;
 }
 
-.topline {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 48px;
-  font-size: 14px;
-  color: rgba(238, 246, 241, 0.66);
+@keyframes page-fade-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-.brand {
-  font-size: 30px;
-  font-weight: 800;
-  letter-spacing: -0.03em;
+/* ── Wizard step fade transition ──────────────────────────────── */
+
+@keyframes wizard-step-fade {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
-.brand strong {
-  color: #2ecc71;
+.wizard-step-fade {
+  animation: wizard-step-fade 0.3s ease-out both;
 }
 
-.hero {
-  display: grid;
-  gap: 24px;
+/* Toast slide-in animation */
+@keyframes slide-in-right {
+  from { opacity: 0; transform: translateX(100%); }
+  to   { opacity: 1; transform: translateX(0); }
 }
 
-.hero-copy {
-  display: grid;
-  gap: 24px;
+.animate-slide-in-right {
+  animation: slide-in-right 0.3s ease-out both;
 }
 
-.eyebrow {
-  margin: 0;
-  text-transform: uppercase;
-  letter-spacing: 0.18em;
-  font-size: 11px;
-  font-weight: 700;
-  color: rgba(238, 246, 241, 0.56);
+
+/* Auth page animated gradient */
+@keyframes auth-gradient-shift {
+  0%   { transform: translate(0, 0) scale(1); }
+  33%  { transform: translate(30px, -50px) scale(1.1); }
+  66%  { transform: translate(-20px, 20px) scale(0.9); }
+  100% { transform: translate(0, 0) scale(1); }
 }
 
-.hero h1 {
-  margin: 0;
-  font-size: clamp(36px, 6vw, 68px);
-  line-height: 0.98;
-  letter-spacing: -0.05em;
+.animate-auth-gradient {
+  animation: auth-gradient-shift 20s ease-in-out infinite;
 }
 
-.hero p {
-  max-width: 62ch;
-  margin: 0;
-  font-size: 17px;
-  line-height: 1.7;
-  color: rgba(238, 246, 241, 0.74);
+.animate-auth-gradient-delayed {
+  animation: auth-gradient-shift 25s ease-in-out infinite reverse;
 }
 
-.tiles {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 14px;
+/* Password strength meter */
+@keyframes strength-fill {
+  from { width: 0; }
 }
 
-.tile {
-  display: grid;
-  gap: 8px;
-  border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(255, 255, 255, 0.03);
-  padding: 18px;
+.animate-strength-fill {
+  animation: strength-fill 0.3s ease-out both;
 }
 
-.tile-link {
-  transition:
-    transform 160ms ease,
-    border-color 160ms ease,
-    background-color 160ms ease;
+/* Command palette animation */
+@keyframes command-palette-in {
+  from { opacity: 0; transform: scale(0.95) translateY(-8px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
 }
 
-.tile-link:hover {
+/* Confirm dialog animations */
+@keyframes confirm-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes confirm-scale-in {
+  from { opacity: 0; transform: scale(0.95); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* ── Admin Polish: Stat card hover lift ───────────────────── */
+.stat-card-hover {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.stat-card-hover:hover {
   transform: translateY(-2px);
-  border-color: rgba(46, 204, 113, 0.28);
-  background: rgba(46, 204, 113, 0.06);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-.tile h2 {
-  margin: 0 0 8px;
-  font-size: 18px;
+/* ── Admin Polish: Table zebra striping ───────────────────── */
+.zebra-table tbody tr:nth-child(even) {
+  background-color: rgba(34, 197, 94, 0.02);
+}
+html.light .zebra-table tbody tr:nth-child(even) {
+  background-color: rgba(34, 197, 94, 0.03);
 }
 
-.tile p {
-  margin: 0;
-  font-size: 14px;
-  line-height: 1.6;
-  color: rgba(238, 246, 241, 0.72);
+/* ── Admin Polish: Sticky table header ────────────────────── */
+.sticky-thead thead {
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 
-.actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin-top: 6px;
+/* ── Admin Polish: Sidebar nav transition ─────────────────── */
+.nav-item-transition {
+  transition: all 0.15s ease;
 }
 
-.button {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  padding: 12px 18px;
-  font-weight: 600;
-  background: rgba(255, 255, 255, 0.04);
+/* ── Admin Polish: Language switcher pill transition ───────── */
+.lang-pill-transition {
+  transition: all 0.2s ease;
 }
 
-.button.primary {
-  border-color: rgba(46, 204, 113, 0.24);
-  background: #2ecc71;
-  color: #07110a;
+/* ── Admin Polish: Org switcher shadow ────────────────────── */
+.org-dropdown-shadow {
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+html.light .org-dropdown-shadow {
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1), 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
-.summary-panel {
-  display: grid;
-  gap: 14px;
-  border-radius: 22px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(255, 255, 255, 0.03);
-  padding: 18px;
+/* ── Admin Polish: Schedule row hover ─────────────────────── */
+.schedule-row-hover {
+  transition: background-color 0.15s ease, border-color 0.15s ease;
 }
 
-.summary-title {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  font-weight: 700;
-  color: rgba(238, 246, 241, 0.88);
+/* ── Admin Polish: Focus ring animation ───────────────────── */
+.focus-ring-animate {
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.focus-ring-animate:focus {
+  border-color: rgba(34, 197, 94, 0.4);
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
 }
 
-.summary-list {
-  margin: 0;
-  padding-left: 18px;
-  display: grid;
-  gap: 10px;
-  color: rgba(238, 246, 241, 0.72);
-  line-height: 1.5;
+/* ── Detail Panel: Slide-in from right ────────────────────── */
+@keyframes detail-panel-slide-in {
+  from { transform: translateX(100%); }
+  to   { transform: translateX(0); }
 }
 
-@media (max-width: 900px) {
-  .tiles {
-    grid-template-columns: 1fr;
-  }
+@keyframes detail-panel-backdrop-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
 
-  .hero {
-    gap: 18px;
-  }
+.detail-panel-slide {
+  animation: detail-panel-slide-in 0.3s ease-out both;
+}
+
+.detail-panel-backdrop {
+  animation: detail-panel-backdrop-in 0.2s ease-out both;
+}
+
+/* ── Polish: Clickable card hover ────────────────────────── */
+.card-interactive {
+  transition: all 0.2s ease;
+}
+.card-interactive:hover {
+  border-color: rgba(34, 197, 94, 0.22);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* ── Polish: Clickable row hover ─────────────────────────── */
+.row-interactive {
+  transition: background-color 0.15s ease;
+}
+.row-interactive:hover {
+  background-color: rgba(22, 32, 24, 0.5);
+}
+html.light .row-interactive:hover {
+  background-color: rgba(34, 197, 94, 0.06);
+}
+
+/* ── Polish: Link hover effect ───────────────────────────── */
+.link-hover {
+  transition: color 0.15s ease;
+}
+.link-hover:hover {
+  color: var(--color-vytal-green);
 }
