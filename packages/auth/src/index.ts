@@ -78,9 +78,13 @@ export function createAuth(options: CreateAuthOptions) {
   );
   const canonicalVytalOrigins = [
     "https://vytal.fit",
+    "https://www.vytal.fit",
     "https://pro.vytal.fit",
+    "https://www.pro.vytal.fit",
     "https://my.vytal.fit",
+    "https://www.my.vytal.fit",
     "https://api.vytal.fit",
+    "https://www.api.vytal.fit",
   ];
   const trustedOrigins = Array.from(
     new Set(

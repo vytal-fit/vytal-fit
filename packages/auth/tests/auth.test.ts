@@ -56,9 +56,13 @@ describe("createAuth", () => {
     expect(auth.options.trustedOrigins).toEqual(
       expect.arrayContaining([
         "https://vytal.fit",
+        "https://www.vytal.fit",
         "https://pro.vytal.fit",
+        "https://www.pro.vytal.fit",
         "https://my.vytal.fit",
+        "https://www.my.vytal.fit",
         "https://api.vytal.fit",
+        "https://www.api.vytal.fit",
       ]),
     );
   });
