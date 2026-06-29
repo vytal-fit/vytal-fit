@@ -57,7 +57,6 @@ describe("migration", () => {
       "class_types",
       "classes",
       "bookings",
-      "exercises",
       "wods",
       "wod_results",
       "personal_records",

@@ -13,7 +13,7 @@
  *       - athlete@vytal.fit → athlete in org-1
  *     All share the password `DEMO_PASSWORD` ("VytalDemo2026!").
  *  3. The full domain mock dataset into org-1 (coaches, locations, class
- *     types, classes, bookings, check-ins, exercises, WODs, plans,
+ *     types, classes, bookings, check-ins, WODs, plans,
  *     subscriptions, gym members, leads, personal records, notifications,
  *     support tickets).
  *     Mock ids are kept verbatim — every domain table uses text PKs.
@@ -43,7 +43,6 @@ import {
   mockClassTypes,
   mockCoaches,
   mockCurrentUser,
-  mockExercises,
   mockLeads,
   mockLocations,
   mockMembers,
@@ -609,27 +608,6 @@ export async function seedDatabase(
       .returning({ id: schema.checkIns.id })
   ).length;
 
-  // Exercises are global (no organizationId).
-  inserted.exercises = (
-    await db
-      .insert(schema.exercises)
-      .values(
-        mockExercises.map((exercise) => ({
-          id: exercise.id,
-          name: exercise.name,
-          category: exercise.category,
-          videoUrl: exercise.videoUrl ?? null,
-          description: exercise.description ?? null,
-          equipment: exercise.equipment ?? null,
-          muscleGroups: exercise.muscleGroups ?? null,
-          scaledVariations: exercise.scaledVariations ?? null,
-          instructions: exercise.instructions ?? null,
-        })),
-      )
-      .onConflictDoNothing()
-      .returning({ id: schema.exercises.id })
-  ).length;
-
   inserted.wods = (
     await db
       .insert(schema.wods)
@@ -669,26 +647,13 @@ export async function seedDatabase(
       })
       .where(eq(schema.wods.id, wod.id));
   }
-  for (const exercise of mockExercises) {
-    await db
-      .update(schema.exercises)
-      .set({
-        videoUrl: exercise.videoUrl ?? null,
-        description: exercise.description ?? null,
-        equipment: exercise.equipment ?? null,
-        muscleGroups: exercise.muscleGroups ?? null,
-        scaledVariations: exercise.scaledVariations ?? null,
-        instructions: exercise.instructions ?? null,
-      })
-      .where(eq(schema.exercises.id, exercise.id));
-  }
   for (const spec of CHECK_IN_SEED) {
     await db
       .update(schema.checkIns)
       .set({ checkedInAt: checkInSeedTimestamp(spec) })
       .where(eq(schema.checkIns.id, spec.id));
   }
-  log("classes/wods/exercises/check-ins: dates refreshed to the relative window");
+  log("classes/wods/check-ins: dates refreshed to the relative window");
 
   inserted.subscriptionPlans = (
     await db
