@@ -1,6 +1,6 @@
 import { TRPCError } from "@trpc/server";
 import { EXERCISE_CATEGORIES } from "@vytal-fit/db";
-import { mockExercises } from "@vytal-fit/shared";
+import { getExerciseById, listExercises } from "@vytal-fit/shared";
 import { z } from "zod";
 import { protectedProcedure, router } from "../trpc";
 
@@ -19,7 +19,7 @@ export const exercisesRouter = router({
         .default({}),
     )
     .query(async ({ input }) => {
-      return mockExercises
+      return listExercises()
         .filter((exercise) =>
           input.category ? exercise.category === input.category : true,
         )
@@ -30,7 +30,7 @@ export const exercisesRouter = router({
   byId: protectedProcedure
     .input(z.object({ id: z.string().min(1) }))
     .query(async ({ input }) => {
-      const row = mockExercises.find((exercise) => exercise.id === input.id);
+      const row = getExerciseById(input.id);
       if (!row) {
         throw new TRPCError({ code: "NOT_FOUND", message: "Exercise not found." });
       }
