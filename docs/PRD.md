@@ -300,8 +300,8 @@ The admin web application lives at `apps/web/src/app/`. It uses Next.js 15 App R
 | 7 | `/(app)/classes` | Built (POC) | Class calendar and management | Weekly/monthly calendar (FullCalendar-style), click-to-create, drag-and-drop, copy week, filter by location/coach/type, color-coded events | C2-01 |
 | 8 | `/(app)/classes/[id]` | Built (POC) | Individual class detail | Enrolled athletes, waitlist, coach assignment, capacity, check-in controls, real-time occupancy | C2-01, C2-03 |
 | 9 | `/(app)/class-types` | Built (POC) | Class type configuration | Name, abbreviation, color picker, icon selector, active/inactive toggle, email notification toggle | C2-01 |
-| 10 | `/(app)/wods` | Built (POC) | WOD builder and programming | Weekly calendar, structured parts (Warm Up/Skill/WOD/Cool Down), exercise selection, publish to app, auto-save drafts | C1-01, C1-03 |
-| 11 | `/(app)/exercises` | Built (POC) | Exercise/movement library | 1,300+ movements from the shared catalog, thumbnail/GIF media, demo links, PT/EN/ES coaching notes, categories, equipment tags, muscle groups, scaled variations, search and filter | C1-02 |
+| 10 | `/(app)/wods` | Built (POC) | WOD builder and programming | Weekly calendar, structured parts (Warm Up/Skill/WOD/Cool Down), exercise selection with shared-catalog validation, publish to app, auto-save drafts | C1-01, C1-03 |
+| 11 | `/(app)/exercises` | Built (POC) | Exercise/movement library | 1,300+ movements from the shared exercise catalog, thumbnail/GIF media, demo links, PT/EN/ES coaching notes, categories, equipment tags, muscle groups, scaled variations, search and filter | C1-02 |
 | 12 | `/(app)/plans` | Built (POC) | Subscription plan management | Plan types (monthly/quarterly/annual/pack/day pass/trial), pricing, allowed class types, session limits, time slot rules | G2-02 |
 | 13 | `/(app)/financials` | Built (POC) | Billing and revenue overview | Revenue charts, payment history, overdue list, dunning config, invoice list, SAF-T export placeholder | G3-01, G3-02, G3-03 |
 | 14 | `/(app)/crm` | Built (POC) | Lead pipeline kanban | Configurable columns (Lead/Contacted/Prospect/Trial/Subscribed/Lost), lead cards, quick actions (call/email/trial), auto-lead from forms | G4-01, G4-02 |
@@ -337,7 +337,7 @@ All admin pages listed below have been built as POC (proof-of-concept) with full
 | 37 | `/(app)/classes/waitlist` | Built (POC) | Waitlist management | Queue positions, auto-promote rules, notification config | A1-01 |
 | 38 | `/(app)/classes/history` | Built (POC) | Class history | Historical class data, attendance records, coach performance | C2-01 |
 | 39 | `/(app)/classes/[id]/attendance` | Built (POC) | Class attendance | Real-time check-in, manual entry, attendance stats per class | C2-01 |
-| 40 | `/(app)/wods/builder` | Built (POC) | WOD builder | Structured parts, exercise selection, timer config, publish | C1-01 |
+| 40 | `/(app)/wods/builder` | Built (POC) | WOD builder | Structured parts, exercise selection against the shared catalog, timer config, publish | C1-01 |
 | 41 | `/(app)/wods/programming` | Built (POC) | Multi-week programming | Periodization cycles, weekly/monthly planning, copy weeks | C1-05 |
 | 42 | `/(app)/crm/[id]` | Built (POC) | Lead detail | Full interaction timeline, stage transitions, conversion actions | G4-01 |
 | 43 | `/(app)/plans/create` | Built (POC) | Plan create/edit form | Plan type, pricing, billing cycle, class types, session limits | G2-02 |
@@ -1442,16 +1442,16 @@ Core operations for all 4 personas plus competitive parity features:
 | Organization verticals | 20 | 20 |
 | Feature flags | 27 | 27 |
 | i18n translation keys | 1500+ | 1500+ x 3 languages |
-| Data store | Full CRUD | Per-org localStorage |
+| Data store | Mixed: real API for core surfaces, localStorage for remaining prototypes | Hybrid |
 | Payment methods | 6 | 6 |
 
 ### 14.2 Product Architecture
 
 | Product | Domain | Purpose | Status |
 |---|---|---|---|
-| **Admin** | `admin.vytal.fit/@org` | Gym management backoffice | Built (100+ pages) |
-| **Console** | `console.vytal.fit/@org` | Member portal (web) | Built (6 pages) |
-| **Public Site** | `vytal.fit/@org` or custom domain | Marketing website | Built (6 pages) |
+| **Admin** | `pro.vytal.fit` | Gym management backoffice | Built (100+ pages) |
+| **Console** | `my.vytal.fit` / `/console` | Member portal (web) | Built (6 pages) |
+| **Public Site** | `vytal.fit` or custom domain | Marketing website | Built (6 pages) |
 | **Mobile App** | iOS/Android (Expo) | Athlete app | Built (48 screens) |
 
 ### 14.3 What Is Built
@@ -1495,7 +1495,7 @@ Core operations for all 4 personas plus competitive parity features:
 - 27 feature flags in 4 categories (Training, Community, Health, Operations)
 - 3 required features (Financials, Reports, Communications)
 - Role-based access: Owner (full), Coach (limited), Athlete (minimal)
-- Per-org data isolation (separate localStorage per org)
+- Per-org data isolation (mixed: backend for core records, localStorage for some prototypes)
 - 3 mock orgs: CrossFit Aveiro, Yoga Flow Porto, Iron Temple
 - 6 payment methods: MB Way, Multibanco, SEPA, Card, Cash, Transfer
 - Custom domain routing (crossfit-aveiro.pt → org public pages)
@@ -1509,8 +1509,8 @@ Core operations for all 4 personas plus competitive parity features:
 
 ### 14.4 What Is NOT Built (Next Phase)
 
-- **Backend:** No real API -- all data is mock (next: tRPC + Drizzle + PostgreSQL)
-- **Auth:** Better Auth not integrated -- login is UI-only (localStorage pseudo-auth)
+- **Backend:** Core surfaces now use tRPC + Drizzle + PostgreSQL; remaining pages still mix API-backed data with localStorage mocks
+- **Auth:** Better Auth is integrated on the web app; production must trust the deployed web origin (`pro.vytal.fit`) and any future split API host explicitly.
 - **Real Payments:** No Stripe/MBWay/SEPA processing -- config UI only
 - **Fiscal:** No SAF-T/ATCUD generation
 - **Notifications:** No push/email/SMS delivery -- UI only

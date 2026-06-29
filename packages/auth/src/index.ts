@@ -47,6 +47,21 @@ export interface CreateAuthOptions {
   baseURL?: string;
 }
 
+function parseOrigins(raw: string | undefined): string[] {
+  if (!raw) return [];
+  return raw
+    .split(",")
+    .map((origin) => origin.trim())
+    .filter(Boolean)
+    .flatMap((origin) => {
+      try {
+        return [new URL(origin).origin];
+      } catch {
+        return [];
+      }
+    });
+}
+
 /** Build the Vytal Better Auth instance bound to the given database. */
 export function createAuth(options: CreateAuthOptions) {
   // `baseURL` is the auth server origin; `appUrl` is the user-facing app — kept
@@ -54,11 +69,22 @@ export function createAuth(options: CreateAuthOptions) {
   const baseURL =
     options.baseURL ?? process.env.BETTER_AUTH_URL ?? "http://localhost:3000";
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? baseURL;
+  const trustedOriginEnv = parseOrigins(
+    process.env.BETTER_AUTH_TRUSTED_ORIGINS,
+  );
+  const canonicalVytalOrigins = [
+    "https://vytal.fit",
+    "https://pro.vytal.fit",
+    "https://my.vytal.fit",
+    "https://api.vytal.fit",
+  ];
   const trustedOrigins = Array.from(
     new Set(
       [
         baseURL,
         appUrl,
+        ...canonicalVytalOrigins,
+        ...trustedOriginEnv,
         "http://localhost:3000",
         "http://127.0.0.1:3000",
         "http://[::1]:3000",
