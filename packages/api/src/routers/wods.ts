@@ -1,6 +1,7 @@
 import { TRPCError } from "@trpc/server";
 import { and, desc, eq, gte, lte } from "drizzle-orm";
 import { classTypes, wods } from "@vytal-fit/db";
+import { mockExercises } from "@vytal-fit/shared";
 import { z } from "zod";
 import { orgProcedure, router, staffProcedure } from "../trpc";
 
@@ -38,6 +39,17 @@ const wodInput = z.object({
  * and silently wipe stored parts on partial updates.
  */
 const wodUpdateInput = wodInput.extend({ parts: z.array(wodPartSchema) }).partial();
+
+function assertExercisesExist(exercises: Array<{ exerciseId: string }>): void {
+  for (const exercise of exercises) {
+    if (!mockExercises.some((item) => item.id === exercise.exerciseId)) {
+      throw new TRPCError({
+        code: "NOT_FOUND",
+        message: `Exercise not found: ${exercise.exerciseId}`,
+      });
+    }
+  }
+}
 
 export const wodsRouter = router({
   list: orgProcedure
@@ -93,6 +105,9 @@ export const wodsRouter = router({
     if (!classType) {
       throw new TRPCError({ code: "NOT_FOUND", message: "Class type not found." });
     }
+    for (const part of input.parts) {
+      assertExercisesExist(part.exercises);
+    }
 
     const [created] = await ctx.db
       .insert(wods)
@@ -140,6 +155,11 @@ export const wodsRouter = router({
           .limit(1);
         if (!classType) {
           throw new TRPCError({ code: "NOT_FOUND", message: "Class type not found." });
+        }
+      }
+      if (input.data.parts) {
+        for (const part of input.data.parts) {
+          assertExercisesExist(part.exercises);
         }
       }
 
