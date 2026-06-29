@@ -530,6 +530,8 @@ export interface TestHarness {
   callerNoSession: TestCaller;
   /** Session but no active organization. */
   callerNoOrg: TestCaller;
+  /** Signed in (owner of org-a) but email not yet confirmed. */
+  callerUnverified: TestCaller;
 }
 
 export function buildCaller(
@@ -545,17 +547,32 @@ export async function createHarness(): Promise<TestHarness> {
   return {
     db,
     callerA: buildCaller(db, {
-      user: { id: IDS.userA, email: "owner-a@vytal.fit", name: "Owner A" },
+      user: {
+        id: IDS.userA,
+        email: "owner-a@vytal.fit",
+        name: "Owner A",
+        emailVerified: true,
+      },
       activeOrganizationId: IDS.orgA,
       role: "owner",
     }),
     callerB: buildCaller(db, {
-      user: { id: IDS.userB, email: "owner-b@vytal.fit", name: "Owner B" },
+      user: {
+        id: IDS.userB,
+        email: "owner-b@vytal.fit",
+        name: "Owner B",
+        emailVerified: true,
+      },
       activeOrganizationId: IDS.orgB,
       role: "owner",
     }),
     callerCoachA: buildCaller(db, {
-      user: { id: IDS.userCoachA, email: "coach-a@vytal.fit", name: "Coach A" },
+      user: {
+        id: IDS.userCoachA,
+        email: "coach-a@vytal.fit",
+        name: "Coach A",
+        emailVerified: true,
+      },
       activeOrganizationId: IDS.orgA,
       role: "coach",
     }),
@@ -564,15 +581,31 @@ export async function createHarness(): Promise<TestHarness> {
         id: IDS.userAthleteA,
         email: "athlete-a@vytal.fit",
         name: "Athlete A",
+        emailVerified: true,
       },
       activeOrganizationId: IDS.orgA,
       role: "athlete",
     }),
     callerNoSession: buildCaller(db, null),
     callerNoOrg: buildCaller(db, {
-      user: { id: IDS.userA, email: "owner-a@vytal.fit", name: "Owner A" },
+      user: {
+        id: IDS.userA,
+        email: "owner-a@vytal.fit",
+        name: "Owner A",
+        emailVerified: true,
+      },
       activeOrganizationId: null,
       role: null,
+    }),
+    callerUnverified: buildCaller(db, {
+      user: {
+        id: IDS.userA,
+        email: "owner-a@vytal.fit",
+        name: "Owner A",
+        emailVerified: false,
+      },
+      activeOrganizationId: IDS.orgA,
+      role: "owner",
     }),
   };
 }

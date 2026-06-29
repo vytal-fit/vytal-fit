@@ -15,6 +15,7 @@ export interface User {
   phone?: string;
   photo?: string;
   language: "pt" | "en" | "es";
+  emailVerified: boolean;
   createdAt: string;
 }
 
