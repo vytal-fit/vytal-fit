@@ -5,38 +5,38 @@ const endpointGroups = [
   {
     title: "Auth",
     description: "Session bootstrap, sign-in, sign-up, and org membership lookup.",
-    items: ["/api/auth/sign-in/email", "/api/auth/sign-up/email", "/api/auth/get-session"],
+    items: ["/auth/sign-in/email", "/auth/sign-up/email", "/auth/get-session"],
   },
   {
     title: "Session and spaces",
     description: "Active-space switching and space discovery for pro and mobile clients.",
-    items: ["/api/session", "/api/spaces", "/api/spaces/{spaceId}"],
+    items: ["/session", "/spaces", "/spaces/{spaceId}"],
   },
   {
     title: "Athlete flows",
     description: "Bookings, records, and results for the member portal and mobile app.",
-    items: ["/api/bookings", "/api/bookings/{bookingId}", "/api/records", "/api/results"],
+    items: ["/bookings", "/bookings/{bookingId}", "/records", "/results"],
   },
   {
     title: "Platform",
     description: "Deployment health and runtime status.",
-    items: ["/api/health"],
+    items: ["/health"],
   },
 ] as const;
 
 const curlExamples = [
   {
     title: "Health check",
-    command: "curl https://api.vytal.fit/api/health",
+    command: "curl https://api.vytal.fit/health",
   },
   {
     title: "Sign in",
     command:
-      "curl -X POST https://api.vytal.fit/api/auth/sign-in/email \\\n  -H 'content-type: application/json' \\\n  -d '{\"email\":\"jose@vytal.fit\",\"password\":\"VytalDemo2026!\"}'",
+      "curl -X POST https://api.vytal.fit/auth/sign-in/email \\\n  -H 'content-type: application/json' \\\n  -d '{\"email\":\"jose@vytal.fit\",\"password\":\"VytalDemo2026!\"}'",
   },
   {
     title: "List spaces",
-    command: "curl -H 'authorization: Bearer <token>' https://api.vytal.fit/api/spaces",
+    command: "curl -H 'authorization: Bearer <token>' https://api.vytal.fit/spaces",
   },
 ] as const;
 
@@ -65,7 +65,7 @@ export default function DeveloperDocsPage() {
               OpenAPI JSON
             </Link>
             <Link
-              href="/api/health"
+              href="/health"
               className="rounded-md border border-border bg-card px-4 py-2 text-sm font-medium text-foreground transition hover:bg-accent hover:text-accent-foreground"
             >
               Health

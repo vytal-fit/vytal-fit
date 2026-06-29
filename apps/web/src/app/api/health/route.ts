@@ -1,5 +1,5 @@
 /**
- * Health endpoint (/api/health).
+ * Health endpoint (/health).
  *
  * Reports whether the backend env is configured and whether the database
  * answers a cheap `SELECT 1`. Lazy by design: no env read or DB connection at

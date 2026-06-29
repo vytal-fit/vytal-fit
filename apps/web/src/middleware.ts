@@ -38,6 +38,32 @@ const CUSTOM_DOMAIN_MAP: Record<string, string> = {
 const API_SUBDOMAINS = ["api"];
 const ADMIN_SUBDOMAINS = ["admin", "control", "pro"];
 const MEMBER_SUBDOMAINS = ["my"];
+const API_PUBLIC_PREFIXES = new Set([
+  "auth",
+  "trpc",
+  "session",
+  "spaces",
+  "bookings",
+  "records",
+  "results",
+  "health",
+  "asset",
+]);
+const CORS_ALLOWED_ORIGINS = new Set([
+  "https://vytal.fit",
+  "https://www.vytal.fit",
+  "https://pro.vytal.fit",
+  "https://www.pro.vytal.fit",
+  "https://my.vytal.fit",
+  "https://www.my.vytal.fit",
+  "https://api.vytal.fit",
+  "https://www.api.vytal.fit",
+  "http://localhost:3000",
+  "http://localhost:3001",
+  "http://127.0.0.1:3000",
+  "http://127.0.0.1:3001",
+  "http://localhost:8081",
+]);
 
 function getSubdomain(hostname: string): string | null {
   let host = hostname.split(":")[0];
@@ -65,18 +91,62 @@ function isVytalDomain(hostname: string): boolean {
     || host.startsWith("localhost:");
 }
 
+function getCorsOrigin(request: NextRequest): string | null {
+  const origin = request.headers.get("origin");
+  if (!origin) return null;
+
+  const normalized = origin.replace(/\/+$/, "");
+  if (CORS_ALLOWED_ORIGINS.has(normalized)) return normalized;
+
+  try {
+    const url = new URL(normalized);
+    if (url.hostname.endsWith(".vercel.app")) {
+      return normalized;
+    }
+  } catch {
+    return null;
+  }
+
+  return null;
+}
+
+function withCorsHeaders(response: NextResponse, request: NextRequest): NextResponse {
+  const origin = getCorsOrigin(request);
+  if (!origin) return response;
+
+  response.headers.set("Access-Control-Allow-Origin", origin);
+  response.headers.set("Access-Control-Allow-Credentials", "true");
+  response.headers.set("Access-Control-Allow-Methods", "GET,POST,PATCH,PUT,DELETE,OPTIONS");
+  response.headers.set(
+    "Access-Control-Allow-Headers",
+    request.headers.get("access-control-request-headers") ?? "Content-Type, Authorization",
+  );
+  response.headers.set("Access-Control-Max-Age", "86400");
+  response.headers.append("Vary", "Origin");
+  return response;
+}
+
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const hostname = request.headers.get("host") ?? "";
   const subdomain = getSubdomain(hostname);
 
   if (subdomain && API_SUBDOMAINS.includes(subdomain)) {
+    if (request.method === "OPTIONS") {
+      return withCorsHeaders(new NextResponse(null, { status: 204 }), request);
+    }
     if (pathname === "/" || pathname === "") {
       const url = request.nextUrl.clone();
       url.pathname = "/developer";
-      return NextResponse.rewrite(url);
+      return withCorsHeaders(NextResponse.rewrite(url), request);
     }
-    return NextResponse.next();
+    const firstSegment = pathname.split("/")[1];
+    if (API_PUBLIC_PREFIXES.has(firstSegment)) {
+      const url = request.nextUrl.clone();
+      url.pathname = `/api${pathname}`;
+      return withCorsHeaders(NextResponse.rewrite(url), request);
+    }
+    return withCorsHeaders(NextResponse.next(), request);
   }
 
   // ─── Subdomain Handling (admin.vytal.fit, console.vytal.fit) ───
@@ -191,5 +261,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next|api|favicon.ico|.*\\..*).*)"],
+  matcher: ["/((?!_next|favicon.ico|.*\\..*).*)"],
 };

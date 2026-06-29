@@ -31,6 +31,6 @@ export function getApiUrl(path: string): string {
 export function getAuthUrl(path: string): string {
   const normalizedPath = path.replace(/^\/+/, "");
   return getApiUrl(
-    normalizedPath ? `/api/auth/${normalizedPath}` : "/api/auth",
+    normalizedPath ? `/auth/${normalizedPath}` : "/auth",
   );
 }

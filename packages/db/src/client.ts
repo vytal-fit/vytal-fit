@@ -25,7 +25,7 @@ export function createDb(url: string): PostgresJsDatabase<typeof schema> {
 
 /**
  * Cheap connectivity check (`SELECT 1`). Throws when the database is
- * unreachable — callers decide how to surface that (e.g. /api/health).
+ * unreachable — callers decide how to surface that (e.g. /health).
  */
 export async function pingDb(db: Database): Promise<void> {
   await db.execute(sql`select 1`);

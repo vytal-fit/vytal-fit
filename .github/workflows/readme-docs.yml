@@ -31,9 +31,9 @@ jobs:
       - name: Sync OpenAPI
         env:
           README_API_KEY: ${{ secrets.README_API_KEY }}
-        run: npx rdme openapi upload https://api.vytal.fit/openapi --slug vytal-api --title "Vytal API" --branch stable --key "$README_API_KEY" --confirm-overwrite
+        run: npx rdme openapi upload https://api.vytal.fit/openapi --slug vytal-api --title "Vytal API" --branch 1.0 --key "$README_API_KEY" --confirm-overwrite
 
       - name: Sync guides
         env:
           README_API_KEY: ${{ secrets.README_API_KEY }}
-        run: npx rdme docs upload readme/docs --branch stable --key "$README_API_KEY" --confirm-overwrite
+        run: npx rdme docs upload readme/docs --branch 1.0 --key "$README_API_KEY"

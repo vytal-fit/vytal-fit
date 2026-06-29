@@ -14,12 +14,13 @@
     "test:coverage": "vitest run --coverage",
     "test:e2e": "npm --workspace @vytal-fit/web run test:e2e",
     "test:e2e:ui": "npm --workspace @vytal-fit/web run test:e2e:ui",
-    "docs:readme:openapi": "rdme openapi upload https://api.vytal.fit/openapi --slug vytal-api --title \"Vytal API\" --branch stable --confirm-overwrite",
-    "docs:readme:guides": "rdme docs upload readme/docs --branch stable --confirm-overwrite",
+    "docs:readme:openapi": "rdme openapi upload https://api.vytal.fit/openapi --slug vytal-api --title \"Vytal API\" --branch 1.0 --confirm-overwrite",
+    "docs:readme:guides": "rdme docs upload readme/docs --branch 1.0",
     "docs:readme:sync": "npm run docs:readme:openapi && npm run docs:readme:guides"
   },
   "devDependencies": {
     "@vitest/coverage-v8": "^4.1.6",
+    "ajv": "^8.20.0",
     "rdme": "^10.9.1",
     "turbo": "^2.5.0",
     "typescript": "^5",

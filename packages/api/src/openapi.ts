@@ -25,7 +25,7 @@ export const openApiSpec = {
     { name: "Health", description: "Runtime and deployment health." },
   ],
   paths: {
-    "/api/health": {
+    "/health": {
       get: {
         tags: ["Health"],
         summary: "Runtime health",
@@ -35,7 +35,7 @@ export const openApiSpec = {
         },
       },
     },
-    "/api/auth/sign-in/email": {
+    "/auth/sign-in/email": {
       post: {
         tags: ["Auth"],
         summary: "Sign in with email/password",
@@ -59,7 +59,7 @@ export const openApiSpec = {
         },
       },
     },
-    "/api/auth/sign-up/email": {
+    "/auth/sign-up/email": {
       post: {
         tags: ["Auth"],
         summary: "Create an account with email/password",
@@ -84,7 +84,7 @@ export const openApiSpec = {
         },
       },
     },
-    "/api/auth/get-session": {
+    "/auth/get-session": {
       get: {
         tags: ["Auth"],
         summary: "Fetch the current session",
@@ -93,7 +93,7 @@ export const openApiSpec = {
         },
       },
     },
-    "/api/session": {
+    "/session": {
       patch: {
         tags: ["Session"],
         summary: "Update the active space",
@@ -116,7 +116,7 @@ export const openApiSpec = {
         },
       },
     },
-    "/api/spaces": {
+    "/spaces": {
       get: {
         tags: ["Spaces"],
         summary: "List accessible spaces",
@@ -125,7 +125,7 @@ export const openApiSpec = {
         },
       },
     },
-    "/api/spaces/{spaceId}": {
+    "/spaces/{spaceId}": {
       get: {
         tags: ["Spaces"],
         summary: "Get a single space",
@@ -143,7 +143,7 @@ export const openApiSpec = {
         },
       },
     },
-    "/api/bookings": {
+    "/bookings": {
       get: {
         tags: ["Bookings"],
         summary: "List bookings",
@@ -159,7 +159,7 @@ export const openApiSpec = {
         },
       },
     },
-    "/api/bookings/{bookingId}": {
+    "/bookings/{bookingId}": {
       delete: {
         tags: ["Bookings"],
         summary: "Cancel a booking",
@@ -176,7 +176,7 @@ export const openApiSpec = {
         },
       },
     },
-    "/api/records": {
+    "/records": {
       get: {
         tags: ["Records"],
         summary: "List personal records",
@@ -192,7 +192,7 @@ export const openApiSpec = {
         },
       },
     },
-    "/api/records/{id}": {
+    "/records/{id}": {
       patch: {
         tags: ["Records"],
         summary: "Update a personal record",
@@ -209,7 +209,7 @@ export const openApiSpec = {
         },
       },
     },
-    "/api/results": {
+    "/results": {
       get: {
         tags: ["Results"],
         summary: "List WOD results",
@@ -225,7 +225,7 @@ export const openApiSpec = {
         },
       },
     },
-    "/api/results/{id}": {
+    "/results/{id}": {
       patch: {
         tags: ["Results"],
         summary: "Update a WOD result",
@@ -244,4 +244,3 @@ export const openApiSpec = {
     },
   },
 } as const;
-
