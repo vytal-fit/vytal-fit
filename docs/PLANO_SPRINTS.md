@@ -2,7 +2,7 @@
 
 > Documento de execução. Liga o **contrato comercial** (6 fases, €290.000, go-live 30 Out 2026) a **sprints de 2 semanas**, com entregáveis, critérios de aceitação e tranches por fase.
 > Prestador: **JCUNHAFONTE, LDA** · Cliente: **Musas & Vikings, Lda** *(marca CrossFit Aveiro)* · Enquadramento: candidatura PRR *"Soluções de IA para PME's"* — projeto **CrossFit Aveiro Digital**.
-> Última atualização: 2026-06-28.
+> Última atualização: 2026-06-29.
 
 ---
 
@@ -78,6 +78,7 @@
 - App do atleta: marcação ≤3 toques · check-in QR · ver WOD · registar resultado · *leaderboards* · PRs · %RM · gamificação.
 - Bem-estar: **perfil de estilo de vida** + **check-in diário (sono/fadiga/stress 1–10)**.
 - **Questionário pós-treino (D1):** RPE (1–9) + gosto (1–9) + limitação por lesão (escala 1–9) — **sem mapa interativo**; dados com *timestamp* para começar o **perfil de performance e saúde**.
+- **Estado atual do repo:** `my` já tem login próprio e páginas de bookings/training/progress; essas rotas já puxam bookings/PRs/resultados reais do API; falta alinhar o restante mobile e terminar o resto do `pro`.
 - **Aceitação:** atleta marca, faz check-in, regista resultado e responde aos questionários; dados visíveis no perfil.
 
 ### F5 · Coach Assist AI + Faturação — S8

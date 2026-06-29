@@ -2,7 +2,7 @@
 
 > Backlog vivo, atualizado a cada sprint. Ligado a [`docs/PLANO_SPRINTS.md`](docs/PLANO_SPRINTS.md) e ao contrato (JCUNHAFONTE ↔ Musas & Vikings · €290.000 · go-live 30 Out 2026).
 > Legenda: `[ ]` por fazer · `[~]` em curso · `[x]` feito · `(D#)` decisão · `(A#)` ponto em aberto.
-> Última atualização: 2026-06-28.
+> Última atualização: 2026-06-29.
 
 ## Decisões em vigor *(ref. Adenda 01)*
 - **D1** Questionário pós-treino no MVP (F4), **sem** mapa de lesões.
@@ -17,11 +17,11 @@
 - **landing** = presença pública (`vytal.fit`)
 - **pro** = backoffice operacional (`pro.vytal.fit`)
 - **my** = portal do atleta / membro (`my.vytal.fit`)
-- No repo atual, o web app cobre **landing + pro + my console**; o mobile cobre **my** agora e o eventual **pro mobile** quando entrar no roadmap.
+- No repo atual, os apps estão separados por superfície: `landing`, `pro`, `my`, `api` e `docs`; `my` já tem rota de entrada própria, login e páginas de bookings/training/progress.
 - API em produção passa a ser um origin separado (`api.vytal.fit`); `pro.vytal.fit` fica só para o web app e os clients usam `NEXT_PUBLIC_API_URL` / `EXPO_PUBLIC_API_URL`.
 - Documentação humana fica no ReadMe (`docs.vytal.fit`); `api.vytal.fit` mantém só a landing bridge e o OpenAPI.
 - O repo também publica um leitor in-app de markdown em `/docs` e `/docs/[slug]` para espelhar os guias ReadMe mais importantes sem expor segredos.
-- Estado real hoje: `pro` já tem alguns fluxos reais via tRPC/API, mas ainda mistura páginas ligadas a dados persistidos com muitas páginas de protótipo/mock. Não tratar como backoffice totalmente migrado.
+- Estado real hoje: `pro` já tem alguns fluxos reais via tRPC/API, mas ainda mistura páginas ligadas a dados persistidos com muitas páginas de protótipo/mock. `my` já saiu do estado de shell, tem login próprio e agora consome bookings/PRs/resultados reais do API, mas ainda precisa de completar as restantes superfícies.
 
 ---
 
@@ -77,7 +77,7 @@ O DB já existe (Neon Postgres + Drizzle + migrações + seed + Better Auth + tR
 
 ## F4 · App do Atleta (`my.vytal.fit`) + Bem-estar — S6–S7 (€60.000)
 - [x] **`gym_members.user_id`** (atleta ↔ membro) — migração `0002`, FK + unique por org; desbloqueia self-service
-- [~] Self-service de bookings/resultados (atleta age sobre o SEU membro) — API + REST wrappers prontos; mobile booking/PR/WOD wiring em curso; exercícios/WODs já usam catálogo partilhado file-backed com validação de movimentos
+- [~] Self-service de bookings/resultados (atleta age sobre o SEU membro) — API + REST wrappers prontos; mobile booking/PR/WOD wiring em curso; `my` já consome bookings/PRs/resultados reais; exercícios/WODs usam catálogo partilhado file-backed com validação de movimentos
 - [ ] Marcação ≤3 toques · check-in QR
 - [ ] Ver WOD · registar resultado · leaderboards · PRs · %RM · gamificação
 - [ ] Perfil de estilo de vida

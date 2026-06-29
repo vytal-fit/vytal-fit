@@ -1,7 +1,69 @@
+"use client";
+
 import Link from "next/link";
-import { CalendarDays, Dumbbell, Trophy, ArrowRight } from "lucide-react";
+import {
+  ArrowRight,
+  CalendarDays,
+  Dumbbell,
+  LineChart,
+  ShieldCheck,
+  Trophy,
+} from "lucide-react";
+import { useMemberPortalIdentity } from "@/lib/portal";
+import { trpc } from "@/lib/trpc";
+
+const sections = [
+  {
+    href: "/bookings",
+    icon: CalendarDays,
+    title: "Bookings",
+    description: "Reserve classes, check your schedule, and manage attendance.",
+  },
+  {
+    href: "/training",
+    icon: Dumbbell,
+    title: "Training",
+    description: "Track WOD history, session notes, and workout results.",
+  },
+  {
+    href: "/progress",
+    icon: LineChart,
+    title: "Progress",
+    description: "Follow PRs, streaks, and personal performance trends.",
+  },
+  {
+    href: "/progress",
+    icon: Trophy,
+    title: "Leaderboards",
+    description: "See rankings and compare recent performance at a glance.",
+  },
+];
+
+function formatCount(value: number): string {
+  return value.toLocaleString("en-GB");
+}
 
 export default function MyHomePage() {
+  const { session, currentMember } = useMemberPortalIdentity();
+
+  const bookingsQuery = trpc.bookings.listByMember.useQuery(
+    { memberId: currentMember?.id ?? "" },
+    { enabled: Boolean(currentMember?.id) },
+  );
+  const personalRecordsQuery = trpc.personalRecords.list.useQuery(
+    { memberId: currentMember?.id ?? "", limit: 6 },
+    { enabled: Boolean(currentMember?.id) },
+  );
+  const resultsQuery = trpc.wodResults.list.useQuery(
+    { memberId: currentMember?.id ?? "", limit: 6 },
+    { enabled: Boolean(currentMember?.id) },
+  );
+
+  const upcomingBookings =
+    bookingsQuery.data?.filter((booking) => booking.status !== "cancelled") ?? [];
+  const latestResult = resultsQuery.data?.items[0] ?? null;
+  const latestPR = personalRecordsQuery.data?.items[0] ?? null;
+
   return (
     <main className="page">
       <section className="shell">
@@ -13,38 +75,67 @@ export default function MyHomePage() {
         </div>
 
         <div className="hero">
-          <h1>The member portal for booking, tracking, and progress.</h1>
-          <p>
-            This app surface is where athletes manage their own training flow.
-            The detailed member routes will be extracted here next.
-          </p>
+          <div className="hero-copy">
+            <p className="eyebrow">Member portal</p>
+            <h1>Your training, bookings, and progress in one place.</h1>
+            <p>
+              {session.data && currentMember
+                ? `Signed in as ${session.data.user?.name ?? session.data.user?.email ?? "member"}.`
+                : "Sign in to manage your own schedule, record results, and review recent progress."}
+            </p>
 
-          <div className="actions">
-            <Link className="button primary" href="https://pro.vytal.fit/login">
-              Sign in
-              <ArrowRight size={16} />
-            </Link>
-            <Link className="button" href="https://docs.vytal.fit">
-              Read docs
-            </Link>
+            <div className="actions">
+              <Link className="button primary" href="/login">
+                Sign in
+                <ArrowRight size={16} />
+              </Link>
+              <Link className="button" href="/progress">
+                Open portal
+              </Link>
+            </div>
+          </div>
+
+          <div className="summary-panel">
+            <div className="summary-title">
+              <ShieldCheck size={18} />
+              Today
+            </div>
+            {session.isPending || bookingsQuery.isLoading ? (
+              <p className="summary-list">Loading your member data...</p>
+            ) : currentMember ? (
+              <ul className="summary-list">
+                <li>{formatCount(upcomingBookings.length)} active bookings</li>
+                <li>{formatCount(personalRecordsQuery.data?.items.length ?? 0)} PRs on file</li>
+                <li>
+                  {latestResult
+                    ? `Latest result: ${latestResult.wod?.title ?? "WOD"}`
+                    : "No WOD results yet"}
+                </li>
+                <li>
+                  {latestPR
+                    ? `Latest PR: ${latestPR.exercise?.name ?? latestPR.exerciseId}`
+                    : "No PRs logged yet"}
+                </li>
+              </ul>
+            ) : (
+              <p className="summary-list">
+                Link your member profile after sign-in to see bookings, results,
+                and PRs here.
+              </p>
+            )}
           </div>
 
           <div className="tiles">
-            <article className="tile">
-              <CalendarDays size={18} />
-              <h2>Bookings</h2>
-              <p>Class schedules and reservation flows.</p>
-            </article>
-            <article className="tile">
-              <Dumbbell size={18} />
-              <h2>Training</h2>
-              <p>WOD history, results, and personal records.</p>
-            </article>
-            <article className="tile">
-              <Trophy size={18} />
-              <h2>Progress</h2>
-              <p>Leaderboards, streaks, and athlete summaries.</p>
-            </article>
+            {sections.map((section) => {
+              const Icon = section.icon;
+              return (
+                <Link className="tile tile-link" href={section.href} key={section.title}>
+                  <Icon size={18} />
+                  <h2>{section.title}</h2>
+                  <p>{section.description}</p>
+                </Link>
+              );
+            })}
           </div>
         </div>
       </section>
