@@ -1,4 +1,4 @@
-# Backend wiring — apps/web ⇄ packages/*
+# Backend wiring — apps/pro + apps/api ⇄ packages/*
 
 Status of the tRPC/Better Auth/Drizzle plumbing in the web app.
 
@@ -6,17 +6,17 @@ Status of the tRPC/Better Auth/Drizzle plumbing in the web app.
 
 | Piece | File | Notes |
 |---|---|---|
-| tRPC route handler | `apps/web/src/app/trpc/[trpc]/route.ts` | `fetchRequestHandler` + shared `appRouter`. Builds the API `Context` per request: lazy DB (`getDb()`) + Better Auth session mapped to `{ user, activeOrganizationId }`. The public host serves `/trpc` directly; the `/api/trpc/*` alias remains for compatibility. |
-| Better Auth routes | `apps/web/src/app/auth/[...all]/route.ts` | `toNextJsHandler` over a lazy handler — serves sign-in/up, sessions, org switching. The public host serves `/auth/*` directly; the `/api/auth/*` alias remains for compatibility. |
-| Auth server singleton | `apps/web/src/lib/auth-server.ts` | `getAuth()` builds the Better Auth instance on first use from `createAuth` + `getDb()`. `isBackendConfigured()` gates on env. |
-| Typed client | `apps/web/src/lib/trpc.ts` | `createTRPCReact<AppRouter>` + `httpBatchLink` with the `superjson` transformer (matches the server). |
-| Developer docs | `apps/web/src/app/developer/page.tsx` | `api.vytal.fit/` rewrites here. Human-readable bridge page that points to ReadMe on `docs.vytal.fit` and links the raw OpenAPI payload. |
-| OpenAPI spec | `apps/web/src/app/openapi/route.ts` | `GET /openapi` returns the machine-readable spec used by the docs page and downstream tooling. |
-| Provider | `apps/web/src/components/trpc-provider.tsx` | QueryClientProvider + `trpc.Provider`, mounted in `src/app/layout.tsx` around all existing providers. |
+| tRPC route handler | `apps/pro/src/app/trpc/[trpc]/route.ts` | `fetchRequestHandler` + shared `appRouter`. Builds the API `Context` per request: lazy DB (`getDb()`) + Better Auth session mapped to `{ user, activeOrganizationId }`. The public host serves `/trpc` directly; the `/api/trpc/*` alias remains for compatibility. |
+| Better Auth routes | `apps/pro/src/app/auth/[...all]/route.ts` | `toNextJsHandler` over a lazy handler — serves sign-in/up, sessions, org switching. The public host serves `/auth/*` directly; the `/api/auth/*` alias remains for compatibility. |
+| Auth server singleton | `apps/pro/src/lib/auth-server.ts` | `getAuth()` builds the Better Auth instance on first use from `createAuth` + `getDb()`. `isBackendConfigured()` gates on env. |
+| Typed client | `apps/pro/src/lib/trpc.ts` | `createTRPCReact<AppRouter>` + `httpBatchLink` with the `superjson` transformer (matches the server). |
+| Developer docs | `apps/api/src/app/developer/page.tsx` | `api.vytal.fit/` serves the API bridge page that points to ReadMe on `docs.vytal.fit` and links the raw OpenAPI payload. |
+| OpenAPI spec | `apps/api/src/app/openapi/route.ts` | `GET /openapi` returns the machine-readable spec used by the docs page and downstream tooling. |
+| Provider | `apps/pro/src/components/trpc-provider.tsx` | QueryClientProvider + `trpc.Provider`, mounted in `src/app/layout.tsx` around all existing providers. |
 | Env template | `.env.example` (repo root) | `DATABASE_URL`, `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, `NEXT_PUBLIC_APP_URL`, `NEXT_PUBLIC_API_URL`, `BETTER_AUTH_TRUSTED_ORIGINS`. |
-| Health endpoint | `apps/web/src/app/health/route.ts` | `GET /health` → `{ status, backend: configured\|unconfigured, db: ok\|error\|skipped, version }`. Cheap `SELECT 1` via the lazy client when env is present; never crashes without env; no secrets in output. The `/api/health` alias remains for compatibility. |
+| Health endpoint | `apps/api/src/app/health/route.ts` | `GET /health` → `{ status, backend: configured\|unconfigured, db: ok\|error\|skipped, version }`. Cheap `SELECT 1` via the lazy client when env is present; never crashes without env; no secrets in output. The `/api/health` alias remains for compatibility until the API app is fully extracted. |
 | Seed (library) | `packages/db/src/seed.ts` | `seedDatabase(db, { auth })` — idempotent (upsert/skip on conflict). Seeds the 3 demo orgs, demo users with real hashed passwords (via `auth.api.signUpEmail`), org memberships, and the full `@vytal-fit/shared` mock dataset into org-1. Importable as `@vytal-fit/db/seed`. |
-| Seed (CLI) | `packages/db/scripts/seed.ts` | `npm run db:seed -w @vytal-fit/db`. Loads env from the shell or `.env.local`/`.env` (repo root and apps/web), prints a per-table summary. Safe to re-run. |
+| Seed (CLI) | `packages/db/scripts/seed.ts` | `npm run db:seed -w @vytal-fit/db`. Loads env from the shell or `.env.local`/`.env` (repo root and apps/pro), prints a per-table summary. Safe to re-run. |
 | Migrations (CLI) | `packages/db/drizzle.config.ts` | `npm run db:migrate -w @vytal-fit/db` applies the committed `packages/db/migrations/` folder (`drizzle-kit migrate`). The config auto-loads `.env.local` too. |
 
 ### Laziness guarantee
@@ -71,7 +71,7 @@ curl https://<your-deployment>/health
 ```
 
 For local development, the same works against any `DATABASE_URL` in
-`.env.local` (root or `apps/web/`); then `curl http://localhost:3001/health`.
+`.env.local` (root or `apps/pro/`); then `curl http://localhost:3001/health`.
 
 ### Origin contract
 

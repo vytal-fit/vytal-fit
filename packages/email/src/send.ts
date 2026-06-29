@@ -36,7 +36,7 @@ export async function sendEmail(params: SendEmailParams): Promise<SendEmailResul
 
   if (!from) {
     throw new Error(
-      "EMAIL_FROM is not set. Add it to apps/web/.env.local — e.g. " +
+      "EMAIL_FROM is not set. Add it to apps/pro/.env.local — e.g. " +
         '`EMAIL_FROM="Vytal <vytal.fit.eu@gmail.com>"`. The sender address ' +
         "must also be verified with the active email provider.",
     );

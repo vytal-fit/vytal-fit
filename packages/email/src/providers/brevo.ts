@@ -37,7 +37,7 @@ export function createBrevoProvider(): EmailProvider {
     const apiKey = process.env.BREVO_API_KEY;
     if (!apiKey) {
       throw new Error(
-        "BREVO_API_KEY is not set. Add it to apps/web/.env.local — see " +
+        "BREVO_API_KEY is not set. Add it to apps/pro/.env.local — see " +
           "https://app.brevo.com → Settings → SMTP & API → API Keys.",
       );
     }
@@ -55,7 +55,7 @@ export function createBrevoProvider(): EmailProvider {
       if (!from) {
         // send.ts guards this too, but a provider should be safe called directly.
         throw new Error(
-          "EMAIL_FROM is not set. Add it to apps/web/.env.local — e.g. " +
+          "EMAIL_FROM is not set. Add it to apps/pro/.env.local — e.g. " +
             '`EMAIL_FROM="Vytal <vytal.fit.eu@gmail.com>"`. The sender address ' +
             "must also be verified in Brevo (Senders, Domains & Dedicated IPs).",
         );

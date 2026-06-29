@@ -4,7 +4,7 @@
  * `process.env` WITHOUT overriding variables already set in the shell.
  *
  * Search order (first definition of a key wins):
- *   <repo>/.env.local → <repo>/.env → <repo>/apps/web/.env.local → <repo>/apps/web/.env
+ *   <repo>/.env.local → <repo>/.env → <repo>/apps/pro/.env.local → <repo>/apps/pro/.env
  */
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
@@ -41,8 +41,8 @@ export function loadEnvFiles(): string[] {
   const candidates = [
     path.join(REPO_ROOT, ".env.local"),
     path.join(REPO_ROOT, ".env"),
-    path.join(REPO_ROOT, "apps/web/.env.local"),
-    path.join(REPO_ROOT, "apps/web/.env"),
+    path.join(REPO_ROOT, "apps/pro/.env.local"),
+    path.join(REPO_ROOT, "apps/pro/.env"),
   ];
   for (const file of candidates) {
     if (!existsSync(file)) continue;

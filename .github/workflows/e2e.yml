@@ -47,7 +47,7 @@ jobs:
         uses: ./.github/actions/setup
 
       - name: Install Playwright browsers
-        run: npx --workspace @vytal-fit/web playwright install --with-deps
+        run: npx --workspace @vytal-fit/pro playwright install --with-deps
 
       - name: Run database migrations
         run: npm run db:migrate -w @vytal-fit/db
@@ -63,5 +63,5 @@ jobs:
         if: ${{ !cancelled() }}
         with:
           name: playwright-report
-          path: apps/web/e2e/html-report/
+          path: apps/pro/e2e/html-report/
           retention-days: 14

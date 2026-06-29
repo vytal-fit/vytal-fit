@@ -5,9 +5,9 @@ on:
     branches:
       - main
     paths:
-      - "readme/**"
+      - "apps/api/readme/**"
       - "packages/api/src/openapi.ts"
-      - "apps/web/src/app/openapi/route.ts"
+      - "apps/api/src/app/openapi/route.ts"
       - ".github/workflows/readme-docs.yml"
   workflow_dispatch: {}
 
@@ -36,4 +36,4 @@ jobs:
       - name: Sync guides
         env:
           README_API_KEY: ${{ secrets.README_API_KEY }}
-        run: npx rdme docs upload readme/docs --branch 1.0 --key "$README_API_KEY"
+        run: npx rdme docs upload apps/api/readme --branch 1.0 --key "$README_API_KEY"

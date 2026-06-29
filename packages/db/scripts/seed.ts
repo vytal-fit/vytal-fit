@@ -2,7 +2,7 @@
  * CLI entry for the database seed — `npm run db:seed -w @vytal-fit/db`.
  *
  * Loads DATABASE_URL / BETTER_AUTH_SECRET from the shell or from .env files
- * (repo root and apps/web, see load-env.ts), builds the real postgres client
+ * (repo root and apps/pro, see load-env.ts), builds the real postgres client
  * + Better Auth instance, runs the idempotent `seedDatabase`, and prints a
  * summary. Migrations are assumed to be applied already
  * (`npm run db:migrate -w @vytal-fit/db`).
@@ -27,7 +27,7 @@ async function main(): Promise<void> {
   if (!databaseUrl) {
     fail(
       "DATABASE_URL is not set. Export it or add it to .env.local " +
-        "(repo root or apps/web) — e.g. via `npx vercel env pull .env.local`.",
+        "(repo root or apps/pro) — e.g. via `npx vercel env pull .env.local`.",
     );
   }
   const secret = process.env.BETTER_AUTH_SECRET;

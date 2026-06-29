@@ -280,7 +280,7 @@ This config drives conditional rendering throughout the admin web and mobile cli
 
 ## 6. Screen Inventory -- Admin Web
 
-The admin web application lives at `apps/web/src/app/`. It uses Next.js 15 App Router with route groups: `(auth)` for authentication flows and `(app)` for authenticated admin pages.
+The admin web application lives at `apps/pro/src/app/`. It uses Next.js 15 App Router with route groups: `(auth)` for authentication flows and `(app)` for authenticated admin pages.
 
 ### 6.1 Authentication Pages (3 pages)
 

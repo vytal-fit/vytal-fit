@@ -9,11 +9,11 @@ install: ## Install all dependencies
 	npm install
 
 setup-env: ## Create .env.local from example (won't overwrite existing)
-	@if [ -f apps/web/.env.local ]; then \
-		echo "apps/web/.env.local already exists — skipping"; \
+	@if [ -f apps/pro/.env.local ]; then \
+		echo "apps/pro/.env.local already exists — skipping"; \
 	else \
-		cp apps/web/.env.example apps/web/.env.local; \
-		echo "Created apps/web/.env.local — edit it with your values"; \
+		cp apps/pro/.env.example apps/pro/.env.local; \
+		echo "Created apps/pro/.env.local — edit it with your values"; \
 	fi
 
 setup: install setup-env ## Full local setup (install + env)

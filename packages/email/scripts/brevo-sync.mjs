@@ -10,8 +10,8 @@
  *   node packages/email/scripts/brevo-sync.mjs
  *   # or, from packages/email:  npm run brevo:sync
  *
- * Reads BREVO_API_KEY from the environment, falling back to apps/web/.env.local.
- * Reads the sender from EMAIL_FROM ("Name <email>") in apps/web/.env.local,
+ * Reads BREVO_API_KEY from the environment, falling back to apps/pro/.env.local.
+ * Reads the sender from EMAIL_FROM ("Name <email>") in apps/pro/.env.local,
  * falling back to the name "Vytal".
  */
 import fs from "node:fs";
@@ -23,10 +23,10 @@ const ROOT = path.resolve(__dirname, "../../..");
 const MIRRORS = path.resolve(__dirname, "../brevo-templates");
 const CONFIG = path.resolve(__dirname, "../src/config/templates.ts");
 
-/** Read a key from apps/web/.env.local. */
+/** Read a key from apps/pro/.env.local. */
 function readEnvLocal(key) {
   try {
-    const env = fs.readFileSync(path.join(ROOT, "apps/web/.env.local"), "utf8");
+    const env = fs.readFileSync(path.join(ROOT, "apps/pro/.env.local"), "utf8");
     const m = env.match(new RegExp(`^${key}\\s*=\\s*"?([^"\\n\\r]+)"?`, "m"));
     if (m) return m[1].trim();
   } catch {
@@ -39,7 +39,7 @@ function apiKey() {
   if (process.env.BREVO_API_KEY) return process.env.BREVO_API_KEY;
   const fromFile = readEnvLocal("BREVO_API_KEY");
   if (fromFile) return fromFile;
-  throw new Error("BREVO_API_KEY not set (env or apps/web/.env.local)");
+  throw new Error("BREVO_API_KEY not set (env or apps/pro/.env.local)");
 }
 
 /** Parse "Display Name <email@example.com>" → { name, email }. */
