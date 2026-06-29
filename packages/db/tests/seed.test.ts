@@ -4,7 +4,8 @@
  *  - first run inserts the full demo dataset,
  *  - re-running is idempotent (zero new rows, no duplicates),
  *  - demo users can sign in with real hashed passwords via Better Auth,
- *  - org-1 row counts match the @vytal-fit/shared mock dataset,
+ *  - org-1 row counts match the @vytal-fit/shared mock dataset where the DB
+ *    still owns the rows,
  *  - memberships mirror mockCurrentUser (owner org-1 / athlete org-2 / coach org-3).
  */
 import path from "node:path";
@@ -21,7 +22,6 @@ import {
   mockClassTypes,
   mockCoaches,
   mockCurrentUser,
-  mockExercises,
   mockLeads,
   mockLocations,
   mockMembers,
@@ -124,7 +124,6 @@ describe("seedDatabase — first run", () => {
     expect(firstRun.inserted.classTypes).toBe(mockClassTypes.length);
     expect(firstRun.inserted.classes).toBe(mockClasses.length);
     expect(firstRun.inserted.gymMembers).toBe(mockMembers.length);
-    expect(firstRun.inserted.exercises).toBe(mockExercises.length);
     expect(firstRun.inserted.wods).toBe(mockWODs.length);
     expect(firstRun.inserted.subscriptionPlans).toBe(mockPlans.length);
     expect(firstRun.inserted.subscriptions).toBe(mockSubscriptions.length);
@@ -205,9 +204,6 @@ describe("org-1 row counts", () => {
     );
     expect(await countWhereOrg1(schema.supportTickets)).toBe(SUPPORT_TICKET_SEED.length);
     expect(await countWhereOrg1(schema.checkIns)).toBe(CHECK_IN_SEED.length);
-
-    const exerciseCount = await db.select({ n: count() }).from(schema.exercises);
-    expect(exerciseCount[0]?.n).toBe(mockExercises.length);
   });
 });
 

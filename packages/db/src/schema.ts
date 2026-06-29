@@ -459,28 +459,6 @@ export const bookings = pgTable(
   ],
 );
 
-/**
- * Exercise/movement library — mirrors shared `Exercise`.
- * Global (not tenant-owned): the shared type carries no organizationId.
- */
-export const exercises = pgTable("exercises", {
-  id: text("id").primaryKey(),
-  name: text("name").notNull(),
-  category: exerciseCategoryEnum("category").notNull(),
-  videoUrl: text("video_url"),
-  thumbnailUrl: text("thumbnail_url"),
-  gifUrl: text("gif_url"),
-  description: text("description"),
-  equipment: jsonb("equipment").$type<string[]>(),
-  muscleGroups: jsonb("muscle_groups").$type<string[]>(),
-  scaledVariations: jsonb("scaled_variations").$type<string[]>(),
-  instructions: jsonb("instructions").$type<{
-    pt: string[];
-    en: string[];
-    es: string[];
-  }>(),
-});
-
 /** Workouts of the day — mirrors shared `WOD` (parts stored as JSONB). */
 export const wods = pgTable(
   "wods",
@@ -546,9 +524,7 @@ export const personalRecords = pgTable(
     memberId: text("member_id")
       .notNull()
       .references(() => gymMembers.id, { onDelete: "cascade" }),
-    exerciseId: text("exercise_id")
-      .notNull()
-      .references(() => exercises.id, { onDelete: "restrict" }),
+    exerciseId: text("exercise_id").notNull(),
     value: text("value").notNull(),
     unit: prUnitEnum("unit").notNull(),
     achievedAt: timestamp("achieved_at").notNull().defaultNow(),
