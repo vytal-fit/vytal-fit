@@ -190,6 +190,7 @@ async function buildUserWithOrgs(): Promise<UserWithOrgs | null> {
       email: session.user.email,
       photo: session.user.image ?? undefined,
       language: "pt",
+      emailVerified: session.user.emailVerified ?? false,
       createdAt: toIsoDate(session.user.createdAt),
     },
     memberships,

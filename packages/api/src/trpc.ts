@@ -29,6 +29,8 @@ export interface SessionContext {
     id: string;
     email: string;
     name: string;
+    /** Unverified sessions are rejected by `protectedProcedure`. */
+    emailVerified: boolean;
   };
   activeOrganizationId: string | null;
   /**
@@ -110,6 +112,12 @@ export const publicProcedure = t.procedure;
 export const protectedProcedure = t.procedure.use(({ ctx, next }) => {
   if (!ctx.session) {
     throw new TRPCError({ code: "UNAUTHORIZED" });
+  }
+  // Verify/resend and org creation run through Better Auth endpoints, not tRPC,
+  // so blocking unverified sessions here costs nothing legitimate. The message
+  // is a stable code so the client can tell this apart from a generic 403.
+  if (!ctx.session.user.emailVerified) {
+    throw new TRPCError({ code: "FORBIDDEN", message: "EMAIL_NOT_VERIFIED" });
   }
   return next({
     ctx: { ...ctx, session: ctx.session },

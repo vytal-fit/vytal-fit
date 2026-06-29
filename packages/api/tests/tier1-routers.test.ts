@@ -38,6 +38,13 @@ describe("tier-1 auth gates", () => {
         code: "FORBIDDEN",
       });
     });
+
+    it(`${name} rejects an unverified email with FORBIDDEN EMAIL_NOT_VERIFIED`, async () => {
+      await expect(call(h.callerUnverified)).rejects.toMatchObject({
+        code: "FORBIDDEN",
+        message: "EMAIL_NOT_VERIFIED",
+      });
+    });
   }
 
   it("exercises.list rejects no session but allows session without org", async () => {

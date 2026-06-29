@@ -15,6 +15,7 @@ export const mockCurrentUser: UserWithOrgs = {
     email: "jcunhafonte@gmail.com",
     phone: "931918000",
     language: "pt",
+    emailVerified: true,
     createdAt: "2024-01-01",
   },
   memberships: [

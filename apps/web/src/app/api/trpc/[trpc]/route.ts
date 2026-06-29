@@ -57,6 +57,7 @@ async function buildContext(request: Request): Promise<Context> {
         id: sessionData.user.id,
         email: sessionData.user.email,
         name: sessionData.user.name,
+        emailVerified: sessionData.user.emailVerified,
       },
       activeOrganizationId,
       role,
