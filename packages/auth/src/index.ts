@@ -64,11 +64,15 @@ function parseOrigins(raw: string | undefined): string[] {
 
 /** Build the Vytal Better Auth instance bound to the given database. */
 export function createAuth(options: CreateAuthOptions) {
-  // `baseURL` is the auth server origin; `appUrl` is the user-facing app — kept
-  // distinct so they can diverge later (e.g. a marketing domain).
+  // `baseURL` is the API/auth server origin; `appUrl` is the user-facing web
+  // app origin. They stay distinct so auth can live on api.vytal.fit while the
+  // product UI lives on pro.vytal.fit.
   const baseURL =
     options.baseURL ?? process.env.BETTER_AUTH_URL ?? "http://localhost:3000";
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? baseURL;
+  const appUrl =
+    process.env.NEXT_PUBLIC_APP_URL ??
+    process.env.NEXT_PUBLIC_ADMIN_URL ??
+    baseURL;
   const trustedOriginEnv = parseOrigins(
     process.env.BETTER_AUTH_TRUSTED_ORIGINS,
   );

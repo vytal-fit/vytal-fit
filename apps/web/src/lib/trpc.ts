@@ -10,25 +10,22 @@ import { httpBatchLink } from "@trpc/client";
 import { createTRPCReact } from "@trpc/react-query";
 import superjson from "superjson";
 import type { AppRouter } from "@vytal-fit/api";
+import { getApiUrl } from "@/lib/api-url";
 
 export const trpc = createTRPCReact<AppRouter>();
-
-function getBaseUrl(): string {
-  // Browser: relative URL hits the same origin.
-  if (typeof window !== "undefined") return "";
-  // SSR on Vercel.
-  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
-  // SSR locally.
-  return `http://localhost:${process.env.PORT ?? 3000}`;
-}
 
 /** Build a tRPC client instance (one per app, created in TRPCProvider). */
 export function createClient() {
   return trpc.createClient({
     links: [
       httpBatchLink({
-        url: `${getBaseUrl()}/api/trpc`,
+        url: getApiUrl("/api/trpc"),
         transformer: superjson,
+        fetch: (url, init) =>
+          fetch(url, {
+            ...init,
+            credentials: "include",
+          }),
       }),
     ],
   });

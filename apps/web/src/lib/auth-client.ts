@@ -1,8 +1,8 @@
 /**
  * Better Auth client for the web app.
  *
- * Talks to the catch-all route at /api/auth/* on the same origin (no
- * baseURL needed). The organization plugin configuration mirrors the
+ * Talks to the catch-all route at /api/auth/* on the configured API origin.
+ * The organization plugin configuration mirrors the
  * server instance in packages/auth/src/index.ts — the access-control
  * statements and roles are rebuilt here from the same client-safe
  * better-auth building blocks instead of importing `@vytal-fit/auth`,
@@ -18,6 +18,7 @@ import {
   memberAc,
   ownerAc,
 } from "better-auth/plugins/organization/access";
+import { getAuthUrl } from "@/lib/api-url";
 
 // Mirrors `accessControl` / `roles` in packages/auth/src/index.ts —
 // owner > admin > coach > pt > athlete.
@@ -37,6 +38,7 @@ const roles = {
 } as const;
 
 export const authClient = createAuthClient({
+  baseURL: getAuthUrl(""),
   plugins: [
     organizationClient({
       ac: accessControl,

@@ -10,6 +10,7 @@
 import { create } from "zustand";
 import type { OrgMembership, UserRole, UserWithOrgs } from "@vytal-fit/shared";
 import { STORAGE_KEYS } from "@vytal-fit/shared";
+import { getAuthUrl } from "@/lib/api-url";
 import { authClient } from "@/lib/auth-client";
 
 const AUTH_STORAGE_KEY = STORAGE_KEYS.auth;
@@ -114,10 +115,10 @@ async function fetchFullOrganization(
 ): Promise<FullOrganizationResponse | null> {
   const params = new URLSearchParams({ organizationId });
   const response = await fetch(
-    `/api/auth/organization/get-full-organization?${params.toString()}`,
+    `${getAuthUrl("/organization/get-full-organization")}?${params.toString()}`,
     {
       method: "GET",
-      credentials: "same-origin",
+      credentials: "include",
     },
   );
   if (!response.ok) {

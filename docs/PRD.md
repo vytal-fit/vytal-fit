@@ -1510,7 +1510,7 @@ Core operations for all 4 personas plus competitive parity features:
 ### 14.4 What Is NOT Built (Next Phase)
 
 - **Backend:** Core surfaces now use tRPC + Drizzle + PostgreSQL; remaining pages still mix API-backed data with localStorage mocks
-- **Auth:** Better Auth is integrated on the web app; production must trust the deployed web origin (`pro.vytal.fit`) and any future split API host explicitly.
+- **Auth:** Better Auth is integrated; production must trust the API origin (`api.vytal.fit`) and the web origin (`pro.vytal.fit`) explicitly.
 - **Real Payments:** No Stripe/MBWay/SEPA processing -- config UI only
 - **Fiscal:** No SAF-T/ATCUD generation
 - **Notifications:** No push/email/SMS delivery -- UI only

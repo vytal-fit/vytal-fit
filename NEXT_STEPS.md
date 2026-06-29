@@ -18,7 +18,7 @@
 - **pro** = backoffice operacional (`pro.vytal.fit`)
 - **my** = portal do atleta / membro (`my.vytal.fit`)
 - No repo atual, o web app cobre **landing + pro + my console**; o mobile cobre **my** agora e o eventual **pro mobile** quando entrar no roadmap.
-- Auth em produção continua same-origin no `pro` web host; `api.vytal.fit` não é necessário para o fluxo atual, só para uma separação futura de backend.
+- API em produção passa a ser um origin separado (`api.vytal.fit`); `pro.vytal.fit` fica só para o web app e os clients usam `NEXT_PUBLIC_API_URL` / `EXPO_PUBLIC_API_URL`.
 - Estado real hoje: `pro` já tem alguns fluxos reais via tRPC/API, mas ainda mistura páginas ligadas a dados persistidos com muitas páginas de protótipo/mock. Não tratar como backoffice totalmente migrado.
 
 ---
