@@ -5,7 +5,7 @@ const endpointGroups = [
   {
     title: "Auth",
     description: "Session bootstrap, sign-in, sign-up, and org membership lookup.",
-    items: ["/auth/sign-in/email", "/auth/sign-up/email", "/auth/get-session"],
+    items: ["/auth/sign-in/email", "/auth/sign-up/email", "/auth/session"],
   },
   {
     title: "Session and spaces",

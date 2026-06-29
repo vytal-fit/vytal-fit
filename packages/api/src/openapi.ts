@@ -84,7 +84,7 @@ export const openApiSpec = {
         },
       },
     },
-    "/auth/get-session": {
+    "/auth/session": {
       get: {
         tags: ["Auth"],
         summary: "Fetch the current session",

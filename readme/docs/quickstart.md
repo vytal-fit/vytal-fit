@@ -28,7 +28,7 @@ curl -X POST https://api.vytal.fit/auth/sign-in/email \
 ## 3. Fetch the session
 
 ```bash
-curl https://api.vytal.fit/auth/get-session \
+curl https://api.vytal.fit/auth/session \
   -H 'authorization: Bearer <token>'
 ```
 

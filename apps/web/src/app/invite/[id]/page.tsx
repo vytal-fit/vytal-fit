@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 import { useI18n } from "@/lib/i18n";
+import { useAuthStore } from "@/stores/auth-store";
 
 type AcceptState =
   | { kind: "loading" }
@@ -45,7 +46,9 @@ export default function InvitePage() {
   const params = useParams<{ id: string }>();
   const invitationId = params?.id ?? "";
 
-  const { data: session, isPending: sessionPending } = authClient.useSession();
+  const sessionUser = useAuthStore((s) => s.user);
+  const sessionHydrated = useAuthStore((s) => s.hydrated);
+  const hydrate = useAuthStore((s) => s.hydrate);
   const [state, setState] = useState<AcceptState>({ kind: "loading" });
 
   // Accept/setActive mutate the session, re-firing useSession; without this freeze
@@ -55,12 +58,12 @@ export default function InvitePage() {
 
   useEffect(() => {
     if (mutationStarted.current) return;
-    if (sessionPending) return;
+    if (!sessionHydrated) return;
     if (!invitationId) {
       setState({ kind: "error", message: t("invite.missingId") });
       return;
     }
-    if (!session) {
+    if (!sessionUser) {
       setState({ kind: "signed-out" });
       return;
     }
@@ -73,7 +76,7 @@ export default function InvitePage() {
       if (cancelled) return;
 
       if (result.error || !result.data) {
-        setState(mapInviteError(result.error?.message, session.user.email, t));
+        setState(mapInviteError(result.error?.message, sessionUser.user.email, t));
         return;
       }
 
@@ -95,7 +98,11 @@ export default function InvitePage() {
     return () => {
       cancelled = true;
     };
-  }, [session, sessionPending, invitationId, t]);
+  }, [sessionUser, sessionHydrated, invitationId, t]);
+
+  useEffect(() => {
+    hydrate();
+  }, [hydrate]);
 
   async function handleAccept() {
     // Snapshot the org name now — re-fetching after accept returns "not found".
@@ -112,9 +119,11 @@ export default function InvitePage() {
     if (result.error || !result.data) {
       // Unfreeze — the failure path didn't mutate the session, so re-running is safe.
       mutationStarted.current = false;
-      setState(mapInviteError(result.error?.message, session?.user.email ?? "", t));
-      return;
-    }
+        setState(
+          mapInviteError(result.error?.message, sessionUser?.user.email ?? "", t),
+        );
+        return;
+      }
 
     const acceptedOrgId = result.data.invitation?.organizationId;
     // Re-assert the active org: it's set server-side but the client cache can lag,
@@ -144,7 +153,9 @@ export default function InvitePage() {
     });
     if (result.error) {
       mutationStarted.current = false;
-      setState(mapInviteError(result.error.message, session?.user.email ?? "", t));
+      setState(
+        mapInviteError(result.error.message, sessionUser?.user.email ?? "", t),
+      );
       return;
     }
     setState({ kind: "declined" });

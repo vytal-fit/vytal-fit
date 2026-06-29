@@ -39,7 +39,6 @@ const API_SUBDOMAINS = ["api"];
 const ADMIN_SUBDOMAINS = ["admin", "control", "pro"];
 const MEMBER_SUBDOMAINS = ["my"];
 const API_PUBLIC_PREFIXES = new Set([
-  "auth",
   "trpc",
   "session",
   "spaces",

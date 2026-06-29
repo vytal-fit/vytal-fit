@@ -7,7 +7,7 @@ Status of the tRPC/Better Auth/Drizzle plumbing in the web app.
 | Piece | File | Notes |
 |---|---|---|
 | tRPC route handler | `apps/web/src/app/api/trpc/[trpc]/route.ts` | `fetchRequestHandler` + shared `appRouter`. Builds the API `Context` per request: lazy DB (`getDb()`) + Better Auth session mapped to `{ user, activeOrganizationId }`. The public host rewrites `/trpc` to this handler. |
-| Better Auth routes | `apps/web/src/app/api/auth/[...all]/route.ts` | `toNextJsHandler` over a lazy handler — serves sign-in/up, sessions, org switching. The public host rewrites `/auth/*` to this handler. |
+| Better Auth routes | `apps/web/src/app/auth/[...all]/route.ts` | `toNextJsHandler` over a lazy handler — serves sign-in/up, sessions, org switching. The public host serves `/auth/*` directly; the `/api/auth/*` alias remains for compatibility. |
 | Auth server singleton | `apps/web/src/lib/auth-server.ts` | `getAuth()` builds the Better Auth instance on first use from `createAuth` + `getDb()`. `isBackendConfigured()` gates on env. |
 | Typed client | `apps/web/src/lib/trpc.ts` | `createTRPCReact<AppRouter>` + `httpBatchLink` with the `superjson` transformer (matches the server). |
 | Developer docs | `apps/web/src/app/developer/page.tsx` | `api.vytal.fit/` rewrites here. Human-readable bridge page that points to ReadMe on `docs.vytal.fit` and links the raw OpenAPI payload. |

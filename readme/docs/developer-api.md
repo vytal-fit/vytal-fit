@@ -47,7 +47,7 @@ mobile clients, and partner integrations.
 
 - `/auth/sign-in/email`
 - `/auth/sign-up/email`
-- `/auth/get-session`
+- `/auth/session`
 - `/session`
 - `/spaces`
 - `/bookings`

@@ -266,7 +266,7 @@ export async function fetchSession(): Promise<AuthSession | null> {
   if (!authToken) return null;
 
   try {
-    const { data } = await requestJson<AuthSession>("/auth/get-session", {
+    const { data } = await requestJson<AuthSession>("/auth/session", {
       method: "GET",
     });
     return data;

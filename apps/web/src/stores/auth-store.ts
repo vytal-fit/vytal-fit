@@ -4,13 +4,13 @@
  * The session itself lives in Better Auth HTTP-only cookies — nothing
  * sensitive is persisted here. localStorage only caches the derived
  * `UserWithOrgs` snapshot so `hydrate()` can paint instantly; the cache is
- * always revalidated against `authClient.getSession()` and cleared when the
- * session is gone.
+ * always revalidated against the REST `/auth/session` endpoint and cleared
+ * when the session is gone.
  */
 import { create } from "zustand";
 import type { OrgMembership, UserRole, UserWithOrgs } from "@vytal-fit/shared";
 import { STORAGE_KEYS } from "@vytal-fit/shared";
-import { getAuthUrl } from "@/lib/api-url";
+import { getApiUrl } from "@/lib/api-url";
 import { authClient } from "@/lib/auth-client";
 
 const AUTH_STORAGE_KEY = STORAGE_KEYS.auth;
@@ -26,6 +26,7 @@ const USER_ROLES: readonly UserRole[] = [
 interface AuthState {
   isAuthenticated: boolean;
   user: UserWithOrgs | null;
+  hydrated: boolean;
   login: (email: string, password: string) => Promise<boolean>;
   register: (name: string, email: string, password: string) => Promise<boolean>;
   logout: () => void;
@@ -115,7 +116,7 @@ async function fetchFullOrganization(
 ): Promise<FullOrganizationResponse | null> {
   const params = new URLSearchParams({ organizationId });
   const response = await fetch(
-    `${getAuthUrl("/organization/get-full-organization")}?${params.toString()}`,
+    `${getApiUrl("/auth/organization/get-full-organization")}?${params.toString()}`,
     {
       method: "GET",
       credentials: "include",
@@ -136,10 +137,26 @@ async function fetchFullOrganization(
  * failures instead of logging the user out.
  */
 async function buildUserWithOrgs(): Promise<UserWithOrgs | null> {
-  const { data: session, error: sessionError } = await authClient.getSession();
-  if (sessionError) {
-    throw new Error(sessionError.message ?? "Failed to fetch session");
+  const response = await fetch(getApiUrl("/auth/session"), {
+    method: "GET",
+    credentials: "include",
+  });
+  if (!response.ok) {
+    throw new Error("Failed to fetch session");
   }
+  const session = (await response.json()) as
+    | {
+        user: {
+          id: string;
+          name: string;
+          email: string;
+          image?: string | null;
+          emailVerified?: boolean;
+          createdAt: string | Date;
+        };
+        session: { activeOrganizationId?: string | null };
+      }
+    | null;
   if (!session) return null;
 
   const { data: orgs, error: orgsError } = await authClient.organization.list();
@@ -202,6 +219,7 @@ async function buildUserWithOrgs(): Promise<UserWithOrgs | null> {
 export const useAuthStore = create<AuthState>((set, get) => ({
   isAuthenticated: false,
   user: null,
+  hydrated: false,
 
   login: async (email: string, password: string) => {
     const { error } = await authClient.signIn.email({ email, password });
@@ -280,6 +298,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       } catch {
         // Backend unreachable — keep whatever state we had rather than
         // bouncing the user to /login on a transient failure.
+      } finally {
+        set({ hydrated: true });
       }
     })();
   },

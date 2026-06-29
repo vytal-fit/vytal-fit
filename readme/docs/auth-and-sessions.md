@@ -16,7 +16,7 @@ Use the Better Auth endpoints on `api.vytal.fit` for all session management.
 - `POST /auth/sign-in/email`
 - `POST /auth/sign-up/email`
 - `POST /auth/sign-out`
-- `GET /auth/get-session`
+- `GET /auth/session`
 - `PATCH /session`
 
 ## Auth model
@@ -39,7 +39,7 @@ curl -X POST https://api.vytal.fit/auth/sign-in/email \
 ### Load the session
 
 ```bash
-curl https://api.vytal.fit/auth/get-session \
+curl https://api.vytal.fit/auth/session \
   -H 'authorization: Bearer <token>'
 ```
 
