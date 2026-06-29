@@ -1,5 +1,5 @@
 /**
- * Better Auth catch-all route (/api/auth/*).
+ * Better Auth catch-all route (/auth/* compatibility alias).
  *
  * Lazy: the auth instance (and its DB connection) is only created on the
  * first request, never at module/build time. When the backend env vars are

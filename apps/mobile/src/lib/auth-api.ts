@@ -239,7 +239,7 @@ async function requestJson<T>(
 
 export async function signIn(email: string, password: string): Promise<{ token: string | null; user: AuthSession["user"] }> {
   const { data, setAuthToken } = await requestJson<{ token: string; user: AuthSession["user"] }>(
-    "/api/auth/sign-in/email",
+    "/auth/sign-in/email",
     { body: { email, password }, includeAuth: false },
   );
 
@@ -250,7 +250,7 @@ export async function signIn(email: string, password: string): Promise<{ token: 
 
 export async function signUp(name: string, email: string, password: string): Promise<{ token: string | null; user: AuthSession["user"] }> {
   const { data, setAuthToken } = await requestJson<{ token: string | null; user: AuthSession["user"] }>(
-    "/api/auth/sign-up/email",
+    "/auth/sign-up/email",
     { body: { name, email, password }, includeAuth: false },
   );
 
@@ -266,7 +266,7 @@ export async function fetchSession(): Promise<AuthSession | null> {
   if (!authToken) return null;
 
   try {
-    const { data } = await requestJson<AuthSession>("/api/auth/get-session", {
+    const { data } = await requestJson<AuthSession>("/auth/get-session", {
       method: "GET",
     });
     return data;
@@ -279,7 +279,7 @@ export async function fetchSession(): Promise<AuthSession | null> {
 }
 
 export async function listOrganizations(): Promise<AuthOrganization[]> {
-  const { data } = await requestJson<AuthOrganization[]>("/api/spaces", {
+  const { data } = await requestJson<AuthOrganization[]>("/spaces", {
     method: "GET",
   });
   return data;
@@ -290,7 +290,7 @@ export async function getFullOrganization(
 ): Promise<AuthFullOrganization | null> {
   try {
     const { data } = await requestJson<AuthFullOrganization | null>(
-      `/api/spaces/${organizationId}`,
+      `/spaces/${organizationId}`,
       { method: "GET" },
     );
     return data;
@@ -303,7 +303,7 @@ export async function getFullOrganization(
 }
 
 export async function updateActiveSpace(spaceId: string): Promise<void> {
-  await requestJson("/api/session", {
+  await requestJson("/session", {
     method: "PATCH",
     body: { activeSpaceId: spaceId },
   });
@@ -316,14 +316,14 @@ export async function setActiveOrganization(organizationId: string): Promise<voi
 export async function listMemberBookings(memberId: string): Promise<BookingRecord[]> {
   const params = new URLSearchParams({ memberId });
   const { data } = await requestJson<{ items: BookingRecord[] }>(
-    `/api/bookings?${params.toString()}`,
+    `/bookings?${params.toString()}`,
     { method: "GET" },
   );
   return data.items;
 }
 
 export async function bookClass(classId: string, memberId: string): Promise<BookingRecord> {
-  const { data } = await requestJson<BookingRecord>("/api/bookings", {
+  const { data } = await requestJson<BookingRecord>("/bookings", {
     body: { classId, memberId },
   });
   return data;
@@ -331,7 +331,7 @@ export async function bookClass(classId: string, memberId: string): Promise<Book
 
 export async function cancelBooking(bookingId: string): Promise<BookingRecord> {
   const { data } = await requestJson<BookingRecord>(
-    `/api/bookings/${bookingId}`,
+    `/bookings/${bookingId}`,
     { method: "DELETE" },
   );
   return data;
@@ -341,7 +341,7 @@ export async function listPersonalRecords(memberId: string, exerciseId?: string)
   const params = new URLSearchParams({ memberId });
   if (exerciseId) params.set("exerciseId", exerciseId);
   const { data } = await requestJson<{ items: PersonalRecordItem[] }>(
-    `/api/records?${params.toString()}`,
+    `/records?${params.toString()}`,
     { method: "GET" },
   );
   return data.items;
@@ -351,7 +351,7 @@ export async function createPersonalRecord(
   input: Omit<PersonalRecordItem, "id">,
 ): Promise<PersonalRecordItem> {
   const { data } = await requestJson<PersonalRecordItem>(
-    "/api/records",
+    "/records",
     { body: input },
   );
   return data;
@@ -365,7 +365,7 @@ export async function updatePersonalRecord(
   },
 ): Promise<PersonalRecordItem> {
   const { data } = await requestJson<PersonalRecordItem>(
-    `/api/records/${id}`,
+    `/records/${id}`,
     { method: "PATCH", body: input },
   );
   return data;
@@ -375,7 +375,7 @@ export async function listWodResults(memberId: string, wodId?: string): Promise<
   const params = new URLSearchParams({ memberId });
   if (wodId) params.set("wodId", wodId);
   const { data } = await requestJson<{ items: WodResultItem[] }>(
-    `/api/results?${params.toString()}`,
+    `/results?${params.toString()}`,
     { method: "GET" },
   );
   return data.items;
@@ -385,7 +385,7 @@ export async function createWodResult(
   input: Omit<WodResultItem, "id">,
 ): Promise<WodResultItem> {
   const { data } = await requestJson<WodResultItem>(
-    "/api/results",
+    "/results",
     { body: input },
   );
   return data;
@@ -399,7 +399,7 @@ export async function updateWodResult(
   },
 ): Promise<WodResultItem> {
   const { data } = await requestJson<WodResultItem>(
-    `/api/results/${id}`,
+    `/results/${id}`,
     { method: "PATCH", body: input },
   );
   return data;
@@ -407,7 +407,7 @@ export async function updateWodResult(
 
 export async function signOut(): Promise<void> {
   try {
-    await requestJson("/api/auth/sign-out", { method: "POST" });
+    await requestJson("/auth/sign-out", { method: "POST" });
   } catch {
     // Ignore sign-out errors. Local state is still cleared.
   } finally {

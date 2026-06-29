@@ -27,7 +27,7 @@ describe("api-url helpers", () => {
     expect(getApiOrigin()).toBe("https://api.vytal.fit");
     expect(getApiUrl("/health")).toBe("https://api.vytal.fit/health");
     expect(getAuthUrl("/sign-in/email")).toBe(
-      "https://api.vytal.fit/api/auth/sign-in/email",
+      "https://api.vytal.fit/auth/sign-in/email",
     );
   });
 
@@ -36,7 +36,7 @@ describe("api-url helpers", () => {
     vi.stubGlobal("window", { location: { origin: "https://pro.vytal.fit" } });
 
     expect(getApiOrigin()).toBe("https://pro.vytal.fit");
-    expect(getAuthUrl("")).toBe("https://pro.vytal.fit/api/auth");
+    expect(getAuthUrl("")).toBe("https://pro.vytal.fit/auth");
   });
 
   it("falls back to the Vercel deployment origin on the server", () => {

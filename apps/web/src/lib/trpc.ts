@@ -19,7 +19,7 @@ export function createClient() {
   return trpc.createClient({
     links: [
       httpBatchLink({
-        url: getApiUrl("/api/trpc"),
+        url: getApiUrl("/trpc"),
         transformer: superjson,
         fetch: (url, init) =>
           fetch(url, {

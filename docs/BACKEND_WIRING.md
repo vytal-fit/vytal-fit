@@ -6,15 +6,15 @@ Status of the tRPC/Better Auth/Drizzle plumbing in the web app.
 
 | Piece | File | Notes |
 |---|---|---|
-| tRPC route handler | `apps/web/src/app/api/trpc/[trpc]/route.ts` | `fetchRequestHandler` + shared `appRouter`. Builds the API `Context` per request: lazy DB (`getDb()`) + Better Auth session mapped to `{ user, activeOrganizationId }`. |
-| Better Auth routes | `apps/web/src/app/api/auth/[...all]/route.ts` | `toNextJsHandler` over a lazy handler — serves sign-in/up, sessions, org switching. |
+| tRPC route handler | `apps/web/src/app/api/trpc/[trpc]/route.ts` | `fetchRequestHandler` + shared `appRouter`. Builds the API `Context` per request: lazy DB (`getDb()`) + Better Auth session mapped to `{ user, activeOrganizationId }`. The public host rewrites `/trpc` to this handler. |
+| Better Auth routes | `apps/web/src/app/api/auth/[...all]/route.ts` | `toNextJsHandler` over a lazy handler — serves sign-in/up, sessions, org switching. The public host rewrites `/auth/*` to this handler. |
 | Auth server singleton | `apps/web/src/lib/auth-server.ts` | `getAuth()` builds the Better Auth instance on first use from `createAuth` + `getDb()`. `isBackendConfigured()` gates on env. |
 | Typed client | `apps/web/src/lib/trpc.ts` | `createTRPCReact<AppRouter>` + `httpBatchLink` with the `superjson` transformer (matches the server). |
 | Developer docs | `apps/web/src/app/developer/page.tsx` | `api.vytal.fit/` rewrites here. Human-readable bridge page that points to ReadMe on `docs.vytal.fit` and links the raw OpenAPI payload. |
 | OpenAPI spec | `apps/web/src/app/openapi/route.ts` | `GET /openapi` returns the machine-readable spec used by the docs page and downstream tooling. |
 | Provider | `apps/web/src/components/trpc-provider.tsx` | QueryClientProvider + `trpc.Provider`, mounted in `src/app/layout.tsx` around all existing providers. |
 | Env template | `.env.example` (repo root) | `DATABASE_URL`, `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, `NEXT_PUBLIC_APP_URL`, `NEXT_PUBLIC_API_URL`, `BETTER_AUTH_TRUSTED_ORIGINS`. |
-| Health endpoint | `apps/web/src/app/api/health/route.ts` | `GET /api/health` → `{ status, backend: configured\|unconfigured, db: ok\|error\|skipped, version }`. Cheap `SELECT 1` via the lazy client when env is present; never crashes without env; no secrets in output. |
+| Health endpoint | `apps/web/src/app/api/health/route.ts` | `GET /health` → `{ status, backend: configured\|unconfigured, db: ok\|error\|skipped, version }`. Cheap `SELECT 1` via the lazy client when env is present; never crashes without env; no secrets in output. |
 | Seed (library) | `packages/db/src/seed.ts` | `seedDatabase(db, { auth })` — idempotent (upsert/skip on conflict). Seeds the 3 demo orgs, demo users with real hashed passwords (via `auth.api.signUpEmail`), org memberships, and the full `@vytal-fit/shared` mock dataset into org-1. Importable as `@vytal-fit/db/seed`. |
 | Seed (CLI) | `packages/db/scripts/seed.ts` | `npm run db:seed -w @vytal-fit/db`. Loads env from the shell or `.env.local`/`.env` (repo root and apps/web), prints a per-table summary. Safe to re-run. |
 | Migrations (CLI) | `packages/db/drizzle.config.ts` | `npm run db:migrate -w @vytal-fit/db` applies the committed `packages/db/migrations/` folder (`drizzle-kit migrate`). The config auto-loads `.env.local` too. |
@@ -66,17 +66,17 @@ npm run db:seed -w @vytal-fit/db
 
 # 6. Redeploy so the runtime picks up the env, then verify
 npx vercel deploy --prod --yes
-curl https://<your-deployment>/api/health
+curl https://<your-deployment>/health
 # → {"status":"ok","backend":"configured","db":"ok","version":"0.1.0"}
 ```
 
 For local development, the same works against any `DATABASE_URL` in
-`.env.local` (root or `apps/web/`); then `curl http://localhost:3001/api/health`.
+`.env.local` (root or `apps/web/`); then `curl http://localhost:3001/health`.
 
 ### Origin contract
 
 The API is its own origin. In production that means `api.vytal.fit` serves
-`/api/auth/*` and `/api/trpc/*`, while `pro.vytal.fit` serves the user-facing
+`/auth/*` and `/trpc`, while `pro.vytal.fit` serves the user-facing
 web app. The browser and mobile clients must use `NEXT_PUBLIC_API_URL`
 (web) or `EXPO_PUBLIC_API_URL` (mobile) instead of guessing same-origin.
 `BETTER_AUTH_URL` must match the API host, and `NEXT_PUBLIC_APP_URL` must match

@@ -1,7 +1,7 @@
 /**
  * Better Auth client for the web app.
  *
- * Talks to the catch-all route at /api/auth/* on the configured API origin.
+ * Talks to the catch-all route at /auth/* on the configured API origin.
  * The organization plugin configuration mirrors the
  * server instance in packages/auth/src/index.ts — the access-control
  * statements and roles are rebuilt here from the same client-safe

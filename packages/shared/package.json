@@ -6,7 +6,7 @@
   "types": "./src/index.ts",
   "scripts": {
     "type-check": "tsc --noEmit",
-    "build": "echo 'shared: transpiled by Next.js directly'"
+    "build": "node -e \"const fs=require('fs'); fs.mkdirSync('dist',{recursive:true}); fs.writeFileSync('dist/.build-stamp','shared build noop\\n'); console.log('shared: transpiled by Next.js directly')\""
   },
   "dependencies": {
     "zod": "^4.3.6"

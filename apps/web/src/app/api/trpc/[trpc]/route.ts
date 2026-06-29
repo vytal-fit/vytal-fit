@@ -1,5 +1,5 @@
 /**
- * tRPC route handler (/api/trpc/*).
+ * tRPC route handler (/trpc/* compatibility alias).
  *
  * Bridges Next.js fetch requests to the shared `appRouter` from
  * @vytal-fit/api. The context carries the lazy DB client and the Better Auth

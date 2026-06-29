@@ -24,7 +24,7 @@ test.describe("Journey: Full Member Lifecycle", () => {
 
   test.afterEach(async ({ page }) => {
     const listRes = await page.request.get(
-      "/api/trpc/members.list?input=" +
+      "/trpc/members.list?input=" +
         encodeURIComponent(JSON.stringify({ json: { limit: 100 } }))
     );
     if (!listRes.ok()) return;
@@ -34,7 +34,7 @@ test.describe("Journey: Full Member Lifecycle", () => {
     const items = body.result?.data?.json?.items ?? [];
     for (const member of items) {
       if (member.name.startsWith("E2E-") && member.status !== "inactive") {
-        await page.request.post("/api/trpc/members.archive", {
+        await page.request.post("/trpc/members.archive", {
           data: { json: { id: member.id } },
         });
       }
