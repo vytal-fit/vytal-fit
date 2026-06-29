@@ -11,7 +11,7 @@ Status of the tRPC/Better Auth/Drizzle plumbing in the web app.
 | Auth server singleton | `apps/web/src/lib/auth-server.ts` | `getAuth()` builds the Better Auth instance on first use from `createAuth` + `getDb()`. `isBackendConfigured()` gates on env. |
 | Typed client | `apps/web/src/lib/trpc.ts` | `createTRPCReact<AppRouter>` + `httpBatchLink` with the `superjson` transformer (matches the server). |
 | Provider | `apps/web/src/components/trpc-provider.tsx` | QueryClientProvider + `trpc.Provider`, mounted in `src/app/layout.tsx` around all existing providers. |
-| Env template | `.env.example` (repo root) | `DATABASE_URL`, `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`. |
+| Env template | `.env.example` (repo root) | `DATABASE_URL`, `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, `BETTER_AUTH_TRUSTED_ORIGINS`. |
 | Health endpoint | `apps/web/src/app/api/health/route.ts` | `GET /api/health` → `{ status, backend: configured\|unconfigured, db: ok\|error\|skipped, version }`. Cheap `SELECT 1` via the lazy client when env is present; never crashes without env; no secrets in output. |
 | Seed (library) | `packages/db/src/seed.ts` | `seedDatabase(db, { auth })` — idempotent (upsert/skip on conflict). Seeds the 3 demo orgs, demo users with real hashed passwords (via `auth.api.signUpEmail`), org memberships, and the full `@vytal-fit/shared` mock dataset into org-1. Importable as `@vytal-fit/db/seed`. |
 | Seed (CLI) | `packages/db/scripts/seed.ts` | `npm run db:seed -w @vytal-fit/db`. Loads env from the shell or `.env.local`/`.env` (repo root and apps/web), prints a per-table summary. Safe to re-run. |
@@ -44,7 +44,9 @@ npx vercel env add DATABASE_URL production
 
 # 2. Auth secret + base URL
 openssl rand -base64 32 | npx vercel env add BETTER_AUTH_SECRET production
-npx vercel env add BETTER_AUTH_URL production   # e.g. https://vytal-fit-iota.vercel.app
+npx vercel env add BETTER_AUTH_URL production   # e.g. https://pro.vytal.fit
+# Optional: add extra trusted origins if the app moves across domains.
+# npx vercel env add BETTER_AUTH_TRUSTED_ORIGINS production   # e.g. https://vytal.fit,https://my.vytal.fit
 
 # 3. Pull the env locally (repo root — db scripts read .env.local from here)
 npx vercel env pull .env.local
@@ -66,6 +68,14 @@ curl https://<your-deployment>/api/health
 
 For local development, the same works against any `DATABASE_URL` in
 `.env.local` (root or `apps/web/`); then `curl http://localhost:3000/api/health`.
+
+### Origin contract
+
+The auth server is same-origin with the deployed web app. In production that
+currently means `pro.vytal.fit` serves `/api/auth/*` and must be the value of
+`BETTER_AUTH_URL`. `api.vytal.fit` is optional and not required for the current
+deployment shape; if we ever split auth/API onto a separate host, add that host
+to `BETTER_AUTH_TRUSTED_ORIGINS` and update the OAuth callback URLs together.
 
 ### Demo credentials (seeded)
 
