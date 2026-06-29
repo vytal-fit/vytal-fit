@@ -38,16 +38,6 @@ const CUSTOM_DOMAIN_MAP: Record<string, string> = {
 const API_SUBDOMAINS = ["api"];
 const ADMIN_SUBDOMAINS = ["admin", "control", "pro"];
 const MEMBER_SUBDOMAINS = ["my"];
-const API_PUBLIC_PREFIXES = new Set([
-  "trpc",
-  "session",
-  "spaces",
-  "bookings",
-  "records",
-  "results",
-  "health",
-  "asset",
-]);
 const CORS_ALLOWED_ORIGINS = new Set([
   "https://vytal.fit",
   "https://www.vytal.fit",
@@ -137,12 +127,6 @@ export function middleware(request: NextRequest) {
     if (pathname === "/" || pathname === "") {
       const url = request.nextUrl.clone();
       url.pathname = "/developer";
-      return withCorsHeaders(NextResponse.rewrite(url), request);
-    }
-    const firstSegment = pathname.split("/")[1];
-    if (API_PUBLIC_PREFIXES.has(firstSegment)) {
-      const url = request.nextUrl.clone();
-      url.pathname = `/api${pathname}`;
       return withCorsHeaders(NextResponse.rewrite(url), request);
     }
     return withCorsHeaders(NextResponse.next(), request);
