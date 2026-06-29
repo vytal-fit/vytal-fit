@@ -43,6 +43,20 @@
       "when": 1782681000000,
       "tag": "0005_exercise_media",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1782681200000,
+      "tag": "0006_drop_personal_records_exercise_fk",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1782681300000,
+      "tag": "0007_drop_exercises_table",
+      "breakpoints": true
     }
   ]
 }
