@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useDataStore, formatCurrency } from "@/stores/data-store";
+import { formatCurrency } from "@/stores/data-store";
 import { trpc } from "@/lib/trpc";
 import { rowToMember } from "@/lib/member-mapper";
 import { rowsToCheckIns } from "@/lib/checkin-mapper";
@@ -328,8 +328,6 @@ function CommunicationsTab({ memberName, memberEmail }: { memberName: string; me
 export default function MemberDetailPage() {
   const { t } = useI18n();
   const { toast } = useToast();
-  const subscriptions = useDataStore((s) => s.subscriptions);
-  const personalRecords = useDataStore((s) => s.personalRecords);
   const params = useParams();
   const id = params.id as string;
 
@@ -402,6 +400,27 @@ export default function MemberDetailPage() {
       ),
   });
 
+  // ── tRPC: subscription (resolved against the plan) + personal records ──
+  const subsQuery = trpc.subscriptions.byMember.useQuery({ memberId: id });
+  const plansQuery = trpc.subscriptions.plans.list.useQuery();
+  const prQuery = trpc.personalRecords.list.useQuery({ memberId: id, limit: 100 });
+
+  const subscription = useMemo(() => {
+    const row = subsQuery.data?.[0];
+    if (!row) return undefined;
+    const plan = plansQuery.data?.find((p) => p.id === row.planId);
+    if (!plan) return undefined;
+    return { ...row, plan: { ...plan, price: Number(plan.price) } };
+  }, [subsQuery.data, plansQuery.data]);
+
+  const records = useMemo(
+    () =>
+      (prQuery.data?.items ?? [])
+        .filter((r) => r.exercise)
+        .map((r) => ({ ...r, exercise: r.exercise! })),
+    [prQuery.data],
+  );
+
   if (memberQuery.error?.data?.code === "NOT_FOUND") {
     notFound();
   }
@@ -449,9 +468,6 @@ export default function MemberDetailPage() {
       </div>
     );
   }
-
-  const subscription = subscriptions.find((s) => s.memberId === member.id);
-  const records = personalRecords.filter((r) => r.memberId === member.id);
 
   function handleStartEdit() {
     if (!member) return;
