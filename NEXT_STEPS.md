@@ -110,7 +110,7 @@ O DB já existe (Neon Postgres + Drizzle + migrações + seed + Better Auth + tR
 
 ## Erradicação de mock data (★ estrela-guia)
 Auditoria 2026-06-30 (`useDataStore` = store mock/localStorage de domínio):
-- **`my`**: 5 páginas em mock — `page` (home), `schedule`, `records`, `profile`, `wod`. Já reais: `/wellness` (check-in + feedback + tendências).
+- **`my`**: 4 páginas em mock — `page` (home), `schedule`, `profile`, `wod`. Já reais: `/wellness` (check-in + feedback + tendências), `records` (PRs + catálogo de exercícios via tRPC).
 - **`pro`**: ~41 páginas em mock (settings/*, members/*, classes/*, crm, dashboard, store, financials, staff, …). Reais via tRPC: members/staff/classes/WODs/CRM/plans/locations/class-types/exercises/check-ins/settings (parcial).
 - **Loja / merch (D7)**: **sem API** — só protótipo web. Maior buraco para "bombar": falta router `shop` (produtos, variantes, fornecedores externos, encomendas, tracking) + tabelas + wiring. → F2.
 - **Biblioteca de exercícios**: router `exercises` existe (catálogo file-backed 1.3k+ movimentos, validação no WOD builder); falta pipeline editorial/media e consumo real em todas as superfícies.
