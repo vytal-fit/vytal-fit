@@ -3576,6 +3576,13 @@ export const pt: Record<string, string> = {
     "my.wellness.noMember": "Sem perfil de membro associado. Fala com o teu ginásio.",
     "my.wellness.low": "Baixo",
     "my.wellness.high": "Alto",
+    "my.wellness.feedbackTitle": "Último treino",
+    "my.wellness.feedbackSubtitle": "Como correu? Esforço, gosto e limitação (1–9).",
+    "my.wellness.rpe": "Esforço (RPE)",
+    "my.wellness.enjoyment": "Gosto",
+    "my.wellness.injury": "Limitação por lesão",
+    "my.wellness.feedbackSave": "Registar treino",
+    "my.wellness.feedbackSaved": "Treino registado",
 
     // myVYTAL console — home
     "my.home.greeting.morning": "Bom dia",
