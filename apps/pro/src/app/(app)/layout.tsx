@@ -291,6 +291,23 @@ const notificationIcon: Record<NotificationType, React.ReactNode> = {
   payment_failed: <AlertCircle className="h-3.5 w-3.5 text-vytal-red" />,
 };
 
+/** The Vytal mark: a vital-sign pulse on a rounded green tile. */
+function VytalMark({ size = 28 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 64 64" aria-hidden="true" className="shrink-0">
+      <rect x="2" y="2" width="60" height="60" rx="16" fill="#22c55e" />
+      <path
+        d="M11 35 L23 35 L27 25 L32 45 L37 16 L41 35 L53 35"
+        fill="none"
+        stroke="#08120c"
+        strokeWidth={5}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
 function formatTimeAgo(dateStr: string | Date): string {
   const date = new Date(dateStr);
   const now = new Date();
@@ -1089,11 +1106,16 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       {/* Brand logo */}
       <div className="shrink-0 border-b border-vytal-border px-4 py-3">
         {isEffectivelyExpanded ? (
-          <span className="text-lg font-bold tracking-tight">
-            <span className="text-xs font-medium text-vytal-muted/50">pro</span><span className="text-vytal-green">VYTAL</span>
+          <span className="flex items-center gap-2">
+            <VytalMark size={26} />
+            <span className="text-lg font-bold tracking-tight">
+              <span className="text-xs font-medium text-vytal-muted/50">pro</span><span className="text-vytal-green">VYTAL</span>
+            </span>
           </span>
         ) : (
-          <span className="flex h-8 w-full items-center justify-center text-base font-bold text-vytal-green">V</span>
+          <span className="flex w-full items-center justify-center">
+            <VytalMark size={28} />
+          </span>
         )}
       </div>
 

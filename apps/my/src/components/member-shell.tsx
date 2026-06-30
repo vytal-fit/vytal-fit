@@ -3,11 +3,28 @@
 import { useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Home, Calendar, Dumbbell, Trophy, User, Bell, Zap, Users, TrendingUp, Activity, Sun, Moon } from "lucide-react";
+import { Home, Calendar, Dumbbell, Trophy, User, Bell, Users, TrendingUp, Activity, Sun, Moon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/stores/auth-store";
 import { useAppStore } from "@/stores/app-store";
 import { useI18n } from "@/lib/i18n";
+
+/** The Vytal mark: a vital-sign pulse on a rounded green tile. */
+function VytalMark({ size = 28 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 64 64" aria-hidden="true" className="shrink-0 transition-transform group-hover:scale-110">
+      <rect x="2" y="2" width="60" height="60" rx="16" fill="#22c55e" />
+      <path
+        d="M11 35 L23 35 L27 25 L32 45 L37 16 L41 35 L53 35"
+        fill="none"
+        stroke="#08120c"
+        strokeWidth={5}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
 
 const NAV_TAB_KEYS = [
   { href: "/",            labelKey: "my.nav.home",      icon: Home,      exact: true },
@@ -75,13 +92,8 @@ export default function ConsoleLayout({ children }: { children: React.ReactNode 
           className="flex items-center h-16 px-6 shrink-0"
           style={{ borderBottom: "1px solid var(--color-vytal-border)" }}
         >
-          <Link href="/" className="flex items-center gap-1.5 group">
-            <div
-              className="w-7 h-7 rounded-lg flex items-center justify-center transition-transform group-hover:scale-110"
-              style={{ background: "var(--color-vytal-green)" }}
-            >
-              <Zap size={14} style={{ color: "var(--color-vytal-bg)" }} strokeWidth={2.5} />
-            </div>
+          <Link href="/" className="flex items-center gap-2 group">
+            <VytalMark size={28} />
             <div className="flex items-baseline gap-0">
               <span
                 className="text-xs font-semibold tracking-tight"
@@ -236,12 +248,7 @@ export default function ConsoleLayout({ children }: { children: React.ReactNode 
         >
           {/* Mobile logo */}
           <div className="flex items-center gap-2 md:hidden">
-            <div
-              className="w-7 h-7 rounded-lg flex items-center justify-center"
-              style={{ background: "var(--color-vytal-green)" }}
-            >
-              <Zap size={14} style={{ color: "var(--color-vytal-bg)" }} strokeWidth={2.5} />
-            </div>
+            <VytalMark size={26} />
             <div className="flex items-baseline gap-0">
               <span className="text-xs font-semibold" style={{ color: "var(--color-vytal-muted)" }}>my</span>
               <span className="text-sm font-black" style={{ color: "var(--color-vytal-green)" }}>VYTAL</span>

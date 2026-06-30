@@ -49,6 +49,10 @@ function LoginForm() {
     <div className="mx-auto w-full max-w-md">
       <div className="rounded-2xl border border-vytal-border bg-vytal-card backdrop-blur-xl p-8">
         <div className="mb-8 text-center">
+          <svg width={44} height={44} viewBox="0 0 64 64" aria-hidden="true" className="mx-auto mb-3">
+            <rect x="2" y="2" width="60" height="60" rx="16" fill="#22c55e" />
+            <path d="M11 35 L23 35 L27 25 L32 45 L37 16 L41 35 L53 35" fill="none" stroke="#08120c" strokeWidth={5} strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
           <h1 className="text-3xl font-bold tracking-tight">
             <span className="text-base font-medium text-vytal-muted/60">pro</span><span className="text-vytal-green">VYTAL</span>
           </h1>
