@@ -15,7 +15,7 @@ import {
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/lib/i18n";
 import { useToast } from "@/components/toast";
-import { useDataStore } from "@/stores/data-store";
+import { trpc } from "@/lib/trpc";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 
 const FIELDS = [
@@ -63,8 +63,13 @@ interface ValidationRow {
 export default function MemberImportPage() {
   const { t } = useI18n();
   const { toast } = useToast();
-  const addMember = useDataStore((s) => s.addMember);
-  const existingMembers = useDataStore((s) => s.members);
+  const utils = trpc.useUtils();
+  const membersQuery = trpc.members.list.useQuery({});
+  const existingMembers = useMemo(
+    () => membersQuery.data?.items ?? [],
+    [membersQuery.data],
+  );
+  const createMember = trpc.members.create.useMutation();
   const [step, setStep] = useState<Step>(1);
   const [fileName, setFileName] = useState<string | null>(null);
   const [mappings, setMappings] = useState<string[]>(
@@ -118,46 +123,47 @@ export default function MemberImportPage() {
   const duplicateCount = mappedData.filter((r) => r.isDuplicate).length;
   const mappedFieldCount = mappings.filter((m) => m !== "-- Skip --").length;
 
-  const handleImport = useCallback(() => {
+  const handleImport = useCallback(async () => {
     setImporting(true);
-    setTimeout(() => {
-      let created = 0;
-      let skipped = 0;
-      let errors = 0;
+    let created = 0;
+    let skipped = 0;
+    let errors = 0;
 
-      for (const row of mappedData) {
-        if (row.isDuplicate) {
-          skipped++;
-          continue;
-        }
-        if (row.errors.length > 0) {
-          errors++;
-          continue;
-        }
+    for (const row of mappedData) {
+      if (row.isDuplicate) {
+        skipped++;
+        continue;
+      }
+      if (row.errors.length > 0) {
+        errors++;
+        continue;
+      }
 
-        addMember({
-          organizationId: "org-1",
-          memberNumber: existingMembers.length + created + 1,
+      const dob = /^\d{4}-\d{2}-\d{2}$/.test(row.data.dateOfBirth ?? "")
+        ? row.data.dateOfBirth
+        : undefined;
+      try {
+        await createMember.mutateAsync({
           name: row.data.name || "Unknown",
           email: row.data.email || "",
           phone: row.data.phone || undefined,
           nif: row.data.nif || undefined,
-          dateOfBirth: row.data.dateOfBirth || undefined,
+          dateOfBirth: dob,
           gender: row.data.gender === "M" ? "male" : row.data.gender === "F" ? "female" : undefined,
           status: (row.data.status as "active" | "inactive" | "trial" | "suspended") || "active",
-          joinedAt: new Date().toISOString(),
-          streakWeeks: 0,
-          totalCheckIns: 0,
         });
         created++;
+      } catch {
+        errors++;
       }
+    }
 
-      setImportResult({ created, skipped, errors });
-      setImporting(false);
-      setImported(true);
-      toast(`${created} members imported successfully!`, "success");
-    }, 1500);
-  }, [mappedData, addMember, existingMembers.length, toast]);
+    await utils.members.list.invalidate();
+    setImportResult({ created, skipped, errors });
+    setImporting(false);
+    setImported(true);
+    toast(`${created} members imported successfully!`, "success");
+  }, [mappedData, createMember, utils, toast]);
 
   return (
     <div className="space-y-6">
