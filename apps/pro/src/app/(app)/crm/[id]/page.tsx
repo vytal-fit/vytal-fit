@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { useDataStore } from "@/stores/data-store";
+import { trpc } from "@/lib/trpc";
 import type { LeadStage } from "@vytal-fit/shared";
 import {
   ArrowLeft,
@@ -41,7 +41,7 @@ const stageConfig: Record<
 const CLASS_TYPES = ["WOD", "Open Box", "Endurance", "Gymnastics", "Olympic Lifting"];
 const TIME_SLOTS = ["07:00", "09:00", "10:00", "12:00", "17:30", "18:30", "19:30"];
 
-function formatDate(dateStr: string): string {
+function formatDate(dateStr: string | Date): string {
   return new Date(dateStr).toLocaleDateString("pt-PT", {
     day: "2-digit",
     month: "long",
@@ -150,28 +150,110 @@ export default function LeadDetailPage() {
   const { toast } = useToast();
   const params = useParams();
   const id = params.id as string;
-  const leads = useDataStore((s) => s.leads);
-  const coaches = useDataStore((s) => s.coaches);
-  const updateLead = useDataStore((s) => s.updateLead);
-  const moveLead = useDataStore((s) => s.moveLead);
-  const lead = leads.find((l) => l.id === id);
+  const utils = trpc.useUtils();
+
+  const leadQuery = trpc.leads.get.useQuery({ id });
+  const coachesQuery = trpc.coaches.list.useQuery();
+  const lead = leadQuery.data;
+
+  const invalidate = useCallback(
+    () => utils.leads.get.invalidate({ id }),
+    [utils, id]
+  );
+  const updateLead = trpc.leads.update.useMutation({ onSuccess: invalidate });
+  const updateStage = trpc.leads.updateStage.useMutation({ onSuccess: invalidate });
+  const logActivity = trpc.leads.logActivity.useMutation({ onSuccess: invalidate });
 
   const [showTrialModal, setShowTrialModal] = useState(false);
   const [noteText, setNoteText] = useState("");
   const [trialInfo, setTrialInfo] = useState<{ date: string; classType: string; time: string } | null>(null);
-  const [communicationHistory, setCommunicationHistory] = useState([
-    { id: 1, type: "email" as const, title: "Welcome email sent", date: "2026-06-01", details: "Sent intro email with box information and trial class details." },
-    { id: 2, type: "call" as const, title: "Phone call logged", date: "2026-06-02", details: "Discussed schedule preferences. Interested in morning WODs." },
-    { id: 3, type: "booking" as const, title: "Trial class booked", date: "2026-06-03", details: "Booked for WOD class on June 5 at 07:00." },
-  ]);
 
+  const handleStageChange = useCallback(
+    (newStage: string) => {
+      if (!lead) return;
+      updateStage.mutate({ id: lead.id, stage: newStage as LeadStage });
+      toast(`Stage changed to ${stageConfig[newStage as LeadStage].label}`, "success");
+    },
+    [lead, updateStage, toast]
+  );
+
+  const handleAssignCoach = useCallback(() => {
+    const coaches = coachesQuery.data ?? [];
+    if (!lead || coaches.length === 0) return;
+    const randomCoach = coaches[Math.floor(Math.random() * coaches.length)];
+    updateLead.mutate({ id: lead.id, assignedCoachId: randomCoach.id });
+    logActivity.mutate({
+      leadId: lead.id,
+      type: "note",
+      title: "Coach atribuído",
+      details: `Treinador responsável: ${randomCoach.name}.`,
+    });
+    toast(`Assigned coach: ${randomCoach.name}`, "success");
+  }, [lead, coachesQuery.data, updateLead, logActivity, toast]);
+
+  const handleBookTrial = useCallback(
+    (date: string, classType: string, time: string) => {
+      if (!lead) return;
+      setTrialInfo({ date, classType, time });
+      updateStage.mutate({ id: lead.id, stage: "trial_booked" });
+      updateLead.mutate({ id: lead.id, trialDate: new Date(date) });
+      logActivity.mutate({
+        leadId: lead.id,
+        type: "booking",
+        title: `Trial booked: ${classType} at ${time}`,
+        details: `Trial class booked for ${classType} on ${date} at ${time}.`,
+      });
+      setShowTrialModal(false);
+      toast(`Trial booked for ${lead.name}: ${classType} on ${date} at ${time}`, "success");
+    },
+    [lead, updateStage, updateLead, logActivity, toast]
+  );
+
+  const handleConvertToMember = useCallback(() => {
+    if (!lead) return;
+    updateStage.mutate({ id: lead.id, stage: "subscribed" });
+    toast(`${lead.name} converted to member!`, "success");
+  }, [lead, updateStage, toast]);
+
+  const handleMarkAsLost = useCallback(() => {
+    if (!lead) return;
+    updateStage.mutate({ id: lead.id, stage: "lost" });
+    toast(`${lead.name} marked as lost`, "info");
+  }, [lead, updateStage, toast]);
+
+  const handleAddNote = useCallback(() => {
+    if (!lead || !noteText.trim()) return;
+    const text = noteText.trim();
+    updateLead.mutate({ id: lead.id, notes: text });
+    logActivity.mutate({ leadId: lead.id, type: "note", title: "Note added", details: text });
+    toast("Note added", "success");
+    setNoteText("");
+  }, [lead, noteText, updateLead, logActivity, toast]);
+
+  const handleSendConfirmation = useCallback(() => {
+    if (!lead) return;
+    logActivity.mutate({
+      leadId: lead.id,
+      type: "email",
+      title: "Confirmation email sent",
+      details: `Sent trial confirmation email to ${lead.email ?? lead.name}.`,
+    });
+    toast("Confirmation email sent!", "success");
+  }, [lead, logActivity, toast]);
+
+  if (leadQuery.isLoading) {
+    return (
+      <div className="flex h-64 items-center justify-center text-sm text-vytal-muted">
+        {t("ui.loading")}
+      </div>
+    );
+  }
   if (!lead) {
     notFound();
   }
 
-  const coach = lead.assignedCoachId
-    ? coaches.find((c) => c.id === lead.assignedCoachId)
-    : null;
+  const coach = lead.coach;
+  const communicationHistory = lead.activities;
 
   const stage = stageConfig[lead.stage];
   const initials = lead.name
@@ -179,84 +261,6 @@ export default function LeadDetailPage() {
     .map((n) => n[0])
     .join("")
     .slice(0, 2);
-
-  const handleStageChange = useCallback(
-    (newStage: string) => {
-      moveLead(lead.id, newStage as LeadStage);
-      toast(`Stage changed to ${stageConfig[newStage as LeadStage].label}`, "success");
-    },
-    [lead.id, moveLead, toast]
-  );
-
-  const handleAssignCoach = useCallback(() => {
-    if (coaches.length > 0) {
-      const randomCoach = coaches[Math.floor(Math.random() * coaches.length)];
-      updateLead(lead.id, { assignedCoachId: randomCoach.id });
-      toast(`Assigned coach: ${randomCoach.name}`, "success");
-    }
-  }, [lead.id, coaches, updateLead, toast]);
-
-  const handleBookTrial = useCallback(
-    (date: string, classType: string, time: string) => {
-      setTrialInfo({ date, classType, time });
-      moveLead(lead.id, "trial_booked");
-      updateLead(lead.id, { trialDate: date });
-      setCommunicationHistory((prev) => [
-        {
-          id: Date.now(),
-          type: "booking" as const,
-          title: `Trial booked: ${classType} at ${time}`,
-          date,
-          details: `Trial class booked for ${classType} on ${date} at ${time}.`,
-        },
-        ...prev,
-      ]);
-      setShowTrialModal(false);
-      toast(`Trial booked for ${lead.name}: ${classType} on ${date} at ${time}`, "success");
-    },
-    [lead.id, lead.name, moveLead, updateLead, toast]
-  );
-
-  const handleConvertToMember = useCallback(() => {
-    moveLead(lead.id, "subscribed");
-    toast(`${lead.name} converted to member!`, "success");
-  }, [lead.id, lead.name, moveLead, toast]);
-
-  const handleMarkAsLost = useCallback(() => {
-    moveLead(lead.id, "lost");
-    toast(`${lead.name} marked as lost`, "info");
-  }, [lead.id, lead.name, moveLead, toast]);
-
-  const handleAddNote = useCallback(() => {
-    if (!noteText.trim()) return;
-    updateLead(lead.id, { notes: noteText.trim() });
-    setCommunicationHistory((prev) => [
-      {
-        id: Date.now(),
-        type: "email" as const,
-        title: "Note added",
-        date: new Date().toISOString().split("T")[0],
-        details: noteText.trim(),
-      },
-      ...prev,
-    ]);
-    toast("Note added", "success");
-    setNoteText("");
-  }, [lead.id, noteText, updateLead, toast]);
-
-  const handleSendConfirmation = useCallback(() => {
-    setCommunicationHistory((prev) => [
-      {
-        id: Date.now(),
-        type: "email" as const,
-        title: "Confirmation email sent",
-        date: new Date().toISOString().split("T")[0],
-        details: `Sent trial confirmation email to ${lead.email ?? lead.name}.`,
-      },
-      ...prev,
-    ]);
-    toast("Confirmation email sent!", "success");
-  }, [lead.email, lead.name, toast]);
 
   // Determine if trial is already booked
   const hasTrialBooked = lead.stage === "trial_booked" || trialInfo !== null || !!lead.trialDate;
@@ -330,7 +334,7 @@ export default function LeadDetailPage() {
                   {trialInfo ? (
                     <>{trialInfo.classType} on {trialInfo.date} at {trialInfo.time}</>
                   ) : lead.trialDate ? (
-                    <>Scheduled for {lead.trialDate}</>
+                    <>Scheduled for {formatDate(lead.trialDate)}</>
                   ) : (
                     <>Trial has been booked</>
                   )}
@@ -417,7 +421,7 @@ export default function LeadDetailPage() {
                 <p className="mt-1 text-sm text-vytal-muted">{item.details}</p>
                 <div className="mt-1 flex items-center gap-1 text-[10px] text-vytal-muted">
                   <Clock className="h-3 w-3" />
-                  {formatDate(item.date)}
+                  {formatDate(item.createdAt)}
                 </div>
               </div>
             ))}

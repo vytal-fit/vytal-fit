@@ -719,6 +719,64 @@ export async function seedDatabase(
       .returning({ id: schema.leads.id })
   ).length;
 
+  // Lead timeline entries derived from each org-1 lead's current state, so the
+  // CRM detail view shows a real (not mocked) activity history.
+  const leadActivityRows = mockLeads
+    .filter((lead) => lead.organizationId === ORG_1)
+    .flatMap((lead) => {
+      const base = toDate(lead.createdAt);
+      const rows: {
+        id: string;
+        organizationId: string;
+        leadId: string;
+        type: schema.LeadActivityType;
+        title: string;
+        details: string | null;
+        createdAt: Date;
+      }[] = [
+        {
+          id: `act-${lead.id}-created`,
+          organizationId: ORG_1,
+          leadId: lead.id,
+          type: "stage_change",
+          title: "Lead criada",
+          details: `Origem: ${lead.source ?? "desconhecida"}.`,
+          createdAt: base,
+        },
+      ];
+      if (lead.notes) {
+        rows.push({
+          id: `act-${lead.id}-note`,
+          organizationId: ORG_1,
+          leadId: lead.id,
+          type: "note",
+          title: "Nota adicionada",
+          details: lead.notes,
+          createdAt: toOptionalDate(lead.lastContactAt) ?? base,
+        });
+      }
+      if (lead.trialDate) {
+        rows.push({
+          id: `act-${lead.id}-trial`,
+          organizationId: ORG_1,
+          leadId: lead.id,
+          type: "booking",
+          title: "Aula de teste marcada",
+          details: "Sessão experimental agendada.",
+          createdAt: toDate(lead.trialDate),
+        });
+      }
+      return rows;
+    });
+
+  inserted.leadActivities = (
+    await db
+      .insert(schema.leadActivities)
+      .values(leadActivityRows)
+      .onConflictDoNothing()
+      .returning({ id: schema.leadActivities.id })
+  ).length;
+
   inserted.personalRecords = (
     await db
       .insert(schema.personalRecords)

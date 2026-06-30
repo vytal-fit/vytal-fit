@@ -142,6 +142,18 @@ export const LEAD_STAGES = [
   "lost",
 ] as const satisfies readonly LeadStage[];
 
+/** Kinds of CRM lead-timeline entries (manual log + automatic system events). */
+export const LEAD_ACTIVITY_TYPES = [
+  "note",
+  "email",
+  "call",
+  "whatsapp",
+  "sms",
+  "booking",
+  "stage_change",
+] as const;
+export type LeadActivityType = (typeof LEAD_ACTIVITY_TYPES)[number];
+
 export const NOTIFICATION_TYPES = [
   "booking_confirmed",
   "booking_cancelled",
@@ -208,6 +220,7 @@ export const salePaymentMethodEnum = pgEnum("sale_payment_method", SALE_PAYMENT_
 export const planTypeEnum = pgEnum("plan_type", PLAN_TYPES);
 export const subscriptionStatusEnum = pgEnum("subscription_status", SUBSCRIPTION_STATUSES);
 export const leadStageEnum = pgEnum("lead_stage", LEAD_STAGES);
+export const leadActivityTypeEnum = pgEnum("lead_activity_type", LEAD_ACTIVITY_TYPES);
 export const notificationTypeEnum = pgEnum("notification_type", NOTIFICATION_TYPES);
 export const checkInMethodEnum = pgEnum("check_in_method", CHECK_IN_METHODS);
 
@@ -701,6 +714,28 @@ export const leads = pgTable(
   (t) => [
     index("leads_org_idx").on(t.organizationId),
     index("leads_org_stage_idx").on(t.organizationId, t.stage),
+  ],
+);
+
+/** CRM lead timeline: manual interactions and automatic system events. */
+export const leadActivities = pgTable(
+  "lead_activities",
+  {
+    id: text("id").primaryKey(),
+    organizationId: text("organization_id")
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    leadId: text("lead_id")
+      .notNull()
+      .references(() => leads.id, { onDelete: "cascade" }),
+    type: leadActivityTypeEnum("type").notNull(),
+    title: text("title").notNull(),
+    details: text("details"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (t) => [
+    index("lead_activities_org_idx").on(t.organizationId),
+    index("lead_activities_lead_idx").on(t.leadId),
   ],
 );
 

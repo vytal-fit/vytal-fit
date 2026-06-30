@@ -128,6 +128,101 @@ describe("leads.updateStage", () => {
   });
 });
 
+describe("leads.get", () => {
+  it("returns the lead with its coach and activity timeline", async () => {
+    const lead = await h.callerA.leads.get({ id: IDS.leadA });
+    expect(lead.id).toBe(IDS.leadA);
+    expect(lead.organizationId).toBe(IDS.orgA);
+    expect(Array.isArray(lead.activities)).toBe(true);
+    expect("coach" in lead).toBe(true);
+  });
+
+  it("throws NOT_FOUND for an unknown id", async () => {
+    await expect(h.callerA.leads.get({ id: "nope" })).rejects.toMatchObject({
+      code: "NOT_FOUND",
+    });
+  });
+
+  it("cross-tenant: org B caller cannot read an org A lead (NOT_FOUND)", async () => {
+    await expect(h.callerB.leads.get({ id: IDS.leadA })).rejects.toMatchObject({
+      code: "NOT_FOUND",
+    });
+  });
+
+  it("throws UNAUTHORIZED without a session", async () => {
+    await expect(h.callerNoSession.leads.get({ id: IDS.leadA })).rejects.toMatchObject({
+      code: "UNAUTHORIZED",
+    });
+  });
+});
+
+describe("leads.update", () => {
+  it("edits profile fields without resetting others", async () => {
+    const updated = await h.callerA.leads.update({
+      id: IDS.leadA,
+      notes: "Prefers morning WODs",
+      phone: "+351900000000",
+    });
+    expect(updated?.notes).toBe("Prefers morning WODs");
+    expect(updated?.phone).toBe("+351900000000");
+    // name was never touched by this patch — must survive
+    expect(updated?.name).toBeTruthy();
+  });
+
+  it("validates the assigned coach belongs to the org (NOT_FOUND)", async () => {
+    await expect(
+      h.callerA.leads.update({ id: IDS.leadA, assignedCoachId: IDS.coachB }),
+    ).rejects.toMatchObject({ code: "NOT_FOUND" });
+  });
+
+  it("cross-tenant: org B caller cannot edit an org A lead (NOT_FOUND)", async () => {
+    await expect(
+      h.callerB.leads.update({ id: IDS.leadA, notes: "hax" }),
+    ).rejects.toMatchObject({ code: "NOT_FOUND" });
+  });
+
+  it("athlete gets FORBIDDEN (staff+)", async () => {
+    await expect(
+      h.callerAthleteA.leads.update({ id: IDS.leadA, notes: "x" }),
+    ).rejects.toMatchObject({ code: "FORBIDDEN" });
+  });
+});
+
+describe("leads.logActivity", () => {
+  it("appends a timeline entry and stamps lastContactAt", async () => {
+    const created = await h.callerA.leads.logActivity({
+      leadId: IDS.leadA,
+      type: "call",
+      title: "Phone call logged",
+      details: "Discussed schedule",
+    });
+    expect(created?.type).toBe("call");
+    expect(created?.organizationId).toBe(IDS.orgA);
+
+    const lead = await h.callerA.leads.get({ id: IDS.leadA });
+    expect(lead.activities.some((a) => a.title === "Phone call logged")).toBe(true);
+  });
+
+  it("cross-tenant: org B caller cannot log on an org A lead (NOT_FOUND)", async () => {
+    await expect(
+      h.callerB.leads.logActivity({ leadId: IDS.leadA, type: "note", title: "x" }),
+    ).rejects.toMatchObject({ code: "NOT_FOUND" });
+  });
+
+  it("athlete gets FORBIDDEN (staff+)", async () => {
+    await expect(
+      h.callerAthleteA.leads.logActivity({ leadId: IDS.leadA, type: "note", title: "x" }),
+    ).rejects.toMatchObject({ code: "FORBIDDEN" });
+  });
+
+  it("rejects invalid activity type (Zod)", async () => {
+    await expect(
+      // @ts-expect-error — invalid type on purpose
+      h.callerA.leads.logActivity({ leadId: IDS.leadA, type: "carrier_pigeon", title: "x" }),
+    ).rejects.toMatchObject({ code: "BAD_REQUEST" });
+  });
+});
+
 describe("leads.delete", () => {
   it("athlete and coach get FORBIDDEN (admin+)", async () => {
     await expect(
