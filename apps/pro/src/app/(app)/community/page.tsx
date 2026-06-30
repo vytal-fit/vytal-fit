@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, useMemo } from "react";
-import { useDataStore } from "@/stores/data-store";
+import { trpc } from "@/lib/trpc";
 import {
   Trophy,
   CheckCircle,
@@ -130,17 +130,9 @@ const postsPerDayData = Array.from({ length: 30 }, (_, i) => ({
   posts: Math.floor(Math.random() * 15) + 5,
 }));
 
-function getTopActiveMembers(members: { name: string }[]) {
+function getTopActiveMembers(members: { name: string; totalCheckIns: number }[]) {
   return members
-    .slice(0, 8)
-    .map((m) => ({
-      name: m.name.split(" ")[0],
-      activity: Math.floor(Math.random() * 50) + 10,
-    }))
-    .concat([
-      { name: "Ricardo", activity: 35 },
-      { name: "Silvina", activity: 28 },
-    ])
+    .map((m) => ({ name: m.name.split(" ")[0], activity: m.totalCheckIns }))
     .sort((a, b) => b.activity - a.activity)
     .slice(0, 10);
 }
@@ -224,8 +216,11 @@ function ChartCard({
 // ---------------------------------------------------------------------------
 
 export default function CommunityPage() {
-  const storeMembers = useDataStore((s) => s.members);
-  const topActiveMembers = useMemo(() => getTopActiveMembers(storeMembers), [storeMembers]);
+  const membersQuery = trpc.members.list.useQuery({});
+  const topActiveMembers = useMemo(
+    () => getTopActiveMembers(membersQuery.data?.items ?? []),
+    [membersQuery.data],
+  );
   const [activeTab, setActiveTab] = useState<Tab>("feed");
   const [feedItems, setFeedItems] = useState<FeedItem[]>(initialFeedItems);
   const [flaggedItems, setFlaggedItems] = useState<FlaggedItem[]>(initialFlaggedItems);
