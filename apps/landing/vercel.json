@@ -6,5 +6,5 @@
       "main": true
     }
   },
-  "ignoreCommand": "npx turbo-ignore @vytal-fit/landing --fallback=HEAD^1"
+  "ignoreCommand": "bash -c 'test -n \"$VERCEL_GIT_PREVIOUS_SHA\" && git diff --quiet \"$VERCEL_GIT_PREVIOUS_SHA\" HEAD -- apps/landing packages && exit 0 || exit 1'"
 }
