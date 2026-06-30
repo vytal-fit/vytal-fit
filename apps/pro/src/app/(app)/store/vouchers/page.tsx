@@ -14,7 +14,7 @@ import { cn } from "@/lib/utils";
 import { useI18n } from "@/lib/i18n";
 import { useToast } from "@/components/toast";
 import { Breadcrumbs } from "@/components/breadcrumbs";
-import { formatCurrency } from "@/stores/data-store";
+import { useOrgFormat } from "@/lib/org-format";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -73,7 +73,7 @@ const templates: VoucherTemplate[] = [
     name: "Custom Amount",
     type: "variable",
     value: 0,
-    description: `Custom gift card with a chosen amount. Minimum ${formatCurrency(10)}.`,
+    description: `Custom gift card with a chosen amount. Minimum €10,00.`,
   },
 ];
 
@@ -179,6 +179,7 @@ const statusConfig: Record<VoucherStatus, { label: string; color: string; bg: st
 // ---------------------------------------------------------------------------
 
 export default function VouchersPage() {
+  const { money: formatCurrency } = useOrgFormat();
   const { t } = useI18n();
   const { toast } = useToast();
 

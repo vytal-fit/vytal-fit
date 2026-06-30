@@ -16,7 +16,8 @@ import {
   UserCheck,
 } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
-import { useDataStore, formatCurrency } from "@/stores/data-store";
+import { trpc } from "@/lib/trpc";
+import { useOrgFormat } from "@/lib/org-format";
 
 function formatDateLocale(lang: string): string {
   const now = new Date();
@@ -30,16 +31,20 @@ function formatDateLocale(lang: string): string {
 
 export function DailyBriefing() {
   const { t, language } = useI18n();
-  const classes = useDataStore((s) => s.classes);
-  const leads = useDataStore((s) => s.leads);
-  const totalUnread = useDataStore((s) => s.totalUnread)();
+  const { money: formatCurrency } = useOrgFormat();
 
   const today = new Date().toISOString().split("T")[0];
 
-  const todayClasses = useMemo(
-    () => classes.filter((c) => c.date === today),
-    [classes, today]
+  const scheduleQuery = trpc.classes.schedule.useQuery({ from: today, to: today });
+  const leadsQuery = trpc.leads.list.useQuery({});
+  const conversationsQuery = trpc.messages.conversations.useQuery();
+  const totalUnread = (conversationsQuery.data ?? []).reduce(
+    (sum, c) => sum + c.unreadCount,
+    0,
   );
+
+  const todayClasses = useMemo(() => scheduleQuery.data ?? [], [scheduleQuery.data]);
+  const leads = useMemo(() => leadsQuery.data ?? [], [leadsQuery.data]);
 
   const totalEnrolled = useMemo(
     () => todayClasses.reduce((sum, c) => sum + c.enrolledCount, 0),

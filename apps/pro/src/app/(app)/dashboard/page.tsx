@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import type { DashboardStats } from "@vytal-fit/shared";
-import { formatCurrency, formatCurrencyCompact } from "@/stores/data-store";
+import { useOrgFormat } from "@/lib/org-format";
 import { useAuthStore } from "@/stores/auth-store";
 import {
   Users,
@@ -350,6 +350,7 @@ interface RevenueTooltipProps {
 }
 
 function RevenueTooltip({ active, payload, label }: RevenueTooltipProps) {
+  const { money: formatCurrency } = useOrgFormat();
   if (!active || !payload?.length) return null;
   return (
     <div
@@ -419,7 +420,7 @@ const MOCK_ACTIVITY = [
   { icon: ScanLine, text: "Ana Silva checked in to WOD 17:30", time: "5m ago", iconColor: "text-vytal-green", bgColor: "bg-vytal-green/10" },
   { icon: Trophy, text: "Pedro Almeida achieved PR: Back Squat 140kg", time: "1h ago", iconColor: "text-vytal-amber", bgColor: "bg-vytal-amber/10" },
   { icon: UserPlus, text: "New lead: Carlos Mendes (Instagram)", time: "2h ago", iconColor: "text-vytal-blue", bgColor: "bg-vytal-blue/10" },
-  { icon: CreditCard, text: `Payment processed: Sofia Santos ${formatCurrency(75)}`, time: "3h ago", iconColor: "text-vytal-green", bgColor: "bg-vytal-green/10" },
+  { icon: CreditCard, text: `Payment processed: Sofia Santos €75,00`, time: "3h ago", iconColor: "text-vytal-green", bgColor: "bg-vytal-green/10" },
   { icon: CalendarDays, text: "Joana Ribeiro booked WOD 18:30", time: "3h ago", iconColor: "text-vytal-blue", bgColor: "bg-vytal-blue/10" },
   { icon: Dumbbell, text: "WOD published: Fran + Accessory Work", time: "4h ago", iconColor: "text-vytal-green", bgColor: "bg-vytal-green/10" },
   { icon: TrendingDown, text: "Miguel Costa cancelled membership", time: "5h ago", iconColor: "text-vytal-red", bgColor: "bg-vytal-red/10" },
@@ -601,6 +602,7 @@ function SetupBanner() {
 
 export default function DashboardPage() {
   const { t } = useI18n();
+  const { money: formatCurrency, moneyCompact: formatCurrencyCompact } = useOrgFormat();
   const user = useAuthStore((s) => s.user);
   const today = new Date().toISOString().split("T")[0];
   const activeOrg = user?.memberships.find((m) => m.organizationId === user.activeOrganizationId);

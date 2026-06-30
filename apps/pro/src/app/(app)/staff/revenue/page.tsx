@@ -6,7 +6,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/lib/i18n";
-import { formatCurrency } from "@/stores/data-store";
+import { useOrgFormat } from "@/lib/org-format";
 import { trpc } from "@/lib/trpc";
 import { rowsToCoaches } from "@/lib/reference-mappers";
 import { Breadcrumbs } from "@/components/breadcrumbs";
@@ -34,6 +34,7 @@ const monthlyData: Record<string, Record<string, { classes: number; avgAttendanc
 const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun"];
 
 export default function CoachRevenuePage() {
+  const { money: formatCurrency } = useOrgFormat();
   const { t } = useI18n();
   // ── tRPC: coach roster (revenue figures themselves are still mock data) ──
   const coachesQuery = trpc.coaches.list.useQuery();

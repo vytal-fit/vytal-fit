@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Save, Wallet } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { Breadcrumbs } from "@/components/breadcrumbs";
-import { formatCurrency } from "@/stores/data-store";
+import { useOrgFormat } from "@/lib/org-format";
 
 type BudgetCategory = "Fixed" | "Variable" | "Tax";
 
@@ -44,12 +44,10 @@ const categoryBg: Record<BudgetCategory, string> = {
   Tax: "bg-vytal-red/10",
 };
 
-function formatEur(value: number): string {
-  return formatCurrency(value);
-}
-
 export default function MonthlyBudgetPage() {
   const { t } = useI18n();
+  const { money: formatCurrency } = useOrgFormat();
+  const formatEur = formatCurrency;
   const [lines, setLines] = useState(initialBudgetLines);
 
   function updateLimit(id: number, value: string) {

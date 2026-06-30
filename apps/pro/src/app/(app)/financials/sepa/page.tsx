@@ -14,7 +14,7 @@ import { cn } from "@/lib/utils";
 import { useI18n } from "@/lib/i18n";
 import { useToast } from "@/components/toast";
 import { Breadcrumbs } from "@/components/breadcrumbs";
-import { formatCurrency } from "@/stores/data-store";
+import { useOrgFormat } from "@/lib/org-format";
 
 type Tab = "creditor" | "generate" | "returns";
 
@@ -42,6 +42,7 @@ const mockReturnFiles = [
 
 export default function SepaPage() {
   const { t } = useI18n();
+  const { money: formatCurrency } = useOrgFormat();
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState<Tab>("creditor");
   const [creditor, setCreditor] = useState(mockCreditor);

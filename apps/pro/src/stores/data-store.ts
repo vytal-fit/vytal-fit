@@ -375,7 +375,7 @@ function persistOrgSettings(settings: OrgSettings, orgId: string) {
 
 /** Format currency using org settings */
 export function formatCurrency(amount: number, currency?: string): string {
-  const cur = currency ?? loadOrgSettings("org-1").currency;
+  const cur = currency ?? "EUR";
   const localeMap: Record<string, string> = {
     EUR: "pt-PT", USD: "en-US", GBP: "en-GB", BRL: "pt-BR",
     CHF: "de-CH", MZN: "pt-MZ", MAD: "fr-MA", AOA: "pt-AO", CVE: "pt-CV",
@@ -390,7 +390,7 @@ export function formatCurrency(amount: number, currency?: string): string {
 
 /** Format currency with compact notation (e.g. 15K, 1.2M) for chart axes */
 export function formatCurrencyCompact(amount: number, currency?: string): string {
-  const cur = currency ?? loadOrgSettings("org-1").currency;
+  const cur = currency ?? "EUR";
   const localeMap: Record<string, string> = {
     EUR: "pt-PT", USD: "en-US", GBP: "en-GB", BRL: "pt-BR",
     CHF: "de-CH", MZN: "pt-MZ", MAD: "fr-MA", AOA: "pt-AO", CVE: "pt-CV",

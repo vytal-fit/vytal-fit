@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { useI18n } from "@/lib/i18n";
 import { useToast } from "@/components/toast";
-import { formatCurrency } from "@/stores/data-store";
+import { useOrgFormat } from "@/lib/org-format";
 import { trpc } from "@/lib/trpc";
 import {
   AlertTriangle,
@@ -44,6 +44,7 @@ const defaultRules: DunningRule[] = [
 
 export default function DunningPage() {
   const { t } = useI18n();
+  const { money: formatCurrency } = useOrgFormat();
   const { toast } = useToast();
 
   const [rules, setRules] = useState<DunningRule[]>(defaultRules);

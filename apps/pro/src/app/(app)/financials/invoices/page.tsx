@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/lib/i18n";
-import { formatCurrency } from "@/stores/data-store";
+import { useOrgFormat } from "@/lib/org-format";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { EmptyState } from "@/components/empty-state";
 
@@ -208,10 +208,6 @@ function StatusBadge({ status }: { status: InvoiceStatus }) {
   );
 }
 
-function formatEur(value: number): string {
-  return formatCurrency(value);
-}
-
 function MethodBadge({ method }: { method: string }) {
   return (
     <span className="inline-flex items-center rounded bg-vytal-bg3 px-2 py-0.5 text-xs text-vytal-muted">
@@ -223,6 +219,7 @@ function MethodBadge({ method }: { method: string }) {
 function InvoiceRow({ invoice }: { invoice: Invoice }) {
   const [expanded, setExpanded] = useState(false);
   const { t } = useI18n();
+  const { money: formatEur } = useOrgFormat();
 
   return (
     <>

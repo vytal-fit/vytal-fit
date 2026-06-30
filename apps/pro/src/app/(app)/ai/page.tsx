@@ -30,7 +30,7 @@ import {
   CartesianGrid,
   Tooltip,
 } from "recharts";
-import { formatCurrency } from "@/stores/data-store";
+import { useOrgFormat } from "@/lib/org-format";
 
 // ---------------------------------------------------------------------------
 // Mock data
@@ -157,6 +157,7 @@ function RiskBar({ risk }: { risk: number }) {
 // ---------------------------------------------------------------------------
 
 export default function AIInsightsPage() {
+  const { money: formatCurrency } = useOrgFormat();
   const { t } = useI18n();
   const { toast } = useToast();
   const [wodExpanded, setWodExpanded] = useState(false);

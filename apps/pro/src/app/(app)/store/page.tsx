@@ -6,7 +6,6 @@ import { useI18n } from "@/lib/i18n";
 import { useToast } from "@/components/toast";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import {
-  formatCurrency,
   type StoreProduct,
   type StoreProductCategory,
   type StoreProductFulfillment,
@@ -17,6 +16,7 @@ import {
   type StoreOrder,
   type StoreOrderStatus,
 } from "@/stores/data-store";
+import { useOrgFormat } from "@/lib/org-format";
 import {
   ShoppingBag,
   Plus,
@@ -98,6 +98,7 @@ const statusConfig: Record<StoreSaleStatus, { label: string; color: string }> = 
 export default function StorePage() {
   const { t } = useI18n();
   const { toast } = useToast();
+  const { money: formatCurrency } = useOrgFormat();
   const utils = trpc.useUtils();
   const productsQuery = trpc.shop.products.list.useQuery();
   const salesQuery = trpc.shop.sales.list.useQuery();

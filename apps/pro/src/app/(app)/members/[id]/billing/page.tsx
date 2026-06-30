@@ -12,7 +12,7 @@ import {
   Clock,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { formatCurrency } from "@/stores/data-store";
+import { useOrgFormat } from "@/lib/org-format";
 import { trpc } from "@/lib/trpc";
 import { rowToMember } from "@/lib/member-mapper";
 import { useI18n } from "@/lib/i18n";
@@ -47,6 +47,7 @@ function StatusBadge({
 export default function MemberBillingPage() {
   const { t } = useI18n();
   const { toast } = useToast();
+  const { money: formatCurrency } = useOrgFormat();
   const params = useParams();
   const id = params.id as string;
   const memberQuery = trpc.members.byId.useQuery({ id });

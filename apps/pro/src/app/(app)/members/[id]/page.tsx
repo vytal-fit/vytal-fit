@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { formatCurrency } from "@/stores/data-store";
+import { useOrgFormat } from "@/lib/org-format";
 import { trpc } from "@/lib/trpc";
 import { rowToMember } from "@/lib/member-mapper";
 import { rowsToCheckIns } from "@/lib/checkin-mapper";
@@ -328,6 +328,7 @@ function CommunicationsTab({ memberName, memberEmail }: { memberName: string; me
 export default function MemberDetailPage() {
   const { t } = useI18n();
   const { toast } = useToast();
+  const { money: formatCurrency } = useOrgFormat();
   const params = useParams();
   const id = params.id as string;
 

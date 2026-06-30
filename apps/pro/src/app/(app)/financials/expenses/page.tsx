@@ -4,7 +4,7 @@ import { useState, useMemo } from "react";
 import { Receipt, Plus, Filter, Inbox } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/lib/i18n";
-import { formatCurrency } from "@/stores/data-store";
+import { useOrgFormat } from "@/lib/org-format";
 import { trpc } from "@/lib/trpc";
 import { useToast } from "@/components/toast";
 import { Breadcrumbs } from "@/components/breadcrumbs";
@@ -31,12 +31,10 @@ const categoryColors: Record<ExpenseCategory, string> = {
   Tax: "bg-vytal-red/10 text-vytal-red",
 };
 
-function formatEur(value: number): string {
-  return formatCurrency(value);
-}
-
 export default function ExpenseTrackingPage() {
   const { t } = useI18n();
+  const { money: formatCurrency } = useOrgFormat();
+  const formatEur = formatCurrency;
   const { toast } = useToast();
   const utils = trpc.useUtils();
   const listQuery = trpc.expenses.list.useQuery({});

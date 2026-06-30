@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { formatCurrency } from "@/stores/data-store";
+import { useOrgFormat } from "@/lib/org-format";
 import { trpc } from "@/lib/trpc";
 import { rowsToCoaches } from "@/lib/reference-mappers";
 import { Breadcrumbs } from "@/components/breadcrumbs";
@@ -52,6 +52,7 @@ const months = [
 ];
 
 export default function StaffPayrollPage() {
+  const { money: formatCurrency } = useOrgFormat();
   const { t } = useI18n();
   const { toast } = useToast();
   // ── tRPC: coach roster (payroll figures themselves are still mock data) ──

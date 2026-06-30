@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
-import { formatCurrency, formatCurrencyCompact } from "@/stores/data-store";
+import { useOrgFormat } from "@/lib/org-format";
 import { Lightbulb, TrendingDown, Users, Clock, Zap } from "lucide-react";
 import {
   ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
@@ -153,6 +153,7 @@ function heatCellColor(value: number, max: number): string {
 
 interface RevenueBreakdownEntry { value: number; dataKey: string; color: string; name: string }
 function RevenueBreakdownTooltip({ active, payload, label }: { active?: boolean; payload?: RevenueBreakdownEntry[]; label?: string }) {
+  const { money: formatCurrency } = useOrgFormat();
   if (!active || !payload?.length) return null;
   return (
     <div style={{ backgroundColor: "#0f1610", border: "1px solid rgba(34,197,94,0.2)", borderRadius: 8, padding: "8px 12px", fontSize: 12 }}>
@@ -170,6 +171,7 @@ const keyInsightDefs = [
 ];
 
 export default function AnalyticsPage() {
+  const { money: formatCurrency, moneyCompact: formatCurrencyCompact } = useOrgFormat();
   const { t } = useI18n();
   const pMax = peakMax();
   const [hoveredCell, setHoveredCell] = useState<{ day: string; hour: string; value: number } | null>(null);

@@ -5,8 +5,8 @@ import { useRouter } from "next/navigation";
 import { DollarSign, TrendingUp, AlertTriangle, Clock, ArrowUpRight, ArrowDownRight, Target, Send, ChevronDown, ChevronUp, Download, X, Smartphone, CreditCard, Building2, Banknote, ArrowLeftRight, CheckCircle } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { useToast } from "@/components/toast";
-import { formatCurrency } from "@/stores/data-store";
 import { trpc } from "@/lib/trpc";
+import { useOrgFormat } from "@/lib/org-format";
 import { cn } from "@/lib/utils";
 import {
   LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell,
@@ -65,6 +65,7 @@ function RegisterPaymentDialog({
 }) {
   const { t } = useI18n();
   const { toast } = useToast();
+  const { money } = useOrgFormat();
   const settingsQuery = trpc.orgSettings.get.useQuery();
   const paymentMethods = settingsQuery.data?.paymentMethods;
 
@@ -83,7 +84,7 @@ function RegisterPaymentDialog({
     const label = METHOD_LABELS[selectedMethod] ?? selectedMethod;
     toast(
       t("payments.registered")
-        .replace("{amount}", formatCurrency(parseFloat(amount) || 0))
+        .replace("{amount}", money(parseFloat(amount) || 0))
         .replace("{method}", label),
       "success"
     );
@@ -243,11 +244,12 @@ function MethodBadge({ method }: { method: string }) {
 }
 
 function CustomTooltip({ active, payload, label }: { active?: boolean; payload?: Array<{ value: number }>; label?: string }) {
+  const { money } = useOrgFormat();
   if (active && payload && payload.length) {
     return (
       <div className="rounded-lg border border-vytal-border bg-vytal-card px-3 py-2 shadow-lg">
         <p className="text-xs text-vytal-muted">{label}</p>
-        <p className="font-mono text-sm font-bold text-vytal-green">{formatCurrency(payload[0].value)}</p>
+        <p className="font-mono text-sm font-bold text-vytal-green">{money(payload[0].value)}</p>
       </div>
     );
   }
@@ -257,6 +259,7 @@ function CustomTooltip({ active, payload, label }: { active?: boolean; payload?:
 export default function FinancialsPage() {
   const { t } = useI18n();
   const { toast } = useToast();
+  const { money } = useOrgFormat();
   const router = useRouter();
   const [expandedTxId, setExpandedTxId] = useState<string | null>(null);
   const [showRegisterPayment, setShowRegisterPayment] = useState(false);
@@ -378,13 +381,13 @@ export default function FinancialsPage() {
           <div className="flex items-start justify-between">
             <div className="flex flex-col gap-1">
               <span className="text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("financials.monthlyRevenue")}</span>
-              <span className="text-3xl font-bold text-vytal-text">{formatCurrency(currentMonthRevenue)}</span>
+              <span className="text-3xl font-bold text-vytal-text">{money(currentMonthRevenue)}</span>
               <div className="flex items-center gap-2">
                 <div className={`flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold ${revenueChange >= 0 ? "bg-vytal-green/10 text-vytal-green" : "bg-vytal-red/10 text-vytal-red"}`}>
                   {revenueChange >= 0 ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}
                   {revenueChange >= 0 ? "+" : ""}{revenueChange.toFixed(1)}%
                 </div>
-                <span className="text-xs text-vytal-muted">{t("financials.vsLastMonthAmount").replace("{amount}", formatCurrency(lastMonthRevenue))}</span>
+                <span className="text-xs text-vytal-muted">{t("financials.vsLastMonthAmount").replace("{amount}", money(lastMonthRevenue))}</span>
               </div>
             </div>
             <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-vytal-green/10">
@@ -407,7 +410,7 @@ export default function FinancialsPage() {
             <div className="flex flex-col gap-1">
               <span className="text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("financials.monthlyTarget")}</span>
               <span className="text-3xl font-bold text-vytal-text">{revenueProgress.toFixed(0)}%</span>
-              <span className="text-xs text-vytal-muted">{formatCurrency(currentMonthRevenue)} {t("financials.ofTarget").replace("{target}", formatCurrency(revenueTarget))}</span>
+              <span className="text-xs text-vytal-muted">{money(currentMonthRevenue)} {t("financials.ofTarget").replace("{target}", money(revenueTarget))}</span>
             </div>
             <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-vytal-blue/10">
               <Target className="h-6 w-6 text-vytal-blue" />
@@ -422,8 +425,8 @@ export default function FinancialsPage() {
               />
             </div>
             <div className="mt-2 flex justify-between text-[10px] text-vytal-muted">
-              <span>{formatCurrency(0)}</span>
-              <span>{formatCurrency(revenueTarget)}</span>
+              <span>{money(0)}</span>
+              <span>{money(revenueTarget)}</span>
             </div>
           </div>
         </div>
@@ -434,7 +437,7 @@ export default function FinancialsPage() {
             <div className="flex items-center justify-between">
               <div>
                 <span className="text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("financials.overdueAmount")}</span>
-                <p className="mt-0.5 text-xl font-bold text-vytal-red">{formatCurrency(overdueTotal)}</p>
+                <p className="mt-0.5 text-xl font-bold text-vytal-red">{money(overdueTotal)}</p>
                 <span className="text-[10px] text-vytal-red">{t("financials.overduePayments").replace("{count}", String(pendingPayments.filter((p) => p.status === "overdue").length))}</span>
               </div>
               <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-vytal-red/10">
@@ -462,7 +465,7 @@ export default function FinancialsPage() {
         <div className="flex items-center justify-between">
           <div>
             <span className="text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("financials.ytdRevenue")}</span>
-            <p className="mt-1 text-2xl font-bold text-vytal-text">{formatCurrency(98200)}</p>
+            <p className="mt-1 text-2xl font-bold text-vytal-text">{money(98200)}</p>
           </div>
           <div className="flex items-center gap-2">
             <span className="inline-flex items-center gap-1 rounded-full bg-vytal-green/10 px-3 py-1 text-xs font-semibold text-vytal-green">
@@ -540,7 +543,7 @@ export default function FinancialsPage() {
                       <p className="text-[10px] text-vytal-muted">{p.plan}</p>
                     </div>
                   </td>
-                  <td className="px-4 py-3 font-mono text-sm font-semibold text-vytal-text">{formatCurrency(p.amount)}</td>
+                  <td className="px-4 py-3 font-mono text-sm font-semibold text-vytal-text">{money(p.amount)}</td>
                   <td className="hidden px-4 py-3 sm:table-cell">
                     <span className={`font-mono text-sm font-semibold ${p.daysOverdue > 7 ? "text-vytal-red" : "text-vytal-amber"}`}>{p.daysOverdue}d</span>
                   </td>
@@ -588,7 +591,7 @@ export default function FinancialsPage() {
                     </td>
                     <td className="px-4 py-3 font-mono text-sm text-vytal-muted">{tx.date}</td>
                     <td className="px-4 py-3 text-sm font-medium text-vytal-text">{tx.member}</td>
-                    <td className="px-4 py-3 font-mono text-sm font-semibold text-vytal-text">{formatCurrency(tx.amount)}</td>
+                    <td className="px-4 py-3 font-mono text-sm font-semibold text-vytal-text">{money(tx.amount)}</td>
                     <td className="hidden px-4 py-3 sm:table-cell"><MethodBadge method={tx.method} /></td>
                     <td className="px-4 py-3"><StatusBadge status={tx.status} /></td>
                   </tr>
@@ -610,7 +613,7 @@ export default function FinancialsPage() {
                           </div>
                           <div>
                             <p className="text-[10px] font-medium uppercase tracking-wider text-vytal-muted">{t("financials.amount")}</p>
-                            <p className="mt-0.5 font-mono text-sm font-semibold text-vytal-text">{formatCurrency(tx.amount)}</p>
+                            <p className="mt-0.5 font-mono text-sm font-semibold text-vytal-text">{money(tx.amount)}</p>
                           </div>
                         </div>
                       </td>

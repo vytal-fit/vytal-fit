@@ -5,7 +5,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/lib/i18n";
-import { formatCurrency } from "@/stores/data-store";
+import { useOrgFormat } from "@/lib/org-format";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 
 interface LTVByPlan {
@@ -93,6 +93,7 @@ const cohortLTV: CohortLTV[] = [
 ];
 
 export default function MemberLTVPage() {
+  const { money: formatCurrency } = useOrgFormat();
   const { t } = useI18n();
 
   const maxDist = Math.max(...ltvDistribution.map((d) => d.count));

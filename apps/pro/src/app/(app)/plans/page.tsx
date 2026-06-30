@@ -11,7 +11,7 @@ import Link from "next/link";
 import { useI18n } from "@/lib/i18n";
 import { useToast } from "@/components/toast";
 import { ConfirmDialog } from "@/components/confirm-dialog";
-import { formatCurrency as formatCurrencyStore } from "@/stores/data-store";
+import { useOrgFormat } from "@/lib/org-format";
 import { trpc } from "@/lib/trpc";
 import { rowsToPlans } from "@/lib/plan-mapper";
 import { rowsToClassTypes } from "@/lib/reference-mappers";
@@ -31,10 +31,6 @@ const typeLabels: Record<string, { labelKey: string; className: string }> = {
   trial: { labelKey: "plans.trialType", className: "bg-vytal-amber/10 text-vytal-amber" },
 };
 
-function formatCurrency(value: number): string {
-  return formatCurrencyStore(value);
-}
-
 function PlanCard({
   plan, isPopular, subscriberCount, monthlyRevenue, maxSubscribers,
   onToggleActive, togglePending, onDelete,
@@ -44,6 +40,7 @@ function PlanCard({
   onToggleActive: () => void; togglePending: boolean; onDelete: () => void;
 }) {
   const { t } = useI18n();
+  const { money: formatCurrency } = useOrgFormat();
   // React Query dedupes this across all cards into a single request.
   const classTypesQuery = trpc.classTypes.list.useQuery();
   const storeClassTypes = rowsToClassTypes(classTypesQuery.data ?? []);
@@ -152,6 +149,7 @@ function PlanCard({
 export default function PlansPage() {
   const { t } = useI18n();
   const { toast } = useToast();
+  const { money: formatCurrency } = useOrgFormat();
   const [showInactive, setShowInactive] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
 

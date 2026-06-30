@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/lib/i18n";
+import { useOrgFormat } from "@/lib/org-format";
 import { useToast } from "@/components/toast";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 
@@ -74,14 +75,6 @@ const mockLocations: Location[] = [
 // Helpers
 // ---------------------------------------------------------------------------
 
-function formatCurrency(value: number): string {
-  return new Intl.NumberFormat("pt-PT", {
-    style: "currency",
-    currency: "EUR",
-    minimumFractionDigits: 0,
-  }).format(value);
-}
-
 // ---------------------------------------------------------------------------
 // Page
 // ---------------------------------------------------------------------------
@@ -89,6 +82,7 @@ function formatCurrency(value: number): string {
 export default function MultiLocationDashboardPage() {
   const { t } = useI18n();
   const { toast } = useToast();
+  const { money: formatCurrency } = useOrgFormat();
 
   const [locations] = useState<Location[]>(mockLocations);
 

@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { useI18n } from "@/lib/i18n";
-import { formatCurrency } from "@/stores/data-store";
 import { trpc } from "@/lib/trpc";
+import { useOrgFormat } from "@/lib/org-format";
 import { TrendingUp, TrendingDown, DollarSign, Users, Clock, Repeat, Sparkles, Calculator } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Breadcrumbs } from "@/components/breadcrumbs";
@@ -113,6 +113,7 @@ function MetricCard({
 }
 
 function MrrTooltip({ active, payload, label }: { active?: boolean; payload?: Array<{ value: number; name: string; color: string }>; label?: string }) {
+  const { money: formatCurrency } = useOrgFormat();
   if (active && payload && payload.length) {
     return (
       <div className="rounded-lg border border-vytal-border bg-vytal-card px-4 py-3 shadow-lg">
@@ -132,6 +133,7 @@ function MrrTooltip({ active, payload, label }: { active?: boolean; payload?: Ar
 
 export default function RevenuePage() {
   const { t } = useI18n();
+  const { money: formatCurrency } = useOrgFormat();
   const [scenario, setScenario] = useState<"optimistic" | "base" | "conservative">("base");
   const [whatIfMembers, setWhatIfMembers] = useState(10);
   const [whatIfPrice, setWhatIfPrice] = useState(75);
