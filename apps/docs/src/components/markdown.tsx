@@ -1,7 +1,9 @@
 import type { ComponentPropsWithoutRef } from "react";
 import ReactMarkdown, { type Components } from "react-markdown";
 import remarkGfm from "remark-gfm";
+import rehypeHighlight from "rehype-highlight";
 import { childrenToString, slugify } from "@/lib/toc";
+import { CodeBlock } from "@/components/code-block";
 
 function Heading({
   level,
@@ -73,14 +75,9 @@ const markdownComponents: Components = {
   strong: (props: ComponentPropsWithoutRef<"strong">) => (
     <strong {...props} className="font-semibold text-vytal-text" />
   ),
-  pre: (props: ComponentPropsWithoutRef<"pre">) => (
-    <pre
-      {...props}
-      className="mt-5 overflow-x-auto rounded-xl border border-vytal-border bg-[#0b110d] p-4 text-[13px] leading-6 [&_code]:text-vytal-text/90"
-    />
-  ),
+  pre: (props: ComponentPropsWithoutRef<"pre">) => <CodeBlock {...props} />,
   code: ({ className, ...props }: ComponentPropsWithoutRef<"code">) => {
-    const isBlock = className?.includes("language-");
+    const isBlock = className?.includes("language-") || className?.includes("hljs");
     if (isBlock) return <code {...props} className={`font-mono ${className ?? ""}`} />;
     return (
       <code
@@ -108,7 +105,11 @@ const markdownComponents: Components = {
 export function Markdown({ children }: { children: string }) {
   return (
     <div className="docs-prose">
-      <ReactMarkdown components={markdownComponents} remarkPlugins={[remarkGfm]}>
+      <ReactMarkdown
+        components={markdownComponents}
+        remarkPlugins={[remarkGfm]}
+        rehypePlugins={[[rehypeHighlight, { ignoreMissing: true }]]}
+      >
         {children}
       </ReactMarkdown>
     </div>

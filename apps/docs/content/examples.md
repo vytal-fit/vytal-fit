@@ -7,8 +7,6 @@ parent:
   uri: developer-api
 ---
 
-# API Examples
-
 Concrete request/response shapes for common Vytal workflows.
 
 ## Book a class

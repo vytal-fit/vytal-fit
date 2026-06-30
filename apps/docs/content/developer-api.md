@@ -5,8 +5,6 @@ category:
 slug: developer-api
 ---
 
-# Vytal Developer API
-
 Vytal’s public API lives on `api.vytal.fit`. The pro app lives on
 `pro.vytal.fit`, the athlete portal on `my.vytal.fit`, and the public site on
 `vytal.fit`.

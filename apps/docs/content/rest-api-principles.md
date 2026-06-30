@@ -7,8 +7,6 @@ parent:
   uri: developer-api
 ---
 
-# REST Principles
-
 The public API is intentionally resource-oriented.
 
 ## Rules

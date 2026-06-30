@@ -7,8 +7,6 @@ parent:
   uri: developer-api
 ---
 
-# Deployment
-
 Vytal uses four production origins:
 
 - `vytal.fit` for marketing and public pages

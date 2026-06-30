@@ -5,51 +5,49 @@ category:
 slug: getting-started
 ---
 
-# Getting Started
+Vytal is the operating system for fitness businesses. One API powers four
+surfaces: the public marketing site, the staff backoffice, the athlete portal,
+and the integrations that read and write bookings, memberships, results, and
+billing.
 
-Vytal is the operating system for fitness businesses. It connects the public
-site, the pro app, the athlete portal, and the API layer that powers
-bookings, memberships, results, and developer integrations.
+> 📘 The one rule worth knowing up front
+>
+> Every request runs in the context of one **active organization** (a gym).
+> Authenticate once, choose the active org, and every later call is scoped to
+> it. Cross-tenant access is impossible by design.
+
+## The surfaces
+
+| Surface | Where | For |
+| :-- | :-- | :-- |
+| Public site | `vytal.fit` | Marketing, schedules, sign-up |
+| proVytal | `pro.vytal.fit` | Staff and backoffice |
+| myVytal | `my.vytal.fit` | The athlete portal |
+| API | `api.vytal.fit` | Integrations and these docs |
 
 ## Start here
 
-- [Developer API](./developer-api)
-- [Quickstart](./quickstart)
-- [API Examples](./examples)
-- [REST Principles](./rest-api-principles)
-- [Mobile Integration](./mobile)
+- **[Quickstart](./quickstart)**: zero to a working call in three requests.
+- **[Auth and Sessions](./auth-and-sessions)**: cookie vs bearer, in depth.
+- **[Conventions](./conventions)**: org scope, list shape, dates, idempotency.
+- **[Errors](./errors)**: one error shape, predictable status codes.
+- **[API Examples](./examples)**: copy/paste for records and results.
+- **[Mobile Integration](./mobile)**: the bearer-token flow for native apps.
 
-## What lives where
+## A typical first integration
 
-- `vytal.fit` for the public marketing site
-- `pro.vytal.fit` for the staff and backoffice experience
-- `my.vytal.fit` for the athlete portal
-- `api.vytal.fit` for the public API and developer documentation bridge
+1. **Sign in** and capture the session (cookie for browsers, bearer for
+   servers and mobile).
+2. **Pick the active gym** so every call is scoped correctly.
+3. **Read something real**: a member's bookings or today's classes.
+4. **Write something**: book a member into a class; full classes auto-waitlist.
 
-## Recommended reads
-
-1. Read the API overview in the developer API hub.
-2. Review auth and session behavior before wiring a client.
-3. Check the REST principles page for the path and query conventions.
-4. Use the examples page as a copy/paste starting point.
-
-## Core links
-
-- [Developer API](./developer-api)
-- [Auth and Sessions](./auth-and-sessions)
-- [Deployment](./deployment)
-- [API Examples](./examples)
+When you are ready for the machine-readable contract, point your tooling at the
+[OpenAPI spec](https://api.vytal.fit/openapi.json).
 
 ## What to expect
 
-- PT, EN, and ES content across the app surfaces
-- org-scoped data and tenant isolation
-- browser-safe auth across the split origins
-- ReadMe-backed public docs for integrations and support
-
-## Highlights
-
-- Root-level API paths instead of prefixed routes
-- Cross-origin browser auth with credentials
-- Session-based active-organization switching
-- Separate app, member, landing, and API origins
+- Root-level REST paths, no version prefix in the URL.
+- Cross-origin browser auth with `credentials: "include"`.
+- Org-scoped data with strict tenant isolation.
+- PT, EN, and ES across every product surface.
