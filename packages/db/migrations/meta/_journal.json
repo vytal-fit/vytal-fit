@@ -57,6 +57,13 @@
       "when": 1782681300000,
       "tag": "0007_drop_exercises_table",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1782813709993,
+      "tag": "0008_silent_overlord",
+      "breakpoints": true
     }
   ]
 }

@@ -513,6 +513,38 @@ export const wodResults = pgTable(
   ],
 );
 
+/**
+ * Post-workout feedback (Adenda 01 / D1): RPE, enjoyment and injury limitation
+ * on a 1–9 scale, optionally tied to a class/WOD. Seeds the athlete's
+ * performance & health profile. NOTE: health-adjacent (RGPD Art. 9) — the
+ * interactive injury body map and at-rest encryption are deferred to the
+ * advanced wellness layer.
+ */
+export const workoutFeedback = pgTable(
+  "workout_feedback",
+  {
+    id: text("id").primaryKey(),
+    organizationId: text("organization_id")
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    memberId: text("member_id")
+      .notNull()
+      .references(() => gymMembers.id, { onDelete: "cascade" }),
+    classId: text("class_id").references(() => classes.id, { onDelete: "set null" }),
+    wodId: text("wod_id").references(() => wods.id, { onDelete: "set null" }),
+    rpe: integer("rpe"),
+    enjoyment: integer("enjoyment"),
+    injuryLimitation: integer("injury_limitation"),
+    notes: text("notes"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (t) => [
+    index("workout_feedback_org_idx").on(t.organizationId),
+    index("workout_feedback_org_member_idx").on(t.organizationId, t.memberId),
+    index("workout_feedback_org_class_idx").on(t.organizationId, t.classId),
+  ],
+);
+
 /** Personal records — mirrors shared `PersonalRecord` (+ organizationId for tenant isolation). */
 export const personalRecords = pgTable(
   "personal_records",

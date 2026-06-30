@@ -17,6 +17,7 @@ import { supportTicketsRouter } from "./routers/supportTickets";
 import { uploadsRouter } from "./routers/uploads";
 import { wodResultsRouter } from "./routers/wodResults";
 import { wodsRouter } from "./routers/wods";
+import { workoutFeedbackRouter } from "./routers/workoutFeedback";
 
 export const appRouter = router({
   members: membersRouter,
@@ -29,6 +30,7 @@ export const appRouter = router({
   exercises: exercisesRouter,
   wods: wodsRouter,
   wodResults: wodResultsRouter,
+  workoutFeedback: workoutFeedbackRouter,
   personalRecords: personalRecordsRouter,
   leads: leadsRouter,
   subscriptions: subscriptionsRouter,
