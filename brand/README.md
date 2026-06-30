@@ -56,6 +56,18 @@ The pulse tile never changes, and the app icon is always the single Vytal mark.
 "my" leads naturally as a prefix; "Pro" can still be spoken as a suffix in prose
 ("Vytal Pro"), but the lockup is one word.
 
+## Theming docs.vytal.fit (ReadMe)
+
+`docs.vytal.fit` is hosted by ReadMe, themed in the dashboard (the API does not
+write appearance). Make it on-brand under **Configuration → Appearance**:
+
+1. **Theme:** Dark (default). **Primary colour:** `#22c55e` (already set).
+2. **Background (dark):** `#080c0a`. **Border (dark):** `#1e2a22`.
+3. **Logo:** upload `myvytal`-style master `vytal-logo-dark.png` (dark theme) and
+   `vytal-logo.png` (light). **Favicon:** `vytal-mark-256.png`.
+4. **Custom CSS:** paste `readme-theme.css` from this folder (typographic + code
+   polish; may require a paid plan).
+
 ## Usage
 
 **Do**

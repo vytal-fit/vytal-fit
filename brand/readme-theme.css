@@ -1,0 +1,66 @@
+/* ───────────────────────────────────────────────────────────────────────────
+   Vytal · ReadMe custom CSS
+   Paste into ReadMe → Configuration → Appearance → Custom CSS.
+
+   The structural brand settings (primary colour #22c55e, Dark theme default,
+   background, logo, favicon) are set in the Appearance panel directly; this
+   file is typographic + code-block polish layered on top. Selectors are kept
+   generic with ReadMe fallbacks. Custom CSS may require a paid ReadMe plan.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+  --vytal-green: #22c55e;
+  --vytal-green-deep: #16a34a;
+  --vytal-bg: #080c0a;
+  --vytal-surface: #0f1610;
+  --vytal-ink: #0b110d;
+  --vytal-hair: rgba(34, 197, 94, 0.14);
+}
+
+/* Typography ---------------------------------------------------------------- */
+body,
+.markdown-body,
+.rm-Guides,
+.rm-Article,
+.rm-Reference {
+  font-family: "Inter", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+}
+
+h1, h2, h3, h4 {
+  letter-spacing: -0.02em;
+  font-weight: 700;
+}
+
+/* Code ---------------------------------------------------------------------- */
+code, pre, kbd, .cm-editor, .rm-Code, .CodeTabs {
+  font-family: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+
+pre,
+.rm-Code,
+.CodeTabs_initial {
+  background: var(--vytal-ink) !important;
+  border: 1px solid var(--vytal-hair) !important;
+  border-radius: 12px !important;
+}
+
+/* Inline code: brand accent */
+:not(pre) > code {
+  color: var(--vytal-green) !important;
+  background: rgba(34, 197, 94, 0.08) !important;
+  border: 1px solid var(--vytal-hair) !important;
+  border-radius: 6px;
+  padding: 0.1em 0.4em;
+}
+
+/* Links & accents ----------------------------------------------------------- */
+a { text-underline-offset: 3px; }
+
+/* Callouts / blockquotes pick up the brand green on the rail */
+blockquote {
+  border-left: 2px solid var(--vytal-green) !important;
+  background: rgba(34, 197, 94, 0.06);
+  border-radius: 0 8px 8px 0;
+}
