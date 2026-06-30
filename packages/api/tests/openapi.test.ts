@@ -1,7 +1,8 @@
 /**
- * Contract guard for the hand-authored OpenAPI spec: every `$ref` must resolve,
- * every operation must declare responses + a declared tag, and the core
- * resource schemas must exist. Keeps the spec honest as endpoints evolve.
+ * Contract guard for the **generated** OpenAPI spec (built from the tRPC
+ * router): every `$ref` must resolve, every operation declares responses + a
+ * declared tag, and the spec must cover the whole router (incl. newer routers
+ * like payments/expenses) so it can't silently drift.
  */
 import { describe, it, expect } from "vitest";
 import { openApiSpec } from "../src/openapi";
@@ -42,11 +43,19 @@ describe("openApiSpec", () => {
     expect(openApiSpec.components.securitySchemes.cookieAuth).toBeTruthy();
   });
 
-  it("defines the core resource schemas", () => {
-    const schemas = openApiSpec.components.schemas as Record<string, unknown>;
-    for (const name of ["Error", "Session", "Organization", "Booking", "PersonalRecord", "WodResult"]) {
-      expect(schemas[name], `missing schema: ${name}`).toBeDefined();
+  it("covers the whole router, incl. newer procedures", () => {
+    const opCount = Object.values(paths).reduce((n, m) => n + Object.keys(m).length, 0);
+    expect(opCount).toBeGreaterThan(100);
+    // Generated from the router — newer routers must show up automatically.
+    for (const p of [
+      "/trpc/members.list",
+      "/trpc/payments.stats",
+      "/trpc/expenses.list",
+      "/trpc/dashboard.charts",
+    ]) {
+      expect(paths[p], `missing generated path: ${p}`).toBeDefined();
     }
+    expect((openApiSpec.components.schemas as Record<string, unknown>).Error).toBeDefined();
   });
 
   it("resolves every $ref to a defined component", () => {
