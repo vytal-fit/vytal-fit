@@ -81,9 +81,12 @@ export const classesRouter = router({
       const locMap = new Map(locs.map((l) => [l.id, l] as const));
       const coMap = new Map(cos.map((c) => [c.id, c] as const));
       const enrolledByClass = new Map<string, number>();
+      const waitlistByClass = new Map<string, number>();
       for (const b of bks) {
         if (b.status === "confirmed" || b.status === "checked_in") {
           enrolledByClass.set(b.classId, (enrolledByClass.get(b.classId) ?? 0) + 1);
+        } else if (b.status === "waitlisted") {
+          waitlistByClass.set(b.classId, (waitlistByClass.get(b.classId) ?? 0) + 1);
         }
       }
 
@@ -93,6 +96,7 @@ export const classesRouter = router({
         location: r.locationId ? locMap.get(r.locationId) ?? null : null,
         coaches: r.coachIds.map((id) => coMap.get(id)).filter((c): c is NonNullable<typeof c> => !!c),
         enrolledCount: enrolledByClass.get(r.id) ?? 0,
+        waitlistCount: waitlistByClass.get(r.id) ?? 0,
       }));
     }),
 
