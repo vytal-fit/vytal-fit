@@ -134,6 +134,12 @@ Auditoria 2026-06-30 (`useDataStore` = store mock/localStorage de domínio):
 - **`classes/waitlist`**: zero-mock via nova query `bookings.waitlist` (waitlisted org-wide com classe+membro+posição); promover = `setAttendance(confirmed)`, remover = `cancel`. 3 testes novos (603 total).
 - **Regra**: cada página migrada deixa de importar `useDataStore` para dados de domínio e passa a `trpc.*`; `localStorage` só preferências via `STORAGE_KEYS`.
 
+## Inventário de mock residual (2026-06-30, fim de sessão)
+O **núcleo do produto está 100% real** (members, classes, WODs, CRM leads, planos, pagamentos, despesas, bookings/presenças, check-ins, settings completos, loja, dashboard KPIs, portal do atleta, financials inteiro). O que falta são **páginas de features secundárias/avançadas** cujo UI foi prototipado antes do backend; cada uma precisa da sua própria tabela + router:
+- **Precisam de tabela/API nova**: `automations/campaigns`, `marketing`, `media`, `classes/history`, `classes/templates`, `members/contracts` (waivers digitais), `members/groups`, `members/retention`, `staff/[id]/performance`, `staff/certifications`, `settings/{audit-log,backup,webhooks}`, `crm` (activity-log org-wide → estender `lead_activities`).
+- **Widgets ilustrativos sobre dados já reais** (secundário, não bloqueante): `financials/{dunning,sepa}` (return-files/creditor fallback), `screen` (leaderboard + schedule ticker), `members/[id]` (notas de staff, comms, activity timeline → precisam de member_notes/comms), `dashboard` (member-growth/revenue/heatmap → séries históricas, F5).
+- **D6 (não fazer)**: `members/[id]/{body,nutrition,assessments,referrals}`.
+
 ## Pontos em aberto
 - **A-1** Âmbito exato da produção de conteúdo das BD (exercícios/WODs) — *Bruno + Juvenal*.
 - **A-2** Selecionar fornecedor de faturação certificado — *antes da F5*.
