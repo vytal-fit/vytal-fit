@@ -6,7 +6,7 @@ import {
   Search, Users, UserCheck, UserX, Clock, Upload, Download, FileText,
   Mail, Smartphone, CreditCard, AlertTriangle, Eye, SearchX,
   ArrowUp, ArrowDown, Plus, Archive, X, Check,
-  CalendarDays, Flame, DollarSign, Activity,
+  DollarSign, Activity,
 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { rowsToMembers } from "@/lib/member-mapper";
@@ -82,20 +82,6 @@ function SortIcon({ sortKey, currentKey, dir }: { sortKey: SortKey; currentKey: 
 // ---------- Detail Panel Tab Types ----------
 type PanelTab = "overview" | "activity" | "payments";
 
-const mockActivities = [
-  { type: "check-in", label: "Check-in at CrossFit Aveiro", time: "Today, 07:32", icon: Activity },
-  { type: "booking", label: "Booked WOD 18:00", time: "Yesterday, 20:15", icon: CalendarDays },
-  { type: "pr", label: "PR: Back Squat 120kg", time: "2 days ago", icon: Flame },
-  { type: "payment", label: "Monthly payment processed", time: "3 days ago", icon: DollarSign },
-  { type: "check-in", label: "Check-in at CrossFit Aveiro", time: "4 days ago", icon: Activity },
-];
-
-const mockPayments = [
-  { date: "2026-06-01", amount: 75, method: "Stripe", status: "paid" as const },
-  { date: "2026-05-01", amount: 75, method: "Stripe", status: "paid" as const },
-  { date: "2026-04-01", amount: 75, method: "MBWay", status: "paid" as const },
-];
-
 export default function MembersPage() {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<FilterKey>("all");
@@ -141,6 +127,26 @@ export default function MembersPage() {
   const [panelMemberId, setPanelMemberId] = useState<string | null>(null);
   const [panelTab, setPanelTab] = useState<PanelTab>("overview");
   const panelMember = panelMemberId ? fetchedMembers.find((m) => m.id === panelMemberId) : null;
+
+  // Real activity + payments for the open detail panel.
+  const panelPaymentsQuery = trpc.payments.byMember.useQuery(
+    { memberId: panelMemberId ?? "" },
+    { enabled: !!panelMemberId },
+  );
+  const panelCheckInsQuery = trpc.checkIns.list.useQuery(
+    { memberId: panelMemberId ?? "", limit: 8 },
+    { enabled: !!panelMemberId },
+  );
+  const panelPayments = (panelPaymentsQuery.data ?? []).slice(0, 6).map((p) => ({
+    date: new Date(p.paidAt ?? p.createdAt).toISOString().slice(0, 10),
+    amount: Number(p.amount),
+    method: p.method,
+    status: p.status,
+  }));
+  const panelActivity = (panelCheckInsQuery.data?.items ?? []).map((c) => ({
+    label: t("detailPanel.checkedIn"),
+    time: new Date(c.checkedInAt).toLocaleString("pt-PT"),
+  }));
 
   // Advanced filter state
   const [advancedFilters, setAdvancedFilters] = useState<Record<string, unknown>>({});
@@ -696,27 +702,30 @@ export default function MembersPage() {
               {panelTab === "activity" && (
                 <div className="space-y-3">
                   <p className="text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("detailPanel.recentActivity")}</p>
-                  {mockActivities.map((act, i) => {
-                    const Icon = act.icon;
-                    return (
-                      <div key={i} className="flex items-center gap-3 rounded-lg border border-vytal-border bg-vytal-card p-3">
-                        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-vytal-bg3">
-                          <Icon className="h-4 w-4 text-vytal-green" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm text-vytal-text">{act.label}</p>
-                          <p className="text-[10px] text-vytal-muted">{act.time}</p>
-                        </div>
+                  {panelActivity.length === 0 && (
+                    <p className="text-xs text-vytal-muted">{t("ui.noData") || "Sem atividade recente"}</p>
+                  )}
+                  {panelActivity.map((act, i) => (
+                    <div key={i} className="flex items-center gap-3 rounded-lg border border-vytal-border bg-vytal-card p-3">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-vytal-bg3">
+                        <Activity className="h-4 w-4 text-vytal-green" />
                       </div>
-                    );
-                  })}
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm text-vytal-text">{act.label}</p>
+                        <p className="text-[10px] text-vytal-muted">{act.time}</p>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               )}
 
               {panelTab === "payments" && (
                 <div className="space-y-3">
                   <p className="text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("detailPanel.paymentHistory")}</p>
-                  {mockPayments.map((pmt, i) => (
+                  {panelPayments.length === 0 && (
+                    <p className="text-xs text-vytal-muted">{t("ui.noData") || "Sem pagamentos"}</p>
+                  )}
+                  {panelPayments.map((pmt, i) => (
                     <div key={i} className="flex items-center justify-between rounded-lg border border-vytal-border bg-vytal-card p-3">
                       <div className="flex items-center gap-3">
                         <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-vytal-bg3">
