@@ -31,10 +31,11 @@ export const openApiSpec = {
       "per tenant.",
       "",
       "## Authentication",
-      "Sign in with `POST /auth/sign-in/email` — it sets a session cookie.",
-      "Send that cookie on every subsequent request (browsers: use",
-      "`credentials: \"include\"`). Switch the active gym with",
-      "`PATCH /me/session`.",
+      "Sign in with `POST /auth/sign-in/email`. **Browser apps** receive a",
+      "session cookie — send it with `credentials: \"include\"`. **Mobile /",
+      "server** clients read the token from the `set-auth-token` response header",
+      "and send it as `Authorization: Bearer <token>`. Switch the active gym",
+      "with `PATCH /me/session`.",
       "",
       "## Conventions",
       "- **Org scope** is implicit (from the session), never a body field.",
@@ -48,7 +49,7 @@ export const openApiSpec = {
     { url: "https://api.vytal.fit", description: "Production" },
     { url: "http://localhost:3001", description: "Local development" },
   ],
-  security: [{ cookieAuth: [] }],
+  security: [{ cookieAuth: [] }, { bearerAuth: [] }],
   tags: [
     { name: "Auth", description: "Sign in / sign up and read the session." },
     { name: "Session", description: "Switch the active organization (gym)." },
@@ -470,7 +471,13 @@ export const openApiSpec = {
         in: "cookie",
         name: "better-auth.session_token",
         description:
-          "Session cookie set by POST /auth/sign-in/email. Cross-origin clients must send credentials.",
+          "Session cookie set by POST /auth/sign-in/email. Browser clients send it with credentials.",
+      },
+      bearerAuth: {
+        type: "http",
+        scheme: "bearer",
+        description:
+          "Session token returned in the `set-auth-token` response header on sign-in; send as `Authorization: Bearer <token>`. Used by mobile and server-to-server clients.",
       },
     },
     parameters: {

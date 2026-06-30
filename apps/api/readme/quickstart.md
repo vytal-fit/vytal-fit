@@ -9,58 +9,80 @@ parent:
 
 # Quickstart
 
-This guide shows the shortest path from no context to a working Vytal API
-integration.
+The shortest path from zero to a working Vytal integration. Every request is
+scoped to the caller's **active organization** (the gym).
 
-## 1. Read the contract
+## Authentication in 30 seconds
 
-Start with the [Developer API](./developer-api) hub and the
-[OpenAPI spec](https://api.vytal.fit/openapi.json).
+One sign-in, two equivalent ways to carry the session:
 
-## 2. Sign in
+- **Browser apps** — sign-in sets a session **cookie**. Send it on every
+  request (cross-origin: `credentials: "include"`).
+- **Mobile / server** — sign-in returns a **token** in the `set-auth-token`
+  response header. Send it as `Authorization: Bearer <token>`.
+
+## 1. Sign in
 
 ```bash
-curl -X POST https://api.vytal.fit/auth/sign-in/email \
+# -i shows response headers (the bearer token is in `set-auth-token`);
+# -c saves the session cookie for browser-style calls.
+curl -i -c vytal.cookies -X POST https://api.vytal.fit/auth/sign-in/email \
   -H 'content-type: application/json' \
-  -d '{"email":"jose@vytal.fit","password":"VytalDemo2026!"}'
+  -d '{"email":"you@example.com","password":"your-password"}'
 ```
 
-## 3. Fetch the auth session
+## 2. Choose the active gym
 
 ```bash
-curl https://api.vytal.fit/auth/session \
-  -H 'authorization: Bearer <token>'
+# gyms you belong to
+curl -b vytal.cookies https://api.vytal.fit/organizations
+
+# set the active one — every later request is scoped to it
+curl -b vytal.cookies -X PATCH https://api.vytal.fit/me/session \
+  -H 'content-type: application/json' \
+  -d '{"activeOrganizationId":"org-1"}'
 ```
 
-## 4. Load organizations
+Bearer equivalent (mobile / server):
 
 ```bash
 curl https://api.vytal.fit/organizations \
-  -H 'authorization: Bearer <token>'
+  -H 'authorization: Bearer YOUR_TOKEN'
 ```
 
-## 5. Switch the active organization
+## 3. Your first business request
 
 ```bash
-curl -X PATCH https://api.vytal.fit/me/session \
+# a member's bookings
+curl -b vytal.cookies 'https://api.vytal.fit/bookings?memberId=m-1'
+
+# book a member into a class (auto-waitlists if the class is full)
+curl -b vytal.cookies -X POST https://api.vytal.fit/bookings \
   -H 'content-type: application/json' \
-  -H 'authorization: Bearer <token>' \
-  -d '{"activeOrganizationId":"org_123"}'
+  -d '{"classId":"cl-1","memberId":"m-1"}'
 ```
 
-## 6. Make a business request
+## In JavaScript
 
-Once the session is active, the same token can be used for bookings, records,
-and results.
+```js
+const api = "https://api.vytal.fit";
 
-```bash
-curl -X GET 'https://api.vytal.fit/bookings?memberId=mem_123' \
-  -H 'authorization: Bearer <token>'
+await fetch(`${api}/auth/sign-in/email`, {
+  method: "POST",
+  credentials: "include",
+  headers: { "content-type": "application/json" },
+  body: JSON.stringify({ email, password }),
+});
+
+const { items } = await fetch(`${api}/organizations`, {
+  credentials: "include",
+}).then((r) => r.json());
 ```
 
-## What to expect
+## Next
 
-- Responses use JSON.
-- Filters use query parameters.
-- Writes return the created or updated entity.
-- Missing org context should fail clearly instead of leaking data.
+- [Conventions](./conventions) — org scope, list shape, dates, idempotency.
+- [Errors](./errors) — the single error shape and status codes.
+- [Auth and Sessions](./auth-and-sessions) — cookie vs bearer in depth.
+- [API Examples](./examples) — copy/paste for records and results.
+- [OpenAPI spec](https://api.vytal.fit/openapi.json) — the machine-readable contract.
