@@ -63,6 +63,7 @@ import { ROLE_LABELS, ROLE_COLORS, ORGANIZATION_CONFIGS } from "@vytal-fit/share
 import { useAuthStore } from "@/stores/auth-store";
 import { useAppStore } from "@/stores/app-store";
 import { useDataStore } from "@/stores/data-store";
+import { trpc } from "@/lib/trpc";
 import { useI18n, type Language } from "@/lib/i18n";
 import { CommandPalette } from "@/components/command-palette";
 import { CreateOrgWizard, type CreateOrgData } from "@/components/create-org-wizard";
@@ -290,7 +291,7 @@ const notificationIcon: Record<NotificationType, React.ReactNode> = {
   payment_failed: <AlertCircle className="h-3.5 w-3.5 text-vytal-red" />,
 };
 
-function formatTimeAgo(dateStr: string): string {
+function formatTimeAgo(dateStr: string | Date): string {
   const date = new Date(dateStr);
   const now = new Date();
   const diffMs = now.getTime() - date.getTime();
@@ -309,9 +310,17 @@ function NotificationsDropdown() {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const { t } = useI18n();
-  const notifications = useDataStore((s) => s.notifications);
-  const markNotificationRead = useDataStore((s) => s.markNotificationRead);
-  const markAllNotificationsRead = useDataStore((s) => s.markAllNotificationsRead);
+  const utils = trpc.useUtils();
+  const notificationsQuery = trpc.notifications.list.useQuery({ limit: 50 });
+  const notifications = notificationsQuery.data?.items ?? [];
+  const markReadMutation = trpc.notifications.markRead.useMutation({
+    onSuccess: () => utils.notifications.list.invalidate(),
+  });
+  const markAllReadMutation = trpc.notifications.markAllRead.useMutation({
+    onSuccess: () => utils.notifications.list.invalidate(),
+  });
+  const markNotificationRead = (id: string) => markReadMutation.mutate({ id });
+  const markAllNotificationsRead = () => markAllReadMutation.mutate({});
   const unreadCount = notifications.filter((n) => !n.read).length;
 
   useEffect(() => {
@@ -462,7 +471,6 @@ function OrgSwitcher({ onCreateOrg, collapsed }: { onCreateOrg?: () => void; col
   const { t } = useI18n();
   const user = useAuthStore((s) => s.user);
   const switchOrg = useAuthStore((s) => s.switchOrg);
-  const orgSettings = useDataStore((s) => s.orgSettings);
   const switchOrgData = useDataStore((s) => s.switchOrgData);
   const applyOrgAccentColor = useAppStore((s) => s.applyOrgAccentColor);
   const setSidebarCollapsed = useAppStore((s) => s.toggleSidebar);
@@ -486,7 +494,7 @@ function OrgSwitcher({ onCreateOrg, collapsed }: { onCreateOrg?: () => void; col
   }, []);
 
   // Use active org name from memberships as source of truth
-  const displayOrgName = activeOrg?.organization.name || orgSettings.name || t("ui.selectOrg");
+  const displayOrgName = activeOrg?.organization.name || t("ui.selectOrg");
   const orgInitial = displayOrgName.charAt(0);
 
   if (collapsed) {
@@ -912,11 +920,14 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const orgType = activeOrg?.organization.type ?? "other";
   const userRole: OrgRole = (activeOrg?.role as OrgRole) ?? "athlete";
   const orgConfig = ORGANIZATION_CONFIGS[orgType];
-  const notifications = useDataStore((s) => s.notifications);
-  const orgSettings = useDataStore((s) => s.orgSettings);
-  const notifUnread = notifications.filter((n) => !n.read).length;
+  const orgSettingsQuery = trpc.orgSettings.get.useQuery();
+  const orgFeatures = orgSettingsQuery.data?.features as
+    | Partial<import("@vytal-fit/shared").OrganizationFeatures>
+    | undefined;
+  const notifUnreadQuery = trpc.notifications.list.useQuery({ read: false, limit: 100 });
+  const notifUnread = notifUnreadQuery.data?.items.length ?? 0;
   const navGroups = useMemo(() => {
-    const groups = getNavGroups(orgType, userRole, orgSettings.features);
+    const groups = getNavGroups(orgType, userRole, orgFeatures);
     // Inject dynamic unread badge on Notifications nav item
     return groups.map((group) => ({
       ...group,
@@ -924,7 +935,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         item.href === "/notifications" ? { ...item, badge: notifUnread } : item
       ),
     }));
-  }, [orgType, userRole, notifUnread, orgSettings.features]);
+  }, [orgType, userRole, notifUnread, orgFeatures]);
 
   // Close mobile sidebar on route change
   useEffect(() => {
@@ -940,8 +951,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   // Route protection: redirect if current path requires a disabled feature OR insufficient role
   useEffect(() => {
     if (!orgConfig) return;
-    const mergedFeatures = orgSettings.features
-      ? { ...orgConfig.features, ...orgSettings.features }
+    const mergedFeatures = orgFeatures
+      ? { ...orgConfig.features, ...orgFeatures }
       : orgConfig.features;
 
     // Map route prefixes to required features
@@ -1012,7 +1023,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         }
       }
     }
-  }, [pathname, orgConfig, orgSettings.features, userRole, router]);
+  }, [pathname, orgConfig, orgFeatures, userRole, router]);
 
   // Lock body scroll when mobile sidebar is open
   useEffect(() => {
