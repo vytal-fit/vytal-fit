@@ -1,10 +1,8 @@
 ---
 title: Auth and Sessions
 category:
-  uri: developer
+  uri: Core Concepts
 slug: auth-and-sessions
-parent:
-  uri: developer-api
 position: 0
 ---
 

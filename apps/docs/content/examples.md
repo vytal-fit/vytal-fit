@@ -1,11 +1,9 @@
 ---
 title: API Examples
 category:
-  uri: developer
+  uri: Guides
 slug: examples
-parent:
-  uri: developer-api
-position: 4
+position: 0
 ---
 
 Concrete request/response shapes for common Vytal workflows.

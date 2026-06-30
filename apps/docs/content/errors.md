@@ -1,10 +1,8 @@
 ---
 title: Errors
 category:
-  uri: developer
+  uri: Core Concepts
 slug: errors
-parent:
-  uri: developer-api
 position: 2
 ---
 
@@ -28,7 +26,7 @@ Every error returns the same JSON shape, with the matching HTTP status:
 | 409 | `CONFLICT` | State conflict (e.g. duplicate booking, cancelling twice). |
 | 503 | `SERVICE_UNAVAILABLE` | Backend not configured or database unreachable. |
 
-## Notes
+## Behaviour worth knowing
 
 - **Tenant isolation is a 404.** An id that belongs to another gym looks like it
   simply doesn't exist: never rely on `403` vs `404` to probe for resources.

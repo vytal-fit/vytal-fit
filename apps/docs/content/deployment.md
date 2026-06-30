@@ -1,11 +1,9 @@
 ---
 title: Deployment
 category:
-  uri: developer
+  uri: Guides
 slug: deployment
-parent:
-  uri: developer-api
-position: 6
+position: 2
 ---
 
 Vytal uses four production origins:
@@ -15,7 +13,7 @@ Vytal uses four production origins:
 - `my.vytal.fit` for the athlete portal
 - `api.vytal.fit` for API, auth, and the machine-readable contract
 
-## Notes
+## How the projects deploy
 
 - Auth and API are separate from the app origin.
 - Each Vercel project uses the matching monorepo root directory: `apps/landing`,

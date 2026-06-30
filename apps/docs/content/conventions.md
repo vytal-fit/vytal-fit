@@ -1,10 +1,8 @@
 ---
 title: Conventions
 category:
-  uri: developer
+  uri: Core Concepts
 slug: conventions
-parent:
-  uri: developer-api
 position: 1
 ---
 

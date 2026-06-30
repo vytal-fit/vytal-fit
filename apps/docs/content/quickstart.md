@@ -1,7 +1,7 @@
 ---
 title: Quickstart
 category:
-  uri: developer
+  uri: Getting Started
 slug: quickstart
 position: 1
 ---

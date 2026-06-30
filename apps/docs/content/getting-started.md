@@ -1,7 +1,7 @@
 ---
 title: Getting Started
 category:
-  uri: developer
+  uri: Getting Started
 slug: getting-started
 position: 0
 ---

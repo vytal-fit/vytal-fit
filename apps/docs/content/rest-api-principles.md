@@ -1,10 +1,8 @@
 ---
 title: REST Principles
 category:
-  uri: developer
+  uri: Core Concepts
 slug: rest-api-principles
-parent:
-  uri: developer-api
 position: 3
 ---
 

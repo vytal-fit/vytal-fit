@@ -9,9 +9,9 @@ export interface NavGroup {
 
 /** Curated information architecture. Slugs not listed here fall into "More". */
 const NAV_ORDER: { label: string; slugs: string[] }[] = [
-  { label: "Get started", slugs: ["getting-started", "quickstart"] },
-  { label: "Core concepts", slugs: ["conventions", "auth-and-sessions", "errors", "rest-api-principles"] },
-  { label: "Build", slugs: ["developer-api", "examples", "mobile", "deployment"] },
+  { label: "Getting Started", slugs: ["getting-started", "quickstart", "developer-api"] },
+  { label: "Core Concepts", slugs: ["auth-and-sessions", "conventions", "errors", "rest-api-principles"] },
+  { label: "Guides", slugs: ["examples", "mobile", "deployment"] },
 ];
 
 export function buildNav(docs: { slug: string; title: string }[]): NavGroup[] {

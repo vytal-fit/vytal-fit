@@ -1,11 +1,9 @@
 ---
 title: Mobile Integration
 category:
-  uri: developer
+  uri: Guides
 slug: mobile
-parent:
-  uri: developer-api
-position: 5
+position: 1
 ---
 
 The mobile app uses the same public API host as the browser apps, but it reads a
