@@ -165,4 +165,50 @@ describe("bookings.listByClass", () => {
       h.callerA.bookings.listByClass({ classId: "" }),
     ).rejects.toMatchObject({ code: "BAD_REQUEST" });
   });
+
+  it("includes the member email", async () => {
+    const rows = await h.callerA.bookings.listByClass({ classId: IDS.classA });
+    expect(rows.every((b) => typeof b.memberEmail === "string")).toBe(true);
+  });
+});
+
+describe("bookings.setAttendance", () => {
+  it("marks a booking checked_in and stamps checkedInAt", async () => {
+    const booking = await h.callerA.bookings.book({
+      classId: IDS.classA,
+      memberId: IDS.memberA3,
+    });
+    const updated = await h.callerA.bookings.setAttendance({
+      id: booking!.id,
+      status: "checked_in",
+    });
+    expect(updated?.status).toBe("checked_in");
+    expect(updated?.checkedInAt).toBeInstanceOf(Date);
+
+    const reverted = await h.callerA.bookings.setAttendance({
+      id: booking!.id,
+      status: "no_show",
+    });
+    expect(reverted?.status).toBe("no_show");
+    expect(reverted?.checkedInAt).toBeNull();
+  });
+
+  it("athlete gets FORBIDDEN (staff+)", async () => {
+    await expect(
+      h.callerAthleteA.bookings.setAttendance({ id: IDS.bookingA, status: "checked_in" }),
+    ).rejects.toMatchObject({ code: "FORBIDDEN" });
+  });
+
+  it("cross-tenant: org B caller cannot mark an org A booking (NOT_FOUND)", async () => {
+    await expect(
+      h.callerB.bookings.setAttendance({ id: IDS.bookingA, status: "checked_in" }),
+    ).rejects.toMatchObject({ code: "NOT_FOUND" });
+  });
+
+  it("rejects an invalid status (Zod)", async () => {
+    await expect(
+      // @ts-expect-error — waitlisted is not an attendance status
+      h.callerA.bookings.setAttendance({ id: IDS.bookingA, status: "waitlisted" }),
+    ).rejects.toMatchObject({ code: "BAD_REQUEST" });
+  });
 });

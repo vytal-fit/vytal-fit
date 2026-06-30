@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useDataStore } from "@/stores/data-store";
+import { useCallback, useMemo } from "react";
+import { trpc } from "@/lib/trpc";
 import {
   ArrowLeft,
   Users,
@@ -34,45 +34,89 @@ export default function ClassAttendancePage() {
   const { t } = useI18n();
   const params = useParams();
   const id = params.id as string;
-  const storeClasses = useDataStore((s) => s.classes);
-  const storeMembers = useDataStore((s) => s.members);
-  const cls = storeClasses.find((c) => c.id === id);
+  const utils = trpc.useUtils();
 
-  if (!cls) {
+  const classQuery = trpc.classes.byId.useQuery({ id });
+  const classTypesQuery = trpc.classTypes.list.useQuery();
+  const locationsQuery = trpc.locations.list.useQuery();
+  const coachesQuery = trpc.coaches.list.useQuery();
+  const rosterQuery = trpc.bookings.listByClass.useQuery({ classId: id });
+
+  const setAttendanceMut = trpc.bookings.setAttendance.useMutation({
+    onSuccess: () => utils.bookings.listByClass.invalidate({ classId: id }),
+  });
+
+  const row = classQuery.data;
+  const cls = useMemo(() => {
+    if (!row) return undefined;
+    return {
+      ...row,
+      classType:
+        classTypesQuery.data?.find((ct) => ct.id === row.classTypeId) ?? {
+          name: "-",
+          color: "#888888",
+        },
+      location: locationsQuery.data?.find((l) => l.id === row.locationId) ?? { name: "-" },
+      coaches: row.coachIds
+        .map((cid) => coachesQuery.data?.find((c) => c.id === cid))
+        .filter((c): c is NonNullable<typeof c> => !!c),
+    };
+  }, [row, classTypesQuery.data, locationsQuery.data, coachesQuery.data]);
+
+  // Roster → attendee records. Booking statuses map onto the page's labels:
+  // confirmed → "enrolled"; checked_in/no_show/waitlisted pass through.
+  const STATUS_MAP: Record<string, AttendanceStatus> = {
+    confirmed: "enrolled",
+    checked_in: "checked_in",
+    no_show: "no_show",
+    waitlisted: "waitlisted",
+  };
+  const bookingIdByMember = useMemo(
+    () => Object.fromEntries((rosterQuery.data ?? []).map((b) => [b.memberId, b.id])),
+    [rosterQuery.data],
+  );
+  const attendees: AttendeeRecord[] = useMemo(
+    () =>
+      (rosterQuery.data ?? [])
+        .filter((b) => b.status !== "cancelled")
+        .map((b) => ({
+          memberId: b.memberId,
+          name: b.memberName,
+          initials: b.memberName.split(" ").map((n) => n[0]).join("").slice(0, 2),
+          memberNumber: b.memberNumber,
+          plan: "-",
+          status: STATUS_MAP[b.status] ?? "enrolled",
+        })),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [rosterQuery.data],
+  );
+
+  const handleCheckIn = useCallback(
+    (memberId: string) => {
+      const bookingId = bookingIdByMember[memberId];
+      if (bookingId) setAttendanceMut.mutate({ id: bookingId, status: "checked_in" });
+    },
+    [bookingIdByMember, setAttendanceMut],
+  );
+
+  const handleMarkNoShow = useCallback(
+    (memberId: string) => {
+      const bookingId = bookingIdByMember[memberId];
+      if (bookingId) setAttendanceMut.mutate({ id: bookingId, status: "no_show" });
+    },
+    [bookingIdByMember, setAttendanceMut],
+  );
+
+  if (classQuery.error?.data?.code === "NOT_FOUND") {
     notFound();
   }
-
-  // Build mock attendee list from members
-  const totalSlots = Math.min(cls.enrolledCount + cls.waitlistCount, storeMembers.length);
-  const initialAttendees: AttendeeRecord[] = storeMembers
-    .slice(0, totalSlots)
-    .map((member, i) => {
-      let status: AttendanceStatus;
-      if (i < 5) status = "checked_in";
-      else if (i < 8) status = "enrolled";
-      else if (i < 10) status = "no_show";
-      else status = "waitlisted";
-
-      const initials = member.name
-        .split(" ")
-        .map((n) => n[0])
-        .join("")
-        .slice(0, 2);
-
-      const planNames = ["Livre", "8x/mes", "12x/mes", "Trial"];
-      const plan = planNames[i % planNames.length];
-
-      return {
-        memberId: member.id,
-        name: member.name,
-        initials,
-        memberNumber: member.memberNumber,
-        plan,
-        status,
-      };
-    });
-
-  const [attendees, setAttendees] = useState<AttendeeRecord[]>(initialAttendees);
+  if (classQuery.isPending || !cls) {
+    return (
+      <div className="flex h-64 items-center justify-center">
+        <p className="text-vytal-muted">{t("ui.loading")}</p>
+      </div>
+    );
+  }
 
   const checkedIn = attendees.filter((a) => a.status === "checked_in").length;
   const enrolled = attendees.filter(
@@ -88,22 +132,6 @@ export default function ClassAttendancePage() {
   })();
 
   const capacityPct = Math.min((enrolled / cls.maxCapacity) * 100, 100);
-
-  function handleCheckIn(memberId: string) {
-    setAttendees((prev) =>
-      prev.map((a) =>
-        a.memberId === memberId ? { ...a, status: "checked_in" as const } : a
-      )
-    );
-  }
-
-  function handleMarkNoShow(memberId: string) {
-    setAttendees((prev) =>
-      prev.map((a) =>
-        a.memberId === memberId ? { ...a, status: "no_show" as const } : a
-      )
-    );
-  }
 
   const statusConfig: Record<
     AttendanceStatus,

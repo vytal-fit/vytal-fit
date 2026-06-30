@@ -3,7 +3,7 @@ import { and, count, desc, eq, inArray } from "drizzle-orm";
 import { bookings, classes, classTypes, coaches, gymMembers, locations } from "@vytal-fit/db";
 import { hasMinRole } from "@vytal-fit/shared";
 import { z } from "zod";
-import { orgProcedure, router } from "../trpc";
+import { orgProcedure, router, staffProcedure } from "../trpc";
 
 export const bookingsRouter = router({
   /**
@@ -351,6 +351,7 @@ export const bookingsRouter = router({
           checkedInAt: bookings.checkedInAt,
           memberName: gymMembers.name,
           memberNumber: gymMembers.memberNumber,
+          memberEmail: gymMembers.email,
         })
         .from(bookings)
         .innerJoin(gymMembers, eq(bookings.memberId, gymMembers.id))
@@ -361,5 +362,47 @@ export const bookingsRouter = router({
           ),
         )
         .orderBy(desc(bookings.bookedAt));
+    }),
+
+  /**
+   * Mark attendance for a single booking (staff+). `checked_in` stamps
+   * `checkedInAt`; reverting to `confirmed` or marking `no_show` clears it.
+   */
+  setAttendance: staffProcedure
+    .input(
+      z.object({
+        id: z.string().min(1),
+        status: z.enum(["confirmed", "checked_in", "no_show"]),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const [existing] = await ctx.db
+        .select({ id: bookings.id })
+        .from(bookings)
+        .where(
+          and(
+            eq(bookings.id, input.id),
+            eq(bookings.organizationId, ctx.activeOrganizationId),
+          ),
+        )
+        .limit(1);
+      if (!existing) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Booking not found." });
+      }
+
+      const [updated] = await ctx.db
+        .update(bookings)
+        .set({
+          status: input.status,
+          checkedInAt: input.status === "checked_in" ? new Date() : null,
+        })
+        .where(
+          and(
+            eq(bookings.id, input.id),
+            eq(bookings.organizationId, ctx.activeOrganizationId),
+          ),
+        )
+        .returning();
+      return updated;
     }),
 });

@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/lib/i18n";
-import { useDataStore } from "@/stores/data-store";
+import { trpc } from "@/lib/trpc";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 
 interface FeedbackResponse {
@@ -68,8 +68,14 @@ export default function ClassFeedbackPage() {
   const params = useParams();
   const classId = params.id as string;
 
-  const classes = useDataStore((s) => s.classes);
-  const cls = classes.find((c) => c.id === classId);
+  const classQuery = trpc.classes.byId.useQuery({ id: classId });
+  const classTypesQuery = trpc.classTypes.list.useQuery();
+  const classTypeName = classQuery.data
+    ? classTypesQuery.data?.find((ct) => ct.id === classQuery.data!.classTypeId)?.name
+    : undefined;
+  const cls = classQuery.data
+    ? { ...classQuery.data, classType: { name: classTypeName } }
+    : undefined;
 
   const avgRating = 4.7;
   const totalResponses = 14;

@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useCallback } from "react";
-import { useDataStore } from "@/stores/data-store";
+import { useState, useCallback, useMemo } from "react";
+import { trpc } from "@/lib/trpc";
 import {
   MapPin,
   User,
@@ -38,76 +38,121 @@ export default function ClassDetailPage() {
   const { toast } = useToast();
   const params = useParams();
   const id = params.id as string;
-  const storeClasses = useDataStore((s) => s.classes);
-  const storeMembers = useDataStore((s) => s.members);
-  const cls = storeClasses.find((c) => c.id === id);
+  const utils = trpc.useUtils();
 
-  // Local attendance state
-  const [attendance, setAttendance] = useState<Record<string, AttendanceStatus>>(() => {
-    if (!cls) return {};
-    const initial: Record<string, AttendanceStatus> = {};
-    storeMembers.slice(0, Math.min(cls.enrolledCount, storeMembers.length)).forEach((m) => {
-      initial[m.id] = "confirmed";
-    });
-    return initial;
+  const classQuery = trpc.classes.byId.useQuery({ id });
+  const classTypesQuery = trpc.classTypes.list.useQuery();
+  const locationsQuery = trpc.locations.list.useQuery();
+  const coachesQuery = trpc.coaches.list.useQuery();
+  const rosterQuery = trpc.bookings.listByClass.useQuery({ classId: id });
+  const membersQuery = trpc.members.list.useQuery({});
+
+  const invalidateRoster = useCallback(
+    () => utils.bookings.listByClass.invalidate({ classId: id }),
+    [utils, id],
+  );
+  const setAttendanceMut = trpc.bookings.setAttendance.useMutation({
+    onSuccess: invalidateRoster,
   });
+  const bookMut = trpc.bookings.book.useMutation({ onSuccess: invalidateRoster });
 
-  const [, setShowAddMember] = useState(false);
   const [showQrScanner, setShowQrScanner] = useState(false);
 
-  const handleCheckIn = useCallback((memberId: string, memberName: string) => {
-    setAttendance((prev) => ({ ...prev, [memberId]: "checked_in" }));
-    toast(t("classDetail.checkedIn").replace("{name}", memberName), "success");
-  }, [toast, t]);
+  const row = classQuery.data;
+  const cls = useMemo(() => {
+    if (!row) return undefined;
+    return {
+      ...row,
+      classType:
+        classTypesQuery.data?.find((ct) => ct.id === row.classTypeId) ?? {
+          name: "-",
+          color: "#888888",
+          abbreviation: "",
+        },
+      location: locationsQuery.data?.find((l) => l.id === row.locationId) ?? { name: "-" },
+      coaches: row.coachIds
+        .map((cid) => coachesQuery.data?.find((c) => c.id === cid))
+        .filter((c): c is NonNullable<typeof c> => !!c),
+    };
+  }, [row, classTypesQuery.data, locationsQuery.data, coachesQuery.data]);
 
-  const handleNoShow = useCallback((memberId: string, memberName: string) => {
-    setAttendance((prev) => ({ ...prev, [memberId]: "no_show" }));
-    toast(t("classDetail.markedNoShow").replace("{name}", memberName), "info");
-  }, [toast, t]);
+  // Active roster (exclude cancelled + waitlisted — the waitlist has its own view).
+  const roster = useMemo(
+    () =>
+      (rosterQuery.data ?? []).filter(
+        (b) => b.status !== "cancelled" && b.status !== "waitlisted",
+      ),
+    [rosterQuery.data],
+  );
+  const attendance = useMemo<Record<string, AttendanceStatus>>(
+    () => Object.fromEntries(roster.map((b) => [b.memberId, b.status as AttendanceStatus])),
+    [roster],
+  );
+  const bookingIdByMember = useMemo(
+    () => Object.fromEntries(roster.map((b) => [b.memberId, b.id])),
+    [roster],
+  );
+  const enrolledMembers = useMemo(
+    () => roster.map((b) => ({ id: b.memberId, name: b.memberName, email: b.memberEmail })),
+    [roster],
+  );
+
+  const handleCheckIn = useCallback(
+    (memberId: string, memberName: string) => {
+      const bookingId = bookingIdByMember[memberId];
+      if (!bookingId) return;
+      setAttendanceMut.mutate({ id: bookingId, status: "checked_in" });
+      toast(t("classDetail.checkedIn").replace("{name}", memberName), "success");
+    },
+    [bookingIdByMember, setAttendanceMut, toast, t],
+  );
+
+  const handleNoShow = useCallback(
+    (memberId: string, memberName: string) => {
+      const bookingId = bookingIdByMember[memberId];
+      if (!bookingId) return;
+      setAttendanceMut.mutate({ id: bookingId, status: "no_show" });
+      toast(t("classDetail.markedNoShow").replace("{name}", memberName), "info");
+    },
+    [bookingIdByMember, setAttendanceMut, toast, t],
+  );
 
   const handleCheckInAll = useCallback(() => {
-    setAttendance((prev) => {
-      const next = { ...prev };
-      Object.keys(next).forEach((id) => {
-        if (next[id] === "confirmed") next[id] = "checked_in";
-      });
-      return next;
-    });
+    roster
+      .filter((b) => b.status === "confirmed")
+      .forEach((b) => setAttendanceMut.mutate({ id: b.id, status: "checked_in" }));
     toast(t("classDetail.allCheckedIn"), "success");
-  }, [toast, t]);
+  }, [roster, setAttendanceMut, toast, t]);
 
   const handleQrScan = useCallback(() => {
     setShowQrScanner(true);
+    const firstConfirmed = roster.find((b) => b.status === "confirmed");
     setTimeout(() => {
-      // Simulate QR scan — check in first confirmed member
-      const firstConfirmed = Object.entries(attendance).find(([, s]) => s === "confirmed");
-      if (firstConfirmed) {
-        const member = storeMembers.find((m) => m.id === firstConfirmed[0]);
-        if (member) handleCheckIn(member.id, member.name);
-      }
+      if (firstConfirmed) handleCheckIn(firstConfirmed.memberId, firstConfirmed.memberName);
       setShowQrScanner(false);
       toast(t("classDetail.qrScanned"), "success");
     }, 1500);
-  }, [attendance, storeMembers, handleCheckIn, toast, t]);
+  }, [roster, handleCheckIn, toast, t]);
 
   const handleAddWalkIn = useCallback(() => {
-    // Find a member not in attendance yet
-    const available = storeMembers.find((m) => !attendance[m.id]);
-    if (available) {
-      setAttendance((prev) => ({ ...prev, [available.id]: "checked_in" }));
-      toast(t("classDetail.walkInAdded").replace("{name}", available.name), "success");
-    }
-    setShowAddMember(false);
-  }, [storeMembers, attendance, toast, t]);
+    // Book the first org member not already on this class's roster.
+    const booked = new Set(roster.map((b) => b.memberId));
+    const available = (membersQuery.data?.items ?? []).find((m) => !booked.has(m.id));
+    if (!available) return;
+    bookMut.mutate({ classId: id, memberId: available.id });
+    toast(t("classDetail.walkInAdded").replace("{name}", available.name), "success");
+  }, [roster, membersQuery.data, bookMut, id, toast, t]);
 
-  if (!cls) {
+  if (classQuery.error?.data?.code === "NOT_FOUND") {
     notFound();
   }
-
-  const enrolledIds = Object.keys(attendance);
-  const enrolledMembers = enrolledIds
-    .map((id) => storeMembers.find((m) => m.id === id))
-    .filter(Boolean) as typeof storeMembers;
+  if (classQuery.isPending || !cls) {
+    return (
+      <div className="flex h-64 items-center justify-center">
+        <p className="text-vytal-muted">{t("ui.loading")}</p>
+      </div>
+    );
+  }
 
   const checkedInCount = Object.values(attendance).filter((s) => s === "checked_in").length;
   const confirmedCount = Object.values(attendance).filter((s) => s === "confirmed").length;
