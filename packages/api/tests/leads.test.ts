@@ -272,3 +272,27 @@ describe("leads.delete", () => {
     expect(rows.some((l) => l.id === IDS.leadA2)).toBe(false);
   });
 });
+
+describe("leads.activityLog + stats", () => {
+  it("activityLog returns org A entries with lead names", async () => {
+    // Ensure at least one activity exists.
+    await h.callerA.leads.logActivity({ leadId: IDS.leadA, type: "note", title: "Stats note" });
+    const log = await h.callerA.leads.activityLog({});
+    expect(log.length).toBeGreaterThanOrEqual(1);
+    expect(log.every((e) => typeof e.leadName === "string")).toBe(true);
+  });
+
+  it("stats returns 6-month leads + source/conversion breakdowns", async () => {
+    const s = await h.callerA.leads.stats();
+    expect(s.leadsPerMonth).toHaveLength(6);
+    expect(Array.isArray(s.leadsBySource)).toBe(true);
+    expect(Array.isArray(s.conversionBySource)).toBe(true);
+    expect(typeof s.activeLeads).toBe("number");
+  });
+
+  it("activityLog requires a session", async () => {
+    await expect(h.callerNoSession.leads.activityLog({})).rejects.toMatchObject({
+      code: "UNAUTHORIZED",
+    });
+  });
+});

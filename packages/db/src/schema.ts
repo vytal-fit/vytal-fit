@@ -887,6 +887,8 @@ export const leadActivities = pgTable(
     type: leadActivityTypeEnum("type").notNull(),
     title: text("title").notNull(),
     details: text("details"),
+    /** Staff member who performed the action (display name). */
+    createdBy: text("created_by"),
     createdAt: timestamp("created_at").notNull().defaultNow(),
   },
   (t) => [

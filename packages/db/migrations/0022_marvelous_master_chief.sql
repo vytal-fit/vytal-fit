@@ -1,0 +1,1 @@
+ALTER TABLE "lead_activities" ADD COLUMN "created_by" text;

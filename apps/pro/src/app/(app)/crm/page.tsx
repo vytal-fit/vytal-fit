@@ -127,33 +127,6 @@ function formatRelative(dateStr: string): string {
   return date.toLocaleDateString("pt-PT", { day: "2-digit", month: "short" });
 }
 
-// ─── Statistics Data ─────────────────────────────────────
-
-const leadsPerMonthData = [
-  { month: "Jan", leads: 12 },
-  { month: "Feb", leads: 19 },
-  { month: "Mar", leads: 15 },
-  { month: "Apr", leads: 22 },
-  { month: "May", leads: 28 },
-  { month: "Jun", leads: 18 },
-];
-
-const leadSourcesData = [
-  { name: "Instagram", value: 30, color: "#E1306C" },
-  { name: "Facebook", value: 25, color: "#1877F2" },
-  { name: "Website", value: 20, color: "#3dd96e" },
-  { name: "Walk-in", value: 15, color: "#f59e0b" },
-  { name: "Referral", value: 10, color: "#8b5cf6" },
-];
-
-const conversionBySourceData = [
-  { source: "Instagram", rate: 35 },
-  { source: "Facebook", rate: 28 },
-  { source: "Website", rate: 42 },
-  { source: "Walk-in", rate: 55 },
-  { source: "Referral", rate: 65 },
-];
-
 // ─── Activity Log Data ───────────────────────────────────
 
 type ActivityType = "lead_created" | "email_sent" | "call_logged" | "trial_booked" | "stage_changed" | "note_added" | "lead_lost" | "lead_converted";
@@ -177,19 +150,6 @@ const activityTypeLabels: Record<ActivityType, string> = {
   lead_lost: "Lead Lost",
   lead_converted: "Lead Converted",
 };
-
-const mockActivityLog: ActivityEntry[] = [
-  { id: "a-1", timestamp: "2026-06-04T14:30:00Z", user: "Andre Loureiro", type: "lead_created", action: "Created new lead", leadName: "Ricardo Alves" },
-  { id: "a-2", timestamp: "2026-06-04T13:15:00Z", user: "Marine Robba", type: "email_sent", action: "Sent welcome email to", leadName: "Sofia Mendes" },
-  { id: "a-3", timestamp: "2026-06-04T11:45:00Z", user: "Andre Loureiro", type: "call_logged", action: "Logged phone call with", leadName: "Tiago Neves" },
-  { id: "a-4", timestamp: "2026-06-04T10:00:00Z", user: "Ricardo Ribeiro", type: "trial_booked", action: "Booked trial class for", leadName: "Helena Cardoso" },
-  { id: "a-5", timestamp: "2026-06-03T18:30:00Z", user: "Andre Loureiro", type: "stage_changed", action: "Changed stage from Lead to Contacted for", leadName: "Diogo Martins" },
-  { id: "a-6", timestamp: "2026-06-03T16:00:00Z", user: "Marine Robba", type: "note_added", action: "Added note to", leadName: "Catarina Reis" },
-  { id: "a-7", timestamp: "2026-06-03T14:20:00Z", user: "Ricardo Ribeiro", type: "email_sent", action: "Sent trial confirmation to", leadName: "Rui Goncalves" },
-  { id: "a-8", timestamp: "2026-06-03T11:00:00Z", user: "Andre Loureiro", type: "lead_lost", action: "Marked as lost:", leadName: "Francisca Nunes" },
-  { id: "a-9", timestamp: "2026-06-02T17:45:00Z", user: "Marine Robba", type: "lead_converted", action: "Converted to member:", leadName: "Bruno Pereira" },
-  { id: "a-10", timestamp: "2026-06-02T09:30:00Z", user: "Ricardo Ribeiro", type: "stage_changed", action: "Changed stage from Prospect to Trial Booked for", leadName: "Mariana Lopes" },
-];
 
 const activityTypeColors: Record<ActivityType, string> = {
   lead_created: "bg-vytal-green",
@@ -217,29 +177,35 @@ const activityTypeIcons: Record<ActivityType, React.ReactNode> = {
 
 function StatisticsView() {
   const { t } = useI18n();
+  const statsQuery = trpc.leads.stats.useQuery();
+  const s = statsQuery.data;
+  const leadsPerMonthData = s?.leadsPerMonth ?? [];
+  const leadSourcesData = s?.leadsBySource ?? [];
+  const conversionBySourceData = s?.conversionBySource ?? [];
+  const totalLeads = leadSourcesData.reduce((sum, x) => sum + x.value, 0);
+  const overallConversion =
+    totalLeads && s ? Math.round((s.convertedThisMonth / totalLeads) * 100) : 0;
   return (
     <div className="space-y-6">
       {/* Stats Cards */}
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <div className="rounded-xl border border-vytal-border bg-vytal-card p-5 card-interactive">
-          <p className="text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("crm.stats.avgDaysToConvert")}</p>
-          <p className="mt-2 text-2xl font-bold text-vytal-text">12.4</p>
-          <p className="mt-1 text-xs text-vytal-green">-2.1 {t("crm.stats.vsLastMonth")}</p>
+          <p className="text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("crm.stats.conversion")}</p>
+          <p className="mt-2 text-2xl font-bold text-vytal-text">{overallConversion}%</p>
+          <p className="mt-1 text-xs text-vytal-muted">{totalLeads} leads</p>
         </div>
         <div className="rounded-xl border border-vytal-border bg-vytal-card p-5 card-interactive">
           <p className="text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("crm.stats.bestSource")}</p>
-          <p className="mt-2 text-2xl font-bold text-vytal-text">{t("crm.sourceReferral")}</p>
-          <p className="mt-1 text-xs text-vytal-green">65% {t("crm.stats.conversion")}</p>
+          <p className="mt-2 text-2xl font-bold text-vytal-text">{s?.bestSource ?? "—"}</p>
+          <p className="mt-1 text-xs text-vytal-green">{s?.bestSourceRate ?? 0}% {t("crm.stats.conversion")}</p>
         </div>
         <div className="rounded-xl border border-vytal-border bg-vytal-card p-5 card-interactive">
           <p className="text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("crm.stats.convertedThisMonth")}</p>
-          <p className="mt-2 text-2xl font-bold text-vytal-green">8</p>
-          <p className="mt-1 text-xs text-vytal-green">+3 {t("crm.stats.vsLastMonth")}</p>
+          <p className="mt-2 text-2xl font-bold text-vytal-green">{s?.convertedThisMonth ?? 0}</p>
         </div>
         <div className="rounded-xl border border-vytal-border bg-vytal-card p-5 card-interactive">
-          <p className="text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("crm.stats.pipelineValueLabel")}</p>
-          <p className="mt-2 text-2xl font-bold text-vytal-text">1,125 EUR</p>
-          <p className="mt-1 text-xs text-vytal-amber">15 {t("crm.stats.activeLeads")}</p>
+          <p className="text-xs font-medium uppercase tracking-wider text-vytal-muted">{t("crm.stats.activeLeads")}</p>
+          <p className="mt-2 text-2xl font-bold text-vytal-text">{s?.activeLeads ?? 0}</p>
         </div>
       </div>
 
@@ -325,20 +291,42 @@ function ActivityLogView() {
   const [typeFilter, setTypeFilter] = useState<ActivityType | "all">("all");
   const [userFilter, setUserFilter] = useState<string>("all");
 
-  const uniqueUsers = useMemo(() => {
-    const users = new Set(mockActivityLog.map((a) => a.user));
-    return Array.from(users);
-  }, []);
+  // Real org-wide CRM activity feed (lead_activities joined with lead names).
+  const logQuery = trpc.leads.activityLog.useQuery({});
+  const DB_TO_UI: Record<string, ActivityType> = {
+    stage_change: "stage_changed",
+    note: "note_added",
+    email: "email_sent",
+    call: "call_logged",
+    booking: "trial_booked",
+    whatsapp: "note_added",
+    sms: "note_added",
+  };
+  const log: ActivityEntry[] = useMemo(
+    () =>
+      (logQuery.data ?? []).map((a) => ({
+        id: a.id,
+        timestamp: new Date(a.createdAt).toISOString(),
+        user: a.createdBy ?? "Staff",
+        type: DB_TO_UI[a.type] ?? "note_added",
+        action: a.title,
+        leadName: a.leadName,
+      })),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [logQuery.data],
+  );
+
+  const uniqueUsers = useMemo(() => Array.from(new Set(log.map((a) => a.user))), [log]);
 
   const activityTypes: ActivityType[] = ["lead_created", "email_sent", "call_logged", "trial_booked", "stage_changed", "note_added", "lead_lost", "lead_converted"];
 
   const filteredLog = useMemo(() => {
-    return mockActivityLog.filter((entry) => {
+    return log.filter((entry) => {
       if (typeFilter !== "all" && entry.type !== typeFilter) return false;
       if (userFilter !== "all" && entry.user !== userFilter) return false;
       return true;
     });
-  }, [typeFilter, userFilter]);
+  }, [log, typeFilter, userFilter]);
 
   return (
     <div className="space-y-4">
