@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/stores/auth-store";
-import { useDataStore } from "@/stores/data-store";
+import { trpc } from "@/lib/trpc";
 import { useI18n } from "@/lib/i18n";
 
 function getGreetingKey(): string {
@@ -40,7 +40,6 @@ function getMotivationalQuoteKey(): string {
 }
 
 // Weekly streak calendar — last 7 days
-const WEEKLY_KEY = "vytal-console-checkins";
 function getWeekDays(): { date: string; label: string; isToday: boolean }[] {
   const days = [];
   for (let i = 6; i >= 0; i--) {
@@ -55,27 +54,30 @@ function getWeekDays(): { date: string; label: string; isToday: boolean }[] {
   return days;
 }
 
-function loadCheckins(): Set<string> {
-  if (typeof window === "undefined") return new Set();
-  try {
-    const raw = localStorage.getItem(WEEKLY_KEY);
-    return raw ? new Set(JSON.parse(raw) as string[]) : new Set();
-  } catch {
-    return new Set();
-  }
-}
-
 export default function ConsolePage() {
   const { user, hydrate } = useAuthStore();
-  const { classes, wods, personalRecords, members } = useDataStore();
   const { t } = useI18n();
+  const today = new Date().toISOString().split("T")[0];
+
+  const meQuery = trpc.members.me.useQuery();
+  const memberId = meQuery.data?.id ?? null;
+  const scheduleQuery = trpc.classes.schedule.useQuery({ from: today, to: today });
+  const wodsQuery = trpc.wods.list.useQuery();
+  const exercisesQuery = trpc.exercises.list.useQuery();
+  const prQuery = trpc.personalRecords.list.useQuery(
+    { memberId: memberId ?? "" },
+    { enabled: !!memberId },
+  );
+  const wellnessQuery = trpc.wellnessCheckins.list.useQuery(
+    { memberId: memberId ?? "" },
+    { enabled: !!memberId },
+  );
+
   const [mounted, setMounted] = useState(false);
-  const [checkins, setCheckins] = useState<Set<string>>(new Set());
   const weekDays = getWeekDays();
 
   useEffect(() => {
     hydrate();
-    setCheckins(loadCheckins());
     setMounted(true);
   }, [hydrate]);
 
@@ -91,16 +93,17 @@ export default function ConsolePage() {
   }
 
   const firstName = user?.user?.name?.split(" ")[0] ?? "Atleta";
-  const member = members?.[0];
-  const streakWeeks = member?.streakWeeks ?? 8;
-  const totalCheckIns = member?.totalCheckIns ?? 142;
-  const today = new Date().toISOString().split("T")[0];
-  const todayClasses = (classes ?? []).filter((c) => c.date === today);
+  const member = meQuery.data ?? null;
+  const streakWeeks = member?.streakWeeks ?? 0;
+  const totalCheckIns = member?.totalCheckIns ?? 0;
+  const todayClasses = (scheduleQuery.data ?? []).filter((c) => c.date === today);
   const now = new Date();
   const nowTime = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
   const nextClass = todayClasses.find((c) => c.startTime >= nowTime) ?? todayClasses[0];
-  const todayWOD = (wods ?? []).find((w) => w.date === today);
-  const prCount = (personalRecords ?? []).length;
+  const todayWOD = (wodsQuery.data ?? []).find((w) => w.date === today && w.publishedAt != null);
+  const prCount = prQuery.data?.items.length ?? 0;
+  const checkins = new Set((wellnessQuery.data?.items ?? []).map((c) => c.date));
+  const exMap = new Map((exercisesQuery.data ?? []).map((e) => [e.id, e.name] as const));
 
   const classColor = nextClass?.classType?.color ?? "#22c55e";
 
@@ -429,7 +432,7 @@ export default function ConsolePage() {
                             {part.name}
                           </p>
                           <p className="text-[10px] truncate" style={{ color: "var(--color-vytal-muted)" }}>
-                            {part.exercises.slice(0, 2).map((e) => e.exercise?.name).filter(Boolean).join(" · ")}
+                            {part.exercises.slice(0, 2).map((e) => exMap.get(e.exerciseId)).filter(Boolean).join(" · ")}
                             {part.exercises.length > 2 ? ` +${part.exercises.length - 2}` : ""}
                           </p>
                         </div>
