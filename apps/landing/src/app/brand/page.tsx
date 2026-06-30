@@ -499,20 +499,13 @@ export default function BrandPage() {
             {TYPE_SCALE.map((row) => (
               <div
                 key={row.name}
-                className="grid grid-cols-[88px_1fr] sm:grid-cols-[150px_1fr] gap-5 items-baseline border-t first:border-t-0 py-5 border-[var(--b-hair)]"
+                className="flex items-baseline justify-between gap-6 border-t first:border-t-0 py-5 border-[var(--b-hair)]"
               >
-                {/* meta rail */}
-                <div className="min-w-0">
-                  <div className="text-[12.5px] font-semibold text-[var(--b-text)]">{row.name}</div>
-                  <div className="font-mono text-[10.5px] leading-relaxed text-[var(--b-muted)] mt-1">
-                    <div>{row.px} / {Math.round(row.px * row.lh)}px</div>
-                    <div>{row.w} · {row.tr === "0" ? "0 tr" : row.tr}</div>
-                  </div>
-                </div>
-                {/* specimen — overflow-x-clip keeps descenders (the y leg) visible */}
-                <div className="min-w-0 overflow-x-clip">
+                {/* specimen — overflow-x-clip clips only horizontally, so the y
+                    descender is never cut by the row below */}
+                <div className="min-w-0 flex-1 overflow-x-clip">
                   <span
-                    className={`${row.mono ? "font-mono" : "font-sans"} block whitespace-nowrap ${row.mono ? "text-[var(--b-muted)]" : "text-[var(--b-text)]"}`}
+                    className={`${row.mono ? "font-mono" : "font-sans"} inline-block whitespace-nowrap align-baseline ${row.mono ? "text-[var(--b-muted)]" : "text-[var(--b-text)]"}`}
                     style={{
                       fontSize: row.px,
                       fontWeight: row.w,
@@ -524,6 +517,10 @@ export default function BrandPage() {
                     {row.sample}
                   </span>
                 </div>
+                {/* spec — single line, right-aligned */}
+                <span className="shrink-0 font-mono text-[10.5px] tracking-[0.12em] uppercase text-[var(--b-muted)] text-right">
+                  {row.name} · {row.px}/{Math.round(row.px * row.lh)} · {row.w}
+                </span>
               </div>
             ))}
           </div>
