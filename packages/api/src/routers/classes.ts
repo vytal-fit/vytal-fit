@@ -1,6 +1,6 @@
 import { TRPCError } from "@trpc/server";
-import { and, asc, count, eq, gte, inArray, isNull, lte } from "drizzle-orm";
-import { bookings, classes, classTypes, coaches, locations } from "@vytal-fit/db";
+import { and, asc, count, desc, eq, gte, inArray, isNull, lt, lte } from "drizzle-orm";
+import { bookings, classes, classTypes, coaches, gymMembers, locations } from "@vytal-fit/db";
 import { z } from "zod";
 import { orgProcedure, router, staffProcedure } from "../trpc";
 
@@ -237,5 +237,114 @@ export const classesRouter = router({
         throw new TRPCError({ code: "NOT_FOUND", message: "Class not found." });
       }
       return cancelled;
+    }),
+
+  /**
+   * Past-class history with attendance, derived from real classes + bookings:
+   * per-class enrolled/attended/no-shows + attendee names, plus weekly
+   * attendance trend and average-attendance-by-type.
+   */
+  history: orgProcedure
+    .input(z.object({ limit: z.number().int().min(1).max(500).default(120) }).default({ limit: 120 }))
+    .query(async ({ ctx, input }) => {
+      const org = ctx.activeOrganizationId;
+      const today = new Date().toISOString().slice(0, 10);
+
+      const past = await ctx.db
+        .select()
+        .from(classes)
+        .where(and(eq(classes.organizationId, org), lt(classes.date, today)))
+        .orderBy(desc(classes.date), desc(classes.startTime))
+        .limit(input.limit);
+
+      if (past.length === 0) {
+        return { entries: [], attendanceTrend: [], attendanceByType: [], noShowsByType: [] };
+      }
+
+      const classIds = past.map((c) => c.id);
+      const [bks, cts, cos, locs] = await Promise.all([
+        ctx.db
+          .select({ classId: bookings.classId, status: bookings.status, memberName: gymMembers.name })
+          .from(bookings)
+          .innerJoin(gymMembers, eq(bookings.memberId, gymMembers.id))
+          .where(and(eq(bookings.organizationId, org), inArray(bookings.classId, classIds))),
+        ctx.db.select({ id: classTypes.id, name: classTypes.name, color: classTypes.color }).from(classTypes).where(eq(classTypes.organizationId, org)),
+        ctx.db.select({ id: coaches.id, name: coaches.name }).from(coaches).where(eq(coaches.organizationId, org)),
+        ctx.db.select({ id: locations.id, name: locations.name }).from(locations).where(eq(locations.organizationId, org)),
+      ]);
+
+      const ctMap = new Map(cts.map((c) => [c.id, c]));
+      const coMap = new Map(cos.map((c) => [c.id, c.name]));
+      const locMap = new Map(locs.map((l) => [l.id, l.name]));
+      const byClass = new Map<string, { enrolled: number; attended: number; noShows: number; attendees: string[] }>();
+      for (const b of bks) {
+        const e = byClass.get(b.classId) ?? { enrolled: 0, attended: 0, noShows: 0, attendees: [] };
+        if (b.status === "cancelled" || b.status === "waitlisted") {
+          // ignore for attendance
+        } else {
+          e.enrolled += 1;
+          if (b.status === "checked_in") {
+            e.attended += 1;
+            e.attendees.push(b.memberName);
+          }
+          if (b.status === "no_show") e.noShows += 1;
+        }
+        byClass.set(b.classId, e);
+      }
+
+      const entries = past.map((c) => {
+        const ct = c.classTypeId ? ctMap.get(c.classTypeId) : undefined;
+        const agg = byClass.get(c.id) ?? { enrolled: 0, attended: 0, noShows: 0, attendees: [] };
+        return {
+          id: c.id,
+          date: c.date,
+          time: c.startTime,
+          classType: ct?.name ?? "—",
+          classTypeColor: ct?.color ?? "#6b8c72",
+          coach: c.coachIds.map((id) => coMap.get(id)).filter(Boolean).join(", ") || "—",
+          location: c.locationId ? locMap.get(c.locationId) ?? "—" : "—",
+          enrolled: agg.enrolled,
+          attended: agg.attended,
+          noShows: agg.noShows,
+          capacity: c.maxCapacity,
+          attendees: agg.attendees,
+        };
+      });
+
+      // Weekly attendance trend (last ~12 ISO weeks present in data).
+      const weekAvg = new Map<string, { sum: number; n: number }>();
+      for (const e of entries) {
+        const d = new Date(e.date);
+        const onejan = new Date(d.getFullYear(), 0, 1);
+        const week = Math.ceil((((d.getTime() - onejan.getTime()) / 86400000) + onejan.getDay() + 1) / 7);
+        const key = `${d.getFullYear()}-W${week}`;
+        const w = weekAvg.get(key) ?? { sum: 0, n: 0 };
+        w.sum += e.attended;
+        w.n += 1;
+        weekAvg.set(key, w);
+      }
+      const attendanceTrend = [...weekAvg.entries()]
+        .sort((a, b) => a[0].localeCompare(b[0]))
+        .slice(-12)
+        .map(([key, w], i) => ({ week: `W${i + 1}`, label: key, avg: Math.round((w.sum / w.n) * 10) / 10 }));
+
+      // Average attendance + no-shows by class type.
+      const typeAgg = new Map<string, { sum: number; n: number; noShows: number }>();
+      for (const e of entries) {
+        const t = typeAgg.get(e.classType) ?? { sum: 0, n: 0, noShows: 0 };
+        t.sum += e.attended;
+        t.n += 1;
+        t.noShows += e.noShows;
+        typeAgg.set(e.classType, t);
+      }
+      const attendanceByType = [...typeAgg.entries()].map(([type, t]) => ({
+        type,
+        avg: Math.round((t.sum / t.n) * 10) / 10,
+      }));
+      const noShowsByType = [...typeAgg.entries()]
+        .map(([type, t]) => ({ name: type, value: t.noShows }))
+        .filter((x) => x.value > 0);
+
+      return { entries, attendanceTrend, attendanceByType, noShowsByType };
     }),
 });

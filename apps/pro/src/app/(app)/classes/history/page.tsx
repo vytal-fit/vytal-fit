@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { useI18n } from "@/lib/i18n";
+import { trpc } from "@/lib/trpc";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import {
   Search,
@@ -48,50 +49,6 @@ interface HistoryEntry {
   attendees: string[];
 }
 
-// ---------------------------------------------------------------------------
-// Mock Data
-// ---------------------------------------------------------------------------
-
-const mockHistory: HistoryEntry[] = [
-  { id: "h1", date: "2026-06-04", time: "07:00", classType: "WOD", classTypeColor: "#22c55e", coach: "Ricardo Santos", location: "Main Box", enrolled: 18, attended: 17, noShows: 1, capacity: 20, attendees: ["Ana Silva", "Pedro Almeida", "Sofia Santos", "Miguel Costa", "Ines Ferreira", "Tiago Neves", "Maria Oliveira", "Jose Fonte", "Carla Mendes", "Bruno Lopes", "Rita Fernandes", "Hugo Sousa", "Diana Pereira", "Luis Martins", "Joana Costa", "Filipe Rodrigues", "Teresa Lima"] },
-  { id: "h2", date: "2026-06-04", time: "09:00", classType: "Strength", classTypeColor: "#ff4757", coach: "Ana Martins", location: "Main Box", enrolled: 15, attended: 14, noShows: 1, capacity: 20, attendees: ["Pedro Almeida", "Sofia Santos", "Miguel Costa", "Ines Ferreira", "Tiago Neves", "Maria Oliveira", "Jose Fonte", "Carla Mendes", "Bruno Lopes", "Rita Fernandes", "Hugo Sousa", "Diana Pereira", "Luis Martins", "Joana Costa"] },
-  { id: "h3", date: "2026-06-04", time: "12:00", classType: "WOD", classTypeColor: "#22c55e", coach: "Ricardo Santos", location: "Main Box", enrolled: 12, attended: 11, noShows: 1, capacity: 20, attendees: ["Ana Silva", "Pedro Almeida", "Sofia Santos", "Miguel Costa", "Ines Ferreira", "Tiago Neves", "Maria Oliveira", "Jose Fonte", "Carla Mendes", "Bruno Lopes", "Rita Fernandes"] },
-  { id: "h4", date: "2026-06-04", time: "17:30", classType: "WOD", classTypeColor: "#22c55e", coach: "Ana Martins", location: "Main Box", enrolled: 20, attended: 19, noShows: 1, capacity: 20, attendees: ["Ana Silva", "Pedro Almeida", "Sofia Santos", "Miguel Costa", "Ines Ferreira", "Tiago Neves", "Maria Oliveira", "Jose Fonte", "Carla Mendes", "Bruno Lopes", "Rita Fernandes", "Hugo Sousa", "Diana Pereira", "Luis Martins", "Joana Costa", "Filipe Rodrigues", "Teresa Lima", "Marco Silva", "Patricia Reis"] },
-  { id: "h5", date: "2026-06-04", time: "18:30", classType: "Hyrox", classTypeColor: "#ffb300", coach: "Ricardo Santos", location: "Main Box", enrolled: 16, attended: 15, noShows: 1, capacity: 20, attendees: ["Ana Silva", "Pedro Almeida", "Sofia Santos", "Miguel Costa", "Ines Ferreira", "Tiago Neves", "Maria Oliveira", "Jose Fonte", "Carla Mendes", "Bruno Lopes", "Rita Fernandes", "Hugo Sousa", "Diana Pereira", "Luis Martins", "Joana Costa"] },
-  { id: "h6", date: "2026-06-03", time: "07:00", classType: "WOD", classTypeColor: "#22c55e", coach: "Ana Martins", location: "Main Box", enrolled: 16, attended: 15, noShows: 1, capacity: 20, attendees: ["Pedro Almeida", "Sofia Santos", "Miguel Costa", "Ines Ferreira", "Tiago Neves", "Maria Oliveira", "Jose Fonte", "Carla Mendes", "Bruno Lopes", "Rita Fernandes", "Hugo Sousa", "Diana Pereira", "Luis Martins", "Joana Costa", "Filipe Rodrigues"] },
-  { id: "h7", date: "2026-06-03", time: "09:00", classType: "Gymnastics", classTypeColor: "#c084fc", coach: "Ricardo Santos", location: "Sala 2", enrolled: 10, attended: 9, noShows: 1, capacity: 15, attendees: ["Ana Silva", "Pedro Almeida", "Sofia Santos", "Miguel Costa", "Ines Ferreira", "Tiago Neves", "Maria Oliveira", "Jose Fonte", "Carla Mendes"] },
-  { id: "h8", date: "2026-06-03", time: "12:00", classType: "Open Box", classTypeColor: "#00d4ff", coach: "—", location: "Main Box", enrolled: 8, attended: 7, noShows: 1, capacity: 20, attendees: ["Pedro Almeida", "Sofia Santos", "Miguel Costa", "Ines Ferreira", "Tiago Neves", "Maria Oliveira", "Jose Fonte"] },
-  { id: "h9", date: "2026-06-03", time: "17:30", classType: "WOD", classTypeColor: "#22c55e", coach: "Ana Martins", location: "Main Box", enrolled: 19, attended: 18, noShows: 1, capacity: 20, attendees: ["Ana Silva", "Pedro Almeida", "Sofia Santos", "Miguel Costa", "Ines Ferreira", "Tiago Neves", "Maria Oliveira", "Jose Fonte", "Carla Mendes", "Bruno Lopes", "Rita Fernandes", "Hugo Sousa", "Diana Pereira", "Luis Martins", "Joana Costa", "Filipe Rodrigues", "Teresa Lima", "Marco Silva"] },
-  { id: "h10", date: "2026-06-03", time: "18:30", classType: "Mobility", classTypeColor: "#6b8c72", coach: "Ricardo Santos", location: "Sala 2", enrolled: 6, attended: 6, noShows: 0, capacity: 15, attendees: ["Ana Silva", "Pedro Almeida", "Sofia Santos", "Miguel Costa", "Ines Ferreira", "Tiago Neves"] },
-  { id: "h11", date: "2026-06-02", time: "07:00", classType: "WOD", classTypeColor: "#22c55e", coach: "Ricardo Santos", location: "Main Box", enrolled: 17, attended: 16, noShows: 1, capacity: 20, attendees: [] },
-  { id: "h12", date: "2026-06-02", time: "09:00", classType: "Strength", classTypeColor: "#ff4757", coach: "Ana Martins", location: "Main Box", enrolled: 14, attended: 13, noShows: 1, capacity: 20, attendees: [] },
-  { id: "h13", date: "2026-06-02", time: "17:30", classType: "WOD", classTypeColor: "#22c55e", coach: "Ricardo Santos", location: "Main Box", enrolled: 20, attended: 18, noShows: 2, capacity: 20, attendees: [] },
-  { id: "h14", date: "2026-06-02", time: "18:30", classType: "Hyrox", classTypeColor: "#ffb300", coach: "Ana Martins", location: "Main Box", enrolled: 15, attended: 14, noShows: 1, capacity: 20, attendees: [] },
-  { id: "h15", date: "2026-06-01", time: "07:00", classType: "WOD", classTypeColor: "#22c55e", coach: "Ana Martins", location: "Main Box", enrolled: 15, attended: 14, noShows: 1, capacity: 20, attendees: [] },
-  { id: "h16", date: "2026-06-01", time: "09:00", classType: "Gymnastics", classTypeColor: "#c084fc", coach: "Ricardo Santos", location: "Sala 2", enrolled: 11, attended: 10, noShows: 1, capacity: 15, attendees: [] },
-  { id: "h17", date: "2026-06-01", time: "12:00", classType: "Open Box", classTypeColor: "#00d4ff", coach: "—", location: "Main Box", enrolled: 9, attended: 8, noShows: 1, capacity: 20, attendees: [] },
-  { id: "h18", date: "2026-06-01", time: "17:30", classType: "WOD", classTypeColor: "#22c55e", coach: "Ana Martins", location: "Main Box", enrolled: 19, attended: 17, noShows: 2, capacity: 20, attendees: [] },
-  { id: "h19", date: "2026-05-31", time: "07:00", classType: "WOD", classTypeColor: "#22c55e", coach: "Ricardo Santos", location: "Main Box", enrolled: 16, attended: 15, noShows: 1, capacity: 20, attendees: [] },
-  { id: "h20", date: "2026-05-31", time: "17:30", classType: "WOD", classTypeColor: "#22c55e", coach: "Ana Martins", location: "Main Box", enrolled: 18, attended: 17, noShows: 1, capacity: 20, attendees: [] },
-];
-
-const attendanceTrendData = [
-  { week: "W1", avg: 12.8 }, { week: "W2", avg: 13.1 }, { week: "W3", avg: 13.5 },
-  { week: "W4", avg: 14.2 }, { week: "W5", avg: 13.8 }, { week: "W6", avg: 14.5 },
-  { week: "W7", avg: 14.1 }, { week: "W8", avg: 15.0 }, { week: "W9", avg: 14.8 },
-  { week: "W10", avg: 14.3 }, { week: "W11", avg: 15.2 }, { week: "W12", avg: 14.9 },
-];
-
-const attendanceByTypeData = [
-  { type: "WOD", avg: 16.2 }, { type: "Strength", avg: 13.5 }, { type: "Hyrox", avg: 14.8 },
-  { type: "Gymnastics", avg: 9.5 }, { type: "Open Box", avg: 7.5 }, { type: "Mobility", avg: 5.8 },
-];
-
-const noShowReasonsData = [
-  { name: "Forgot", value: 35 }, { name: "Sick", value: 25 },
-  { name: "Work", value: 28 }, { name: "Other", value: 12 },
-];
-
 const noShowColors = ["#ffb300", "#ff4757", "#00d4ff", "#6b8c72"];
 
 // ---------------------------------------------------------------------------
@@ -123,8 +80,17 @@ export default function ClassHistoryPage() {
   const [filterType, setFilterType] = useState("all");
   const [filterCoach, setFilterCoach] = useState("all");
 
-  const classTypes = useMemo(() => [...new Set(mockHistory.map((h) => h.classType))], []);
-  const coaches = useMemo(() => [...new Set(mockHistory.map((h) => h.coach).filter((c) => c !== "—"))], []);
+  const historyQuery = trpc.classes.history.useQuery({});
+  const mockHistory: HistoryEntry[] = useMemo(
+    () => historyQuery.data?.entries ?? [],
+    [historyQuery.data],
+  );
+  const attendanceTrendData = historyQuery.data?.attendanceTrend ?? [];
+  const attendanceByTypeData = historyQuery.data?.attendanceByType ?? [];
+  const noShowReasonsData = historyQuery.data?.noShowsByType ?? [];
+
+  const classTypes = useMemo(() => [...new Set(mockHistory.map((h) => h.classType))], [mockHistory]);
+  const coaches = useMemo(() => [...new Set(mockHistory.map((h) => h.coach).filter((c) => c !== "—"))], [mockHistory]);
 
   const filtered = useMemo(() =>
     mockHistory.filter((h) => {
@@ -133,7 +99,7 @@ export default function ClassHistoryPage() {
       if (search && !h.classType.toLowerCase().includes(search.toLowerCase()) && !h.coach.toLowerCase().includes(search.toLowerCase())) return false;
       return true;
     }),
-    [search, filterType, filterCoach]
+    [mockHistory, search, filterType, filterCoach]
   );
 
   const totalClasses = filtered.length;
