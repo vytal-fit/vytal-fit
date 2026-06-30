@@ -10,6 +10,26 @@ interface UpdateCurrentSessionOptions {
   includeDeprecatedFields?: boolean;
 }
 
+function authErrorResponse(error: unknown): NextResponse {
+  const status =
+    typeof error === "object" &&
+    error !== null &&
+    "status" in error &&
+    typeof (error as { status?: unknown }).status === "number"
+      ? (error as { status: number }).status
+      : 401;
+  const message =
+    error instanceof Error && error.message ? error.message : "Unauthorized";
+
+  return NextResponse.json(
+    {
+      error: status === 401 ? "UNAUTHORIZED" : "AUTH_ERROR",
+      message,
+    },
+    { status },
+  );
+}
+
 export async function updateCurrentSession(
   request: Request,
   options: UpdateCurrentSessionOptions = {},
@@ -43,14 +63,19 @@ export async function updateCurrentSession(
     );
   }
 
-  await getAuth().api.setActiveOrganization({
-    body: { organizationId },
-    headers: request.headers,
-  });
+  let session;
+  try {
+    await getAuth().api.setActiveOrganization({
+      body: { organizationId },
+      headers: request.headers,
+    });
 
-  const session = await getAuth().api.getSession({
-    headers: request.headers,
-  });
+    session = await getAuth().api.getSession({
+      headers: request.headers,
+    });
+  } catch (error) {
+    return authErrorResponse(error);
+  }
   const activeOrganizationId = session?.session.activeOrganizationId ?? null;
 
   return NextResponse.json(

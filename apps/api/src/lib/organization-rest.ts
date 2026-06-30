@@ -1,6 +1,26 @@
 import { NextResponse } from "next/server";
 import { getAuth, isBackendConfigured } from "@/lib/auth-server";
 
+function authErrorResponse(error: unknown): NextResponse {
+  const status =
+    typeof error === "object" &&
+    error !== null &&
+    "status" in error &&
+    typeof (error as { status?: unknown }).status === "number"
+      ? (error as { status: number }).status
+      : 401;
+  const message =
+    error instanceof Error && error.message ? error.message : "Unauthorized";
+
+  return NextResponse.json(
+    {
+      error: status === 401 ? "UNAUTHORIZED" : "AUTH_ERROR",
+      message,
+    },
+    { status },
+  );
+}
+
 export async function listOrganizations(request: Request): Promise<NextResponse> {
   if (!isBackendConfigured()) {
     return NextResponse.json(
@@ -13,9 +33,14 @@ export async function listOrganizations(request: Request): Promise<NextResponse>
     );
   }
 
-  const organizations = await getAuth().api.listOrganizations({
-    headers: request.headers,
-  });
+  let organizations;
+  try {
+    organizations = await getAuth().api.listOrganizations({
+      headers: request.headers,
+    });
+  } catch (error) {
+    return authErrorResponse(error);
+  }
 
   return NextResponse.json(organizations, { status: 200 });
 }
@@ -35,10 +60,15 @@ export async function getOrganization(
     );
   }
 
-  const organization = await getAuth().api.getFullOrganization({
-    headers: request.headers,
-    query: { organizationId },
-  });
+  let organization;
+  try {
+    organization = await getAuth().api.getFullOrganization({
+      headers: request.headers,
+      query: { organizationId },
+    });
+  } catch (error) {
+    return authErrorResponse(error);
+  }
 
   if (!organization) {
     return NextResponse.json(
