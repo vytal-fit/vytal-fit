@@ -64,6 +64,13 @@
       "when": 1782813709993,
       "tag": "0008_silent_overlord",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1782823089237,
+      "tag": "0009_new_frightful_four",
+      "breakpoints": true
     }
   ]
 }

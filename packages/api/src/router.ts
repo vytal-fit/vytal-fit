@@ -15,6 +15,7 @@ import { personalRecordsRouter } from "./routers/personalRecords";
 import { subscriptionsRouter } from "./routers/subscriptions";
 import { supportTicketsRouter } from "./routers/supportTickets";
 import { uploadsRouter } from "./routers/uploads";
+import { wellnessCheckinsRouter } from "./routers/wellnessCheckins";
 import { wodResultsRouter } from "./routers/wodResults";
 import { wodsRouter } from "./routers/wods";
 import { workoutFeedbackRouter } from "./routers/workoutFeedback";
@@ -31,6 +32,7 @@ export const appRouter = router({
   wods: wodsRouter,
   wodResults: wodResultsRouter,
   workoutFeedback: workoutFeedbackRouter,
+  wellnessCheckins: wellnessCheckinsRouter,
   personalRecords: personalRecordsRouter,
   leads: leadsRouter,
   subscriptions: subscriptionsRouter,

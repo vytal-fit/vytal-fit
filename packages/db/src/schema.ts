@@ -545,6 +545,42 @@ export const workoutFeedback = pgTable(
   ],
 );
 
+/**
+ * Daily wellness check-in (F4): sleep, fatigue and stress on a 1–10 scale, plus
+ * optional mood and a note. One row per member per calendar day (upsert by
+ * org + member + date). Health-adjacent (RGPD Art. 9); at-rest encryption is
+ * deferred to the advanced wellness layer.
+ */
+export const wellnessCheckins = pgTable(
+  "wellness_checkins",
+  {
+    id: text("id").primaryKey(),
+    organizationId: text("organization_id")
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    memberId: text("member_id")
+      .notNull()
+      .references(() => gymMembers.id, { onDelete: "cascade" }),
+    date: date("date").notNull(),
+    sleep: integer("sleep"),
+    fatigue: integer("fatigue"),
+    stress: integer("stress"),
+    mood: integer("mood"),
+    notes: text("notes"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (t) => [
+    index("wellness_checkins_org_idx").on(t.organizationId),
+    index("wellness_checkins_org_member_idx").on(t.organizationId, t.memberId),
+    uniqueIndex("wellness_checkins_org_member_date_uk").on(
+      t.organizationId,
+      t.memberId,
+      t.date,
+    ),
+  ],
+);
+
 /** Personal records — mirrors shared `PersonalRecord` (+ organizationId for tenant isolation). */
 export const personalRecords = pgTable(
   "personal_records",
