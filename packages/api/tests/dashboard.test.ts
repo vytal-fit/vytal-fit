@@ -49,3 +49,27 @@ describe("dashboard.stats", () => {
     expect(statsB.activeMembers).toBe(1);
   });
 });
+
+describe("dashboard.stats (extended) + occupancyByDay", () => {
+  it("returns total members, MRR and occupancy as org-scoped numbers", async () => {
+    const stats = await h.callerA.dashboard.stats();
+    expect(stats.totalMembers).toBeGreaterThanOrEqual(stats.activeMembers);
+    expect(typeof stats.monthlyRevenue).toBe("number");
+    expect(stats.monthlyRevenue).toBeGreaterThanOrEqual(0);
+    expect(stats.occupancyPercent).toBeGreaterThanOrEqual(0);
+    expect(stats.occupancyPercent).toBeLessThanOrEqual(100);
+  });
+
+  it("occupancyByDay returns 7 days of 0–100 percentages", async () => {
+    const days = await h.callerA.dashboard.occupancyByDay();
+    expect(days).toHaveLength(7);
+    expect(days.every((d) => typeof d.date === "string")).toBe(true);
+    expect(days.every((d) => d.occupancy >= 0 && d.occupancy <= 100)).toBe(true);
+  });
+
+  it("occupancyByDay requires a session", async () => {
+    await expect(h.callerNoSession.dashboard.occupancyByDay()).rejects.toMatchObject({
+      code: "UNAUTHORIZED",
+    });
+  });
+});
