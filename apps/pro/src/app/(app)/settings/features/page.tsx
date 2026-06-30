@@ -8,7 +8,6 @@ import { useToast } from "@/components/toast";
 import { trpc } from "@/lib/trpc";
 import { Skeleton } from "@/components/skeleton";
 import { EmptyState } from "@/components/empty-state";
-import { useDataStore } from "@/stores/data-store";
 import { useAuthStore } from "@/stores/auth-store";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import {
@@ -46,9 +45,6 @@ const FEATURE_GROUPS: FeatureGroup[] = [
 export default function SettingsFeaturesPage() {
   const { t } = useI18n();
   const { toast } = useToast();
-  // Local mock-app store kept in sync on save so the rest of the (still mock)
-  // admin UI — e.g. sidebar feature gating — reflects the server state.
-  const updateOrgSettings = useDataStore((s) => s.updateOrgSettings);
   const user = useAuthStore((s) => s.user);
   const activeOrg = user?.memberships.find(
     (m) => m.organizationId === user.activeOrganizationId
@@ -60,9 +56,10 @@ export default function SettingsFeaturesPage() {
   const utils = trpc.useUtils();
   const settingsQuery = trpc.orgSettings.get.useQuery();
   const updateSettings = trpc.orgSettings.update.useMutation({
-    onSuccess: (saved) => {
+    onSuccess: () => {
+      // Server is the source of truth; invalidating refreshes every consumer
+      // sharing this query (e.g. the shell's nav feature gating).
       void utils.orgSettings.get.invalidate();
-      updateOrgSettings({ features: saved.features });
       toast(t("settings.saved"), "success");
     },
     onError: (error) =>
