@@ -313,6 +313,7 @@ export default function BrandPage() {
       </div>
 
       <div className="max-w-3xl mx-auto px-7 pt-16 pb-28">
+        {/* styleguide: identity, colour, type, tokens */}
         <p className="font-mono text-[11px] tracking-[0.34em] uppercase text-[#22c55e] mb-5">{t("eyebrow")}</p>
 
         {/* Hero */}
