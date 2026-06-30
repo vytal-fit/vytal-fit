@@ -5,6 +5,7 @@ category:
 slug: mobile
 parent:
   uri: developer-api
+position: 5
 ---
 
 The mobile app uses the same public API host as the browser apps, but it reads a

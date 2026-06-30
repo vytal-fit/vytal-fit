@@ -5,6 +5,7 @@ category:
 slug: errors
 parent:
   uri: developer-api
+position: 2
 ---
 
 Every error returns the same JSON shape, with the matching HTTP status:

@@ -5,6 +5,7 @@ category:
 slug: auth-and-sessions
 parent:
   uri: developer-api
+position: 0
 ---
 
 Auth runs on `api.vytal.fit` (Better Auth). One sign-in, two ways to carry the

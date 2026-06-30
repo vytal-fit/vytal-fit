@@ -3,6 +3,7 @@ title: Developer API
 category:
   uri: developer
 slug: developer-api
+position: 2
 ---
 
 Vytal’s public API lives on `api.vytal.fit`. The pro app lives on

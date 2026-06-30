@@ -5,6 +5,7 @@ category:
 slug: rest-api-principles
 parent:
   uri: developer-api
+position: 3
 ---
 
 The public API is intentionally resource-oriented.

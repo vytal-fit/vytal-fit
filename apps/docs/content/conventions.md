@@ -5,6 +5,7 @@ category:
 slug: conventions
 parent:
   uri: developer-api
+position: 1
 ---
 
 What holds true across every endpoint.

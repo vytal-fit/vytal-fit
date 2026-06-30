@@ -3,8 +3,7 @@ title: Quickstart
 category:
   uri: developer
 slug: quickstart
-parent:
-  uri: developer-api
+position: 1
 ---
 
 The shortest path from zero to a working Vytal integration. Every request is

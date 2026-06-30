@@ -5,6 +5,7 @@ category:
 slug: deployment
 parent:
   uri: developer-api
+position: 6
 ---
 
 Vytal uses four production origins:

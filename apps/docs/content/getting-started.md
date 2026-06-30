@@ -3,6 +3,7 @@ title: Getting Started
 category:
   uri: developer
 slug: getting-started
+position: 0
 ---
 
 Vytal is the operating system for fitness businesses. One API powers four
