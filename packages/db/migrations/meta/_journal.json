@@ -71,6 +71,13 @@
       "when": 1782823089237,
       "tag": "0009_new_frightful_four",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1782824755130,
+      "tag": "0010_odd_psylocke",
+      "breakpoints": true
     }
   ]
 }

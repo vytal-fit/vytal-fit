@@ -100,6 +100,20 @@ export const WOD_SCALES = ["rx", "scaled", "rx_plus"] as const;
 
 export const PR_UNITS = ["kg", "lbs", "time", "reps", "meters", "calories"] as const;
 
+// ── Store / merch (D7: catalog + external suppliers + supplier orders) ───────
+export const STORE_PRODUCT_CATEGORIES = ["apparel", "equipment", "supplements", "accessories"] as const;
+export const STORE_FULFILLMENTS = ["in_house", "external"] as const;
+export const SUPPLIER_REGIONS = ["china", "portugal", "europe"] as const;
+export const SUPPLIER_STATUSES = ["active", "paused"] as const;
+export const STORE_ORDER_STATUSES = [
+  "draft",
+  "placed",
+  "in_production",
+  "shipped",
+  "delivered",
+  "cancelled",
+] as const;
+
 export const PLAN_TYPES = [
   "monthly",
   "quarterly",
@@ -182,6 +196,11 @@ export const exerciseCategoryEnum = pgEnum("exercise_category", EXERCISE_CATEGOR
 export const wodScoreTypeEnum = pgEnum("wod_score_type", WOD_SCORE_TYPES);
 export const wodScaleEnum = pgEnum("wod_scale", WOD_SCALES);
 export const prUnitEnum = pgEnum("pr_unit", PR_UNITS);
+export const storeProductCategoryEnum = pgEnum("store_product_category", STORE_PRODUCT_CATEGORIES);
+export const storeFulfillmentEnum = pgEnum("store_fulfillment", STORE_FULFILLMENTS);
+export const supplierRegionEnum = pgEnum("supplier_region", SUPPLIER_REGIONS);
+export const supplierStatusEnum = pgEnum("supplier_status", SUPPLIER_STATUSES);
+export const storeOrderStatusEnum = pgEnum("store_order_status", STORE_ORDER_STATUSES);
 export const planTypeEnum = pgEnum("plan_type", PLAN_TYPES);
 export const subscriptionStatusEnum = pgEnum("subscription_status", SUBSCRIPTION_STATUSES);
 export const leadStageEnum = pgEnum("lead_stage", LEAD_STAGES);
@@ -764,6 +783,90 @@ export const checkIns = pgTable(
     index("check_ins_org_member_idx").on(t.organizationId, t.memberId),
     index("check_ins_org_checked_in_at_idx").on(t.organizationId, t.checkedInAt),
     index("check_ins_org_class_idx").on(t.organizationId, t.classId),
+  ],
+);
+
+/**
+ * Suppliers (D7): external vendors that fulfil merch, including Chinese
+ * dealers/dropshippers. Org-scoped.
+ */
+export const suppliers = pgTable(
+  "suppliers",
+  {
+    id: text("id").primaryKey(),
+    organizationId: text("organization_id")
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    name: text("name").notNull(),
+    region: supplierRegionEnum("region").notNull().default("china"),
+    status: supplierStatusEnum("status").notNull().default("active"),
+    contact: text("contact"),
+    leadTimeDays: integer("lead_time_days"),
+    notes: text("notes"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (t) => [index("suppliers_org_idx").on(t.organizationId)],
+);
+
+/**
+ * Store products (D7): the merch catalog. Size/colour are descriptive strings
+ * (matches the storefront); fulfilment routes to a supplier when external.
+ */
+export const storeProducts = pgTable(
+  "store_products",
+  {
+    id: text("id").primaryKey(),
+    organizationId: text("organization_id")
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    name: text("name").notNull(),
+    description: text("description"),
+    category: storeProductCategoryEnum("category").notNull().default("apparel"),
+    price: numeric("price", { precision: 10, scale: 2 }).notNull(),
+    currency: text("currency").notNull().default("EUR"),
+    stock: integer("stock").notNull().default(0),
+    active: boolean("active").notNull().default(true),
+    fulfillment: storeFulfillmentEnum("fulfillment").notNull().default("external"),
+    supplierId: text("supplier_id").references(() => suppliers.id, { onDelete: "set null" }),
+    sku: text("sku"),
+    color: text("color"),
+    size: text("size"),
+    branding: text("branding"),
+    images: jsonb("images").$type<string[]>(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (t) => [
+    index("store_products_org_idx").on(t.organizationId),
+    index("store_products_org_supplier_idx").on(t.organizationId, t.supplierId),
+  ],
+);
+
+/**
+ * Store orders (D7): a supplier order for a product. Total is computed from
+ * product price × quantity at placement; tracking code arrives on shipment.
+ */
+export const storeOrders = pgTable(
+  "store_orders",
+  {
+    id: text("id").primaryKey(),
+    organizationId: text("organization_id")
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    productId: text("product_id").references(() => storeProducts.id, { onDelete: "set null" }),
+    supplierId: text("supplier_id").references(() => suppliers.id, { onDelete: "set null" }),
+    memberId: text("member_id").references(() => gymMembers.id, { onDelete: "set null" }),
+    quantity: integer("quantity").notNull().default(1),
+    total: numeric("total", { precision: 10, scale: 2 }).notNull(),
+    currency: text("currency").notNull().default("EUR"),
+    status: storeOrderStatusEnum("status").notNull().default("placed"),
+    trackingCode: text("tracking_code"),
+    placedAt: timestamp("placed_at").notNull().defaultNow(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (t) => [
+    index("store_orders_org_idx").on(t.organizationId),
+    index("store_orders_org_status_idx").on(t.organizationId, t.status),
+    index("store_orders_org_supplier_idx").on(t.organizationId, t.supplierId),
   ],
 );
 

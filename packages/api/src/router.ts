@@ -12,6 +12,7 @@ import { membersRouter } from "./routers/members";
 import { notificationsRouter } from "./routers/notifications";
 import { orgSettingsRouter } from "./routers/orgSettings";
 import { personalRecordsRouter } from "./routers/personalRecords";
+import { shopRouter } from "./routers/shop";
 import { subscriptionsRouter } from "./routers/subscriptions";
 import { supportTicketsRouter } from "./routers/supportTickets";
 import { uploadsRouter } from "./routers/uploads";
@@ -38,6 +39,7 @@ export const appRouter = router({
   subscriptions: subscriptionsRouter,
   notifications: notificationsRouter,
   supportTickets: supportTicketsRouter,
+  shop: shopRouter,
   orgSettings: orgSettingsRouter,
   dashboard: dashboardRouter,
   uploads: uploadsRouter,
