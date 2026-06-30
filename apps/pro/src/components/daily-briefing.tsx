@@ -38,6 +38,12 @@ export function DailyBriefing() {
   const scheduleQuery = trpc.classes.schedule.useQuery({ from: today, to: today });
   const leadsQuery = trpc.leads.list.useQuery({});
   const conversationsQuery = trpc.messages.conversations.useQuery();
+  const paymentsStatsQuery = trpc.payments.stats.useQuery();
+  const checkInStatsQuery = trpc.checkIns.todayStats.useQuery();
+
+  const pendingPaymentsCount = paymentsStatsQuery.data?.pendingCount ?? 0;
+  const overduePaymentsTotal = paymentsStatsQuery.data?.overdueTotal ?? 0;
+  const checkInsToday = checkInStatsQuery.data?.total ?? 0;
   const totalUnread = (conversationsQuery.data ?? []).reduce(
     (sum, c) => sum + c.unreadCount,
     0,
@@ -95,7 +101,7 @@ export function DailyBriefing() {
           <div className="flex items-center gap-2.5">
             <CreditCard className="h-3.5 w-3.5 text-vytal-amber" />
             <span className="text-xs text-vytal-amber font-medium">
-              3 {t("briefing.pendingPayments")}
+              {pendingPaymentsCount} {t("briefing.pendingPayments")}
             </span>
           </div>
           <div className="flex items-center gap-2.5">
@@ -188,7 +194,7 @@ export function DailyBriefing() {
           >
             <DollarSign className="h-4 w-4 text-vytal-red" />
             <span className="text-xs text-vytal-red font-medium">
-              {formatCurrency(375)} {t("briefing.overduePayments")}
+              {formatCurrency(overduePaymentsTotal)} {t("briefing.overduePayments")}
             </span>
           </Link>
         </div>
@@ -203,7 +209,7 @@ export function DailyBriefing() {
           {[
             {
               label: t("briefing.checkIns"),
-              value: "86",
+              value: String(checkInsToday),
               icon: Users,
               color: "text-vytal-green",
             },
