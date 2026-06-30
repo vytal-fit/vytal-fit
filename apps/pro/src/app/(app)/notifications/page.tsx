@@ -14,7 +14,7 @@ import {
   Settings,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useDataStore } from "@/stores/data-store";
+import { trpc } from "@/lib/trpc";
 import { useI18n } from "@/lib/i18n";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import type { NotificationType } from "@vytal-fit/shared";
@@ -43,7 +43,7 @@ const notificationBgColor: Record<NotificationType, string> = {
   payment_failed: "bg-vytal-red/10",
 };
 
-function formatTimeAgo(dateStr: string): string {
+function formatTimeAgo(dateStr: string | Date): string {
   const date = new Date(dateStr);
   const now = new Date();
   const diffMs = now.getTime() - date.getTime();
@@ -60,9 +60,20 @@ function formatTimeAgo(dateStr: string): string {
 
 export default function NotificationsPage() {
   const { t } = useI18n();
-  const notifications = useDataStore((s) => s.notifications);
-  const markNotificationRead = useDataStore((s) => s.markNotificationRead);
-  const markAllNotificationsRead = useDataStore((s) => s.markAllNotificationsRead);
+  const utils = trpc.useUtils();
+  const notificationsQuery = trpc.notifications.list.useQuery({ limit: 100 });
+  const notifications = useMemo(
+    () => notificationsQuery.data?.items ?? [],
+    [notificationsQuery.data]
+  );
+  const markReadMutation = trpc.notifications.markRead.useMutation({
+    onSuccess: () => utils.notifications.list.invalidate(),
+  });
+  const markAllReadMutation = trpc.notifications.markAllRead.useMutation({
+    onSuccess: () => utils.notifications.list.invalidate(),
+  });
+  const markNotificationRead = (id: string) => markReadMutation.mutate({ id });
+  const markAllNotificationsRead = () => markAllReadMutation.mutate({});
 
   const [filter, setFilter] = useState<FilterTab>("all");
 
