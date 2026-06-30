@@ -331,6 +331,42 @@ export async function seed(db: Database): Promise<void> {
     },
   ]);
 
+  await db.insert(schema.payments).values([
+    {
+      id: "pay-a-paid",
+      organizationId: IDS.orgA,
+      memberId: IDS.memberA1,
+      planId: IDS.planA,
+      amount: "75.00",
+      method: "mbway",
+      status: "paid",
+      reference: "INV-A-001",
+      paidAt: new Date(today),
+    },
+    {
+      id: "pay-a-overdue",
+      organizationId: IDS.orgA,
+      memberId: IDS.memberA2,
+      planId: IDS.planA,
+      amount: "60.00",
+      method: "sepa",
+      status: "overdue",
+      reference: "INV-A-002",
+      dueDate: "2026-01-15",
+    },
+    {
+      id: "pay-b-paid",
+      organizationId: IDS.orgB,
+      memberId: IDS.memberB1,
+      planId: IDS.planB,
+      amount: "90.00",
+      method: "card",
+      status: "paid",
+      reference: "INV-B-001",
+      paidAt: new Date(today),
+    },
+  ]);
+
   await db.insert(schema.personalRecords).values([
     {
       id: IDS.prA1,

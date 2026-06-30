@@ -5,56 +5,30 @@ import { useRouter } from "next/navigation";
 import { DollarSign, TrendingUp, AlertTriangle, Clock, ArrowUpRight, ArrowDownRight, Target, Send, ChevronDown, ChevronUp, Download, X, Smartphone, CreditCard, Building2, Banknote, ArrowLeftRight, CheckCircle } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { useToast } from "@/components/toast";
-import { formatCurrency, useDataStore } from "@/stores/data-store";
+import { formatCurrency } from "@/stores/data-store";
+import { trpc } from "@/lib/trpc";
 import { cn } from "@/lib/utils";
 import {
   LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell,
 } from "recharts";
 
-const revenueSparkline = [
-  { month: "Jan", revenue: 14200 },
-  { month: "Feb", revenue: 15800 },
-  { month: "Mar", revenue: 16100 },
-  { month: "Apr", revenue: 17300 },
-  { month: "May", revenue: 17500 },
-  { month: "Jun", revenue: 18450 },
-];
-
-const paymentMethodData = [
-  { name: "Stripe", value: 45, color: "#635bff" },
-  { name: "MBWay", value: 25, color: "#ff4757" },
-  { name: "SEPA", value: 15, color: "#00d4ff" },
-  { name: "Cash", value: 10, color: "#22c55e" },
-  { name: "Other", value: 5, color: "#6b8c72" },
-];
-
-const pendingPayments = [
-  { id: 1, member: "Carlos Mendes", amount: 75, daysOverdue: 15, status: "overdue" as const, email: "carlos@email.com", plan: "Unlimited" },
-  { id: 2, member: "Ana Ferreira", amount: 60, daysOverdue: 7, status: "overdue" as const, email: "ana@email.com", plan: "3x/week" },
-  { id: 3, member: "Pedro Santos", amount: 50, daysOverdue: 3, status: "pending" as const, email: "pedro@email.com", plan: "3x/week" },
-  { id: 4, member: "Marta Oliveira", amount: 75, daysOverdue: 1, status: "pending" as const, email: "marta@email.com", plan: "Unlimited" },
-  { id: 5, member: "Joao Silva", amount: 100, daysOverdue: 22, status: "overdue" as const, email: "joao@email.com", plan: "Unlimited" },
-];
-
-const recentTransactions = [
-  { id: 1, date: "2026-06-02", member: "Rita Costa", amount: 75, method: "Stripe", status: "paid" as const, plan: "Unlimited", ref: "INV-2026-0142" },
-  { id: 2, date: "2026-06-02", member: "Bruno Almeida", amount: 60, method: "MBWay", status: "paid" as const, plan: "3x/week", ref: "INV-2026-0141" },
-  { id: 3, date: "2026-06-01", member: "Sofia Martins", amount: 50, method: "SEPA", status: "paid" as const, plan: "3x/week", ref: "INV-2026-0140" },
-  { id: 4, date: "2026-06-01", member: "Carlos Mendes", amount: 75, method: "Stripe", status: "failed" as const, plan: "Unlimited", ref: "INV-2026-0139" },
-  { id: 5, date: "2026-05-31", member: "Ana Ferreira", amount: 60, method: "MBWay", status: "pending" as const, plan: "3x/week", ref: "INV-2026-0138" },
-  { id: 6, date: "2026-05-31", member: "Tiago Nunes", amount: 390, method: "SEPA", status: "paid" as const, plan: "Semester", ref: "INV-2026-0137" },
-  { id: 7, date: "2026-05-30", member: "Ines Rocha", amount: 75, method: "Cash", status: "paid" as const, plan: "Unlimited", ref: "INV-2026-0136" },
-  { id: 8, date: "2026-05-30", member: "Miguel Dias", amount: 40, method: "Stripe", status: "paid" as const, plan: "Day Pass", ref: "INV-2026-0135" },
-];
-
-const currentMonthRevenue = 18450;
-const lastMonthRevenue = 17500;
-const revenueChange = ((currentMonthRevenue - lastMonthRevenue) / lastMonthRevenue * 100);
 const revenueTarget = 20000;
-const revenueProgress = (currentMonthRevenue / revenueTarget) * 100;
 
-const overdueTotal = pendingPayments.filter((p) => p.status === "overdue").reduce((s, p) => s + p.amount, 0);
-const dso = 12;
+const MONTH_LABELS = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+
+/** Display label + chart colour per payment method. */
+const METHOD_META: Record<string, { label: string; color: string }> = {
+  mbway: { label: "MB Way", color: "#ff4757" },
+  multibanco: { label: "Multibanco", color: "#00d4ff" },
+  sepa: { label: "SEPA", color: "#635bff" },
+  card: { label: "Cartão", color: "#22c55e" },
+  cash: { label: "Numerário", color: "#eab308" },
+  transfer: { label: "Transferência", color: "#6b8c72" },
+};
+
+function daysSince(dateStr: string | Date): number {
+  return Math.max(0, Math.floor((Date.now() - new Date(dateStr).getTime()) / 86400000));
+}
 
 // ---------------------------------------------------------------------------
 // Payment method icons map
@@ -91,7 +65,8 @@ function RegisterPaymentDialog({
 }) {
   const { t } = useI18n();
   const { toast } = useToast();
-  const paymentMethods = useDataStore((s) => s.orgSettings.paymentMethods);
+  const settingsQuery = trpc.orgSettings.get.useQuery();
+  const paymentMethods = settingsQuery.data?.paymentMethods;
 
   const enabledMethods = Object.entries(paymentMethods ?? {}).filter(
     ([, cfg]) => (cfg as { enabled?: boolean })?.enabled
@@ -100,7 +75,7 @@ function RegisterPaymentDialog({
   const [selectedMethod, setSelectedMethod] = useState<string>("");
   const [amount, setAmount] = useState("");
   const [reference, setReference] = useState(
-    `INV-2026-${String(recentTransactions.length + 143).padStart(4, "0")}`
+    `INV-2026-${String(Math.floor(Math.random() * 9000) + 1000)}`
   );
 
   function handleSubmit() {
@@ -245,13 +220,18 @@ function RegisterPaymentDialog({
   );
 }
 
-function StatusBadge({ status }: { status: "paid" | "pending" | "failed" | "overdue" }) {
+function StatusBadge({
+  status,
+}: {
+  status: "paid" | "pending" | "failed" | "overdue" | "refunded";
+}) {
   const { t } = useI18n();
   const config = {
     paid: { label: t("financials.paid"), className: "bg-vytal-green/10 text-vytal-green" },
     pending: { label: t("financials.pending"), className: "bg-vytal-amber/10 text-vytal-amber" },
     failed: { label: t("financials.failed"), className: "bg-vytal-red/10 text-vytal-red" },
     overdue: { label: t("financials.overdue"), className: "bg-vytal-red/10 text-vytal-red" },
+    refunded: { label: t("financials.refunded") || "Refunded", className: "bg-vytal-bg3 text-vytal-muted" },
   };
   const c = config[status];
   return <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${c.className}`}>{c.label}</span>;
@@ -278,8 +258,52 @@ export default function FinancialsPage() {
   const { t } = useI18n();
   const { toast } = useToast();
   const router = useRouter();
-  const [expandedTxId, setExpandedTxId] = useState<number | null>(null);
+  const [expandedTxId, setExpandedTxId] = useState<string | null>(null);
   const [showRegisterPayment, setShowRegisterPayment] = useState(false);
+
+  const statsQuery = trpc.payments.stats.useQuery();
+  const stats = statsQuery.data;
+
+  const revenueSparkline = (stats?.months ?? []).map((m) => ({
+    month: MONTH_LABELS[Number(m.key.split("-")[1]) - 1] ?? m.key,
+    revenue: m.revenue,
+  }));
+  const paymentMethodData = (stats?.byMethod ?? []).map((b) => ({
+    name: METHOD_META[b.method]?.label ?? b.method,
+    value: Math.round(b.total),
+    color: METHOD_META[b.method]?.color ?? "#6b8c72",
+  }));
+  const pendingPayments = (stats?.overdue ?? []).map((r) => ({
+    id: r.id,
+    member: r.memberName,
+    amount: Number(r.amount),
+    daysOverdue: r.dueDate ? daysSince(r.dueDate) : 0,
+    status: r.status,
+    email: r.memberEmail,
+    plan: "",
+  }));
+  const recentTransactions = (stats?.recent ?? []).map((r) => ({
+    id: r.id,
+    date: new Date(r.paidAt ?? r.createdAt).toISOString().slice(0, 10),
+    member: r.memberName,
+    amount: Number(r.amount),
+    method: METHOD_META[r.method]?.label ?? r.method,
+    status: r.status,
+    plan: "",
+    ref: r.reference ?? "",
+  }));
+  const currentMonthRevenue = stats?.currentMonthRevenue ?? 0;
+  const lastMonthRevenue = stats?.lastMonthRevenue ?? 0;
+  const revenueChange = lastMonthRevenue
+    ? ((currentMonthRevenue - lastMonthRevenue) / lastMonthRevenue) * 100
+    : 0;
+  const revenueProgress = (currentMonthRevenue / revenueTarget) * 100;
+  const overdueTotal = stats?.overdueTotal ?? 0;
+  const dso = pendingPayments.length
+    ? Math.round(
+        pendingPayments.reduce((s, p) => s + p.daysOverdue, 0) / pendingPayments.length,
+      )
+    : 0;
 
   const handleNewInvoice = useCallback(() => {
     const nextRef = `INV-2026-${String(recentTransactions.length + 143).padStart(4, "0")}`;
@@ -294,7 +318,7 @@ export default function FinancialsPage() {
     a.click();
     URL.revokeObjectURL(url);
     toast(t("financials.invoiceCreated").replace("{ref}", nextRef), "success");
-  }, [toast, t]);
+  }, [toast, t, recentTransactions]);
 
   const handleExportCsv = useCallback(() => {
     const headers = ["Reference", "Date", "Member", "Amount (EUR)", "Method", "Plan", "Status"];
@@ -308,7 +332,7 @@ export default function FinancialsPage() {
     a.click();
     URL.revokeObjectURL(url);
     toast(t("financials.exportedCsv"), "success");
-  }, [toast, t]);
+  }, [toast, t, recentTransactions]);
 
   return (
     <>

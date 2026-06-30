@@ -11,6 +11,7 @@ import { locationsRouter } from "./routers/locations";
 import { membersRouter } from "./routers/members";
 import { messagesRouter } from "./routers/messages";
 import { notificationsRouter } from "./routers/notifications";
+import { paymentsRouter } from "./routers/payments";
 import { orgSettingsRouter } from "./routers/orgSettings";
 import { personalRecordsRouter } from "./routers/personalRecords";
 import { shopRouter } from "./routers/shop";
@@ -43,6 +44,7 @@ export const appRouter = router({
   shop: shopRouter,
   orgSettings: orgSettingsRouter,
   messages: messagesRouter,
+  payments: paymentsRouter,
   dashboard: dashboardRouter,
   uploads: uploadsRouter,
 });

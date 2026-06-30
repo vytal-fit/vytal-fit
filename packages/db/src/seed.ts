@@ -696,6 +696,53 @@ export async function seedDatabase(
       .returning({ id: schema.subscriptions.id })
   ).length;
 
+  // Payment ledger: 6 monthly payments per org-1 subscription (plan price),
+  // with the latest month varied across overdue/pending so the financials
+  // dashboard shows a realistic mix.
+  const planPriceById = new Map(mockPlans.map((p) => [p.id, p.price]));
+  const PAY_METHODS = ["mbway", "multibanco", "sepa", "card", "cash"] as const;
+  const payNow = new Date();
+  let invSeq = 100;
+  const paymentRows = mockSubscriptions.flatMap((sub, si) => {
+    const price = planPriceById.get(sub.planId) ?? 50;
+    const method = PAY_METHODS[si % PAY_METHODS.length];
+    return Array.from({ length: 6 }, (_, k) => {
+      const m = 5 - k;
+      const d = new Date(Date.UTC(payNow.getUTCFullYear(), payNow.getUTCMonth() - m, 5));
+      let status: schema.PaymentStatus = "paid";
+      if (m === 0 && si % 5 === 0) status = "overdue";
+      else if (m === 0 && si % 5 === 1) status = "pending";
+      return {
+        id: `pay-${sub.id}-${m}`,
+        organizationId: ORG_1,
+        memberId: sub.memberId,
+        planId: sub.planId,
+        amount: String(price),
+        currency: "EUR",
+        method,
+        status,
+        reference: `INV-2026-${String(invSeq++).padStart(4, "0")}`,
+        dueDate: status === "paid" ? null : d.toISOString().slice(0, 10),
+        paidAt: status === "paid" ? d : null,
+      };
+    });
+  });
+
+  // Insert in chunks: a single ~150-row payload can trip flaky TLS on pooled
+  // Neon connections. Chunking keeps each statement small and resumable.
+  let paymentsInserted = 0;
+  for (let i = 0; i < paymentRows.length; i += 50) {
+    const chunk = paymentRows.slice(i, i + 50);
+    paymentsInserted += (
+      await db
+        .insert(schema.payments)
+        .values(chunk)
+        .onConflictDoNothing()
+        .returning({ id: schema.payments.id })
+    ).length;
+  }
+  inserted.payments = paymentsInserted;
+
   inserted.leads = (
     await db
       .insert(schema.leads)

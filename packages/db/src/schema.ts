@@ -116,6 +116,27 @@ export const STORE_ORDER_STATUSES = [
 export const SALE_STATUSES = ["pending", "completed", "refunded"] as const;
 export const SALE_PAYMENT_METHODS = ["cash", "card", "mbway", "transfer"] as const;
 
+/** Membership/subscription payment methods (PT-first, superset of sale methods). */
+export const PAYMENT_METHODS = [
+  "mbway",
+  "multibanco",
+  "sepa",
+  "card",
+  "cash",
+  "transfer",
+] as const;
+export type PaymentMethod = (typeof PAYMENT_METHODS)[number];
+
+/** Lifecycle of a membership payment. */
+export const PAYMENT_STATUSES = [
+  "paid",
+  "pending",
+  "failed",
+  "overdue",
+  "refunded",
+] as const;
+export type PaymentStatus = (typeof PAYMENT_STATUSES)[number];
+
 export const PLAN_TYPES = [
   "monthly",
   "quarterly",
@@ -322,6 +343,8 @@ export const supplierStatusEnum = pgEnum("supplier_status", SUPPLIER_STATUSES);
 export const storeOrderStatusEnum = pgEnum("store_order_status", STORE_ORDER_STATUSES);
 export const saleStatusEnum = pgEnum("sale_status", SALE_STATUSES);
 export const salePaymentMethodEnum = pgEnum("sale_payment_method", SALE_PAYMENT_METHODS);
+export const paymentMethodEnum = pgEnum("payment_method_kind", PAYMENT_METHODS);
+export const paymentStatusEnum = pgEnum("payment_status", PAYMENT_STATUSES);
 export const planTypeEnum = pgEnum("plan_type", PLAN_TYPES);
 export const subscriptionStatusEnum = pgEnum("subscription_status", SUBSCRIPTION_STATUSES);
 export const leadStageEnum = pgEnum("lead_stage", LEAD_STAGES);
@@ -1098,6 +1121,40 @@ export const conversations = pgTable(
   (t) => [
     index("conversations_org_idx").on(t.organizationId),
     index("conversations_org_last_msg_idx").on(t.organizationId, t.lastMessageAt),
+  ],
+);
+
+/**
+ * Membership payments — the financial ledger behind the financials dashboard
+ * and member billing. Fiscal export (SAF-T/ATCUD) layers on top of this in F5.
+ */
+export const payments = pgTable(
+  "payments",
+  {
+    id: text("id").primaryKey(),
+    organizationId: text("organization_id")
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    memberId: text("member_id")
+      .notNull()
+      .references(() => gymMembers.id, { onDelete: "cascade" }),
+    planId: text("plan_id").references(() => subscriptionPlans.id, {
+      onDelete: "set null",
+    }),
+    amount: numeric("amount", { precision: 10, scale: 2 }).notNull(),
+    currency: text("currency").notNull().default("EUR"),
+    method: paymentMethodEnum("method").notNull(),
+    status: paymentStatusEnum("status").notNull().default("pending"),
+    /** Invoice/receipt reference (e.g. INV-2026-0142). */
+    reference: text("reference"),
+    dueDate: date("due_date"),
+    paidAt: timestamp("paid_at"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (t) => [
+    index("payments_org_idx").on(t.organizationId),
+    index("payments_org_status_idx").on(t.organizationId, t.status),
+    index("payments_org_member_idx").on(t.organizationId, t.memberId),
   ],
 );
 
