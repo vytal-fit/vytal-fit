@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -11,7 +11,9 @@ import {
   Flame,
   CalendarDays,
 } from "lucide-react";
-import { useDataStore } from "@/stores/data-store";
+import { trpc } from "@/lib/trpc";
+import { rowsToWODs } from "@/lib/wod-mapper";
+import { rowsToExercises } from "@/lib/reference-mappers";
 
 // ---- Mock leaderboard data ----
 
@@ -40,8 +42,16 @@ const mockScheduleTicker = [
 ];
 
 export default function ScreenPage() {
-  const wods = useDataStore((s) => s.wods);
-  const orgSettings = useDataStore((s) => s.orgSettings);
+  const wodsQuery = trpc.wods.list.useQuery({});
+  const exercisesQuery = trpc.exercises.list.useQuery({});
+  const settingsQuery = trpc.orgSettings.get.useQuery();
+  const wods = useMemo(() => {
+    const exercisesById = new Map(
+      rowsToExercises(exercisesQuery.data ?? []).map((ex) => [ex.id, ex]),
+    );
+    return rowsToWODs(wodsQuery.data ?? [], exercisesById);
+  }, [wodsQuery.data, exercisesQuery.data]);
+  const orgSettings = { name: settingsQuery.data?.name ?? "" };
 
   const [clock, setClock] = useState(new Date());
   const [, setLastRefresh] = useState(new Date());

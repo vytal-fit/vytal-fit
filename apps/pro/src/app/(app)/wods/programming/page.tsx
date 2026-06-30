@@ -2,7 +2,9 @@
 
 import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { useDataStore } from "@/stores/data-store";
+import { trpc } from "@/lib/trpc";
+import { rowsToWODs } from "@/lib/wod-mapper";
+import { rowsToExercises, rowsToClassTypes } from "@/lib/reference-mappers";
 import { useI18n } from "@/lib/i18n";
 import { useToast } from "@/components/toast";
 import { Breadcrumbs } from "@/components/breadcrumbs";
@@ -62,12 +64,25 @@ export default function WodProgrammingPage() {
   const { t } = useI18n();
   const { toast } = useToast();
   const router = useRouter();
-  const storeWODs = useDataStore((s) => s.wods);
-  const storeClassTypes = useDataStore((s) => s.classTypes);
-
-  const [selectedClassTypeId, setSelectedClassTypeId] = useState(
-    storeClassTypes[0]?.id ?? "ct-1"
+  const wodsQuery = trpc.wods.list.useQuery({});
+  const exercisesQuery = trpc.exercises.list.useQuery({});
+  const classTypesQuery = trpc.classTypes.list.useQuery();
+  const storeWODs = useMemo(() => {
+    const exercisesById = new Map(
+      rowsToExercises(exercisesQuery.data ?? []).map((ex) => [ex.id, ex]),
+    );
+    return rowsToWODs(wodsQuery.data ?? [], exercisesById);
+  }, [wodsQuery.data, exercisesQuery.data]);
+  const storeClassTypes = useMemo(
+    () => rowsToClassTypes(classTypesQuery.data ?? []),
+    [classTypesQuery.data],
   );
+
+  const [selectedClassTypeId, setSelectedClassTypeId] = useState("");
+  // Default to the first real class type once the catalogue loads.
+  if (!selectedClassTypeId && storeClassTypes[0]) {
+    setSelectedClassTypeId(storeClassTypes[0].id);
+  }
   const [numWeeks, setNumWeeks] = useState(4);
   const [weekOffset, setWeekOffset] = useState(0);
   const [createModal, setCreateModal] = useState<{
