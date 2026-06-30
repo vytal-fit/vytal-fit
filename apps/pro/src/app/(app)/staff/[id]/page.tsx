@@ -1,6 +1,5 @@
 "use client";
 
-import { useDataStore } from "@/stores/data-store";
 import {
   ArrowLeft,
   Mail,
@@ -55,9 +54,13 @@ export default function StaffDetailPage() {
   const { t } = useI18n();
   const params = useParams();
   const id = params.id as string;
-  // ── tRPC: coach record (classes remain on the mock store for now) ──
+  // ── tRPC: coach record + this week's schedule (real, org-scoped) ──
   const coachQuery = trpc.coaches.byId.useQuery({ id });
-  const storeClasses = useDataStore((s) => s.classes);
+  const today = new Date();
+  const weekEnd = new Date(today.getTime() + 6 * 86_400_000);
+  const fromDate = today.toISOString().slice(0, 10);
+  const toDate = weekEnd.toISOString().slice(0, 10);
+  const scheduleQuery = trpc.classes.schedule.useQuery({ from: fromDate, to: toDate });
   const coach = coachQuery.data ? rowToCoach(coachQuery.data) : undefined;
 
   if (coachQuery.isError) {
@@ -94,7 +97,7 @@ export default function StaffDetailPage() {
   const bio = coachBios[coach.id] ?? "";
   const initials = coach.name.split(" ").map((n) => n[0]).join("").slice(0, 2);
 
-  const assignedClasses = storeClasses.filter((cls) =>
+  const assignedClasses = (scheduleQuery.data ?? []).filter((cls) =>
     cls.coachIds.includes(coach.id)
   );
 
@@ -232,7 +235,7 @@ export default function StaffDetailPage() {
                   className="flex items-center justify-between rounded-lg border border-vytal-border px-4 py-3 transition-colors hover:border-[rgba(61,255,110,0.22)]"
                 >
                   <div>
-                    <p className="text-sm font-medium text-vytal-text">{cls.classType.name}</p>
+                    <p className="text-sm font-medium text-vytal-text">{cls.classType?.name ?? "-"}</p>
                     <p className="text-xs text-vytal-muted">{cls.date} {cls.startTime}-{cls.endTime}</p>
                   </div>
                   <span className="text-xs text-vytal-muted">{cls.enrolledCount}/{cls.maxCapacity}</span>

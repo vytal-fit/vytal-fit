@@ -12,7 +12,9 @@ import {
   Clock,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useDataStore, formatCurrency } from "@/stores/data-store";
+import { formatCurrency } from "@/stores/data-store";
+import { trpc } from "@/lib/trpc";
+import { rowToMember } from "@/lib/member-mapper";
 import { useI18n } from "@/lib/i18n";
 import { useToast } from "@/components/toast";
 import { Breadcrumbs } from "@/components/breadcrumbs";
@@ -47,9 +49,17 @@ export default function MemberBillingPage() {
   const { toast } = useToast();
   const params = useParams();
   const id = params.id as string;
-  const members = useDataStore((s) => s.members);
-  const member = members.find((m) => m.id === id);
+  const memberQuery = trpc.members.byId.useQuery({ id });
+  const member = memberQuery.data ? rowToMember(memberQuery.data) : undefined;
 
+  if (memberQuery.error?.data?.code === "NOT_FOUND") return notFound();
+  if (memberQuery.isPending) {
+    return (
+      <div className="flex h-64 items-center justify-center">
+        <p className="text-vytal-muted">{t("ui.loading")}</p>
+      </div>
+    );
+  }
   if (!member) return notFound();
 
   const totalPaid = mockBillingHistory.filter((b) => b.status === "paid").reduce((s, b) => s + b.amount, 0);
