@@ -121,6 +121,8 @@ Auditoria 2026-06-30 (`useDataStore` = store mock/localStorage de domínio):
 - **`members/[id]`**: dados de domínio agora reais — `members.byId`/`update`/`archive`, `checkIns.list/create`, `subscriptions.byMember` (+ `plans.list` para resolver o plano), `personalRecords.list`. Já não importa `useDataStore`. **Resta mock local** (precisa de API/tabelas novas, não bloqueante): notas de staff, log de comunicações por membro, pagamentos (F5), timeline de atividade.
 - **`plans/create`**: zero-mock (`subscriptions.plans.create` + `classTypes.list`).
 - **`classes/[id]` + `classes/[id]/attendance`**: presença real — `classes.byId` (+ `classTypes`/`locations`/`coaches` para enriquecer), roster via `bookings.listByClass` (agora com `memberEmail`), check-in/no-show/check-in-todos via nova mutação `bookings.setAttendance` (staff+, carimba `checkedInAt`), walk-in via `bookings.book`. 5 testes novos (600 total). `classes/[id]/feedback`: nome da aula via API (as estatísticas de rating continuam mock, falta API de avaliações de aula).
+- **`members/[id]/360`**: identidade/estado/plano reais (members.byId + subscriptions.byMember + plans); visuais de engagement continuam ilustrativos.
+- **`classes/waitlist`**: zero-mock via nova query `bookings.waitlist` (waitlisted org-wide com classe+membro+posição); promover = `setAttendance(confirmed)`, remover = `cancel`. 3 testes novos (603 total).
 - **Regra**: cada página migrada deixa de importar `useDataStore` para dados de domínio e passa a `trpc.*`; `localStorage` só preferências via `STORAGE_KEYS`.
 
 ## Pontos em aberto

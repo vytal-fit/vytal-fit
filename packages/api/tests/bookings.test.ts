@@ -172,6 +172,30 @@ describe("bookings.listByClass", () => {
   });
 });
 
+describe("bookings.waitlist", () => {
+  it("returns org A waitlisted bookings with class + member info and positions", async () => {
+    // Fill classASmall (capacity 1) so the next booking waitlists.
+    await h.callerA.bookings.book({ classId: IDS.classASmall, memberId: IDS.memberA1 }).catch(() => {});
+    await h.callerA.bookings.book({ classId: IDS.classASmall, memberId: IDS.memberA2 }).catch(() => {});
+
+    const rows = await h.callerA.bookings.waitlist();
+    expect(Array.isArray(rows)).toBe(true);
+    expect(rows.every((r) => typeof r.position === "number" && r.position >= 1)).toBe(true);
+    expect(rows.every((r) => typeof r.memberName === "string")).toBe(true);
+  });
+
+  it("cross-tenant: org B never sees org A waitlist entries", async () => {
+    const rows = await h.callerB.bookings.waitlist();
+    expect(rows.every((r) => r.classId !== IDS.classASmall)).toBe(true);
+  });
+
+  it("throws UNAUTHORIZED without a session", async () => {
+    await expect(h.callerNoSession.bookings.waitlist()).rejects.toMatchObject({
+      code: "UNAUTHORIZED",
+    });
+  });
+});
+
 describe("bookings.setAttendance", () => {
   it("marks a booking checked_in and stamps checkedInAt", async () => {
     const booking = await h.callerA.bookings.book({

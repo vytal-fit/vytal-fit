@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useDataStore } from "@/stores/data-store";
+import { useMemo } from "react";
+import { trpc } from "@/lib/trpc";
 import {
   Users,
   CalendarDays,
@@ -31,42 +31,33 @@ interface WaitlistEntry {
 export default function WaitlistPage() {
   const { t } = useI18n();
   const { toast } = useToast();
-  const storeClasses = useDataStore((s) => s.classes);
-  const storeMembers = useDataStore((s) => s.members);
-
-  // Build mock waitlist data from classes that have waitlists
-  const classesWithWaitlist = storeClasses.filter((c) => c.waitlistCount > 0);
-
-  const initialEntries: WaitlistEntry[] = [];
-  let memberIdx = 5; // Start from member index 5 to use different members
-
-  classesWithWaitlist.forEach((cls) => {
-    for (let pos = 1; pos <= cls.waitlistCount; pos++) {
-      const member = storeMembers[memberIdx % storeMembers.length];
-      memberIdx++;
-
-      const hoursAgo = Math.floor(Math.random() * 48) + 1;
-      const waitingSince = new Date(
-        Date.now() - hoursAgo * 60 * 60 * 1000
-      ).toISOString();
-
-      initialEntries.push({
-        id: `wl-${cls.id}-${pos}`,
-        classId: cls.id,
-        className: `${cls.classType.name} ${cls.startTime}`,
-        classDate: cls.date,
-        classTime: `${cls.startTime} - ${cls.endTime}`,
-        location: cls.location.name,
-        position: pos,
-        memberName: member.name,
-        memberEmail: member.email,
-        memberPhone: member.phone ?? "",
-        waitingSince,
-      });
-    }
+  const utils = trpc.useUtils();
+  const waitlistQuery = trpc.bookings.waitlist.useQuery();
+  const promoteMut = trpc.bookings.setAttendance.useMutation({
+    onSuccess: () => utils.bookings.waitlist.invalidate(),
+  });
+  const removeMut = trpc.bookings.cancel.useMutation({
+    onSuccess: () => utils.bookings.waitlist.invalidate(),
   });
 
-  const [entries, setEntries] = useState<WaitlistEntry[]>(initialEntries);
+  const entries: WaitlistEntry[] = useMemo(
+    () =>
+      (waitlistQuery.data ?? []).map((r) => ({
+        id: r.id,
+        classId: r.classId,
+        className: `${r.classTypeName ?? "-"} ${r.startTime}`,
+        classDate: r.classDate,
+        classTime: `${r.startTime} - ${r.endTime}`,
+        location: r.locationName ?? "-",
+        position: r.position,
+        memberName: r.memberName,
+        memberEmail: r.memberEmail,
+        memberPhone: r.memberPhone ?? "",
+        waitingSince:
+          r.bookedAt instanceof Date ? r.bookedAt.toISOString() : String(r.bookedAt),
+      })),
+    [waitlistQuery.data],
+  );
 
   const totalWaiting = entries.length;
   const classesWithWaitlists = new Set(entries.map((e) => e.classId)).size;
@@ -79,12 +70,12 @@ export default function WaitlistPage() {
   }, {});
 
   function handlePromote(entryId: string) {
-    setEntries((prev) => prev.filter((e) => e.id !== entryId));
+    promoteMut.mutate({ id: entryId, status: "confirmed" });
     toast(t("waitlist.promotedSuccess"), "success");
   }
 
   function handleRemove(entryId: string) {
-    setEntries((prev) => prev.filter((e) => e.id !== entryId));
+    removeMut.mutate({ id: entryId });
     toast(t("waitlist.removedSuccess"), "info");
   }
 

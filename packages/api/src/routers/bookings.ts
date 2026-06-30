@@ -1,5 +1,5 @@
 import { TRPCError } from "@trpc/server";
-import { and, count, desc, eq, inArray } from "drizzle-orm";
+import { and, asc, count, desc, eq, inArray } from "drizzle-orm";
 import { bookings, classes, classTypes, coaches, gymMembers, locations } from "@vytal-fit/db";
 import { hasMinRole } from "@vytal-fit/shared";
 import { z } from "zod";
@@ -405,4 +405,77 @@ export const bookingsRouter = router({
         .returning();
       return updated;
     }),
+
+  /**
+   * Org-wide waitlist: every `waitlisted` booking joined with its class and
+   * member, ordered by class then booking time. `position` is the 1-based rank
+   * within each class's waitlist queue.
+   */
+  waitlist: orgProcedure.query(async ({ ctx }) => {
+    const rows = await ctx.db
+      .select({
+        id: bookings.id,
+        classId: bookings.classId,
+        bookedAt: bookings.bookedAt,
+        memberName: gymMembers.name,
+        memberEmail: gymMembers.email,
+        memberPhone: gymMembers.phone,
+        classDate: classes.date,
+        startTime: classes.startTime,
+        endTime: classes.endTime,
+        classTypeId: classes.classTypeId,
+        locationId: classes.locationId,
+      })
+      .from(bookings)
+      .innerJoin(gymMembers, eq(bookings.memberId, gymMembers.id))
+      .innerJoin(classes, eq(bookings.classId, classes.id))
+      .where(
+        and(
+          eq(bookings.organizationId, ctx.activeOrganizationId),
+          eq(bookings.status, "waitlisted"),
+        ),
+      )
+      .orderBy(asc(classes.date), asc(classes.startTime), asc(bookings.bookedAt));
+
+    const ctIds = [...new Set(rows.map((r) => r.classTypeId).filter((v): v is string => !!v))];
+    const locIds = [...new Set(rows.map((r) => r.locationId).filter((v): v is string => !!v))];
+    const [cts, locs] = await Promise.all([
+      ctIds.length
+        ? ctx.db
+            .select({ id: classTypes.id, name: classTypes.name })
+            .from(classTypes)
+            .where(
+              and(
+                eq(classTypes.organizationId, ctx.activeOrganizationId),
+                inArray(classTypes.id, ctIds),
+              ),
+            )
+        : Promise.resolve([]),
+      locIds.length
+        ? ctx.db
+            .select({ id: locations.id, name: locations.name })
+            .from(locations)
+            .where(
+              and(
+                eq(locations.organizationId, ctx.activeOrganizationId),
+                inArray(locations.id, locIds),
+              ),
+            )
+        : Promise.resolve([]),
+    ]);
+    const ctName = new Map(cts.map((c) => [c.id, c.name]));
+    const locName = new Map(locs.map((l) => [l.id, l.name]));
+
+    const positionByClass = new Map<string, number>();
+    return rows.map((r) => {
+      const pos = (positionByClass.get(r.classId) ?? 0) + 1;
+      positionByClass.set(r.classId, pos);
+      return {
+        ...r,
+        position: pos,
+        classTypeName: r.classTypeId ? ctName.get(r.classTypeId) ?? null : null,
+        locationName: r.locationId ? locName.get(r.locationId) ?? null : null,
+      };
+    });
+  }),
 });
