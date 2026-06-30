@@ -1,10 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Save, Wallet } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { useOrgFormat } from "@/lib/org-format";
+import { trpc } from "@/lib/trpc";
+import { useToast } from "@/components/toast";
 
 type BudgetCategory = "Fixed" | "Variable" | "Tax";
 
@@ -17,20 +19,9 @@ interface BudgetLine {
   thisMonthLimit: number;
 }
 
-const initialBudgetLines: BudgetLine[] = [
-  { id: 1, category: "Fixed", subcategory: "Rent", lastMonthLimit: 2500, lastMonthActual: 2500, thisMonthLimit: 2500 },
-  { id: 2, category: "Fixed", subcategory: "Insurance", lastMonthLimit: 200, lastMonthActual: 180, thisMonthLimit: 200 },
-  { id: 3, category: "Fixed", subcategory: "Utilities", lastMonthLimit: 350, lastMonthActual: 310, thisMonthLimit: 350 },
-  { id: 4, category: "Fixed", subcategory: "Staff Salaries", lastMonthLimit: 4500, lastMonthActual: 4500, thisMonthLimit: 4500 },
-  { id: 5, category: "Variable", subcategory: "Equipment", lastMonthLimit: 500, lastMonthActual: 450, thisMonthLimit: 600 },
-  { id: 6, category: "Variable", subcategory: "Cleaning", lastMonthLimit: 150, lastMonthActual: 120, thisMonthLimit: 150 },
-  { id: 7, category: "Variable", subcategory: "Marketing", lastMonthLimit: 300, lastMonthActual: 200, thisMonthLimit: 300 },
-  { id: 8, category: "Variable", subcategory: "Supplies", lastMonthLimit: 100, lastMonthActual: 85, thisMonthLimit: 100 },
-  { id: 9, category: "Tax", subcategory: "IVA (VAT)", lastMonthLimit: 900, lastMonthActual: 890, thisMonthLimit: 900 },
-  { id: 10, category: "Tax", subcategory: "Social Security", lastMonthLimit: 700, lastMonthActual: 650, thisMonthLimit: 700 },
-];
-
 const categoryOrder: BudgetCategory[] = ["Fixed", "Variable", "Tax"];
+
+const lineKey = (c: BudgetCategory, s: string) => `${c}|${s}`;
 
 const categoryColors: Record<BudgetCategory, string> = {
   Fixed: "text-vytal-blue",
@@ -48,12 +39,68 @@ export default function MonthlyBudgetPage() {
   const { t } = useI18n();
   const { money: formatCurrency } = useOrgFormat();
   const formatEur = formatCurrency;
-  const [lines, setLines] = useState(initialBudgetLines);
+  const { toast } = useToast();
+  const utils = trpc.useUtils();
+  const settingsQuery = trpc.orgSettings.get.useQuery();
+  const expensesQuery = trpc.expenses.list.useQuery({});
+  const updateSettings = trpc.orgSettings.update.useMutation({
+    onSuccess: () => {
+      void utils.orgSettings.get.invalidate();
+      toast(t("budget.setBudget"), "success");
+    },
+    onError: () => toast(t("ui.error"), "error"),
+  });
+
+  // Local edits to this-month limits, keyed by category|subcategory.
+  const [limitOverrides, setLimitOverrides] = useState<Record<string, number>>({});
+
+  // Real spend for the previous calendar month, grouped by category|subcategory.
+  const actualByKey = useMemo(() => {
+    const now = new Date();
+    const from = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 1, 1));
+    const to = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
+    const map: Record<string, number> = {};
+    for (const e of expensesQuery.data ?? []) {
+      const d = new Date(e.date);
+      if (d >= from && d < to) {
+        const k = lineKey(e.category, e.subcategory);
+        map[k] = (map[k] ?? 0) + Number(e.amount);
+      }
+    }
+    return map;
+  }, [expensesQuery.data]);
+
+  const lines: BudgetLine[] = (settingsQuery.data?.budget.lines ?? []).map((l, i) => {
+    const k = lineKey(l.category, l.subcategory);
+    return {
+      id: i,
+      category: l.category,
+      subcategory: l.subcategory,
+      lastMonthLimit: l.limit,
+      lastMonthActual: actualByKey[k] ?? 0,
+      thisMonthLimit: limitOverrides[k] ?? l.limit,
+    };
+  });
 
   function updateLimit(id: number, value: string) {
-    setLines((prev) =>
-      prev.map((l) => (l.id === id ? { ...l, thisMonthLimit: Number(value) || 0 } : l))
-    );
+    const line = lines[id];
+    if (!line) return;
+    setLimitOverrides((prev) => ({
+      ...prev,
+      [lineKey(line.category, line.subcategory)]: Number(value) || 0,
+    }));
+  }
+
+  function handleSave() {
+    updateSettings.mutate({
+      budget: {
+        lines: lines.map((l) => ({
+          category: l.category,
+          subcategory: l.subcategory,
+          limit: l.thisMonthLimit,
+        })),
+      },
+    });
   }
 
   const totalLastLimit = lines.reduce((s, l) => s + l.lastMonthLimit, 0);
@@ -88,7 +135,11 @@ export default function MonthlyBudgetPage() {
             {t("budget.subtitle")}
           </p>
         </div>
-        <button className="flex items-center gap-2 rounded-lg bg-vytal-green px-6 py-2.5 text-sm font-semibold text-vytal-bg transition-colors hover:bg-vytal-green/90">
+        <button
+          onClick={handleSave}
+          disabled={updateSettings.isPending}
+          className="flex items-center gap-2 rounded-lg bg-vytal-green px-6 py-2.5 text-sm font-semibold text-vytal-bg transition-colors hover:bg-vytal-green/90 disabled:opacity-40"
+        >
           <Save className="h-4 w-4" />
           {t("budget.setBudget")}
         </button>

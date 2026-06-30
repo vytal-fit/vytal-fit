@@ -1,6 +1,7 @@
 import { TRPCError } from "@trpc/server";
 import { eq } from "drizzle-orm";
 import {
+  defaultBudget,
   defaultDropins,
   defaultPaymentMethods,
   defaultProfile,
@@ -8,6 +9,7 @@ import {
   organization,
   organizationSettings,
   type OrganizationBranding,
+  type OrganizationBudget,
   type OrganizationDropins,
   type OrganizationPaymentMethods,
   type OrganizationProfile,
@@ -79,6 +81,16 @@ const paymentMethodSchema = z
   .catchall(z.union([z.string(), z.boolean()]));
 const paymentMethodsSchema = z.record(z.string(), paymentMethodSchema);
 
+const budgetSchema = z.object({
+  lines: z.array(
+    z.object({
+      category: z.enum(["Fixed", "Variable", "Tax"]),
+      subcategory: z.string().min(1).max(120),
+      limit: z.number().nonnegative(),
+    }),
+  ),
+});
+
 const dropinsSchema = z.object({
   active: z.boolean(),
   price: z.string().max(20),
@@ -100,6 +112,7 @@ const updateInput = z.object({
   profile: profileSchema.partial().optional(),
   paymentMethods: paymentMethodsSchema.optional(),
   dropins: dropinsSchema.partial().optional(),
+  budget: budgetSchema.optional(),
   // The website builder owns a large free-form config object; stored verbatim.
   websiteConfig: z.record(z.string(), z.unknown()).optional(),
   terminologyOverrides: terminologyOverridesSchema.nullable().optional(),
@@ -137,6 +150,7 @@ export interface EffectiveSettings {
   profile: OrganizationProfile;
   paymentMethods: OrganizationPaymentMethods;
   dropins: OrganizationDropins;
+  budget: OrganizationBudget;
   websiteConfig: Record<string, unknown> | null;
   terminologyOverrides: Partial<OrganizationTerminology> | null;
   /** `null` when the org has no settings row yet (pure defaults). */
@@ -177,6 +191,7 @@ async function effectiveSettings(
       profile: row.profile ?? defaultProfile(),
       paymentMethods: row.paymentMethods ?? defaultPaymentMethods(),
       dropins: row.dropins ?? defaultDropins(),
+      budget: row.budget ?? defaultBudget(),
       websiteConfig: row.websiteConfig ?? null,
     };
   }
@@ -207,6 +222,7 @@ async function effectiveSettings(
     profile: defaultProfile(),
     paymentMethods: defaultPaymentMethods(),
     dropins: defaultDropins(),
+    budget: defaultBudget(),
     websiteConfig: null,
     terminologyOverrides: null,
     updatedAt: null,
@@ -247,6 +263,9 @@ export const orgSettingsRouter = router({
       ...(input.paymentMethods as OrganizationPaymentMethods | undefined),
     };
     const dropins: OrganizationDropins = { ...current.dropins, ...input.dropins };
+    // Budget is replaced wholesale (the planner always sends the full line set).
+    const budget: OrganizationBudget =
+      input.budget === undefined ? current.budget : (input.budget as OrganizationBudget);
     // websiteConfig is replaced wholesale (the builder always sends the full tree).
     const websiteConfig =
       input.websiteConfig === undefined ? current.websiteConfig : input.websiteConfig;
@@ -271,6 +290,7 @@ export const orgSettingsRouter = router({
       profile,
       paymentMethods,
       dropins,
+      budget,
       websiteConfig,
       terminologyOverrides,
       updatedAt: new Date(),
@@ -293,6 +313,7 @@ export const orgSettingsRouter = router({
       profile,
       paymentMethods,
       dropins,
+      budget,
       websiteConfig,
     };
   }),

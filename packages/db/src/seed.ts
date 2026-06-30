@@ -59,6 +59,21 @@ import type { Database } from "./client";
 import * as schema from "./schema";
 import { defaultPublicSite, type CheckInMethod, type StoredWODPart } from "./schema";
 
+/** Org-1 monthly budget plan. Subcategories mirror the seeded expense ledger so
+ *  the budget page shows real actual-vs-limit on those lines. */
+const ORG1_BUDGET = {
+  lines: [
+    { category: "Fixed" as const, subcategory: "Renda", limit: 2500 },
+    { category: "Fixed" as const, subcategory: "Seguro", limit: 200 },
+    { category: "Fixed" as const, subcategory: "Utilidades", limit: 350 },
+    { category: "Variable" as const, subcategory: "Equipamento", limit: 600 },
+    { category: "Variable" as const, subcategory: "Limpeza", limit: 150 },
+    { category: "Variable" as const, subcategory: "Marketing", limit: 300 },
+    { category: "Tax" as const, subcategory: "IVA", limit: 900 },
+    { category: "Tax" as const, subcategory: "Segurança Social", limit: 700 },
+  ],
+};
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Demo credentials — documented in docs/BACKEND_WIRING.md
 // ─────────────────────────────────────────────────────────────────────────────
@@ -1189,6 +1204,7 @@ export async function seedDatabase(
               logoUrl: null,
             },
             publicSite: defaultPublicSite(),
+            budget: org.id === ORG_1 ? ORG1_BUDGET : { lines: [] },
             terminologyOverrides: null,
           };
         }),
@@ -1196,6 +1212,13 @@ export async function seedDatabase(
       .onConflictDoNothing()
       .returning({ organizationId: schema.organizationSettings.organizationId })
   ).length;
+
+  // Backfill the org-1 budget on rows that predate the budget column (the
+  // insert above is ON CONFLICT DO NOTHING, so existing rows keep their data).
+  await db
+    .update(schema.organizationSettings)
+    .set({ budget: ORG1_BUDGET })
+    .where(eq(schema.organizationSettings.organizationId, ORG_1));
 
   for (const [table, n] of Object.entries(inserted)) {
     if (table !== "organizations" && table !== "memberships") {

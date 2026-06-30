@@ -211,6 +211,24 @@ describe("profile + payment methods + name", () => {
     expect(settings.websiteConfig).toBeNull();
   });
 
+  it("exposes a budget default and persists a budget plan", async () => {
+    const before = await h.callerB.orgSettings.get();
+    expect(before.budget).toBeDefined();
+    expect(Array.isArray(before.budget.lines)).toBe(true);
+
+    const saved = await h.callerA.orgSettings.update({
+      budget: {
+        lines: [
+          { category: "Fixed", subcategory: "Renda", limit: 2500 },
+          { category: "Tax", subcategory: "IVA", limit: 900 },
+        ],
+      },
+    });
+    expect(saved?.budget.lines).toHaveLength(2);
+    const roundtrip = await h.callerA.orgSettings.get();
+    expect(roundtrip.budget.lines.find((l) => l.subcategory === "IVA")?.limit).toBe(900);
+  });
+
   it("persists a dropins patch and a websiteConfig blob", async () => {
     const saved = await h.callerA.orgSettings.update({
       dropins: { active: true, price: "20" },
