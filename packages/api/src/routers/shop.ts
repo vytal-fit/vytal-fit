@@ -25,7 +25,27 @@ const productInput = z.object({
   price: money,
   currency: z.string().length(3).default("EUR"),
   stock: z.number().int().min(0).default(0),
+  active: z.boolean().optional(),
   fulfillment: z.enum(STORE_FULFILLMENTS).default("external"),
+  supplierId: z.string().min(1).optional(),
+  sku: z.string().max(60).optional(),
+  style: z.string().max(120).optional(),
+  color: z.string().max(60).optional(),
+  size: z.string().max(60).optional(),
+  branding: z.string().max(200).optional(),
+});
+
+// Update input: every field optional and NO defaults, so a partial update never
+// silently resets omitted columns (zod v4 applies .default() inside .partial()).
+const productUpdateInput = z.object({
+  name: z.string().min(1).max(200).optional(),
+  description: z.string().max(2000).optional(),
+  category: z.enum(STORE_PRODUCT_CATEGORIES).optional(),
+  price: money.optional(),
+  currency: z.string().length(3).optional(),
+  stock: z.number().int().min(0).optional(),
+  active: z.boolean().optional(),
+  fulfillment: z.enum(STORE_FULFILLMENTS).optional(),
   supplierId: z.string().min(1).optional(),
   sku: z.string().max(60).optional(),
   style: z.string().max(120).optional(),
@@ -38,6 +58,15 @@ const supplierInput = z.object({
   name: z.string().min(1).max(200),
   region: z.enum(SUPPLIER_REGIONS).default("china"),
   status: z.enum(SUPPLIER_STATUSES).default("active"),
+  contact: z.string().max(200).optional(),
+  leadTimeDays: z.number().int().min(0).max(365).optional(),
+  notes: z.string().max(2000).optional(),
+});
+
+const supplierUpdateInput = z.object({
+  name: z.string().min(1).max(200).optional(),
+  region: z.enum(SUPPLIER_REGIONS).optional(),
+  status: z.enum(SUPPLIER_STATUSES).optional(),
   contact: z.string().max(200).optional(),
   leadTimeDays: z.number().int().min(0).max(365).optional(),
   notes: z.string().max(2000).optional(),
@@ -110,7 +139,7 @@ const productsRouter = router({
   }),
 
   update: adminProcedure
-    .input(z.object({ id: z.string().min(1), data: productInput.partial() }))
+    .input(z.object({ id: z.string().min(1), data: productUpdateInput }))
     .mutation(async ({ ctx, input }) => {
       const { price, ...rest } = input.data;
       const [row] = await ctx.db
@@ -143,6 +172,22 @@ const productsRouter = router({
       if (!row) throw new TRPCError({ code: "NOT_FOUND", message: "Product not found." });
       return row;
     }),
+
+  delete: adminProcedure
+    .input(z.object({ id: z.string().min(1) }))
+    .mutation(async ({ ctx, input }) => {
+      const [row] = await ctx.db
+        .delete(storeProducts)
+        .where(
+          and(
+            eq(storeProducts.id, input.id),
+            eq(storeProducts.organizationId, ctx.activeOrganizationId),
+          ),
+        )
+        .returning();
+      if (!row) throw new TRPCError({ code: "NOT_FOUND", message: "Product not found." });
+      return row;
+    }),
 });
 
 const suppliersRouter = router({
@@ -164,7 +209,7 @@ const suppliersRouter = router({
   }),
 
   update: adminProcedure
-    .input(z.object({ id: z.string().min(1), data: supplierInput.partial() }))
+    .input(z.object({ id: z.string().min(1), data: supplierUpdateInput }))
     .mutation(async ({ ctx, input }) => {
       const [row] = await ctx.db
         .update(suppliers)

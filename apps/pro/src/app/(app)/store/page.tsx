@@ -1,12 +1,12 @@
 "use client";
 
-import { useState, useCallback, useEffect, useMemo } from "react";
+import { useState, useCallback, useMemo } from "react";
+import { trpc } from "@/lib/trpc";
 import { useI18n } from "@/lib/i18n";
 import { useToast } from "@/components/toast";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import {
   formatCurrency,
-  useDataStore,
   type StoreProduct,
   type StoreProductCategory,
   type StoreProductFulfillment,
@@ -74,15 +74,6 @@ const orderStatusConfig: Record<StoreOrderStatus, { color: string }> = {
   cancelled: { color: "bg-vytal-red/10 text-vytal-red" },
 };
 
-const orderStatusFlow: StoreOrderStatus[] = [
-  "draft",
-  "sent",
-  "confirmed",
-  "in_production",
-  "shipped",
-  "delivered",
-];
-
 const paymentMethodLabels: Record<PaymentMethod, string> = {
   cash: "Cash",
   card: "Card",
@@ -107,19 +98,43 @@ const statusConfig: Record<StoreSaleStatus, { label: string; color: string }> = 
 export default function StorePage() {
   const { t } = useI18n();
   const { toast } = useToast();
-  const storeProducts = useDataStore((s) => s.storeProducts);
-  const storeSales = useDataStore((s) => s.storeSales);
-  const storeSuppliers = useDataStore((s) => s.storeSuppliers);
-  const storeOrders = useDataStore((s) => s.storeOrders);
-  const addStoreProduct = useDataStore((s) => s.addStoreProduct);
-  const updateStoreProduct = useDataStore((s) => s.updateStoreProduct);
-  const deleteStoreProduct = useDataStore((s) => s.deleteStoreProduct);
-  const toggleStoreProductActive = useDataStore((s) => s.toggleStoreProductActive);
-  const updateStoreSupplier = useDataStore((s) => s.updateStoreSupplier);
-  const updateStoreOrder = useDataStore((s) => s.updateStoreOrder);
+  const utils = trpc.useUtils();
+  const productsQuery = trpc.shop.products.list.useQuery();
+  const salesQuery = trpc.shop.sales.list.useQuery();
+  const suppliersQuery = trpc.shop.suppliers.list.useQuery();
+  const ordersQuery = trpc.shop.orders.list.useQuery();
+
+  // Adapt the API rows to the storefront display types (keeps the JSX intact).
+  const products: Product[] = (productsQuery.data?.items ?? []).map((p) => ({
+    id: p.id, name: p.name, price: Number(p.price), stock: p.stock, category: p.category,
+    active: p.active, style: p.style ?? "", color: p.color ?? "", size: p.size ?? "",
+    branding: p.branding ?? "", supplierId: p.supplierId ?? "", fulfillment: p.fulfillment, sku: p.sku ?? "",
+  }));
+  const suppliers: StoreSupplier[] = (suppliersQuery.data?.items ?? []).map((s) => ({
+    id: s.id, name: s.name, region: s.region, country: "", dealer: s.contact ?? "",
+    website: "", leadTimeDays: s.leadTimeDays ?? 0, minOrderQty: 0, status: s.status, channels: [],
+  }));
+  const productNameById = new Map(products.map((p) => [p.id, p.name] as const));
+  const orders: StoreOrder[] = (ordersQuery.data?.items ?? []).map((o) => ({
+    id: o.id, date: new Date(o.placedAt).toISOString().slice(0, 10),
+    productName: o.productId ? productNameById.get(o.productId) ?? "" : "",
+    supplierId: o.supplierId ?? "", quantity: o.quantity, total: Number(o.total),
+    status: o.status === "placed" ? "confirmed" : o.status,
+    tracking: o.trackingCode ?? "", eta: "", source: "",
+  }));
+  const sales: Sale[] = (salesQuery.data?.items ?? []).map((s) => ({
+    id: s.id, date: new Date(s.soldAt).toISOString().slice(0, 10), memberName: s.customerName,
+    items: s.items.map((i) => ({ productName: i.productName, qty: i.qty })),
+    total: Number(s.total), paymentMethod: s.paymentMethod, status: s.status,
+  }));
+
+  const createProduct = trpc.shop.products.create.useMutation({ onSuccess: () => utils.shop.products.list.invalidate() });
+  const updateProductM = trpc.shop.products.update.useMutation({ onSuccess: () => utils.shop.products.list.invalidate() });
+  const deleteProductM = trpc.shop.products.delete.useMutation({ onSuccess: () => utils.shop.products.list.invalidate() });
+  const updateSupplierM = trpc.shop.suppliers.update.useMutation({ onSuccess: () => utils.shop.suppliers.list.invalidate() });
+  const updateOrderM = trpc.shop.orders.updateStatus.useMutation({ onSuccess: () => utils.shop.orders.list.invalidate() });
+
   const [tab, setTab] = useState<"products" | "sales" | "suppliers">("products");
-  const [products, setProducts] = useState<Product[]>(storeProducts);
-  const [sales] = useState<Sale[]>(storeSales);
   const [search, setSearch] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -133,7 +148,7 @@ export default function StorePage() {
   const [formColor, setFormColor] = useState("");
   const [formSize, setFormSize] = useState("");
   const [formBranding, setFormBranding] = useState("");
-  const [formSupplierId, setFormSupplierId] = useState(storeSuppliers[0]?.id ?? "");
+  const [formSupplierId, setFormSupplierId] = useState(suppliers[0]?.id ?? "");
   const [formFulfillment, setFormFulfillment] = useState<StoreProductFulfillment>("external");
 
   // Delete confirmation
@@ -143,11 +158,6 @@ export default function StorePage() {
   const [salesSearch, setSalesSearch] = useState("");
   const [salesStatusFilter, setSalesStatusFilter] = useState<StoreSaleStatus | "all">("all");
   const [showStatusDropdown, setShowStatusDropdown] = useState(false);
-  useEffect(() => {
-    setProducts(storeProducts);
-  }, [storeProducts]);
-  const suppliers: StoreSupplier[] = storeSuppliers;
-  const orders: StoreOrder[] = storeOrders;
   const supplierById = useMemo(
     () => new Map(suppliers.map((supplier) => [supplier.id, supplier] as const)),
     [suppliers]
@@ -198,11 +208,11 @@ export default function StorePage() {
     setFormColor("");
     setFormSize("");
     setFormBranding("");
-    setFormSupplierId(storeSuppliers[0]?.id ?? "");
+    setFormSupplierId(suppliers[0]?.id ?? "");
     setFormFulfillment("external");
     setShowForm(false);
     setEditingId(null);
-  }, [storeSuppliers]);
+  }, [suppliers]);
 
   const handleEdit = useCallback((product: Product) => {
     setFormName(product.name);
@@ -221,87 +231,61 @@ export default function StorePage() {
 
   const handleSubmit = useCallback(() => {
     if (!formName.trim()) return;
+    const data = {
+      name: formName.trim(),
+      price: parseFloat(formPrice) || 0,
+      stock: parseInt(formStock) || 0,
+      category: formCategory,
+      style: formStyle.trim() || undefined,
+      color: formColor.trim() || undefined,
+      size: formSize.trim() || undefined,
+      branding: formBranding.trim() || undefined,
+      supplierId: formSupplierId || undefined,
+      fulfillment: formFulfillment,
+      sku: `VT-${formName.trim().replace(/\s+/g, "-").toUpperCase().slice(0, 12)}`,
+    };
     if (editingId) {
-      const next = {
-        name: formName.trim(),
-        price: parseFloat(formPrice) || 0,
-        stock: parseInt(formStock) || 0,
-        category: formCategory,
-        style: formStyle.trim(),
-        color: formColor.trim(),
-        size: formSize.trim(),
-        branding: formBranding.trim(),
-        supplierId: formSupplierId,
-        fulfillment: formFulfillment,
-        sku: `VT-${formName.trim().replace(/\s+/g, "-").toUpperCase().slice(0, 12)}`,
-      } satisfies Partial<Product>;
-      updateStoreProduct(editingId, next);
-      setProducts((prev) => prev.map((p) => (p.id === editingId ? { ...p, ...next } : p)));
+      updateProductM.mutate({ id: editingId, data });
       toast(t("store.productUpdated"), "success");
     } else {
-      const newProduct = {
-        name: formName.trim(),
-        price: parseFloat(formPrice) || 0,
-        stock: parseInt(formStock) || 0,
-        category: formCategory,
-        active: true,
-        style: formStyle.trim(),
-        color: formColor.trim(),
-        size: formSize.trim(),
-        branding: formBranding.trim(),
-        supplierId: formSupplierId,
-        fulfillment: formFulfillment,
-        sku: `VT-${formName.trim().replace(/\s+/g, "-").toUpperCase().slice(0, 12)}`,
-      } satisfies Omit<Product, "id">;
-      const id = addStoreProduct(newProduct);
-      setProducts((prev) => [...prev, { ...newProduct, id }]);
+      createProduct.mutate(data);
       toast(t("store.productAdded"), "success");
     }
     resetForm();
-  }, [formName, formPrice, formStock, formCategory, formStyle, formColor, formSize, formBranding, formSupplierId, formFulfillment, editingId, resetForm, toast, t, addStoreProduct, updateStoreProduct]);
+  }, [formName, formPrice, formStock, formCategory, formStyle, formColor, formSize, formBranding, formSupplierId, formFulfillment, editingId, resetForm, toast, t, createProduct, updateProductM]);
 
   const handleConfirmDelete = useCallback(() => {
     if (!deleteTarget) return;
-    const removed = products.find((p) => p.id === deleteTarget.id);
-    deleteStoreProduct(deleteTarget.id);
-    setProducts((prev) => prev.filter((p) => p.id !== deleteTarget.id));
-    toast(t("store.productDeleted"), "success", {
-      action: removed
-        ? {
-            label: t("action.undo"),
-            onClick: () => {
-              const { id: removedId, ...rest } = removed;
-              void removedId;
-              const restoredId = addStoreProduct(rest);
-              setProducts((prev) => [...prev, { ...rest, id: restoredId }]);
-            },
-          }
-        : undefined,
-    });
+    deleteProductM.mutate({ id: deleteTarget.id });
+    toast(t("store.productDeleted"), "success");
     setDeleteTarget(null);
-  }, [deleteTarget, products, toast, t, addStoreProduct, deleteStoreProduct]);
+  }, [deleteTarget, toast, t, deleteProductM]);
 
   const handleToggleActive = useCallback((id: string) => {
-    toggleStoreProductActive(id);
-    setProducts((prev) =>
-      prev.map((p) => (p.id === id ? { ...p, active: !p.active } : p))
-    );
-  }, [toggleStoreProductActive]);
+    const current = products.find((p) => p.id === id);
+    updateProductM.mutate({ id, data: { active: !(current?.active ?? true) } });
+  }, [products, updateProductM]);
 
   const handleSyncOrders = useCallback(() => {
     toast(t("store.ordersSynced"), "success");
   }, [toast, t]);
 
   const handleToggleSupplierStatus = useCallback((id: string, nextStatus: StoreSupplier["status"]) => {
-    updateStoreSupplier(id, { status: nextStatus });
-  }, [updateStoreSupplier]);
+    updateSupplierM.mutate({ id, data: { status: nextStatus } });
+  }, [updateSupplierM]);
 
-  const handleAdvanceOrderStatus = useCallback((id: string, currentStatus: StoreOrderStatus) => {
-    if (currentStatus === "cancelled") return;
-    const index = orderStatusFlow.indexOf(currentStatus);
-    const nextStatus = orderStatusFlow[Math.min(index + 1, orderStatusFlow.length - 1)];
-    updateStoreOrder(id, { status: nextStatus });
-  }, [updateStoreOrder]);
+  // Advance through the real (API) order lifecycle.
+  const handleAdvanceOrderStatus = useCallback(
+    (id: string) => {
+      const flow = ["draft", "placed", "in_production", "shipped", "delivered"] as const;
+      const current = (ordersQuery.data?.items ?? []).find((o) => o.id === id)?.status;
+      if (!current || current === "cancelled" || current === "delivered") return;
+      const idx = flow.indexOf(current as (typeof flow)[number]);
+      const next = flow[Math.min(idx + 1, flow.length - 1)];
+      updateOrderM.mutate({ id, status: next });
+    },
+    [ordersQuery.data, updateOrderM],
+  );
 
   return (
     <div className="space-y-6">
@@ -912,7 +896,7 @@ export default function StorePage() {
                     <td className="px-4 py-3 text-sm text-vytal-muted">{order.tracking}</td>
                     <td className="px-4 py-3">
                       <button
-                        onClick={() => handleAdvanceOrderStatus(order.id, order.status)}
+                        onClick={() => handleAdvanceOrderStatus(order.id)}
                         disabled={order.status === "delivered" || order.status === "cancelled"}
                         className={cn(
                           "inline-flex rounded-full px-2 py-0.5 text-xs font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-60",

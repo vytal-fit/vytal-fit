@@ -111,7 +111,7 @@ O DB já existe (Neon Postgres + Drizzle + migrações + seed + Better Auth + tR
 ## Erradicação de mock data (★ estrela-guia)
 Auditoria 2026-06-30 (`useDataStore` = store mock/localStorage de domínio):
 - **`my`**: **0 páginas com `useDataStore`** ✅ — home, schedule, wod, records, profile, wellness todas em tRPC real. (Resta `progress` com `GOALS_KEY` local = metas pessoais; sem API de goals ainda.)
-- **`pro`**: ~41 páginas em mock (settings/*, members/*, classes/*, crm, dashboard, store, financials, staff, …). Reais via tRPC: members/staff/classes/WODs/CRM/plans/locations/class-types/exercises/check-ins/settings (parcial).
+- **`pro`**: ~40 páginas em mock (settings/*, members/*, classes/*, crm, dashboard, financials, staff, …). Reais via tRPC: members/staff/classes/WODs/CRM/plans/locations/class-types/exercises/check-ins/settings (parcial) + **`store`** (catálogo/fornecedores/encomendas/vendas via `shop`).
 - **Loja / merch (D7)**: **API + seed prontos** — tabelas `suppliers`/`store_products`/`store_orders` (migração 0010), router `shop` (catálogo, fornecedores china/pt/eu, encomendas com total+tracking, role-gated), 9 testes, seed org-1 (4 fornecedores + 6 produtos + 3 encomendas). **Falta ligar a UI do `pro/store`** (946 linhas em mock) + reconciliar o campo `style` (existe no protótipo, não no schema). → próximo passo F2 (browser-QA).
 - **Biblioteca de exercícios**: router `exercises` existe (catálogo file-backed 1.3k+ movimentos, validação no WOD builder); falta pipeline editorial/media e consumo real em todas as superfícies.
 - **Regra**: cada página migrada deixa de importar `useDataStore` para dados de domínio e passa a `trpc.*`; `localStorage` só preferências via `STORAGE_KEYS`.
