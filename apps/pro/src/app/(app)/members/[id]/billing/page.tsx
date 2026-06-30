@@ -19,26 +19,26 @@ import { useI18n } from "@/lib/i18n";
 import { useToast } from "@/components/toast";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 
-const mockBillingHistory = [
-  { id: "bill-1", date: "2026-06-01", description: "Plano Livre - Mensal", amount: 75, method: "Stripe", status: "paid" as const, receiptId: "REC-2026-0601" },
-  { id: "bill-2", date: "2026-05-01", description: "Plano Livre - Mensal", amount: 75, method: "Stripe", status: "paid" as const, receiptId: "REC-2026-0501" },
-  { id: "bill-3", date: "2026-04-01", description: "Plano Livre - Mensal", amount: 75, method: "Stripe", status: "paid" as const, receiptId: "REC-2026-0401" },
-  { id: "bill-4", date: "2026-03-01", description: "Plano Livre - Mensal", amount: 75, method: "MB Way", status: "paid" as const, receiptId: "REC-2026-0301" },
-  { id: "bill-5", date: "2026-02-01", description: "Plano Livre - Mensal", amount: 75, method: "Stripe", status: "failed" as const, receiptId: "REC-2026-0201" },
-  { id: "bill-6", date: "2026-01-01", description: "Plano Livre - Mensal", amount: 75, method: "Stripe", status: "paid" as const, receiptId: "REC-2026-0101" },
-  { id: "bill-7", date: "2025-12-01", description: "Plano 8x - Mensal", amount: 60, method: "SEPA", status: "paid" as const, receiptId: "REC-2025-1201" },
-  { id: "bill-8", date: "2025-11-01", description: "Plano 8x - Mensal", amount: 60, method: "SEPA", status: "paid" as const, receiptId: "REC-2025-1101" },
-  { id: "bill-9", date: "2025-10-01", description: "Plano 8x - Mensal", amount: 60, method: "Stripe", status: "paid" as const, receiptId: "REC-2025-1001" },
-  { id: "bill-10", date: "2025-09-01", description: "Plano 8x - Mensal", amount: 60, method: "Stripe", status: "paid" as const, receiptId: "REC-2025-0901" },
-  { id: "bill-11", date: "2025-08-01", description: "Plano 8x - Mensal", amount: 60, method: "MB Way", status: "pending" as const, receiptId: "REC-2025-0801" },
-  { id: "bill-12", date: "2025-07-01", description: "Plano 8x - Mensal", amount: 60, method: "Stripe", status: "paid" as const, receiptId: "REC-2025-0701" },
-];
+const PAYMENT_METHOD_LABELS: Record<string, string> = {
+  mbway: "MB Way",
+  multibanco: "Multibanco",
+  sepa: "SEPA",
+  card: "Cartão",
+  cash: "Numerário",
+  transfer: "Transferência",
+};
 
-function StatusBadge({ status }: { status: "paid" | "pending" | "failed" }) {
+function StatusBadge({
+  status,
+}: {
+  status: "paid" | "pending" | "failed" | "overdue" | "refunded";
+}) {
   const config = {
     paid: { label: "Paid", className: "bg-vytal-green/10 text-vytal-green" },
     pending: { label: "Pending", className: "bg-vytal-amber/10 text-vytal-amber" },
     failed: { label: "Failed", className: "bg-vytal-red/10 text-vytal-red" },
+    overdue: { label: "Overdue", className: "bg-vytal-red/10 text-vytal-red" },
+    refunded: { label: "Refunded", className: "bg-vytal-bg3 text-vytal-muted" },
   };
   const c = config[status];
   return <span className={cn("inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium", c.className)}>{c.label}</span>;
@@ -51,6 +51,19 @@ export default function MemberBillingPage() {
   const id = params.id as string;
   const memberQuery = trpc.members.byId.useQuery({ id });
   const member = memberQuery.data ? rowToMember(memberQuery.data) : undefined;
+  const paymentsQuery = trpc.payments.byMember.useQuery({ memberId: id });
+  const billingHistory = (paymentsQuery.data ?? []).map((p) => {
+    const when = p.paidAt ?? p.createdAt;
+    return {
+      id: p.id,
+      date: new Date(when).toISOString().slice(0, 10),
+      description: p.reference ? `Pagamento ${p.reference}` : "Mensalidade",
+      amount: Number(p.amount),
+      method: PAYMENT_METHOD_LABELS[p.method] ?? p.method,
+      status: p.status,
+      receiptId: p.reference ?? p.id,
+    };
+  });
 
   if (memberQuery.error?.data?.code === "NOT_FOUND") return notFound();
   if (memberQuery.isPending) {
@@ -62,9 +75,9 @@ export default function MemberBillingPage() {
   }
   if (!member) return notFound();
 
-  const totalPaid = mockBillingHistory.filter((b) => b.status === "paid").reduce((s, b) => s + b.amount, 0);
-  const thisYear = mockBillingHistory.filter((b) => b.date.startsWith("2026") && b.status === "paid").reduce((s, b) => s + b.amount, 0);
-  const outstanding = mockBillingHistory.filter((b) => b.status === "pending" || b.status === "failed").reduce((s, b) => s + b.amount, 0);
+  const totalPaid = billingHistory.filter((b) => b.status === "paid").reduce((s, b) => s + b.amount, 0);
+  const thisYear = billingHistory.filter((b) => b.date.startsWith("2026") && b.status === "paid").reduce((s, b) => s + b.amount, 0);
+  const outstanding = billingHistory.filter((b) => b.status === "pending" || b.status === "failed" || b.status === "overdue").reduce((s, b) => s + b.amount, 0);
 
   return (
     <div className="space-y-6">
@@ -166,7 +179,7 @@ export default function MemberBillingPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-vytal-border">
-              {mockBillingHistory.map((bill) => (
+              {billingHistory.map((bill) => (
                 <tr key={bill.id} className="bg-vytal-card transition-colors hover:bg-vytal-bg3">
                   <td className="px-4 py-3 font-mono text-sm text-vytal-muted">{bill.date}</td>
                   <td className="px-4 py-3 text-sm text-vytal-text">{bill.description}</td>

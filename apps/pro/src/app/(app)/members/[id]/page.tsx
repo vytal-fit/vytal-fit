@@ -113,14 +113,14 @@ function formatRelative(dateStr?: string): string {
 type Tab = "overview" | "activity" | "payments" | "communications" | "health" | "notes";
 
 // Mock payment data
-const mockPayments = [
-  { id: "pay-1", date: "2026-06-01", amount: 75, method: "Stripe", plan: "Livre", status: "paid" as const, receiptId: "REC-2026-001" },
-  { id: "pay-2", date: "2026-05-01", amount: 75, method: "Stripe", plan: "Livre", status: "paid" as const, receiptId: "REC-2026-002" },
-  { id: "pay-3", date: "2026-04-01", amount: 75, method: "Stripe", plan: "Livre", status: "paid" as const, receiptId: "REC-2026-003" },
-  { id: "pay-4", date: "2026-03-01", amount: 75, method: "MB Way", plan: "Livre", status: "paid" as const, receiptId: "REC-2026-004" },
-  { id: "pay-5", date: "2026-02-01", amount: 75, method: "Stripe", plan: "Livre", status: "failed" as const, receiptId: "REC-2026-005" },
-  { id: "pay-6", date: "2026-01-01", amount: 75, method: "Stripe", plan: "Livre", status: "pending" as const, receiptId: "REC-2026-006" },
-];
+const PAYMENT_METHOD_LABELS: Record<string, string> = {
+  mbway: "MB Way",
+  multibanco: "Multibanco",
+  sepa: "SEPA",
+  card: "Cartão",
+  cash: "Numerário",
+  transfer: "Transferência",
+};
 
 // Mock activity timeline
 const mockActivities = [
@@ -421,6 +421,21 @@ export default function MemberDetailPage() {
     [prQuery.data],
   );
 
+  const paymentsQuery = trpc.payments.byMember.useQuery({ memberId: id });
+  const memberPayments = useMemo(
+    () =>
+      (paymentsQuery.data ?? []).map((p) => ({
+        id: p.id,
+        date: new Date(p.paidAt ?? p.createdAt).toISOString().slice(0, 10),
+        amount: Number(p.amount),
+        method: PAYMENT_METHOD_LABELS[p.method] ?? p.method,
+        plan: "",
+        status: p.status,
+        receiptId: p.reference ?? p.id,
+      })),
+    [paymentsQuery.data],
+  );
+
   if (memberQuery.error?.data?.code === "NOT_FOUND") {
     notFound();
   }
@@ -524,7 +539,7 @@ export default function MemberDetailPage() {
     toast(`${t("memberPayments.downloadStarted")} ${receiptId}`, "info");
   }
 
-  const totalPaidThisYear = mockPayments
+  const totalPaidThisYear = memberPayments
     .filter((p) => p.status === "paid")
     .reduce((sum, p) => sum + p.amount, 0);
 
@@ -1036,13 +1051,15 @@ export default function MemberDetailPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-vytal-border">
-                {mockPayments.map((payment) => {
-                  const statusConfig = {
+                {memberPayments.map((payment) => {
+                  const statusConfig: Record<string, { label: string; className: string; icon: React.ReactNode }> = {
                     paid: { label: t("memberPayments.paid"), className: "bg-vytal-green/10 text-vytal-green", icon: <CheckCircle className="h-3 w-3" /> },
                     pending: { label: t("memberPayments.pending"), className: "bg-vytal-amber/10 text-vytal-amber", icon: <Clock className="h-3 w-3" /> },
                     failed: { label: t("memberPayments.failed"), className: "bg-vytal-red/10 text-vytal-red", icon: <XCircle className="h-3 w-3" /> },
+                    overdue: { label: t("financials.overdue") || "Overdue", className: "bg-vytal-red/10 text-vytal-red", icon: <XCircle className="h-3 w-3" /> },
+                    refunded: { label: t("financials.refunded") || "Refunded", className: "bg-vytal-bg3 text-vytal-muted", icon: <Clock className="h-3 w-3" /> },
                   };
-                  const cfg = statusConfig[payment.status];
+                  const cfg = statusConfig[payment.status] ?? statusConfig.pending;
                   return (
                     <tr key={payment.id} className="bg-vytal-card transition-colors hover:bg-vytal-bg3">
                       <td className="px-4 py-3 text-sm text-vytal-text">
