@@ -509,10 +509,10 @@ export default function BrandPage() {
                     <div>{row.w} · {row.tr === "0" ? "0 tr" : row.tr}</div>
                   </div>
                 </div>
-                {/* specimen */}
-                <div className="min-w-0 overflow-hidden">
+                {/* specimen — overflow-x-clip keeps descenders (the y leg) visible */}
+                <div className="min-w-0 overflow-x-clip">
                   <span
-                    className={`${row.mono ? "font-mono" : "font-sans"} block truncate ${row.mono ? "text-[var(--b-muted)]" : "text-[var(--b-text)]"}`}
+                    className={`${row.mono ? "font-mono" : "font-sans"} block whitespace-nowrap ${row.mono ? "text-[var(--b-muted)]" : "text-[var(--b-text)]"}`}
                     style={{
                       fontSize: row.px,
                       fontWeight: row.w,
