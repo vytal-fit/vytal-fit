@@ -51,5 +51,5 @@ bookings, memberships, results, and developer integrations.
 
 - Root-level API paths instead of prefixed routes
 - Cross-origin browser auth with credentials
-- Session-based active-space switching
+- Session-based active-organization switching
 - Separate app, member, landing, and API origins

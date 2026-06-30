@@ -279,7 +279,7 @@ export async function fetchSession(): Promise<AuthSession | null> {
 }
 
 export async function listOrganizations(): Promise<AuthOrganization[]> {
-  const { data } = await requestJson<AuthOrganization[]>("/spaces", {
+  const { data } = await requestJson<AuthOrganization[]>("/organizations", {
     method: "GET",
   });
   return data;
@@ -290,7 +290,7 @@ export async function getFullOrganization(
 ): Promise<AuthFullOrganization | null> {
   try {
     const { data } = await requestJson<AuthFullOrganization | null>(
-      `/spaces/${organizationId}`,
+      `/organizations/${organizationId}`,
       { method: "GET" },
     );
     return data;
@@ -303,9 +303,9 @@ export async function getFullOrganization(
 }
 
 export async function updateActiveSpace(spaceId: string): Promise<void> {
-  await requestJson("/session", {
+  await requestJson("/me/session", {
     method: "PATCH",
-    body: { activeSpaceId: spaceId },
+    body: { activeOrganizationId: spaceId },
   });
 }
 

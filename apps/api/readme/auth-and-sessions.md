@@ -17,7 +17,7 @@ Use the Better Auth endpoints on `api.vytal.fit` for all session management.
 - `POST /auth/sign-up/email`
 - `POST /auth/sign-out`
 - `GET /auth/session`
-- `PATCH /session`
+- `PATCH /me/session`
 - `GET /openapi.json`
 
 ## Auth model
@@ -44,17 +44,17 @@ curl https://api.vytal.fit/auth/session \
   -H 'authorization: Bearer <token>'
 ```
 
-### Switch the active space
+### Switch the active organization
 
 ```bash
-curl -X PATCH https://api.vytal.fit/session \
+curl -X PATCH https://api.vytal.fit/me/session \
   -H 'content-type: application/json' \
   -H 'authorization: Bearer <token>' \
-  -d '{"activeSpaceId":"org_123"}'
+  -d '{"activeOrganizationId":"org_123"}'
 ```
 
 ## Client rules
 
 - Send credentials on every browser request
-- Use the session wrapper for active-space changes
+- Use the session wrapper for active-organization changes
 - Use `/openapi.json` for the machine-readable contract

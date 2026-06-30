@@ -23,8 +23,8 @@ The public API is intentionally resource-oriented.
 ## Path shape
 
 - `/auth/*` for authentication
-- `/session` for active-space switching
-- `/spaces` for org discovery
+- `/me/session` for the current session resource
+- `/organizations` for organization discovery
 - `/bookings` for booking lifecycle
 - `/records` for personal records
 - `/results` for WOD results

@@ -17,8 +17,8 @@ export const openApiSpec = {
   ],
   tags: [
     { name: "Auth", description: "Better Auth endpoints used by the web and mobile clients." },
-    { name: "Session", description: "Authenticated session helpers." },
-    { name: "Spaces", description: "Organization lookup and switching." },
+    { name: "Session", description: "Current authenticated session helpers." },
+    { name: "Organizations", description: "Organization lookup and switching." },
     { name: "Bookings", description: "Booking lifecycle wrappers." },
     { name: "Records", description: "Personal record CRUD wrappers." },
     { name: "Results", description: "WOD result CRUD wrappers." },
@@ -93,42 +93,96 @@ export const openApiSpec = {
         },
       },
     },
-    "/session": {
+    "/me/session": {
       patch: {
         tags: ["Session"],
-        summary: "Update the active space",
+        summary: "Update the current session's active organization",
         requestBody: {
           required: true,
           content: {
             "application/json": {
               schema: {
                 type: "object",
-                required: ["activeSpaceId"],
+                required: ["activeOrganizationId"],
                 properties: {
-                  activeSpaceId: { type: "string" },
+                  activeOrganizationId: { type: "string" },
                 },
               },
             },
           },
         },
         responses: {
-          "200": { description: "Active space updated." },
+          "200": { description: "Active organization updated." },
+        },
+      },
+    },
+    "/organizations": {
+      get: {
+        tags: ["Organizations"],
+        summary: "List accessible organizations",
+        responses: {
+          "200": { description: "Organization list." },
+        },
+      },
+    },
+    "/organizations/{organizationId}": {
+      get: {
+        tags: ["Organizations"],
+        summary: "Get a single organization",
+        parameters: [
+          {
+            name: "organizationId",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+          },
+        ],
+        responses: {
+          "200": { description: "Organization detail." },
+          "404": { description: "Organization not found." },
+        },
+      },
+    },
+    "/session": {
+      patch: {
+        tags: ["Session"],
+        deprecated: true,
+        summary: "Deprecated alias for PATCH /me/session",
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["activeOrganizationId"],
+                properties: {
+                  activeOrganizationId: { type: "string" },
+                  activeSpaceId: { type: "string", deprecated: true },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          "200": { description: "Active organization updated." },
         },
       },
     },
     "/spaces": {
       get: {
-        tags: ["Spaces"],
-        summary: "List accessible spaces",
+        tags: ["Organizations"],
+        deprecated: true,
+        summary: "Deprecated alias for GET /organizations",
         responses: {
-          "200": { description: "Spaces list." },
+          "200": { description: "Organization list." },
         },
       },
     },
     "/spaces/{spaceId}": {
       get: {
-        tags: ["Spaces"],
-        summary: "Get a single space",
+        tags: ["Organizations"],
+        deprecated: true,
+        summary: "Deprecated alias for GET /organizations/{organizationId}",
         parameters: [
           {
             name: "spaceId",
@@ -138,8 +192,8 @@ export const openApiSpec = {
           },
         ],
         responses: {
-          "200": { description: "Space detail." },
-          "404": { description: "Space not found." },
+          "200": { description: "Organization detail." },
+          "404": { description: "Organization not found." },
         },
       },
     },

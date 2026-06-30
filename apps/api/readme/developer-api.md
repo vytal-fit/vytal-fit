@@ -24,7 +24,7 @@ mobile clients, and partner integrations.
 ## What’s included
 
 - Better Auth sign-in, sign-up, and session helpers
-- Organization and active-space switching
+- Organization lookup and active-organization switching
 - Bookings, personal records, and WOD results
 - Runtime health and deployment checks
 - Root-level REST paths on `api.vytal.fit`
@@ -41,7 +41,7 @@ mobile clients, and partner integrations.
 
 - The public API uses nouns and query params, not RPC-style verbs.
 - Browser clients send credentials cross-origin to `api.vytal.fit`.
-- Org-scoped mutations require an active space on the session.
+- Org-scoped mutations require an active organization on the session.
 - Mobile clients talk to the API host directly.
 - The API host root redirects to `/openapi.json`.
 
@@ -50,8 +50,8 @@ mobile clients, and partner integrations.
 - `/auth/sign-in/email`
 - `/auth/sign-up/email`
 - `/auth/session`
-- `/session`
-- `/spaces`
+- `/me/session`
+- `/organizations`
 - `/bookings`
 - `/records`
 - `/results`

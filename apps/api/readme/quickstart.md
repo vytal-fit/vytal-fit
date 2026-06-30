@@ -32,20 +32,20 @@ curl https://api.vytal.fit/auth/session \
   -H 'authorization: Bearer <token>'
 ```
 
-## 4. Load spaces
+## 4. Load organizations
 
 ```bash
-curl https://api.vytal.fit/spaces \
+curl https://api.vytal.fit/organizations \
   -H 'authorization: Bearer <token>'
 ```
 
-## 5. Switch the active space
+## 5. Switch the active organization
 
 ```bash
-curl -X PATCH https://api.vytal.fit/session \
+curl -X PATCH https://api.vytal.fit/me/session \
   -H 'content-type: application/json' \
   -H 'authorization: Bearer <token>' \
-  -d '{"activeSpaceId":"org_123"}'
+  -d '{"activeOrganizationId":"org_123"}'
 ```
 
 ## 6. Make a business request

@@ -25,7 +25,7 @@ EXPO_PUBLIC_API_URL=https://api.vytal.fit
 1. Sign in with email and password.
 2. Store the returned token in secure storage.
 3. Fetch the session with the token on later app launches.
-4. Load spaces and set the active space as needed.
+4. Load organizations and set the active organization as needed.
 
 ## Example calls
 
@@ -36,7 +36,7 @@ curl -X POST https://api.vytal.fit/auth/sign-in/email \
 ```
 
 ```bash
-curl https://api.vytal.fit/spaces \
+curl https://api.vytal.fit/organizations \
   -H 'authorization: Bearer <token>'
 ```
 
@@ -44,4 +44,4 @@ curl https://api.vytal.fit/spaces \
 
 - Keep the token in secure storage.
 - Reuse the API host directly.
-- Treat `memberId` and `activeSpaceId` as session-scoped, not client-scoped.
+- Treat `memberId` and `activeOrganizationId` as session-scoped, not client-scoped.
