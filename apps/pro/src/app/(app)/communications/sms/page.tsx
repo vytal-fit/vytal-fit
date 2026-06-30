@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { useDataStore } from "@/stores/data-store";
+import { trpc } from "@/lib/trpc";
 import type { MemberStatus } from "@vytal-fit/shared";
 import { Smartphone, Send, Users, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -30,9 +30,10 @@ const recentSMS = [
 
 export default function SMSTargetingPage() {
   const { t } = useI18n();
-  const storeMembers = useDataStore((s) => s.members);
-  const storePlans = useDataStore((s) => s.plans);
-  const storeClassTypes = useDataStore((s) => s.classTypes);
+  const membersQuery = trpc.members.list.useQuery({});
+  const storeMembers = useMemo(() => membersQuery.data?.items ?? [], [membersQuery.data]);
+  const storePlans = trpc.subscriptions.plans.list.useQuery().data ?? [];
+  const storeClassTypes = trpc.classTypes.list.useQuery().data ?? [];
   const [gender, setGender] = useState("all");
   const [statusFilter, setStatusFilter] = useState<"all" | MemberStatus>("all");
   const [planFilter, setPlanFilter] = useState("all");
