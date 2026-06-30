@@ -39,8 +39,7 @@ export default function WelcomePage() {
 
   useEffect(() => {
     if (!isAuthenticated || !user) return;
-    // Unverified users, or those with no gym yet, belong on /onboarding.
-    if (!user.user.emailVerified || user.memberships.length === 0) {
+    if (user.memberships.length === 0) {
       window.location.assign("/onboarding");
     }
   }, [isAuthenticated, user]);

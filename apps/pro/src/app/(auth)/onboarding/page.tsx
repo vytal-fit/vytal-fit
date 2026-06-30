@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { CreateOrgWizard, type CreateOrgData } from "@/components/create-org-wizard";
-import { VerifyEmailNotice } from "@/components/verify-email-notice";
 import { useDataStore } from "@/stores/data-store";
 import { useAuthStore } from "@/stores/auth-store";
 import { useI18n } from "@/lib/i18n";
@@ -58,11 +57,6 @@ export default function OnboardingPage() {
         <span className="text-sm">{t("welcome.loading")}</span>
       </div>
     );
-  }
-
-  // Confirm the email before letting the user create their first gym.
-  if (!user.user.emailVerified) {
-    return <VerifyEmailNotice />;
   }
 
   return (

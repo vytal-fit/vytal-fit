@@ -934,14 +934,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (!isAuthenticated) {
       router.replace("/login");
-      return;
     }
-    // Unverified accounts can't reach the backoffice — bounce them to the
-    // email-confirmation gate on /onboarding.
-    if (user && !user.user.emailVerified) {
-      router.replace("/onboarding");
-    }
-  }, [isAuthenticated, user, router]);
+  }, [isAuthenticated, router]);
 
   // Route protection: redirect if current path requires a disabled feature OR insufficient role
   useEffect(() => {
