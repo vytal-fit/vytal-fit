@@ -80,7 +80,7 @@ const COPY: Record<Lang, Record<string, string>> = {
   pt: {
     back: "Voltar ao site",
     eyebrow: "Vytal · Styleguide",
-    lede: "Um sinal vital para negócios de fitness. Um só pulso: a marca, a cor, a tipografia e os produtos que mantêm o batimento do ginásio à vista.",
+    lede: "Um sinal vital para negócios de fitness e de vitalidade para os atletas. Um só pulso: a marca, a cor, a tipografia e os produtos que mantêm o batimento do ginásio à vista.",
     secLogo: "Logótipo",
     onDark: "Sobre escuro",
     onLight: "Sobre claro",
@@ -123,7 +123,7 @@ const COPY: Record<Lang, Record<string, string>> = {
   en: {
     back: "Back to site",
     eyebrow: "Vytal · Styleguide",
-    lede: "A vital sign for fitness businesses. One pulse: the brand, the colour, the type and the products that keep a gym’s heartbeat in view.",
+    lede: "A vital sign for fitness businesses and vitality for the athletes who train. One pulse: the brand, the colour, the type and the products that keep a gym’s heartbeat in view.",
     secLogo: "Logo",
     onDark: "On dark",
     onLight: "On light",
@@ -166,7 +166,7 @@ const COPY: Record<Lang, Record<string, string>> = {
   es: {
     back: "Volver al sitio",
     eyebrow: "Vytal · Styleguide",
-    lede: "Un signo vital para negocios de fitness. Un solo pulso: la marca, el color, la tipografía y los productos que mantienen el latido del gimnasio a la vista.",
+    lede: "Un signo vital para negocios de fitness y de vitalidad para los atletas. Un solo pulso: la marca, el color, la tipografía y los productos que mantienen el latido del gimnasio a la vista.",
     secLogo: "Logotipo",
     onDark: "Sobre oscuro",
     onLight: "Sobre claro",
