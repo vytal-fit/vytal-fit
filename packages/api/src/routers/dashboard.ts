@@ -1,8 +1,9 @@
-import { and, count, eq, gte, inArray, lt, lte } from "drizzle-orm";
+import { and, count, eq, gte, inArray, isNotNull, lt, lte, or } from "drizzle-orm";
 import {
   bookings,
   classes,
   gymMembers,
+  personalRecords,
   subscriptions,
   subscriptionPlans,
 } from "@vytal-fit/db";
@@ -94,13 +95,67 @@ export const dashboardRouter = router({
     }
     const occupancyPercent = capacityToday > 0 ? Math.round((enrolledToday / capacityToday) * 100) : 0;
 
+    // Retention / billing / activity aggregates.
+    const monthStart = ymd(new Date(now.getFullYear(), now.getMonth(), 1));
+    const [[inactiveMembers], [newMembersThisMonth], [prsToday], [atRiskMembers], [pendingPayments]] =
+      await Promise.all([
+        ctx.db
+          .select({ value: count() })
+          .from(gymMembers)
+          .where(and(eq(gymMembers.organizationId, org), eq(gymMembers.status, "inactive"))),
+        ctx.db
+          .select({ value: count() })
+          .from(gymMembers)
+          .where(and(eq(gymMembers.organizationId, org), gte(gymMembers.joinedAt, new Date(monthStart)))),
+        ctx.db
+          .select({ value: count() })
+          .from(personalRecords)
+          .where(
+            and(
+              eq(personalRecords.organizationId, org),
+              gte(personalRecords.achievedAt, startOfDay),
+              lt(personalRecords.achievedAt, startOfNextDay),
+            ),
+          ),
+        ctx.db
+          .select({ value: count() })
+          .from(gymMembers)
+          .where(
+            and(
+              eq(gymMembers.organizationId, org),
+              eq(gymMembers.status, "active"),
+              lte(gymMembers.streakWeeks, 1),
+              isNotNull(gymMembers.lastCheckIn),
+            ),
+          ),
+        ctx.db
+          .select({ value: count() })
+          .from(subscriptions)
+          .where(
+            and(
+              eq(subscriptions.organizationId, org),
+              or(eq(subscriptions.status, "expired"), lte(subscriptions.nextBillingDate, today)),
+            ),
+          ),
+      ]);
+
+    const total = totalMembers?.value ?? 0;
+    const inactive = inactiveMembers?.value ?? 0;
+    const churnRate = total > 0 ? Math.round((inactive / total) * 1000) / 10 : 0;
+
     return {
-      totalMembers: totalMembers?.value ?? 0,
+      totalMembers: total,
       activeMembers: activeMembers?.value ?? 0,
+      inactiveMembers: inactive,
       classesToday: classesToday?.value ?? 0,
       bookingsToday: bookingsToday?.value ?? 0,
       monthlyRevenue,
       occupancyPercent,
+      churnRate,
+      atRiskMembers: atRiskMembers?.value ?? 0,
+      pendingPayments: pendingPayments?.value ?? 0,
+      newMembersThisMonth: newMembersThisMonth?.value ?? 0,
+      prsToday: prsToday?.value ?? 0,
     };
   }),
 
