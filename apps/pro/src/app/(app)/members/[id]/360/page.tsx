@@ -2,7 +2,9 @@
 
 import { useParams } from "next/navigation";
 import { notFound } from "next/navigation";
-import { useDataStore, formatCurrency } from "@/stores/data-store";
+import { formatCurrency } from "@/stores/data-store";
+import { trpc } from "@/lib/trpc";
+import { rowToMember } from "@/lib/member-mapper";
 import { useI18n } from "@/lib/i18n";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { cn } from "@/lib/utils";
@@ -138,15 +140,25 @@ export default function Member360Page() {
   const { t } = useI18n();
   const params = useParams();
   const id = params.id as string;
-  const members = useDataStore((s) => s.members);
-  const subscriptions = useDataStore((s) => s.subscriptions);
-  const plans = useDataStore((s) => s.plans);
+  const memberQuery = trpc.members.byId.useQuery({ id });
+  const subsQuery = trpc.subscriptions.byMember.useQuery({ memberId: id });
+  const plansQuery = trpc.subscriptions.plans.list.useQuery();
 
-  const member = members.find((m) => m.id === id);
-  if (!member) return notFound();
+  const member = memberQuery.data ? rowToMember(memberQuery.data) : undefined;
 
-  const subscription = subscriptions.find((s) => s.memberId === member.id);
-  const plan = subscription ? plans.find((p) => p.id === subscription.planId) : null;
+  if (memberQuery.error?.data?.code === "NOT_FOUND") return notFound();
+  if (memberQuery.isPending || !member) {
+    return (
+      <div className="flex h-64 items-center justify-center">
+        <p className="text-vytal-muted">{t("ui.loading")}</p>
+      </div>
+    );
+  }
+
+  const subscription = subsQuery.data?.[0];
+  const plan = subscription
+    ? plansQuery.data?.find((p) => p.id === subscription.planId)
+    : null;
 
   return (
     <div className="space-y-8">
