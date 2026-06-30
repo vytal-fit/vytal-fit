@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vytal · Brand</title>
+<meta name="description" content="The Vytal visual identity: the vital-sign pulse mark, wordmark, palette and usage.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#080c0a;        /* green-tinted near-black (chosen, not pure #000) */
+    --bg2:#0f1610;
+    --bg3:#162018;
+    --green:#22c55e;
+    --green-deep:#16a34a;
+    --ink:#08120c;       /* pulse stroke on the green tile */
+    --text:#dceee0;
+    --muted:#7f9488;     /* green-biased grey */
+    --hair:#1e2a22;
+    --paper:#f3f7f4;     /* light-bg swatch */
+    --sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  }
+  *{box-sizing:border-box; -webkit-print-color-adjust:exact; print-color-adjust:exact;}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);
+    -webkit-font-smoothing:antialiased;line-height:1.55;}
+  .wrap{max-width:960px;margin:0 auto;padding:72px 28px 110px;}
+  .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.34em;text-transform:uppercase;color:var(--green);margin:0 0 18px;}
+  h2{font-family:var(--mono);font-size:12px;letter-spacing:.26em;text-transform:uppercase;color:var(--muted);font-weight:500;margin:0 0 22px;}
+  .rule{height:1px;background:var(--hair);border:0;margin:56px 0;}
+
+  /* hero */
+  .hero{display:flex;align-items:center;gap:36px;flex-wrap:wrap;}
+  .hero .mark{width:132px;height:132px;flex:0 0 auto;}
+  .hero h1{font-size:clamp(56px,12vw,108px);font-weight:800;letter-spacing:-.05em;margin:0;line-height:.9;}
+  .hero h1 .dot{color:var(--green)}
+  .hero .lede{max-width:54ch;color:var(--muted);font-size:18px;margin:18px 0 0;}
+
+  /* mark animation: draw the pulse in, then a gentle peak glow */
+  .pulse{fill:none;stroke:var(--ink);stroke-width:5;stroke-linecap:round;stroke-linejoin:round;}
+  @media (prefers-reduced-motion: no-preference){
+    .hero .pulse{stroke-dasharray:140;stroke-dashoffset:140;animation:draw 1.1s .15s ease-out forwards;}
+    @keyframes draw{to{stroke-dashoffset:0}}
+    .hero .tile{transform-box:fill-box;transform-origin:center;animation:beat 2.6s 1.3s ease-in-out infinite;}
+    @keyframes beat{0%,86%,100%{filter:none}90%{filter:drop-shadow(0 0 10px rgba(34,197,94,.6))}}
+  }
+
+  /* lockup swatches */
+  .grid2{display:grid;grid-template-columns:1fr;gap:18px;}
+  @media(min-width:680px){.grid2{grid-template-columns:1fr 1fr;}}
+  .swatch{border:1px solid var(--hair);border-radius:18px;padding:38px;display:flex;align-items:center;justify-content:center;min-height:148px;}
+  .swatch.dark{background:var(--bg2);}
+  .swatch.light{background:var(--paper);}
+  .lock{display:flex;align-items:center;gap:18px;}
+  .lock svg{width:64px;height:64px;flex:0 0 auto;}
+  .lock .wm{font-size:46px;font-weight:800;letter-spacing:-.05em;line-height:1;}
+  .lock.on-light .wm{color:#0f1610}
+  .lock.on-dark .wm{color:var(--text)}
+  .lock .wm .dot{color:var(--green)}
+  .label{font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-top:10px;}
+
+  /* sub-brand lockups */
+  .note{color:var(--muted);font-size:14px;max-width:64ch;margin:18px 0 0;}
+  .note b{color:var(--text);font-weight:600;}
+  .dirs{display:flex;flex-direction:column;gap:20px;margin-top:26px;}
+  .dir-cap{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin:0 0 10px;}
+  .dir .swatch{min-height:120px;}
+  .dirrow{display:flex;gap:54px;flex-wrap:wrap;align-items:center;justify-content:center;}
+  .dirrow .lock svg{width:46px;height:46px;}
+  .dirrow .lock .wm{font-size:34px;}
+  .wm .grn{color:var(--green);}
+
+  /* mark at sizes */
+  .sizes{display:flex;align-items:flex-end;gap:30px;flex-wrap:wrap;}
+  .sizes .cell{display:flex;flex-direction:column;align-items:center;gap:10px;}
+  .sizes .cap{font-family:var(--mono);font-size:11px;color:var(--muted);}
+  .markonly{display:block}
+  .markonly .pulse{stroke:var(--ink)}
+
+  /* palette */
+  .pal{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;}
+  @media(min-width:680px){.pal{grid-template-columns:repeat(3,1fr);}}
+  .chip{border:1px solid var(--hair);border-radius:14px;overflow:hidden;}
+  .chip .fill{height:76px;}
+  .chip .meta{padding:12px 14px;}
+  .chip .nm{font-size:13px;font-weight:600;}
+  .chip .hex{font-family:var(--mono);font-size:12px;color:var(--muted);letter-spacing:.04em;text-transform:uppercase;}
+  .chip .role{font-size:11.5px;color:var(--muted);margin-top:2px;}
+
+  /* type */
+  .type-row{border-top:1px solid var(--hair);padding:22px 0;display:flex;flex-wrap:wrap;gap:6px 24px;align-items:baseline;justify-content:space-between;}
+  .type-row:first-child{border-top:0}
+  .type-row .k{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);}
+  .samp-display{font-size:34px;font-weight:800;letter-spacing:-.03em;}
+  .samp-body{font-size:18px;color:var(--text);}
+  .samp-mono{font-family:var(--mono);font-size:15px;color:var(--green);}
+
+  /* usage */
+  .use{display:grid;grid-template-columns:1fr;gap:14px;}
+  @media(min-width:680px){.use{grid-template-columns:1fr 1fr;}}
+  .use .card{border:1px solid var(--hair);border-radius:14px;padding:18px 20px;}
+  .use .h{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;margin-bottom:10px;}
+  .use .do .h{color:var(--green)}
+  .use .dont .h{color:#ff6b6b}
+  .use ul{margin:0;padding-left:18px;color:var(--muted);font-size:14px;}
+  .use li{margin:5px 0}
+
+  .foot{margin-top:64px;font-family:var(--mono);font-size:12px;color:var(--muted);letter-spacing:.04em;}
+  .foot .g{color:var(--green)}
+
+  /* print / PDF */
+  @media print{
+    @page{ size:A4; margin:14mm; }
+    body{ background:var(--bg) !important; }
+    .wrap{ padding:0; max-width:none; }
+    .hero .pulse{ stroke-dashoffset:0 !important; animation:none !important; }
+    .hero .tile{ animation:none !important; }
+    .rule{ margin:34px 0; }
+    .swatch, .chip, .use .card, .dir, .type-row{ break-inside:avoid; }
+    h2{ break-after:avoid; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="eyebrow">Vytal · Brand</p>
+  <div class="hero">
+    <svg class="mark" viewBox="0 0 64 64" aria-label="Vytal mark">
+      <rect class="tile" x="2" y="2" width="60" height="60" rx="16" fill="var(--green)"/>
+      <path class="pulse" d="M11 35 L23 35 L27 25 L32 45 L37 16 L41 35 L53 35"/>
+    </svg>
+    <div>
+      <h1>vytal<span class="dot">.</span></h1>
+      <p class="lede">A vital sign for fitness businesses. One pulse: the mark, the brand, the product that keeps a gym’s heartbeat in view.</p>
+    </div>
+  </div>
+
+  <hr class="rule">
+
+  <h2>Logo</h2>
+  <div class="grid2">
+    <div class="swatch dark">
+      <div>
+        <div class="lock on-dark">
+          <svg viewBox="0 0 64 64" aria-hidden="true"><rect x="2" y="2" width="60" height="60" rx="16" fill="var(--green)"/><path class="pulse" d="M11 35 L23 35 L27 25 L32 45 L37 16 L41 35 L53 35"/></svg>
+          <span class="wm">vytal<span class="dot">.</span></span>
+        </div>
+        <div class="label">On dark · #080c0a</div>
+      </div>
+    </div>
+    <div class="swatch light">
+      <div>
+        <div class="lock on-light">
+          <svg viewBox="0 0 64 64" aria-hidden="true"><rect x="2" y="2" width="60" height="60" rx="16" fill="var(--green)"/><path class="pulse" d="M11 35 L23 35 L27 25 L32 45 L37 16 L41 35 L53 35"/></svg>
+          <span class="wm">vytal<span class="dot">.</span></span>
+        </div>
+        <div class="label" style="color:#5d6f64">On light · #f3f7f4</div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="rule">
+
+  <h2>Sub-brands · pro &amp; my</h2>
+  <p class="note">The product name leads, as one word. <b>myVytal</b> is the athlete’s own space; <b>proVytal</b>, for the people who run the box. The green prefix carries the brand colour; “Vytal” stays in full. The pulse tile never changes, and the app icon is always the single <b>Vytal</b> mark.</p>
+
+  <div class="dirs">
+    <div class="dir">
+      <div class="dir-cap">On dark · #080c0a</div>
+      <div class="swatch dark"><div class="dirrow">
+        <div class="lock on-dark"><svg viewBox="0 0 64 64" aria-hidden="true"><rect x="2" y="2" width="60" height="60" rx="16" fill="var(--green)"/><path class="pulse" d="M11 35 L23 35 L27 25 L32 45 L37 16 L41 35 L53 35"/></svg><span class="wm"><span class="grn">my</span>Vytal</span></div>
+        <div class="lock on-dark"><svg viewBox="0 0 64 64" aria-hidden="true"><rect x="2" y="2" width="60" height="60" rx="16" fill="var(--green)"/><path class="pulse" d="M11 35 L23 35 L27 25 L32 45 L37 16 L41 35 L53 35"/></svg><span class="wm"><span class="grn">pro</span>Vytal</span></div>
+      </div></div>
+    </div>
+
+    <div class="dir">
+      <div class="dir-cap">On light · #f3f7f4</div>
+      <div class="swatch light"><div class="dirrow">
+        <div class="lock on-light"><svg viewBox="0 0 64 64" aria-hidden="true"><rect x="2" y="2" width="60" height="60" rx="16" fill="var(--green)"/><path class="pulse" d="M11 35 L23 35 L27 25 L32 45 L37 16 L41 35 L53 35"/></svg><span class="wm"><span class="grn">my</span>Vytal</span></div>
+        <div class="lock on-light"><svg viewBox="0 0 64 64" aria-hidden="true"><rect x="2" y="2" width="60" height="60" rx="16" fill="var(--green)"/><path class="pulse" d="M11 35 L23 35 L27 25 L32 45 L37 16 L41 35 L53 35"/></svg><span class="wm"><span class="grn">pro</span>Vytal</span></div>
+      </div></div>
+    </div>
+  </div>
+
+  <hr class="rule">
+
+  <h2>The mark · holds at any size</h2>
+  <div class="sizes">
+    <div class="cell"><svg class="markonly" width="88" height="88" viewBox="0 0 64 64" aria-hidden="true"><rect x="2" y="2" width="60" height="60" rx="16" fill="var(--green)"/><path class="pulse" d="M11 35 L23 35 L27 25 L32 45 L37 16 L41 35 L53 35"/></svg><span class="cap">88</span></div>
+    <div class="cell"><svg class="markonly" width="48" height="48" viewBox="0 0 64 64" aria-hidden="true"><rect x="2" y="2" width="60" height="60" rx="15" fill="var(--green)"/><path class="pulse" style="stroke-width:6" d="M11 35 L23 35 L27 25 L32 45 L37 16 L41 35 L53 35"/></svg><span class="cap">48</span></div>
+    <div class="cell"><svg class="markonly" width="32" height="32" viewBox="0 0 64 64" aria-hidden="true"><rect x="2" y="2" width="60" height="60" rx="14" fill="var(--green)"/><path class="pulse" style="stroke-width:7" d="M11 35 L23 35 L27 25 L32 45 L37 16 L41 35 L53 35"/></svg><span class="cap">32 · favicon</span></div>
+    <div class="cell"><svg class="markonly" width="20" height="20" viewBox="0 0 64 64" aria-hidden="true"><rect x="2" y="2" width="60" height="60" rx="13" fill="var(--green)"/><path class="pulse" style="stroke-width:8" d="M11 35 L23 35 L27 25 L32 45 L37 16 L41 35 L53 35"/></svg><span class="cap">20</span></div>
+  </div>
+
+  <hr class="rule">
+
+  <h2>Palette</h2>
+  <div class="pal">
+    <div class="chip"><div class="fill" style="background:#22c55e"></div><div class="meta"><div class="nm">Green</div><div class="hex">#22c55e</div><div class="role">Brand · mark tile · accent · the “.”</div></div></div>
+    <div class="chip"><div class="fill" style="background:#080c0a"></div><div class="meta"><div class="nm">Background</div><div class="hex">#080c0a</div><div class="role">App ground (green-tinted black)</div></div></div>
+    <div class="chip"><div class="fill" style="background:#0f1610"></div><div class="meta"><div class="nm">Surface</div><div class="hex">#0f1610</div><div class="role">Panels, cards</div></div></div>
+    <div class="chip"><div class="fill" style="background:#dceee0"></div><div class="meta"><div class="nm">Text</div><div class="hex">#dceee0</div><div class="role">Foreground on dark</div></div></div>
+    <div class="chip"><div class="fill" style="background:#08120c"></div><div class="meta"><div class="nm">Ink</div><div class="hex">#08120c</div><div class="role">Pulse stroke on green</div></div></div>
+    <div class="chip"><div class="fill" style="background:#0f1610;position:relative"><span style="position:absolute;inset:0;display:flex;gap:8px;align-items:center;justify-content:center"><span style="width:14px;height:14px;border-radius:3px;background:#00d4ff"></span><span style="width:14px;height:14px;border-radius:3px;background:#ffb300"></span><span style="width:14px;height:14px;border-radius:3px;background:#ff4757"></span><span style="width:14px;height:14px;border-radius:3px;background:#c084fc"></span></span></div><div class="meta"><div class="nm">Signal</div><div class="hex">cyan · amber · red · violet</div><div class="role">Data &amp; status only, never the brand</div></div></div>
+  </div>
+
+  <hr class="rule">
+
+  <h2>Type</h2>
+  <div>
+    <div class="type-row"><span class="samp-display">vytal · strong &amp; tight</span><span class="k">Display · Inter / 800</span></div>
+    <div class="type-row"><span class="samp-body">Book a class, log the WOD, watch the pulse.</span><span class="k">Body · Inter</span></div>
+    <div class="type-row"><span class="samp-mono">--green: #22c55e;</span><span class="k">Mono · JetBrains Mono</span></div>
+  </div>
+
+  <hr class="rule">
+
+  <h2>Usage</h2>
+  <div class="use">
+    <div class="card do"><div class="h">✓ Do</div><ul>
+      <li>Pick the lockup that fits the background: light vs dark.</li>
+      <li>Keep clear space ≈ the tile’s corner radius around the logo.</li>
+      <li>Let the pulse breathe; the green tile is the constant.</li>
+    </ul></div>
+    <div class="card dont"><div class="h">✕ Don’t</div><ul>
+      <li>Recolor the tile or the pulse, or add gradients.</li>
+      <li>Stretch, rotate, or outline the lockup.</li>
+      <li>Use the signal colors (cyan/amber/red) as the brand.</li>
+    </ul></div>
+  </div>
+
+  <p class="foot">Vytal · <span class="g">vytal.fit</span> · one pulse across the brand and its products.</p>
+</div>
+</body>
+</html>

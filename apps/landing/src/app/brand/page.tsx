@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Sun, Moon } from "lucide-react";
 
 // ── The mark: a vital-sign pulse on a rounded green tile ─────────────────────
 function Mark({ size = 64, strokeWidth = 5 }: { size?: number; strokeWidth?: number }) {
@@ -60,6 +60,8 @@ const COPY: Record<Lang, Record<string, string>> = {
     dont2: "Esticar, rodar ou contornar o lockup.",
     dont3: "Usar as cores de sinal (cyan/amber/red) como marca.",
     foot: "Vytal · vytal.fit · um só pulso, na marca e nos produtos.",
+    themeLight: "Modo claro",
+    themeDark: "Modo escuro",
   },
   en: {
     back: "Back to site",
@@ -96,6 +98,8 @@ const COPY: Record<Lang, Record<string, string>> = {
     dont2: "Stretch, rotate, or outline the lockup.",
     dont3: "Use the signal colors (cyan/amber/red) as the brand.",
     foot: "Vytal · vytal.fit · one pulse across the brand and its products.",
+    themeLight: "Light mode",
+    themeDark: "Dark mode",
   },
   es: {
     back: "Volver al sitio",
@@ -132,14 +136,14 @@ const COPY: Record<Lang, Record<string, string>> = {
     dont2: "Estirar, rotar o contornear el lockup.",
     dont3: "Usar los colores de señal (cyan/amber/red) como marca.",
     foot: "Vytal · vytal.fit · un solo pulso, en la marca y los productos.",
+    themeLight: "Modo claro",
+    themeDark: "Modo oscuro",
   },
 };
 
-const HAIR = "rgba(34,197,94,0.14)";
-
 function SectionTitle({ children }: { children: React.ReactNode }) {
   return (
-    <h2 className="font-mono text-xs tracking-[0.26em] uppercase text-[#6b8c72] font-medium mb-6">
+    <h2 className="font-mono text-xs tracking-[0.26em] uppercase font-medium mb-6 text-[var(--b-muted)]">
       {children}
     </h2>
   );
@@ -147,6 +151,7 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
 
 export default function BrandPage() {
   const [lang, setLang] = useState<Lang>("pt");
+  const [light, setLight] = useState(false);
   const t = (k: string) => COPY[lang][k] ?? k;
 
   const palette = [
@@ -158,8 +163,22 @@ export default function BrandPage() {
   ];
 
   return (
-    <main className="min-h-screen bg-[#080c0a] text-[#dceee0] font-sans">
+    <main className={`brandpage min-h-screen font-sans bg-[var(--b-bg)] text-[var(--b-text)] ${light ? "light" : ""}`}>
       <style>{`
+        .brandpage {
+          --b-bg: #080c0a;
+          --b-surface: #0f1610;
+          --b-text: #dceee0;
+          --b-muted: #6b8c72;
+          --b-hair: rgba(34,197,94,0.14);
+        }
+        .brandpage.light {
+          --b-bg: #f3f7f4;
+          --b-surface: #ffffff;
+          --b-text: #0f1610;
+          --b-muted: #5d6f64;
+          --b-hair: rgba(8,18,12,0.12);
+        }
         @keyframes brand-draw { to { stroke-dashoffset: 0; } }
         @media (prefers-reduced-motion: no-preference) {
           .brand-hero-pulse { stroke-dasharray: 140; stroke-dashoffset: 140; animation: brand-draw 1.1s 0.15s ease-out forwards; }
@@ -167,32 +186,39 @@ export default function BrandPage() {
       `}</style>
 
       {/* Top bar */}
-      <div
-        className="sticky top-0 z-10 backdrop-blur-md bg-[#080c0a]/85 border-b"
-        style={{ borderColor: HAIR }}
-      >
+      <div className="sticky top-0 z-10 backdrop-blur-md border-b bg-[var(--b-bg)]/90 border-[var(--b-hair)]">
         <div className="max-w-3xl mx-auto px-7 h-14 flex items-center justify-between">
           <Link
             href="/"
-            className="inline-flex items-center gap-2 text-sm text-[#6b8c72] hover:text-[#dceee0] transition-colors"
+            className="inline-flex items-center gap-2 text-sm text-[var(--b-muted)] hover:text-[var(--b-text)] transition-colors"
           >
             <ArrowLeft size={15} />
             {t("back")}
           </Link>
-          <div className="flex items-center gap-1">
-            {(["pt", "en", "es"] as Lang[]).map((l) => (
-              <button
-                key={l}
-                onClick={() => setLang(l)}
-                className={`text-xs font-semibold px-2 py-1 rounded transition-all ${
-                  lang === l
-                    ? "bg-[rgba(34,197,94,0.15)] text-[#22c55e]"
-                    : "text-[#6b8c72] hover:text-[#dceee0]"
-                }`}
-              >
-                {l.toUpperCase()}
-              </button>
-            ))}
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-1">
+              {(["pt", "en", "es"] as Lang[]).map((l) => (
+                <button
+                  key={l}
+                  onClick={() => setLang(l)}
+                  className={`text-xs font-semibold px-2 py-1 rounded transition-all ${
+                    lang === l
+                      ? "bg-[rgba(34,197,94,0.15)] text-[#22c55e]"
+                      : "text-[var(--b-muted)] hover:text-[var(--b-text)]"
+                  }`}
+                >
+                  {l.toUpperCase()}
+                </button>
+              ))}
+            </div>
+            <button
+              onClick={() => setLight((v) => !v)}
+              aria-label={light ? t("themeDark") : t("themeLight")}
+              title={light ? t("themeDark") : t("themeLight")}
+              className="w-8 h-8 flex items-center justify-center rounded-lg border border-[var(--b-hair)] text-[var(--b-muted)] hover:text-[#22c55e] transition-all"
+            >
+              {light ? <Moon size={14} /> : <Sun size={14} />}
+            </button>
           </div>
         </div>
       </div>
@@ -220,18 +246,18 @@ export default function BrandPage() {
             <h1 className="text-[clamp(56px,12vw,104px)] font-extrabold tracking-[-0.05em] leading-[0.9]">
               vytal<span className="text-[#22c55e]">.</span>
             </h1>
-            <p className="text-[#6b8c72] text-lg mt-4 max-w-[54ch]">{t("lede")}</p>
+            <p className="text-[var(--b-muted)] text-lg mt-4 max-w-[54ch]">{t("lede")}</p>
           </div>
         </div>
 
-        <hr className="my-14 border-0 h-px" style={{ background: HAIR }} />
+        <hr className="my-14 border-0 h-px bg-[var(--b-hair)]" />
 
-        {/* Logo lockups */}
+        {/* Logo lockups: fixed dark/light demo swatches */}
         <SectionTitle>{t("secLogo")}</SectionTitle>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div
             className="rounded-2xl border p-9 flex flex-col items-center justify-center gap-3 min-h-[150px]"
-            style={{ borderColor: HAIR, background: "#0f1610" }}
+            style={{ borderColor: "var(--b-hair)", background: "#0f1610" }}
           >
             <div className="flex items-center gap-4">
               <Mark size={56} />
@@ -245,7 +271,7 @@ export default function BrandPage() {
           </div>
           <div
             className="rounded-2xl border p-9 flex flex-col items-center justify-center gap-3 min-h-[150px]"
-            style={{ borderColor: HAIR, background: "#f3f7f4" }}
+            style={{ borderColor: "var(--b-hair)", background: "#f3f7f4" }}
           >
             <div className="flex items-center gap-4">
               <Mark size={56} />
@@ -259,36 +285,36 @@ export default function BrandPage() {
           </div>
         </div>
 
-        <hr className="my-14 border-0 h-px" style={{ background: HAIR }} />
+        <hr className="my-14 border-0 h-px bg-[var(--b-hair)]" />
 
         {/* Sub-brands */}
         <SectionTitle>{t("secSub")}</SectionTitle>
-        <p className="text-[#6b8c72] text-sm max-w-[64ch] mb-6">{t("subNote")}</p>
+        <p className="text-[var(--b-muted)] text-sm max-w-[64ch] mb-6">{t("subNote")}</p>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {[
-            { lead: "my", label: t("myLabel") },
-            { lead: "pro", label: t("proLabel") },
+            { lead: "my", label: t("myLabel"), bg: "#0f1610", fg: "#dceee0" },
+            { lead: "pro", label: t("proLabel"), bg: "#f3f7f4", fg: "#0f1610" },
           ].map((p) => (
             <div
               key={p.lead}
               className="rounded-2xl border p-9 flex flex-col items-center justify-center gap-3 min-h-[150px]"
-              style={{ borderColor: HAIR, background: "#0f1610" }}
+              style={{ borderColor: "var(--b-hair)", background: p.bg }}
             >
               <div className="flex items-center gap-4">
                 <Mark size={48} />
                 <span className="text-[38px] font-extrabold tracking-[-0.05em] leading-none">
                   <span className="text-[#22c55e]">{p.lead}</span>
-                  <span className="text-[#dceee0]">Vytal</span>
+                  <span style={{ color: p.fg }}>Vytal</span>
                 </span>
               </div>
-              <span className="font-mono text-[10px] tracking-[0.18em] uppercase text-[#6b8c72]">
+              <span className="font-mono text-[10px] tracking-[0.18em] uppercase" style={{ color: p.bg === "#f3f7f4" ? "#5d6f64" : "#6b8c72" }}>
                 {p.label}
               </span>
             </div>
           ))}
         </div>
 
-        <hr className="my-14 border-0 h-px" style={{ background: HAIR }} />
+        <hr className="my-14 border-0 h-px bg-[var(--b-hair)]" />
 
         {/* Mark at sizes */}
         <SectionTitle>{t("secMark")}</SectionTitle>
@@ -301,28 +327,28 @@ export default function BrandPage() {
           ].map((s) => (
             <div key={s.px} className="flex flex-col items-center gap-2.5">
               <Mark size={s.px} strokeWidth={s.sw} />
-              <span className="font-mono text-[11px] text-[#6b8c72]">{s.cap}</span>
+              <span className="font-mono text-[11px] text-[var(--b-muted)]">{s.cap}</span>
             </div>
           ))}
         </div>
 
-        <hr className="my-14 border-0 h-px" style={{ background: HAIR }} />
+        <hr className="my-14 border-0 h-px bg-[var(--b-hair)]" />
 
         {/* Palette */}
         <SectionTitle>{t("secPalette")}</SectionTitle>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3.5">
           {palette.map((c) => (
-            <div key={c.hex} className="rounded-xl border overflow-hidden" style={{ borderColor: HAIR }}>
+            <div key={c.hex} className="rounded-xl border overflow-hidden border-[var(--b-hair)]">
               <div className="h-[76px]" style={{ background: c.fill }} />
               <div className="p-3.5">
                 <div className="text-[13px] font-semibold">{c.nm}</div>
-                <div className="font-mono text-xs text-[#6b8c72] uppercase tracking-wide">{c.hex}</div>
-                <div className="text-[11.5px] text-[#6b8c72] mt-0.5">{c.role}</div>
+                <div className="font-mono text-xs text-[var(--b-muted)] uppercase tracking-wide">{c.hex}</div>
+                <div className="text-[11.5px] text-[var(--b-muted)] mt-0.5">{c.role}</div>
               </div>
             </div>
           ))}
           {/* Signal colors */}
-          <div className="rounded-xl border overflow-hidden" style={{ borderColor: HAIR }}>
+          <div className="rounded-xl border overflow-hidden border-[var(--b-hair)]">
             <div className="h-[76px] flex items-center justify-center gap-2" style={{ background: "#0f1610" }}>
               {["#00d4ff", "#ffb300", "#ff4757", "#c084fc"].map((s) => (
                 <span key={s} className="w-3.5 h-3.5 rounded-[3px]" style={{ background: s }} />
@@ -330,49 +356,49 @@ export default function BrandPage() {
             </div>
             <div className="p-3.5">
               <div className="text-[13px] font-semibold">Signal</div>
-              <div className="font-mono text-xs text-[#6b8c72]">cyan · amber · red · violet</div>
-              <div className="text-[11.5px] text-[#6b8c72] mt-0.5">{t("palSignal")}</div>
+              <div className="font-mono text-xs text-[var(--b-muted)]">cyan · amber · red · violet</div>
+              <div className="text-[11.5px] text-[var(--b-muted)] mt-0.5">{t("palSignal")}</div>
             </div>
           </div>
         </div>
 
-        <hr className="my-14 border-0 h-px" style={{ background: HAIR }} />
+        <hr className="my-14 border-0 h-px bg-[var(--b-hair)]" />
 
         {/* Type */}
         <SectionTitle>{t("secType")}</SectionTitle>
         <div>
           {[
             { sample: <span className="text-[34px] font-extrabold tracking-[-0.03em]">vytal · strong &amp; tight</span>, k: t("typeDisplay") },
-            { sample: <span className="text-lg text-[#dceee0]">{t("typeBodySample")}</span>, k: t("typeBody") },
+            { sample: <span className="text-lg">{t("typeBodySample")}</span>, k: t("typeBody") },
             { sample: <span className="font-mono text-[15px] text-[#22c55e]">--green: #22c55e;</span>, k: t("typeMono") },
           ].map((row, i) => (
             <div
               key={i}
-              className="flex flex-wrap gap-x-6 gap-y-1.5 items-baseline justify-between border-t first:border-t-0"
-              style={{ borderColor: HAIR, paddingTop: i === 0 ? 0 : 22, paddingBottom: 22 }}
+              className="flex flex-wrap gap-x-6 gap-y-1.5 items-baseline justify-between border-t first:border-t-0 border-[var(--b-hair)]"
+              style={{ paddingTop: i === 0 ? 0 : 22, paddingBottom: 22 }}
             >
               {row.sample}
-              <span className="font-mono text-[11px] tracking-[0.16em] uppercase text-[#6b8c72]">{row.k}</span>
+              <span className="font-mono text-[11px] tracking-[0.16em] uppercase text-[var(--b-muted)]">{row.k}</span>
             </div>
           ))}
         </div>
 
-        <hr className="my-14 border-0 h-px" style={{ background: HAIR }} />
+        <hr className="my-14 border-0 h-px bg-[var(--b-hair)]" />
 
         {/* Usage */}
         <SectionTitle>{t("secUsage")}</SectionTitle>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-          <div className="rounded-xl border p-5" style={{ borderColor: HAIR }}>
+          <div className="rounded-xl border p-5 border-[var(--b-hair)]">
             <div className="font-mono text-[11px] tracking-[0.16em] uppercase mb-2.5 text-[#22c55e]">✓ {t("doH")}</div>
-            <ul className="list-disc pl-5 text-sm text-[#6b8c72] space-y-1.5 marker:text-[#22c55e]">
+            <ul className="list-disc pl-5 text-sm text-[var(--b-muted)] space-y-1.5 marker:text-[#22c55e]">
               <li>{t("do1")}</li>
               <li>{t("do2")}</li>
               <li>{t("do3")}</li>
             </ul>
           </div>
-          <div className="rounded-xl border p-5" style={{ borderColor: HAIR }}>
+          <div className="rounded-xl border p-5 border-[var(--b-hair)]">
             <div className="font-mono text-[11px] tracking-[0.16em] uppercase mb-2.5 text-[#ff6b6b]">✕ {t("dontH")}</div>
-            <ul className="list-disc pl-5 text-sm text-[#6b8c72] space-y-1.5 marker:text-[#ff6b6b]">
+            <ul className="list-disc pl-5 text-sm text-[var(--b-muted)] space-y-1.5 marker:text-[#ff6b6b]">
               <li>{t("dont1")}</li>
               <li>{t("dont2")}</li>
               <li>{t("dont3")}</li>
@@ -380,7 +406,7 @@ export default function BrandPage() {
           </div>
         </div>
 
-        <p className="mt-16 font-mono text-xs text-[#6b8c72] tracking-wide">
+        <p className="mt-16 font-mono text-xs text-[var(--b-muted)] tracking-wide">
           {t("foot").split("vytal.fit").map((part, i, arr) =>
             i < arr.length - 1 ? (
               <span key={i}>
