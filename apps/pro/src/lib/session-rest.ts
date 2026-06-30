@@ -3,11 +3,6 @@ import { getAuth, isBackendConfigured } from "@/lib/auth-server";
 
 interface UpdateSessionBody {
   activeOrganizationId?: string;
-  activeSpaceId?: string;
-}
-
-interface UpdateCurrentSessionOptions {
-  includeDeprecatedFields?: boolean;
 }
 
 function authErrorResponse(error: unknown): NextResponse {
@@ -30,10 +25,7 @@ function authErrorResponse(error: unknown): NextResponse {
   );
 }
 
-export async function updateCurrentSession(
-  request: Request,
-  options: UpdateCurrentSessionOptions = {},
-): Promise<NextResponse> {
+export async function updateCurrentSession(request: Request): Promise<NextResponse> {
   if (!isBackendConfigured()) {
     return NextResponse.json(
       {
@@ -55,7 +47,7 @@ export async function updateCurrentSession(
     );
   }
 
-  const organizationId = body.activeOrganizationId ?? body.activeSpaceId;
+  const organizationId = body.activeOrganizationId;
   if (!organizationId || typeof organizationId !== "string") {
     return NextResponse.json(
       { error: "BAD_REQUEST", message: "activeOrganizationId is required." },
@@ -78,10 +70,5 @@ export async function updateCurrentSession(
   }
   const activeOrganizationId = session?.session.activeOrganizationId ?? null;
 
-  return NextResponse.json(
-    options.includeDeprecatedFields
-      ? { activeOrganizationId, activeSpaceId: activeOrganizationId }
-      : { activeOrganizationId },
-    { status: 200 },
-  );
+  return NextResponse.json({ activeOrganizationId }, { status: 200 });
 }

@@ -215,53 +215,6 @@ export const openApiSpec = {
         },
       },
     },
-    "/session": {
-      patch: {
-        tags: ["Session"],
-        operationId: "setActiveOrganizationDeprecated",
-        deprecated: true,
-        summary: "Deprecated alias for PATCH /me/session",
-        requestBody: {
-          required: true,
-          content: {
-            "application/json": {
-              schema: {
-                type: "object",
-                required: ["activeOrganizationId"],
-                properties: {
-                  activeOrganizationId: { type: "string" },
-                  activeSpaceId: { type: "string", deprecated: true },
-                },
-              },
-            },
-          },
-        },
-        responses: {
-          "200": { description: "Active organization updated." },
-          "400": ERROR_REF,
-          "401": ERROR_REF,
-        },
-      },
-    },
-    "/spaces": {
-      get: {
-        tags: ["Organizations"],
-        operationId: "listOrganizationsDeprecated",
-        deprecated: true,
-        summary: "Deprecated alias for GET /organizations",
-        responses: { "200": { description: "Organization list." }, "401": ERROR_REF },
-      },
-    },
-    "/spaces/{spaceId}": {
-      get: {
-        tags: ["Organizations"],
-        operationId: "getOrganizationDeprecated",
-        deprecated: true,
-        summary: "Deprecated alias for GET /organizations/{organizationId}",
-        parameters: [{ name: "spaceId", in: "path", required: true, schema: { type: "string" } }],
-        responses: { "200": { description: "Organization detail." }, "404": ERROR_REF },
-      },
-    },
     "/bookings": {
       get: {
         tags: ["Bookings"],
