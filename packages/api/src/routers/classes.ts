@@ -1,6 +1,6 @@
 import { TRPCError } from "@trpc/server";
 import { and, asc, count, eq, gte, inArray, isNull, lte } from "drizzle-orm";
-import { bookings, classes, classTypes, locations } from "@vytal-fit/db";
+import { bookings, classes, classTypes, coaches, locations } from "@vytal-fit/db";
 import { z } from "zod";
 import { orgProcedure, router, staffProcedure } from "../trpc";
 
@@ -33,6 +33,67 @@ export const classesRouter = router({
           ),
         )
         .orderBy(asc(classes.date), asc(classes.startTime));
+    }),
+
+  /**
+   * Classes within a date range, enriched with class type, location, coaches
+   * and the enrolled count (confirmed + checked-in). For schedule views.
+   */
+  schedule: orgProcedure
+    .input(z.object({ from: dateString, to: dateString }))
+    .query(async ({ ctx, input }) => {
+      const rows = await ctx.db
+        .select()
+        .from(classes)
+        .where(
+          and(
+            eq(classes.organizationId, ctx.activeOrganizationId),
+            gte(classes.date, input.from),
+            lte(classes.date, input.to),
+          ),
+        )
+        .orderBy(asc(classes.date), asc(classes.startTime));
+
+      if (rows.length === 0) return [];
+
+      const classTypeIds = [...new Set(rows.map((r) => r.classTypeId).filter((x): x is string => !!x))];
+      const locationIds = [...new Set(rows.map((r) => r.locationId).filter((x): x is string => !!x))];
+      const coachIds = [...new Set(rows.flatMap((r) => r.coachIds))];
+      const classIds = rows.map((r) => r.id);
+
+      const [cts, locs, cos, bks] = await Promise.all([
+        classTypeIds.length
+          ? ctx.db.select().from(classTypes).where(and(eq(classTypes.organizationId, ctx.activeOrganizationId), inArray(classTypes.id, classTypeIds)))
+          : Promise.resolve([]),
+        locationIds.length
+          ? ctx.db.select().from(locations).where(and(eq(locations.organizationId, ctx.activeOrganizationId), inArray(locations.id, locationIds)))
+          : Promise.resolve([]),
+        coachIds.length
+          ? ctx.db.select().from(coaches).where(and(eq(coaches.organizationId, ctx.activeOrganizationId), inArray(coaches.id, coachIds)))
+          : Promise.resolve([]),
+        ctx.db
+          .select({ classId: bookings.classId, status: bookings.status })
+          .from(bookings)
+          .where(and(eq(bookings.organizationId, ctx.activeOrganizationId), inArray(bookings.classId, classIds))),
+      ]);
+
+      const ctMap = new Map(cts.map((c) => [c.id, c] as const));
+      const locMap = new Map(locs.map((l) => [l.id, l] as const));
+      const coMap = new Map(cos.map((c) => [c.id, c] as const));
+      const enrolledByClass = new Map<string, number>();
+      for (const b of bks) {
+        if (b.status === "confirmed" || b.status === "checked_in") {
+          enrolledByClass.set(b.classId, (enrolledByClass.get(b.classId) ?? 0) + 1);
+        }
+      }
+
+      return rows.map((r) => ({
+        ...r,
+        classType: r.classTypeId ? ctMap.get(r.classTypeId) ?? null : null,
+        location: r.locationId ? locMap.get(r.locationId) ?? null : null,
+        coaches: r.coachIds.map((id) => coMap.get(id)).filter((c): c is NonNullable<typeof c> => !!c),
+        enrolledCount: enrolledByClass.get(r.id) ?? 0,
+      }));
     }),
 
   /** Single class with its active bookings count. */
