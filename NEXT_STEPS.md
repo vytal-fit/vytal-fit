@@ -66,7 +66,7 @@ O DB já existe (Neon Postgres + Drizzle + migrações + seed + Better Auth + tR
 - [ ] Staff + RBAC
 - [ ] Dashboard / KPIs
 - [x] Suporte / tickets operacionais — lista, criação e mudança de estado via API org-scoped
-- [~] Loja online / merch conectado a fornecedores externos (catálogo, variantes, encomenda, tracking) — protótipo web já existe com catálogo persistido por org e routing de fornecedores; fulfillment real e integrações externas continuam para fase posterior
+- [~] Loja online / merch conectado a fornecedores externos (catálogo, variantes, encomenda, tracking) — **API real pronta**: `shop` router + tabelas + seed org-1 + 9 testes (fornecedores china/pt/eu, encomendas com total+tracking, role-gated). Falta ligar a UI do `pro/store` (browser-QA) + reconciliar campo `style`; fulfillment real e integrações externas continuam para fase posterior
 - [ ] Aceitação F2
 
 ## F3 · Treino — S4–S5 (€55.000)
@@ -112,7 +112,7 @@ O DB já existe (Neon Postgres + Drizzle + migrações + seed + Better Auth + tR
 Auditoria 2026-06-30 (`useDataStore` = store mock/localStorage de domínio):
 - **`my`**: 4 páginas em mock — `page` (home), `schedule`, `profile`, `wod`. Já reais: `/wellness` (check-in + feedback + tendências), `records` (PRs + catálogo de exercícios via tRPC).
 - **`pro`**: ~41 páginas em mock (settings/*, members/*, classes/*, crm, dashboard, store, financials, staff, …). Reais via tRPC: members/staff/classes/WODs/CRM/plans/locations/class-types/exercises/check-ins/settings (parcial).
-- **Loja / merch (D7)**: **sem API** — só protótipo web. Maior buraco para "bombar": falta router `shop` (produtos, variantes, fornecedores externos, encomendas, tracking) + tabelas + wiring. → F2.
+- **Loja / merch (D7)**: **API + seed prontos** — tabelas `suppliers`/`store_products`/`store_orders` (migração 0010), router `shop` (catálogo, fornecedores china/pt/eu, encomendas com total+tracking, role-gated), 9 testes, seed org-1 (4 fornecedores + 6 produtos + 3 encomendas). **Falta ligar a UI do `pro/store`** (946 linhas em mock) + reconciliar o campo `style` (existe no protótipo, não no schema). → próximo passo F2 (browser-QA).
 - **Biblioteca de exercícios**: router `exercises` existe (catálogo file-backed 1.3k+ movimentos, validação no WOD builder); falta pipeline editorial/media e consumo real em todas as superfícies.
 - **Regra**: cada página migrada deixa de importar `useDataStore` para dados de domínio e passa a `trpc.*`; `localStorage` só preferências via `STORAGE_KEYS`.
 
