@@ -45,6 +45,8 @@ export interface CreateAuthOptions {
   secret?: string;
   /** Base URL of the auth server. Defaults to BETTER_AUTH_URL when set. */
   baseURL?: string;
+  /** Mounted Better Auth path. Defaults to /auth for the standalone API app. */
+  basePath?: string;
 }
 
 function parseOrigins(raw: string | undefined): string[] {
@@ -69,6 +71,8 @@ export function createAuth(options: CreateAuthOptions) {
   // product UI lives on pro.vytal.fit.
   const baseURL =
     options.baseURL ?? process.env.BETTER_AUTH_URL ?? "http://localhost:3000";
+  const basePath =
+    options.basePath ?? process.env.BETTER_AUTH_BASE_PATH ?? "/auth";
   const appUrl =
     process.env.NEXT_PUBLIC_APP_URL ??
     process.env.NEXT_PUBLIC_ADMIN_URL ??
@@ -128,6 +132,7 @@ export function createAuth(options: CreateAuthOptions) {
     appName: "Vytal",
     secret: options.secret ?? process.env.BETTER_AUTH_SECRET,
     baseURL: options.baseURL ?? process.env.BETTER_AUTH_URL,
+    basePath,
     trustedOrigins,
     database: drizzleAdapter(options.db, {
       provider: "pg",

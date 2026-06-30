@@ -47,6 +47,23 @@ describe("createAuth", () => {
     expect(typeof auth.api.getSession).toBe("function");
   });
 
+  it("mounts HTTP auth endpoints at /auth for the standalone API app", async () => {
+    expect(auth.options.basePath).toBe("/auth");
+
+    const response = await auth.handler(
+      new Request("http://localhost:3000/auth/sign-in/email", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          email: "missing-user@vytal.fit",
+          password: "not-a-real-password",
+        }),
+      }),
+    );
+
+    expect(response.status).not.toBe(404);
+  });
+
   it("has the organization plugin registered", () => {
     const pluginIds = auth.options.plugins.map((p) => p.id);
     expect(pluginIds).toContain("organization");
