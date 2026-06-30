@@ -134,6 +134,11 @@ Auditoria 2026-06-30 (`useDataStore` = store mock/localStorage de domínio):
 - **`classes/waitlist`**: zero-mock via nova query `bookings.waitlist` (waitlisted org-wide com classe+membro+posição); promover = `setAttendance(confirmed)`, remover = `cancel`. 3 testes novos (603 total).
 - **Regra**: cada página migrada deixa de importar `useDataStore` para dados de domínio e passa a `trpc.*`; `localStorage` só preferências via `STORAGE_KEYS`.
 
+## Regra permanente (instrução do dono)
+- **Dev docs / OpenAPI**: o contrato público em `packages/api/src/openapi.ts` é hand-authored (curado). Sempre que um router novo for **público** (athlete/dev-facing), adicionar o recurso ao OpenAPI + `apps/api/readme` e correr `npm run docs:readme:sync`. Routers internos de gestão (expenses, budget, audit-log) ficam fora do contrato público por agora.
+- **myVytal segue sempre a API**: toda a capacidade nova athlete-facing tem de aparecer no `apps/my`. (Auditado: 0 mock, 20 procedures.)
+- **landing**: copy/preços/verticais refletem o produto real.
+
 ## Inventário de mock residual (2026-06-30, fim de sessão)
 O **núcleo do produto está 100% real** (members, classes, WODs, CRM leads, planos, pagamentos, despesas, bookings/presenças, check-ins, settings completos, loja, dashboard KPIs, portal do atleta, financials inteiro). O que falta são **páginas de features secundárias/avançadas** cujo UI foi prototipado antes do backend; cada uma precisa da sua própria tabela + router:
 - **Precisam de tabela/API nova**: `automations/campaigns`, `marketing`, `media`, `classes/history`, `classes/templates`, `members/contracts` (waivers digitais), `members/groups`, `members/retention`, `staff/[id]/performance`, `staff/certifications`, `settings/{audit-log,backup,webhooks}`, `crm` (activity-log org-wide → estender `lead_activities`).
