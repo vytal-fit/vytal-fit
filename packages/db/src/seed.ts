@@ -895,12 +895,12 @@ export async function seedDatabase(
     await db
       .insert(schema.storeProducts)
       .values([
-        { id: "sp-1", organizationId: "org-1", name: "Aero Tee", category: "apparel", price: "25.00", stock: 48, fulfillment: "external", supplierId: "sup-1", sku: "VT-AERO-TEE-BLK", color: "Black", size: "S-XXL", branding: "Front chest logo" },
-        { id: "sp-2", organizationId: "org-1", name: "Crop Top", category: "apparel", price: "22.00", stock: 35, fulfillment: "external", supplierId: "sup-2", sku: "VT-CROP-SND", color: "Sand", size: "XS-L", branding: "Back print" },
-        { id: "sp-3", organizationId: "org-1", name: "Heavy Hoodie", category: "apparel", price: "35.00", stock: 20, fulfillment: "external", supplierId: "sup-3", sku: "VT-HOOD-GPH", color: "Graphite", size: "S-XXL", branding: "Sleeve mark" },
-        { id: "sp-4", organizationId: "org-1", name: "Training Backpack", category: "accessories", price: "45.00", stock: 12, fulfillment: "external", supplierId: "sup-3", sku: "VT-BACKPACK-BLK", color: "Black", size: "One size", branding: "Debossed logo" },
-        { id: "sp-5", organizationId: "org-1", name: "Gymnastics Grips", category: "equipment", price: "18.00", stock: 60, fulfillment: "in_house", supplierId: "sup-4", sku: "VT-GRIPS-2H", color: "Tan", size: "S-L", branding: "Laser mark" },
-        { id: "sp-6", organizationId: "org-1", name: "Whey Protein 1kg", category: "supplements", price: "32.00", stock: 40, fulfillment: "in_house", sku: "VT-WHEY-1KG", branding: "Chocolate" },
+        { id: "sp-1", organizationId: "org-1", name: "Aero Tee", category: "apparel", price: "25.00", stock: 48, fulfillment: "external", supplierId: "sup-1", sku: "VT-AERO-TEE-BLK", style: "Relaxed fit", color: "Black", size: "S-XXL", branding: "Front chest logo" },
+        { id: "sp-2", organizationId: "org-1", name: "Crop Top", category: "apparel", price: "22.00", stock: 35, fulfillment: "external", supplierId: "sup-2", sku: "VT-CROP-SND", style: "Athletic crop", color: "Sand", size: "XS-L", branding: "Back print" },
+        { id: "sp-3", organizationId: "org-1", name: "Heavy Hoodie", category: "apparel", price: "35.00", stock: 20, fulfillment: "external", supplierId: "sup-3", sku: "VT-HOOD-GPH", style: "Oversized hoodie", color: "Graphite", size: "S-XXL", branding: "Sleeve mark" },
+        { id: "sp-4", organizationId: "org-1", name: "Training Backpack", category: "accessories", price: "45.00", stock: 12, fulfillment: "external", supplierId: "sup-3", sku: "VT-BACKPACK-BLK", style: "Daily carry", color: "Black", size: "One size", branding: "Debossed logo" },
+        { id: "sp-5", organizationId: "org-1", name: "Gymnastics Grips", category: "equipment", price: "18.00", stock: 60, fulfillment: "in_house", supplierId: "sup-4", sku: "VT-GRIPS-2H", style: "2-hole", color: "Tan", size: "S-L", branding: "Laser mark" },
+        { id: "sp-6", organizationId: "org-1", name: "Whey Protein 1kg", category: "supplements", price: "32.00", stock: 40, fulfillment: "in_house", sku: "VT-WHEY-1KG", style: "Single scoop", branding: "Chocolate" },
       ])
       .onConflictDoNothing()
       .returning({ id: schema.storeProducts.id })

@@ -829,6 +829,7 @@ export const storeProducts = pgTable(
     fulfillment: storeFulfillmentEnum("fulfillment").notNull().default("external"),
     supplierId: text("supplier_id").references(() => suppliers.id, { onDelete: "set null" }),
     sku: text("sku"),
+    style: text("style"),
     color: text("color"),
     size: text("size"),
     branding: text("branding"),

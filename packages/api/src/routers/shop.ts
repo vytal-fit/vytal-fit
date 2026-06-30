@@ -25,6 +25,7 @@ const productInput = z.object({
   fulfillment: z.enum(STORE_FULFILLMENTS).default("external"),
   supplierId: z.string().min(1).optional(),
   sku: z.string().max(60).optional(),
+  style: z.string().max(120).optional(),
   color: z.string().max(60).optional(),
   size: z.string().max(60).optional(),
   branding: z.string().max(200).optional(),
