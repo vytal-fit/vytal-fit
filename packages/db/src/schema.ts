@@ -202,6 +202,73 @@ export function defaultPublicSite(): OrganizationPublicSite {
   return { enabled: false, sections: {} };
 }
 
+/**
+ * Org profile blob stored on `organization_settings.profile` — contact,
+ * locale and social fields edited on the general Settings page. The org's
+ * canonical name lives on the `organization` row, not here.
+ */
+export interface OrganizationProfile {
+  slogan: string;
+  email: string;
+  phone: string;
+  businessType: string;
+  timezone: string;
+  currency: string;
+  website: string;
+  facebook: string;
+  instagram: string;
+  youtube: string;
+  address: string;
+  city: string;
+  zipCode: string;
+  country: string;
+}
+
+/**
+ * Payment-method config blob stored on `organization_settings.payment_methods`.
+ * Each method carries an `enabled` flag plus method-specific credentials.
+ */
+export interface OrganizationPaymentMethods {
+  mbway?: { enabled: boolean; phone?: string; merchantId?: string };
+  multibanco?: { enabled: boolean; entity?: string; subEntity?: string };
+  sepa?: { enabled: boolean; iban?: string; bic?: string; creditorId?: string };
+  card?: { enabled: boolean; processor?: string };
+  cash?: { enabled: boolean };
+  transfer?: { enabled: boolean; iban?: string; bankName?: string; accountHolder?: string };
+}
+
+/** Default payment-methods blob (PT-first: MB Way, Multibanco, cash on). */
+export function defaultPaymentMethods(): OrganizationPaymentMethods {
+  return {
+    mbway: { enabled: true, phone: "", merchantId: "" },
+    multibanco: { enabled: true, entity: "", subEntity: "" },
+    sepa: { enabled: false, iban: "", bic: "", creditorId: "" },
+    card: { enabled: false, processor: "Stripe" },
+    cash: { enabled: true },
+    transfer: { enabled: false, iban: "", bankName: "", accountHolder: "" },
+  };
+}
+
+/** Default profile blob for orgs that never filled in their settings. */
+export function defaultProfile(): OrganizationProfile {
+  return {
+    slogan: "",
+    email: "",
+    phone: "",
+    businessType: "",
+    timezone: "Europe/Lisbon",
+    currency: "EUR",
+    website: "",
+    facebook: "",
+    instagram: "",
+    youtube: "",
+    address: "",
+    city: "",
+    zipCode: "",
+    country: "Portugal",
+  };
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // pgEnums
 // ─────────────────────────────────────────────────────────────────────────────
@@ -964,6 +1031,8 @@ export const organizationSettings = pgTable("organization_settings", {
   features: jsonb("features").$type<OrganizationFeatures>().notNull(),
   branding: jsonb("branding").$type<OrganizationBranding>().notNull(),
   publicSite: jsonb("public_site").$type<OrganizationPublicSite>().notNull(),
+  profile: jsonb("profile").$type<OrganizationProfile>(),
+  paymentMethods: jsonb("payment_methods").$type<OrganizationPaymentMethods>(),
   terminologyOverrides: jsonb("terminology_overrides").$type<
     Partial<OrganizationTerminology>
   >(),

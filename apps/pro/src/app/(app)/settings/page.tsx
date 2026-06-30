@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import {
   Globe,
   Building2,
@@ -14,7 +14,7 @@ import {
 import { useToast } from "@/components/toast";
 import { useAppStore } from "@/stores/app-store";
 import { useAuthStore } from "@/stores/auth-store";
-import { useDataStore } from "@/stores/data-store";
+import { trpc } from "@/lib/trpc";
 import { useI18n } from "@/lib/i18n";
 
 const businessTypes = ["Box", "Gym", "Studio", "Academy", "Training Center"];
@@ -46,28 +46,65 @@ export default function SettingsPage() {
   const accentColor = useAppStore((s) => s.accentColor);
   const setOrgAccentColor = useAppStore((s) => s.setOrgAccentColor);
   const activeOrgId = useAuthStore((s) => s.user?.activeOrganizationId) ?? "org-1";
-  const orgSettings = useDataStore((s) => s.orgSettings);
-  const updateOrgSettings = useDataStore((s) => s.updateOrgSettings);
+  const utils = trpc.useUtils();
+  const settingsQuery = trpc.orgSettings.get.useQuery();
+  const updateSettings = trpc.orgSettings.update.useMutation({
+    onSuccess: () => {
+      void utils.orgSettings.get.invalidate();
+      toast(t("toast.settingsSaved"), "success");
+    },
+    onError: (error) =>
+      toast(
+        error.data?.code === "FORBIDDEN" ? t("settings.adminOnly") : t("ui.error"),
+        "error",
+      ),
+  });
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [logoFileName, setLogoFileName] = useState<string | null>(null);
   const [form, setForm] = useState({
-    name: orgSettings.name,
-    slogan: orgSettings.slogan,
-    email: orgSettings.email,
-    phone: orgSettings.phone,
-    businessType: orgSettings.businessType,
-    timezone: orgSettings.timezone,
-    currency: orgSettings.currency,
-    website: orgSettings.website,
-    facebook: orgSettings.facebook,
-    instagram: orgSettings.instagram,
-    youtube: orgSettings.youtube,
-    address: orgSettings.address,
-    city: orgSettings.city,
-    zipCode: orgSettings.zipCode,
-    country: orgSettings.country,
+    name: "",
+    slogan: "",
+    email: "",
+    phone: "",
+    businessType: "",
+    timezone: "",
+    currency: "",
+    website: "",
+    facebook: "",
+    instagram: "",
+    youtube: "",
+    address: "",
+    city: "",
+    zipCode: "",
+    country: "",
     brandColor: accentColor,
   });
+
+  // Hydrate the form once the API returns the org's settings.
+  const [hydrated, setHydrated] = useState(false);
+  useEffect(() => {
+    const data = settingsQuery.data;
+    if (!data || hydrated) return;
+    setForm({
+      name: data.name,
+      slogan: data.profile.slogan,
+      email: data.profile.email,
+      phone: data.profile.phone,
+      businessType: data.profile.businessType,
+      timezone: data.profile.timezone,
+      currency: data.profile.currency,
+      website: data.profile.website,
+      facebook: data.profile.facebook,
+      instagram: data.profile.instagram,
+      youtube: data.profile.youtube,
+      address: data.profile.address,
+      city: data.profile.city,
+      zipCode: data.profile.zipCode,
+      country: data.profile.country,
+      brandColor: data.branding.accentColor,
+    });
+    setHydrated(true);
+  }, [settingsQuery.data, hydrated]);
 
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleteConfirmText, setDeleteConfirmText] = useState("");
@@ -76,25 +113,26 @@ export default function SettingsPage() {
     setForm((prev) => ({ ...prev, [key]: value }));
 
   function handleSave() {
-    updateOrgSettings({
+    updateSettings.mutate({
       name: form.name,
-      slug: form.name.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, ""),
-      slogan: form.slogan,
-      email: form.email,
-      phone: form.phone,
-      businessType: form.businessType,
-      timezone: form.timezone,
-      currency: form.currency,
-      website: form.website,
-      facebook: form.facebook,
-      instagram: form.instagram,
-      youtube: form.youtube,
-      address: form.address,
-      city: form.city,
-      zipCode: form.zipCode,
-      country: form.country,
+      branding: { accentColor: form.brandColor },
+      profile: {
+        slogan: form.slogan,
+        email: form.email,
+        phone: form.phone,
+        businessType: form.businessType,
+        timezone: form.timezone,
+        currency: form.currency,
+        website: form.website,
+        facebook: form.facebook,
+        instagram: form.instagram,
+        youtube: form.youtube,
+        address: form.address,
+        city: form.city,
+        zipCode: form.zipCode,
+        country: form.country,
+      },
     });
-    toast(t("toast.settingsSaved"), "success");
   }
 
   return (

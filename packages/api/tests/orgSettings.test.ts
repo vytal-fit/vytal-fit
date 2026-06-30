@@ -158,3 +158,47 @@ describe("update — admin+", () => {
     );
   });
 });
+
+describe("profile + payment methods + name", () => {
+  it("exposes profile and paymentMethods defaults", async () => {
+    const settings = await h.callerB.orgSettings.get();
+    expect(settings.profile).toBeDefined();
+    expect(settings.profile.currency).toBeDefined();
+    expect(settings.paymentMethods).toBeDefined();
+    expect(settings.paymentMethods.mbway?.enabled).toBeDefined();
+    expect(typeof settings.name).toBe("string");
+  });
+
+  it("merges a partial profile patch", async () => {
+    const saved = await h.callerA.orgSettings.update({
+      profile: { email: "box@aveiro.pt", city: "Aveiro" },
+    });
+    expect(saved?.profile.email).toBe("box@aveiro.pt");
+    expect(saved?.profile.city).toBe("Aveiro");
+    // Untouched defaults survive.
+    expect(saved?.profile.country).toBeTruthy();
+
+    const roundtrip = await h.callerA.orgSettings.get();
+    expect(roundtrip.profile.email).toBe("box@aveiro.pt");
+  });
+
+  it("stores payment-method config", async () => {
+    const saved = await h.callerA.orgSettings.update({
+      paymentMethods: { mbway: { enabled: true, phone: "912345678" } },
+    });
+    expect(saved?.paymentMethods.mbway?.phone).toBe("912345678");
+  });
+
+  it("updates the org's canonical name", async () => {
+    const saved = await h.callerA.orgSettings.update({ name: "CrossFit Aveiro X" });
+    expect(saved?.name).toBe("CrossFit Aveiro X");
+    const roundtrip = await h.callerA.orgSettings.get();
+    expect(roundtrip.name).toBe("CrossFit Aveiro X");
+  });
+
+  it("rejects an invalid profile email (Zod)", async () => {
+    await expect(
+      h.callerA.orgSettings.update({ profile: { email: "not-an-email" } }),
+    ).rejects.toMatchObject(BAD_REQUEST);
+  });
+});

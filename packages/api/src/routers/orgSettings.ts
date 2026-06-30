@@ -1,10 +1,14 @@
 import { TRPCError } from "@trpc/server";
 import { eq } from "drizzle-orm";
 import {
+  defaultPaymentMethods,
+  defaultProfile,
   defaultPublicSite,
   organization,
   organizationSettings,
   type OrganizationBranding,
+  type OrganizationPaymentMethods,
+  type OrganizationProfile,
   type OrganizationPublicSite,
 } from "@vytal-fit/db";
 import {
@@ -50,10 +54,36 @@ const publicSiteSchema = z.object({
 /** Partial terminology overrides (e.g. { member: "Yogi" }). */
 const terminologyOverridesSchema = z.record(z.string(), z.string().min(1).max(60));
 
+const profileSchema = z.object({
+  slogan: z.string().max(300),
+  email: z.string().email().or(z.literal("")),
+  phone: z.string().max(40),
+  businessType: z.string().max(100),
+  timezone: z.string().max(100),
+  currency: z.string().max(10),
+  website: z.string().max(300),
+  facebook: z.string().max(300),
+  instagram: z.string().max(300),
+  youtube: z.string().max(300),
+  address: z.string().max(300),
+  city: z.string().max(120),
+  zipCode: z.string().max(20),
+  country: z.string().max(120),
+});
+
+/** One payment method's config: an enabled flag plus free-form string creds. */
+const paymentMethodSchema = z
+  .object({ enabled: z.boolean() })
+  .catchall(z.union([z.string(), z.boolean()]));
+const paymentMethodsSchema = z.record(z.string(), paymentMethodSchema);
+
 const updateInput = z.object({
+  name: z.string().min(1).max(200).optional(),
   features: featuresSchema.optional(),
   branding: brandingSchema.partial().optional(),
   publicSite: publicSiteSchema.partial().optional(),
+  profile: profileSchema.partial().optional(),
+  paymentMethods: paymentMethodsSchema.optional(),
   terminologyOverrides: terminologyOverridesSchema.nullable().optional(),
 });
 
@@ -79,9 +109,13 @@ function configForType(type: string | null | undefined): OrganizationTypeConfig 
 
 export interface EffectiveSettings {
   organizationId: string;
+  /** The org's canonical name (from the `organization` row). */
+  name: string;
   features: OrganizationFeatures;
   branding: OrganizationBranding;
   publicSite: OrganizationPublicSite;
+  profile: OrganizationProfile;
+  paymentMethods: OrganizationPaymentMethods;
   terminologyOverrides: Partial<OrganizationTerminology> | null;
   /** `null` when the org has no settings row yet (pure defaults). */
   updatedAt: Date | null;
@@ -95,18 +129,26 @@ async function effectiveSettings(
   db: Context["db"],
   organizationId: string,
 ): Promise<EffectiveSettings> {
+  const [org] = await db
+    .select({ name: organization.name, logo: organization.logo, metadata: organization.metadata })
+    .from(organization)
+    .where(eq(organization.id, organizationId))
+    .limit(1);
+  const name = org?.name ?? "";
+
   const [row] = await db
     .select()
     .from(organizationSettings)
     .where(eq(organizationSettings.organizationId, organizationId))
     .limit(1);
-  if (row) return row;
-
-  const [org] = await db
-    .select({ logo: organization.logo, metadata: organization.metadata })
-    .from(organization)
-    .where(eq(organization.id, organizationId))
-    .limit(1);
+  if (row) {
+    return {
+      ...row,
+      name,
+      profile: row.profile ?? defaultProfile(),
+      paymentMethods: row.paymentMethods ?? defaultPaymentMethods(),
+    };
+  }
 
   let type: string | null = null;
   if (org?.metadata) {
@@ -123,12 +165,15 @@ async function effectiveSettings(
 
   return {
     organizationId,
+    name,
     features: config.features,
     branding: {
       accentColor: config.accentColor ?? VYTAL_GREEN,
       logoUrl: org?.logo ?? null,
     },
     publicSite: defaultPublicSite(),
+    profile: defaultProfile(),
+    paymentMethods: defaultPaymentMethods(),
     terminologyOverrides: null,
     updatedAt: null,
   };
@@ -162,16 +207,31 @@ export const orgSettingsRouter = router({
       ...current.publicSite,
       ...input.publicSite,
     };
+    const profile: OrganizationProfile = { ...current.profile, ...input.profile };
+    const paymentMethods: OrganizationPaymentMethods = {
+      ...current.paymentMethods,
+      ...(input.paymentMethods as OrganizationPaymentMethods | undefined),
+    };
     const terminologyOverrides =
       input.terminologyOverrides === undefined
         ? current.terminologyOverrides
         : (input.terminologyOverrides as Partial<OrganizationTerminology> | null);
+
+    // The org's name is canonical on the `organization` row — keep it there.
+    if (input.name && input.name !== current.name) {
+      await ctx.db
+        .update(organization)
+        .set({ name: input.name })
+        .where(eq(organization.id, ctx.activeOrganizationId));
+    }
 
     const values = {
       organizationId: ctx.activeOrganizationId,
       features,
       branding,
       publicSite,
+      profile,
+      paymentMethods,
       terminologyOverrides,
       updatedAt: new Date(),
     };
@@ -184,6 +244,6 @@ export const orgSettingsRouter = router({
         set: values,
       })
       .returning();
-    return saved;
+    return { ...saved, name: input.name ?? current.name };
   }),
 });

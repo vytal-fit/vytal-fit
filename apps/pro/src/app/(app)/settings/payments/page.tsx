@@ -15,10 +15,10 @@ import {
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { useI18n } from "@/lib/i18n";
 import { useToast } from "@/components/toast";
-import { useDataStore } from "@/stores/data-store";
 import { useAuthStore } from "@/stores/auth-store";
 import { cn } from "@/lib/utils";
-import type { PaymentMethodConfig } from "@/stores/data-store";
+import type { OrganizationPaymentMethods as PaymentMethodConfig } from "@vytal-fit/db";
+import { trpc } from "@/lib/trpc";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -216,19 +216,32 @@ export default function PaymentsSettingsPage() {
   const { t } = useI18n();
   const { toast } = useToast();
   const activeOrgId = useAuthStore((s) => s.user?.activeOrganizationId) ?? "org-1";
-  const orgSettings = useDataStore((s) => s.orgSettings);
-  const updateOrgSettings = useDataStore((s) => s.updateOrgSettings);
+  const utils = trpc.useUtils();
+  const settingsQuery = trpc.orgSettings.get.useQuery();
+  const updateSettings = trpc.orgSettings.update.useMutation({
+    onSuccess: () => {
+      void utils.orgSettings.get.invalidate();
+      setSaved(true);
+      toast(t("payments.saved"), "success");
+      setTimeout(() => setSaved(false), 3000);
+    },
+    onError: (error) =>
+      toast(
+        error.data?.code === "FORBIDDEN" ? t("settings.adminOnly") : t("ui.error"),
+        "error",
+      ),
+  });
 
-  const [config, setConfig] = useState<PaymentMethodConfig>(
-    () => orgSettings.paymentMethods ?? defaultPaymentMethods
-  );
+  const [config, setConfig] = useState<PaymentMethodConfig>(defaultPaymentMethods);
   const [expandedKey, setExpandedKey] = useState<MethodKey | null>(null);
   const [, setSaved] = useState(false);
 
-  // Keep in sync with store if org switches
+  // Hydrate from the API when settings arrive or the active org changes.
   useEffect(() => {
-    setConfig(orgSettings.paymentMethods ?? defaultPaymentMethods);
-  }, [activeOrgId, orgSettings.paymentMethods]);
+    if (settingsQuery.data) {
+      setConfig(settingsQuery.data.paymentMethods ?? defaultPaymentMethods);
+    }
+  }, [activeOrgId, settingsQuery.data]);
 
   function toggleMethod(key: MethodKey) {
     setConfig((prev) => {
@@ -256,10 +269,14 @@ export default function PaymentsSettingsPage() {
   }
 
   function handleSave() {
-    updateOrgSettings({ paymentMethods: config });
-    setSaved(true);
-    toast(t("payments.saved"), "success");
-    setTimeout(() => setSaved(false), 3000);
+    // The API accepts an open record of method configs; our typed blob is a
+    // compatible subset.
+    updateSettings.mutate({
+      paymentMethods: config as Record<
+        string,
+        { enabled: boolean } & Record<string, string | boolean>
+      >,
+    });
   }
 
   // Count enabled methods
