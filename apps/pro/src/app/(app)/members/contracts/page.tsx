@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { useI18n } from "@/lib/i18n";
 import { useToast } from "@/components/toast";
+import { trpc } from "@/lib/trpc";
 import {
   FileText,
   CheckCircle,
@@ -24,12 +25,6 @@ interface ContractTemplate {
   lastUpdated: string;
 }
 
-const mockTemplates: ContractTemplate[] = [
-  { id: "tpl-1", name: "Membership Agreement", required: true, lastUpdated: "2026-05-01" },
-  { id: "tpl-2", name: "Health Waiver (PAR-Q)", required: true, lastUpdated: "2026-04-15" },
-  { id: "tpl-3", name: "Privacy Policy (RGPD)", required: true, lastUpdated: "2026-03-20" },
-];
-
 interface MemberContract {
   id: string;
   memberName: string;
@@ -39,28 +34,35 @@ interface MemberContract {
   expiryDate: string | null;
 }
 
-const mockContracts: MemberContract[] = [
-  { id: "mc-1", memberName: "Ana Silva", contractType: "Membership Agreement", status: "signed", signedDate: "2026-01-10", expiryDate: "2027-01-10" },
-  { id: "mc-2", memberName: "Ana Silva", contractType: "Health Waiver (PAR-Q)", status: "signed", signedDate: "2026-01-10", expiryDate: null },
-  { id: "mc-3", memberName: "Pedro Almeida", contractType: "Membership Agreement", status: "signed", signedDate: "2025-11-05", expiryDate: "2026-11-05" },
-  { id: "mc-4", memberName: "Pedro Almeida", contractType: "Privacy Policy (RGPD)", status: "pending", signedDate: null, expiryDate: null },
-  { id: "mc-5", memberName: "Tiago Neves", contractType: "Membership Agreement", status: "pending", signedDate: null, expiryDate: null },
-  { id: "mc-6", memberName: "Sofia Santos", contractType: "Membership Agreement", status: "expired", signedDate: "2025-03-01", expiryDate: "2026-03-01" },
-  { id: "mc-7", memberName: "Miguel Costa", contractType: "Health Waiver (PAR-Q)", status: "signed", signedDate: "2026-02-15", expiryDate: null },
-  { id: "mc-8", memberName: "Maria Oliveira", contractType: "Membership Agreement", status: "expired", signedDate: "2025-01-20", expiryDate: "2026-01-20" },
-];
-
-const totalSigned = 320;
-const totalPending = 15;
-const totalExpired = 8;
-const completionRate = 93;
 
 export default function ContractsPage() {
   const { t } = useI18n();
   const { toast } = useToast();
 
-  const [contracts] = useState(mockContracts);
-  const [templates, setTemplates] = useState(mockTemplates);
+  const contractsQuery = trpc.contracts.list.useQuery({});
+  const templatesQuery = trpc.contracts.templates.useQuery();
+  const contracts: MemberContract[] = (contractsQuery.data ?? []).map((c) => ({
+    id: c.id,
+    memberName: c.memberName,
+    contractType: c.contractType,
+    status: c.status,
+    signedDate: c.signedDate,
+    expiryDate: c.expiryDate,
+  }));
+  const templates: ContractTemplate[] = (templatesQuery.data ?? []).map((tpl) => ({
+    id: tpl.id,
+    name: tpl.name,
+    required: tpl.required,
+    lastUpdated: new Date(tpl.updatedAt).toISOString().slice(0, 10),
+  }));
+
+  const totalSigned = contracts.filter((c) => c.status === "signed").length;
+  const totalPending = contracts.filter((c) => c.status === "pending").length;
+  const totalExpired = contracts.filter((c) => c.status === "expired").length;
+  const completionRate = contracts.length
+    ? Math.round((totalSigned / contracts.length) * 100)
+    : 0;
+
   const [editingTemplate, setEditingTemplate] = useState<ContractTemplate | null>(null);
   const [editName, setEditName] = useState("");
   const [editRequired, setEditRequired] = useState(false);
@@ -71,19 +73,19 @@ export default function ContractsPage() {
     setEditRequired(tpl.required);
   }
 
+  const utils = trpc.useUtils();
+  const updateTemplate = trpc.contracts.updateTemplate.useMutation({
+    onSuccess: () => {
+      void utils.contracts.templates.invalidate();
+      setEditingTemplate(null);
+      toast(t("contracts.editTemplateSaved"), "success");
+    },
+    onError: () => toast(t("ui.error"), "error"),
+  });
+
   function handleSaveEdit() {
-    if (!editingTemplate) return;
-    if (!editName.trim()) return;
-    const today = new Date().toISOString().split("T")[0];
-    setTemplates((prev) =>
-      prev.map((tpl) =>
-        tpl.id === editingTemplate.id
-          ? { ...tpl, name: editName.trim(), required: editRequired, lastUpdated: today }
-          : tpl
-      )
-    );
-    setEditingTemplate(null);
-    toast(t("contracts.editTemplateSaved"), "success");
+    if (!editingTemplate || !editName.trim()) return;
+    updateTemplate.mutate({ id: editingTemplate.id, name: editName.trim(), required: editRequired });
   }
 
   function handleCancelEdit() {

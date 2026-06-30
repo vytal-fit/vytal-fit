@@ -4,6 +4,7 @@ import { checkInsRouter } from "./routers/checkIns";
 import { classTypesRouter } from "./routers/classTypes";
 import { classesRouter } from "./routers/classes";
 import { coachesRouter } from "./routers/coaches";
+import { contractsRouter } from "./routers/contracts";
 import { dashboardRouter } from "./routers/dashboard";
 import { exercisesRouter } from "./routers/exercises";
 import { expensesRouter } from "./routers/expenses";
@@ -47,6 +48,7 @@ export const appRouter = router({
   messages: messagesRouter,
   payments: paymentsRouter,
   expenses: expensesRouter,
+  contracts: contractsRouter,
   dashboard: dashboardRouter,
   uploads: uploadsRouter,
 });

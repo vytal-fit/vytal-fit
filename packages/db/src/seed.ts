@@ -786,6 +786,56 @@ export async function seedDatabase(
       .returning({ id: schema.expenses.id })
   ).length;
 
+  // Contract templates + per-member contracts (digital waivers, F2).
+  inserted.contractTemplates = (
+    await db
+      .insert(schema.contractTemplates)
+      .values([
+        { id: "tpl-1", organizationId: ORG_1, name: "Contrato de Adesão", required: true },
+        { id: "tpl-2", organizationId: ORG_1, name: "Termo de Saúde (PAR-Q)", required: true },
+        { id: "tpl-3", organizationId: ORG_1, name: "Política de Privacidade (RGPD)", required: true },
+      ])
+      .onConflictDoNothing()
+      .returning({ id: schema.contractTemplates.id })
+  ).length;
+
+  const contractRows = mockMembers
+    .filter((m) => m.organizationId === ORG_1)
+    .flatMap((m, i) => {
+      const joined = toDate(m.joinedAt);
+      const joinedYmd = joined.toISOString().slice(0, 10);
+      const expiry = new Date(joined.getTime() + 365 * 86_400_000).toISOString().slice(0, 10);
+      const membershipStatus: schema.ContractStatus =
+        i % 7 === 0 ? "expired" : i % 5 === 0 ? "pending" : "signed";
+      return [
+        {
+          id: `ct-${m.id}-membership`,
+          organizationId: ORG_1,
+          memberId: m.id,
+          contractType: "Contrato de Adesão",
+          status: membershipStatus,
+          signedDate: membershipStatus === "pending" ? null : joinedYmd,
+          expiryDate: expiry,
+        },
+        {
+          id: `ct-${m.id}-parq`,
+          organizationId: ORG_1,
+          memberId: m.id,
+          contractType: "Termo de Saúde (PAR-Q)",
+          status: (i % 6 === 0 ? "pending" : "signed") as schema.ContractStatus,
+          signedDate: i % 6 === 0 ? null : joinedYmd,
+          expiryDate: null,
+        },
+      ];
+    });
+  inserted.memberContracts = (
+    await db
+      .insert(schema.memberContracts)
+      .values(contractRows)
+      .onConflictDoNothing()
+      .returning({ id: schema.memberContracts.id })
+  ).length;
+
   inserted.leads = (
     await db
       .insert(schema.leads)

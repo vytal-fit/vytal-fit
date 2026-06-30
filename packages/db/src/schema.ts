@@ -127,6 +127,10 @@ export const PAYMENT_METHODS = [
 ] as const;
 export type PaymentMethod = (typeof PAYMENT_METHODS)[number];
 
+/** Lifecycle of a member contract / waiver. */
+export const CONTRACT_STATUSES = ["signed", "pending", "expired"] as const;
+export type ContractStatus = (typeof CONTRACT_STATUSES)[number];
+
 /** Operating-expense categories. */
 export const EXPENSE_CATEGORIES = ["Fixed", "Variable", "Tax"] as const;
 export type ExpenseCategoryKind = (typeof EXPENSE_CATEGORIES)[number];
@@ -369,6 +373,7 @@ export const salePaymentMethodEnum = pgEnum("sale_payment_method", SALE_PAYMENT_
 export const paymentMethodEnum = pgEnum("payment_method_kind", PAYMENT_METHODS);
 export const paymentStatusEnum = pgEnum("payment_status", PAYMENT_STATUSES);
 export const expenseCategoryEnum = pgEnum("expense_category_kind", EXPENSE_CATEGORIES);
+export const contractStatusEnum = pgEnum("contract_status", CONTRACT_STATUSES);
 export const planTypeEnum = pgEnum("plan_type", PLAN_TYPES);
 export const subscriptionStatusEnum = pgEnum("subscription_status", SUBSCRIPTION_STATUSES);
 export const leadStageEnum = pgEnum("lead_stage", LEAD_STAGES);
@@ -1205,6 +1210,44 @@ export const expenses = pgTable(
   (t) => [
     index("expenses_org_idx").on(t.organizationId),
     index("expenses_org_category_idx").on(t.organizationId, t.category),
+  ],
+);
+
+/** Reusable contract/waiver templates (Membership Agreement, PAR-Q, RGPD…). */
+export const contractTemplates = pgTable(
+  "contract_templates",
+  {
+    id: text("id").primaryKey(),
+    organizationId: text("organization_id")
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    name: text("name").notNull(),
+    required: boolean("required").notNull().default(true),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (t) => [index("contract_templates_org_idx").on(t.organizationId)],
+);
+
+/** A contract/waiver instance assigned to a member. */
+export const memberContracts = pgTable(
+  "member_contracts",
+  {
+    id: text("id").primaryKey(),
+    organizationId: text("organization_id")
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    memberId: text("member_id")
+      .notNull()
+      .references(() => gymMembers.id, { onDelete: "cascade" }),
+    contractType: text("contract_type").notNull(),
+    status: contractStatusEnum("status").notNull().default("pending"),
+    signedDate: date("signed_date"),
+    expiryDate: date("expiry_date"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (t) => [
+    index("member_contracts_org_idx").on(t.organizationId),
+    index("member_contracts_org_status_idx").on(t.organizationId, t.status),
   ],
 );
 
