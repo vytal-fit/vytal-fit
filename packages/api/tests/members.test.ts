@@ -206,3 +206,23 @@ describe("members.archive", () => {
     });
   });
 });
+
+describe("members.me", () => {
+  it("returns the athlete's own gym-member profile", async () => {
+    const me = await h.callerAthleteA.members.me();
+    expect(me?.id).toBe(IDS.memberA1);
+    expect(me?.organizationId).toBe(IDS.orgA);
+  });
+
+  it("returns null for a user with no linked member in the org", async () => {
+    // The org A owner has no gym-member profile linked to their user id.
+    const me = await h.callerA.members.me();
+    expect(me).toBeNull();
+  });
+
+  it("throws UNAUTHORIZED without a session", async () => {
+    await expect(h.callerNoSession.members.me()).rejects.toMatchObject({
+      code: "UNAUTHORIZED",
+    });
+  });
+});

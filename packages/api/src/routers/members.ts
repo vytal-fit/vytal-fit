@@ -50,6 +50,21 @@ export const membersRouter = router({
       return { items: rows, nextCursor };
     }),
 
+  /** The caller's own gym-member profile in the active org, or null if unlinked. */
+  me: orgProcedure.query(async ({ ctx }) => {
+    const [row] = await ctx.db
+      .select()
+      .from(gymMembers)
+      .where(
+        and(
+          eq(gymMembers.organizationId, ctx.activeOrganizationId),
+          eq(gymMembers.userId, ctx.session.user.id),
+        ),
+      )
+      .limit(1);
+    return row ?? null;
+  }),
+
   byId: orgProcedure
     .input(z.object({ id: z.string().min(1) }))
     .query(async ({ ctx, input }) => {

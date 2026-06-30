@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Home, Calendar, Dumbbell, Trophy, User, Bell, Zap, Users, TrendingUp, Sun, Moon } from "lucide-react";
+import { Home, Calendar, Dumbbell, Trophy, User, Bell, Zap, Users, TrendingUp, Activity, Sun, Moon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/stores/auth-store";
 import { useAppStore } from "@/stores/app-store";
@@ -17,6 +17,7 @@ const NAV_TAB_KEYS = [
   { href: "/records",    labelKey: "my.nav.records",   icon: Trophy,    exact: false },
   { href: "/community",  labelKey: "my.nav.community", icon: Users,     exact: false },
   { href: "/progress",   labelKey: "my.nav.progress",  icon: TrendingUp,exact: false },
+  { href: "/wellness",   labelKey: "my.nav.wellness",  icon: Activity,  exact: false },
   { href: "/profile",    labelKey: "my.nav.profile",   icon: User,      exact: false },
 ];
 

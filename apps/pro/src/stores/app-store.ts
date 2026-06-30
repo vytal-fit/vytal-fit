@@ -141,7 +141,15 @@ export const useAppStore = create<AppState>((set, get) => ({
     const storedSidebar = localStorage.getItem(SIDEBAR_STORAGE_KEY);
     const storedRightSidebar = localStorage.getItem(RIGHT_SIDEBAR_STORAGE_KEY);
     const storedAccent = localStorage.getItem(ACCENT_STORAGE_KEY);
-    const theme = storedTheme === "light" ? "light" : "dark";
+    // No stored choice: derive from the OS preference; an explicit choice wins.
+    const systemLight =
+      window.matchMedia?.("(prefers-color-scheme: light)").matches ?? false;
+    const theme: Theme =
+      storedTheme === "light" || storedTheme === "dark"
+        ? storedTheme
+        : systemLight
+          ? "light"
+          : "dark";
     const accentColor = storedAccent ?? "#22c55e";
     const orgAccentColors = loadOrgAccentColors();
     applyThemeClass(theme);
