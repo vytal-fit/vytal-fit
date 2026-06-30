@@ -216,7 +216,11 @@ Letter-spacing: Display `-0.5px`, Labels `2.5px`, Table headers `1.5px`.
 
 ```
 apps/
-  web/              -- Next.js 15 App Router (Vercel deployment)
+  landing/          -- Next.js 15 public site (Vercel project: landing)
+  pro/              -- Next.js 15 staff/backoffice app (Vercel project: pro)
+  my/               -- Next.js 15 athlete/member portal (Vercel project: my)
+  api/              -- Next.js 15 API origin (Vercel project: api)
+  docs/             -- local/internal docs reader; public docs sync from apps/api/readme
   mobile/           -- Expo 54 / React Native (iOS + Android)
 packages/
   api/              -- tRPC routers (shared backend logic)
@@ -241,7 +245,7 @@ packages/
 | **Build** | Turborepo, TypeScript 5, npm workspaces |
 | **Unit Test** | Vitest |
 | **E2E Test** | Playwright |
-| **Deploy** | Vercel (web), Expo EAS (mobile) |
+| **Deploy** | Vercel projects for landing/pro/my/api, Expo EAS (mobile) |
 | **CI/CD** | GitHub Actions |
 | **i18n** | Portuguese (pt), English (en), Spanish (es) |
 
@@ -1435,7 +1439,7 @@ Core operations for all 4 personas plus competitive parity features:
 |---|---|---|
 | Admin Web pages | 100+ | 100+ |
 | Public Website pages | 6 | 6 |
-| Member Console pages | 6 | 6 |
+| Member Portal pages | 9 | 9 |
 | Mobile Client screens | 48 | 48 |
 | **Total screens** | **160+** | **160+** |
 | Playwright E2E tests | 89 | 89 |
@@ -1449,9 +1453,10 @@ Core operations for all 4 personas plus competitive parity features:
 
 | Product | Domain | Purpose | Status |
 |---|---|---|---|
-| **Admin** | `pro.vytal.fit` | Gym management backoffice | Built (100+ pages) |
-| **Console** | `my.vytal.fit` / `/console` | Member portal (web) | Built (6 pages) |
-| **Public Site** | `vytal.fit` or custom domain | Marketing website | Built (6 pages) |
+| **Pro** | `pro.vytal.fit` | Gym management backoffice | Built (100+ pages) |
+| **My** | `my.vytal.fit` | Member portal (web) | Built (app split in `apps/my`) |
+| **Landing** | `vytal.fit` | Marketing website | Built (`apps/landing`) |
+| **API** | `api.vytal.fit` | Auth, tRPC, REST resources, OpenAPI | Built (`apps/api`) |
 | **Mobile App** | iOS/Android (Expo) | Athlete app | Built (48 screens) |
 
 ### 14.3 What Is Built
@@ -1473,7 +1478,7 @@ Core operations for all 4 personas plus competitive parity features:
 - **Locations (2):** location management, multi-location dashboard
 - **Auth (4):** login, register, onboarding (4-step wizard with feature config), forgot-password
 
-**Public Website (6 pages, at /@orgslug):**
+**Landing (`apps/landing`, at `vytal.fit`):**
 - Homepage (hero, stats, schedule, CTA)
 - Schedule (weekly timetable, booking modal)
 - Pricing (plan cards, comparison table, FAQ)
@@ -1481,11 +1486,14 @@ Core operations for all 4 personas plus competitive parity features:
 - Team (coach cards, bio, certifications)
 - Contact (form, map, social links)
 
-**Member Console (6 pages, at /console):**
+**My Portal (`apps/my`, at `my.vytal.fit`):**
 - Home (next class, WOD preview, streak, quick actions)
 - Schedule (weekly view, book/cancel, my bookings)
 - WOD (today's WOD, score logging, timer)
 - Records (PR list, add PR, progress)
+- Progress (training and activity history)
+- Workouts (training sessions and programming)
+- Community (box/member updates)
 - Profile (subscription, payment history, settings)
 
 **Mobile Client (48 screens):**
@@ -1510,7 +1518,7 @@ Core operations for all 4 personas plus competitive parity features:
 ### 14.4 What Is NOT Built (Next Phase)
 
 - **Backend:** Core surfaces now use tRPC + Drizzle + PostgreSQL; remaining pages still mix API-backed data with localStorage mocks
-- **Auth:** Better Auth is integrated; production must trust the API origin (`api.vytal.fit`) and the web origin (`pro.vytal.fit`) explicitly.
+- **Auth:** Better Auth is integrated on the API origin; production must trust the API origin (`api.vytal.fit`) and all browser origins (`vytal.fit`, `pro.vytal.fit`, `my.vytal.fit`) explicitly.
 - **Real Payments:** No Stripe/MBWay/SEPA processing -- config UI only
 - **Fiscal:** No SAF-T/ATCUD generation
 - **Notifications:** No push/email/SMS delivery -- UI only

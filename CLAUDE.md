@@ -13,7 +13,11 @@ AI-powered SaaS platform for intelligent management of CrossFit boxes, functiona
 
 ```
 apps/
-  web/          — Next.js 15 App Router (Vercel deployment)
+  landing/      — Next.js 15 public site (Vercel project: landing)
+  pro/          — Next.js 15 staff/backoffice app (Vercel project: pro)
+  my/           — Next.js 15 athlete/member portal (Vercel project: my)
+  api/          — Next.js 15 API origin (Vercel project: api)
+  docs/         — local/internal docs reader; public docs sync from apps/api/readme
   mobile/       — Expo 54 / React Native (iOS + Android)
 packages/
   api/          — tRPC routers (shared backend logic)
@@ -29,7 +33,7 @@ packages/
 - **Build:** Turborepo, TypeScript 5, npm workspaces
 - **Test:** Vitest
 - **Mobile:** Expo 54, React Native, Zustand
-- **Deploy:** Vercel (web), Expo EAS (mobile)
+- **Deploy:** Vercel projects for landing/pro/my/api, Expo EAS (mobile)
 - **i18n:** Portuguese (pt), English (en), Spanish (es)
 
 ## Key Conventions
@@ -42,15 +46,20 @@ packages/
 ## Commands
 
 ```bash
-npm run dev:web      # Start web dev server
-npm run dev:mobile   # Start Expo dev server
-npm run build:web    # Build web for production
-npm run lint         # Lint all packages
-npm run type-check   # Type check all packages
-npm test             # Run all tests
-npm run test:watch   # Tests in watch mode
-npm run test:e2e     # Run Playwright E2E tests
-npm run test:e2e:ui  # Playwright interactive UI
+npm run dev:landing   # Start public site dev server
+npm run dev:pro       # Start staff/backoffice dev server
+npm run dev:my        # Start athlete portal dev server
+npm run dev:api       # Start API origin dev server
+npm run dev:mobile    # Start Expo dev server
+npm run build         # Build all workspace packages/apps through Turbo
+npm run build:pro     # Build pro for production
+npm run build:my      # Build my for production
+npm run build:api     # Build API for production
+npm run lint          # Lint all packages
+npm run type-check    # Type check all packages
+npm test              # Run all tests
+npm run test:e2e      # Run Playwright E2E tests
+npm run docs:readme:sync # Upload OpenAPI + apps/api/readme guides to ReadMe
 ```
 
 ## Rules

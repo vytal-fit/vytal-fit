@@ -9,7 +9,7 @@ parent:
 
 # Mobile Integration
 
-The mobile app uses the same public API host as the web app, but it reads a
+The mobile app uses the same public API host as the browser apps, but it reads a
 token from secure storage and never depends on browser cookies.
 
 ## Base URL

@@ -24,7 +24,7 @@ The proposal's **F1 is essentially done and F2 is underway.** Current Vytal back
 - **PostgreSQL + Drizzle** (`packages/db`), **shared domain** (`packages/shared`), POC UI being wired onto real mutations.
 - **Dev skills**: `.claude/skills/vytal-engineer`, `.claude/skills/vytal-qa` (ported earlier from kloser).
 
-**Gaps vs the proposal:** no `packages/agents` (Coach Assist AI), auth lacks invitations/email + Expo mobile client + session hooks, no `vytal-planner` dev agent, CI burns free minutes on E2E, deployment-to-Vercel mirror not yet wired for Vytal.
+**Gaps vs the proposal:** no `packages/agents` (Coach Assist AI), auth still needs full invitations/email + Expo mobile parity, no `vytal-planner` dev agent, and several prototype pages still need final API wiring. CI is split between lightweight automatic checks and manual E2E. Vercel now uses native monorepo projects for the production apps.
 
 ---
 
@@ -47,7 +47,7 @@ The proposal's **F1 is essentially done and F2 is underway.** Current Vytal back
 - Port `kloser-planner` → `vytal-planner` agent + `.claude/skills/vytal-planner`.
 - Enrich `vytal-engineer` / `vytal-qa` reference files (backend, frontend, security, scaling, testing) + QA scenario bank, adapted to Vytal (20 verticals, 5 roles, PT fiscal, PostgreSQL).
 - Port `docs/architecture/auth` + `docs/agents/roster` scaffolding.
-- **CI/CD hardening** (see §3): drop E2E from the pipeline, wire Vercel deploy mirror.
+- **CI/CD hardening** (see §3): keep E2E manual and deploy via Vercel monorepo projects.
 - *Low risk, high leverage. Encodes the proposal's Definition of Done (§12.2).* 
 
 ### F1 — Foundation, Infra & Multi-Tenant (Jun · mostly done → harden)
@@ -97,12 +97,25 @@ Wire the remaining backoffice routers onto the POC UI:
 **Changes:**
 1. **CI pipeline** (`ci.yml`): keep lint + type-check + unit tests (+ secret scan). Use a cached-install composite action (`.github/actions/setup`) so a lockfile cache hit skips `npm ci`. **E2E removed from the automatic pipeline.**
 2. **E2E moved to manual** (`e2e.yml`, `workflow_dispatch` only): the full Playwright suite is preserved and run on demand / before go-live, not on every commit. *(Mirrors kloser's intent of not paying ~20–40 runner-minutes per push.)*
-3. **Deployment** (`mirror-to-vercel.yml`): replicate kloser's model — Vercel deploys from a **separate connected repo** via its native Git integration. On push to `main`, this workflow synthesizes an orphan commit pointing at `HEAD`'s tree, authored by the **deploy account's email** (Vercel Hobby only deploys commits whose author is on the connected account), and force-pushes it to the deploy repo's `main`. Vercel then auto-builds and publishes.
+3. **Deployment**: Vercel deploys the monorepo directly from GitHub. Each production surface is a separate Vercel project with a root directory and domain:
 
-**Deploy target (hardcoded in the workflow, matching kloser):** repo `vytalfiteu-web/vytalfit-eu-private`, deploy identity `vytal.fit.eu@gmail.com`.
+| Vercel project | Root directory | Production domain |
+|---|---|---|
+| `landing` | `apps/landing` | `vytal.fit`, `www.vytal.fit` |
+| `pro` | `apps/pro` | `pro.vytal.fit`, `www.pro.vytal.fit` |
+| `my` | `apps/my` | `my.vytal.fit`, `www.my.vytal.fit` |
+| `api` | `apps/api` | `api.vytal.fit`, `www.api.vytal.fit` |
 
-**One-time setup required — only the token:**
-- `VERCEL_DEPLOY_TOKEN` *(repo secret)* — a fine-grained PAT created on the **vytalfit-eu** GitHub account, scoped to `vytalfit-eu-private` with **Contents: Read and write** + **Workflows: Read and write**.
+The app-level `vercel.json` files restrict Git deployments to `main` and use
+`turbo-ignore` so Vercel skips unaffected projects instead of rebuilding every
+surface on every push.
+
+**One-time setup required:**
+- Connect the GitHub repository to each Vercel project.
+- Keep each project's root directory aligned with the table above.
+- Store production env vars on the project that uses them: database/auth secrets
+  on `api`, public API URL on `pro` and `my`, and public landing-only vars on
+  `landing`.
 
 ---
 

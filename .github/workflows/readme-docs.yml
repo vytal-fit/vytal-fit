@@ -7,7 +7,7 @@ on:
     paths:
       - "apps/api/readme/**"
       - "packages/api/src/openapi.ts"
-      - "apps/api/src/app/openapi/route.ts"
+      - "apps/api/src/app/openapi.json/route.ts"
       - ".github/workflows/readme-docs.yml"
   workflow_dispatch: {}
 
@@ -31,7 +31,7 @@ jobs:
       - name: Sync OpenAPI
         env:
           README_API_KEY: ${{ secrets.README_API_KEY }}
-        run: npx rdme openapi upload https://api.vytal.fit/openapi --slug vytal-api --title "Vytal API" --branch 1.0 --key "$README_API_KEY" --confirm-overwrite
+        run: npx rdme openapi upload https://api.vytal.fit/openapi.json --slug vytal-api --title "Vytal API" --branch 1.0 --key "$README_API_KEY" --confirm-overwrite
 
       - name: Sync guides
         env:

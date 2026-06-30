@@ -1,55 +1,15 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Vytal docs</title><style>
-:root{--bg:#fff;--fg:#1a1d24;--muted:#5b6573;--border:#e4e8ee;--code-bg:#f4f6f9;--accent:#0d9488;--accent-soft:#0d948814;--th-bg:#f7f9fb;--quote:#f0fdfa;--quote-bar:#0d9488}
-@media(prefers-color-scheme:dark){:root{--bg:#0f1318;--fg:#dfe5ec;--muted:#8a94a3;--border:#252b34;--code-bg:#1a1f27;--accent:#2dd4bf;--accent-soft:#2dd4bf1a;--th-bg:#161b22;--quote:#0c1f1c;--quote-bar:#2dd4bf}}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
-.layout{display:grid;grid-template-columns:260px 1fr;max-width:1180px;margin:0 auto;min-height:100vh}
-.toc{position:sticky;top:0;align-self:start;max-height:100vh;overflow:auto;padding:28px 18px;border-right:1px solid var(--border);font-size:13.5px}
-.toc a{display:block;color:var(--muted);text-decoration:none;padding:3px 8px;border-radius:6px;line-height:1.4}
-.toc a:hover{color:var(--fg);background:var(--accent-soft)}
-.toc a.lvl3{padding-left:20px;font-size:12.5px}
-.toc .home{color:var(--accent);font-weight:600;margin-bottom:14px}
-.content{padding:40px 56px;min-width:0;max-width:860px}
-.content h1{font-size:30px;margin:.2em 0 .6em;line-height:1.2}
-.content h2{font-size:23px;margin:1.6em 0 .5em;padding-bottom:.25em;border-bottom:1px solid var(--border)}
-.content h3{font-size:18.5px;margin:1.4em 0 .4em}
-.content h4{font-size:16px;margin:1.2em 0 .3em}
-a{color:var(--accent)}
-.anchor{margin-left:8px;color:var(--border);text-decoration:none;font-weight:400;opacity:0}
-h1:hover .anchor,h2:hover .anchor,h3:hover .anchor{opacity:1}
-code{background:var(--code-bg);padding:.12em .4em;border-radius:5px;font:13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace}
-pre{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:16px;overflow:auto}
-pre code{background:none;padding:0;font-size:13px}
-.table-wrap{overflow-x:auto;margin:1em 0}
-table{border-collapse:collapse;width:100%;font-size:14px}
-th,td{border:1px solid var(--border);padding:8px 11px;text-align:left;vertical-align:top}
-th{background:var(--th-bg);font-weight:600}
-tr:nth-child(even) td{background:var(--accent-soft)}
-blockquote{margin:1em 0;padding:.6em 1.1em;background:var(--quote);border-left:3px solid var(--quote-bar);border-radius:0 8px 8px 0;color:var(--fg)}
-hr{border:none;border-top:1px solid var(--border);margin:2em 0}
-ul,ol{padding-left:1.5em}li{margin:.25em 0}
-.docnav{display:flex;justify-content:space-between;margin-top:48px;padding-top:20px;border-top:1px solid var(--border);font-size:14px;gap:12px}
-.docnav a{text-decoration:none;padding:10px 14px;border:1px solid var(--border);border-radius:8px;flex:1}
-.docnav a:hover{background:var(--accent-soft)}
-.docnav .next{text-align:right}
-@media(max-width:820px){.layout{grid-template-columns:1fr}.toc{display:none}.content{padding:24px}}
+<title>Vytal docs</title><style>:root{--bg:#fff;--fg:#1a1d24;--muted:#5b6573;--border:#e4e8ee;--code-bg:#f4f6f9;--accent:#0d9488;--accent-soft:#0d948814;--th-bg:#f7f9fb;--quote:#f0fdfa;--quote-bar:#0d9488}@media(prefers-color-scheme:dark){:root{--bg:#0f1318;--fg:#dfe5ec;--muted:#8a94a3;--border:#252b34;--code-bg:#1a1f27;--accent:#2dd4bf;--accent-soft:#2dd4bf1a;--th-bg:#161b22;--quote:#0c1f1c;--quote-bar:#2dd4bf}}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}.layout{display:grid;grid-template-columns:260px 1fr;max-width:1180px;margin:0 auto;min-height:100vh}.toc{position:sticky;top:0;align-self:start;max-height:100vh;overflow:auto;padding:28px 18px;border-right:1px solid var(--border);font-size:13.5px}.toc a{display:block;color:var(--muted);text-decoration:none;padding:3px 8px;border-radius:6px;line-height:1.4}.toc a:hover{color:var(--fg);background:var(--accent-soft)}.toc a.lvl3{padding-left:20px;font-size:12.5px}.toc .home{color:var(--accent);font-weight:600;margin-bottom:14px}.content{padding:40px 56px;min-width:0;max-width:860px}.content h1{font-size:30px;margin:.2em 0 .6em;line-height:1.2}.content h2{font-size:23px;margin:1.6em 0 .5em;padding-bottom:.25em;border-bottom:1px solid var(--border)}.content h3{font-size:18.5px;margin:1.4em 0 .4em}.content h4{font-size:16px;margin:1.2em 0 .3em}a{color:var(--accent)}.anchor{margin-left:8px;color:var(--border);text-decoration:none;font-weight:400;opacity:0}h1:hover .anchor,h2:hover .anchor,h3:hover .anchor{opacity:1}code{background:var(--code-bg);padding:.12em .4em;border-radius:5px;font:13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace}pre{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:16px;overflow:auto}pre code{background:none;padding:0;font-size:13px}.table-wrap{overflow-x:auto;margin:1em 0}table{border-collapse:collapse;width:100%;font-size:14px}th,td{border:1px solid var(--border);padding:8px 11px;text-align:left;vertical-align:top}th{background:var(--th-bg);font-weight:600}tr:nth-child(even) td{background:var(--accent-soft)}blockquote{margin:1em 0;padding:.6em 1.1em;background:var(--quote);border-left:3px solid var(--quote-bar);border-radius:0 8px 8px 0;color:var(--fg)}hr{border:none;border-top:1px solid var(--border);margin:2em 0}ul,ol{padding-left:1.5em}li{margin:.25em 0}.docnav{display:flex;justify-content:space-between;margin-top:48px;padding-top:20px;border-top:1px solid var(--border);font-size:14px;gap:12px}.docnav a{text-decoration:none;padding:10px 14px;border:1px solid var(--border);border-radius:8px;flex:1}.docnav a:hover{background:var(--accent-soft)}.docnav .next{text-align:right}@media(max-width:820px){.layout{grid-template-columns:1fr}.toc{display:none}.content{padding:24px}}
 
-.cards{display:grid;gap:14px;margin-top:24px}
-.card{display:block;border:1px solid var(--border);border-radius:12px;padding:18px 20px;text-decoration:none;color:inherit;transition:.12s}
-.card:hover{border-color:var(--accent);background:var(--accent-soft)}
-.card h3{margin:0 0 4px;color:var(--accent)}
-.card p{margin:0 0 6px;color:var(--fg)}
-.card .src{font:12px ui-monospace,Menlo,monospace;color:var(--muted)}
-.layout{grid-template-columns:1fr}.toc{display:none}</style></head>
+.cards{display:grid;gap:14px;margin-top:24px}.card{display:block;border:1px solid var(--border);border-radius:12px;padding:18px 20px;text-decoration:none;color:inherit;transition:.12s}.card:hover{border-color:var(--accent);background:var(--accent-soft)}.card h3{margin:0 0 4px;color:var(--accent)}.card p{margin:0 0 6px;color:var(--fg)}.card .src{font:12px ui-monospace,Menlo,monospace;color:var(--muted)}.layout{grid-template-columns:1fr}.toc{display:none}</style></head>
 <body><div class="layout"><main class="content"><h1>Vytal — engineering docs</h1>
 <p>Engineering-relevant docs from <code>/docs</code>, rendered for reading. Commercial / contract docs under <code>docs/comercial/</code> are intentionally excluded.</p>
-<div class="cards"><a class="card" href="execution_plan.html"><h3>Execution Plan</h3><p>F1–F6 roadmap and where we actually are</p><span class="src">EXECUTION_PLAN.md</span></a>
+<div class="cards"><a class="card" href="execution_plan.html"><h3>Execution Plan</h3><p>F1-F6 roadmap and where we actually are</p><span class="src">EXECUTION_PLAN.md</span></a>
 <a class="card" href="prd_decisions_2026-06.html"><h3>PRD Decisions (Jun 26)</h3><p>Latest locked scope decisions</p><span class="src">PRD_DECISIONS_2026-06.md</span></a>
 <a class="card" href="backend_wiring.html"><h3>Backend Wiring</h3><p>Current tRPC / Better Auth / Drizzle plumbing</p><span class="src">BACKEND_WIRING.md</span></a>
 <a class="card" href="plano_sprints.html"><h3>Plano de Sprints</h3><p>Sprint plan tied to the commercial contract</p><span class="src">PLANO_SPRINTS.md</span></a>
 <a class="card" href="qa-report-2026-06-11.html"><h3>QA Report</h3><p>Quality state of the backend migration</p><span class="src">QA-REPORT-2026-06-11.md</span></a>
-<a class="card" href="prd.html"><h3>PRD</h3><p>Product Requirements — single source of truth</p><span class="src">PRD.md</span></a>
+<a class="card" href="prd.html"><h3>PRD</h3><p>Product Requirements - single source of truth</p><span class="src">PRD.md</span></a>
 <a class="card" href="competitive_analysis.html"><h3>Competitive Analysis</h3><p>Regibox feature inventory vs Vytal</p><span class="src">COMPETITIVE_ANALYSIS.md</span></a>
 <a class="card" href="regibox_client_app.html"><h3>Regibox Client App</h3><p>Competitor athlete-app UI &amp; feature reference</p><span class="src">REGIBOX_CLIENT_APP.md</span></a></div></main></div></body></html>

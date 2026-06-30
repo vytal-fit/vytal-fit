@@ -1,96 +1,263 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Execution Plan · Vytal docs</title><style>
-:root{--bg:#fff;--fg:#1a1d24;--muted:#5b6573;--border:#e4e8ee;--code-bg:#f4f6f9;--accent:#0d9488;--accent-soft:#0d948814;--th-bg:#f7f9fb;--quote:#f0fdfa;--quote-bar:#0d9488}
-@media(prefers-color-scheme:dark){:root{--bg:#0f1318;--fg:#dfe5ec;--muted:#8a94a3;--border:#252b34;--code-bg:#1a1f27;--accent:#2dd4bf;--accent-soft:#2dd4bf1a;--th-bg:#161b22;--quote:#0c1f1c;--quote-bar:#2dd4bf}}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
-.layout{display:grid;grid-template-columns:260px 1fr;max-width:1180px;margin:0 auto;min-height:100vh}
-.toc{position:sticky;top:0;align-self:start;max-height:100vh;overflow:auto;padding:28px 18px;border-right:1px solid var(--border);font-size:13.5px}
-.toc a{display:block;color:var(--muted);text-decoration:none;padding:3px 8px;border-radius:6px;line-height:1.4}
-.toc a:hover{color:var(--fg);background:var(--accent-soft)}
-.toc a.lvl3{padding-left:20px;font-size:12.5px}
-.toc .home{color:var(--accent);font-weight:600;margin-bottom:14px}
-.content{padding:40px 56px;min-width:0;max-width:860px}
-.content h1{font-size:30px;margin:.2em 0 .6em;line-height:1.2}
-.content h2{font-size:23px;margin:1.6em 0 .5em;padding-bottom:.25em;border-bottom:1px solid var(--border)}
-.content h3{font-size:18.5px;margin:1.4em 0 .4em}
-.content h4{font-size:16px;margin:1.2em 0 .3em}
-a{color:var(--accent)}
-.anchor{margin-left:8px;color:var(--border);text-decoration:none;font-weight:400;opacity:0}
-h1:hover .anchor,h2:hover .anchor,h3:hover .anchor{opacity:1}
-code{background:var(--code-bg);padding:.12em .4em;border-radius:5px;font:13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace}
-pre{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:16px;overflow:auto}
-pre code{background:none;padding:0;font-size:13px}
-.table-wrap{overflow-x:auto;margin:1em 0}
-table{border-collapse:collapse;width:100%;font-size:14px}
-th,td{border:1px solid var(--border);padding:8px 11px;text-align:left;vertical-align:top}
-th{background:var(--th-bg);font-weight:600}
-tr:nth-child(even) td{background:var(--accent-soft)}
-blockquote{margin:1em 0;padding:.6em 1.1em;background:var(--quote);border-left:3px solid var(--quote-bar);border-radius:0 8px 8px 0;color:var(--fg)}
-hr{border:none;border-top:1px solid var(--border);margin:2em 0}
-ul,ol{padding-left:1.5em}li{margin:.25em 0}
-.docnav{display:flex;justify-content:space-between;margin-top:48px;padding-top:20px;border-top:1px solid var(--border);font-size:14px;gap:12px}
-.docnav a{text-decoration:none;padding:10px 14px;border:1px solid var(--border);border-radius:8px;flex:1}
-.docnav a:hover{background:var(--accent-soft)}
-.docnav .next{text-align:right}
-@media(max-width:820px){.layout{grid-template-columns:1fr}.toc{display:none}.content{padding:24px}}
+<title>Execution Plan · Vytal docs</title><style>:root{--bg:#fff;--fg:#1a1d24;--muted:#5b6573;--border:#e4e8ee;--code-bg:#f4f6f9;--accent:#0d9488;--accent-soft:#0d948814;--th-bg:#f7f9fb;--quote:#f0fdfa;--quote-bar:#0d9488}@media(prefers-color-scheme:dark){:root{--bg:#0f1318;--fg:#dfe5ec;--muted:#8a94a3;--border:#252b34;--code-bg:#1a1f27;--accent:#2dd4bf;--accent-soft:#2dd4bf1a;--th-bg:#161b22;--quote:#0c1f1c;--quote-bar:#2dd4bf}}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}.layout{display:grid;grid-template-columns:260px 1fr;max-width:1180px;margin:0 auto;min-height:100vh}.toc{position:sticky;top:0;align-self:start;max-height:100vh;overflow:auto;padding:28px 18px;border-right:1px solid var(--border);font-size:13.5px}.toc a{display:block;color:var(--muted);text-decoration:none;padding:3px 8px;border-radius:6px;line-height:1.4}.toc a:hover{color:var(--fg);background:var(--accent-soft)}.toc a.lvl3{padding-left:20px;font-size:12.5px}.toc .home{color:var(--accent);font-weight:600;margin-bottom:14px}.content{padding:40px 56px;min-width:0;max-width:860px}.content h1{font-size:30px;margin:.2em 0 .6em;line-height:1.2}.content h2{font-size:23px;margin:1.6em 0 .5em;padding-bottom:.25em;border-bottom:1px solid var(--border)}.content h3{font-size:18.5px;margin:1.4em 0 .4em}.content h4{font-size:16px;margin:1.2em 0 .3em}a{color:var(--accent)}.anchor{margin-left:8px;color:var(--border);text-decoration:none;font-weight:400;opacity:0}h1:hover .anchor,h2:hover .anchor,h3:hover .anchor{opacity:1}code{background:var(--code-bg);padding:.12em .4em;border-radius:5px;font:13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace}pre{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:16px;overflow:auto}pre code{background:none;padding:0;font-size:13px}.table-wrap{overflow-x:auto;margin:1em 0}table{border-collapse:collapse;width:100%;font-size:14px}th,td{border:1px solid var(--border);padding:8px 11px;text-align:left;vertical-align:top}th{background:var(--th-bg);font-weight:600}tr:nth-child(even) td{background:var(--accent-soft)}blockquote{margin:1em 0;padding:.6em 1.1em;background:var(--quote);border-left:3px solid var(--quote-bar);border-radius:0 8px 8px 0;color:var(--fg)}hr{border:none;border-top:1px solid var(--border);margin:2em 0}ul,ol{padding-left:1.5em}li{margin:.25em 0}.docnav{display:flex;justify-content:space-between;margin-top:48px;padding-top:20px;border-top:1px solid var(--border);font-size:14px;gap:12px}.docnav a{text-decoration:none;padding:10px 14px;border:1px solid var(--border);border-radius:8px;flex:1}.docnav a:hover{background:var(--accent-soft)}.docnav .next{text-align:right}@media(max-width:820px){.layout{grid-template-columns:1fr}.toc{display:none}.content{padding:24px}}
 </style></head>
 <body><div class="layout">
-<aside class="toc"><a class="home" href="index.html">← Vytal docs</a><a class="lvl2" href="#0-where-we-actually-are">0. Where we actually are</a>
+<aside class="toc"><a class="home" href="index.html">← Vytal docs</a>
+<a class="lvl2" href="#0-where-we-actually-are">0. Where we actually are</a>
 <a class="lvl2" href="#1-what-we-port-from-kloser-decisions-locked">1. What we port from kloser (decisions locked)</a>
 <a class="lvl2" href="#2-phased-roadmap">2. Phased roadmap</a>
 <a class="lvl3" href="#phase-0-dev-enablement-now-parallel-to-f1">Phase 0 — Dev enablement (now, parallel to F1)</a>
-<a class="lvl3" href="#f1-foundation-infra-multi-tenant-jun-mostly-done-harden">F1 — Foundation, Infra &amp; Multi-Tenant (Jun · mostly done → harden)</a>
-<a class="lvl3" href="#f2-backoffice-de-gesto-jul-in-progress">F2 — Backoffice de Gestão (Jul · in progress)</a>
+<a class="lvl3" href="#f1-foundation-infra-multi-tenant-jun-mostly-done-harden">F1 — Foundation, Infra  Multi-Tenant (Jun · mostly done → harden)</a>
+<a class="lvl3" href="#f2-backoffice-de-gestao-jul-in-progress">F2 — Backoffice de Gestão (Jul · in progress)</a>
 <a class="lvl3" href="#f3-treino-ago">F3 — Treino (Ago)</a>
 <a class="lvl3" href="#f4-app-do-atleta-bem-estar-base-set">F4 — App do Atleta + Bem-estar base (Set)</a>
-<a class="lvl3" href="#f5-coach-assist-ai-faturao-out">F5 — Coach Assist AI + Faturação (Out)</a>
-<a class="lvl3" href="#f6-testes-pilotagem-go-live-out-go-live-30-oct-2026">F6 — Testes, Pilotagem &amp; Go-Live (Out · go-live 30 Oct 2026)</a>
+<a class="lvl3" href="#f5-coach-assist-ai-faturacao-out">F5 — Coach Assist AI + Faturação (Out)</a>
+<a class="lvl3" href="#f6-testes-pilotagem-go-live-out-go-live-30-oct-2026">F6 — Testes, Pilotagem  Go-Live (Out · go-live 30 Oct 2026)</a>
 <a class="lvl2" href="#3-cicd-changes-this-plan-ships-them">3. CI/CD changes (this plan ships them)</a>
-<a class="lvl2" href="#4-governance-open-items">4. Governance &amp; open items</a>
+<a class="lvl2" href="#4-governance-open-items">4. Governance  open items</a>
 <a class="lvl2" href="#5-phase-investment-prr-mapping-from-proposal-1317-anexo-a">5. Phase → investment → PRR mapping (from proposal §13–17, Anexo A)</a></aside>
-<main class="content"><h1 id="vytal-execution-plan-prr-mvp-junoct-2026">Vytal — Execution Plan (PRR MVP, Jun–Oct 2026)<a class="anchor" href="#vytal-execution-plan-prr-mvp-junoct-2026">#</a></h1>
-<p><strong>Version:</strong> 1.0 <strong>Created:</strong> 2026-06-27 <strong>Status:</strong> Draft for alignment <strong>Owners:</strong> José Cunha Fonte (Tech Lead/Arquiteto), Lucas Hartridge (Senior Full-Stack)</p>
-<blockquote>This plan reconciles three inputs into a single phased roadmap: 1. The <strong>Commercial Proposal</strong> (JCUNHAFONTE → Musas &amp; Vikings, Lda — <em>CrossFit Aveiro</em>), 6 phases F1–F6, €290.000, PRR-funded, <strong>go-live 30 Oct 2026</strong>. 2. The <strong>PRD</strong> (<code>docs/PRD.md</code>) — full product spec (100+ POC screens built from the MVP v2.0 / <code>mvpvytalv23.netlify.app</code> mockup). 3. Capabilities to <strong>port from the <code>kloser</code> sibling repo</strong> (agents runtime, auth maturity, dev skills).  Latest client/lead decisions are captured in <code>docs/PRD_DECISIONS_2026-06.md</code>. This plan <strong>does not</strong> edit <code>docs/PRD.md</code> directly — José will reconcile the PRD separately.</blockquote>
+<main class="content"><h1 id="vytal-execution-plan-prr-mvp-junoct-2026">Vytal — Execution Plan (PRR MVP, Jun–Oct 2026)<a class="anchor" href="#vytal-execution-plan-prr-mvp-junoct-2026">#</a></h1><p><strong>Version:</strong> 1.0
+<strong>Created:</strong> 2026-06-27
+<strong>Status:</strong> Draft for alignment
+<strong>Owners:</strong> José Cunha Fonte (Tech Lead/Arquiteto), Lucas Hartridge (Senior Full-Stack)</p>
+<blockquote>
+<p>This plan reconciles three inputs into a single phased roadmap:</p>
+<ol>
+<li>The <strong>Commercial Proposal</strong> (JCUNHAFONTE → Musas &amp; Vikings, Lda — <em>CrossFit Aveiro</em>), 6 phases F1–F6, €290.000, PRR-funded, <strong>go-live 30 Oct 2026</strong>.</li>
+<li>The <strong>PRD</strong> (<code>docs/PRD.md</code>) — full product spec (100+ POC screens built from the MVP v2.0 / <code>mvpvytalv23.netlify.app</code> mockup).</li>
+<li>Capabilities to <strong>port from the <code>kloser</code> sibling repo</strong> (agents runtime, auth maturity, dev skills).</li>
+</ol>
+<p>Latest client/lead decisions are captured in <code>docs/PRD_DECISIONS_2026-06.md</code>. This plan <strong>does not</strong> edit <code>docs/PRD.md</code> directly — José will reconcile the PRD separately.</p>
+</blockquote>
 <hr>
-<h2 id="0-where-we-actually-are">0. Where we actually are<a class="anchor" href="#0-where-we-actually-are">#</a></h2>
-<p>The proposal's <strong>F1 is essentially done and F2 is underway.</strong> Current Vytal backend already has:</p>
-<ul><li><strong>Better Auth</strong> wired (<code>packages/auth</code> — <code>createAuth</code> factory, organization plugin, 5-role access control <code>owner &gt; admin &gt; coach &gt; pt &gt; athlete</code>).</li><li><strong>Org-isolated tRPC</strong> (<code>packages/api/src/trpc.ts</code>): <code>publicProcedure</code> → <code>protectedProcedure</code> → <code>orgProcedure</code> (tenant isolation) → <code>minRole()</code> / <code>staffProcedure</code> / <code>adminProcedure</code>. Role resolved <strong>server-side</strong> from the Better Auth <code>member</code> table — never client-supplied.</li><li><strong>16 domain routers</strong> (<code>packages/api/src/routers/</code>): bookings, checkIns, classes, classTypes, coaches, dashboard, exercises, leads, locations, members, notifications, orgSettings, personalRecords, subscriptions, wods, wodResults.</li><li><strong>PostgreSQL + Drizzle</strong> (<code>packages/db</code>), <strong>shared domain</strong> (<code>packages/shared</code>), POC UI being wired onto real mutations.</li><li><strong>Dev skills</strong>: <code>.claude/skills/vytal-engineer</code>, <code>.claude/skills/vytal-qa</code> (ported earlier from kloser).</li></ul>
-<p><strong>Gaps vs the proposal:</strong> no <code>packages/agents</code> (Coach Assist AI), auth lacks invitations/email + Expo mobile client + session hooks, no <code>vytal-planner</code> dev agent, CI burns free minutes on E2E, deployment-to-Vercel mirror not yet wired for Vytal.</p>
+<h2 id="0-where-we-actually-are">0. Where we actually are<a class="anchor" href="#0-where-we-actually-are">#</a></h2><p>The proposal&#39;s <strong>F1 is essentially done and F2 is underway.</strong> Current Vytal backend already has:</p>
+<ul>
+<li><strong>Better Auth</strong> wired (<code>packages/auth</code> — <code>createAuth</code> factory, organization plugin, 5-role access control <code>owner &gt; admin &gt; coach &gt; pt &gt; athlete</code>).</li>
+<li><strong>Org-isolated tRPC</strong> (<code>packages/api/src/trpc.ts</code>): <code>publicProcedure</code> → <code>protectedProcedure</code> → <code>orgProcedure</code> (tenant isolation) → <code>minRole()</code> / <code>staffProcedure</code> / <code>adminProcedure</code>. Role resolved <strong>server-side</strong> from the Better Auth <code>member</code> table — never client-supplied.</li>
+<li><strong>16 domain routers</strong> (<code>packages/api/src/routers/</code>): bookings, checkIns, classes, classTypes, coaches, dashboard, exercises, leads, locations, members, notifications, orgSettings, personalRecords, subscriptions, wods, wodResults.</li>
+<li><strong>PostgreSQL + Drizzle</strong> (<code>packages/db</code>), <strong>shared domain</strong> (<code>packages/shared</code>), POC UI being wired onto real mutations.</li>
+<li><strong>Dev skills</strong>: <code>.claude/skills/vytal-engineer</code>, <code>.claude/skills/vytal-qa</code> (ported earlier from kloser).</li>
+</ul>
+<p><strong>Gaps vs the proposal:</strong> no <code>packages/agents</code> (Coach Assist AI), auth still needs full invitations/email + Expo mobile parity, no <code>vytal-planner</code> dev agent, and several prototype pages still need final API wiring. CI is split between lightweight automatic checks and manual E2E. Vercel now uses native monorepo projects for the production apps.</p>
 <hr>
-<h2 id="1-what-we-port-from-kloser-decisions-locked">1. What we port from <code>kloser</code> (decisions locked)<a class="anchor" href="#1-what-we-port-from-kloser-decisions-locked">#</a></h2>
-<div class='table-wrap'><table><thead><tr><th>Capability</th><th>kloser source</th><th>Vytal target</th><th>Decision</th></tr></thead><tbody><tr><td><strong>AI agents runtime</strong></td><td><code>packages/agents</code> (5,542 LOC)</td><td>new <code>packages/agents</code></td><td>Port runtime (gateway, registry, memory/audit, RAG, guardrails). <strong>Drop</strong> real-estate profiles. <strong>Add</strong> <code>coach-assist</code> profile.</td></tr><tr><td><strong>AI provider strategy</strong></td><td>Groq → NVIDIA NIM → Gemini fallback</td><td>same</td><td><strong>Multi-provider free-tier fallback (€0).</strong> Claude optional behind the same gateway later.</td></tr><tr><td><strong>Auth maturity</strong></td><td><code>packages/auth</code> (invitations+email, Expo client, session hooks, OAuth)</td><td>extend existing <code>packages/auth</code></td><td>Port invitation flow + email, <code>client-expo</code>, <code>activeOrganizationId</code> session hook. OAuth optional.</td></tr><tr><td><strong>Authorization granularity</strong></td><td><code>packages/authz</code> (8-profile matrix)</td><td>—</td><td><strong>Keep lean.</strong> Current 5-role + <code>minRole</code> gating is enough for MVP. Revisit the per-module matrix only if the G5-01 permissions screen demands it.</td></tr><tr><td><strong>Dev skills</strong></td><td><code>kloser-planner</code>, richer reference files</td><td><code>vytal-planner</code> + enrich <code>vytal-engineer</code>/<code>vytal-qa</code></td><td>Port planner agent + skill; bring <code>backend/frontend/security/scaling/testing</code> reference depth + QA scenarios.</td></tr><tr><td><strong>Doc scaffolding</strong></td><td><code>docs/architecture/auth</code>, <code>docs/agents/roster</code></td><td>Vytal <code>docs/</code></td><td>Port as templates, adapt to Vytal domain.</td></tr></tbody></table></div>
+<h2 id="1-what-we-port-from-kloser-decisions-locked">1. What we port from <code>kloser</code> (decisions locked)<a class="anchor" href="#1-what-we-port-from-kloser-decisions-locked">#</a></h2><div class='table-wrap'><table>
+<thead>
+<tr>
+<th>Capability</th>
+<th>kloser source</th>
+<th>Vytal target</th>
+<th>Decision</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>AI agents runtime</strong></td>
+<td><code>packages/agents</code> (5,542 LOC)</td>
+<td>new <code>packages/agents</code></td>
+<td>Port runtime (gateway, registry, memory/audit, RAG, guardrails). <strong>Drop</strong> real-estate profiles. <strong>Add</strong> <code>coach-assist</code> profile.</td>
+</tr>
+<tr>
+<td><strong>AI provider strategy</strong></td>
+<td>Groq → NVIDIA NIM → Gemini fallback</td>
+<td>same</td>
+<td><strong>Multi-provider free-tier fallback (€0).</strong> Claude optional behind the same gateway later.</td>
+</tr>
+<tr>
+<td><strong>Auth maturity</strong></td>
+<td><code>packages/auth</code> (invitations+email, Expo client, session hooks, OAuth)</td>
+<td>extend existing <code>packages/auth</code></td>
+<td>Port invitation flow + email, <code>client-expo</code>, <code>activeOrganizationId</code> session hook. OAuth optional.</td>
+</tr>
+<tr>
+<td><strong>Authorization granularity</strong></td>
+<td><code>packages/authz</code> (8-profile matrix)</td>
+<td>—</td>
+<td><strong>Keep lean.</strong> Current 5-role + <code>minRole</code> gating is enough for MVP. Revisit the per-module matrix only if the G5-01 permissions screen demands it.</td>
+</tr>
+<tr>
+<td><strong>Dev skills</strong></td>
+<td><code>kloser-planner</code>, richer reference files</td>
+<td><code>vytal-planner</code> + enrich <code>vytal-engineer</code>/<code>vytal-qa</code></td>
+<td>Port planner agent + skill; bring <code>backend/frontend/security/scaling/testing</code> reference depth + QA scenarios.</td>
+</tr>
+<tr>
+<td><strong>Doc scaffolding</strong></td>
+<td><code>docs/architecture/auth</code>, <code>docs/agents/roster</code></td>
+<td>Vytal <code>docs/</code></td>
+<td>Port as templates, adapt to Vytal domain.</td>
+</tr>
+</tbody></table>
+</div><hr>
+<h2 id="2-phased-roadmap">2. Phased roadmap<a class="anchor" href="#2-phased-roadmap">#</a></h2><h3 id="phase-0-dev-enablement-now-parallel-to-f1">Phase 0 — Dev enablement (now, parallel to F1)<a class="anchor" href="#phase-0-dev-enablement-now-parallel-to-f1">#</a></h3><ul>
+<li>Port <code>kloser-planner</code> → <code>vytal-planner</code> agent + <code>.claude/skills/vytal-planner</code>.</li>
+<li>Enrich <code>vytal-engineer</code> / <code>vytal-qa</code> reference files (backend, frontend, security, scaling, testing) + QA scenario bank, adapted to Vytal (20 verticals, 5 roles, PT fiscal, PostgreSQL).</li>
+<li>Port <code>docs/architecture/auth</code> + <code>docs/agents/roster</code> scaffolding.</li>
+<li><strong>CI/CD hardening</strong> (see §3): keep E2E manual and deploy via Vercel monorepo projects.</li>
+<li><em>Low risk, high leverage. Encodes the proposal&#39;s Definition of Done (§12.2).</em></li>
+</ul>
+<h3 id="f1-foundation-infra-multi-tenant-jun-mostly-done-harden">F1 — Foundation, Infra &amp; Multi-Tenant (Jun · mostly done → harden)<a class="anchor" href="#f1-foundation-infra-multi-tenant-jun-mostly-done-harden">#</a></h3><ul>
+<li>Already shipped: Better Auth, 5-role RBAC, org isolation, tRPC base, 16 routers, CI.</li>
+<li><strong>Port from kloser auth:</strong> session hook backfilling <code>activeOrganizationId</code>; invitation flow + transactional email; Better Auth <strong>Expo client</strong> (<code>client-expo</code>) — prerequisite for F4 mobile; account linking; (Google/Microsoft OAuth optional).</li>
+<li>Stand up dev/staging/prod environments; finalize design system; produce the detailed backlog.</li>
+<li><strong>Exit:</strong> envs live, auth maturity merged, design system baseline, backlog approved.</li>
+</ul>
+<h3 id="f2-backoffice-de-gestao-jul-in-progress">F2 — Backoffice de Gestão (Jul · in progress)<a class="anchor" href="#f2-backoffice-de-gestao-jul-in-progress">#</a></h3><p>Wire the remaining backoffice routers onto the POC UI:</p>
+<ul>
+<li>Members + lifestyle profile, plans, dunning, CSV import, digital waivers/contracts, CRM kanban + lead automations, staff + RBAC, dashboard/KPIs.</li>
+<li>Apply kloser patterns: cursor pagination, activity-log/audit trail, <code>access.ts</code>-style gating (see <code>vytal-engineer</code> security reference).</li>
+<li><strong>Exit:</strong> backoffice operable end-to-end on real data for a pilot org.</li>
+</ul>
+<h3 id="f3-treino-ago">F3 — Treino (Ago)<a class="anchor" href="#f3-treino-ago">#</a></h3><ul>
+<li>WOD Builder (AMRAP/EMOM/For Time/Tabata/Strength; Warm Up/Skill/WOD/Cool Down) + timers.</li>
+<li>Exercise DB <strong>≥300 exercises / 5 methodologies</strong> + <strong>≥200 WODs</strong>, seeded from CrossFit Aveiro logs (proposal §18.8 dependency).</li>
+<li>Weekly planning engine, %RM per athlete, PRs, leaderboards.</li>
+<li><strong>This corpus is the RAG ground truth for F5 Coach Assist.</strong></li>
+<li><strong>Exit:</strong> coaches build and publish WODs; athletes&#39; PRs/results flow.</li>
+</ul>
+<h3 id="f4-app-do-atleta-bem-estar-base-set">F4 — App do Atleta + Bem-estar base (Set)<a class="anchor" href="#f4-app-do-atleta-bem-estar-base-set">#</a></h3><ul>
+<li>Expo athlete app on tRPC via the ported Better Auth Expo client.</li>
+<li>Booking ≤3 taps, QR check-in, WOD view, results, PRs, gamification.</li>
+<li><strong>Wellness base:</strong> lifestyle profile (A3-01) + daily 1–10 check-in (A3-02).</li>
+<li><strong>Post-training questionnaire (A3-03) — KEPT per lead decision</strong> to start building the athlete performance/health profile. <strong>DEFER</strong> the interactive injury <strong>body map (SVG)</strong> and the cross performance↔health <strong>dashboard (A3-04)</strong> to a later phase (minimal Art. 9 data in MVP; advanced encrypted layer deferred — matches risk R6).</li>
+<li><strong>Exit:</strong> pilot athletes can book, check in, train, log, and answer the questionnaire on mobile.</li>
+</ul>
+<h3 id="f5-coach-assist-ai-faturacao-out">F5 — Coach Assist AI + Faturação (Out)<a class="anchor" href="#f5-coach-assist-ai-faturacao-out">#</a></h3><ul>
+<li><strong>Port <code>packages/agents</code>:</strong> runtime (swappable <strong>gateway</strong>, registry, memory/audit, RAG, untrusted/guardrails). Add a <code>coach-assist</code> profile that generates WOD/plan structures <strong>grounded by RAG</strong> on the F3 corpus. Mandatory <strong>human-in-the-loop</strong>, visible <strong>disclaimer</strong>, full <strong>audit trail</strong> (proposal §7, §10.2, Anexo B.1). Provider = <strong>multi-provider free-tier fallback</strong>.</li>
+<li><strong>Faturação:</strong> integrate a <strong>certified billing provider</strong> (InvoiceXpress / Moloni / Vendus) — <em>do not</em> build certified software (§9.3.1, risk R2).</li>
+<li><strong>SAF-T phased (lead decision):</strong> charging operational (Stripe/MBWay/SEPA) in the MVP; certified fiscal-document emission (SAF-T/ATCUD/QR) <strong>immediately after</strong> via the provider API.</li>
+<li><strong>Exit:</strong> coach generates a reviewed plan in &lt; 5 min; charging works; fiscal emission path validated with the provider.</li>
+</ul>
+<h3 id="f6-testes-pilotagem-go-live-out-go-live-30-oct-2026">F6 — Testes, Pilotagem &amp; Go-Live (Out · go-live 30 Oct 2026)<a class="anchor" href="#f6-testes-pilotagem-go-live-out-go-live-30-oct-2026">#</a></h3><ul>
+<li>Playwright E2E (kloser <code>testing.md</code> patterns incl. the <strong>mandatory cross-tenant isolation test</strong>), load tests, UAT with 3–5 pilot athletes.</li>
+<li>Runbook + alarms, PT-PT user manual, go-live, <strong>30-day warranty</strong> (until 29 Nov 2026).</li>
+<li><code>vytal-qa</code> drives the QA matrix + health-score ship/no-ship gate.</li>
+<li><strong>Exit:</strong> production pilot live, accepted per proposal §15.</li>
+</ul>
 <hr>
-<h2 id="2-phased-roadmap">2. Phased roadmap<a class="anchor" href="#2-phased-roadmap">#</a></h2>
-<h3 id="phase-0-dev-enablement-now-parallel-to-f1">Phase 0 — Dev enablement (now, parallel to F1)<a class="anchor" href="#phase-0-dev-enablement-now-parallel-to-f1">#</a></h3>
-<ul><li>Port <code>kloser-planner</code> → <code>vytal-planner</code> agent + <code>.claude/skills/vytal-planner</code>.</li><li>Enrich <code>vytal-engineer</code> / <code>vytal-qa</code> reference files (backend, frontend, security, scaling, testing) + QA scenario bank, adapted to Vytal (20 verticals, 5 roles, PT fiscal, PostgreSQL).</li><li>Port <code>docs/architecture/auth</code> + <code>docs/agents/roster</code> scaffolding.</li><li><strong>CI/CD hardening</strong> (see §3): drop E2E from the pipeline, wire Vercel deploy mirror.</li><li><em>Low risk, high leverage. Encodes the proposal's Definition of Done (§12.2).</em> </li></ul>
-<h3 id="f1-foundation-infra-multi-tenant-jun-mostly-done-harden">F1 — Foundation, Infra &amp; Multi-Tenant (Jun · mostly done → harden)<a class="anchor" href="#f1-foundation-infra-multi-tenant-jun-mostly-done-harden">#</a></h3>
-<ul><li>Already shipped: Better Auth, 5-role RBAC, org isolation, tRPC base, 16 routers, CI.</li><li><strong>Port from kloser auth:</strong> session hook backfilling <code>activeOrganizationId</code>; invitation flow + transactional email; Better Auth <strong>Expo client</strong> (<code>client-expo</code>) — prerequisite for F4 mobile; account linking; (Google/Microsoft OAuth optional).</li><li>Stand up dev/staging/prod environments; finalize design system; produce the detailed backlog.</li><li><strong>Exit:</strong> envs live, auth maturity merged, design system baseline, backlog approved.</li></ul>
-<h3 id="f2-backoffice-de-gesto-jul-in-progress">F2 — Backoffice de Gestão (Jul · in progress)<a class="anchor" href="#f2-backoffice-de-gesto-jul-in-progress">#</a></h3>
-<p>Wire the remaining backoffice routers onto the POC UI:</p>
-<ul><li>Members + lifestyle profile, plans, dunning, CSV import, digital waivers/contracts, CRM kanban + lead automations, staff + RBAC, dashboard/KPIs.</li><li>Apply kloser patterns: cursor pagination, activity-log/audit trail, <code>access.ts</code>-style gating (see <code>vytal-engineer</code> security reference).</li><li><strong>Exit:</strong> backoffice operable end-to-end on real data for a pilot org.</li></ul>
-<h3 id="f3-treino-ago">F3 — Treino (Ago)<a class="anchor" href="#f3-treino-ago">#</a></h3>
-<ul><li>WOD Builder (AMRAP/EMOM/For Time/Tabata/Strength; Warm Up/Skill/WOD/Cool Down) + timers.</li><li>Exercise DB <strong>≥300 exercises / 5 methodologies</strong> + <strong>≥200 WODs</strong>, seeded from CrossFit Aveiro logs (proposal §18.8 dependency).</li><li>Weekly planning engine, %RM per athlete, PRs, leaderboards.</li><li><strong>This corpus is the RAG ground truth for F5 Coach Assist.</strong></li><li><strong>Exit:</strong> coaches build and publish WODs; athletes' PRs/results flow.</li></ul>
-<h3 id="f4-app-do-atleta-bem-estar-base-set">F4 — App do Atleta + Bem-estar base (Set)<a class="anchor" href="#f4-app-do-atleta-bem-estar-base-set">#</a></h3>
-<ul><li>Expo athlete app on tRPC via the ported Better Auth Expo client.</li><li>Booking ≤3 taps, QR check-in, WOD view, results, PRs, gamification.</li><li><strong>Wellness base:</strong> lifestyle profile (A3-01) + daily 1–10 check-in (A3-02).</li><li><strong>Post-training questionnaire (A3-03) — KEPT per lead decision</strong> to start building the athlete performance/health profile. <strong>DEFER</strong> the interactive injury <strong>body map (SVG)</strong> and the cross performance↔health <strong>dashboard (A3-04)</strong> to a later phase (minimal Art. 9 data in MVP; advanced encrypted layer deferred — matches risk R6).</li><li><strong>Exit:</strong> pilot athletes can book, check in, train, log, and answer the questionnaire on mobile.</li></ul>
-<h3 id="f5-coach-assist-ai-faturao-out">F5 — Coach Assist AI + Faturação (Out)<a class="anchor" href="#f5-coach-assist-ai-faturao-out">#</a></h3>
-<ul><li><strong>Port <code>packages/agents</code>:</strong> runtime (swappable <strong>gateway</strong>, registry, memory/audit, RAG, untrusted/guardrails). Add a <code>coach-assist</code> profile that generates WOD/plan structures <strong>grounded by RAG</strong> on the F3 corpus. Mandatory <strong>human-in-the-loop</strong>, visible <strong>disclaimer</strong>, full <strong>audit trail</strong> (proposal §7, §10.2, Anexo B.1). Provider = <strong>multi-provider free-tier fallback</strong>.</li><li><strong>Faturação:</strong> integrate a <strong>certified billing provider</strong> (InvoiceXpress / Moloni / Vendus) — <em>do not</em> build certified software (§9.3.1, risk R2).</li><li><strong>SAF-T phased (lead decision):</strong> charging operational (Stripe/MBWay/SEPA) in the MVP; certified fiscal-document emission (SAF-T/ATCUD/QR) <strong>immediately after</strong> via the provider API.</li><li><strong>Exit:</strong> coach generates a reviewed plan in &lt; 5 min; charging works; fiscal emission path validated with the provider.</li></ul>
-<h3 id="f6-testes-pilotagem-go-live-out-go-live-30-oct-2026">F6 — Testes, Pilotagem &amp; Go-Live (Out · go-live 30 Oct 2026)<a class="anchor" href="#f6-testes-pilotagem-go-live-out-go-live-30-oct-2026">#</a></h3>
-<ul><li>Playwright E2E (kloser <code>testing.md</code> patterns incl. the <strong>mandatory cross-tenant isolation test</strong>), load tests, UAT with 3–5 pilot athletes.</li><li>Runbook + alarms, PT-PT user manual, go-live, <strong>30-day warranty</strong> (until 29 Nov 2026).</li><li><code>vytal-qa</code> drives the QA matrix + health-score ship/no-ship gate.</li><li><strong>Exit:</strong> production pilot live, accepted per proposal §15.</li></ul>
-<hr>
-<h2 id="3-cicd-changes-this-plan-ships-them">3. CI/CD changes (this plan ships them)<a class="anchor" href="#3-cicd-changes-this-plan-ships-them">#</a></h2>
-<p><strong>Problem:</strong> the current <code>.github/workflows/ci.yml</code> runs a heavy E2E job (Postgres service + migrations + seed + Playwright, 40-min timeout) on <strong>every push and PR</strong> — it will exhaust the free GitHub Actions minute budget.</p>
+<h2 id="3-cicd-changes-this-plan-ships-them">3. CI/CD changes (this plan ships them)<a class="anchor" href="#3-cicd-changes-this-plan-ships-them">#</a></h2><p><strong>Problem:</strong> the current <code>.github/workflows/ci.yml</code> runs a heavy E2E job (Postgres service + migrations + seed + Playwright, 40-min timeout) on <strong>every push and PR</strong> — it will exhaust the free GitHub Actions minute budget.</p>
 <p><strong>Changes:</strong></p>
-<ol><li><strong>CI pipeline</strong> (<code>ci.yml</code>): keep lint + type-check + unit tests (+ secret scan). Use a cached-install composite action (<code>.github/actions/setup</code>) so a lockfile cache hit skips <code>npm ci</code>. <strong>E2E removed from the automatic pipeline.</strong></li><li><strong>E2E moved to manual</strong> (<code>e2e.yml</code>, <code>workflow_dispatch</code> only): the full Playwright suite is preserved and run on demand / before go-live, not on every commit. <em>(Mirrors kloser's intent of not paying ~20–40 runner-minutes per push.)</em></li><li><strong>Deployment</strong> (<code>mirror-to-vercel.yml</code>): replicate kloser's model — Vercel deploys from a <strong>separate connected repo</strong> via its native Git integration. On push to <code>main</code>, this workflow synthesizes an orphan commit pointing at <code>HEAD</code>'s tree, authored by the <strong>deploy account's email</strong> (Vercel Hobby only deploys commits whose author is on the connected account), and force-pushes it to the deploy repo's <code>main</code>. Vercel then auto-builds and publishes.</li></ol>
-<p><strong>Deploy target (hardcoded in the workflow, matching kloser):</strong> repo <code>vytalfiteu-web/vytalfit-eu-private</code>, deploy identity <code>vytal.fit.eu@gmail.com</code>.</p>
-<p><strong>One-time setup required — only the token:</strong></p>
-<ul><li><code>VERCEL_DEPLOY_TOKEN</code> <em>(repo secret)</em> — a fine-grained PAT created on the <strong>vytalfit-eu</strong> GitHub account, scoped to <code>vytalfit-eu-private</code> with <strong>Contents: Read and write</strong> + <strong>Workflows: Read and write</strong>.</li></ul>
+<ol>
+<li><strong>CI pipeline</strong> (<code>ci.yml</code>): keep lint + type-check + unit tests (+ secret scan). Use a cached-install composite action (<code>.github/actions/setup</code>) so a lockfile cache hit skips <code>npm ci</code>. <strong>E2E removed from the automatic pipeline.</strong></li>
+<li><strong>E2E moved to manual</strong> (<code>e2e.yml</code>, <code>workflow_dispatch</code> only): the full Playwright suite is preserved and run on demand / before go-live, not on every commit. <em>(Mirrors kloser&#39;s intent of not paying ~20–40 runner-minutes per push.)</em></li>
+<li><strong>Deployment</strong>: Vercel deploys the monorepo directly from GitHub. Each production surface is a separate Vercel project with a root directory and domain:</li>
+</ol>
+<div class='table-wrap'><table>
+<thead>
+<tr>
+<th>Vercel project</th>
+<th>Root directory</th>
+<th>Production domain</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>landing</code></td>
+<td><code>apps/landing</code></td>
+<td><code>vytal.fit</code>, <code>www.vytal.fit</code></td>
+</tr>
+<tr>
+<td><code>pro</code></td>
+<td><code>apps/pro</code></td>
+<td><code>pro.vytal.fit</code>, <code>www.pro.vytal.fit</code></td>
+</tr>
+<tr>
+<td><code>my</code></td>
+<td><code>apps/my</code></td>
+<td><code>my.vytal.fit</code>, <code>www.my.vytal.fit</code></td>
+</tr>
+<tr>
+<td><code>api</code></td>
+<td><code>apps/api</code></td>
+<td><code>api.vytal.fit</code>, <code>www.api.vytal.fit</code></td>
+</tr>
+</tbody></table>
+</div><p>The app-level <code>vercel.json</code> files restrict Git deployments to <code>main</code> and use
+<code>turbo-ignore</code> so Vercel skips unaffected projects instead of rebuilding every
+surface on every push.</p>
+<p><strong>One-time setup required:</strong></p>
+<ul>
+<li>Connect the GitHub repository to each Vercel project.</li>
+<li>Keep each project&#39;s root directory aligned with the table above.</li>
+<li>Store production env vars on the project that uses them: database/auth secrets
+on <code>api</code>, public API URL on <code>pro</code> and <code>my</code>, and public landing-only vars on
+<code>landing</code>.</li>
+</ul>
 <hr>
-<h2 id="4-governance-open-items">4. Governance &amp; open items<a class="anchor" href="#4-governance-open-items">#</a></h2>
-<ul><li><strong>DPIA</strong> before piloting real data (proposal §10.1); <strong>DPA</strong> signed before formal start. JCUNHAFONTE = processor, Musas &amp; Vikings = controller.</li><li><strong>PRR candidatura in name of Musas &amp; Vikings, Lda</strong> — confirmed (resolves the §17.1 "a confirmar" eligibility flag).</li><li><strong>Change-request discipline</strong> for anything beyond the §9 MVP cut-line.</li><li><strong>OPEN — "Ponto 2":</strong> needs José to specify exactly what's required; <strong>Juvenal (client) to validate.</strong> Most likely the §18.2 / §9.3 MVP cut-line confirmation. Tracked as a blocking client-validation item.</li><li><strong>Content dependency:</strong> exercise/WOD DB seed content from CrossFit Aveiro (§18.8).</li><li><strong>Branding/domain</strong> confirmed by end of F1.</li></ul>
+<h2 id="4-governance-open-items">4. Governance &amp; open items<a class="anchor" href="#4-governance-open-items">#</a></h2><ul>
+<li><strong>DPIA</strong> before piloting real data (proposal §10.1); <strong>DPA</strong> signed before formal start. JCUNHAFONTE = processor, Musas &amp; Vikings = controller.</li>
+<li><strong>PRR candidatura in name of Musas &amp; Vikings, Lda</strong> — confirmed (resolves the §17.1 &quot;a confirmar&quot; eligibility flag).</li>
+<li><strong>Change-request discipline</strong> for anything beyond the §9 MVP cut-line.</li>
+<li><strong>OPEN — &quot;Ponto 2&quot;:</strong> needs José to specify exactly what&#39;s required; <strong>Juvenal (client) to validate.</strong> Most likely the §18.2 / §9.3 MVP cut-line confirmation. Tracked as a blocking client-validation item.</li>
+<li><strong>Content dependency:</strong> exercise/WOD DB seed content from CrossFit Aveiro (§18.8).</li>
+<li><strong>Branding/domain</strong> confirmed by end of F1.</li>
+</ul>
 <hr>
-<h2 id="5-phase-investment-prr-mapping-from-proposal-1317-anexo-a">5. Phase → investment → PRR mapping (from proposal §13–17, Anexo A)<a class="anchor" href="#5-phase-investment-prr-mapping-from-proposal-1317-anexo-a">#</a></h2>
-<div class='table-wrap'><table><thead><tr><th>Phase</th><th>Period</th><th>Designation</th><th>Investment</th><th>PRR phase</th></tr></thead><tbody><tr><td>Adjudicação</td><td>Jun 2026</td><td>Formalização + arranque</td><td>€5.000</td><td>Desenvolvimento</td></tr><tr><td>F1</td><td>Jun 2026</td><td>Fundação, Infra &amp; Multi-Tenant</td><td>€35.000</td><td>Desenvolvimento e integração</td></tr><tr><td>F2</td><td>Jul 2026</td><td>Backoffice de Gestão</td><td>€55.000</td><td>Desenvolvimento e integração</td></tr><tr><td>F3</td><td>Ago 2026</td><td>Treino</td><td>€55.000</td><td>Desenvolvimento / testes</td></tr><tr><td>F4</td><td>Set 2026</td><td>App do Atleta + Bem-estar</td><td>€60.000</td><td>Implementação e operação piloto</td></tr><tr><td>F5</td><td>Out 2026</td><td>Coach Assist AI + Faturação</td><td>€55.000</td><td>Implementação e operação piloto</td></tr><tr><td>F6</td><td>Out 2026</td><td>Testes, Pilotagem &amp; Go-Live</td><td>€25.000</td><td>Operação piloto / avaliação</td></tr><tr><td><strong>Total</strong></td><td><strong>Jun–Out 2026</strong></td><td></td><td><strong>€290.000</strong></td><td>Investimento total elegível</td></tr></tbody></table></div>
-<p>PRR: apoio 75% (~€217.500 a fundo perdido) · contrapartida da empresa (~€72.500). Billing by milestone (7 tranches), not by rubric.</p><nav class="docnav"><span></span><a class="next" href="prd_decisions_2026-06.html">PRD Decisions (Jun 26) →</a></nav></main>
+<h2 id="5-phase-investment-prr-mapping-from-proposal-1317-anexo-a">5. Phase → investment → PRR mapping (from proposal §13–17, Anexo A)<a class="anchor" href="#5-phase-investment-prr-mapping-from-proposal-1317-anexo-a">#</a></h2><div class='table-wrap'><table>
+<thead>
+<tr>
+<th>Phase</th>
+<th>Period</th>
+<th>Designation</th>
+<th>Investment</th>
+<th>PRR phase</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Adjudicação</td>
+<td>Jun 2026</td>
+<td>Formalização + arranque</td>
+<td>€5.000</td>
+<td>Desenvolvimento</td>
+</tr>
+<tr>
+<td>F1</td>
+<td>Jun 2026</td>
+<td>Fundação, Infra &amp; Multi-Tenant</td>
+<td>€35.000</td>
+<td>Desenvolvimento e integração</td>
+</tr>
+<tr>
+<td>F2</td>
+<td>Jul 2026</td>
+<td>Backoffice de Gestão</td>
+<td>€55.000</td>
+<td>Desenvolvimento e integração</td>
+</tr>
+<tr>
+<td>F3</td>
+<td>Ago 2026</td>
+<td>Treino</td>
+<td>€55.000</td>
+<td>Desenvolvimento / testes</td>
+</tr>
+<tr>
+<td>F4</td>
+<td>Set 2026</td>
+<td>App do Atleta + Bem-estar</td>
+<td>€60.000</td>
+<td>Implementação e operação piloto</td>
+</tr>
+<tr>
+<td>F5</td>
+<td>Out 2026</td>
+<td>Coach Assist AI + Faturação</td>
+<td>€55.000</td>
+<td>Implementação e operação piloto</td>
+</tr>
+<tr>
+<td>F6</td>
+<td>Out 2026</td>
+<td>Testes, Pilotagem &amp; Go-Live</td>
+<td>€25.000</td>
+<td>Operação piloto / avaliação</td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td><strong>Jun–Out 2026</strong></td>
+<td></td>
+<td><strong>€290.000</strong></td>
+<td>Investimento total elegível</td>
+</tr>
+</tbody></table>
+</div><p>PRR: apoio 75% (<del>€217.500 a fundo perdido) · contrapartida da empresa (</del>€72.500). Billing by milestone (7 tranches), not by rubric.</p>
+<nav class="docnav"><span></span><a class="next" href="prd_decisions_2026-06.html">PRD Decisions (Jun 26) →</a></nav></main>
 </div></body></html>

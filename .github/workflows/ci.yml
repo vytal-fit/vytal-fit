@@ -8,8 +8,8 @@
 # (A gitleaks secret-scan job can be added once a `.gitleaks.toml` allowlist
 # exists — omitted for now to avoid false-positive CI failures.)
 #
-# Deployment is NOT done here either — see `mirror-to-vercel.yml`. Vercel
-# builds and publishes from its connected deploy repo.
+# Deployment is NOT done here either. Vercel builds the split monorepo projects
+# directly from GitHub on pushes to `main`.
 
 name: CI
 

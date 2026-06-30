@@ -25,7 +25,7 @@ curl -X POST https://api.vytal.fit/auth/sign-in/email \
   -d '{"email":"jose@vytal.fit","password":"VytalDemo2026!"}'
 ```
 
-## 3. Fetch the session
+## 3. Fetch the auth session
 
 ```bash
 curl https://api.vytal.fit/auth/session \

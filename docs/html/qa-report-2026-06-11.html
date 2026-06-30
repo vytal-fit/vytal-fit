@@ -1,61 +1,121 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>QA Report · Vytal docs</title><style>
-:root{--bg:#fff;--fg:#1a1d24;--muted:#5b6573;--border:#e4e8ee;--code-bg:#f4f6f9;--accent:#0d9488;--accent-soft:#0d948814;--th-bg:#f7f9fb;--quote:#f0fdfa;--quote-bar:#0d9488}
-@media(prefers-color-scheme:dark){:root{--bg:#0f1318;--fg:#dfe5ec;--muted:#8a94a3;--border:#252b34;--code-bg:#1a1f27;--accent:#2dd4bf;--accent-soft:#2dd4bf1a;--th-bg:#161b22;--quote:#0c1f1c;--quote-bar:#2dd4bf}}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
-.layout{display:grid;grid-template-columns:260px 1fr;max-width:1180px;margin:0 auto;min-height:100vh}
-.toc{position:sticky;top:0;align-self:start;max-height:100vh;overflow:auto;padding:28px 18px;border-right:1px solid var(--border);font-size:13.5px}
-.toc a{display:block;color:var(--muted);text-decoration:none;padding:3px 8px;border-radius:6px;line-height:1.4}
-.toc a:hover{color:var(--fg);background:var(--accent-soft)}
-.toc a.lvl3{padding-left:20px;font-size:12.5px}
-.toc .home{color:var(--accent);font-weight:600;margin-bottom:14px}
-.content{padding:40px 56px;min-width:0;max-width:860px}
-.content h1{font-size:30px;margin:.2em 0 .6em;line-height:1.2}
-.content h2{font-size:23px;margin:1.6em 0 .5em;padding-bottom:.25em;border-bottom:1px solid var(--border)}
-.content h3{font-size:18.5px;margin:1.4em 0 .4em}
-.content h4{font-size:16px;margin:1.2em 0 .3em}
-a{color:var(--accent)}
-.anchor{margin-left:8px;color:var(--border);text-decoration:none;font-weight:400;opacity:0}
-h1:hover .anchor,h2:hover .anchor,h3:hover .anchor{opacity:1}
-code{background:var(--code-bg);padding:.12em .4em;border-radius:5px;font:13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace}
-pre{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:16px;overflow:auto}
-pre code{background:none;padding:0;font-size:13px}
-.table-wrap{overflow-x:auto;margin:1em 0}
-table{border-collapse:collapse;width:100%;font-size:14px}
-th,td{border:1px solid var(--border);padding:8px 11px;text-align:left;vertical-align:top}
-th{background:var(--th-bg);font-weight:600}
-tr:nth-child(even) td{background:var(--accent-soft)}
-blockquote{margin:1em 0;padding:.6em 1.1em;background:var(--quote);border-left:3px solid var(--quote-bar);border-radius:0 8px 8px 0;color:var(--fg)}
-hr{border:none;border-top:1px solid var(--border);margin:2em 0}
-ul,ol{padding-left:1.5em}li{margin:.25em 0}
-.docnav{display:flex;justify-content:space-between;margin-top:48px;padding-top:20px;border-top:1px solid var(--border);font-size:14px;gap:12px}
-.docnav a{text-decoration:none;padding:10px 14px;border:1px solid var(--border);border-radius:8px;flex:1}
-.docnav a:hover{background:var(--accent-soft)}
-.docnav .next{text-align:right}
-@media(max-width:820px){.layout{grid-template-columns:1fr}.toc{display:none}.content{padding:24px}}
+<title>QA Report · Vytal docs</title><style>:root{--bg:#fff;--fg:#1a1d24;--muted:#5b6573;--border:#e4e8ee;--code-bg:#f4f6f9;--accent:#0d9488;--accent-soft:#0d948814;--th-bg:#f7f9fb;--quote:#f0fdfa;--quote-bar:#0d9488}@media(prefers-color-scheme:dark){:root{--bg:#0f1318;--fg:#dfe5ec;--muted:#8a94a3;--border:#252b34;--code-bg:#1a1f27;--accent:#2dd4bf;--accent-soft:#2dd4bf1a;--th-bg:#161b22;--quote:#0c1f1c;--quote-bar:#2dd4bf}}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}.layout{display:grid;grid-template-columns:260px 1fr;max-width:1180px;margin:0 auto;min-height:100vh}.toc{position:sticky;top:0;align-self:start;max-height:100vh;overflow:auto;padding:28px 18px;border-right:1px solid var(--border);font-size:13.5px}.toc a{display:block;color:var(--muted);text-decoration:none;padding:3px 8px;border-radius:6px;line-height:1.4}.toc a:hover{color:var(--fg);background:var(--accent-soft)}.toc a.lvl3{padding-left:20px;font-size:12.5px}.toc .home{color:var(--accent);font-weight:600;margin-bottom:14px}.content{padding:40px 56px;min-width:0;max-width:860px}.content h1{font-size:30px;margin:.2em 0 .6em;line-height:1.2}.content h2{font-size:23px;margin:1.6em 0 .5em;padding-bottom:.25em;border-bottom:1px solid var(--border)}.content h3{font-size:18.5px;margin:1.4em 0 .4em}.content h4{font-size:16px;margin:1.2em 0 .3em}a{color:var(--accent)}.anchor{margin-left:8px;color:var(--border);text-decoration:none;font-weight:400;opacity:0}h1:hover .anchor,h2:hover .anchor,h3:hover .anchor{opacity:1}code{background:var(--code-bg);padding:.12em .4em;border-radius:5px;font:13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace}pre{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:16px;overflow:auto}pre code{background:none;padding:0;font-size:13px}.table-wrap{overflow-x:auto;margin:1em 0}table{border-collapse:collapse;width:100%;font-size:14px}th,td{border:1px solid var(--border);padding:8px 11px;text-align:left;vertical-align:top}th{background:var(--th-bg);font-weight:600}tr:nth-child(even) td{background:var(--accent-soft)}blockquote{margin:1em 0;padding:.6em 1.1em;background:var(--quote);border-left:3px solid var(--quote-bar);border-radius:0 8px 8px 0;color:var(--fg)}hr{border:none;border-top:1px solid var(--border);margin:2em 0}ul,ol{padding-left:1.5em}li{margin:.25em 0}.docnav{display:flex;justify-content:space-between;margin-top:48px;padding-top:20px;border-top:1px solid var(--border);font-size:14px;gap:12px}.docnav a{text-decoration:none;padding:10px 14px;border:1px solid var(--border);border-radius:8px;flex:1}.docnav a:hover{background:var(--accent-soft)}.docnav .next{text-align:right}@media(max-width:820px){.layout{grid-template-columns:1fr}.toc{display:none}.content{padding:24px}}
 </style></head>
 <body><div class="layout">
-<aside class="toc"><a class="home" href="index.html">← Vytal docs</a><a class="lvl2" href="#health-score-85-10-ship">Health score: 8.5 / 10 — SHIP</a>
+<aside class="toc"><a class="home" href="index.html">← Vytal docs</a>
+<a class="lvl2" href="#health-score-85-10-ship">Health score: 8.5 / 10 — SHIP</a>
 <a class="lvl2" href="#per-section-verdicts">Per-section verdicts</a>
 <a class="lvl2" href="#findings">Findings</a>
 <a class="lvl2" href="#environment-gotchas-for-future-qa-not-product-issues">Environment gotchas (for future QA — not product issues)</a>
 <a class="lvl2" href="#what-the-next-phase-should-fix-first">What the next phase should fix first</a></aside>
-<main class="content"><h1 id="qa-report-backend-migration-phase-12">QA Report — Backend Migration (Phase 1+2)<a class="anchor" href="#qa-report-backend-migration-phase-12">#</a></h1>
-<p><strong>Date:</strong> 2026-06-11/12 · <strong>Tier:</strong> Standard · <strong>Build:</strong> <code>a776162</code> (CI fully green) <strong>Environment:</strong> local dev servers (ports 3100/3400) against the live seeded Neon database, real Better Auth session as <code>jose@vytal.fit</code> (owner, CrossFit Aveiro). <strong>Evidence:</strong> 83 screenshots + driver scripts in <code>/tmp/vytal-qa/</code> (phases 0–7c). Report synthesized from two QA agent passes (the agents completed all flows; both were cut by session limits before writing up).</p>
-<h2 id="health-score-85-10-ship">Health score: 8.5 / 10 — SHIP<a class="anchor" href="#health-score-85-10-ship">#</a></h2>
-<p>All migrated sections work end-to-end against the real database with real auth. Deductions are for known not-yet-backed sub-features (documented below), not for defects in what shipped.</p>
-<h2 id="per-section-verdicts">Per-section verdicts<a class="anchor" href="#per-section-verdicts">#</a></h2>
-<div class='table-wrap'><table><thead><tr><th>Section</th><th>Verdict</th><th>Evidence (screenshots)</th></tr></thead><tbody><tr><td>Login/auth</td><td>✅ SHIP — wrong password shows inline error; correct login → dashboard</td><td>00, 01</td></tr><tr><td>Members</td><td>✅ SHIP — list, detail, edit→save→toast→persists across reload, revert clean</td><td>10–15, 73</td></tr><tr><td>Classes</td><td>✅ SHIP — agenda (today's seeded classes), calendar week view, create→appears in agenda+calendar→cancel removes it</td><td>20–28c, 74, 75</td></tr><tr><td>Class types</td><td>✅ SHIP — create + delete with confirm (delete needed a retry once — see P2-1)</td><td>22, 29–29c</td></tr><tr><td>CRM</td><td>✅ SHIP — pipeline renders, lead create, drag stage move, persists across reload</td><td>30–34</td></tr><tr><td>WODs</td><td>✅ SHIP — list, builder creates draft, publish flips badge, persists</td><td>40–44b</td></tr><tr><td>Staff</td><td>✅ SHIP — roster, create coach, delete with confirm</td><td>50–54</td></tr><tr><td>Locations</td><td>✅ SHIP — list, create, delete</td><td>55–58</td></tr><tr><td>Exercises</td><td>✅ SHIP (read-only) — library + detail with PRs panel; first load needed a retry once (see P2-2)</td><td>60, 77, 78</td></tr><tr><td>Dashboard check-ins</td><td>✅ SHIP — live tile (4 seeded today; bumped to 6 by manual check-ins, unique-member count correct)</td><td>70, 72, 72b</td></tr><tr><td>Member manual check-in</td><td>✅ SHIP — button records check-in, list + dashboard tile update, persists on reload</td><td>71–71c</td></tr><tr><td>Settings: features</td><td>✅ SHIP — toggles load from DB, save persists across reload</td><td>80–82</td></tr><tr><td>Settings: branding</td><td>✅ SHIP — accent color persisted via orgSettings</td><td>83</td></tr><tr><td>Plans</td><td>✅ SHIP — plans + subscriber/revenue tables computed from real subscriptions</td><td>76, 76b</td></tr></tbody></table></div>
-<h2 id="findings">Findings<a class="anchor" href="#findings">#</a></h2>
-<p><strong>P0 — none.</strong> No data loss, no cross-tenant leakage observed, no broken core flow.</p>
+<main class="content"><h1 id="qa-report-backend-migration-phase-12">QA Report — Backend Migration (Phase 1+2)<a class="anchor" href="#qa-report-backend-migration-phase-12">#</a></h1><p><strong>Date:</strong> 2026-06-11/12 · <strong>Tier:</strong> Standard · <strong>Build:</strong> <code>a776162</code> (CI fully green)
+<strong>Environment:</strong> local dev servers (ports 3100/3400) against the live seeded Neon database, real Better Auth session as <code>jose@vytal.fit</code> (owner, CrossFit Aveiro).
+<strong>Evidence:</strong> 83 screenshots + driver scripts in <code>/tmp/vytal-qa/</code> (phases 0–7c). Report synthesized from two QA agent passes (the agents completed all flows; both were cut by session limits before writing up).</p>
+<h2 id="health-score-85-10-ship">Health score: 8.5 / 10 — SHIP<a class="anchor" href="#health-score-85-10-ship">#</a></h2><p>All migrated sections work end-to-end against the real database with real auth. Deductions are for known
+not-yet-backed sub-features (documented below), not for defects in what shipped.</p>
+<h2 id="per-section-verdicts">Per-section verdicts<a class="anchor" href="#per-section-verdicts">#</a></h2><div class='table-wrap'><table>
+<thead>
+<tr>
+<th>Section</th>
+<th>Verdict</th>
+<th>Evidence (screenshots)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Login/auth</td>
+<td>✅ SHIP — wrong password shows inline error; correct login → dashboard</td>
+<td>00, 01</td>
+</tr>
+<tr>
+<td>Members</td>
+<td>✅ SHIP — list, detail, edit→save→toast→persists across reload, revert clean</td>
+<td>10–15, 73</td>
+</tr>
+<tr>
+<td>Classes</td>
+<td>✅ SHIP — agenda (today&#39;s seeded classes), calendar week view, create→appears in agenda+calendar→cancel removes it</td>
+<td>20–28c, 74, 75</td>
+</tr>
+<tr>
+<td>Class types</td>
+<td>✅ SHIP — create + delete with confirm (delete needed a retry once — see P2-1)</td>
+<td>22, 29–29c</td>
+</tr>
+<tr>
+<td>CRM</td>
+<td>✅ SHIP — pipeline renders, lead create, drag stage move, persists across reload</td>
+<td>30–34</td>
+</tr>
+<tr>
+<td>WODs</td>
+<td>✅ SHIP — list, builder creates draft, publish flips badge, persists</td>
+<td>40–44b</td>
+</tr>
+<tr>
+<td>Staff</td>
+<td>✅ SHIP — roster, create coach, delete with confirm</td>
+<td>50–54</td>
+</tr>
+<tr>
+<td>Locations</td>
+<td>✅ SHIP — list, create, delete</td>
+<td>55–58</td>
+</tr>
+<tr>
+<td>Exercises</td>
+<td>✅ SHIP (read-only) — library + detail with PRs panel; first load needed a retry once (see P2-2)</td>
+<td>60, 77, 78</td>
+</tr>
+<tr>
+<td>Dashboard check-ins</td>
+<td>✅ SHIP — live tile (4 seeded today; bumped to 6 by manual check-ins, unique-member count correct)</td>
+<td>70, 72, 72b</td>
+</tr>
+<tr>
+<td>Member manual check-in</td>
+<td>✅ SHIP — button records check-in, list + dashboard tile update, persists on reload</td>
+<td>71–71c</td>
+</tr>
+<tr>
+<td>Settings: features</td>
+<td>✅ SHIP — toggles load from DB, save persists across reload</td>
+<td>80–82</td>
+</tr>
+<tr>
+<td>Settings: branding</td>
+<td>✅ SHIP — accent color persisted via orgSettings</td>
+<td>83</td>
+</tr>
+<tr>
+<td>Plans</td>
+<td>✅ SHIP — plans + subscriber/revenue tables computed from real subscriptions</td>
+<td>76, 76b</td>
+</tr>
+</tbody></table>
+</div><h2 id="findings">Findings<a class="anchor" href="#findings">#</a></h2><p><strong>P0 — none.</strong> No data loss, no cross-tenant leakage observed, no broken core flow.</p>
 <p><strong>P1 (should fix in next phase):</strong></p>
-<ol><li><strong>No <code>leads.delete</code></strong> — QA/demo leads can only be parked in a stage, never removed. (API gap; the e2e suite works around it.)</li><li><strong>Cache-only mutations look real but don't persist</strong>: WOD edit modal (no <code>wods.update</code>), plan activate/deactivate/delete (no <code>plans.update/delete</code>), exercise create/edit (router intentionally read-only). Users will believe they saved. Either add the procedures or disable the controls until backed.</li><li><strong>Org-isolation UI re-check not performed this pass</strong> (org-switch flow wasn't re-driven after the auth flip). Isolation is heavily enforced and tested at the API layer (396 unit tests incl. per-procedure cross-tenant cases), but a UI-level switch-org spot check should be added to the e2e suite.</li></ol>
+<ol>
+<li><strong>No <code>leads.delete</code></strong> — QA/demo leads can only be parked in a stage, never removed. (API gap; the e2e suite works around it.)</li>
+<li><strong>Cache-only mutations look real but don&#39;t persist</strong>: WOD edit modal (no <code>wods.update</code>), plan activate/deactivate/delete (no <code>plans.update/delete</code>), exercise create/edit (router intentionally read-only). Users will believe they saved. Either add the procedures or disable the controls until backed.</li>
+<li><strong>Org-isolation UI re-check not performed this pass</strong> (org-switch flow wasn&#39;t re-driven after the auth flip). Isolation is heavily enforced and tested at the API layer (396 unit tests incl. per-procedure cross-tenant cases), but a UI-level switch-org spot check should be added to the e2e suite.</li>
+</ol>
 <p><strong>P2 (polish):</strong></p>
-<ol><li>Class-type delete required one retry (likely the in-use CONFLICT path or a stale cache; transient). Watch for recurrence.</li><li>Exercises library needed one retry on first load (cold tRPC round-trip without a loading gate on one path).</li><li>Dashboard onboarding checklist ("2/10 passos completos") and several KPI tiles (revenue, churn, occupancy) are still mock — fine for demo, label or wire next.</li><li>Settings → Website page remains on localStorage by design (publicSite schema mismatch documented in BACKEND_WIRING.md).</li></ol>
-<h2 id="environment-gotchas-for-future-qa-not-product-issues">Environment gotchas (for future QA — not product issues)<a class="anchor" href="#environment-gotchas-for-future-qa-not-product-issues">#</a></h2>
-<ul><li>Dev server on a non-3000 port <strong>requires</strong> <code>BETTER_AUTH_URL=http://localhost:&lt;port&gt;</code> or all logins 401 ("Email ou palavra-passe incorretos") — burned two QA runs (<code>debug-login-fail*.png</code>).</li><li>First-hit route compiles on a cold dev server inflate timings; warm the server before timed assertions.</li></ul>
-<h2 id="what-the-next-phase-should-fix-first">What the next phase should fix first<a class="anchor" href="#what-the-next-phase-should-fix-first">#</a></h2>
-<ol><li>Add <code>wods.update</code>, <code>plans.update/delete</code>, <code>leads.delete</code> procedures (closes the cache-only traps).</li><li>UI org-switch e2e test (isolation visible at the UI layer).</li><li>Wire or visibly badge the remaining mock dashboard KPIs.</li><li>gym_members.user_id linkage → relax athlete self-service gates (booking, own results/PRs).</li></ol><nav class="docnav"><a class="prev" href="plano_sprints.html">← Plano de Sprints</a><a class="next" href="prd.html">PRD →</a></nav></main>
+<ol>
+<li>Class-type delete required one retry (likely the in-use CONFLICT path or a stale cache; transient). Watch for recurrence.</li>
+<li>Exercises library needed one retry on first load (cold tRPC round-trip without a loading gate on one path).</li>
+<li>Dashboard onboarding checklist (&quot;2/10 passos completos&quot;) and several KPI tiles (revenue, churn, occupancy) are still mock — fine for demo, label or wire next.</li>
+<li>Settings → Website page remains on localStorage by design (publicSite schema mismatch documented in BACKEND_WIRING.md).</li>
+</ol>
+<h2 id="environment-gotchas-for-future-qa-not-product-issues">Environment gotchas (for future QA — not product issues)<a class="anchor" href="#environment-gotchas-for-future-qa-not-product-issues">#</a></h2><ul>
+<li>Dev server on a non-3000 port <strong>requires</strong> <code>BETTER_AUTH_URL=http://localhost:&lt;port&gt;</code> or all logins 401 (&quot;Email ou palavra-passe incorretos&quot;) — burned two QA runs (<code>debug-login-fail*.png</code>).</li>
+<li>First-hit route compiles on a cold dev server inflate timings; warm the server before timed assertions.</li>
+</ul>
+<h2 id="what-the-next-phase-should-fix-first">What the next phase should fix first<a class="anchor" href="#what-the-next-phase-should-fix-first">#</a></h2><ol>
+<li>Add <code>wods.update</code>, <code>plans.update/delete</code>, <code>leads.delete</code> procedures (closes the cache-only traps).</li>
+<li>UI org-switch e2e test (isolation visible at the UI layer).</li>
+<li>Wire or visibly badge the remaining mock dashboard KPIs.</li>
+<li>gym_members.user_id linkage → relax athlete self-service gates (booking, own results/PRs).</li>
+</ol>
+<nav class="docnav"><a class="prev" href="plano_sprints.html">← Plano de Sprints</a><a class="next" href="prd.html">PRD →</a></nav></main>
 </div></body></html>

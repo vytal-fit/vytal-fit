@@ -1,70 +1,128 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Backend Wiring · Vytal docs</title><style>
-:root{--bg:#fff;--fg:#1a1d24;--muted:#5b6573;--border:#e4e8ee;--code-bg:#f4f6f9;--accent:#0d9488;--accent-soft:#0d948814;--th-bg:#f7f9fb;--quote:#f0fdfa;--quote-bar:#0d9488}
-@media(prefers-color-scheme:dark){:root{--bg:#0f1318;--fg:#dfe5ec;--muted:#8a94a3;--border:#252b34;--code-bg:#1a1f27;--accent:#2dd4bf;--accent-soft:#2dd4bf1a;--th-bg:#161b22;--quote:#0c1f1c;--quote-bar:#2dd4bf}}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
-.layout{display:grid;grid-template-columns:260px 1fr;max-width:1180px;margin:0 auto;min-height:100vh}
-.toc{position:sticky;top:0;align-self:start;max-height:100vh;overflow:auto;padding:28px 18px;border-right:1px solid var(--border);font-size:13.5px}
-.toc a{display:block;color:var(--muted);text-decoration:none;padding:3px 8px;border-radius:6px;line-height:1.4}
-.toc a:hover{color:var(--fg);background:var(--accent-soft)}
-.toc a.lvl3{padding-left:20px;font-size:12.5px}
-.toc .home{color:var(--accent);font-weight:600;margin-bottom:14px}
-.content{padding:40px 56px;min-width:0;max-width:860px}
-.content h1{font-size:30px;margin:.2em 0 .6em;line-height:1.2}
-.content h2{font-size:23px;margin:1.6em 0 .5em;padding-bottom:.25em;border-bottom:1px solid var(--border)}
-.content h3{font-size:18.5px;margin:1.4em 0 .4em}
-.content h4{font-size:16px;margin:1.2em 0 .3em}
-a{color:var(--accent)}
-.anchor{margin-left:8px;color:var(--border);text-decoration:none;font-weight:400;opacity:0}
-h1:hover .anchor,h2:hover .anchor,h3:hover .anchor{opacity:1}
-code{background:var(--code-bg);padding:.12em .4em;border-radius:5px;font:13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace}
-pre{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:16px;overflow:auto}
-pre code{background:none;padding:0;font-size:13px}
-.table-wrap{overflow-x:auto;margin:1em 0}
-table{border-collapse:collapse;width:100%;font-size:14px}
-th,td{border:1px solid var(--border);padding:8px 11px;text-align:left;vertical-align:top}
-th{background:var(--th-bg);font-weight:600}
-tr:nth-child(even) td{background:var(--accent-soft)}
-blockquote{margin:1em 0;padding:.6em 1.1em;background:var(--quote);border-left:3px solid var(--quote-bar);border-radius:0 8px 8px 0;color:var(--fg)}
-hr{border:none;border-top:1px solid var(--border);margin:2em 0}
-ul,ol{padding-left:1.5em}li{margin:.25em 0}
-.docnav{display:flex;justify-content:space-between;margin-top:48px;padding-top:20px;border-top:1px solid var(--border);font-size:14px;gap:12px}
-.docnav a{text-decoration:none;padding:10px 14px;border:1px solid var(--border);border-radius:8px;flex:1}
-.docnav a:hover{background:var(--accent-soft)}
-.docnav .next{text-align:right}
-@media(max-width:820px){.layout{grid-template-columns:1fr}.toc{display:none}.content{padding:24px}}
+<title>Backend Wiring · Vytal docs</title><style>:root{--bg:#fff;--fg:#1a1d24;--muted:#5b6573;--border:#e4e8ee;--code-bg:#f4f6f9;--accent:#0d9488;--accent-soft:#0d948814;--th-bg:#f7f9fb;--quote:#f0fdfa;--quote-bar:#0d9488}@media(prefers-color-scheme:dark){:root{--bg:#0f1318;--fg:#dfe5ec;--muted:#8a94a3;--border:#252b34;--code-bg:#1a1f27;--accent:#2dd4bf;--accent-soft:#2dd4bf1a;--th-bg:#161b22;--quote:#0c1f1c;--quote-bar:#2dd4bf}}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}.layout{display:grid;grid-template-columns:260px 1fr;max-width:1180px;margin:0 auto;min-height:100vh}.toc{position:sticky;top:0;align-self:start;max-height:100vh;overflow:auto;padding:28px 18px;border-right:1px solid var(--border);font-size:13.5px}.toc a{display:block;color:var(--muted);text-decoration:none;padding:3px 8px;border-radius:6px;line-height:1.4}.toc a:hover{color:var(--fg);background:var(--accent-soft)}.toc a.lvl3{padding-left:20px;font-size:12.5px}.toc .home{color:var(--accent);font-weight:600;margin-bottom:14px}.content{padding:40px 56px;min-width:0;max-width:860px}.content h1{font-size:30px;margin:.2em 0 .6em;line-height:1.2}.content h2{font-size:23px;margin:1.6em 0 .5em;padding-bottom:.25em;border-bottom:1px solid var(--border)}.content h3{font-size:18.5px;margin:1.4em 0 .4em}.content h4{font-size:16px;margin:1.2em 0 .3em}a{color:var(--accent)}.anchor{margin-left:8px;color:var(--border);text-decoration:none;font-weight:400;opacity:0}h1:hover .anchor,h2:hover .anchor,h3:hover .anchor{opacity:1}code{background:var(--code-bg);padding:.12em .4em;border-radius:5px;font:13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace}pre{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:16px;overflow:auto}pre code{background:none;padding:0;font-size:13px}.table-wrap{overflow-x:auto;margin:1em 0}table{border-collapse:collapse;width:100%;font-size:14px}th,td{border:1px solid var(--border);padding:8px 11px;text-align:left;vertical-align:top}th{background:var(--th-bg);font-weight:600}tr:nth-child(even) td{background:var(--accent-soft)}blockquote{margin:1em 0;padding:.6em 1.1em;background:var(--quote);border-left:3px solid var(--quote-bar);border-radius:0 8px 8px 0;color:var(--fg)}hr{border:none;border-top:1px solid var(--border);margin:2em 0}ul,ol{padding-left:1.5em}li{margin:.25em 0}.docnav{display:flex;justify-content:space-between;margin-top:48px;padding-top:20px;border-top:1px solid var(--border);font-size:14px;gap:12px}.docnav a{text-decoration:none;padding:10px 14px;border:1px solid var(--border);border-radius:8px;flex:1}.docnav a:hover{background:var(--accent-soft)}.docnav .next{text-align:right}@media(max-width:820px){.layout{grid-template-columns:1fr}.toc{display:none}.content{padding:24px}}
 </style></head>
 <body><div class="layout">
-<aside class="toc"><a class="home" href="index.html">← Vytal docs</a><a class="lvl2" href="#what-is-wired">What is wired</a>
+<aside class="toc"><a class="home" href="index.html">← Vytal docs</a>
+<a class="lvl2" href="#what-is-wired">What is wired</a>
 <a class="lvl3" href="#laziness-guarantee">Laziness guarantee</a>
 <a class="lvl3" href="#authisolation-rules">Auth/isolation rules</a>
 <a class="lvl2" href="#go-live-exact-command-sequence">Go-live — exact command sequence</a>
+<a class="lvl3" href="#origin-contract">Origin contract</a>
 <a class="lvl3" href="#demo-credentials-seeded">Demo credentials (seeded)</a>
 <a class="lvl2" href="#what-is-not-wired-yet">What is NOT wired (yet)</a>
 <a class="lvl2" href="#migration-path">Migration path</a></aside>
-<main class="content"><h1 id="backend-wiring-appsweb-packages">Backend wiring — apps/pro ⇄ packages/*<a class="anchor" href="#backend-wiring-appsweb-packages">#</a></h1>
-<p>Status of the tRPC/Better Auth/Drizzle plumbing in the web app.</p>
-<h2 id="what-is-wired">What is wired<a class="anchor" href="#what-is-wired">#</a></h2>
-<div class='table-wrap'><table><thead><tr><th>Piece</th><th>File</th><th>Notes</th></tr></thead><tbody><tr><td>tRPC route handler</td><td><code>apps/pro/src/app/trpc/[trpc]/route.ts</code></td><td><code>fetchRequestHandler</code> + shared <code>appRouter</code>. Builds the API <code>Context</code> per request: lazy DB (<code>getDb()</code>) + Better Auth session mapped to <code>{ user, activeOrganizationId }</code>. The public host serves <code>/trpc</code> directly; the <code>/api/trpc/*</code> alias remains for compatibility.</td></tr><tr><td>Better Auth routes</td><td><code>apps/pro/src/app/auth/[...all]/route.ts</code></td><td><code>toNextJsHandler</code> over a lazy handler — serves sign-in/up, sessions, org switching. The public host serves <code>/auth/*</code> directly; the <code>/api/auth/*</code> alias remains for compatibility.</td></tr><tr><td>Auth server singleton</td><td><code>apps/pro/src/lib/auth-server.ts</code></td><td><code>getAuth()</code> builds the Better Auth instance on first use from <code>createAuth</code> + <code>getDb()</code>. <code>isBackendConfigured()</code> gates on env.</td></tr><tr><td>Typed client</td><td><code>apps/pro/src/lib/trpc.ts</code></td><td><code>createTRPCReact&lt;AppRouter&gt;</code> + <code>httpBatchLink</code> with the <code>superjson</code> transformer (matches the server).</td></tr><tr><td>Provider</td><td><code>apps/pro/src/components/trpc-provider.tsx</code></td><td>QueryClientProvider + <code>trpc.Provider</code>, mounted in <code>src/app/layout.tsx</code> around all existing providers.</td></tr><tr><td>Env template</td><td><code>.env.example</code> (repo root)</td><td><code>DATABASE_URL</code>, <code>BETTER_AUTH_SECRET</code>, <code>BETTER_AUTH_URL</code>.</td></tr><tr><td>Health endpoint</td><td><code>apps/pro/src/app/health/route.ts</code></td><td><code>GET /health</code> → `{ status, backend: configured\</td><td>unconfigured, db: ok\</td><td>error\</td><td>skipped, version }<code>. Cheap </code>SELECT 1` via the lazy client when env is present; never crashes without env; no secrets in output.</td></tr><tr><td>Seed (library)</td><td><code>packages/db/src/seed.ts</code></td><td><code>seedDatabase(db, { auth })</code> — idempotent (upsert/skip on conflict). Seeds the 3 demo orgs, demo users with real hashed passwords (via <code>auth.api.signUpEmail</code>), org memberships, and the full <code>@vytal-fit/shared</code> mock dataset into org-1. Importable as <code>@vytal-fit/db/seed</code>.</td></tr><tr><td>Seed (CLI)</td><td><code>packages/db/scripts/seed.ts</code></td><td><code>npm run db:seed -w @vytal-fit/db</code>. Loads env from the shell or <code>.env.local</code>/<code>.env</code> (repo root and apps/pro), prints a per-table summary. Safe to re-run.</td></tr><tr><td>Migrations (CLI)</td><td><code>packages/db/drizzle.config.ts</code></td><td><code>npm run db:migrate -w @vytal-fit/db</code> applies the committed <code>packages/db/migrations/</code> folder (<code>drizzle-kit migrate</code>). The config auto-loads <code>.env.local</code> too.</td></tr></tbody></table></div>
-<h3 id="laziness-guarantee">Laziness guarantee<a class="anchor" href="#laziness-guarantee">#</a></h3>
-<p>No module reads env vars or opens a DB connection at import time. <code>next build</code> succeeds with <strong>zero</strong> env vars set. At runtime without env, API routes answer cleanly: tRPC calls get a <code>SERVICE_UNAVAILABLE</code> TRPCError, auth routes get a JSON 503 — never a crash.</p>
-<h3 id="authisolation-rules">Auth/isolation rules<a class="anchor" href="#authisolation-rules">#</a></h3>
-<p>All enforcement lives in <code>packages/api</code> (<code>protectedProcedure</code>, <code>orgProcedure</code>). The route handler only <em>supplies</em> the session; it never grants or filters anything itself.</p>
-<h2 id="go-live-exact-command-sequence">Go-live — exact command sequence<a class="anchor" href="#go-live-exact-command-sequence">#</a></h2>
-<p>Run from the repo root. Prerequisite: the repo is linked to the Vercel project (<code>npx vercel link</code>).</p>
-<pre><code data-lang="bash"># 1. Provision PostgreSQL — Neon via the Vercel Marketplace (sets DATABASE_URL
-#    on the project automatically) …
-npx vercel integration add neon
-#    … OR bring your own Postgres and set DATABASE_URL manually:
+<main class="content"><h1 id="backend-wiring-appsapi-appspro-appsmy-packages">Backend wiring — apps/api + apps/pro + apps/my ⇄ packages/*<a class="anchor" href="#backend-wiring-appsapi-appspro-appsmy-packages">#</a></h1><p>Status of the tRPC/Better Auth/Drizzle plumbing across the split API and web apps.</p>
+<h2 id="what-is-wired">What is wired<a class="anchor" href="#what-is-wired">#</a></h2><div class='table-wrap'><table>
+<thead>
+<tr>
+<th>Piece</th>
+<th>File</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>API tRPC route handler</td>
+<td><code>apps/api/src/app/trpc/[trpc]/route.ts</code></td>
+<td><code>fetchRequestHandler</code> + shared <code>appRouter</code>. Builds the API <code>Context</code> per request: lazy DB (<code>getDb()</code>) + Better Auth session mapped to <code>{ user, activeOrganizationId }</code>.</td>
+</tr>
+<tr>
+<td>API Better Auth routes</td>
+<td><code>apps/api/src/app/auth/[...all]/route.ts</code></td>
+<td><code>toNextJsHandler</code> over a lazy handler. Serves sign-in/up, sign-out, session reads, and Better Auth organization endpoints from <code>api.vytal.fit/auth/*</code>.</td>
+</tr>
+<tr>
+<td>Pro compatibility routes</td>
+<td><code>apps/pro/src/app/auth/[...all]/route.ts</code>, <code>apps/pro/src/app/trpc/[trpc]/route.ts</code></td>
+<td>Local/dev and legacy aliases only. Production clients should use <code>NEXT_PUBLIC_API_URL=https://api.vytal.fit</code>.</td>
+</tr>
+<tr>
+<td>Canonical REST resources</td>
+<td><code>apps/api/src/app/organizations/</code>, <code>apps/api/src/app/me/session/</code></td>
+<td>Resource-oriented wrappers around the same auth/org logic. Canonical paths are <code>/organizations</code>, <code>/organizations/{organizationId}</code>, and <code>/me/session</code>.</td>
+</tr>
+<tr>
+<td>Deprecated REST aliases</td>
+<td><code>apps/api/src/app/spaces/</code>, <code>apps/api/src/app/session/</code></td>
+<td>Kept for compatibility only. New clients must not use <code>/spaces</code> or <code>/session</code>.</td>
+</tr>
+<tr>
+<td>Typed clients</td>
+<td><code>apps/pro/src/lib/trpc.ts</code>, <code>apps/my/src/lib/trpc.ts</code></td>
+<td><code>createTRPCReact&lt;AppRouter&gt;</code> + <code>httpBatchLink</code> with the <code>superjson</code> transformer (matches the server).</td>
+</tr>
+<tr>
+<td>Developer docs</td>
+<td><code>apps/api/src/app/developer/page.tsx</code></td>
+<td><code>api.vytal.fit/</code> redirects to <code>/openapi.json</code>; human developer guides sync to ReadMe from <code>apps/api/readme</code>.</td>
+</tr>
+<tr>
+<td>OpenAPI spec</td>
+<td><code>apps/api/src/app/openapi.json/route.ts</code></td>
+<td><code>GET /openapi.json</code> returns the machine-readable spec used by downstream tooling.</td>
+</tr>
+<tr>
+<td>Provider</td>
+<td><code>apps/pro/src/components/trpc-provider.tsx</code></td>
+<td>QueryClientProvider + <code>trpc.Provider</code>, mounted in <code>src/app/layout.tsx</code> around all existing providers.</td>
+</tr>
+<tr>
+<td>Env template</td>
+<td><code>.env.example</code> (repo root)</td>
+<td><code>DATABASE_URL</code>, <code>BETTER_AUTH_SECRET</code>, <code>BETTER_AUTH_URL</code>, <code>NEXT_PUBLIC_APP_URL</code>, <code>NEXT_PUBLIC_API_URL</code>, <code>BETTER_AUTH_TRUSTED_ORIGINS</code>.</td>
+</tr>
+<tr>
+<td>Health endpoint</td>
+<td><code>apps/api/src/app/health/route.ts</code></td>
+<td><code>GET /health</code> -&gt; <code>{ status, backend: configured|unconfigured, db: ok|error|skipped, version }</code>. Cheap <code>SELECT 1</code> via the lazy client when env is present; never crashes without env; no secrets in output.</td>
+</tr>
+<tr>
+<td>Seed (library)</td>
+<td><code>packages/db/src/seed.ts</code></td>
+<td><code>seedDatabase(db, { auth })</code> — idempotent (upsert/skip on conflict). Seeds the 3 demo orgs, demo users with real hashed passwords (via <code>auth.api.signUpEmail</code>), org memberships, and the full <code>@vytal-fit/shared</code> mock dataset into org-1. Importable as <code>@vytal-fit/db/seed</code>.</td>
+</tr>
+<tr>
+<td>Seed (CLI)</td>
+<td><code>packages/db/scripts/seed.ts</code></td>
+<td><code>npm run db:seed -w @vytal-fit/db</code>. Loads env from the shell or <code>.env.local</code>/<code>.env</code> (repo root and app env files), prints a per-table summary. Safe to re-run.</td>
+</tr>
+<tr>
+<td>Migrations (CLI)</td>
+<td><code>packages/db/drizzle.config.ts</code></td>
+<td><code>npm run db:migrate -w @vytal-fit/db</code> applies the committed <code>packages/db/migrations/</code> folder (<code>drizzle-kit migrate</code>). The config auto-loads <code>.env.local</code> too.</td>
+</tr>
+</tbody></table>
+</div><h3 id="laziness-guarantee">Laziness guarantee<a class="anchor" href="#laziness-guarantee">#</a></h3><p>No module reads env vars or opens a DB connection at import time. <code>next build</code>
+succeeds with <strong>zero</strong> env vars set. At runtime without env, API routes answer
+cleanly: tRPC calls get a <code>SERVICE_UNAVAILABLE</code> TRPCError, auth routes get a
+JSON 503 — never a crash.</p>
+<h3 id="authisolation-rules">Auth/isolation rules<a class="anchor" href="#authisolation-rules">#</a></h3><p>All enforcement lives in <code>packages/api</code> (<code>protectedProcedure</code>, <code>orgProcedure</code>).
+The route handler only <em>supplies</em> the session; it never grants or filters
+anything itself.</p>
+<h2 id="go-live-exact-command-sequence">Go-live — exact command sequence<a class="anchor" href="#go-live-exact-command-sequence">#</a></h2><p>Run from the repo root. Prerequisite: each Vercel project is connected to the
+same GitHub repository with its root directory set to the matching app:
+<code>apps/landing</code>, <code>apps/pro</code>, <code>apps/my</code>, or <code>apps/api</code>. When using <code>vercel env</code>
+locally, link or select the project you are updating first.</p>
+<pre><code class="language-bash"># 1. Provision PostgreSQL — Neon via the Vercel Marketplace or bring your own
+#    Postgres. DATABASE_URL and related Postgres vars belong on the api project.
+npx vercel link --project api
 npx vercel env add DATABASE_URL production
 
-# 2. Auth secret + base URL
+# 2. Auth secret + origins
 openssl rand -base64 32 | npx vercel env add BETTER_AUTH_SECRET production
-npx vercel env add BETTER_AUTH_URL production   # e.g. https://vytal-fit-iota.vercel.app
+npx vercel env add BETTER_AUTH_URL production        # api project: https://api.vytal.fit
+npx vercel env add NEXT_PUBLIC_APP_URL production    # api/pro project: https://pro.vytal.fit
+# Optional: add extra trusted origins if the app moves across domains.
+# npx vercel env add BETTER_AUTH_TRUSTED_ORIGINS production   # api project: https://vytal.fit,https://pro.vytal.fit,https://my.vytal.fit
 
-# 3. Pull the env locally (repo root — db scripts read .env.local from here)
+# 2b. Link client projects before adding client-side public API vars.
+npx vercel link --project pro
+npx vercel env add NEXT_PUBLIC_API_URL production    # https://api.vytal.fit
+npx vercel link --project my
+npx vercel env add NEXT_PUBLIC_API_URL production    # https://api.vytal.fit
+
+# 3. Pull the api env locally (repo root — db scripts read .env.local from here)
+npx vercel link --project api
 npx vercel env pull .env.local
 
 # 4. Apply the committed migrations (packages/db/migrations/)
@@ -76,22 +134,67 @@ npm run db:migrate -w @vytal-fit/db
 #    Idempotent — safe to re-run; a second run inserts zero rows.
 npm run db:seed -w @vytal-fit/db
 
-# 6. Redeploy so the runtime picks up the env, then verify
-npx vercel deploy --prod --yes
-curl https://&lt;your-deployment&gt;/health
-# → {"status":"ok","backend":"configured","db":"ok","version":"0.1.0"}</code></pre>
-<p>For local development, the same works against any <code>DATABASE_URL</code> in <code>.env.local</code> (root or <code>apps/pro/</code>); then <code>curl http://localhost:3000/health</code>.</p>
-<h3 id="demo-credentials-seeded">Demo credentials (seeded)<a class="anchor" href="#demo-credentials-seeded">#</a></h3>
-<p>Password for all accounts: <strong><code>VytalDemo2026!</code></strong> (defined as <code>DEMO_PASSWORD</code> in <code>packages/db/src/seed.ts</code>).</p>
-<div class='table-wrap'><table><thead><tr><th>Email</th><th>Memberships</th></tr></thead><tbody><tr><td><code>jose@vytal.fit</code></td><td>owner of org-1 (CrossFit Aveiro), athlete of org-2 (Yoga Flow Porto), coach of org-3 (Iron Temple) — mirrors <code>mockCurrentUser</code></td></tr><tr><td><code>coach@vytal.fit</code></td><td>coach in org-1</td></tr><tr><td><code>athlete@vytal.fit</code></td><td>athlete in org-1</td></tr></tbody></table></div>
-<p>Org-1 also receives the full demo dataset: 4 coaches, 4 locations, 8 class types, 10 classes, 5 bookings, 25 gym members, 8 plans, 26 subscriptions, 12 leads, 3 WODs, 10 personal records, 15 notifications, plus the global 100-exercise library.</p>
-<h2 id="what-is-not-wired-yet">What is NOT wired (yet)<a class="anchor" href="#what-is-not-wired-yet">#</a></h2>
-<ul><li><strong>Every page still reads/writes localStorage.</strong> No screen, store, or</li></ul>
-<p>component has been migrated to tRPC hooks. The provider and routes are inert until pages start calling <code>trpc.&lt;router&gt;.&lt;proc&gt;.useQuery()</code>.</p>
-<ul><li>The mobile app (Expo) is not connected to this API.</li></ul>
-<h2 id="migration-path">Migration path<a class="anchor" href="#migration-path">#</a></h2>
-<ol><li><strong>Go live</strong> with the command sequence above (Postgres + env + migrations<ul><li>seed).</li></ul></li><li><strong>Migrate page-by-page:</strong> replace each localStorage data-store read/write</li></ol>
-<p>with the matching tRPC hook (<code>useQuery</code>/<code>useMutation</code> + invalidation). Start with low-risk read-only screens; keep localStorage as the source of truth for a page until its full CRUD surface is on tRPC.</p>
-<ol><li><strong>Swap the auth mock:</strong> point <code>AuthProvider</code> at Better Auth's client</li></ol>
-<p>(<code>better-auth/react</code>) once real sessions exist, including active-org switching (<code>organization</code> plugin).</p><nav class="docnav"><a class="prev" href="prd_decisions_2026-06.html">← PRD Decisions (Jun 26)</a><a class="next" href="plano_sprints.html">Plano de Sprints →</a></nav></main>
+# 6. Redeploy api/pro/my/landing so runtimes pick up env, then verify
+curl https://api.vytal.fit/health
+# → {&quot;status&quot;:&quot;ok&quot;,&quot;backend&quot;:&quot;configured&quot;,&quot;db&quot;:&quot;ok&quot;,&quot;version&quot;:&quot;0.1.0&quot;}
+</code></pre>
+<p>For local development, the same works against any <code>DATABASE_URL</code> in
+<code>.env.local</code> (root or <code>apps/api/</code>); then <code>curl http://localhost:3004/health</code>.</p>
+<h3 id="origin-contract">Origin contract<a class="anchor" href="#origin-contract">#</a></h3><p>The API is its own origin. In production that means <code>api.vytal.fit</code> serves
+<code>/auth/*</code>, <code>/trpc</code>, <code>/health</code>, <code>/me/session</code>, <code>/organizations</code>, <code>/bookings</code>,
+<code>/records</code>, <code>/results</code>, and <code>/openapi.json</code> directly, while <code>pro.vytal.fit</code>
+serves the staff/backoffice app and <code>my.vytal.fit</code> serves the member portal.
+<code>/session</code> and <code>/spaces</code> remain deprecated compatibility aliases only. The
+browser and mobile clients must
+use <code>NEXT_PUBLIC_API_URL</code> (web) or <code>EXPO_PUBLIC_API_URL</code> (mobile) instead of
+guessing same-origin. <code>BETTER_AUTH_URL</code> must match the API host, and
+<code>NEXT_PUBLIC_APP_URL</code> must match the web host for email callbacks and
+redirects.</p>
+<h3 id="demo-credentials-seeded">Demo credentials (seeded)<a class="anchor" href="#demo-credentials-seeded">#</a></h3><p>Password for all accounts: <strong><code>VytalDemo2026!</code></strong> (defined as <code>DEMO_PASSWORD</code>
+in <code>packages/db/src/seed.ts</code>).</p>
+<div class='table-wrap'><table>
+<thead>
+<tr>
+<th>Email</th>
+<th>Memberships</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>jose@vytal.fit</code></td>
+<td>owner of org-1 (CrossFit Aveiro), athlete of org-2 (Yoga Flow Porto), coach of org-3 (Iron Temple) — mirrors <code>mockCurrentUser</code></td>
+</tr>
+<tr>
+<td><code>coach@vytal.fit</code></td>
+<td>coach in org-1</td>
+</tr>
+<tr>
+<td><code>athlete@vytal.fit</code></td>
+<td>athlete in org-1</td>
+</tr>
+</tbody></table>
+</div><p>Org-1 also receives the full demo dataset: 4 coaches, 4 locations, 8 class
+types, 10 classes, 5 bookings, 25 gym members, 8 plans, 26 subscriptions,
+12 leads, 3 WODs, 10 personal records, 15 notifications, plus the global
+100-exercise library.</p>
+<h2 id="what-is-not-wired-yet">What is NOT wired (yet)<a class="anchor" href="#what-is-not-wired-yet">#</a></h2><ul>
+<li>Some <code>pro</code> and <code>my</code> pages still read/write localStorage or mock data. Core
+resource wiring exists, but the remaining prototype pages still need
+page-by-page migration to tRPC/REST.</li>
+<li>The mobile app (Expo) has API host wiring but still needs full auth/session
+parity and remaining feature wiring.</li>
+</ul>
+<h2 id="migration-path">Migration path<a class="anchor" href="#migration-path">#</a></h2><ol>
+<li><strong>Go live</strong> with the command sequence above (Postgres + env + migrations<ul>
+<li>seed).</li>
+</ul>
+</li>
+<li><strong>Migrate page-by-page:</strong> replace each localStorage data-store read/write
+with the matching tRPC hook (<code>useQuery</code>/<code>useMutation</code> + invalidation).
+Start with low-risk read-only screens; keep localStorage as the source of
+truth for a page until its full CRUD surface is on tRPC.</li>
+<li><strong>Swap the auth mock:</strong> point <code>AuthProvider</code> at Better Auth&#39;s client
+(<code>better-auth/react</code>) once real sessions exist, including active-org
+switching (<code>organization</code> plugin).</li>
+</ol>
+<nav class="docnav"><a class="prev" href="prd_decisions_2026-06.html">← PRD Decisions (Jun 26)</a><a class="next" href="plano_sprints.html">Plano de Sprints →</a></nav></main>
 </div></body></html>

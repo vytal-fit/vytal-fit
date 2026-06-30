@@ -19,6 +19,19 @@ Vytal uses four production origins:
 ## Notes
 
 - Auth and API are separate from the app origin.
-- The deployment config maps each client to the correct origin.
-- The docs workflow syncs to ReadMe on push to `main`.
+- Each Vercel project uses the matching monorepo root directory: `apps/landing`,
+  `apps/pro`, `apps/my`, or `apps/api`.
+- Production Git deployments are restricted to `main`.
+- `turbo-ignore` lets Vercel skip unaffected projects in the monorepo.
+- Environment variables that affect production builds are listed in the root
+  `turbo.json` `globalEnv` array so Turborepo and Vercel hash builds correctly.
+- The docs workflow syncs `apps/api/readme` and the OpenAPI contract to ReadMe.
 - The API root redirects to `/openapi.json`.
+
+## Environment ownership
+
+- `api`: database URLs, Better Auth secrets/origin, Google OAuth, S3, Brevo,
+  email provider config, and any server-only integration keys.
+- `pro` and `my`: `NEXT_PUBLIC_API_URL` pointing to `https://api.vytal.fit`.
+- `mobile`: `EXPO_PUBLIC_API_URL` pointing to `https://api.vytal.fit`.
+- `landing`: only public marketing/runtime variables needed by the public site.

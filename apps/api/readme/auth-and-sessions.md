@@ -10,6 +10,8 @@ parent:
 # Auth and Sessions
 
 Use the Better Auth endpoints on `api.vytal.fit` for all session management.
+Use `/auth/session` to read the Better Auth session and `/me/session` to update
+Vytal-owned session metadata such as the active organization.
 
 ## Endpoints
 
@@ -26,6 +28,8 @@ Use the Better Auth endpoints on `api.vytal.fit` for all session management.
 - Google social login is enabled when the deployment is configured for it
 - The active organization comes from the session, not from the client
 - Browser clients send credentials cross-origin to the API host
+- CORS must echo the requesting app origin when credentials are included; it
+  must not use `*` for credentialed browser requests
 
 ## Common flows
 
@@ -56,5 +60,5 @@ curl -X PATCH https://api.vytal.fit/me/session \
 ## Client rules
 
 - Send credentials on every browser request
-- Use the session wrapper for active-organization changes
+- Use `/me/session` for active-organization changes
 - Use `/openapi.json` for the machine-readable contract

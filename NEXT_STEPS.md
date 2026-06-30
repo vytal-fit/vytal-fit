@@ -2,7 +2,7 @@
 
 > Backlog vivo, atualizado a cada sprint. Ligado a [`docs/PLANO_SPRINTS.md`](docs/PLANO_SPRINTS.md) e ao contrato (JCUNHAFONTE ↔ Musas & Vikings · €290.000 · go-live 30 Out 2026).
 > Legenda: `[ ]` por fazer · `[~]` em curso · `[x]` feito · `(D#)` decisão · `(A#)` ponto em aberto.
-> Última atualização: 2026-06-29.
+> Última atualização: 2026-06-30.
 
 ## Decisões em vigor *(ref. Adenda 01)*
 - **D1** Questionário pós-treino no MVP (F4), **sem** mapa de lesões.
@@ -17,11 +17,10 @@
 - **landing** = presença pública (`vytal.fit`)
 - **pro** = backoffice operacional (`pro.vytal.fit`)
 - **my** = portal do atleta / membro (`my.vytal.fit`)
-- No repo atual, os apps estão separados por superfície: `landing`, `pro`, `my`, `api` e `docs`; `my` já tem rota de entrada própria, login e páginas de bookings/training/progress.
+- No repo atual, os apps de produção estão separados por superfície: `apps/landing`, `apps/pro`, `apps/my` e `apps/api`; `apps/docs` existe só como leitor/apoio local, não como projeto Vercel necessário.
 - API em produção passa a ser um origin separado (`api.vytal.fit`); `pro.vytal.fit` fica só para o web app e os clients usam `NEXT_PUBLIC_API_URL` / `EXPO_PUBLIC_API_URL`.
-- Documentação humana fica no ReadMe (`docs.vytal.fit`); `api.vytal.fit` mantém só a landing bridge e o OpenAPI.
-- O repo também publica um leitor in-app de markdown em `/docs` e `/docs/[slug]` para espelhar os guias ReadMe mais importantes sem expor segredos.
-- Estado real hoje: `pro` já tem alguns fluxos reais via tRPC/API, mas ainda mistura páginas ligadas a dados persistidos com muitas páginas de protótipo/mock. `my` já saiu do estado de shell, tem login próprio e agora consome bookings/PRs/resultados reais do API, mas ainda precisa de completar as restantes superfícies.
+- Documentação pública para developers fica no ReadMe a partir de `apps/api/readme`; `api.vytal.fit` expõe `/openapi.json` como contrato machine-readable e a raiz redireciona para esse contrato.
+- Estado real hoje: `pro` já tem alguns fluxos reais via tRPC/API, mas ainda mistura páginas ligadas a dados persistidos com muitas páginas de protótipo/mock. `my` tem app própria, login próprio e consome recursos reais do API onde já foi ligado, mas ainda precisa de completar as restantes superfícies.
 
 ---
 
@@ -41,7 +40,7 @@ O DB já existe (Neon Postgres + Drizzle + migrações + seed + Better Auth + tR
 - [x] Auditoria da fundação vs critérios de aceitação F1
 - [x] Arquitetura multi-tenant (modelo de dados org-scoped) — todas as tabelas com `organizationId` + índices `org`/compostos
 - [x] Autenticação + RBAC (`orgProcedure`, Better Auth)
-- [x] Pipeline CI/CD (`ci.yml`, `e2e.yml`, `mirror-to-vercel.yml`)
+- [x] Pipeline CI/CD (`ci.yml`, `e2e.yml`) + Vercel monorepo com projetos separados por root directory (`apps/landing`, `apps/pro`, `apps/my`, `apps/api`)
 - [x] Provisionamento de ambientes dev / staging / produção (Vercel + Neon)
 - [x] Design system base (shadcn/ui + tokens, light/dark)
 - [x] Backlog detalhado F2–F6 (este ficheiro + `docs/PLANO_SPRINTS.md`)
