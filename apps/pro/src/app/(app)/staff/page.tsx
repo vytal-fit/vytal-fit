@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useDataStore } from "@/stores/data-store";
 import type { Coach } from "@vytal-fit/shared";
 import { Users, Plus, Calendar, TrendingUp, Trash2, X, Check, AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -42,10 +41,12 @@ const coachAvgAttendance: Record<string, number> = {
 };
 
 function CoachCard({ coach, onDelete }: { coach: Coach; onDelete: (id: string, name: string) => void }) {
-  const storeClasses = useDataStore((s) => s.classes);
   const { t } = useI18n();
+  const today = new Date().toISOString().slice(0, 10);
+  const weekAhead = new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 10);
+  const classesQuery = trpc.classes.list.useQuery({ from: today, to: weekAhead });
   const initials = coach.name.split(" ").map((n) => n[0]).join("").slice(0, 2);
-  const weeklyClasses = storeClasses.filter((c) => c.coachIds.includes(coach.id)).length;
+  const weeklyClasses = (classesQuery.data ?? []).filter((c) => c.coachIds.includes(coach.id)).length;
   const avgAttendance = coachAvgAttendance[coach.id] ?? 0;
   const specialties = coachSpecialties[coach.id] ?? [];
   const roleConfig = roleBadgeConfig[coach.role];
