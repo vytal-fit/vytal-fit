@@ -5,6 +5,7 @@ import { Breadcrumbs } from "@/components/breadcrumbs";
 import { useI18n } from "@/lib/i18n";
 import { useToast } from "@/components/toast";
 import { formatCurrency } from "@/stores/data-store";
+import { trpc } from "@/lib/trpc";
 import {
   AlertTriangle,
   Users,
@@ -28,14 +29,6 @@ interface DunningEntry {
   status: "active" | "paused" | "exhausted";
 }
 
-const mockDunning: DunningEntry[] = [
-  { id: "d-1", memberName: "Carlos Mendes", amountDue: 75, daysOverdue: 15, attempt: 3, maxAttempts: 3, nextRetryDate: "-", status: "exhausted" },
-  { id: "d-2", memberName: "Ana Ferreira", amountDue: 60, daysOverdue: 7, attempt: 2, maxAttempts: 3, nextRetryDate: "2026-06-08", status: "active" },
-  { id: "d-3", memberName: "Pedro Santos", amountDue: 50, daysOverdue: 3, attempt: 1, maxAttempts: 3, nextRetryDate: "2026-06-07", status: "active" },
-  { id: "d-4", memberName: "Marta Oliveira", amountDue: 75, daysOverdue: 1, attempt: 1, maxAttempts: 3, nextRetryDate: "2026-06-05", status: "active" },
-  { id: "d-5", memberName: "Joao Silva", amountDue: 115, daysOverdue: 22, attempt: 3, maxAttempts: 3, nextRetryDate: "-", status: "exhausted" },
-];
-
 interface DunningRule {
   attempt: number;
   daysAfterFailure: number;
@@ -54,6 +47,32 @@ export default function DunningPage() {
   const { toast } = useToast();
 
   const [rules, setRules] = useState<DunningRule[]>(defaultRules);
+
+  // Derive the dunning queue from real overdue payments. Retry attempts/next
+  // retry are projected from days overdue (the automation itself is post-MVP).
+  const overdueQuery = trpc.payments.list.useQuery({ status: "overdue" });
+  const mockDunning: DunningEntry[] = (overdueQuery.data ?? []).map((p) => {
+    const daysOverdue = p.dueDate
+      ? Math.max(0, Math.floor((Date.now() - new Date(p.dueDate).getTime()) / 86400000))
+      : 0;
+    const attempt = daysOverdue >= 7 ? 3 : daysOverdue >= 3 ? 2 : 1;
+    const status: DunningEntry["status"] = daysOverdue >= 14 ? "exhausted" : "active";
+    const next = p.dueDate
+      ? new Date(new Date(p.dueDate).getTime() + attempt * 3 * 86400000)
+          .toISOString()
+          .slice(0, 10)
+      : "-";
+    return {
+      id: p.id,
+      memberName: p.memberName,
+      amountDue: Number(p.amount),
+      daysOverdue,
+      attempt,
+      maxAttempts: 3,
+      nextRetryDate: status === "exhausted" ? "-" : next,
+      status,
+    };
+  });
 
   const totalOverdue = mockDunning.reduce((s, d) => s + d.amountDue, 0);
   const membersAffected = mockDunning.length;
