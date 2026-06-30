@@ -4,6 +4,11 @@
 > Legenda: `[ ]` por fazer · `[~]` em curso · `[x]` feito · `(D#)` decisão · `(A#)` ponto em aberto.
 > Última atualização: 2026-06-30.
 
+> **★ Estrela-guia: ZERO mock data.** O objetivo transversal é não haver dados
+> falsos/`localStorage` de domínio em lado nenhum — toda a UI (pro, my) consome
+> a API tRPC real, org-scoped. `localStorage` só para preferências (tema, idioma)
+> via `STORAGE_KEYS`. Progresso vivo na secção "Erradicação de mock data".
+
 ## Decisões em vigor *(ref. Adenda 01)*
 - **D1** Questionário pós-treino no MVP (F4), **sem** mapa de lesões.
 - **D2** SAF-T/ATCUD **faseado** (F5, via fornecedor certificado).
@@ -80,9 +85,9 @@ O DB já existe (Neon Postgres + Drizzle + migrações + seed + Better Auth + tR
 - [ ] Marcação ≤3 toques · check-in QR
 - [ ] Ver WOD · registar resultado · leaderboards · PRs · %RM · gamificação
 - [ ] Perfil de estilo de vida
-- [ ] Check-in diário (sono/fadiga/stress 1–10)
-- [ ] **(D1) Questionário pós-treino: RPE + gosto + limitação por lesão (1–9), sem mapa interativo**
-- [ ] Perfil de performance e saúde (base, a partir dos dados acima)
+- [x] Check-in diário (sono/fadiga/stress/disposição 1–10) — tabela `wellness_checkins` (upsert 1/dia, migração 0009) + router (list/byId/forDay/upsert) + `members.me` + ecrã `/wellness` no `my` (tRPC real) + i18n PT/EN/ES; leituras de saúde com guarda RGPD (atleta só os seus, org-wide só staff)
+- [x] **(D1) Questionário pós-treino: RPE + gosto + limitação por lesão (1–9), sem mapa interativo** — `workoutFeedback` API + cartão "Último treino" no `/wellness` do `my`
+- [~] Perfil de performance e saúde (base) — read-back: cartão de Tendências (média 7d + sparklines) no `/wellness`; falta perfil agregado cruzado
 - [ ] Aceitação F4
 
 ## F5 · Coach Assist AI + Faturação — S8 (€55.000)
@@ -102,6 +107,14 @@ O DB já existe (Neon Postgres + Drizzle + migrações + seed + Better Auth + tR
 - [ ] Acompanhamento 30 dias (garantia até 29 Nov 2026)
 
 ---
+
+## Erradicação de mock data (★ estrela-guia)
+Auditoria 2026-06-30 (`useDataStore` = store mock/localStorage de domínio):
+- **`my`**: 5 páginas em mock — `page` (home), `schedule`, `records`, `profile`, `wod`. Já reais: `/wellness` (check-in + feedback + tendências).
+- **`pro`**: ~41 páginas em mock (settings/*, members/*, classes/*, crm, dashboard, store, financials, staff, …). Reais via tRPC: members/staff/classes/WODs/CRM/plans/locations/class-types/exercises/check-ins/settings (parcial).
+- **Loja / merch (D7)**: **sem API** — só protótipo web. Maior buraco para "bombar": falta router `shop` (produtos, variantes, fornecedores externos, encomendas, tracking) + tabelas + wiring. → F2.
+- **Biblioteca de exercícios**: router `exercises` existe (catálogo file-backed 1.3k+ movimentos, validação no WOD builder); falta pipeline editorial/media e consumo real em todas as superfícies.
+- **Regra**: cada página migrada deixa de importar `useDataStore` para dados de domínio e passa a `trpc.*`; `localStorage` só preferências via `STORAGE_KEYS`.
 
 ## Pontos em aberto
 - **A-1** Âmbito exato da produção de conteúdo das BD (exercícios/WODs) — *Bruno + Juvenal*.
