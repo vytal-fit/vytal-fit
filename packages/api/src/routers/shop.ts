@@ -3,10 +3,13 @@ import { and, asc, desc, eq, gt } from "drizzle-orm";
 import {
   storeOrders,
   storeProducts,
+  storeSales,
   suppliers,
   STORE_PRODUCT_CATEGORIES,
   STORE_FULFILLMENTS,
   STORE_ORDER_STATUSES,
+  SALE_STATUSES,
+  SALE_PAYMENT_METHODS,
   SUPPLIER_REGIONS,
   SUPPLIER_STATUSES,
 } from "@vytal-fit/db";
@@ -295,8 +298,101 @@ const ordersRouter = router({
     }),
 });
 
+const saleItem = z.object({
+  productId: z.string().min(1).optional(),
+  productName: z.string().min(1).max(200),
+  qty: z.number().int().min(1).max(10000),
+  unitPrice: z.number().nonnegative().optional(),
+});
+
+const salesRouter = router({
+  list: staffProcedure
+    .input(
+      z
+        .object({
+          status: z.enum(SALE_STATUSES).optional(),
+          cursor: z.string().nullish(),
+          limit: z.number().int().min(1).max(100).default(50),
+        })
+        .default({ limit: 50 }),
+    )
+    .query(async ({ ctx, input }) => {
+      const rows = await ctx.db
+        .select()
+        .from(storeSales)
+        .where(
+          and(
+            eq(storeSales.organizationId, ctx.activeOrganizationId),
+            input.status ? eq(storeSales.status, input.status) : undefined,
+            input.cursor ? gt(storeSales.id, input.cursor) : undefined,
+          ),
+        )
+        .orderBy(desc(storeSales.soldAt))
+        .limit(input.limit + 1);
+
+      let nextCursor: string | null = null;
+      if (rows.length > input.limit) {
+        rows.pop();
+        nextCursor = rows[rows.length - 1]?.id ?? null;
+      }
+      return { items: rows, nextCursor };
+    }),
+
+  create: staffProcedure
+    .input(
+      z.object({
+        customerName: z.string().min(1).max(200),
+        memberId: z.string().min(1).optional(),
+        items: z.array(saleItem).min(1),
+        total: money.optional(),
+        paymentMethod: z.enum(SALE_PAYMENT_METHODS).default("card"),
+        status: z.enum(SALE_STATUSES).default("completed"),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      // Prefer an explicit total; otherwise derive from item unit prices.
+      const derived = input.items.reduce(
+        (sum, it) => sum + (it.unitPrice ?? 0) * it.qty,
+        0,
+      );
+      const total = (input.total ?? derived).toFixed(2);
+      const [row] = await ctx.db
+        .insert(storeSales)
+        .values({
+          id: crypto.randomUUID(),
+          organizationId: ctx.activeOrganizationId,
+          customerName: input.customerName,
+          memberId: input.memberId,
+          items: input.items,
+          total,
+          paymentMethod: input.paymentMethod,
+          status: input.status,
+        })
+        .returning();
+      return row;
+    }),
+
+  updateStatus: staffProcedure
+    .input(z.object({ id: z.string().min(1), status: z.enum(SALE_STATUSES) }))
+    .mutation(async ({ ctx, input }) => {
+      const [row] = await ctx.db
+        .update(storeSales)
+        .set({ status: input.status })
+        .where(
+          and(
+            eq(storeSales.id, input.id),
+            eq(storeSales.organizationId, ctx.activeOrganizationId),
+          ),
+        )
+        .returning();
+      if (!row) throw new TRPCError({ code: "NOT_FOUND", message: "Sale not found." });
+      return row;
+    }),
+});
+
 export const shopRouter = router({
   products: productsRouter,
   suppliers: suppliersRouter,
   orders: ordersRouter,
+  sales: salesRouter,
 });

@@ -113,6 +113,8 @@ export const STORE_ORDER_STATUSES = [
   "delivered",
   "cancelled",
 ] as const;
+export const SALE_STATUSES = ["pending", "completed", "refunded"] as const;
+export const SALE_PAYMENT_METHODS = ["cash", "card", "mbway", "transfer"] as const;
 
 export const PLAN_TYPES = [
   "monthly",
@@ -201,6 +203,8 @@ export const storeFulfillmentEnum = pgEnum("store_fulfillment", STORE_FULFILLMEN
 export const supplierRegionEnum = pgEnum("supplier_region", SUPPLIER_REGIONS);
 export const supplierStatusEnum = pgEnum("supplier_status", SUPPLIER_STATUSES);
 export const storeOrderStatusEnum = pgEnum("store_order_status", STORE_ORDER_STATUSES);
+export const saleStatusEnum = pgEnum("sale_status", SALE_STATUSES);
+export const salePaymentMethodEnum = pgEnum("sale_payment_method", SALE_PAYMENT_METHODS);
 export const planTypeEnum = pgEnum("plan_type", PLAN_TYPES);
 export const subscriptionStatusEnum = pgEnum("subscription_status", SUBSCRIPTION_STATUSES);
 export const leadStageEnum = pgEnum("lead_stage", LEAD_STAGES);
@@ -868,6 +872,40 @@ export const storeOrders = pgTable(
     index("store_orders_org_idx").on(t.organizationId),
     index("store_orders_org_status_idx").on(t.organizationId, t.status),
     index("store_orders_org_supplier_idx").on(t.organizationId, t.supplierId),
+  ],
+);
+
+export interface StoredSaleItem {
+  productId?: string;
+  productName: string;
+  qty: number;
+  unitPrice?: number;
+}
+
+/**
+ * Store sales (D7): a POS sale of merch to a member (or walk-in). Line items
+ * are denormalised in jsonb; total/payment/status mirror the storefront.
+ */
+export const storeSales = pgTable(
+  "store_sales",
+  {
+    id: text("id").primaryKey(),
+    organizationId: text("organization_id")
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    memberId: text("member_id").references(() => gymMembers.id, { onDelete: "set null" }),
+    customerName: text("customer_name").notNull(),
+    items: jsonb("items").$type<StoredSaleItem[]>().notNull().default([]),
+    total: numeric("total", { precision: 10, scale: 2 }).notNull(),
+    currency: text("currency").notNull().default("EUR"),
+    paymentMethod: salePaymentMethodEnum("payment_method").notNull().default("card"),
+    status: saleStatusEnum("status").notNull().default("completed"),
+    soldAt: timestamp("sold_at").notNull().defaultNow(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (t) => [
+    index("store_sales_org_idx").on(t.organizationId),
+    index("store_sales_org_status_idx").on(t.organizationId, t.status),
   ],
 );
 

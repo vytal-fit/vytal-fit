@@ -918,6 +918,18 @@ export async function seedDatabase(
       .returning({ id: schema.storeOrders.id })
   ).length;
 
+  inserted.storeSales = (
+    await db
+      .insert(schema.storeSales)
+      .values([
+        { id: "ssale-1", organizationId: "org-1", customerName: "Ana Silva", items: [{ productId: "sp-1", productName: "Aero Tee", qty: 1, unitPrice: 25 }], total: "25.00", paymentMethod: "mbway", status: "completed", soldAt: toDate("2026-06-28T11:00:00Z") },
+        { id: "ssale-2", organizationId: "org-1", customerName: "Pedro Almeida", items: [{ productId: "sp-5", productName: "Gymnastics Grips", qty: 1, unitPrice: 18 }], total: "18.00", paymentMethod: "card", status: "completed", soldAt: toDate("2026-06-27T18:30:00Z") },
+        { id: "ssale-3", organizationId: "org-1", customerName: "Sofia Santos", items: [{ productId: "sp-3", productName: "Heavy Hoodie", qty: 1, unitPrice: 35 }, { productId: "sp-6", productName: "Whey Protein 1kg", qty: 1, unitPrice: 32 }], total: "67.00", paymentMethod: "cash", status: "completed", soldAt: toDate("2026-06-25T17:00:00Z") },
+      ])
+      .onConflictDoNothing()
+      .returning({ id: schema.storeSales.id })
+  ).length;
+
   // One organization_settings row per demo org, derived from the
   // ORGANIZATION_CONFIGS defaults for its type (accent colors per mock org).
   // ON CONFLICT DO NOTHING — never clobber settings edited through the app.

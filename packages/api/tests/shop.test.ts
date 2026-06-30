@@ -104,3 +104,60 @@ describe("shop.orders", () => {
     ).rejects.toMatchObject({ code: "FORBIDDEN" });
   });
 });
+
+describe("shop.sales", () => {
+  it("staff records a sale with an explicit total", async () => {
+    const sale = await h.callerCoachA.shop.sales.create({
+      customerName: "Ana Silva",
+      items: [{ productName: "Aero Tee", qty: 1 }],
+      total: 25,
+      paymentMethod: "mbway",
+    });
+    expect(sale?.organizationId).toBe(IDS.orgA);
+    expect(sale?.total).toBe("25.00");
+    expect(sale?.status).toBe("completed");
+  });
+
+  it("derives the total from item unit prices when total is omitted", async () => {
+    const sale = await h.callerCoachA.shop.sales.create({
+      customerName: "Walk-in",
+      items: [
+        { productName: "Grips", qty: 2, unitPrice: 18 },
+        { productName: "Chalk", qty: 1, unitPrice: 6 },
+      ],
+      paymentMethod: "cash",
+    });
+    expect(sale?.total).toBe("42.00");
+  });
+
+  it("forbids an athlete from recording a sale (staff only)", async () => {
+    await expect(
+      h.callerAthleteA.shop.sales.create({
+        customerName: "X",
+        items: [{ productName: "Tee", qty: 1 }],
+        total: 10,
+      }),
+    ).rejects.toMatchObject({ code: "FORBIDDEN" });
+  });
+
+  it("lists sales and updates status (refund)", async () => {
+    const sale = await h.callerCoachA.shop.sales.create({
+      customerName: "Pedro",
+      items: [{ productName: "Hoodie", qty: 1 }],
+      total: 35,
+    });
+    const refunded = await h.callerCoachA.shop.sales.updateStatus({ id: sale.id, status: "refunded" });
+    expect(refunded?.status).toBe("refunded");
+    const { items } = await h.callerA.shop.sales.list();
+    expect(items.some((s) => s.id === sale.id)).toBe(true);
+  });
+
+  it("cross-tenant: org B cannot update an org A sale (NOT_FOUND)", async () => {
+    const sale = await h.callerCoachA.shop.sales.create({
+      customerName: "Z", items: [{ productName: "Tee", qty: 1 }], total: 20,
+    });
+    await expect(
+      h.callerB.shop.sales.updateStatus({ id: sale.id, status: "refunded" }),
+    ).rejects.toMatchObject({ code: "NOT_FOUND" });
+  });
+});
