@@ -24,6 +24,12 @@ Every resource belongs to your **active organization**. You never pass an org id
 in a body: the server reads it from the session. Change it with
 `PATCH /me/session`. Ids from another org resolve to `404`.
 
+> 🚧 Never trust a client-supplied org id
+>
+> The active organization comes from the session, not the request body. This is
+> what makes cross-tenant access impossible: an id from another gym is a `404`,
+> not a leak.
+
 ## Lists
 
 List endpoints return a wrapper:

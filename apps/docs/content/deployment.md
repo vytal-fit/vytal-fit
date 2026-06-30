@@ -22,7 +22,7 @@ Vytal uses four production origins:
 - `turbo-ignore` lets Vercel skip unaffected projects in the monorepo.
 - Environment variables that affect production builds are listed in the root
   `turbo.json` `globalEnv` array so Turborepo and Vercel hash builds correctly.
-- The docs workflow syncs `apps/api/readme` and the OpenAPI contract to ReadMe.
+- The docs workflow syncs `apps/docs/content` and the OpenAPI contract to ReadMe.
 - The API root redirects to `/openapi.json`.
 
 ## Environment ownership

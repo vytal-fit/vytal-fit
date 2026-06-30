@@ -26,9 +26,9 @@ through it, and every call runs in the context of one active organization.
 
 - **Authenticate** with email/password or Google, by cookie or bearer token.
 - **Switch the active organization** so every later call is scoped to one gym.
-- **Manage bookings** — book a member, cancel, or read a class roster; full
+- **Manage bookings**: book a member, cancel, or read a class roster; full
   classes auto-waitlist.
-- **Track performance** — log personal records and WOD results.
+- **Track performance**: log personal records and WOD results.
 - **Check runtime health** for monitoring and deploys.
 
 ## Endpoints at a glance
@@ -58,7 +58,7 @@ through it, and every call runs in the context of one active organization.
 
 ## Keep reading
 
-- **[Auth and Sessions](./auth-and-sessions)** — cookie vs bearer in depth.
-- **[API Examples](./examples)** — copy/paste for records and results.
-- **[Mobile Integration](./mobile)** — the bearer-token flow for native apps.
-- **[Deployment](./deployment)** — hosts, origins, and environment variables.
+- **[Auth and Sessions](./auth-and-sessions)**: cookie vs bearer in depth.
+- **[API Examples](./examples)**: copy/paste for records and results.
+- **[Mobile Integration](./mobile)**: the bearer-token flow for native apps.
+- **[Deployment](./deployment)**: hosts, origins, and environment variables.
