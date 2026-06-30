@@ -23,7 +23,7 @@ import {
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { useI18n } from "@/lib/i18n";
 import { useToast } from "@/components/toast";
-import { useDataStore } from "@/stores/data-store";
+import { trpc } from "@/lib/trpc";
 import { cn } from "@/lib/utils";
 
 interface IntegrationForm {
@@ -39,7 +39,11 @@ interface IntegrationForm {
 export default function IntegrationsPage() {
   const { t } = useI18n();
   const { toast } = useToast();
-  const orgSettings = useDataStore((s) => s.orgSettings);
+  const settingsQuery = trpc.orgSettings.get.useQuery();
+  const orgSettings = {
+    slug: settingsQuery.data?.slug ?? "",
+    name: settingsQuery.data?.name ?? "",
+  };
 
   const [expandedCard, setExpandedCard] = useState<string | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);

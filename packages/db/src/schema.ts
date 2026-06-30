@@ -249,6 +249,40 @@ export function defaultPaymentMethods(): OrganizationPaymentMethods {
   };
 }
 
+/**
+ * Drop-in (visiting-athlete) config blob stored on
+ * `organization_settings.dropins`. Free-form multilingual content plus pricing
+ * and registration rules.
+ */
+export interface OrganizationDropins {
+  active: boolean;
+  price: string;
+  description: string;
+  lat: string;
+  lng: string;
+  registration: "all" | "members";
+  emailValidation: boolean;
+  detailLevel: "full" | "basic";
+  absenceLimit: string;
+  langContent: Record<string, Record<string, string>>;
+}
+
+/** Default drop-in config (disabled, empty content). */
+export function defaultDropins(): OrganizationDropins {
+  return {
+    active: false,
+    price: "15",
+    description: "",
+    lat: "",
+    lng: "",
+    registration: "all",
+    emailValidation: true,
+    detailLevel: "full",
+    absenceLimit: "3",
+    langContent: {},
+  };
+}
+
 /** Default profile blob for orgs that never filled in their settings. */
 export function defaultProfile(): OrganizationProfile {
   return {
@@ -1033,6 +1067,7 @@ export const organizationSettings = pgTable("organization_settings", {
   publicSite: jsonb("public_site").$type<OrganizationPublicSite>().notNull(),
   profile: jsonb("profile").$type<OrganizationProfile>(),
   paymentMethods: jsonb("payment_methods").$type<OrganizationPaymentMethods>(),
+  dropins: jsonb("dropins").$type<OrganizationDropins>(),
   terminologyOverrides: jsonb("terminology_overrides").$type<
     Partial<OrganizationTerminology>
   >(),

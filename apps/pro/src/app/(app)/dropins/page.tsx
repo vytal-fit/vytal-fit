@@ -1,13 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Globe, MapPin, Save, DollarSign, ShieldCheck, Image as ImageIcon, Camera, Eye, ArrowRight,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/lib/i18n";
 import { useToast } from "@/components/toast";
-import { useDataStore } from "@/stores/data-store";
+import { trpc } from "@/lib/trpc";
 
 type Lang = "pt" | "en";
 
@@ -33,8 +33,20 @@ function formatCoord(value: string): string {
 export default function DropInsPage() {
   const { t } = useI18n();
   const { toast } = useToast();
-  const updateOrgSettings = useDataStore((s) => s.updateOrgSettings);
-  const orgSettings = useDataStore((s) => s.orgSettings);
+  const utils = trpc.useUtils();
+  const settingsQuery = trpc.orgSettings.get.useQuery();
+  const updateSettings = trpc.orgSettings.update.useMutation({
+    onSuccess: () => {
+      void utils.orgSettings.get.invalidate();
+      toast(t("dropins.title") + " - " + t("action.save"), "success");
+    },
+    onError: () => toast(t("ui.error"), "error"),
+  });
+  const orgSettings = {
+    name: settingsQuery.data?.name ?? "",
+    address: settingsQuery.data?.profile.address ?? "",
+    city: settingsQuery.data?.profile.city ?? "",
+  };
 
   const [active, setActive] = useState(true);
   const [price, setPrice] = useState("15");
@@ -66,6 +78,29 @@ export default function DropInsPage() {
     },
   });
 
+  // Hydrate from the persisted drop-in config once it loads.
+  const [hydrated, setHydrated] = useState(false);
+  useEffect(() => {
+    const d = settingsQuery.data?.dropins;
+    if (!d || hydrated) return;
+    setActive(d.active);
+    if (d.price) setPrice(d.price);
+    if (d.description) setDescription(d.description);
+    if (d.lat) setLat(d.lat);
+    if (d.lng) setLng(d.lng);
+    setRegistration(d.registration);
+    setEmailValidation(d.emailValidation);
+    setDetailLevel(d.detailLevel);
+    if (d.absenceLimit) setAbsenceLimit(d.absenceLimit);
+    if (d.langContent && Object.keys(d.langContent).length > 0) {
+      setLangContent((prev) => ({
+        ...prev,
+        ...(d.langContent as unknown as Record<Lang, LangContent>),
+      }));
+    }
+    setHydrated(true);
+  }, [settingsQuery.data, hydrated]);
+
   function updateLangField(field: keyof LangContent, value: string) {
     setLangContent((prev) => ({
       ...prev,
@@ -74,10 +109,20 @@ export default function DropInsPage() {
   }
 
   function handleSave() {
-    updateOrgSettings({
-      slogan: orgSettings.slogan,
+    updateSettings.mutate({
+      dropins: {
+        active,
+        price,
+        description,
+        lat,
+        lng,
+        registration,
+        emailValidation,
+        detailLevel,
+        absenceLimit,
+        langContent: langContent as unknown as Record<string, Record<string, string>>,
+      },
     });
-    toast(t("dropins.title") + " - " + t("action.save"), "success");
   }
 
   function handleLatBlur() {

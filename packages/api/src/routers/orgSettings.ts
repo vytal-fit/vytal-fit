@@ -1,12 +1,14 @@
 import { TRPCError } from "@trpc/server";
 import { eq } from "drizzle-orm";
 import {
+  defaultDropins,
   defaultPaymentMethods,
   defaultProfile,
   defaultPublicSite,
   organization,
   organizationSettings,
   type OrganizationBranding,
+  type OrganizationDropins,
   type OrganizationPaymentMethods,
   type OrganizationProfile,
   type OrganizationPublicSite,
@@ -77,6 +79,19 @@ const paymentMethodSchema = z
   .catchall(z.union([z.string(), z.boolean()]));
 const paymentMethodsSchema = z.record(z.string(), paymentMethodSchema);
 
+const dropinsSchema = z.object({
+  active: z.boolean(),
+  price: z.string().max(20),
+  description: z.string().max(2000),
+  lat: z.string().max(40),
+  lng: z.string().max(40),
+  registration: z.enum(["all", "members"]),
+  emailValidation: z.boolean(),
+  detailLevel: z.enum(["full", "basic"]),
+  absenceLimit: z.string().max(10),
+  langContent: z.record(z.string(), z.record(z.string(), z.string())),
+});
+
 const updateInput = z.object({
   name: z.string().min(1).max(200).optional(),
   features: featuresSchema.optional(),
@@ -84,6 +99,7 @@ const updateInput = z.object({
   publicSite: publicSiteSchema.partial().optional(),
   profile: profileSchema.partial().optional(),
   paymentMethods: paymentMethodsSchema.optional(),
+  dropins: dropinsSchema.partial().optional(),
   terminologyOverrides: terminologyOverridesSchema.nullable().optional(),
 });
 
@@ -111,11 +127,14 @@ export interface EffectiveSettings {
   organizationId: string;
   /** The org's canonical name (from the `organization` row). */
   name: string;
+  /** The org's URL slug (from the `organization` row). */
+  slug: string;
   features: OrganizationFeatures;
   branding: OrganizationBranding;
   publicSite: OrganizationPublicSite;
   profile: OrganizationProfile;
   paymentMethods: OrganizationPaymentMethods;
+  dropins: OrganizationDropins;
   terminologyOverrides: Partial<OrganizationTerminology> | null;
   /** `null` when the org has no settings row yet (pure defaults). */
   updatedAt: Date | null;
@@ -130,11 +149,17 @@ async function effectiveSettings(
   organizationId: string,
 ): Promise<EffectiveSettings> {
   const [org] = await db
-    .select({ name: organization.name, logo: organization.logo, metadata: organization.metadata })
+    .select({
+      name: organization.name,
+      slug: organization.slug,
+      logo: organization.logo,
+      metadata: organization.metadata,
+    })
     .from(organization)
     .where(eq(organization.id, organizationId))
     .limit(1);
   const name = org?.name ?? "";
+  const slug = org?.slug ?? "";
 
   const [row] = await db
     .select()
@@ -145,8 +170,10 @@ async function effectiveSettings(
     return {
       ...row,
       name,
+      slug,
       profile: row.profile ?? defaultProfile(),
       paymentMethods: row.paymentMethods ?? defaultPaymentMethods(),
+      dropins: row.dropins ?? defaultDropins(),
     };
   }
 
@@ -166,6 +193,7 @@ async function effectiveSettings(
   return {
     organizationId,
     name,
+    slug,
     features: config.features,
     branding: {
       accentColor: config.accentColor ?? VYTAL_GREEN,
@@ -174,6 +202,7 @@ async function effectiveSettings(
     publicSite: defaultPublicSite(),
     profile: defaultProfile(),
     paymentMethods: defaultPaymentMethods(),
+    dropins: defaultDropins(),
     terminologyOverrides: null,
     updatedAt: null,
   };
@@ -212,6 +241,7 @@ export const orgSettingsRouter = router({
       ...current.paymentMethods,
       ...(input.paymentMethods as OrganizationPaymentMethods | undefined),
     };
+    const dropins: OrganizationDropins = { ...current.dropins, ...input.dropins };
     const terminologyOverrides =
       input.terminologyOverrides === undefined
         ? current.terminologyOverrides
@@ -232,6 +262,7 @@ export const orgSettingsRouter = router({
       publicSite,
       profile,
       paymentMethods,
+      dropins,
       terminologyOverrides,
       updatedAt: new Date(),
     };
@@ -244,6 +275,15 @@ export const orgSettingsRouter = router({
         set: values,
       })
       .returning();
-    return { ...saved, name: input.name ?? current.name };
+    // Return the merged (non-null) blobs and the org-level fields so callers
+    // get the same shape as `get`.
+    return {
+      ...saved,
+      name: input.name ?? current.name,
+      slug: current.slug,
+      profile,
+      paymentMethods,
+      dropins,
+    };
   }),
 });
