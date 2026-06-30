@@ -80,3 +80,22 @@ describe("workoutFeedback.list / byId", () => {
     ).rejects.toMatchObject({ code: "NOT_FOUND" });
   });
 });
+
+describe("workoutFeedback read authorization (RGPD)", () => {
+  it("athlete CANNOT list another member's feedback (FORBIDDEN)", async () => {
+    await expect(
+      h.callerAthleteA.workoutFeedback.list({ memberId: IDS.memberA2 }),
+    ).rejects.toMatchObject({ code: "FORBIDDEN" });
+  });
+
+  it("athlete CANNOT do an org-wide list (FORBIDDEN)", async () => {
+    await expect(
+      h.callerAthleteA.workoutFeedback.list({}),
+    ).rejects.toMatchObject({ code: "FORBIDDEN" });
+  });
+
+  it("coach CAN do an org-wide list", async () => {
+    const { items } = await h.callerCoachA.workoutFeedback.list({});
+    expect(Array.isArray(items)).toBe(true);
+  });
+});

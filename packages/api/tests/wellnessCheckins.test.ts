@@ -115,3 +115,38 @@ describe("wellnessCheckins.forDay / list / byId", () => {
     ).rejects.toMatchObject({ code: "NOT_FOUND" });
   });
 });
+
+describe("wellnessCheckins read authorization (RGPD)", () => {
+  it("athlete can list their OWN check-ins", async () => {
+    const { items } = await h.callerAthleteA.wellnessCheckins.list({ memberId: IDS.memberA1 });
+    expect(items.every((c) => c.memberId === IDS.memberA1)).toBe(true);
+  });
+
+  it("athlete CANNOT list another member's check-ins (FORBIDDEN)", async () => {
+    await expect(
+      h.callerAthleteA.wellnessCheckins.list({ memberId: IDS.memberA2 }),
+    ).rejects.toMatchObject({ code: "FORBIDDEN" });
+  });
+
+  it("athlete CANNOT do an org-wide list (FORBIDDEN)", async () => {
+    await expect(
+      h.callerAthleteA.wellnessCheckins.list({}),
+    ).rejects.toMatchObject({ code: "FORBIDDEN" });
+  });
+
+  it("coach CAN do an org-wide list", async () => {
+    const { items } = await h.callerCoachA.wellnessCheckins.list({});
+    expect(Array.isArray(items)).toBe(true);
+  });
+
+  it("athlete CANNOT read another member's check-in by id (FORBIDDEN)", async () => {
+    const created = await h.callerCoachA.wellnessCheckins.upsert({
+      memberId: IDS.memberA2,
+      date: "2026-03-01",
+      sleep: 6,
+    });
+    await expect(
+      h.callerAthleteA.wellnessCheckins.byId({ id: created.id }),
+    ).rejects.toMatchObject({ code: "FORBIDDEN" });
+  });
+});

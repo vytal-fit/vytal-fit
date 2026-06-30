@@ -65,6 +65,14 @@ export const workoutFeedbackRouter = router({
         .default({ limit: 50 }),
     )
     .query(async ({ ctx, input }) => {
+      // Health-adjacent (RGPD): athletes read only their own member's feedback;
+      // an org-wide read (no memberId) is staff-only.
+      if (input.memberId) {
+        await assertCanActOnMember(ctx, input.memberId);
+      } else if (!ctx.session?.role || !hasMinRole(ctx.session.role, "coach")) {
+        throw new TRPCError({ code: "FORBIDDEN", message: "Staff only." });
+      }
+
       const rows = await ctx.db
         .select()
         .from(workoutFeedback)
@@ -103,6 +111,7 @@ export const workoutFeedbackRouter = router({
       if (!row) {
         throw new TRPCError({ code: "NOT_FOUND", message: "Feedback not found." });
       }
+      await assertCanActOnMember(ctx, row.memberId);
       return row;
     }),
 

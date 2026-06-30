@@ -69,6 +69,14 @@ export const wellnessCheckinsRouter = router({
         .default({ limit: 50 }),
     )
     .query(async ({ ctx, input }) => {
+      // Health data (RGPD Art. 9): an athlete may only read their own member's
+      // rows; an org-wide read (no memberId) is staff-only.
+      if (input.memberId) {
+        await assertCanActOnMember(ctx, input.memberId);
+      } else if (!ctx.session?.role || !hasMinRole(ctx.session.role, "coach")) {
+        throw new TRPCError({ code: "FORBIDDEN", message: "Staff only." });
+      }
+
       const rows = await ctx.db
         .select()
         .from(wellnessCheckins)
@@ -106,6 +114,7 @@ export const wellnessCheckinsRouter = router({
       if (!row) {
         throw new TRPCError({ code: "NOT_FOUND", message: "Check-in not found." });
       }
+      await assertCanActOnMember(ctx, row.memberId);
       return row;
     }),
 
@@ -113,6 +122,7 @@ export const wellnessCheckinsRouter = router({
   forDay: orgProcedure
     .input(z.object({ memberId: z.string().min(1), date: ymd.optional() }))
     .query(async ({ ctx, input }) => {
+      await assertCanActOnMember(ctx, input.memberId);
       const [row] = await ctx.db
         .select()
         .from(wellnessCheckins)
