@@ -1068,6 +1068,8 @@ export const organizationSettings = pgTable("organization_settings", {
   profile: jsonb("profile").$type<OrganizationProfile>(),
   paymentMethods: jsonb("payment_methods").$type<OrganizationPaymentMethods>(),
   dropins: jsonb("dropins").$type<OrganizationDropins>(),
+  /** Full public-website builder config (free-form; owned by the admin UI). */
+  websiteConfig: jsonb("website_config").$type<Record<string, unknown>>(),
   terminologyOverrides: jsonb("terminology_overrides").$type<
     Partial<OrganizationTerminology>
   >(),

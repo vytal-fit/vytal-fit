@@ -201,4 +201,27 @@ describe("profile + payment methods + name", () => {
       h.callerA.orgSettings.update({ profile: { email: "not-an-email" } }),
     ).rejects.toMatchObject(BAD_REQUEST);
   });
+
+  it("exposes the org slug, dropins and websiteConfig defaults", async () => {
+    const settings = await h.callerB.orgSettings.get();
+    expect(typeof settings.slug).toBe("string");
+    expect(settings.dropins).toBeDefined();
+    expect(settings.dropins.registration).toBe("all");
+    // No website builder config until one is saved.
+    expect(settings.websiteConfig).toBeNull();
+  });
+
+  it("persists a dropins patch and a websiteConfig blob", async () => {
+    const saved = await h.callerA.orgSettings.update({
+      dropins: { active: true, price: "20" },
+      websiteConfig: { hero: { enabled: true, slogan: "Train hard" } },
+    });
+    expect(saved?.dropins.active).toBe(true);
+    expect(saved?.dropins.price).toBe("20");
+    expect(saved?.websiteConfig).toMatchObject({ hero: { slogan: "Train hard" } });
+
+    const roundtrip = await h.callerA.orgSettings.get();
+    expect(roundtrip.dropins.active).toBe(true);
+    expect(roundtrip.websiteConfig).toMatchObject({ hero: { enabled: true } });
+  });
 });

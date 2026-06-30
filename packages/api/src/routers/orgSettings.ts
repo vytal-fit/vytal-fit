@@ -100,6 +100,8 @@ const updateInput = z.object({
   profile: profileSchema.partial().optional(),
   paymentMethods: paymentMethodsSchema.optional(),
   dropins: dropinsSchema.partial().optional(),
+  // The website builder owns a large free-form config object; stored verbatim.
+  websiteConfig: z.record(z.string(), z.unknown()).optional(),
   terminologyOverrides: terminologyOverridesSchema.nullable().optional(),
 });
 
@@ -135,6 +137,7 @@ export interface EffectiveSettings {
   profile: OrganizationProfile;
   paymentMethods: OrganizationPaymentMethods;
   dropins: OrganizationDropins;
+  websiteConfig: Record<string, unknown> | null;
   terminologyOverrides: Partial<OrganizationTerminology> | null;
   /** `null` when the org has no settings row yet (pure defaults). */
   updatedAt: Date | null;
@@ -174,6 +177,7 @@ async function effectiveSettings(
       profile: row.profile ?? defaultProfile(),
       paymentMethods: row.paymentMethods ?? defaultPaymentMethods(),
       dropins: row.dropins ?? defaultDropins(),
+      websiteConfig: row.websiteConfig ?? null,
     };
   }
 
@@ -203,6 +207,7 @@ async function effectiveSettings(
     profile: defaultProfile(),
     paymentMethods: defaultPaymentMethods(),
     dropins: defaultDropins(),
+    websiteConfig: null,
     terminologyOverrides: null,
     updatedAt: null,
   };
@@ -242,6 +247,9 @@ export const orgSettingsRouter = router({
       ...(input.paymentMethods as OrganizationPaymentMethods | undefined),
     };
     const dropins: OrganizationDropins = { ...current.dropins, ...input.dropins };
+    // websiteConfig is replaced wholesale (the builder always sends the full tree).
+    const websiteConfig =
+      input.websiteConfig === undefined ? current.websiteConfig : input.websiteConfig;
     const terminologyOverrides =
       input.terminologyOverrides === undefined
         ? current.terminologyOverrides
@@ -263,6 +271,7 @@ export const orgSettingsRouter = router({
       profile,
       paymentMethods,
       dropins,
+      websiteConfig,
       terminologyOverrides,
       updatedAt: new Date(),
     };
@@ -284,6 +293,7 @@ export const orgSettingsRouter = router({
       profile,
       paymentMethods,
       dropins,
+      websiteConfig,
     };
   }),
 });

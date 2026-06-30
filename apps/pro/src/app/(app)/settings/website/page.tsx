@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import {
   Globe,
   Save,
@@ -35,7 +35,7 @@ import {
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { useI18n } from "@/lib/i18n";
 import { useToast } from "@/components/toast";
-import { useDataStore } from "@/stores/data-store";
+import { trpc } from "@/lib/trpc";
 import type {
   WebsiteConfig,
   WebsiteTestimonial,
@@ -1853,22 +1853,53 @@ function ContentTab({
 export default function WebsiteConfigPage() {
   const { t } = useI18n();
   const { toast } = useToast();
-  const orgSettings = useDataStore((s) => s.orgSettings);
-  const updateOrgSettings = useDataStore((s) => s.updateOrgSettings);
-  const classTypes = useDataStore((s) => s.classTypes);
-  const plans = useDataStore((s) => s.plans);
-  const coaches = useDataStore((s) => s.coaches);
+  const utils = trpc.useUtils();
+  const settingsQuery = trpc.orgSettings.get.useQuery();
+  const updateSettings = trpc.orgSettings.update.useMutation({
+    onSuccess: () => {
+      void utils.orgSettings.get.invalidate();
+      toast(t("website.saved"), "success");
+    },
+    onError: () => toast(t("ui.error"), "error"),
+  });
+  const classTypes = trpc.classTypes.list.useQuery().data ?? [];
+  const plansRaw = trpc.subscriptions.plans.list.useQuery().data ?? [];
+  const coaches = trpc.coaches.list.useQuery().data ?? [];
+  // The website builder expects numeric prices; the API returns numeric strings.
+  const plans = plansRaw.map((p) => ({
+    id: p.id,
+    name: p.name,
+    price: Number(p.price),
+    active: p.active,
+  }));
 
   const [activeTab, setActiveTab] = useState<Tab>("pages");
-  const [config, setConfig] = useState<WebsiteConfig>(
-    () => orgSettings.websiteConfig ?? defaultWebsiteConfig(orgSettings)
+  const [config, setConfig] = useState<WebsiteConfig>(() =>
+    defaultWebsiteConfig({ slogan: "", name: "", email: "" }),
   );
 
-  const slug = orgSettings.slug || "meu-box";
+  // Hydrate the builder from the persisted config (or vertical defaults) on load.
+  const [hydrated, setHydrated] = useState(false);
+  useEffect(() => {
+    const d = settingsQuery.data;
+    if (!d || hydrated) return;
+    setConfig(
+      (d.websiteConfig as WebsiteConfig | null) ??
+        defaultWebsiteConfig({
+          slogan: d.profile.slogan,
+          name: d.name,
+          email: d.profile.email,
+        }),
+    );
+    setHydrated(true);
+  }, [settingsQuery.data, hydrated]);
+
+  const slug = settingsQuery.data?.slug || "meu-box";
 
   function handleSave() {
-    updateOrgSettings({ websiteConfig: config });
-    toast(t("website.saved"), "success");
+    updateSettings.mutate({
+      websiteConfig: config as unknown as Record<string, unknown>,
+    });
   }
 
   function handlePreview() {
@@ -2016,7 +2047,7 @@ export default function WebsiteConfigPage() {
           <SeoTab
             config={config}
             setConfig={setConfig}
-            orgSettings={orgSettings}
+            orgSettings={{ name: settingsQuery.data?.name ?? "", slug: settingsQuery.data?.slug }}
             t={t}
           />
         )}
