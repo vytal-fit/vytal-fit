@@ -5,6 +5,7 @@ import {
   classes,
   classTypes,
   gymMembers,
+  leads,
   payments,
   personalRecords,
   subscriptions,
@@ -309,5 +310,111 @@ export const dashboardRouter = router({
       hours: HOURS,
       classDistribution,
     };
+  }),
+
+  /**
+   * Member + funnel analytics derived from real data: gender split, age bands,
+   * plan mix, the lead → subscriber funnel, and revenue-per-member trend.
+   */
+  analytics: orgProcedure.query(async ({ ctx }) => {
+    const org = ctx.activeOrganizationId;
+    const now = new Date();
+    const MONTHS = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+
+    const [members, subs, plans, leadRows, pays] = await Promise.all([
+      ctx.db
+        .select({ gender: gymMembers.gender, dob: gymMembers.dateOfBirth, status: gymMembers.status })
+        .from(gymMembers)
+        .where(eq(gymMembers.organizationId, org)),
+      ctx.db
+        .select({ planId: subscriptions.planId, status: subscriptions.status })
+        .from(subscriptions)
+        .where(eq(subscriptions.organizationId, org)),
+      ctx.db
+        .select({ id: subscriptionPlans.id, name: subscriptionPlans.name })
+        .from(subscriptionPlans)
+        .where(eq(subscriptionPlans.organizationId, org)),
+      ctx.db
+        .select({ stage: leads.stage })
+        .from(leads)
+        .where(eq(leads.organizationId, org)),
+      ctx.db
+        .select({ amount: payments.amount, status: payments.status, paidAt: payments.paidAt, createdAt: payments.createdAt })
+        .from(payments)
+        .where(eq(payments.organizationId, org)),
+    ]);
+
+    // Gender split
+    const male = members.filter((m) => m.gender === "male").length;
+    const female = members.filter((m) => m.gender === "female").length;
+    const other = members.length - male - female;
+    const genderDistribution = [
+      { name: "Masculino", value: male, color: "#00d4ff" },
+      { name: "Feminino", value: female, color: "#c084fc" },
+      ...(other > 0 ? [{ name: "Outro", value: other, color: "#6b8c72" }] : []),
+    ].filter((g) => g.value > 0);
+
+    // Age bands
+    const bands = [
+      { age: "18-24", min: 18, max: 24 },
+      { age: "25-34", min: 25, max: 34 },
+      { age: "35-44", min: 35, max: 44 },
+      { age: "45-54", min: 45, max: 54 },
+      { age: "55+", min: 55, max: 200 },
+    ];
+    const ages = members
+      .map((m) => (m.dob ? Math.floor((now.getTime() - new Date(m.dob).getTime()) / 31557600000) : null))
+      .filter((a): a is number => a !== null && a >= 0 && a < 120);
+    const ageDistribution = bands.map((b) => {
+      const n = ages.filter((a) => a >= b.min && a <= b.max).length;
+      return { age: b.age, pct: ages.length ? Math.round((n / ages.length) * 100) : 0 };
+    });
+
+    // Plan mix (active subscriptions)
+    const planName = new Map(plans.map((p) => [p.id, p.name]));
+    const planColors = ["#22c55e", "#00d4ff", "#ffb300", "#c084fc", "#ff8c42", "#6b8c72"];
+    const planCount = new Map<string, number>();
+    for (const sub of subs) {
+      if (sub.status !== "active" && sub.status !== "paused") continue;
+      const nm = planName.get(sub.planId) ?? "Outro";
+      planCount.set(nm, (planCount.get(nm) ?? 0) + 1);
+    }
+    const planDistribution = [...planCount.entries()].map(([name, value], i) => ({
+      name,
+      value,
+      color: planColors[i % planColors.length],
+    }));
+
+    // Lead funnel
+    const stageCount = (s: string) => leadRows.filter((l) => l.stage === s).length;
+    const totalLeads = leadRows.length || 1;
+    const funnelDefs = [
+      { label: "Leads", stages: ["lead", "contacted", "prospect", "trial_booked", "subscribed"], color: "#ffb300" },
+      { label: "Contactados", stages: ["contacted", "prospect", "trial_booked", "subscribed"], color: "#ff8c42" },
+      { label: "Trial", stages: ["trial_booked", "subscribed"], color: "#22c55e" },
+      { label: "Subscritos", stages: ["subscribed"], color: "#00d4ff" },
+    ];
+    const leadFunnel = funnelDefs.map((f) => {
+      const count = f.stages.reduce((s, st) => s + stageCount(st), 0);
+      return { label: f.label, count, pct: Math.round((count / totalLeads) * 100), color: f.color };
+    });
+
+    // Revenue per member (last 6 months): paid revenue / current active members
+    const activeMembers = members.filter((m) => m.status === "active").length || 1;
+    const revenuePerMember: { month: string; rpm: number }[] = [];
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const next = new Date(now.getFullYear(), now.getMonth() - i + 1, 1);
+      const rev = pays
+        .filter((p) => {
+          if (p.status !== "paid") return false;
+          const when = new Date(p.paidAt ?? p.createdAt);
+          return when >= d && when < next;
+        })
+        .reduce((s, p) => s + Number(p.amount), 0);
+      revenuePerMember.push({ month: MONTHS[d.getMonth()], rpm: Math.round((rev / activeMembers) * 10) / 10 });
+    }
+
+    return { genderDistribution, ageDistribution, planDistribution, leadFunnel, revenuePerMember };
   }),
 });

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useI18n } from "@/lib/i18n";
+import { trpc } from "@/lib/trpc";
 import { cn } from "@/lib/utils";
 import { useOrgFormat } from "@/lib/org-format";
 import { Lightbulb, TrendingDown, Users, Clock, Zap } from "lucide-react";
@@ -27,19 +28,6 @@ function ChartCard({ title, children, className }: { title: string; children: Re
     </div>
   );
 }
-
-// ---------------------------------------------------------------------------
-// Data
-// ---------------------------------------------------------------------------
-const sparklineActiveMembers = [{ v: 318 }, { v: 325 }, { v: 330 }, { v: 338 }, { v: 345 }, { v: 348 }, { v: 355 }, { v: 358 }, { v: 360 }, { v: 363 }, { v: 365 }, { v: 367 }];
-const sparklineRevenue = [{ v: 14200 }, { v: 14800 }, { v: 15100 }, { v: 15800 }, { v: 16200 }, { v: 16500 }, { v: 17000 }, { v: 17200 }, { v: 17500 }, { v: 17800 }, { v: 18100 }, { v: 18450 }];
-const sparklineChurn = [{ v: 4.1 }, { v: 3.9 }, { v: 3.8 }, { v: 3.7 }, { v: 3.6 }, { v: 3.5 }, { v: 3.5 }, { v: 3.4 }, { v: 3.3 }, { v: 3.3 }, { v: 3.2 }, { v: 3.2 }];
-const sparklineAttendance = [{ v: 12.1 }, { v: 12.4 }, { v: 12.6 }, { v: 13.0 }, { v: 13.2 }, { v: 13.5 }, { v: 13.7 }, { v: 13.9 }, { v: 14.0 }, { v: 14.1 }, { v: 14.2 }, { v: 14.2 }];
-
-const memberGrowthData = [
-  { month: "Jan", members: 318 }, { month: "Feb", members: 325 }, { month: "Mar", members: 338 },
-  { month: "Apr", members: 345 }, { month: "May", members: 358 }, { month: "Jun", members: 367 },
-];
 
 interface SparklineCardProps {
   label: string; value: string; trend: string; trendUp: boolean;
@@ -74,71 +62,7 @@ function SparklineCard({ label, value, trend, trendUp, data, color, vsLastMonth 
   );
 }
 
-const genderData = [
-  { name: "Male", value: 58, color: "#00d4ff" },
-  { name: "Female", value: 42, color: "#c084fc" },
-];
-
-const ageData = [
-  { age: "18-24", pct: 15 }, { age: "25-34", pct: 35 }, { age: "35-44", pct: 28 },
-  { age: "45-54", pct: 15 }, { age: "55+", pct: 7 },
-];
-
-const planData = [
-  { name: "Livre", value: 45, color: "#22c55e" },
-  { name: "13 Treinos", value: 25, color: "#00d4ff" },
-  { name: "9 Treinos", value: 15, color: "#ffb300" },
-  { name: "Semestral", value: 10, color: "#c084fc" },
-  { name: "Other", value: 5, color: "#6b8c72" },
-];
-
-const funnelData = [
-  { label: "Leads", count: 28, pct: 100, color: "#ffb300" },
-  { label: "Contacted", count: 24, pct: 85, color: "#ff8c42" },
-  { label: "Trial", count: 17, pct: 60, color: "#22c55e" },
-  { label: "Subscribed", count: 11, pct: 40, color: "#00d4ff" },
-  { label: "Active 3mo+", count: 10, pct: 35, color: "#22c55e" },
-];
-
-// Conversion percentages between funnel steps
-const funnelConversions = [
-  Math.round((24 / 28) * 100),
-  Math.round((17 / 24) * 100),
-  Math.round((11 / 17) * 100),
-  Math.round((10 / 11) * 100),
-];
-
-const revenueBreakdownData = [
-  { month: "Jan", memberships: 12800, services: 900, products: 500 },
-  { month: "Feb", memberships: 13500, services: 1000, products: 600 },
-  { month: "Mar", memberships: 14000, services: 1100, products: 700 },
-  { month: "Apr", memberships: 14600, services: 1200, products: 700 },
-  { month: "May", memberships: 15200, services: 1300, products: 700 },
-  { month: "Jun", memberships: 16200, services: 1400, products: 800 },
-];
-
-const revenuePerMemberData = [
-  { month: "Jan", rpm: 45.7 }, { month: "Feb", rpm: 46.2 }, { month: "Mar", rpm: 47.1 },
-  { month: "Apr", rpm: 48.0 }, { month: "May", rpm: 49.3 }, { month: "Jun", rpm: 50.3 },
-];
-
 const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-const HOURS = Array.from({ length: 17 }, (_, i) => `${String(i + 6).padStart(2, "0")}:00`);
-const PEAK_HEATMAP: number[][] = [
-  [4, 16, 12, 8, 5, 3, 10, 4, 3, 5, 6, 18, 20, 17, 6, 2, 0],
-  [3, 15, 11, 7, 4, 2, 9, 3, 2, 4, 5, 17, 19, 16, 5, 1, 0],
-  [5, 17, 13, 9, 6, 4, 11, 5, 4, 6, 7, 19, 20, 18, 7, 3, 0],
-  [6, 18, 14, 10, 7, 5, 12, 6, 5, 7, 8, 20, 22, 19, 8, 3, 0],
-  [3, 14, 10, 6, 3, 2, 8, 3, 2, 3, 4, 14, 16, 12, 4, 1, 0],
-  [0, 0, 8, 10, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 4, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-];
-
-function peakMax(): number {
-  let max = 0;
-  for (const row of PEAK_HEATMAP) { for (const v of row) { if (v > max) max = v; } }
-  return max;
-}
 
 function heatCellColor(value: number, max: number): string {
   if (value === 0) return "rgba(22,32,24,0.9)";
@@ -173,8 +97,58 @@ const keyInsightDefs = [
 export default function AnalyticsPage() {
   const { money: formatCurrency, moneyCompact: formatCurrencyCompact } = useOrgFormat();
   const { t } = useI18n();
-  const pMax = peakMax();
   const [hoveredCell, setHoveredCell] = useState<{ day: string; hour: string; value: number } | null>(null);
+
+  // ── Real, org-scoped aggregates ──
+  const statsQuery = trpc.dashboard.stats.useQuery();
+  const chartsQuery = trpc.dashboard.charts.useQuery();
+  const analyticsQuery = trpc.dashboard.analytics.useQuery();
+  const stats = statsQuery.data;
+
+  const memberGrowthData = (chartsQuery.data?.memberGrowth ?? []).map((m) => ({
+    month: m.month,
+    members: m.total,
+  }));
+  const genderData = analyticsQuery.data?.genderDistribution ?? [];
+  const ageData = analyticsQuery.data?.ageDistribution ?? [];
+  const planData = analyticsQuery.data?.planDistribution ?? [];
+  const funnelData = analyticsQuery.data?.leadFunnel ?? [];
+  const funnelConversions = funnelData
+    .slice(1)
+    .map((f, i) => (funnelData[i].count ? Math.round((f.count / funnelData[i].count) * 100) : 0));
+  const revenueBreakdownData = (chartsQuery.data?.revenueByMonth ?? []).map((m) => ({
+    month: m.month,
+    memberships: m.revenue,
+    services: 0,
+    products: 0,
+  }));
+  const revenuePerMemberData = analyticsQuery.data?.revenuePerMember ?? [];
+
+  const PEAK_HEATMAP = chartsQuery.data?.heatmap ?? [];
+  const HOURS = (chartsQuery.data?.hours ?? []).map((h) => `${String(h).padStart(2, "0")}:00`);
+  const pMax = Math.max(1, ...PEAK_HEATMAP.flat());
+
+  // Sparklines from the real series.
+  const growth = chartsQuery.data?.memberGrowth ?? [];
+  const sparklineActiveMembers = growth.map((m) => ({ v: m.active }));
+  const sparklineRevenue = (chartsQuery.data?.revenueByMonth ?? []).map((m) => ({ v: m.revenue }));
+  const sparklineRpm = revenuePerMemberData.map((m) => ({ v: m.rpm }));
+  const sparklineNewMembers = growth.map((m, i) => ({
+    v: i === 0 ? 0 : Math.max(0, m.total - growth[i - 1].total),
+  }));
+
+  // Month-over-month trend from a real series.
+  const trendOf = (series: { v: number }[]): { trend: string; up: boolean; prev: number } => {
+    if (series.length < 2) return { trend: "+0%", up: true, prev: 0 };
+    const last = series[series.length - 1].v;
+    const prev = series[series.length - 2].v;
+    const pct = prev ? Math.round(((last - prev) / prev) * 1000) / 10 : 0;
+    return { trend: `${pct >= 0 ? "+" : ""}${pct}%`, up: pct >= 0, prev };
+  };
+  const amTrend = trendOf(sparklineActiveMembers);
+  const revTrend = trendOf(sparklineRevenue);
+  const rpmTrend = trendOf(sparklineRpm);
+  const nmTrend = trendOf(sparklineNewMembers);
 
   return (
     <div className="space-y-10">
@@ -206,10 +180,10 @@ export default function AnalyticsPage() {
 
       {/* Section 1: Key Metrics Sparklines */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <SparklineCard label={t("dashboard.activeMembers")} value="367" trend="+ 3.2%" trendUp data={sparklineActiveMembers} color="#22c55e" vsLastMonth="355 (+12)" />
-        <SparklineCard label={t("dashboard.monthlyRevenue")} value="18,450 EUR" trend="+ 5.8%" trendUp data={sparklineRevenue} color="#00d4ff" vsLastMonth="17,500 EUR (+950)" />
-        <SparklineCard label={t("dashboard.churnRate")} value="3.2%" trend="- 0.4%" trendUp={false} data={sparklineChurn} color="#22c55e" vsLastMonth="3.6% (-0.4%)" />
-        <SparklineCard label={t("analytics.avgAttendance")} value="14.2" trend="+ 2.1" trendUp data={sparklineAttendance} color="#c084fc" vsLastMonth="12.1 (+2.1)" />
+        <SparklineCard label={t("dashboard.activeMembers")} value={String(stats?.activeMembers ?? 0)} trend={amTrend.trend} trendUp={amTrend.up} data={sparklineActiveMembers} color="#22c55e" vsLastMonth={String(amTrend.prev)} />
+        <SparklineCard label={t("dashboard.monthlyRevenue")} value={formatCurrency(stats?.monthlyRevenue ?? 0)} trend={revTrend.trend} trendUp={revTrend.up} data={sparklineRevenue} color="#00d4ff" vsLastMonth={formatCurrency(revTrend.prev)} />
+        <SparklineCard label={t("analytics.revenuePerMember")} value={formatCurrency(revenuePerMemberData[revenuePerMemberData.length - 1]?.rpm ?? 0)} trend={rpmTrend.trend} trendUp={rpmTrend.up} data={sparklineRpm} color="#c084fc" vsLastMonth={formatCurrency(rpmTrend.prev)} />
+        <SparklineCard label={t("dashboard.newMembersThisMonth") || "Novos membros"} value={String(stats?.newMembersThisMonth ?? 0)} trend={nmTrend.trend} trendUp={nmTrend.up} data={sparklineNewMembers} color="#ffb300" vsLastMonth={String(nmTrend.prev)} />
       </div>
 
       {/* Section 2: Member Demographics */}

@@ -88,4 +88,19 @@ describe("dashboard.stats (extended) + occupancyByDay", () => {
       code: "UNAUTHORIZED",
     });
   });
+
+  it("analytics returns real member + funnel distributions", async () => {
+    const a = await h.callerA.dashboard.analytics();
+    expect(Array.isArray(a.genderDistribution)).toBe(true);
+    expect(a.ageDistribution).toHaveLength(5);
+    expect(Array.isArray(a.planDistribution)).toBe(true);
+    expect(a.leadFunnel.length).toBeGreaterThanOrEqual(1);
+    expect(a.revenuePerMember).toHaveLength(6);
+  });
+
+  it("analytics requires a session", async () => {
+    await expect(h.callerNoSession.dashboard.analytics()).rejects.toMatchObject({
+      code: "UNAUTHORIZED",
+    });
+  });
 });
