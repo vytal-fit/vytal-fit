@@ -19,9 +19,10 @@ export interface DocsEntry extends DocsEntryMeta {
 
 const DOC_SOURCE_DIRS: Record<DocsSource, string[]> = {
   public: [
-    path.join(process.cwd(), "apps", "api", "readme"),
-    path.join(process.cwd(), "..", "apps", "api", "readme"),
-    path.join(process.cwd(), "..", "..", "apps", "api", "readme"),
+    path.join(process.cwd(), "content"),
+    path.join(process.cwd(), "apps", "docs", "content"),
+    path.join(process.cwd(), "..", "docs", "content"),
+    path.join(process.cwd(), "..", "..", "apps", "docs", "content"),
   ],
   engineering: [
     path.join(process.cwd(), "docs"),

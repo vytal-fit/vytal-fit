@@ -25,7 +25,7 @@
     "test:e2e": "npm --workspace @vytal-fit/pro run test:e2e",
     "test:e2e:ui": "npm --workspace @vytal-fit/pro run test:e2e:ui",
     "docs:readme:openapi": "rdme openapi upload https://api.vytal.fit/openapi.json --slug vytal-api --title \"Vytal API\" --branch 1.0 --confirm-overwrite",
-    "docs:readme:guides": "rdme docs upload apps/api/readme --branch 1.0",
+    "docs:readme:guides": "rdme docs upload apps/docs/content --branch 1.0",
     "docs:readme:sync": "npm run docs:readme:openapi && npm run docs:readme:guides"
   },
   "devDependencies": {

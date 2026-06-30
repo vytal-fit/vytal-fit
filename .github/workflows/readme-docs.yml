@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - "apps/api/readme/**"
+      - "apps/docs/content/**"
       - "packages/api/src/openapi.ts"
       - "apps/api/src/app/openapi.json/route.ts"
       - ".github/workflows/readme-docs.yml"
@@ -48,4 +48,4 @@ jobs:
 
       - name: Sync guides
         if: steps.readme_secret.outputs.present == 'true'
-        run: npx rdme docs upload apps/api/readme --branch 1.0 --key "$README_API_KEY"
+        run: npx rdme docs upload apps/docs/content --branch 1.0 --key "$README_API_KEY"
