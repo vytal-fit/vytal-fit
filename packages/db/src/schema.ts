@@ -308,6 +308,25 @@ export function defaultDropins(): OrganizationDropins {
   };
 }
 
+/**
+ * Monthly budget plan blob stored on `organization_settings.budget`. Holds the
+ * per-line spending limits; actuals are computed at read time from the expenses
+ * ledger (category + subcategory match).
+ */
+export interface OrganizationBudgetLine {
+  category: "Fixed" | "Variable" | "Tax";
+  subcategory: string;
+  limit: number;
+}
+export interface OrganizationBudget {
+  lines: OrganizationBudgetLine[];
+}
+
+/** Default budget blob: empty plan. */
+export function defaultBudget(): OrganizationBudget {
+  return { lines: [] };
+}
+
 /** Default profile blob for orgs that never filled in their settings. */
 export function defaultProfile(): OrganizationProfile {
   return {

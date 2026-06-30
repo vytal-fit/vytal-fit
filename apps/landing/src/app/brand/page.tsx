@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { ArrowLeft, Sun, Moon } from "lucide-react";
+import { STORAGE_KEYS } from "@vytal-fit/shared";
 
 // ── The mark: a vital-sign pulse on a rounded green tile ─────────────────────
 function Mark({ size = 64, strokeWidth = 5 }: { size?: number; strokeWidth?: number }) {
@@ -250,6 +251,24 @@ export default function BrandPage() {
   const [lang, setLang] = useState<Lang>("pt");
   const [light, setLight] = useState(false);
   const t = (k: string) => COPY[lang][k] ?? k;
+
+  // Restore the visitor's saved theme + language preference on mount.
+  useEffect(() => {
+    const storedLang = localStorage.getItem(STORAGE_KEYS.language);
+    if (storedLang === "pt" || storedLang === "en" || storedLang === "es") {
+      setLang(storedLang);
+    }
+    const storedTheme = localStorage.getItem(STORAGE_KEYS.landingTheme);
+    if (storedTheme) setLight(storedTheme === "light");
+  }, []);
+
+  // Persist preferences (preferences-only localStorage, via STORAGE_KEYS).
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.language, lang);
+  }, [lang]);
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.landingTheme, light ? "light" : "dark");
+  }, [light]);
 
   return (
     <main className={`brandpage min-h-screen font-sans bg-[var(--b-bg)] text-[var(--b-text)] ${light ? "light" : ""}`}>

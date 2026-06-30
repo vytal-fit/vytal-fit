@@ -22,6 +22,7 @@ import {
   Sun,
   Moon,
 } from "lucide-react";
+import { STORAGE_KEYS } from "@vytal-fit/shared";
 
 // ── Noise texture SVG ────────────────────────────────────────────────────────
 const NOISE_SVG = `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E")`;
@@ -768,6 +769,14 @@ const LANDING_COPY: Record<Lang, Record<string, string>> = {
 
 function useLandingLang() {
   const [lang, setLang] = useState<Lang>("pt");
+  // Restore + persist the visitor's language (preferences-only localStorage).
+  useEffect(() => {
+    const stored = localStorage.getItem(STORAGE_KEYS.language);
+    if (stored === "pt" || stored === "en" || stored === "es") setLang(stored);
+  }, []);
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.language, lang);
+  }, [lang]);
   const t = (key: string) => LANDING_COPY[lang][key] ?? key;
   return { lang, setLang, t };
 }
@@ -808,14 +817,19 @@ function Navbar({ t, lang, setLang }: { t: (k: string) => string; lang: Lang; se
   const [mobileOpen, setMobileOpen] = useState(false);
   const [lightMode, setLightMode] = useState(false);
 
+  // Restore the saved theme on mount and apply it to <html>.
+  useEffect(() => {
+    const stored = localStorage.getItem(STORAGE_KEYS.landingTheme);
+    const isLight = stored === "light";
+    setLightMode(isLight);
+    document.documentElement.classList.toggle("light", isLight);
+  }, []);
+
   function toggleTheme() {
     const next = !lightMode;
     setLightMode(next);
-    if (next) {
-      document.documentElement.classList.add("light");
-    } else {
-      document.documentElement.classList.remove("light");
-    }
+    document.documentElement.classList.toggle("light", next);
+    localStorage.setItem(STORAGE_KEYS.landingTheme, next ? "light" : "dark");
   }
 
   useEffect(() => {
