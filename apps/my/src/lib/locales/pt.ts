@@ -3583,6 +3583,9 @@ export const pt: Record<string, string> = {
     "my.wellness.injury": "Limitação por lesão",
     "my.wellness.feedbackSave": "Registar treino",
     "my.wellness.feedbackSaved": "Treino registado",
+    "my.wellness.trends": "Tendências",
+    "my.wellness.trendsEmpty": "Faz alguns check-ins para veres as tuas tendências.",
+    "my.wellness.avg7": "Média 7d",
 
     // myVYTAL console — home
     "my.home.greeting.morning": "Bom dia",

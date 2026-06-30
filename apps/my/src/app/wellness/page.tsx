@@ -25,6 +25,33 @@ function todayYmd(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
+function Sparkline({ values, color }: { values: number[]; color: string }) {
+  if (values.length < 2) return null;
+  const max = Math.max(...values);
+  const min = Math.min(...values);
+  const range = max - min || 1;
+  const W = 72;
+  const H = 22;
+  const pts = values.map((v, i) => {
+    const x = (i / (values.length - 1)) * W;
+    const y = H - ((v - min) / range) * (H - 4) - 2;
+    return `${x},${y}`;
+  });
+  const last = pts[pts.length - 1].split(",");
+  return (
+    <svg width={W} height={H} className="overflow-visible">
+      <polyline points={pts.join(" ")} fill="none" stroke={color} strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" opacity={0.7} />
+      <circle cx={last[0]} cy={last[1]} r={2.5} fill={color} />
+    </svg>
+  );
+}
+
+function avg(nums: number[]): number | null {
+  const v = nums.filter((n): n is number => typeof n === "number");
+  if (!v.length) return null;
+  return Math.round((v.reduce((a, b) => a + b, 0) / v.length) * 10) / 10;
+}
+
 export default function WellnessPage() {
   const { t } = useI18n();
   const utils = trpc.useUtils();
@@ -35,6 +62,11 @@ export default function WellnessPage() {
 
   const todayQuery = trpc.wellnessCheckins.forDay.useQuery(
     { memberId: memberId ?? "", date: day },
+    { enabled: !!memberId },
+  );
+
+  const historyQuery = trpc.wellnessCheckins.list.useQuery(
+    { memberId: memberId ?? "", limit: 30 },
     { enabled: !!memberId },
   );
 
@@ -162,6 +194,58 @@ export default function WellnessPage() {
           <Check size={13} /> {t("my.wellness.loggedToday")}
         </p>
       )}
+
+      {/* ── Trends (read-back) ── */}
+      {(() => {
+        const history = [...(historyQuery.data?.items ?? [])].sort((a, b) =>
+          a.date.localeCompare(b.date),
+        );
+        const last7 = history.slice(-7);
+        if (history.length < 2) {
+          return (
+            <div
+              className="rounded-2xl p-5 text-center text-xs"
+              style={{ background: "var(--color-vytal-bg2)", border: "1px solid var(--color-vytal-border)", color: "var(--color-vytal-muted)" }}
+            >
+              {t("my.wellness.trendsEmpty")}
+            </div>
+          );
+        }
+        return (
+          <div
+            className="rounded-2xl p-4"
+            style={{ background: "var(--color-vytal-bg2)", border: "1px solid var(--color-vytal-border)" }}
+          >
+            <p className="text-[10px] font-bold uppercase tracking-widest mb-3" style={{ color: "var(--color-vytal-muted)" }}>
+              {t("my.wellness.trends")}
+            </p>
+            <div className="grid grid-cols-2 gap-3">
+              {METRICS.map(({ key, labelKey, color }) => {
+                const series = last7
+                  .map((c) => c[key])
+                  .filter((n): n is number => typeof n === "number");
+                const a = avg(series);
+                return (
+                  <div key={key} className="flex items-center justify-between gap-2">
+                    <div className="min-w-0">
+                      <p className="text-[11px] font-bold truncate" style={{ color: "var(--color-vytal-muted)" }}>
+                        {t(labelKey)}
+                      </p>
+                      <p className="font-mono text-base font-black" style={{ color }}>
+                        {a ?? "—"}
+                        <span className="text-[9px] font-normal ml-1" style={{ color: "var(--color-vytal-muted)" }}>
+                          {t("my.wellness.avg7")}
+                        </span>
+                      </p>
+                    </div>
+                    <Sparkline values={series} color={color} />
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Metric sliders */}
       <div className="space-y-3">
