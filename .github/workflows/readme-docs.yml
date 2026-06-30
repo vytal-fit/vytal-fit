@@ -13,27 +13,39 @@ on:
 
 jobs:
   sync:
-    if: ${{ secrets.README_API_KEY != '' }}
     runs-on: ubuntu-latest
+    env:
+      README_API_KEY: ${{ secrets.README_API_KEY }}
     steps:
+      - name: Check ReadMe secret
+        id: readme_secret
+        run: |
+          if [ -n "$README_API_KEY" ]; then
+            echo "present=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::notice::README_API_KEY is not set; skipping ReadMe sync."
+            echo "present=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Checkout
+        if: steps.readme_secret.outputs.present == 'true'
         uses: actions/checkout@v4
 
       - name: Setup Node
+        if: steps.readme_secret.outputs.present == 'true'
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
 
       - name: Install
+        if: steps.readme_secret.outputs.present == 'true'
         run: npm ci
 
       - name: Sync OpenAPI
-        env:
-          README_API_KEY: ${{ secrets.README_API_KEY }}
+        if: steps.readme_secret.outputs.present == 'true'
         run: npx rdme openapi upload https://api.vytal.fit/openapi.json --slug vytal-api --title "Vytal API" --branch 1.0 --key "$README_API_KEY" --confirm-overwrite
 
       - name: Sync guides
-        env:
-          README_API_KEY: ${{ secrets.README_API_KEY }}
+        if: steps.readme_secret.outputs.present == 'true'
         run: npx rdme docs upload apps/api/readme --branch 1.0 --key "$README_API_KEY"
