@@ -72,4 +72,20 @@ describe("dashboard.stats (extended) + occupancyByDay", () => {
       code: "UNAUTHORIZED",
     });
   });
+
+  it("charts returns real-derived datasets", async () => {
+    const c = await h.callerA.dashboard.charts();
+    expect(c.memberGrowth).toHaveLength(12);
+    expect(c.revenueByMonth).toHaveLength(6);
+    expect(c.heatmap).toHaveLength(7);
+    expect(c.heatmap.every((row) => row.length === c.hours.length)).toBe(true);
+    expect(Array.isArray(c.classDistribution)).toBe(true);
+    expect(c.revenueByMonth.every((m) => m.revenue >= 0)).toBe(true);
+  });
+
+  it("charts requires a session", async () => {
+    await expect(h.callerNoSession.dashboard.charts()).rejects.toMatchObject({
+      code: "UNAUTHORIZED",
+    });
+  });
 });

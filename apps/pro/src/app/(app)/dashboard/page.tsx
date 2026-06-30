@@ -173,35 +173,6 @@ const tooltipStyle = {
   labelStyle: { color: "#6b8c72", marginBottom: 6, fontWeight: 600 as const },
 };
 
-// ---------------------------------------------------------------------------
-// Mock chart data
-// ---------------------------------------------------------------------------
-
-const memberGrowthData = [
-  { month: "Jan", total: 280, active: 220 },
-  { month: "Feb", total: 295, active: 238 },
-  { month: "Mar", total: 310, active: 255 },
-  { month: "Apr", total: 328, active: 272 },
-  { month: "May", total: 345, active: 290 },
-  { month: "Jun", total: 358, active: 305 },
-  { month: "Jul", total: 370, active: 318 },
-  { month: "Aug", total: 382, active: 325 },
-  { month: "Sep", total: 395, active: 338 },
-  { month: "Oct", total: 405, active: 348 },
-  { month: "Nov", total: 418, active: 358 },
-  { month: "Dec", total: 428, active: 367 },
-];
-
-const revenueData = [
-  { month: "Jan", revenue: 14200 },
-  { month: "Feb", revenue: 15100 },
-  { month: "Mar", revenue: 15800 },
-  { month: "Apr", revenue: 16500 },
-  { month: "May", revenue: 17200 },
-  { month: "Jun", revenue: 18400 },
-];
-
-
 function getOccupancyColor(pct: number): string {
   if (pct > 90) return "#ff4757";
   if (pct >= 80) return "#ffb300";
@@ -222,28 +193,7 @@ function buildClassDistributionData(classTypes: { name: string; color: string }[
   return items;
 }
 
-// Attendance heatmap data: 7 days x 13 hours (06:00-18:00)
 const HEATMAP_DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-const HEATMAP_HOURS = Array.from({ length: 13 }, (_, i) => `${String(i + 6).padStart(2, "0")}:00`);
-const HEATMAP_DATA: number[][] = [
-  [4, 16, 12, 8, 5, 3, 10, 4, 3, 5, 6, 18, 20],
-  [3, 15, 11, 7, 4, 2, 9, 3, 2, 4, 5, 17, 19],
-  [5, 17, 13, 9, 6, 4, 11, 5, 4, 6, 7, 19, 20],
-  [6, 18, 14, 10, 7, 5, 12, 6, 5, 7, 8, 20, 22],
-  [3, 14, 10, 6, 3, 2, 8, 3, 2, 3, 4, 14, 16],
-  [0, 0, 8, 10, 6, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 4, 3, 0, 0, 0, 0, 0, 0, 0, 0],
-];
-
-function heatmapMax(): number {
-  let max = 0;
-  for (const row of HEATMAP_DATA) {
-    for (const v of row) {
-      if (v > max) max = v;
-    }
-  }
-  return max;
-}
 
 function heatmapCellColor(value: number, max: number): string {
   if (value === 0) return "rgba(22,32,24,0.9)";
@@ -613,8 +563,18 @@ export default function DashboardPage() {
   const classTypesQuery = trpc.classTypes.list.useQuery();
   const scheduleQuery = trpc.classes.schedule.useQuery({ from: today, to: today });
   const todayStatsQuery = trpc.checkIns.todayStats.useQuery();
+  const chartsQuery = trpc.dashboard.charts.useQuery();
 
-  const classDistributionData = buildClassDistributionData(classTypesQuery.data ?? []);
+  // Real chart datasets (member growth, revenue, attendance heatmap, class mix).
+  const memberGrowthData = chartsQuery.data?.memberGrowth ?? [];
+  const revenueData = chartsQuery.data?.revenueByMonth ?? [];
+  const classDistributionData = (chartsQuery.data?.classDistribution ?? []).length
+    ? chartsQuery.data!.classDistribution
+    : buildClassDistributionData(classTypesQuery.data ?? []);
+  const heatmapData = chartsQuery.data?.heatmap ?? [];
+  const heatmapHours = (chartsQuery.data?.hours ?? []).map(
+    (h) => `${String(h).padStart(2, "0")}:00`,
+  );
   const todayClasses = (scheduleQuery.data ?? [])
     .slice()
     .sort((a, b) => a.startTime.localeCompare(b.startTime));
@@ -639,7 +599,7 @@ export default function DashboardPage() {
     prsToday: s?.prsToday ?? 0,
   };
 
-  const hMax = heatmapMax();
+  const hMax = Math.max(1, ...heatmapData.flat());
   const [chartsOpen, setChartsOpen] = useState(true);
   const [editMode, setEditMode] = useState(false);
   const [layout, setLayout] = useState<DashboardLayout>(defaultLayout);
@@ -962,7 +922,7 @@ export default function DashboardPage() {
             <thead>
               <tr>
                 <th className="w-12 px-1 py-1 text-left text-[10px] font-medium uppercase tracking-wider text-vytal-muted" />
-                {HEATMAP_HOURS.map((h) => (
+                {heatmapHours.map((h) => (
                   <th key={h} className="px-0.5 py-1 text-center text-[10px] font-medium text-vytal-muted">
                     {h.slice(0, 2)}
                   </th>
@@ -973,12 +933,12 @@ export default function DashboardPage() {
               {HEATMAP_DAYS.map((day, di) => (
                 <tr key={day}>
                   <td className="px-1 py-0.5 text-xs font-medium text-vytal-muted">{day}</td>
-                  {HEATMAP_DATA[di].map((value, ti) => (
+                  {(heatmapData[di] ?? []).map((value, ti) => (
                     <td key={ti} className="px-0.5 py-0.5">
                       <div
                         className="flex h-8 items-center justify-center rounded"
                         style={{ backgroundColor: heatmapCellColor(value, hMax) }}
-                        title={`${day} ${HEATMAP_HOURS[ti]}: ${value} check-ins`}
+                        title={`${day} ${heatmapHours[ti]}: ${value} check-ins`}
                       >
                         <span
                           className="font-mono text-[10px] font-semibold"

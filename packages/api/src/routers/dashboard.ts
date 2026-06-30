@@ -1,8 +1,11 @@
 import { and, count, eq, gte, inArray, isNotNull, lt, lte, or } from "drizzle-orm";
 import {
   bookings,
+  checkIns,
   classes,
+  classTypes,
   gymMembers,
+  payments,
   personalRecords,
   subscriptions,
   subscriptionPlans,
@@ -204,5 +207,107 @@ export const dashboardRouter = router({
       days.push({ date: d, occupancy: cap > 0 ? Math.round((enrolled / cap) * 100) : 0 });
     }
     return days;
+  }),
+
+  /**
+   * Chart datasets for the dashboard + analytics screens, all derived from real
+   * data: member growth (12 mo), revenue (6 mo), attendance heatmap (weekday ×
+   * hour) and class-type distribution.
+   */
+  charts: orgProcedure.query(async ({ ctx }) => {
+    const org = ctx.activeOrganizationId;
+    const now = new Date();
+    const MONTHS = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+
+    const [members, pays, checks, bks, cts] = await Promise.all([
+      ctx.db
+        .select({ joinedAt: gymMembers.joinedAt, status: gymMembers.status })
+        .from(gymMembers)
+        .where(eq(gymMembers.organizationId, org)),
+      ctx.db
+        .select({ amount: payments.amount, status: payments.status, paidAt: payments.paidAt, createdAt: payments.createdAt })
+        .from(payments)
+        .where(eq(payments.organizationId, org)),
+      ctx.db
+        .select({ checkedInAt: checkIns.checkedInAt })
+        .from(checkIns)
+        .where(eq(checkIns.organizationId, org)),
+      ctx.db
+        .select({ classId: bookings.classId, status: bookings.status })
+        .from(bookings)
+        .where(and(eq(bookings.organizationId, org), inArray(bookings.status, [...ENROLLED]))),
+      ctx.db
+        .select({ id: classTypes.id, name: classTypes.name, color: classTypes.color })
+        .from(classTypes)
+        .where(eq(classTypes.organizationId, org)),
+    ]);
+
+    // ── Member growth: cumulative joined per month (last 12), + currently-active subset ──
+    const memberGrowth: { month: string; total: number; active: number }[] = [];
+    for (let i = 11; i >= 0; i--) {
+      const ref = new Date(now.getFullYear(), now.getMonth() - i + 1, 1); // first day after the bucket month
+      const total = members.filter((m) => new Date(m.joinedAt) < ref).length;
+      const active = members.filter(
+        (m) => new Date(m.joinedAt) < ref && m.status === "active",
+      ).length;
+      const label = MONTHS[new Date(now.getFullYear(), now.getMonth() - i, 1).getMonth()];
+      memberGrowth.push({ month: label, total, active });
+    }
+
+    // ── Revenue per month (last 6), paid only ──
+    const revenueByMonth: { month: string; revenue: number }[] = [];
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const next = new Date(now.getFullYear(), now.getMonth() - i + 1, 1);
+      const revenue = pays
+        .filter((p) => {
+          if (p.status !== "paid") return false;
+          const when = new Date(p.paidAt ?? p.createdAt);
+          return when >= d && when < next;
+        })
+        .reduce((s, p) => s + Number(p.amount), 0);
+      revenueByMonth.push({ month: MONTHS[d.getMonth()], revenue: Math.round(revenue) });
+    }
+
+    // ── Attendance heatmap: weekday (Mon..Sun) × hour (6..21) ──
+    const HOURS = Array.from({ length: 16 }, (_, i) => i + 6); // 06:00..21:00
+    const heatmap: number[][] = Array.from({ length: 7 }, () => HOURS.map(() => 0));
+    for (const c of checks) {
+      const dt = new Date(c.checkedInAt);
+      const weekday = (dt.getDay() + 6) % 7; // Mon=0
+      const hourIdx = dt.getHours() - 6;
+      if (hourIdx >= 0 && hourIdx < HOURS.length) heatmap[weekday][hourIdx] += 1;
+    }
+
+    // ── Class-type distribution from active bookings ──
+    const ctById = new Map(cts.map((c) => [c.id, c]));
+    const classTypeIdByClass = new Map<string, string | null>();
+    if (bks.length) {
+      const clsRows = await ctx.db
+        .select({ id: classes.id, classTypeId: classes.classTypeId })
+        .from(classes)
+        .where(eq(classes.organizationId, org));
+      for (const c of clsRows) classTypeIdByClass.set(c.id, c.classTypeId);
+    }
+    const distCount = new Map<string, number>();
+    for (const b of bks) {
+      const ctId = classTypeIdByClass.get(b.classId);
+      if (ctId) distCount.set(ctId, (distCount.get(ctId) ?? 0) + 1);
+    }
+    const classDistribution = [...distCount.entries()]
+      .map(([id, value]) => ({
+        name: ctById.get(id)?.name ?? "Outro",
+        value,
+        color: ctById.get(id)?.color ?? "#6b8c72",
+      }))
+      .sort((a, b) => b.value - a.value);
+
+    return {
+      memberGrowth,
+      revenueByMonth,
+      heatmap,
+      hours: HOURS,
+      classDistribution,
+    };
   }),
 });
