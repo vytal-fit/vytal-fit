@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useMemo, useCallback, useEffect } from "react";
-import { useDataStore } from "@/stores/data-store";
 import type { MemberStatus } from "@vytal-fit/shared";
 import {
   Search, Users, UserCheck, UserX, Clock, Upload, Download, FileText,
@@ -107,7 +106,8 @@ export default function MembersPage() {
   const PAGE_SIZE = 10;
   const { t } = useI18n();
   const router = useRouter();
-  const storePlans = useDataStore((s) => s.plans);
+  const plansQuery = trpc.subscriptions.plans.list.useQuery();
+  const storePlans = useMemo(() => plansQuery.data ?? [], [plansQuery.data]);
   const { toast } = useToast();
   const formatDate = useFormatDate();
 
