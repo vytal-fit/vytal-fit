@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useI18n } from "@/lib/i18n";
 import { formatCurrency } from "@/stores/data-store";
+import { trpc } from "@/lib/trpc";
 import { TrendingUp, TrendingDown, DollarSign, Users, Clock, Repeat, Sparkles, Calculator } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Breadcrumbs } from "@/components/breadcrumbs";
@@ -26,46 +27,16 @@ import {
 
 // --- Mock Data ---
 
-const mrrTrendData = [
-  { month: "Jul", recurring: 11200, oneTime: 800 },
-  { month: "Aug", recurring: 11800, oneTime: 600 },
-  { month: "Sep", recurring: 12400, oneTime: 950 },
-  { month: "Oct", recurring: 12900, oneTime: 700 },
-  { month: "Nov", recurring: 13200, oneTime: 1100 },
-  { month: "Dec", recurring: 13000, oneTime: 1500 },
-  { month: "Jan", recurring: 13500, oneTime: 700 },
-  { month: "Feb", recurring: 14000, oneTime: 800 },
-  { month: "Mar", recurring: 14400, oneTime: 900 },
-  { month: "Apr", recurring: 14800, oneTime: 850 },
-  { month: "May", recurring: 15000, oneTime: 750 },
-  { month: "Jun", recurring: 15200, oneTime: 900 },
-];
-
-const revenueByPlan = [
-  { name: "Livre", value: 10875 },
-  { name: "13 Treinos", value: 5340 },
-  { name: "9 Treinos", value: 2500 },
-  { name: "Semestral", value: 3900 },
-  { name: "Anual", value: 2800 },
-  { name: "Day Pass", value: 1200 },
-];
-
-const revenueByMethod = [
-  { name: "Stripe", value: 45, color: "#635bff" },
-  { name: "MBWay", value: 25, color: "#ff4757" },
-  { name: "SEPA", value: 15, color: "#00d4ff" },
-  { name: "Cash", value: 10, color: "#22c55e" },
-  { name: "Other", value: 5, color: "#6b8c72" },
-];
-
-const monthlyBreakdown = [
-  { month: "Jan 2026", memberships: 13500, services: 420, products: 280, total: 14200, growth: 3.2 },
-  { month: "Feb 2026", memberships: 14000, services: 380, products: 320, total: 14700, growth: 3.5 },
-  { month: "Mar 2026", memberships: 14400, services: 510, products: 390, total: 15300, growth: 4.1 },
-  { month: "Apr 2026", memberships: 14800, services: 450, products: 400, total: 15650, growth: 2.3 },
-  { month: "May 2026", memberships: 15000, services: 480, products: 270, total: 15750, growth: 0.6 },
-  { month: "Jun 2026", memberships: 15200, services: 550, products: 350, total: 16100, growth: 2.2 },
-];
+const MONTH_LABELS = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+const METHOD_META: Record<string, { label: string; color: string }> = {
+  mbway: { label: "MB Way", color: "#ff4757" },
+  multibanco: { label: "Multibanco", color: "#00d4ff" },
+  sepa: { label: "SEPA", color: "#635bff" },
+  card: { label: "Cartão", color: "#22c55e" },
+  cash: { label: "Numerário", color: "#eab308" },
+  transfer: { label: "Transferência", color: "#6b8c72" },
+};
+const PLAN_BAR_COLOR = "#22c55e";
 
 // --- Forecast Data ---
 const forecastData = {
@@ -165,7 +136,40 @@ export default function RevenuePage() {
   const [whatIfMembers, setWhatIfMembers] = useState(10);
   const [whatIfPrice, setWhatIfPrice] = useState(75);
 
-  const currentMRR = 16100;
+  const statsQuery = trpc.payments.stats.useQuery();
+  const stats = statsQuery.data;
+  const monthsData = stats?.months ?? [];
+
+  // MRR trend: real paid revenue per month (membership = recurring).
+  const mrrTrendData = monthsData.map((m) => ({
+    month: MONTH_LABELS[Number(m.key.split("-")[1]) - 1] ?? m.key,
+    recurring: m.revenue,
+    oneTime: 0,
+  }));
+  const revenueByMethod = (stats?.byMethod ?? []).map((b) => ({
+    name: METHOD_META[b.method]?.label ?? b.method,
+    value: Math.round(b.total),
+    color: METHOD_META[b.method]?.color ?? "#6b8c72",
+  }));
+  const revenueByPlan = (stats?.byPlan ?? []).map((b) => ({
+    name: b.name,
+    value: Math.round(b.total),
+    color: PLAN_BAR_COLOR,
+  }));
+  const monthlyBreakdown = monthsData.map((m, i) => {
+    const prev = i > 0 ? monthsData[i - 1].revenue : 0;
+    const growth = prev ? ((m.revenue - prev) / prev) * 100 : 0;
+    return {
+      month: `${MONTH_LABELS[Number(m.key.split("-")[1]) - 1] ?? m.key} ${m.key.split("-")[0]}`,
+      memberships: m.revenue,
+      services: 0,
+      products: 0,
+      total: m.revenue,
+      growth: Number(growth.toFixed(1)),
+    };
+  });
+
+  const currentMRR = monthsData.length ? monthsData[monthsData.length - 1].revenue : 0;
   const whatIfResult = currentMRR + whatIfMembers * whatIfPrice;
   const scenarioData = forecastData[scenario];
   const scenarioNextMonth = scenarioData[1].value;

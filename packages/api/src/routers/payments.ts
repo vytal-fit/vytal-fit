@@ -1,5 +1,5 @@
 import { TRPCError } from "@trpc/server";
-import { and, desc, eq } from "drizzle-orm";
+import { and, desc, eq, inArray } from "drizzle-orm";
 import {
   gymMembers,
   payments,
@@ -118,6 +118,7 @@ export const paymentsRouter = router({
         id: payments.id,
         memberName: gymMembers.name,
         memberEmail: gymMembers.email,
+        planId: payments.planId,
         amount: payments.amount,
         method: payments.method,
         status: payments.status,
@@ -131,6 +132,21 @@ export const paymentsRouter = router({
       .where(eq(payments.organizationId, ctx.activeOrganizationId))
       .orderBy(desc(payments.createdAt));
 
+    // Resolve plan names for the by-plan breakdown.
+    const planIds = [...new Set(rows.map((r) => r.planId).filter((v): v is string => !!v))];
+    const planRows = planIds.length
+      ? await ctx.db
+          .select({ id: subscriptionPlans.id, name: subscriptionPlans.name })
+          .from(subscriptionPlans)
+          .where(
+            and(
+              eq(subscriptionPlans.organizationId, ctx.activeOrganizationId),
+              inArray(subscriptionPlans.id, planIds),
+            ),
+          )
+      : [];
+    const planName = new Map(planRows.map((p) => [p.id, p.name]));
+
     const now = new Date();
     // Last 6 month buckets, oldest first.
     const months: { key: string; revenue: number }[] = [];
@@ -141,6 +157,7 @@ export const paymentsRouter = router({
     const monthIndex = new Map(months.map((m, i) => [m.key, i]));
 
     const byMethod = new Map<string, number>();
+    const byPlan = new Map<string, number>();
     let currentMonthRevenue = 0;
     let lastMonthRevenue = 0;
     const curKey = monthKey(now);
@@ -158,6 +175,8 @@ export const paymentsRouter = router({
         if (key === curKey) currentMonthRevenue += amount;
         if (key === lastKey) lastMonthRevenue += amount;
         byMethod.set(r.method, (byMethod.get(r.method) ?? 0) + amount);
+        const pName = r.planId ? planName.get(r.planId) ?? "Outro" : "Outro";
+        byPlan.set(pName, (byPlan.get(pName) ?? 0) + amount);
       }
     }
 
@@ -167,6 +186,7 @@ export const paymentsRouter = router({
     return {
       months,
       byMethod: [...byMethod.entries()].map(([method, total]) => ({ method, total })),
+      byPlan: [...byPlan.entries()].map(([name, total]) => ({ name, total })),
       currentMonthRevenue,
       lastMonthRevenue,
       overdueTotal: overdue.reduce((s, r) => s + Number(r.amount), 0),
