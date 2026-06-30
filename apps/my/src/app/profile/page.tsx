@@ -15,7 +15,7 @@ import {
   Zap,
 } from "lucide-react";
 import { useAuthStore } from "@/stores/auth-store";
-import { useDataStore } from "@/stores/data-store";
+import { trpc } from "@/lib/trpc";
 import { useAppStore } from "@/stores/app-store";
 import { useI18n } from "@/lib/i18n";
 
@@ -37,7 +37,13 @@ const MOCK_BADGE_KEYS = [
 
 export default function ProfilePage() {
   const { user, hydrate, logout } = useAuthStore();
-  const { members, plans, subscriptions } = useDataStore();
+  const meQuery = trpc.members.me.useQuery();
+  const memberId = meQuery.data?.id ?? null;
+  const subsQuery = trpc.subscriptions.byMember.useQuery(
+    { memberId: memberId ?? "" },
+    { enabled: !!memberId },
+  );
+  const plansQuery = trpc.subscriptions.plans.list.useQuery();
   const { theme, toggleTheme, hydrate: hydrateApp } = useAppStore();
   const { t } = useI18n();
   const [mounted, setMounted] = useState(false);
@@ -68,19 +74,22 @@ export default function ProfilePage() {
     );
   }
 
-  const member = members?.[0];
+  const member = meQuery.data ?? null;
   const initials = user?.user?.name
     ? user.user.name.split(" ").map((n: string) => n[0]).join("").slice(0, 2).toUpperCase()
     : "AT";
   const userName = user?.user?.name ?? "Atleta";
   const userEmail = user?.user?.email ?? "atleta@vytal.fit";
 
-  const activeSub = (subscriptions ?? []).find((s) => s.status === "active" || s.status === "paused");
-  const plan = activeSub?.plan ?? (plans ?? [])[0] ?? null;
+  const subs = subsQuery.data ?? [];
+  const plansList = plansQuery.data ?? [];
+  const activeSub = subs.find((s) => s.status === "active" || s.status === "paused") ?? null;
+  const plan =
+    plansList.find((p) => p.id === activeSub?.planId) ?? plansList[0] ?? null;
 
   const memberSince = member?.joinedAt
     ? new Date(member.joinedAt).toLocaleDateString("pt-PT", { month: "long", year: "numeric" })
-    : "Janeiro 2024";
+    : "—";
 
   const planTypeLabel: Record<string, string> = {
     monthly:   t("my.profile.planMonthly"),
