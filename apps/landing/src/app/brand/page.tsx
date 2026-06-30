@@ -499,23 +499,31 @@ export default function BrandPage() {
             {TYPE_SCALE.map((row) => (
               <div
                 key={row.name}
-                className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 border-t first:border-t-0 py-4 border-[var(--b-hair)]"
+                className="grid grid-cols-[88px_1fr] sm:grid-cols-[150px_1fr] gap-5 items-baseline border-t first:border-t-0 py-5 border-[var(--b-hair)]"
               >
-                <span
-                  className={`${row.mono ? "font-mono" : "font-sans"} min-w-0 truncate`}
-                  style={{
-                    fontSize: row.px,
-                    fontWeight: row.w,
-                    lineHeight: row.lh,
-                    letterSpacing: row.tr,
-                    textTransform: row.upper ? "uppercase" : "none",
-                  }}
-                >
-                  {row.mono && row.name === "Caption" ? <span className="text-[var(--b-muted)]">{row.sample}</span> : row.sample}
-                </span>
-                <span className="font-mono text-[10.5px] tracking-[0.12em] uppercase text-[var(--b-muted)] shrink-0 text-right">
-                  {row.name} · {row.px}/{Math.round(row.px * row.lh)} · {row.w}
-                </span>
+                {/* meta rail */}
+                <div className="min-w-0">
+                  <div className="text-[12.5px] font-semibold text-[var(--b-text)]">{row.name}</div>
+                  <div className="font-mono text-[10.5px] leading-relaxed text-[var(--b-muted)] mt-1">
+                    <div>{row.px} / {Math.round(row.px * row.lh)}px</div>
+                    <div>{row.w} · {row.tr === "0" ? "0 tr" : row.tr}</div>
+                  </div>
+                </div>
+                {/* specimen */}
+                <div className="min-w-0 overflow-hidden">
+                  <span
+                    className={`${row.mono ? "font-mono" : "font-sans"} block truncate ${row.mono ? "text-[var(--b-muted)]" : "text-[var(--b-text)]"}`}
+                    style={{
+                      fontSize: row.px,
+                      fontWeight: row.w,
+                      lineHeight: row.lh,
+                      letterSpacing: row.tr,
+                      textTransform: row.upper ? "uppercase" : "none",
+                    }}
+                  >
+                    {row.sample}
+                  </span>
+                </div>
               </div>
             ))}
           </div>
