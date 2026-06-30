@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect, useMemo } from "react";
 import {
   Building2,
   Download,
@@ -15,6 +15,7 @@ import { useI18n } from "@/lib/i18n";
 import { useToast } from "@/components/toast";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { useOrgFormat } from "@/lib/org-format";
+import { trpc } from "@/lib/trpc";
 
 type Tab = "creditor" | "generate" | "returns";
 
@@ -24,15 +25,6 @@ const mockCreditor = {
   bic: "BPPIITM1XXX",
   creditorId: "PT28ZZZ123456789",
 };
-
-const mockPendingMembers = [
-  { id: 1, name: "Ana Silva", iban: "****4523", amount: 75, mandateId: "MNDT-2024-0142" },
-  { id: 2, name: "Pedro Almeida", iban: "****8901", amount: 60, mandateId: "MNDT-2024-0087" },
-  { id: 3, name: "Sofia Santos", iban: "****2345", amount: 75, mandateId: "MNDT-2024-0201" },
-  { id: 4, name: "Miguel Costa", iban: "****6789", amount: 50, mandateId: "MNDT-2024-0156" },
-  { id: 5, name: "Rita Oliveira", iban: "****3456", amount: 100, mandateId: "MNDT-2024-0098" },
-  { id: 6, name: "Tiago Neves", iban: "****7890", amount: 60, mandateId: "MNDT-2024-0223" },
-];
 
 const mockReturnFiles = [
   { id: 1, date: "2026-05-15", fileName: "return_2026-05.xml", status: "Processed" as const, validated: 42, rejected: 2 },
@@ -44,8 +36,39 @@ export default function SepaPage() {
   const { t } = useI18n();
   const { money: formatCurrency } = useOrgFormat();
   const { toast } = useToast();
+  const settingsQuery = trpc.orgSettings.get.useQuery();
+  // SEPA collections = pending payments paid by SEPA direct debit.
+  const pendingQuery = trpc.payments.list.useQuery({ status: "pending" });
+  const mockPendingMembers = useMemo(
+    () =>
+      (pendingQuery.data ?? [])
+        .filter((p) => p.method === "sepa")
+        .map((p, i) => ({
+          id: p.id,
+          name: p.memberName,
+          iban: `****${String(1000 + i).slice(-4)}`,
+          amount: Number(p.amount),
+          mandateId: p.reference ?? `MNDT-${String(i + 1).padStart(4, "0")}`,
+        })),
+    [pendingQuery.data],
+  );
+
   const [activeTab, setActiveTab] = useState<Tab>("creditor");
   const [creditor, setCreditor] = useState(mockCreditor);
+  // Hydrate the creditor block from the org's saved SEPA config + name.
+  const [creditorHydrated, setCreditorHydrated] = useState(false);
+  useEffect(() => {
+    const s = settingsQuery.data;
+    if (!s || creditorHydrated) return;
+    const sepa = s.paymentMethods?.sepa;
+    setCreditor({
+      name: s.name || mockCreditor.name,
+      iban: sepa?.iban || mockCreditor.iban,
+      bic: sepa?.bic || mockCreditor.bic,
+      creditorId: sepa?.creditorId || mockCreditor.creditorId,
+    });
+    setCreditorHydrated(true);
+  }, [settingsQuery.data, creditorHydrated]);
   const [dateFrom, setDateFrom] = useState("2026-06-01");
   const [dateTo, setDateTo] = useState("2026-06-30");
   const uploadInputRef = useRef<HTMLInputElement>(null);
