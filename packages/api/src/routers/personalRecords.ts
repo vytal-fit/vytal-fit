@@ -80,6 +80,14 @@ export const personalRecordsRouter = router({
         .default({ limit: 50 }),
     )
     .query(async ({ ctx, input }) => {
+      // An athlete may only read their own member's PRs; an org-wide read
+      // (no memberId) is staff-only.
+      if (input.memberId) {
+        await assertCanActOnMember(ctx, input.memberId, "read records");
+      } else if (!ctx.session?.role || !hasMinRole(ctx.session.role, "coach")) {
+        throw new TRPCError({ code: "FORBIDDEN", message: "Staff only." });
+      }
+
       const rows = await ctx.db
         .select()
         .from(personalRecords)
@@ -134,6 +142,7 @@ export const personalRecordsRouter = router({
           message: "Personal record not found.",
         });
       }
+      await assertCanActOnMember(ctx, row.memberId, "read records");
 
       return {
         ...row,
