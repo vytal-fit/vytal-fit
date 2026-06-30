@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useDataStore } from "@/stores/data-store";
+import { trpc } from "@/lib/trpc";
 import { ArrowLeft, Save, X, CheckCircle, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
@@ -24,8 +24,17 @@ export default function PlanCreatePage() {
   const { t } = useI18n();
   const router = useRouter();
   const { toast } = useToast();
-  const storeClassTypes = useDataStore((s) => s.classTypes);
-  const storeAddPlan = useDataStore((s) => s.addPlan);
+  const utils = trpc.useUtils();
+  const classTypesQuery = trpc.classTypes.list.useQuery();
+  const storeClassTypes = classTypesQuery.data ?? [];
+  const createPlan = trpc.subscriptions.plans.create.useMutation({
+    onSuccess: () => {
+      void utils.subscriptions.plans.list.invalidate();
+      setSuccess(true);
+      toast(t("planCreate.success"), "success");
+    },
+    onError: () => toast(t("ui.error"), "error"),
+  });
   const [name, setName] = useState("");
   const [type, setType] = useState("monthly");
   const [price, setPrice] = useState("");
@@ -62,8 +71,7 @@ export default function PlanCreatePage() {
       toast(t("planCreate.priceRequired"), "error");
       return;
     }
-    storeAddPlan({
-      organizationId: "org-1",
+    createPlan.mutate({
       name: name.trim(),
       type: type as import("@vytal-fit/shared").SubscriptionPlan["type"],
       price: parseFloat(price) || 0,
@@ -72,8 +80,6 @@ export default function PlanCreatePage() {
       allowedClassTypes: Array.from(selectedClassTypes),
       active,
     });
-    setSuccess(true);
-    toast(t("planCreate.success"), "success");
   }
 
   function handleReset() {
