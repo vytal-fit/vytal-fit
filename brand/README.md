@@ -12,6 +12,8 @@ one pulse across the brand and its products.
 | `vytal-mark.svg` · `.png` · `vytal-mark-256.png` | The symbol (favicon, app icon, avatar). |
 | `vytal-logo.svg` · `.png` | Horizontal lockup for **light** backgrounds. |
 | `vytal-logo-dark.svg` · `.png` | Horizontal lockup for **dark** backgrounds. |
+| `myvytal-logo.svg` · `-dark.svg` (+ `.png`) | **myVytal** lockup (athlete portal), light + dark. |
+| `provytal-logo.svg` · `-dark.svg` (+ `.png`) | **proVytal** lockup (staff backoffice), light + dark. |
 
 A live, interactive version (with PT/EN/ES and a light/dark toggle) ships at
 **`/brand`** on the landing site. Master vector assets are mirrored from
