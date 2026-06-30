@@ -13,6 +13,7 @@ import {
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/lib/i18n";
 import { useOrgFormat } from "@/lib/org-format";
+import { trpc } from "@/lib/trpc";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { EmptyState } from "@/components/empty-state";
 
@@ -38,149 +39,52 @@ interface Invoice {
   lineItems: InvoiceLineItem[];
 }
 
-const MOCK_INVOICES: Invoice[] = [
-  {
-    id: "inv-1",
-    number: "FT 2026/0142",
-    date: "2026-06-01",
-    member: "Jose Fonte",
-    amount: 75,
-    status: "paid",
-    method: "Stripe",
-    atcud: "ATCUD:0000-000142",
-    saftRef: "SAF-T/2026/FT/0142",
+const PAYMENT_METHOD_LABELS: Record<string, string> = {
+  mbway: "MB Way",
+  multibanco: "Multibanco",
+  sepa: "SEPA",
+  card: "Cartão",
+  cash: "Numerário",
+  transfer: "Transferência",
+};
+
+/** A payment-router row, shaped into the invoice view model. ATCUD/SAF-T refs
+ *  are illustrative placeholders until the certified F5 fiscal layer lands. */
+type PaymentRow = {
+  id: string;
+  memberName: string;
+  amount: string;
+  method: string;
+  status: string;
+  reference: string | null;
+  paidAt: Date | string | null;
+  createdAt: Date | string;
+};
+
+function paymentToInvoice(p: PaymentRow, index: number): Invoice {
+  const amount = Number(p.amount);
+  const status: InvoiceStatus =
+    p.status === "paid" ? "paid" : p.status === "overdue" ? "overdue" : "pending";
+  const seq = String(index + 1).padStart(4, "0");
+  const number = p.reference ?? `FT 2026/${seq}`;
+  const when = p.paidAt ?? p.createdAt;
+  const date = new Date(when).toISOString().slice(0, 10);
+  return {
+    id: p.id,
+    number,
+    date,
+    member: p.memberName,
+    amount,
+    status,
+    method: PAYMENT_METHOD_LABELS[p.method] ?? p.method,
+    atcud: `ATCUD:0000-${seq}`,
+    saftRef: `SAF-T/2026/FT/${seq}`,
     lineItems: [
-      { description: "Unlimited Monthly Plan - June 2026", quantity: 1, unitPrice: 75, total: 75 },
+      { description: "Mensalidade", quantity: 1, unitPrice: amount, total: amount },
     ],
-  },
-  {
-    id: "inv-2",
-    number: "FT 2026/0141",
-    date: "2026-06-01",
-    member: "Ana Silva",
-    amount: 75,
-    status: "paid",
-    method: "MBWay",
-    atcud: "ATCUD:0000-000141",
-    saftRef: "SAF-T/2026/FT/0141",
-    lineItems: [
-      { description: "Unlimited Monthly Plan - June 2026", quantity: 1, unitPrice: 75, total: 75 },
-    ],
-  },
-  {
-    id: "inv-3",
-    number: "FT 2026/0140",
-    date: "2026-05-30",
-    member: "Miguel Costa",
-    amount: 60,
-    status: "paid",
-    method: "SEPA",
-    atcud: "ATCUD:0000-000140",
-    saftRef: "SAF-T/2026/FT/0140",
-    lineItems: [
-      { description: "3x/week Monthly Plan - June 2026", quantity: 1, unitPrice: 60, total: 60 },
-    ],
-  },
-  {
-    id: "inv-4",
-    number: "FT 2026/0139",
-    date: "2026-05-28",
-    member: "Sofia Santos",
-    amount: 50,
-    status: "pending",
-    method: "MBWay",
-    atcud: "ATCUD:0000-000139",
-    saftRef: "SAF-T/2026/FT/0139",
-    lineItems: [
-      { description: "3x/week Monthly Plan - June 2026", quantity: 1, unitPrice: 50, total: 50 },
-    ],
-  },
-  {
-    id: "inv-5",
-    number: "FT 2026/0138",
-    date: "2026-05-25",
-    member: "Tiago Neves",
-    amount: 15,
-    status: "paid",
-    method: "Cash",
-    atcud: "ATCUD:0000-000138",
-    saftRef: "SAF-T/2026/FT/0138",
-    lineItems: [
-      { description: "Trial Session", quantity: 1, unitPrice: 15, total: 15 },
-    ],
-  },
-  {
-    id: "inv-6",
-    number: "FT 2026/0137",
-    date: "2026-05-22",
-    member: "Pedro Almeida",
-    amount: 75,
-    status: "overdue",
-    method: "Stripe",
-    atcud: "ATCUD:0000-000137",
-    saftRef: "SAF-T/2026/FT/0137",
-    lineItems: [
-      { description: "Unlimited Monthly Plan - May 2026", quantity: 1, unitPrice: 75, total: 75 },
-    ],
-  },
-  {
-    id: "inv-7",
-    number: "FT 2026/0136",
-    date: "2026-05-20",
-    member: "Ines Ferreira",
-    amount: 100,
-    status: "paid",
-    method: "SEPA",
-    atcud: "ATCUD:0000-000136",
-    saftRef: "SAF-T/2026/FT/0136",
-    lineItems: [
-      { description: "5x/week Monthly Plan - June 2026", quantity: 1, unitPrice: 90, total: 90 },
-      { description: "Drop-in Pass (Guest)", quantity: 1, unitPrice: 10, total: 10 },
-    ],
-  },
-  {
-    id: "inv-8",
-    number: "FT 2026/0135",
-    date: "2026-05-18",
-    member: "Maria Oliveira",
-    amount: 75,
-    status: "overdue",
-    method: "MBWay",
-    atcud: "ATCUD:0000-000135",
-    saftRef: "SAF-T/2026/FT/0135",
-    lineItems: [
-      { description: "Unlimited Monthly Plan - May 2026", quantity: 1, unitPrice: 75, total: 75 },
-    ],
-  },
-  {
-    id: "inv-9",
-    number: "FT 2026/0134",
-    date: "2026-05-15",
-    member: "Carlos Mendes",
-    amount: 390,
-    status: "paid",
-    method: "SEPA",
-    atcud: "ATCUD:0000-000134",
-    saftRef: "SAF-T/2026/FT/0134",
-    lineItems: [
-      { description: "Unlimited Semester Plan - Jun-Nov 2026", quantity: 1, unitPrice: 390, total: 390 },
-    ],
-  },
-  {
-    id: "inv-10",
-    number: "FT 2026/0133",
-    date: "2026-05-12",
-    member: "Rita Sousa",
-    amount: 15,
-    status: "pending",
-    method: "Cash",
-    atcud: "ATCUD:0000-000133",
-    saftRef: "SAF-T/2026/FT/0133",
-    lineItems: [
-      { description: "Drop-in Session", quantity: 1, unitPrice: 15, total: 15 },
-    ],
-  },
-];
+  };
+}
+
 
 function StatusBadge({ status }: { status: InvoiceStatus }) {
   const { t } = useI18n();
@@ -360,8 +264,14 @@ export default function InvoicesPage() {
   const [statusFilter, setStatusFilter] = useState<InvoiceStatus | "all">("all");
   const [search, setSearch] = useState("");
 
+  const paymentsQuery = trpc.payments.list.useQuery({});
+  const invoices = useMemo(
+    () => (paymentsQuery.data ?? []).map((p, i) => paymentToInvoice(p, i)),
+    [paymentsQuery.data],
+  );
+
   const filtered = useMemo(() => {
-    let result = MOCK_INVOICES;
+    let result = invoices;
     if (statusFilter !== "all") {
       result = result.filter((inv) => inv.status === statusFilter);
     }
@@ -374,7 +284,7 @@ export default function InvoicesPage() {
       );
     }
     return result;
-  }, [statusFilter, search]);
+  }, [invoices, statusFilter, search]);
 
   return (
     <div className="space-y-6">
@@ -391,7 +301,7 @@ export default function InvoicesPage() {
         <div>
           <h1 className="text-2xl font-bold text-vytal-text">{t("invoices.title")}</h1>
           <p className="mt-1 text-sm text-vytal-muted">
-            {t("invoices.subtitle")} ({MOCK_INVOICES.length})
+            {t("invoices.subtitle")} ({invoices.length})
           </p>
         </div>
         <button
