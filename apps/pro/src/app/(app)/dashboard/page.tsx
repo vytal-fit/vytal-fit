@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import type { Class, DashboardStats } from "@vytal-fit/shared";
-import { useDataStore, formatCurrency, formatCurrencyCompact } from "@/stores/data-store";
+import type { DashboardStats } from "@vytal-fit/shared";
+import { formatCurrency, formatCurrencyCompact } from "@/stores/data-store";
 import { useAuthStore } from "@/stores/auth-store";
 import {
   Users,
@@ -201,15 +201,6 @@ const revenueData = [
   { month: "Jun", revenue: 18400 },
 ];
 
-const occupancyByDayData = [
-  { day: "Mon", occupancy: 82 },
-  { day: "Tue", occupancy: 78 },
-  { day: "Wed", occupancy: 85 },
-  { day: "Thu", occupancy: 91 },
-  { day: "Fri", occupancy: 75 },
-  { day: "Sat", occupancy: 45 },
-  { day: "Sun", occupancy: 22 },
-];
 
 function getOccupancyColor(pct: number): string {
   if (pct > 90) return "#ff4757";
@@ -275,7 +266,19 @@ function getEnrollmentColor(enrolled: number, capacity: number): string {
   return "bg-vytal-green";
 }
 
-function ClassScheduleRow({ cls }: { cls: Class }) {
+type ScheduleRowClass = {
+  id: string;
+  startTime: string;
+  endTime: string;
+  enrolledCount: number;
+  maxCapacity: number;
+  waitlistCount: number;
+  classType: { name: string; color: string } | null;
+  location: { name: string } | null;
+  coaches: { name: string }[];
+};
+
+function ClassScheduleRow({ cls }: { cls: ScheduleRowClass }) {
   const { t } = useI18n();
   const pct = Math.min((cls.enrolledCount / cls.maxCapacity) * 100, 100);
   const barColor = getEnrollmentColor(cls.enrolledCount, cls.maxCapacity);
@@ -294,14 +297,14 @@ function ClassScheduleRow({ cls }: { cls: Class }) {
       <div className="flex items-center gap-2">
         <div
           className="h-2.5 w-2.5 rounded-full"
-          style={{ backgroundColor: cls.classType.color }}
+          style={{ backgroundColor: cls.classType?.color ?? "#6b8c72" }}
         />
         <span className="text-sm font-medium text-vytal-text">
-          {cls.classType.name}
+          {cls.classType?.name ?? "Class"}
         </span>
       </div>
       <span className="hidden text-xs text-vytal-muted lg:block">
-        {cls.location.name}
+        {cls.location?.name ?? ""}
       </span>
       <div className="ml-auto flex items-center gap-2">
         <span className="text-xs text-vytal-muted">
@@ -599,76 +602,39 @@ function SetupBanner() {
 export default function DashboardPage() {
   const { t } = useI18n();
   const user = useAuthStore((s) => s.user);
-  const orgSettings = useDataStore((s) => s.orgSettings);
-  const storeClasses = useDataStore((s) => s.classes);
-  const storeClassTypes = useDataStore((s) => s.classTypes);
-  const storeMembers = useDataStore((s) => s.members);
-  const storeSubscriptions = useDataStore((s) => s.subscriptions);
-  const storePersonalRecords = useDataStore((s) => s.personalRecords);
-  const classDistributionData = buildClassDistributionData(storeClassTypes);
   const today = new Date().toISOString().split("T")[0];
-  const todayClasses = storeClasses
-    .filter((c) => c.date === today)
-    .sort((a, b) => a.startTime.localeCompare(b.startTime));
+  const activeOrg = user?.memberships.find((m) => m.organizationId === user.activeOrganizationId);
 
-  // Compute real KPI stats from the data store
-  const totalMembers = storeMembers.length;
-  const activeMembers = storeMembers.filter((m) => m.status === "active").length;
-  const inactiveMembers = storeMembers.filter((m) => m.status === "inactive").length;
-  const todayClassesCount = todayClasses.length;
-
-  // Occupancy: average enrollment percentage across today's classes
-  const occupancyPercent = todayClasses.length > 0
-    ? Math.round(todayClasses.reduce((sum, c) => sum + (c.enrolledCount / c.maxCapacity) * 100, 0) / todayClasses.length)
-    : 0;
-
-  // Monthly revenue: sum of active subscription plan prices
-  const monthlyRevenue = storeSubscriptions
-    .filter((s) => s.status === "active")
-    .reduce((sum, s) => sum + (s.plan?.price ?? 0), 0);
-
-  // Churn rate: inactive / total * 100
-  const churnRate = totalMembers > 0 ? Math.round((inactiveMembers / totalMembers) * 100 * 10) / 10 : 0;
-
-  // At risk: active members with streak <= 1 who have checked in before
-  const atRiskMembers = storeMembers.filter(
-    (m) => m.status === "active" && m.streakWeeks <= 1 && m.lastCheckIn !== undefined
-  ).length;
-
-  // Pending payments: subscriptions that are expired or about to expire
-  const pendingPayments = storeSubscriptions.filter(
-    (s) => s.status === "expired" || (s.nextBillingDate && s.nextBillingDate <= today)
-  ).length;
-
-  // New members this month
-  const monthStart = new Date();
-  monthStart.setDate(1);
-  monthStart.setHours(0, 0, 0, 0);
-  const newMembersThisMonth = storeMembers.filter(
-    (m) => new Date(m.joinedAt) >= monthStart
-  ).length;
-
-  // Check-ins today: real data from the checkIns router (the only live stat on
-  // this page — everything else stays on the mock data store for now).
+  // Real, org-scoped aggregates from the API.
+  const statsQuery = trpc.dashboard.stats.useQuery();
+  const occupancyQuery = trpc.dashboard.occupancyByDay.useQuery();
+  const classTypesQuery = trpc.classTypes.list.useQuery();
+  const scheduleQuery = trpc.classes.schedule.useQuery({ from: today, to: today });
   const todayStatsQuery = trpc.checkIns.todayStats.useQuery();
-  const checkInsToday = todayStatsQuery.data?.total ?? 0;
 
-  // PRs today
-  const prsToday = storePersonalRecords.filter((pr) => pr.achievedAt?.startsWith(today)).length;
+  const classDistributionData = buildClassDistributionData(classTypesQuery.data ?? []);
+  const todayClasses = (scheduleQuery.data ?? [])
+    .slice()
+    .sort((a, b) => a.startTime.localeCompare(b.startTime));
+  const occupancyByDayData = (occupancyQuery.data ?? []).map((d) => ({
+    day: new Date(d.date).toLocaleDateString("en-US", { weekday: "short" }),
+    occupancy: d.occupancy,
+  }));
 
+  const s = statsQuery.data;
   const stats: DashboardStats = {
-    totalMembers,
-    activeMembers,
-    inactiveMembers,
-    todayClasses: todayClassesCount,
-    occupancyPercent,
-    monthlyRevenue,
-    churnRate,
-    atRiskMembers,
-    pendingPayments,
-    newMembersThisMonth,
-    checkInsToday,
-    prsToday,
+    totalMembers: s?.totalMembers ?? 0,
+    activeMembers: s?.activeMembers ?? 0,
+    inactiveMembers: s?.inactiveMembers ?? 0,
+    todayClasses: s?.classesToday ?? 0,
+    occupancyPercent: s?.occupancyPercent ?? 0,
+    monthlyRevenue: s?.monthlyRevenue ?? 0,
+    churnRate: s?.churnRate ?? 0,
+    atRiskMembers: s?.atRiskMembers ?? 0,
+    pendingPayments: s?.pendingPayments ?? 0,
+    newMembersThisMonth: s?.newMembersThisMonth ?? 0,
+    checkInsToday: todayStatsQuery.data?.total ?? 0,
+    prsToday: s?.prsToday ?? 0,
   };
 
   const hMax = heatmapMax();
@@ -712,7 +678,7 @@ export default function DashboardPage() {
             {getGreeting()}, {firstName}
           </h1>
           <p className="mt-1 text-sm text-vytal-muted">
-            {orgSettings.name} &mdash;{" "}
+            {activeOrg?.organization.name ?? t("ui.selectOrg")} &mdash;{" "}
             {new Date().toLocaleDateString("pt-PT", {
               weekday: "long",
               day: "numeric",
