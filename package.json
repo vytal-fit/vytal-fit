@@ -24,7 +24,8 @@
     "test:coverage": "vitest run --coverage",
     "test:e2e": "npm --workspace @vytal-fit/pro run test:e2e",
     "test:e2e:ui": "npm --workspace @vytal-fit/pro run test:e2e:ui",
-    "docs:readme:openapi": "rdme openapi upload https://api.vytal.fit/openapi.json --slug vytal-api --title \"Vytal API\" --branch 1.0 --confirm-overwrite",
+    "openapi:emit": "npm --workspace @vytal-fit/api run openapi:emit -- openapi.json",
+    "docs:readme:openapi": "npm run openapi:emit && rdme openapi upload packages/api/openapi.json --slug vytal-api --title \"Vytal API\" --branch 1.0 --confirm-overwrite",
     "docs:readme:guides": "rdme docs upload apps/docs/content --branch 1.0",
     "docs:readme:sync": "npm run docs:readme:openapi && npm run docs:readme:guides"
   },

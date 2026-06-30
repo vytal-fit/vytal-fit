@@ -6,7 +6,7 @@ on:
       - main
     paths:
       - "apps/docs/content/**"
-      - "packages/api/src/openapi.ts"
+      - "packages/api/src/**"
       - "apps/api/src/app/openapi.json/route.ts"
       - ".github/workflows/readme-docs.yml"
   workflow_dispatch: {}
@@ -42,9 +42,13 @@ jobs:
         if: steps.readme_secret.outputs.present == 'true'
         run: npm ci
 
+      - name: Generate OpenAPI from the router
+        if: steps.readme_secret.outputs.present == 'true'
+        run: npm run openapi:emit
+
       - name: Sync OpenAPI
         if: steps.readme_secret.outputs.present == 'true'
-        run: npx rdme openapi upload https://api.vytal.fit/openapi.json --slug vytal-api --title "Vytal API" --branch 1.0 --key "$README_API_KEY" --confirm-overwrite
+        run: npx rdme openapi upload packages/api/openapi.json --slug vytal-api --title "Vytal API" --branch 1.0 --key "$README_API_KEY" --confirm-overwrite
 
       - name: Sync guides
         if: steps.readme_secret.outputs.present == 'true'

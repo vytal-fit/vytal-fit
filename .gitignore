@@ -66,3 +66,4 @@ apps/web/e2e/.auth/
 apps/mobile/.expo/
 apps/mobile/ios/
 apps/mobile/android/
+packages/api/openapi.json
