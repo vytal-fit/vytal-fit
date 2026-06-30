@@ -1,8 +1,11 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ChevronLeft, ExternalLink } from "lucide-react";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 import { getReadmeDoc, listReadmeDocs } from "@vytal-fit/shared/readme-docs";
 import { Markdown } from "@/components/markdown";
+import { DocsShell } from "@/components/docs-shell";
+import { buildNav, flattenNav } from "@/lib/nav";
+import { extractToc } from "@/lib/toc";
 
 export const dynamic = "force-static";
 
@@ -17,49 +20,73 @@ export default async function DocsDetailPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const doc = await getReadmeDoc(slug);
+  const [doc, docs] = await Promise.all([getReadmeDoc(slug), listReadmeDocs()]);
 
   if (!doc) {
     notFound();
   }
 
+  const nav = buildNav(docs);
+  const flat = flattenNav(nav);
+  const toc = extractToc(doc.content);
+  const idx = flat.findIndex((d) => d.slug === slug);
+  const prev = idx > 0 ? flat[idx - 1] : null;
+  const next = idx >= 0 && idx < flat.length - 1 ? flat[idx + 1] : null;
+  const groupLabel = nav.find((g) => g.items.some((i) => i.slug === slug))?.label;
+
+  // Drop a leading H1 that duplicates the page title.
+  const body = doc.content.replace(/^\s*#\s+.+\n+/, "");
+
   return (
-    <main className="min-h-screen bg-background text-foreground">
-      <section className="border-b border-border/60 bg-muted/20">
-        <div className="mx-auto max-w-4xl px-6 py-10 lg:px-8">
-          <div className="flex flex-wrap items-center gap-3 text-sm">
-            <Link
-              href="/"
-              className="inline-flex items-center gap-2 rounded-md border border-border bg-background px-3 py-1.5 font-medium transition hover:bg-accent hover:text-accent-foreground"
-            >
-              <ChevronLeft className="h-4 w-4" />
-              Docs
-            </Link>
-            <Link
-              href="https://docs.vytal.fit"
-              className="inline-flex items-center gap-2 rounded-md border border-border bg-background px-3 py-1.5 font-medium transition hover:bg-accent hover:text-accent-foreground"
-            >
-              <ExternalLink className="h-4 w-4" />
-              ReadMe
-            </Link>
-          </div>
+    <DocsShell nav={nav} toc={toc} current={slug}>
+      <div className="mx-auto max-w-2xl">
+        <header className="border-b border-vytal-border pb-8">
+          {groupLabel ? (
+            <p className="mb-3 font-mono text-[11px] font-medium uppercase tracking-[0.2em] text-vytal-green">
+              {groupLabel}
+            </p>
+          ) : null}
+          <h1 className="text-4xl font-bold tracking-tight">{doc.title}</h1>
+          {doc.excerpt ? (
+            <p className="mt-4 text-[15px] leading-7 text-vytal-muted">{doc.excerpt}</p>
+          ) : null}
+        </header>
 
-          <div className="mt-6 space-y-4">
-            <h1 className="text-4xl font-semibold tracking-tight">{doc.title}</h1>
-            {doc.excerpt ? (
-              <p className="max-w-2xl text-sm leading-6 text-muted-foreground">
-                {doc.excerpt}
-              </p>
-            ) : null}
-          </div>
-        </div>
-      </section>
-
-      <section className="mx-auto max-w-4xl px-6 py-10 lg:px-8">
         <article className="max-w-none">
-          <Markdown>{doc.content}</Markdown>
+          <Markdown>{body}</Markdown>
         </article>
-      </section>
-    </main>
+
+        {(prev || next) && (
+          <nav className="mt-16 grid grid-cols-1 gap-3 border-t border-vytal-border pt-8 sm:grid-cols-2">
+            {prev ? (
+              <Link
+                href={`/${prev.slug}`}
+                className="group flex flex-col gap-1 rounded-xl border border-vytal-border p-4 transition hover:border-vytal-green/40"
+              >
+                <span className="inline-flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-wider text-vytal-muted">
+                  <ArrowLeft className="h-3.5 w-3.5" /> Previous
+                </span>
+                <span className="font-medium text-vytal-text group-hover:text-vytal-green">{prev.title}</span>
+              </Link>
+            ) : (
+              <span />
+            )}
+            {next ? (
+              <Link
+                href={`/${next.slug}`}
+                className="group flex flex-col items-end gap-1 rounded-xl border border-vytal-border p-4 text-right transition hover:border-vytal-green/40"
+              >
+                <span className="inline-flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-wider text-vytal-muted">
+                  Next <ArrowRight className="h-3.5 w-3.5" />
+                </span>
+                <span className="font-medium text-vytal-text group-hover:text-vytal-green">{next.title}</span>
+              </Link>
+            ) : (
+              <span />
+            )}
+          </nav>
+        )}
+      </div>
+    </DocsShell>
   );
 }
