@@ -56,6 +56,7 @@ export const IDS = {
   wodResultA2: "wr-a2",
   notifA1: "notif-a1",
   notifA2: "notif-a2",
+  convA: "conv-a",
   checkInA1: "checkin-a1",
   checkInA2: "checkin-a2",
   checkInA3: "checkin-a3",
@@ -74,6 +75,7 @@ export const IDS = {
   wodResultB: "wr-b",
   notifB: "notif-b",
   checkInB: "checkin-b",
+  convB: "conv-b",
   // global
   exercise1: "ex-1",
   exercise2: "ex-2",
@@ -455,6 +457,55 @@ export async function seed(db: Database): Promise<void> {
       internalNotes: "Tecnico agendado.",
       createdAt: new Date(today),
       updatedAt: new Date(today),
+    },
+  ]);
+
+  await db.insert(schema.conversations).values([
+    {
+      id: IDS.convA,
+      organizationId: IDS.orgA,
+      contactName: "Ana Silva",
+      contactStatus: "active",
+      online: true,
+      lastMessageAt: new Date(today),
+    },
+    {
+      id: IDS.convB,
+      organizationId: IDS.orgB,
+      contactName: "Bruno Costa",
+      contactStatus: "trial",
+      online: false,
+      lastMessageAt: new Date(today),
+    },
+  ]);
+
+  await db.insert(schema.messages).values([
+    {
+      id: "msg-conv-a-1",
+      organizationId: IDS.orgA,
+      conversationId: IDS.convA,
+      body: "Olá, têm vagas amanhã?",
+      fromStaff: false,
+      read: false,
+      createdAt: new Date(today),
+    },
+    {
+      id: "msg-conv-a-2",
+      organizationId: IDS.orgA,
+      conversationId: IDS.convA,
+      body: "Sim, às 18h!",
+      fromStaff: true,
+      read: true,
+      createdAt: new Date(today),
+    },
+    {
+      id: "msg-conv-b-1",
+      organizationId: IDS.orgB,
+      conversationId: IDS.convB,
+      body: "Quero experimentar.",
+      fromStaff: false,
+      read: false,
+      createdAt: new Date(today),
     },
   ]);
 

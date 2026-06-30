@@ -13,7 +13,29 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/lib/i18n";
-import { useDataStore } from "@/stores/data-store";
+import { trpc } from "@/lib/trpc";
+
+// ---------------------------------------------------------------------------
+// Time formatting
+// ---------------------------------------------------------------------------
+
+function formatClock(date: string | Date): string {
+  return new Date(date).toLocaleTimeString("pt-PT", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+function formatRelative(date: string | Date): string {
+  const diffMin = Math.floor((Date.now() - new Date(date).getTime()) / 60000);
+  if (diffMin < 1) return "Agora";
+  if (diffMin < 60) return `${diffMin}m`;
+  const diffH = Math.floor(diffMin / 60);
+  if (diffH < 24) return `${diffH}h`;
+  const diffD = Math.floor(diffH / 24);
+  if (diffD < 7) return `${diffD}d`;
+  return new Date(date).toLocaleDateString("pt-PT", { day: "2-digit", month: "short" });
+}
 
 // ---------------------------------------------------------------------------
 // Quick replies
@@ -33,9 +55,37 @@ const quickReplies = [
 // ---------------------------------------------------------------------------
 
 export default function MessagesPage() {
-  const conversations = useDataStore((s) => s.conversations);
-  const storeSendMessage = useDataStore((s) => s.sendMessage);
-  const storeMarkAsRead = useDataStore((s) => s.markAsRead);
+  const utils = trpc.useUtils();
+  const convQuery = trpc.messages.conversations.useQuery();
+  const sendMut = trpc.messages.send.useMutation({
+    onSuccess: () => utils.messages.conversations.invalidate(),
+  });
+  const markReadMut = trpc.messages.markRead.useMutation({
+    onSuccess: () => utils.messages.conversations.invalidate(),
+  });
+
+  const conversations = (convQuery.data ?? []).map((c) => ({
+    id: c.id,
+    contactName: c.contactName,
+    contactInitials: c.contactInitials,
+    contactStatus: c.contactStatus,
+    online: c.online,
+    unreadCount: c.unreadCount,
+    lastMessageTime: formatRelative(c.lastMessageAt),
+    messages: c.messages.map((m) => ({
+      text: m.body,
+      fromMe: m.fromStaff,
+      time: formatClock(m.createdAt),
+    })),
+  }));
+  const storeSendMessage = useCallback(
+    (conversationId: string, body: string) => sendMut.mutate({ conversationId, body }),
+    [sendMut]
+  );
+  const storeMarkAsRead = useCallback(
+    (conversationId: string) => markReadMut.mutate({ conversationId }),
+    [markReadMut]
+  );
 
   const [selectedConvId, setSelectedConvId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");

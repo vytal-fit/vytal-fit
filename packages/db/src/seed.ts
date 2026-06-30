@@ -815,6 +815,109 @@ export async function seedDatabase(
       .returning({ id: schema.notifications.id })
   ).length;
 
+  // CRM-style message threads (org-1). Timestamps are relative to seed time so
+  // the inbox always shows recent activity. `minutesAgo` keeps ordering stable.
+  const seedNow = new Date();
+  const minutesAgo = (m: number) => new Date(seedNow.getTime() - m * 60_000);
+  const CONVERSATION_SEED: {
+    id: string;
+    contactName: string;
+    contactStatus: schema.ConversationContactStatus;
+    online: boolean;
+    messages: { body: string; fromStaff: boolean; read: boolean; minutesAgo: number }[];
+  }[] = [
+    {
+      id: "conv-1",
+      contactName: "Ana Sousa",
+      contactStatus: "active",
+      online: true,
+      messages: [
+        { body: "Olá! A aula de amanhã às 18h tem vagas?", fromStaff: false, read: false, minutesAgo: 8 },
+        { body: "E posso levar uma amiga para experimentar?", fromStaff: false, read: false, minutesAgo: 7 },
+      ],
+    },
+    {
+      id: "conv-2",
+      contactName: "Bruno Lima",
+      contactStatus: "trial",
+      online: false,
+      messages: [
+        { body: "Confirmo a minha aula experimental de quinta.", fromStaff: false, read: false, minutesAgo: 16 },
+        { body: "Perfeito, Bruno! Ficamos à espera às 19h.", fromStaff: true, read: true, minutesAgo: 14 },
+      ],
+    },
+    {
+      id: "conv-3",
+      contactName: "Carla Mendes",
+      contactStatus: "active",
+      online: false,
+      messages: [
+        { body: "O pagamento deste mês já foi processado?", fromStaff: false, read: true, minutesAgo: 70 },
+        { body: "Sim, recebido com sucesso. Obrigado!", fromStaff: true, read: true, minutesAgo: 64 },
+      ],
+    },
+    {
+      id: "conv-4",
+      contactName: "Diogo Faria",
+      contactStatus: "inactive",
+      online: false,
+      messages: [
+        { body: "Gostava de retomar o plano. Que opções têm?", fromStaff: false, read: true, minutesAgo: 200 },
+        { body: "Bem-vindo de volta! Envio-te os planos hoje.", fromStaff: true, read: true, minutesAgo: 180 },
+      ],
+    },
+    {
+      id: "conv-5",
+      contactName: "Eva Santos",
+      contactStatus: "active",
+      online: true,
+      messages: [
+        { body: "Adorei o WOD de hoje 💪", fromStaff: false, read: true, minutesAgo: 1440 },
+      ],
+    },
+  ];
+
+  inserted.conversations = (
+    await db
+      .insert(schema.conversations)
+      .values(
+        CONVERSATION_SEED.map((c) => {
+          const last = c.messages[c.messages.length - 1];
+          return {
+            id: c.id,
+            organizationId: ORG_1,
+            memberId: null,
+            contactName: c.contactName,
+            contactStatus: c.contactStatus,
+            online: c.online,
+            lastMessageAt: minutesAgo(last?.minutesAgo ?? 0),
+          };
+        }),
+      )
+      .onConflictDoNothing()
+      .returning({ id: schema.conversations.id })
+  ).length;
+
+  inserted.messages = (
+    await db
+      .insert(schema.messages)
+      .values(
+        CONVERSATION_SEED.flatMap((c) =>
+          c.messages.map((m, idx) => ({
+            id: `${c.id}-m${idx + 1}`,
+            organizationId: ORG_1,
+            conversationId: c.id,
+            body: m.body,
+            fromStaff: m.fromStaff,
+            read: m.read,
+            createdAt: minutesAgo(m.minutesAgo),
+          })),
+        ),
+      )
+      .onConflictDoNothing()
+      .returning({ id: schema.messages.id })
+  ).length;
+
   inserted.supportTickets = (
     await db
       .insert(schema.supportTickets)

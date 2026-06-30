@@ -154,6 +154,10 @@ export const LEAD_ACTIVITY_TYPES = [
 ] as const;
 export type LeadActivityType = (typeof LEAD_ACTIVITY_TYPES)[number];
 
+/** Contact lifecycle shown on a conversation thread. */
+export const CONVERSATION_CONTACT_STATUSES = ["active", "inactive", "trial"] as const;
+export type ConversationContactStatus = (typeof CONVERSATION_CONTACT_STATUSES)[number];
+
 export const NOTIFICATION_TYPES = [
   "booking_confirmed",
   "booking_cancelled",
@@ -221,6 +225,10 @@ export const planTypeEnum = pgEnum("plan_type", PLAN_TYPES);
 export const subscriptionStatusEnum = pgEnum("subscription_status", SUBSCRIPTION_STATUSES);
 export const leadStageEnum = pgEnum("lead_stage", LEAD_STAGES);
 export const leadActivityTypeEnum = pgEnum("lead_activity_type", LEAD_ACTIVITY_TYPES);
+export const conversationContactStatusEnum = pgEnum(
+  "conversation_contact_status",
+  CONVERSATION_CONTACT_STATUSES,
+);
 export const notificationTypeEnum = pgEnum("notification_type", NOTIFICATION_TYPES);
 export const checkInMethodEnum = pgEnum("check_in_method", CHECK_IN_METHODS);
 
@@ -961,3 +969,50 @@ export const organizationSettings = pgTable("organization_settings", {
   >(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
+
+/** A direct-message thread between the gym (staff) and a contact/member. */
+export const conversations = pgTable(
+  "conversations",
+  {
+    id: text("id").primaryKey(),
+    organizationId: text("organization_id")
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    memberId: text("member_id").references(() => gymMembers.id, {
+      onDelete: "set null",
+    }),
+    contactName: text("contact_name").notNull(),
+    contactStatus: conversationContactStatusEnum("contact_status")
+      .notNull()
+      .default("active"),
+    online: boolean("online").notNull().default(false),
+    lastMessageAt: timestamp("last_message_at").notNull().defaultNow(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (t) => [
+    index("conversations_org_idx").on(t.organizationId),
+    index("conversations_org_last_msg_idx").on(t.organizationId, t.lastMessageAt),
+  ],
+);
+
+/** A single message in a conversation. `fromStaff` = sent by the gym ("me"). */
+export const messages = pgTable(
+  "messages",
+  {
+    id: text("id").primaryKey(),
+    organizationId: text("organization_id")
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    conversationId: text("conversation_id")
+      .notNull()
+      .references(() => conversations.id, { onDelete: "cascade" }),
+    body: text("body").notNull(),
+    fromStaff: boolean("from_staff").notNull(),
+    read: boolean("read").notNull().default(false),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (t) => [
+    index("messages_org_idx").on(t.organizationId),
+    index("messages_conversation_idx").on(t.conversationId),
+  ],
+);

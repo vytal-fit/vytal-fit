@@ -624,10 +624,36 @@ function FloatingChat() {
   const [activeChat, setActiveChat] = useState<string | null>(null);
   const [msgInput, setMsgInput] = useState("");
   const { t } = useI18n();
-  const conversations = useDataStore((s) => s.conversations);
-  const sendMessage = useDataStore((s) => s.sendMessage);
-  const markAsRead = useDataStore((s) => s.markAsRead);
-  const totalUnread = useDataStore((s) => s.totalUnread)();
+  const utils = trpc.useUtils();
+  const convQuery = trpc.messages.conversations.useQuery();
+  const sendMut = trpc.messages.send.useMutation({
+    onSuccess: () => utils.messages.conversations.invalidate(),
+  });
+  const markReadMut = trpc.messages.markRead.useMutation({
+    onSuccess: () => utils.messages.conversations.invalidate(),
+  });
+  const conversations = (convQuery.data ?? []).map((c) => ({
+    id: c.id,
+    contactName: c.contactName,
+    contactInitials: c.contactInitials,
+    contactStatus: c.contactStatus,
+    online: c.online,
+    unreadCount: c.unreadCount,
+    lastMessageTime: formatTimeAgo(c.lastMessageAt),
+    messages: c.messages.map((m) => ({
+      text: m.body,
+      fromMe: m.fromStaff,
+      time: new Date(m.createdAt).toLocaleTimeString("pt-PT", {
+        hour: "2-digit",
+        minute: "2-digit",
+      }),
+    })),
+  }));
+  const totalUnread = conversations.reduce((sum, c) => sum + c.unreadCount, 0);
+  const sendMessage = (conversationId: string, body: string) =>
+    sendMut.mutate({ conversationId, body });
+  const markAsRead = (conversationId: string) =>
+    markReadMut.mutate({ conversationId });
   const ref = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 

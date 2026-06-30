@@ -9,6 +9,7 @@ import { exercisesRouter } from "./routers/exercises";
 import { leadsRouter } from "./routers/leads";
 import { locationsRouter } from "./routers/locations";
 import { membersRouter } from "./routers/members";
+import { messagesRouter } from "./routers/messages";
 import { notificationsRouter } from "./routers/notifications";
 import { orgSettingsRouter } from "./routers/orgSettings";
 import { personalRecordsRouter } from "./routers/personalRecords";
@@ -41,6 +42,7 @@ export const appRouter = router({
   supportTickets: supportTicketsRouter,
   shop: shopRouter,
   orgSettings: orgSettingsRouter,
+  messages: messagesRouter,
   dashboard: dashboardRouter,
   uploads: uploadsRouter,
 });
