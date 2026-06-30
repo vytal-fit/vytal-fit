@@ -8,6 +8,7 @@ import {
   subscriptionPlans,
   subscriptions,
 } from "@vytal-fit/db";
+import { hasMinRole } from "@vytal-fit/shared";
 import { z } from "zod";
 import { adminProcedure, orgProcedure, router } from "../trpc";
 
@@ -230,7 +231,7 @@ export const subscriptionsRouter = router({
     .input(z.object({ memberId: z.string().min(1) }))
     .query(async ({ ctx, input }) => {
       const [member] = await ctx.db
-        .select({ id: gymMembers.id })
+        .select({ id: gymMembers.id, userId: gymMembers.userId })
         .from(gymMembers)
         .where(
           and(
@@ -241,6 +242,16 @@ export const subscriptionsRouter = router({
         .limit(1);
       if (!member) {
         throw new TRPCError({ code: "NOT_FOUND", message: "Member not found." });
+      }
+      // Athletes may only read their own member's subscriptions.
+      if (
+        !ctx.session?.role ||
+        (!hasMinRole(ctx.session.role, "coach") && member.userId !== ctx.session.user.id)
+      ) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Athletes can only read their own subscriptions.",
+        });
       }
 
       return ctx.db
