@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { useDataStore } from "@/stores/data-store";
+import { trpc } from "@/lib/trpc";
+import { rowToMember } from "@/lib/member-mapper";
 import type { MemberStatus } from "@vytal-fit/shared";
 import { ArrowLeft, Save, X } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -49,41 +50,65 @@ function Field({
 
 export default function MemberEditPage() {
   const { t } = useI18n();
-  const storeMembers = useDataStore((s) => s.members);
-  const storePlans = useDataStore((s) => s.plans);
-  const updateMember = useDataStore((s) => s.updateMember);
   const params = useParams();
   const router = useRouter();
   const { toast } = useToast();
+  const utils = trpc.useUtils();
   const id = params.id as string;
-  const member = storeMembers.find((m) => m.id === id);
+  const memberQuery = trpc.members.byId.useQuery({ id });
+  const member = memberQuery.data ? rowToMember(memberQuery.data) : undefined;
+  const plansQuery = trpc.subscriptions.plans.list.useQuery();
+  const storePlans = plansQuery.data ?? [];
+  const updateMutation = trpc.members.update.useMutation({
+    onSuccess: (row) => {
+      utils.members.byId.setData({ id }, row);
+      void utils.members.list.invalidate();
+    },
+  });
 
-  const [name, setName] = useState(member?.name ?? "");
-  const [email, setEmail] = useState(member?.email ?? "");
-  const [phone, setPhone] = useState(member?.phone ?? "");
-  const [nif, setNif] = useState(member?.nif ?? "234567890");
-  const [dob, setDob] = useState(member?.dateOfBirth ?? "1993-06-15");
-  const [gender, setGender] = useState<"male" | "female">(member?.gender ?? "male");
-  const [emergencyContact, setEmergencyContact] = useState(member?.emergencyContact ?? "Maria Fonte - 911222333");
-  const [address, setAddress] = useState("Rua das Flores, 42, Lisboa 1200-100");
-  const [status, setStatus] = useState<MemberStatus>(member?.status ?? "active");
-  const [planId, setPlanId] = useState(member?.planId ?? "plan-1");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [nif, setNif] = useState("");
+  const [dob, setDob] = useState("");
+  const [gender, setGender] = useState<"male" | "female">("male");
+  const [emergencyContact, setEmergencyContact] = useState("");
+  const [address, setAddress] = useState("");
+  const [status, setStatus] = useState<MemberStatus>("active");
+  const [planId, setPlanId] = useState("");
   const [injuries, setInjuries] = useState("");
   const [parqNotes, setParqNotes] = useState("");
   const [medication, setMedication] = useState("");
+
+  // Hydrate the form once the member arrives from the API (and never clobber
+  // the user's in-progress edits afterwards).
+  const [hydrated, setHydrated] = useState(false);
+  useEffect(() => {
+    if (!member || hydrated) return;
+    setName(member.name);
+    setEmail(member.email);
+    setPhone(member.phone ?? "");
+    setNif(member.nif ?? "");
+    setDob(member.dateOfBirth ?? "");
+    setGender(member.gender ?? "male");
+    setEmergencyContact(member.emergencyContact ?? "");
+    setStatus(member.status);
+    setPlanId(member.planId ?? "");
+    setHydrated(true);
+  }, [member, hydrated]);
 
   // Track initial values for dirty state
   const initialValues = useMemo(() => ({
     name: member?.name ?? "",
     email: member?.email ?? "",
     phone: member?.phone ?? "",
-    nif: member?.nif ?? "234567890",
-    dob: member?.dateOfBirth ?? "1993-06-15",
+    nif: member?.nif ?? "",
+    dob: member?.dateOfBirth ?? "",
     gender: member?.gender ?? "male",
-    emergencyContact: member?.emergencyContact ?? "Maria Fonte - 911222333",
-    address: "Rua das Flores, 42, Lisboa 1200-100",
+    emergencyContact: member?.emergencyContact ?? "",
+    address: "",
     status: member?.status ?? "active",
-    planId: member?.planId ?? "plan-1",
+    planId: member?.planId ?? "",
     injuries: "",
     parqNotes: "",
     medication: "",
@@ -119,23 +144,33 @@ export default function MemberEditPage() {
   }, [isDirty]);
 
   function handleSave() {
-    updateMember(id, {
-      name,
-      email,
-      phone: phone || undefined,
-      nif: nif || undefined,
-      dateOfBirth: dob || undefined,
-      gender,
-      emergencyContact: emergencyContact || undefined,
-      status,
-      planId: planId || undefined,
-    });
-    const plan = storePlans.find((p) => p.id === planId);
-    toast(
-      `Saved ${name} - Status: ${status}, Plan: ${plan?.name ?? "N/A"}`,
-      "success"
+    updateMutation.mutate(
+      {
+        id,
+        data: {
+          name,
+          email,
+          phone: phone || undefined,
+          nif: nif || undefined,
+          dateOfBirth: dob || undefined,
+          gender,
+          emergencyContact: emergencyContact || undefined,
+          status,
+          planId: planId || undefined,
+        },
+      },
+      {
+        onSuccess: () => {
+          const plan = storePlans.find((p) => p.id === planId);
+          toast(
+            `Saved ${name} - Status: ${status}, Plan: ${plan?.name ?? "N/A"}`,
+            "success",
+          );
+          router.push(`/members/${id}`);
+        },
+        onError: () => toast(t("ui.error"), "error"),
+      },
     );
-    router.push(`/members/${id}`);
   }
 
   function handleCancel() {
@@ -146,6 +181,14 @@ export default function MemberEditPage() {
       if (!confirmed) return;
     }
     router.push(`/members/${id}`);
+  }
+
+  if (memberQuery.isPending) {
+    return (
+      <div className="flex h-64 items-center justify-center">
+        <p className="text-vytal-muted">{t("ui.loading")}</p>
+      </div>
+    );
   }
 
   if (!member) {
