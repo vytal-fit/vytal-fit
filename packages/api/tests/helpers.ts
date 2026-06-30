@@ -367,6 +367,29 @@ export async function seed(db: Database): Promise<void> {
     },
   ]);
 
+  await db.insert(schema.expenses).values([
+    {
+      id: "exp-a-1",
+      organizationId: IDS.orgA,
+      date: "2026-05-01",
+      category: "Fixed",
+      subcategory: "Rent",
+      amount: "2500.00",
+      method: "transfer",
+      hasReceipt: true,
+    },
+    {
+      id: "exp-b-1",
+      organizationId: IDS.orgB,
+      date: "2026-05-01",
+      category: "Variable",
+      subcategory: "Marketing",
+      amount: "200.00",
+      method: "card",
+      hasReceipt: false,
+    },
+  ]);
+
   await db.insert(schema.personalRecords).values([
     {
       id: IDS.prA1,

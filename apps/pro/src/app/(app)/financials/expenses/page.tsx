@@ -5,6 +5,8 @@ import { Receipt, Plus, Filter, Inbox } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/lib/i18n";
 import { formatCurrency } from "@/stores/data-store";
+import { trpc } from "@/lib/trpc";
+import { useToast } from "@/components/toast";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { EmptyState } from "@/components/empty-state";
 
@@ -13,7 +15,7 @@ const categories: ExpenseCategory[] = ["Fixed", "Variable", "Tax"];
 const paymentMethods = ["Transfer", "Card", "Cash", "Direct Debit"];
 
 interface Expense {
-  id: number;
+  id: string;
   date: string;
   category: ExpenseCategory;
   subcategory: string;
@@ -22,17 +24,6 @@ interface Expense {
   description: string;
   hasReceipt: boolean;
 }
-
-const initialExpenses: Expense[] = [
-  { id: 1, date: "2026-06-01", category: "Fixed", subcategory: "Rent", amount: 2500, method: "Transfer", description: "Monthly rent", hasReceipt: true },
-  { id: 2, date: "2026-06-01", category: "Fixed", subcategory: "Insurance", amount: 180, method: "Direct Debit", description: "Box insurance premium", hasReceipt: true },
-  { id: 3, date: "2026-05-30", category: "Variable", subcategory: "Equipment", amount: 450, method: "Card", description: "Replacement ropes and bands", hasReceipt: true },
-  { id: 4, date: "2026-05-28", category: "Variable", subcategory: "Cleaning", amount: 120, method: "Transfer", description: "Monthly cleaning service", hasReceipt: false },
-  { id: 5, date: "2026-05-25", category: "Tax", subcategory: "IVA", amount: 890, method: "Transfer", description: "Q2 VAT payment", hasReceipt: true },
-  { id: 6, date: "2026-05-22", category: "Variable", subcategory: "Marketing", amount: 200, method: "Card", description: "Instagram ads campaign", hasReceipt: true },
-  { id: 7, date: "2026-05-20", category: "Fixed", subcategory: "Utilities", amount: 310, method: "Direct Debit", description: "Electricity bill", hasReceipt: true },
-  { id: 8, date: "2026-05-18", category: "Tax", subcategory: "Social Security", amount: 650, method: "Transfer", description: "Employee contributions", hasReceipt: false },
-];
 
 const categoryColors: Record<ExpenseCategory, string> = {
   Fixed: "bg-vytal-blue/10 text-vytal-blue",
@@ -46,7 +37,44 @@ function formatEur(value: number): string {
 
 export default function ExpenseTrackingPage() {
   const { t } = useI18n();
-  const [expenses] = useState(initialExpenses);
+  const { toast } = useToast();
+  const utils = trpc.useUtils();
+  const listQuery = trpc.expenses.list.useQuery({});
+  const expenses: Expense[] = (listQuery.data ?? []).map((e) => ({
+    id: e.id,
+    date: e.date,
+    category: e.category,
+    subcategory: e.subcategory,
+    amount: Number(e.amount),
+    method: e.method,
+    description: e.description ?? "",
+    hasReceipt: e.hasReceipt,
+  }));
+  const createExpense = trpc.expenses.create.useMutation({
+    onSuccess: () => {
+      void utils.expenses.list.invalidate();
+      toast(t("expenses.addExpense"), "success");
+      setNewSubcategory("");
+      setNewAmount("");
+      setNewDescription("");
+      setNewReceipt(false);
+    },
+    onError: () => toast(t("ui.error"), "error"),
+  });
+
+  function handleAddExpense() {
+    if (!newSubcategory.trim() || !newAmount) return;
+    createExpense.mutate({
+      date: newDate,
+      category: newCategory,
+      subcategory: newSubcategory.trim(),
+      amount: parseFloat(newAmount) || 0,
+      method: newMethod,
+      description: newDescription || undefined,
+      hasReceipt: newReceipt,
+    });
+  }
+
   const [filterCategory, setFilterCategory] = useState<ExpenseCategory | "all">("all");
   const [newDate, setNewDate] = useState("2026-06-03");
   const [newCategory, setNewCategory] = useState<ExpenseCategory>("Fixed");
@@ -151,7 +179,11 @@ export default function ExpenseTrackingPage() {
                 <span className={cn("absolute top-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-transform duration-200", newReceipt ? "left-[22px]" : "left-0.5")} />
               </button>
             </div>
-            <button className="flex w-full items-center justify-center gap-2 rounded-lg bg-vytal-green px-6 py-2.5 text-sm font-semibold text-vytal-bg transition-colors hover:bg-vytal-green/90">
+            <button
+              onClick={handleAddExpense}
+              disabled={createExpense.isPending || !newSubcategory.trim() || !newAmount}
+              className="flex w-full items-center justify-center gap-2 rounded-lg bg-vytal-green px-6 py-2.5 text-sm font-semibold text-vytal-bg transition-colors hover:bg-vytal-green/90 disabled:opacity-40"
+            >
               <Plus className="h-4 w-4" />
               {t("expenses.addExpense")}
             </button>

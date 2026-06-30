@@ -6,6 +6,7 @@ import { classesRouter } from "./routers/classes";
 import { coachesRouter } from "./routers/coaches";
 import { dashboardRouter } from "./routers/dashboard";
 import { exercisesRouter } from "./routers/exercises";
+import { expensesRouter } from "./routers/expenses";
 import { leadsRouter } from "./routers/leads";
 import { locationsRouter } from "./routers/locations";
 import { membersRouter } from "./routers/members";
@@ -45,6 +46,7 @@ export const appRouter = router({
   orgSettings: orgSettingsRouter,
   messages: messagesRouter,
   payments: paymentsRouter,
+  expenses: expensesRouter,
   dashboard: dashboardRouter,
   uploads: uploadsRouter,
 });

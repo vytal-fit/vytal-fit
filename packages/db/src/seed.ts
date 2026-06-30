@@ -743,6 +743,34 @@ export async function seedDatabase(
   }
   inserted.payments = paymentsInserted;
 
+  // A small operating-expense ledger for org-1 (last weeks).
+  const expenseSeed: {
+    id: string;
+    date: string;
+    category: schema.ExpenseCategoryKind;
+    subcategory: string;
+    amount: string;
+    method: string;
+    description: string;
+    hasReceipt: boolean;
+  }[] = [
+    { id: "exp-1", date: "2026-06-01", category: "Fixed", subcategory: "Renda", amount: "2500", method: "transfer", description: "Renda mensal do espaço", hasReceipt: true },
+    { id: "exp-2", date: "2026-06-01", category: "Fixed", subcategory: "Seguro", amount: "180", method: "transfer", description: "Prémio de seguro", hasReceipt: true },
+    { id: "exp-3", date: "2026-05-30", category: "Variable", subcategory: "Equipamento", amount: "450", method: "card", description: "Cordas e bandas de substituição", hasReceipt: true },
+    { id: "exp-4", date: "2026-05-28", category: "Variable", subcategory: "Limpeza", amount: "120", method: "transfer", description: "Serviço de limpeza mensal", hasReceipt: false },
+    { id: "exp-5", date: "2026-05-25", category: "Tax", subcategory: "IVA", amount: "890", method: "transfer", description: "Pagamento de IVA Q2", hasReceipt: true },
+    { id: "exp-6", date: "2026-05-22", category: "Variable", subcategory: "Marketing", amount: "200", method: "card", description: "Campanha Instagram", hasReceipt: true },
+    { id: "exp-7", date: "2026-05-20", category: "Fixed", subcategory: "Utilidades", amount: "310", method: "transfer", description: "Eletricidade", hasReceipt: true },
+    { id: "exp-8", date: "2026-05-18", category: "Tax", subcategory: "Segurança Social", amount: "650", method: "transfer", description: "Contribuições de funcionários", hasReceipt: false },
+  ];
+  inserted.expenses = (
+    await db
+      .insert(schema.expenses)
+      .values(expenseSeed.map((e) => ({ ...e, organizationId: ORG_1 })))
+      .onConflictDoNothing()
+      .returning({ id: schema.expenses.id })
+  ).length;
+
   inserted.leads = (
     await db
       .insert(schema.leads)

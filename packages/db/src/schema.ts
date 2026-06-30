@@ -127,6 +127,10 @@ export const PAYMENT_METHODS = [
 ] as const;
 export type PaymentMethod = (typeof PAYMENT_METHODS)[number];
 
+/** Operating-expense categories. */
+export const EXPENSE_CATEGORIES = ["Fixed", "Variable", "Tax"] as const;
+export type ExpenseCategoryKind = (typeof EXPENSE_CATEGORIES)[number];
+
 /** Lifecycle of a membership payment. */
 export const PAYMENT_STATUSES = [
   "paid",
@@ -345,6 +349,7 @@ export const saleStatusEnum = pgEnum("sale_status", SALE_STATUSES);
 export const salePaymentMethodEnum = pgEnum("sale_payment_method", SALE_PAYMENT_METHODS);
 export const paymentMethodEnum = pgEnum("payment_method_kind", PAYMENT_METHODS);
 export const paymentStatusEnum = pgEnum("payment_status", PAYMENT_STATUSES);
+export const expenseCategoryEnum = pgEnum("expense_category_kind", EXPENSE_CATEGORIES);
 export const planTypeEnum = pgEnum("plan_type", PLAN_TYPES);
 export const subscriptionStatusEnum = pgEnum("subscription_status", SUBSCRIPTION_STATUSES);
 export const leadStageEnum = pgEnum("lead_stage", LEAD_STAGES);
@@ -1155,6 +1160,29 @@ export const payments = pgTable(
     index("payments_org_idx").on(t.organizationId),
     index("payments_org_status_idx").on(t.organizationId, t.status),
     index("payments_org_member_idx").on(t.organizationId, t.memberId),
+  ],
+);
+
+/** Operating expenses ledger — the cost side of the financials dashboard. */
+export const expenses = pgTable(
+  "expenses",
+  {
+    id: text("id").primaryKey(),
+    organizationId: text("organization_id")
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    date: date("date").notNull(),
+    category: expenseCategoryEnum("category").notNull(),
+    subcategory: text("subcategory").notNull(),
+    amount: numeric("amount", { precision: 10, scale: 2 }).notNull(),
+    method: text("method").notNull(),
+    description: text("description"),
+    hasReceipt: boolean("has_receipt").notNull().default(false),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (t) => [
+    index("expenses_org_idx").on(t.organizationId),
+    index("expenses_org_category_idx").on(t.organizationId, t.category),
   ],
 );
 
