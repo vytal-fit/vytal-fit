@@ -876,6 +876,48 @@ export async function seedDatabase(
       .returning({ id: schema.leads.id })
   ).length;
 
+  // Store / merch (D7): suppliers (china/pt/eu) + catalog + a few supplier
+  // orders for org-1, mirroring the storefront mock so the real shop has data.
+  inserted.suppliers = (
+    await db
+      .insert(schema.suppliers)
+      .values([
+        { id: "sup-1", organizationId: "org-1", name: "Shenzhen Activewear Co.", region: "china", status: "active", contact: "wei@sz-active.cn", leadTimeDays: 21 },
+        { id: "sup-2", organizationId: "org-1", name: "Guangzhou Knit Works", region: "china", status: "active", contact: "lia@gzknit.cn", leadTimeDays: 25 },
+        { id: "sup-3", organizationId: "org-1", name: "Porto Print & Stitch", region: "portugal", status: "active", contact: "geral@portoprint.pt", leadTimeDays: 7 },
+        { id: "sup-4", organizationId: "org-1", name: "EU Grips Supply", region: "europe", status: "active", contact: "sales@eugrips.eu", leadTimeDays: 12 },
+      ])
+      .onConflictDoNothing()
+      .returning({ id: schema.suppliers.id })
+  ).length;
+
+  inserted.storeProducts = (
+    await db
+      .insert(schema.storeProducts)
+      .values([
+        { id: "sp-1", organizationId: "org-1", name: "Aero Tee", category: "apparel", price: "25.00", stock: 48, fulfillment: "external", supplierId: "sup-1", sku: "VT-AERO-TEE-BLK", color: "Black", size: "S-XXL", branding: "Front chest logo" },
+        { id: "sp-2", organizationId: "org-1", name: "Crop Top", category: "apparel", price: "22.00", stock: 35, fulfillment: "external", supplierId: "sup-2", sku: "VT-CROP-SND", color: "Sand", size: "XS-L", branding: "Back print" },
+        { id: "sp-3", organizationId: "org-1", name: "Heavy Hoodie", category: "apparel", price: "35.00", stock: 20, fulfillment: "external", supplierId: "sup-3", sku: "VT-HOOD-GPH", color: "Graphite", size: "S-XXL", branding: "Sleeve mark" },
+        { id: "sp-4", organizationId: "org-1", name: "Training Backpack", category: "accessories", price: "45.00", stock: 12, fulfillment: "external", supplierId: "sup-3", sku: "VT-BACKPACK-BLK", color: "Black", size: "One size", branding: "Debossed logo" },
+        { id: "sp-5", organizationId: "org-1", name: "Gymnastics Grips", category: "equipment", price: "18.00", stock: 60, fulfillment: "in_house", supplierId: "sup-4", sku: "VT-GRIPS-2H", color: "Tan", size: "S-L", branding: "Laser mark" },
+        { id: "sp-6", organizationId: "org-1", name: "Whey Protein 1kg", category: "supplements", price: "32.00", stock: 40, fulfillment: "in_house", sku: "VT-WHEY-1KG", branding: "Chocolate" },
+      ])
+      .onConflictDoNothing()
+      .returning({ id: schema.storeProducts.id })
+  ).length;
+
+  inserted.storeOrders = (
+    await db
+      .insert(schema.storeOrders)
+      .values([
+        { id: "so-1", organizationId: "org-1", productId: "sp-1", supplierId: "sup-1", quantity: 50, total: "1250.00", currency: "EUR", status: "in_production", placedAt: toDate("2026-06-20T10:00:00Z") },
+        { id: "so-2", organizationId: "org-1", productId: "sp-3", supplierId: "sup-3", quantity: 30, total: "1050.00", currency: "EUR", status: "shipped", trackingCode: "SF7788CN", placedAt: toDate("2026-06-18T09:00:00Z") },
+        { id: "so-3", organizationId: "org-1", productId: "sp-4", supplierId: "sup-3", quantity: 15, total: "675.00", currency: "EUR", status: "delivered", placedAt: toDate("2026-06-05T09:00:00Z") },
+      ])
+      .onConflictDoNothing()
+      .returning({ id: schema.storeOrders.id })
+  ).length;
+
   // One organization_settings row per demo org, derived from the
   // ORGANIZATION_CONFIGS defaults for its type (accent colors per mock org).
   // ON CONFLICT DO NOTHING — never clobber settings edited through the app.
