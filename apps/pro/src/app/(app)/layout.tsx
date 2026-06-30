@@ -1280,7 +1280,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         {/* Collapse/Expand toggle — ALWAYS visible like kloser */}
         <button
           onClick={toggleSidebar}
-          className="absolute -right-3 top-20 z-50 flex h-6 w-6 items-center justify-center rounded-full border border-vytal-border bg-vytal-bg2 text-vytal-muted shadow-sm transition-colors duration-200 hover:text-vytal-green hover:border-vytal-green/50"
+          className="absolute -right-3 top-3.5 z-50 flex h-6 w-6 items-center justify-center rounded-full border border-vytal-border bg-vytal-bg2 text-vytal-muted shadow-sm transition-colors duration-200 hover:text-vytal-green hover:border-vytal-green/50"
           title={sidebarCollapsed ? "Expand" : "Collapse"}
         >
           {sidebarCollapsed ? <ChevronRight className="h-3 w-3" /> : <ChevronLeft className="h-3 w-3" />}
