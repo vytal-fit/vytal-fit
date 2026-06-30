@@ -143,7 +143,7 @@ export default function WellnessPage() {
 
   if (!memberId) {
     return (
-      <div className="px-4 py-6 max-w-2xl mx-auto">
+      <div className="space-y-6">
         <div
           className="rounded-2xl p-8 text-center"
           style={{ background: "var(--color-vytal-bg2)", border: "1px solid var(--color-vytal-border)" }}
@@ -160,7 +160,7 @@ export default function WellnessPage() {
   const alreadyToday = !!todayQuery.data;
 
   return (
-    <div className="px-4 py-6 max-w-2xl mx-auto space-y-6">
+    <div className="space-y-6">
       {toast && (
         <div
           className="fixed top-20 left-4 right-4 z-50 rounded-2xl px-4 py-3 text-sm font-semibold shadow-2xl flex items-center gap-2"

@@ -257,7 +257,7 @@ export default function WODPage() {
     : null;
 
   return (
-    <div className="px-4 py-6 max-w-2xl mx-auto space-y-6">
+    <div className="space-y-6">
       <h1 className="sr-only">WOD</h1>
 
       {/* Toast */}

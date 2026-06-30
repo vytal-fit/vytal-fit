@@ -116,7 +116,7 @@ export default function ProfilePage() {
   ];
 
   return (
-    <div className="px-4 py-6 max-w-2xl mx-auto space-y-5">
+    <div className="space-y-6">
       {/* Toast */}
       {toast && (
         <div

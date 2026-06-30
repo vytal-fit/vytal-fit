@@ -328,7 +328,9 @@ export default function ConsoleLayout({ children }: { children: React.ReactNode 
 
         {/* ── Page content ── */}
         <main className="flex-1 overflow-y-auto pb-24 md:pb-8">
-          {children}
+          {/* Single source of truth for page width + padding so every screen
+              lines up identically (was set ad-hoc per page before). */}
+          <div className="mx-auto w-full max-w-2xl px-4 py-6">{children}</div>
         </main>
 
         {/* ── Bottom tab bar (mobile only) ── */}

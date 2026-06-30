@@ -356,7 +356,7 @@ export default function WorkoutsPage() {
   const suggested = WORKOUTS.filter((w) => w.suggested);
 
   return (
-    <div className="px-4 py-6 max-w-2xl mx-auto space-y-6 md:max-w-5xl">
+    <div className="space-y-6">
 
       {/* Timer modal */}
       {timerWorkout && (

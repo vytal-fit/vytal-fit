@@ -129,7 +129,7 @@ export default function RecordsPage() {
   const numericPRs = sortedPRs.filter((pr) => pr.unit === "kg" || pr.unit === "lbs" || pr.unit === "reps");
 
   return (
-    <div className="px-4 py-6 max-w-2xl mx-auto space-y-6">
+    <div className="space-y-6">
       {toast && (
         <div className="fixed top-20 left-4 right-4 z-50 rounded-2xl px-4 py-3 text-sm font-semibold shadow-2xl flex items-center gap-2" style={{ background: "var(--color-vytal-green)", color: "var(--color-vytal-bg)" }}>
           <Trophy size={15} />

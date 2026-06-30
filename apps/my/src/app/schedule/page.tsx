@@ -167,7 +167,7 @@ export default function SchedulePage() {
         </div>
       </div>
 
-      <div className="px-4 py-5 space-y-5 max-w-2xl mx-auto w-full">
+      <div className="space-y-6">
 
         {/* ── My bookings highlight ── */}
         {myBookedIds.length > 0 && (
