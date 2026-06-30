@@ -11,7 +11,8 @@ import {
 } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { useToast } from "@/components/toast";
-import { useDataStore } from "@/stores/data-store";
+import { trpc } from "@/lib/trpc";
+import { rowToMember } from "@/lib/member-mapper";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 
 const cancellationReasons = [
@@ -30,15 +31,29 @@ export default function CancelMembershipPage() {
   const params = useParams();
   const memberId = params.id as string;
 
-  const members = useDataStore((s) => s.members);
-  const updateMember = useDataStore((s) => s.updateMember);
-  const member = members.find((m) => m.id === memberId);
+  const utils = trpc.useUtils();
+  const memberQuery = trpc.members.byId.useQuery({ id: memberId });
+  const member = memberQuery.data ? rowToMember(memberQuery.data) : undefined;
+  const updateMutation = trpc.members.update.useMutation({
+    onSuccess: (row) => {
+      utils.members.byId.setData({ id: memberId }, row);
+      void utils.members.list.invalidate();
+    },
+  });
 
   const [reason, setReason] = useState("");
   const [feedback, setFeedback] = useState("");
   const [whatWouldBringBack, setWhatWouldBringBack] = useState("");
   const [confirmName, setConfirmName] = useState("");
   const [showPauseOption, setShowPauseOption] = useState(false);
+
+  if (memberQuery.isPending) {
+    return (
+      <div className="flex h-64 items-center justify-center">
+        <p className="text-vytal-muted">{t("ui.loading")}</p>
+      </div>
+    );
+  }
 
   if (!member) {
     return (
@@ -52,15 +67,29 @@ export default function CancelMembershipPage() {
   const canConfirm = confirmName.toLowerCase() === member.name.toLowerCase() && reason !== "";
 
   const handleCancel = () => {
-    updateMember(memberId, { status: "inactive" });
-    toast(t("cancel.membershipCancelled"), "success");
-    router.push(`/members/${memberId}`);
+    updateMutation.mutate(
+      { id: memberId, data: { status: "inactive" } },
+      {
+        onSuccess: () => {
+          toast(t("cancel.membershipCancelled"), "success");
+          router.push(`/members/${memberId}`);
+        },
+        onError: () => toast(t("ui.error"), "error"),
+      },
+    );
   };
 
   const handlePause = () => {
-    updateMember(memberId, { status: "suspended" });
-    toast(t("cancel.membershipPaused"), "success");
-    router.push(`/members/${memberId}`);
+    updateMutation.mutate(
+      { id: memberId, data: { status: "suspended" } },
+      {
+        onSuccess: () => {
+          toast(t("cancel.membershipPaused"), "success");
+          router.push(`/members/${memberId}`);
+        },
+        onError: () => toast(t("ui.error"), "error"),
+      },
+    );
   };
 
   return (
