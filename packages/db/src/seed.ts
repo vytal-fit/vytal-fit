@@ -719,6 +719,44 @@ export async function seedDatabase(
       .returning({ id: schema.communityComments.id })
   ).length;
 
+  // Audit log: a realistic historical trail so every filter has data. Grows
+  // live as members/API keys are created/updated/archived (see recordAudit).
+  const auditSeed: {
+    actor: string; action: string; resource: string; details: string; expanded?: string; mins: number;
+  }[] = [
+    { actor: "André Loureiro", action: "create", resource: "Member", details: "Criou o membro Carlos Mendes (#42)", expanded: "Plano: Mensal (75 EUR) · Origem: Referência", mins: 30 },
+    { actor: "Marine Robba", action: "update", resource: "Member", details: "Atualizou estado: Maria Oliveira → inativo", expanded: "Estado anterior: ativo · Motivo: sem presença há 45 dias", mins: 95 },
+    { actor: "André Loureiro", action: "settings", resource: "API Key", details: "Criou API key: Produção", expanded: "Prefix: vk_live_a1b2····9f3c", mins: 180 },
+    { actor: "System", action: "payment", resource: "Payment", details: "Pagamento de 75 EUR processado para Rita Costa", expanded: "Método: MB Way", mins: 240 },
+    { actor: "Ricardo Ribeiro", action: "create", resource: "Class", details: "Criou aula CrossFit para amanhã 18:00", mins: 320 },
+    { actor: "André Loureiro", action: "delete", resource: "Class", details: "Cancelou Open Box de sábado", expanded: "Motivo: treinador indisponível · 3 membros notificados", mins: 400 },
+    { actor: "Marine Robba", action: "crm", resource: "Lead", details: "Lead mudou de fase: Helena Cardoso → Contactado", mins: 500 },
+    { actor: "André Loureiro", action: "settings", resource: "Permission", details: "Alterou função de Marine Robba: Staff → Gestor", mins: 620 },
+    { actor: "Ricardo Ribeiro", action: "create", resource: "WOD", details: "Publicou WOD de hoje (FRAN)", mins: 900 },
+    { actor: "System", action: "payment", resource: "Payment", details: "Pagamento de 60 EUR falhou para Ana Ferreira", expanded: "Erro: fundos insuficientes · retry agendado", mins: 1100 },
+    { actor: "André Loureiro", action: "export", resource: "Report", details: "Exportou relatório de presenças (mês anterior)", expanded: "Formato: CSV · 1.247 registos", mins: 1400 },
+    { actor: "Marine Robba", action: "update", resource: "Plan", details: "Alterou plano de Pedro Almeida: Mensal → Anual", mins: 1600 },
+  ];
+  inserted.auditLogs = (
+    await db
+      .insert(schema.auditLogs)
+      .values(
+        auditSeed.map((a, i) => ({
+          id: `audit-${i + 1}`,
+          organizationId: ORG_1,
+          actorName: a.actor,
+          action: a.action,
+          resource: a.resource,
+          details: a.details,
+          expandedDetails: a.expanded ?? null,
+          ip: a.actor === "System" ? null : "192.168.1.10",
+          createdAt: minsAgo(a.mins),
+        })),
+      )
+      .onConflictDoNothing()
+      .returning({ id: schema.auditLogs.id })
+  ).length;
+
   inserted.classes = (
     await db
       .insert(schema.classes)

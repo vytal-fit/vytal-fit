@@ -204,6 +204,13 @@
       "when": 1782892421898,
       "tag": "0028_wandering_blur",
       "breakpoints": true
+    },
+    {
+      "idx": 29,
+      "version": "7",
+      "when": 1782894335715,
+      "tag": "0029_modern_mister_fear",
+      "breakpoints": true
     }
   ]
 }

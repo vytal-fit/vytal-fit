@@ -3,6 +3,7 @@ import { and, asc, desc, eq, gt, gte, inArray } from "drizzle-orm";
 import { checkIns, gymMembers, GENDERS, MEMBER_STATUSES } from "@vytal-fit/db";
 import { z } from "zod";
 import { adminProcedure, orgProcedure, router } from "../trpc";
+import { recordAudit } from "../audit";
 
 const RETENTION_WEEKS = 16;
 const WEEK_MS = 7 * 86_400_000;
@@ -104,6 +105,11 @@ export const membersRouter = router({
         ...input,
       })
       .returning();
+    recordAudit(ctx, {
+      action: "create",
+      resource: "Member",
+      details: `Created member ${created.name} (#${created.memberNumber})`,
+    });
     return created;
   }),
 
@@ -143,6 +149,12 @@ export const membersRouter = router({
           ),
         )
         .returning();
+      recordAudit(ctx, {
+        action: "update",
+        resource: "Member",
+        details: `Updated member ${updated.name}`,
+        expandedDetails: Object.keys(input.data).join(", "),
+      });
       return updated;
     }),
 
@@ -162,6 +174,11 @@ export const membersRouter = router({
       if (!archived) {
         throw new TRPCError({ code: "NOT_FOUND", message: "Member not found." });
       }
+      recordAudit(ctx, {
+        action: "delete",
+        resource: "Member",
+        details: `Archived member ${archived.name}`,
+      });
       return archived;
     }),
 

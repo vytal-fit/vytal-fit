@@ -4,6 +4,7 @@ import { apiKeys } from "@vytal-fit/db";
 import { z } from "zod";
 import { adminProcedure, router } from "../trpc";
 import { generateApiKey } from "../api-keys";
+import { recordAudit } from "../audit";
 
 /** Mask a stored key for display: "vk_live_a1b2····9f3c". */
 function maskedKey(prefix: string, last4: string): string {
@@ -48,6 +49,12 @@ export const apiKeysRouter = router({
           createdBy: ctx.session?.user.id ?? null,
         })
         .returning();
+      recordAudit(ctx, {
+        action: "settings",
+        resource: "API Key",
+        details: `Created API key: ${created.name}`,
+        expandedDetails: `Prefix: ${prefix}····${last4}`,
+      });
       return {
         id: created.id,
         name: created.name,
@@ -76,6 +83,11 @@ export const apiKeysRouter = router({
       if (!revoked) {
         throw new TRPCError({ code: "NOT_FOUND", message: "API key not found." });
       }
+      recordAudit(ctx, {
+        action: "settings",
+        resource: "API Key",
+        details: `Revoked API key: ${revoked.name}`,
+      });
       return { id: revoked.id, revokedAt: revoked.revokedAt };
     }),
 });

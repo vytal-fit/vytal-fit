@@ -1369,6 +1369,32 @@ export const expenses = pgTable(
 );
 
 /**
+ * Audit log: an append-only trail of who did what. Written by `recordAudit`
+ * after admin/destructive mutations; read (admin-only) by the settings page.
+ * `action`/`resource` are free strings matching the UI's filter vocabularies.
+ */
+export const auditLogs = pgTable(
+  "audit_logs",
+  {
+    id: text("id").primaryKey(),
+    organizationId: text("organization_id")
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    actorName: text("actor_name").notNull(),
+    action: text("action").notNull(),
+    resource: text("resource").notNull(),
+    details: text("details").notNull(),
+    expandedDetails: text("expanded_details"),
+    ip: text("ip"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (t) => [
+    index("audit_logs_org_idx").on(t.organizationId),
+    index("audit_logs_org_created_idx").on(t.organizationId, t.createdAt),
+  ],
+);
+
+/**
  * External API keys (the paid developer-API gate). Only the SHA-256 hash of the
  * key is stored; the plaintext (`vk_live_…`) is shown once at creation. Every
  * external REST call authenticates with one and is scoped to its organization.

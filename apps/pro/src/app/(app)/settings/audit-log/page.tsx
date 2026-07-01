@@ -18,6 +18,17 @@ import { cn } from "@/lib/utils";
 import { useI18n } from "@/lib/i18n";
 import { useToast } from "@/components/toast";
 import { Breadcrumbs } from "@/components/breadcrumbs";
+import { trpc } from "@/lib/trpc";
+
+function fmtTs(d: string | Date): string {
+  const dt = new Date(d);
+  const p = (n: number) => String(n).padStart(2, "0");
+  return `${dt.getFullYear()}-${p(dt.getMonth() + 1)}-${p(dt.getDate())} ${p(dt.getHours())}:${p(dt.getMinutes())}:${p(dt.getSeconds())}`;
+}
+
+function initialsOf(name: string): string {
+  return name.split(" ").map((n) => n[0]).filter(Boolean).slice(0, 2).join("").toUpperCase();
+}
 
 type ActionType =
   | "create"
@@ -62,7 +73,7 @@ type ResourceType =
   | "Email";
 
 interface AuditEntry {
-  id: number;
+  id: string;
   timestamp: string;
   user: string;
   userInitials: string;
@@ -73,30 +84,6 @@ interface AuditEntry {
   ip: string;
 }
 
-const mockAuditLog: AuditEntry[] = [
-  { id: 1, timestamp: "2026-06-04 10:42:15", user: "Andre Loureiro", userInitials: "AL", action: "login", resource: "Auth", details: "Logged in successfully", expandedDetails: "Browser: Chrome 126.0 / macOS 15.1 / Session ID: sess_a3f8c1", ip: "192.168.1.10" },
-  { id: 2, timestamp: "2026-06-04 10:30:22", user: "System", userInitials: "SY", action: "payment", resource: "Payment", details: "Payment of 75 EUR processed for Rita Costa via Stripe", expandedDetails: "Stripe Payment Intent: pi_3QxR2aBc4DeF5gH6 / Card ending 4242", ip: "-- " },
-  { id: 3, timestamp: "2026-06-04 09:55:10", user: "Andre Loureiro", userInitials: "AL", action: "create", resource: "Member", details: "Created member Carlos Mendes (#12)", expandedDetails: "Plan: Monthly (75 EUR) / Source: Referral from Ana Silva / Trial completed: Yes", ip: "192.168.1.10" },
-  { id: 4, timestamp: "2026-06-04 09:30:00", user: "Marine Robba", userInitials: "MR", action: "update", resource: "Member", details: "Updated member status: Maria Oliveira -> inactive", expandedDetails: "Previous status: active / Reason: No attendance in 45 days / Automated flag", ip: "192.168.1.15" },
-  { id: 5, timestamp: "2026-06-04 09:15:33", user: "Andre Loureiro", userInitials: "AL", action: "update", resource: "Member", details: "Changed plan for Pedro Almeida: Monthly -> Annual", expandedDetails: "Old plan: Monthly (75 EUR/mo) / New plan: Annual (720 EUR/yr) / Effective: 2026-06-05", ip: "192.168.1.10" },
-  { id: 6, timestamp: "2026-06-04 08:45:00", user: "Ricardo Ribeiro", userInitials: "RR", action: "create", resource: "Class", details: "Created CrossFit class for June 5 at 18:00", expandedDetails: "Location: Main Box / Coach: Ricardo Ribeiro / Capacity: 16 / Duration: 60min", ip: "192.168.1.22" },
-  { id: 7, timestamp: "2026-06-04 08:30:12", user: "Marine Robba", userInitials: "MR", action: "login", resource: "Auth", details: "Logged in successfully", ip: "192.168.1.15" },
-  { id: 8, timestamp: "2026-06-03 18:00:00", user: "Andre Loureiro", userInitials: "AL", action: "delete", resource: "Class", details: "Cancelled Open Box class on June 8", expandedDetails: "Reason: Coach unavailable / 3 members notified / Rescheduled to June 9", ip: "192.168.1.10" },
-  { id: 9, timestamp: "2026-06-03 17:22:44", user: "Ricardo Ribeiro", userInitials: "RR", action: "update", resource: "Class", details: "Marked attendance for CrossFit 18:00 (14/16 present)", expandedDetails: "Present: 14 / Absent: 2 (Ana Ferreira - no show, Joao Silva - cancelled) / Avg attendance: 87.5%", ip: "192.168.1.22" },
-  { id: 10, timestamp: "2026-06-03 16:45:00", user: "System", userInitials: "SY", action: "payment", resource: "Invoice", details: "Invoice #2026-0089 generated for Sofia Santos", expandedDetails: "Amount: 75 EUR / Due: 2026-06-15 / Plan: Monthly / Auto-generated", ip: "--" },
-  { id: 11, timestamp: "2026-06-03 15:30:00", user: "System", userInitials: "SY", action: "refund", resource: "Payment", details: "Refund of 25 EUR issued to Tiago Neves", expandedDetails: "Original payment: 75 EUR / Partial refund / Reason: Class cancellation / Stripe refund: re_3QxR2aBc", ip: "--" },
-  { id: 12, timestamp: "2026-06-03 14:15:22", user: "Andre Loureiro", userInitials: "AL", action: "settings", resource: "Permission", details: "Updated role for Marine Robba: Staff -> Manager", expandedDetails: "New permissions: manage members, manage classes, view financials, manage leads", ip: "192.168.1.10" },
-  { id: 13, timestamp: "2026-06-03 13:00:00", user: "Andre Loureiro", userInitials: "AL", action: "settings", resource: "Webhook", details: "Created webhook: Zapier -- New Member", expandedDetails: "URL: https://hooks.zapier.com/... / Events: member.created, member.updated / Secret generated", ip: "192.168.1.10" },
-  { id: 14, timestamp: "2026-06-03 12:30:10", user: "Andre Loureiro", userInitials: "AL", action: "settings", resource: "API Key", details: "Created API key: Production API Key", expandedDetails: "Permissions: read_members, write_members, read_classes, read_financials / Expiry: Never", ip: "192.168.1.10" },
-  { id: 15, timestamp: "2026-06-03 11:00:00", user: "Marine Robba", userInitials: "MR", action: "crm", resource: "Lead", details: "Lead stage changed: Helena Cardoso -> Contacted", expandedDetails: "Previous stage: New / Channel: Phone call / Follow-up scheduled: 2026-06-05", ip: "192.168.1.15" },
-  { id: 16, timestamp: "2026-06-03 10:30:00", user: "Marine Robba", userInitials: "MR", action: "crm", resource: "Email", details: "Email sent to lead Bruno Ferreira", expandedDetails: "Template: Trial Invitation / Subject: 'Your free class is waiting!' / Opened: Yes", ip: "192.168.1.15" },
-  { id: 17, timestamp: "2026-06-03 09:15:00", user: "Andre Loureiro", userInitials: "AL", action: "logout", resource: "Auth", details: "Logged out", ip: "192.168.1.10" },
-  { id: 18, timestamp: "2026-06-02 18:00:00", user: "Ricardo Ribeiro", userInitials: "RR", action: "create", resource: "WOD", details: "Published WOD for June 3 (FRAN)", expandedDetails: "Type: Benchmark / Movements: Thrusters, Pull-ups / Time cap: 10min", ip: "192.168.1.22" },
-  { id: 19, timestamp: "2026-06-02 16:30:00", user: "System", userInitials: "SY", action: "payment", resource: "Payment", details: "Payment of 60 EUR failed for Ana Ferreira via MBWay", expandedDetails: "Error: Insufficient funds / Retry scheduled: 2026-06-04 / Dunning email queued", ip: "--" },
-  { id: 20, timestamp: "2026-06-02 14:00:00", user: "Andre Loureiro", userInitials: "AL", action: "export", resource: "Report", details: "Monthly attendance report exported (May 2026)", expandedDetails: "Format: CSV / Records: 1,247 attendance entries / Period: 2026-05-01 to 2026-05-31", ip: "192.168.1.10" },
-];
-
-const allUsers = ["All Users", "Andre Loureiro", "Marine Robba", "Ricardo Ribeiro", "System"];
 const allActionTypes: ActionType[] = ["create", "update", "delete", "payment", "settings", "login", "logout", "export", "crm", "refund"];
 const allResourceTypes: ResourceType[] = ["Auth", "Member", "Class", "Payment", "Invoice", "Settings", "WOD", "Lead", "Plan", "Automation", "Report", "Webhook", "API Key", "Permission", "Email"];
 
@@ -112,11 +99,33 @@ export default function AuditLogPage() {
   const [selectedResource, setSelectedResource] = useState<ResourceType | "all">("all");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
-  const [expandedRow, setExpandedRow] = useState<number | null>(null);
+  const [expandedRow, setExpandedRow] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
 
+  const logQuery = trpc.auditLog.list.useQuery();
+  const entries: AuditEntry[] = useMemo(
+    () =>
+      (logQuery.data ?? []).map((r) => ({
+        id: r.id,
+        timestamp: fmtTs(r.createdAt),
+        user: r.actorName,
+        userInitials: initialsOf(r.actorName),
+        action: r.action as ActionType,
+        resource: r.resource as ResourceType,
+        details: r.details,
+        expandedDetails: r.expandedDetails ?? undefined,
+        ip: r.ip ?? "--",
+      })),
+    [logQuery.data],
+  );
+
+  const allUsers = useMemo(
+    () => ["All Users", ...Array.from(new Set(entries.map((e) => e.user)))],
+    [entries],
+  );
+
   const filtered = useMemo(() => {
-    return mockAuditLog.filter((entry) => {
+    return entries.filter((entry) => {
       if (selectedUser !== "All Users" && entry.user !== selectedUser) return false;
       if (selectedAction !== "all" && entry.action !== selectedAction) return false;
       if (selectedResource !== "all" && entry.resource !== selectedResource) return false;
@@ -134,7 +143,7 @@ export default function AuditLogPage() {
       if (dateTo && entry.timestamp > dateTo + " 23:59:59") return false;
       return true;
     });
-  }, [search, selectedUser, selectedAction, selectedResource, dateFrom, dateTo]);
+  }, [entries, search, selectedUser, selectedAction, selectedResource, dateFrom, dateTo]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const paginatedEntries = filtered.slice(
@@ -142,20 +151,17 @@ export default function AuditLogPage() {
     currentPage * PAGE_SIZE
   );
 
-  // Stats
-  const eventsToday = mockAuditLog.filter((e) => e.timestamp.startsWith("2026-06-04")).length;
+  // Stats (real, relative to today)
+  const todayPrefix = fmtTs(new Date()).slice(0, 10);
+  const eventsToday = entries.filter((e) => e.timestamp.startsWith(todayPrefix)).length;
   const activeUsersToday = new Set(
-    mockAuditLog
-      .filter((e) => e.timestamp.startsWith("2026-06-04") && e.user !== "System")
-      .map((e) => e.user)
+    entries.filter((e) => e.timestamp.startsWith(todayPrefix) && e.user !== "System").map((e) => e.user),
   ).size;
   const mostActiveUser = (() => {
     const counts: Record<string, number> = {};
-    mockAuditLog
-      .filter((e) => e.user !== "System")
-      .forEach((e) => {
-        counts[e.user] = (counts[e.user] || 0) + 1;
-      });
+    entries.filter((e) => e.user !== "System").forEach((e) => {
+      counts[e.user] = (counts[e.user] || 0) + 1;
+    });
     let max = 0;
     let name = "--";
     for (const [user, count] of Object.entries(counts)) {
