@@ -1739,6 +1739,7 @@ export const pt: Record<string, string> = {
     // Retention
     "retention.notification": "Notificação",
     "retention.coach": "Treinador",
+    "retention.empty": "Sem novos membros nas últimas 16 semanas.",
     "retention.atRiskCount": "{count} em risco",
     "retention.selectAll": "Selecionar Todos",
     "retention.deselectAll": "Desselecionar Todos",

@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { useI18n } from "@/lib/i18n";
 import { useToast } from "@/components/toast";
 import { Breadcrumbs } from "@/components/breadcrumbs";
+import { trpc } from "@/lib/trpc";
 
 type TabKey = "w1_4" | "w5_8" | "w9_12" | "w13_16";
 
@@ -27,49 +28,9 @@ interface NewMember {
   id: string;
   name: string;
   coach: string;
-  joinWeek: number; // 0-based, which week they joined
+  joinWeek: number; // 0-based window column they joined in
   weeklyAttendance: number[]; // sessions per week for 16 weeks
-  selected: boolean;
 }
-
-const mockNewMembers: NewMember[] = [
-  {
-    id: "nm-1", name: "Tiago Neves", coach: "Andre Loureiro",
-    joinWeek: 0,
-    weeklyAttendance: [4, 3, 2, 3, 4, 3, 3, 4, 3, 2, 3, 4, 3, 3, 4, 3],
-    selected: false,
-  },
-  {
-    id: "nm-2", name: "Catarina Reis", coach: "Marine Robba",
-    joinWeek: 0,
-    weeklyAttendance: [5, 4, 4, 5, 4, 5, 4, 4, 5, 4, 5, 4, 4, 5, 4, 5],
-    selected: false,
-  },
-  {
-    id: "nm-3", name: "Diogo Martins", coach: "Ricardo Ribeiro",
-    joinWeek: 0,
-    weeklyAttendance: [3, 2, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    selected: false,
-  },
-  {
-    id: "nm-4", name: "Helena Cardoso", coach: "Andre Loureiro",
-    joinWeek: 0,
-    weeklyAttendance: [3, 3, 2, 2, 3, 3, 2, 2, 3, 2, 2, 3, 2, 2, 2, 3],
-    selected: false,
-  },
-  {
-    id: "nm-5", name: "Rui Goncalves", coach: "Marine Robba",
-    joinWeek: 2,
-    weeklyAttendance: [0, 0, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    selected: false,
-  },
-  {
-    id: "nm-6", name: "Francisca Nunes", coach: "Ricardo Ribeiro",
-    joinWeek: 0,
-    weeklyAttendance: [4, 3, 3, 2, 3, 4, 3, 2, 3, 4, 3, 3, 4, 3, 3, 2],
-    selected: false,
-  },
-];
 
 function getAdvantageColor(index: number): string {
   if (index >= 75) return "text-vytal-green";
@@ -105,7 +66,9 @@ export default function RetentionMonitorPage() {
   const { t } = useI18n();
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState<TabKey>("w1_4");
-  const [members, setMembers] = useState(mockNewMembers);
+  const retentionQuery = trpc.members.retention.useQuery();
+  const members: NewMember[] = useMemo(() => retentionQuery.data ?? [], [retentionQuery.data]);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [thresholdGreen, setThresholdGreen] = useState(3);
   const [thresholdYellow, setThresholdYellow] = useState(1);
   const [advantageThreshold, setAdvantageThreshold] = useState(50);
@@ -161,21 +124,24 @@ export default function RetentionMonitorPage() {
   );
 
   function toggleSelect(id: string) {
-    setMembers((prev) =>
-      prev.map((m) => (m.id === id ? { ...m, selected: !m.selected } : m))
-    );
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
   }
 
   function selectAll() {
-    setMembers((prev) => prev.map((m) => ({ ...m, selected: true })));
+    setSelectedIds(new Set(members.map((m) => m.id)));
   }
 
   function deselectAll() {
-    setMembers((prev) => prev.map((m) => ({ ...m, selected: false })));
+    setSelectedIds(new Set());
   }
 
-  const selectedCount = members.filter((m) => m.selected).length;
-  const selectedNames = members.filter((m) => m.selected).map((m) => m.name);
+  const selectedCount = selectedIds.size;
+  const selectedNames = members.filter((m) => selectedIds.has(m.id)).map((m) => m.name);
 
   const handleBulkNotification = useCallback(() => {
     toast(t("toast.pushSent").replace("{count}", String(selectedCount)).replace("{names}", selectedNames.join(", ")), "success");
@@ -277,11 +243,17 @@ export default function RetentionMonitorPage() {
       <div className="grid gap-6 lg:grid-cols-4">
         {/* Member Cards */}
         <div className="space-y-3 lg:col-span-3">
+          {members.length === 0 && (
+            <div className="rounded-xl border border-dashed border-vytal-border bg-vytal-card p-10 text-center text-sm text-vytal-muted">
+              {t("retention.empty")}
+            </div>
+          )}
           {members.map((member) => {
             const initials = member.name.split(" ").map((n) => n[0]).join("").slice(0, 2);
             const weekData = getTabWeeks(member);
             const advantageIndex = computeAdvantageIndex(member);
             const isAtRisk = advantageIndex < advantageThreshold;
+            const isSelected = selectedIds.has(member.id);
 
             return (
               <div
@@ -289,7 +261,7 @@ export default function RetentionMonitorPage() {
                 onClick={() => toggleSelect(member.id)}
                 className={cn(
                   "flex cursor-pointer items-center gap-4 rounded-xl border p-4 transition-colors",
-                  member.selected
+                  isSelected
                     ? "border-vytal-green/30 bg-vytal-green/5"
                     : isAtRisk
                     ? "border-vytal-red/20 bg-vytal-card hover:border-vytal-red/40"
@@ -299,9 +271,9 @@ export default function RetentionMonitorPage() {
                 {/* Checkbox */}
                 <div className={cn(
                   "flex h-5 w-5 items-center justify-center rounded border",
-                  member.selected ? "border-vytal-green bg-vytal-green" : "border-vytal-border"
+                  isSelected ? "border-vytal-green bg-vytal-green" : "border-vytal-border"
                 )}>
-                  {member.selected && <span className="text-xs font-bold text-vytal-bg">&#10003;</span>}
+                  {isSelected && <span className="text-xs font-bold text-vytal-bg">&#10003;</span>}
                 </div>
 
                 {/* Avatar */}
@@ -312,7 +284,9 @@ export default function RetentionMonitorPage() {
                 {/* Info */}
                 <div className="flex-1">
                   <p className="text-sm font-semibold text-vytal-text">{member.name}</p>
-                  <p className="text-xs text-vytal-muted">{t("retention.coach")}: {member.coach}</p>
+                  {member.coach && (
+                    <p className="text-xs text-vytal-muted">{t("retention.coach")}: {member.coach}</p>
+                  )}
                 </div>
 
                 {/* Attendance Dots with session counts */}

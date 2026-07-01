@@ -1449,6 +1449,7 @@ export const es: Record<string, string> = {
     // Retention hardcoded strings
     "retention.notification": "Notificación",
     "retention.coach": "Coach",
+    "retention.empty": "Sin nuevos miembros en las últimas 16 semanas.",
     "retention.atRiskCount": "{count} en riesgo",
     "retention.selectAll": "Seleccionar Todo",
     "retention.deselectAll": "Deseleccionar Todo",

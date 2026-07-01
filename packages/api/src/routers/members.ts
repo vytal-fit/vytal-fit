@@ -1,8 +1,11 @@
 import { TRPCError } from "@trpc/server";
-import { and, asc, desc, eq, gt } from "drizzle-orm";
-import { gymMembers, GENDERS, MEMBER_STATUSES } from "@vytal-fit/db";
+import { and, asc, desc, eq, gt, gte, inArray } from "drizzle-orm";
+import { checkIns, gymMembers, GENDERS, MEMBER_STATUSES } from "@vytal-fit/db";
 import { z } from "zod";
 import { adminProcedure, orgProcedure, router } from "../trpc";
+
+const RETENTION_WEEKS = 16;
+const WEEK_MS = 7 * 86_400_000;
 
 const memberInput = z.object({
   name: z.string().min(1).max(200),
@@ -161,4 +164,56 @@ export const membersRouter = router({
       }
       return archived;
     }),
+
+  /**
+   * Onboarding retention cohort: members who joined within the last 16 calendar
+   * weeks, with their per-week check-in counts across a fixed 16-week window
+   * (current week is week 16). `joinWeek` is the 0-based window column they
+   * joined in, so the UI greys out the weeks before they existed. Fully derived
+   * from real join dates + check-ins.
+   */
+  retention: orgProcedure.query(async ({ ctx }) => {
+    const org = ctx.activeOrganizationId;
+    const now = new Date();
+    const dow = (now.getUTCDay() + 6) % 7; // 0 = Monday
+    const thisMonday = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - dow);
+    const windowStart = thisMonday - (RETENTION_WEEKS - 1) * WEEK_MS;
+    const windowStartDate = new Date(windowStart);
+
+    const members = await ctx.db
+      .select({ id: gymMembers.id, name: gymMembers.name, joinedAt: gymMembers.joinedAt })
+      .from(gymMembers)
+      .where(and(eq(gymMembers.organizationId, org), gte(gymMembers.joinedAt, windowStartDate)))
+      .orderBy(asc(gymMembers.joinedAt));
+    if (members.length === 0) return [];
+
+    const ids = members.map((m) => m.id);
+    const cis = await ctx.db
+      .select({ memberId: checkIns.memberId, checkedInAt: checkIns.checkedInAt })
+      .from(checkIns)
+      .where(
+        and(
+          eq(checkIns.organizationId, org),
+          gte(checkIns.checkedInAt, windowStartDate),
+          inArray(checkIns.memberId, ids),
+        ),
+      );
+
+    const weekOf = (d: Date) =>
+      Math.min(RETENTION_WEEKS - 1, Math.max(0, Math.floor((d.getTime() - windowStart) / WEEK_MS)));
+    const byMember = new Map<string, number[]>();
+    for (const id of ids) byMember.set(id, Array(RETENTION_WEEKS).fill(0));
+    for (const c of cis) {
+      const arr = byMember.get(c.memberId);
+      if (arr) arr[weekOf(c.checkedInAt)] += 1;
+    }
+
+    return members.map((m) => ({
+      id: m.id,
+      name: m.name,
+      coach: "",
+      joinWeek: weekOf(m.joinedAt),
+      weeklyAttendance: byMember.get(m.id) ?? Array(RETENTION_WEEKS).fill(0),
+    }));
+  }),
 });
