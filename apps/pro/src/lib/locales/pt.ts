@@ -3189,6 +3189,7 @@ export const pt: Record<string, string> = {
     "backup.wods": "WODs",
     "backup.crm": "CRM",
     "backup.records": "registos",
+    "backup.noBackups": "Ainda sem exportações. Usa Exportar para criar a primeira.",
     "backup.format": "Formato",
     "backup.exportAll": "Exportar Todos os Dados",
     "backup.exporting": "A exportar...",

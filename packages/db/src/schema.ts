@@ -1368,6 +1368,23 @@ export const expenses = pgTable(
   ],
 );
 
+/** History of data exports (backups): what was exported, by whom, when. */
+export const backups = pgTable(
+  "backups",
+  {
+    id: text("id").primaryKey(),
+    organizationId: text("organization_id")
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    sections: jsonb("sections").$type<string[]>().notNull().default([]),
+    format: text("format").notNull(),
+    sizeBytes: integer("size_bytes").notNull().default(0),
+    createdBy: text("created_by"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (t) => [index("backups_org_idx").on(t.organizationId)],
+);
+
 /**
  * Outbound webhook endpoints. `secret` signs deliveries (HMAC-SHA256 in the
  * `X-Vytal-Signature` header). Success/failure counters + lastTriggeredAt are

@@ -15,45 +15,68 @@ import { cn } from "@/lib/utils";
 import { useI18n } from "@/lib/i18n";
 import { useToast } from "@/components/toast";
 import { Breadcrumbs } from "@/components/breadcrumbs";
+import { trpc } from "@/lib/trpc";
 
 type ExportFormat = "json" | "csv";
 
-interface ExportOption {
-  key: string;
-  labelKey: string;
-  count: number;
+function humanBytes(n: number): string {
+  if (n < 1024) return `${n} B`;
+  if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KB`;
+  return `${(n / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-interface BackupEntry {
-  id: string;
-  date: string;
-  size: string;
-  type: "full" | "partial";
-  format: ExportFormat;
+function toCsv(rows: unknown[]): string {
+  if (!Array.isArray(rows) || rows.length === 0) return "";
+  const keys = Object.keys(rows[0] as Record<string, unknown>);
+  const esc = (v: unknown) => `"${String(v ?? "").replace(/"/g, '""')}"`;
+  return [keys.join(","), ...rows.map((r) => keys.map((k) => esc((r as Record<string, unknown>)[k])).join(","))].join("\n");
 }
 
-const exportOptions: ExportOption[] = [
-  { key: "members", labelKey: "backup.members", count: 127 },
-  { key: "classes", labelKey: "backup.classes", count: 342 },
-  { key: "payments", labelKey: "backup.payments", count: 1580 },
-  { key: "wods", labelKey: "backup.wods", count: 89 },
-  { key: "crm", labelKey: "backup.crm", count: 45 },
-];
-
-const mockBackups: BackupEntry[] = [
-  { id: "bk-1", date: "2026-06-03T14:30:00", size: "4.2 MB", type: "full", format: "json" },
-  { id: "bk-2", date: "2026-05-27T09:00:00", size: "3.8 MB", type: "full", format: "json" },
-  { id: "bk-3", date: "2026-05-20T09:00:00", size: "1.1 MB", type: "partial", format: "csv" },
+const exportSections: { key: string; labelKey: string }[] = [
+  { key: "members", labelKey: "backup.members" },
+  { key: "classes", labelKey: "backup.classes" },
+  { key: "payments", labelKey: "backup.payments" },
+  { key: "wods", labelKey: "backup.wods" },
+  { key: "crm", labelKey: "backup.crm" },
 ];
 
 export default function BackupPage() {
   const { t } = useI18n();
   const { toast } = useToast();
+  const utils = trpc.useUtils();
   const [format, setFormat] = useState<ExportFormat>("json");
-  const [selected, setSelected] = useState<Set<string>>(new Set(exportOptions.map((o) => o.key)));
+  const [selected, setSelected] = useState<Set<string>>(new Set(exportSections.map((o) => o.key)));
   const [autoBackup, setAutoBackup] = useState<"off" | "daily" | "weekly">("weekly");
-  const [exporting, setExporting] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
+
+  const summaryQuery = trpc.backups.summary.useQuery();
+  const historyQuery = trpc.backups.history.useQuery();
+  const counts = summaryQuery.data ?? { members: 0, classes: 0, payments: 0, wods: 0, crm: 0 };
+  const history = historyQuery.data ?? [];
+
+  const createBackup = trpc.backups.create.useMutation({
+    onSuccess: (res) => {
+      const content =
+        res.format === "json"
+          ? JSON.stringify(res, null, 2)
+          : Object.entries(res.data)
+              .map(([section, rows]) => `# ${section}\n${toCsv(rows)}`)
+              .join("\n\n");
+      const blob = new Blob([content], {
+        type: res.format === "json" ? "application/json" : "text/csv",
+      });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `vytal-backup-${new Date().toISOString().slice(0, 10)}.${res.format}`;
+      a.click();
+      URL.revokeObjectURL(url);
+      void utils.backups.history.invalidate();
+      toast(t("backup.exportSuccess"), "success");
+    },
+    onError: (e) =>
+      toast(e.data?.code === "FORBIDDEN" ? t("settings.adminOnly") : t("ui.error"), "error"),
+  });
 
   const toggleOption = (key: string) => {
     const next = new Set(selected);
@@ -67,47 +90,15 @@ export default function BackupPage() {
       toast(t("backup.selectAtLeastOne"), "error");
       return;
     }
-    setExporting(true);
-
-    // Simulate export with Blob
-    setTimeout(() => {
-      const mockData = {
-        exportedAt: new Date().toISOString(),
-        format,
-        sections: Array.from(selected),
-        data: {
-          members: selected.has("members") ? [{ id: "m-1", name: "Sample Member" }] : [],
-          classes: selected.has("classes") ? [{ id: "c-1", name: "Sample Class" }] : [],
-          payments: selected.has("payments") ? [{ id: "p-1", amount: 65 }] : [],
-          wods: selected.has("wods") ? [{ id: "w-1", name: "Sample WOD" }] : [],
-          crm: selected.has("crm") ? [{ id: "l-1", name: "Sample Lead" }] : [],
-        },
-      };
-
-      const content =
-        format === "json"
-          ? JSON.stringify(mockData, null, 2)
-          : "id,name,type\n1,Sample,Data";
-
-      const blob = new Blob([content], {
-        type: format === "json" ? "application/json" : "text/csv",
-      });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `vytal-backup-${new Date().toISOString().slice(0, 10)}.${format}`;
-      a.click();
-      URL.revokeObjectURL(url);
-
-      setExporting(false);
-      toast(t("backup.exportSuccess"), "success");
-    }, 1500);
-  }, [selected, format, toast, t]);
+    createBackup.mutate({ sections: Array.from(selected) as never, format });
+  }, [selected, format, toast, t, createBackup]);
 
   const handleDeleteAll = () => {
     setConfirmDelete(false);
     toast(t("backup.dataDeleted"), "success");
   };
+
+  const exporting = createBackup.isPending;
 
   return (
     <div className="space-y-6">
@@ -126,7 +117,7 @@ export default function BackupPage() {
         <h2 className="text-base font-bold text-vytal-text mb-4">{t("backup.exportData")}</h2>
 
         <div className="space-y-3 mb-6">
-          {exportOptions.map((opt) => (
+          {exportSections.map((opt) => (
             <label
               key={opt.key}
               className="flex items-center justify-between rounded-lg border border-vytal-border px-4 py-3 cursor-pointer transition-colors hover:bg-vytal-bg3"
@@ -140,7 +131,9 @@ export default function BackupPage() {
                 />
                 <span className="text-sm font-medium text-vytal-text">{t(opt.labelKey)}</span>
               </div>
-              <span className="text-xs text-vytal-muted">{opt.count} {t("backup.records")}</span>
+              <span className="text-xs text-vytal-muted">
+                {(counts as Record<string, number>)[opt.key] ?? 0} {t("backup.records")}
+              </span>
             </label>
           ))}
         </div>
@@ -234,14 +227,20 @@ export default function BackupPage() {
                 <th className="pb-3 font-semibold text-vytal-muted">{t("backup.size")}</th>
                 <th className="pb-3 font-semibold text-vytal-muted">{t("backup.type")}</th>
                 <th className="pb-3 font-semibold text-vytal-muted">{t("backup.formatCol")}</th>
-                <th className="pb-3 font-semibold text-vytal-muted"></th>
               </tr>
             </thead>
             <tbody>
-              {mockBackups.map((bk) => (
+              {history.length === 0 && (
+                <tr>
+                  <td colSpan={4} className="py-6 text-center text-xs text-vytal-muted">
+                    {t("backup.noBackups")}
+                  </td>
+                </tr>
+              )}
+              {history.map((bk) => (
                 <tr key={bk.id} className="border-b border-vytal-border last:border-b-0">
                   <td className="py-3 text-vytal-text">
-                    {new Date(bk.date).toLocaleDateString("pt-PT", {
+                    {new Date(bk.createdAt).toLocaleDateString("pt-PT", {
                       day: "2-digit",
                       month: "short",
                       year: "numeric",
@@ -249,7 +248,7 @@ export default function BackupPage() {
                       minute: "2-digit",
                     })}
                   </td>
-                  <td className="py-3 text-vytal-muted">{bk.size}</td>
+                  <td className="py-3 text-vytal-muted">{humanBytes(bk.sizeBytes)}</td>
                   <td className="py-3">
                     <span
                       className={cn(
@@ -263,14 +262,6 @@ export default function BackupPage() {
                     </span>
                   </td>
                   <td className="py-3 text-vytal-muted uppercase text-xs">{bk.format}</td>
-                  <td className="py-3 text-right">
-                    <button
-                      onClick={() => toast(t("backup.downloadStarted"), "success")}
-                      className="text-vytal-green hover:text-vytal-green/80 transition-colors"
-                    >
-                      <Download className="h-4 w-4" />
-                    </button>
-                  </td>
                 </tr>
               ))}
             </tbody>

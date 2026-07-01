@@ -781,6 +781,17 @@ export async function seedDatabase(
       .returning({ id: schema.webhookDeliveries.id })
   ).length;
 
+  inserted.backups = (
+    await db
+      .insert(schema.backups)
+      .values([
+        { id: "bk-1", organizationId: ORG_1, sections: ["members", "classes", "payments", "wods", "crm"], format: "json", sizeBytes: 4_404_019, createdAt: minsAgo(1440) },
+        { id: "bk-2", organizationId: ORG_1, sections: ["members", "payments"], format: "csv", sizeBytes: 1_153_024, createdAt: minsAgo(10080) },
+      ])
+      .onConflictDoNothing()
+      .returning({ id: schema.backups.id })
+  ).length;
+
   inserted.classes = (
     await db
       .insert(schema.classes)
