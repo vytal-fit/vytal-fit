@@ -14,39 +14,6 @@ import { useI18n } from "@/lib/i18n";
 import { trpc } from "@/lib/trpc";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 
-interface FeedbackResponse {
-  id: string;
-  memberName: string;
-  rating: number;
-  comment: string;
-  date: string;
-}
-
-const mockFeedback: FeedbackResponse[] = [
-  { id: "fb-1", memberName: "Ana Silva", rating: 5, comment: "Excelente aula! O coach foi muito atencioso e motivador.", date: "2026-06-03" },
-  { id: "fb-2", memberName: "Pedro Almeida", rating: 5, comment: "Melhor WOD que ja fiz. Intenso mas muito bem estruturado.", date: "2026-06-03" },
-  { id: "fb-3", memberName: "Sofia Santos", rating: 4, comment: "Boa aula, mas o aquecimento podia ser mais longo.", date: "2026-06-03" },
-  { id: "fb-4", memberName: "Tiago Neves", rating: 5, comment: "Adorei a energia do coach Andre!", date: "2026-06-02" },
-  { id: "fb-5", memberName: "Catarina Reis", rating: 5, comment: "Superou as minhas expectativas. Vou voltar amanha!", date: "2026-06-02" },
-  { id: "fb-6", memberName: "Diogo Martins", rating: 4, comment: "Bom treino, musica podia ser melhor.", date: "2026-06-02" },
-  { id: "fb-7", memberName: "Helena Cardoso", rating: 3, comment: "Aula ok, mas estava demasiado lotada.", date: "2026-06-01" },
-  { id: "fb-8", memberName: "Miguel Costa", rating: 5, comment: "Coach Andre e o melhor! Sempre a motivar.", date: "2026-06-01" },
-  { id: "fb-9", memberName: "Francisca Nunes", rating: 4, comment: "Gostei muito, bom mix de exercicios.", date: "2026-06-01" },
-  { id: "fb-10", memberName: "Rui Goncalves", rating: 5, comment: "Top! Senti-me muito bem depois do treino.", date: "2026-05-31" },
-  { id: "fb-11", memberName: "Ines Ferreira", rating: 2, comment: "O coach chegou atrasado e a aula foi curta.", date: "2026-05-31" },
-  { id: "fb-12", memberName: "Jose Fonte", rating: 5, comment: "Perfeito como sempre. Obrigado Andre!", date: "2026-05-30" },
-  { id: "fb-13", memberName: "Maria Oliveira", rating: 4, comment: "Muito boa, recomendo a todos.", date: "2026-05-30" },
-  { id: "fb-14", memberName: "Bruno Lopes", rating: 5, comment: "Aula fantastica, sai completamente destruido!", date: "2026-05-30" },
-];
-
-const ratingDistribution = [
-  { stars: 5, count: 8 },
-  { stars: 4, count: 4 },
-  { stars: 3, count: 1 },
-  { stars: 2, count: 1 },
-  { stars: 1, count: 0 },
-];
-
 function StarRating({ rating }: { rating: number }) {
   return (
     <div className="flex items-center gap-0.5">
@@ -77,10 +44,14 @@ export default function ClassFeedbackPage() {
     ? { ...classQuery.data, classType: { name: classTypeName } }
     : undefined;
 
-  const avgRating = 4.7;
-  const totalResponses = 14;
-  const responseRate = 78;
-  const maxCount = Math.max(...ratingDistribution.map((r) => r.count));
+  const feedbackQuery = trpc.classes.feedback.useQuery({ classId });
+  const fb = feedbackQuery.data;
+  const avgRating = fb?.average ?? 0;
+  const totalResponses = fb?.count ?? 0;
+  const responseRate = fb?.responseRate ?? 0;
+  const ratingDistribution = fb?.distribution ?? [];
+  const feedbackItems = fb?.items ?? [];
+  const maxCount = Math.max(1, ...ratingDistribution.map((r) => r.count));
 
   return (
     <div className="space-y-6">
@@ -179,32 +150,35 @@ export default function ClassFeedbackPage() {
           {t("feedback.individualResponses")}
         </h3>
         <div className="space-y-4">
-          {mockFeedback.map((fb) => (
+          {feedbackItems.length === 0 && (
+            <p className="text-sm text-vytal-muted">{t("feedback.empty")}</p>
+          )}
+          {feedbackItems.map((item) => (
             <div
-              key={fb.id}
+              key={item.id}
               className="rounded-lg border border-vytal-border p-4 transition-colors hover:bg-vytal-bg3/50"
             >
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-3">
                   <div className="flex h-8 w-8 items-center justify-center rounded-full bg-vytal-bg3 text-xs font-bold text-vytal-muted">
-                    {fb.memberName
+                    {item.memberName
                       .split(" ")
                       .map((n) => n[0])
                       .join("")}
                   </div>
-                  <span className="text-sm font-semibold text-vytal-text">{fb.memberName}</span>
+                  <span className="text-sm font-semibold text-vytal-text">{item.memberName}</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <StarRating rating={fb.rating} />
+                  <StarRating rating={item.rating} />
                   <span className="text-xs text-vytal-muted">
-                    {new Date(fb.date).toLocaleDateString("pt-PT", {
+                    {new Date(item.createdAt).toLocaleDateString("pt-PT", {
                       day: "2-digit",
                       month: "short",
                     })}
                   </span>
                 </div>
               </div>
-              <p className="text-sm text-vytal-muted pl-11">{fb.comment}</p>
+              {item.comment && <p className="text-sm text-vytal-muted pl-11">{item.comment}</p>}
             </div>
           ))}
         </div>

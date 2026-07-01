@@ -944,6 +944,32 @@ export async function seedDatabase(
       .returning({ id: schema.checkIns.id })
   ).length;
 
+  // Class feedback for a past class (cl-1).
+  inserted.classFeedback = (
+    await db
+      .insert(schema.classFeedback)
+      .values(
+        [
+          { name: "Ana Silva", rating: 5, comment: "Excelente aula! O coach foi muito atencioso." },
+          { name: "Pedro Ferreira", rating: 5, comment: "Melhor WOD que já fiz. Muito bem estruturado." },
+          { name: "Sofia Santos", rating: 4, comment: "Boa aula, o aquecimento podia ser mais longo." },
+          { name: "Tiago Neves", rating: 5, comment: "Adorei a energia!" },
+          { name: "Helena Cardoso", rating: 3, comment: "Ok, mas estava demasiado cheia." },
+          { name: "Ines Ferreira", rating: 4, comment: "Bom mix de exercícios." },
+        ].map((f, i) => ({
+          id: `clfb-${i + 1}`,
+          organizationId: ORG_1,
+          classId: "cl-1",
+          memberName: f.name,
+          rating: f.rating,
+          comment: f.comment,
+          createdAt: minsAgo(i * 120 + 60),
+        })),
+      )
+      .onConflictDoNothing()
+      .returning({ id: schema.classFeedback.id })
+  ).length;
+
   inserted.wods = (
     await db
       .insert(schema.wods)

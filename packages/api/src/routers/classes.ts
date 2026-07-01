@@ -1,6 +1,6 @@
 import { TRPCError } from "@trpc/server";
 import { and, asc, count, desc, eq, gte, inArray, isNull, lt, lte } from "drizzle-orm";
-import { bookings, classes, classTypes, coaches, gymMembers, locations } from "@vytal-fit/db";
+import { bookings, classes, classFeedback, classTypes, coaches, gymMembers, locations } from "@vytal-fit/db";
 import { z } from "zod";
 import { orgProcedure, router, staffProcedure } from "../trpc";
 
@@ -346,5 +346,60 @@ export const classesRouter = router({
         .filter((x) => x.value > 0);
 
       return { entries, attendanceTrend, attendanceByType, noShowsByType };
+    }),
+
+  /** Feedback for one class: entries + average + 1-5 distribution + response rate. */
+  feedback: orgProcedure
+    .input(z.object({ classId: z.string().min(1) }))
+    .query(async ({ ctx, input }) => {
+      const org = ctx.activeOrganizationId;
+      const rows = await ctx.db
+        .select()
+        .from(classFeedback)
+        .where(and(eq(classFeedback.organizationId, org), eq(classFeedback.classId, input.classId)))
+        .orderBy(desc(classFeedback.createdAt));
+      const total = rows.length;
+      const average = total ? +(rows.reduce((s, r) => s + r.rating, 0) / total).toFixed(1) : 0;
+      const distribution = [5, 4, 3, 2, 1].map((stars) => ({
+        stars,
+        count: rows.filter((r) => r.rating === stars).length,
+      }));
+      // Response rate = feedback / bookings on the class.
+      const [enrolled] = await ctx.db
+        .select({ n: count() })
+        .from(bookings)
+        .where(and(eq(bookings.organizationId, org), eq(bookings.classId, input.classId)));
+      const enrolledN = enrolled?.n ?? 0;
+      const responseRate = enrolledN ? Math.round((total / enrolledN) * 100) : 0;
+      return {
+        items: rows.map((r) => ({ id: r.id, memberName: r.memberName, rating: r.rating, comment: r.comment ?? "", createdAt: r.createdAt })),
+        average,
+        count: total,
+        distribution,
+        responseRate,
+      };
+    }),
+
+  submitFeedback: orgProcedure
+    .input(
+      z.object({
+        classId: z.string().min(1),
+        rating: z.number().int().min(1).max(5),
+        comment: z.string().max(1000).optional(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const [created] = await ctx.db
+        .insert(classFeedback)
+        .values({
+          id: crypto.randomUUID(),
+          organizationId: ctx.activeOrganizationId,
+          classId: input.classId,
+          memberName: ctx.session?.user.name ?? "Member",
+          rating: input.rating,
+          comment: input.comment ?? null,
+        })
+        .returning();
+      return created;
     }),
 });

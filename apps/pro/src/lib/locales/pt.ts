@@ -3258,6 +3258,7 @@ export const pt: Record<string, string> = {
     "feedback.classDetail": "Detalhe da Aula",
     "feedback.backToClass": "Voltar a Aula",
     "feedback.avgRating": "Avaliação Média",
+    "feedback.empty": "Ainda sem avaliações para esta aula.",
     "feedback.responses": "Respostas",
     "feedback.responseRate": "Taxa de Resposta",
     "feedback.distribution": "Distribuição de Avaliações",

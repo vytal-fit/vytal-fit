@@ -1368,6 +1368,28 @@ export const expenses = pgTable(
   ],
 );
 
+/** Post-class member feedback: a 1-5 rating + optional comment per class. */
+export const classFeedback = pgTable(
+  "class_feedback",
+  {
+    id: text("id").primaryKey(),
+    organizationId: text("organization_id")
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    classId: text("class_id")
+      .notNull()
+      .references(() => classes.id, { onDelete: "cascade" }),
+    memberName: text("member_name").notNull(),
+    rating: integer("rating").notNull(),
+    comment: text("comment"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (t) => [
+    index("class_feedback_org_idx").on(t.organizationId),
+    index("class_feedback_class_idx").on(t.classId),
+  ],
+);
+
 /**
  * Scheduled social posts (marketing). Real CRUD + scheduling metadata; actual
  * publishing to Instagram/Facebook/LinkedIn needs platform OAuth (later).

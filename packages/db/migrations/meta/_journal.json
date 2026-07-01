@@ -260,6 +260,13 @@
       "when": 1782910498564,
       "tag": "0036_next_retro_girl",
       "breakpoints": true
+    },
+    {
+      "idx": 37,
+      "version": "7",
+      "when": 1782911351173,
+      "tag": "0037_futuristic_metal_master",
+      "breakpoints": true
     }
   ]
 }

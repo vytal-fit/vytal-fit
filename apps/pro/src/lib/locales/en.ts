@@ -3274,6 +3274,7 @@ export const en: Record<string, string> = {
     "feedback.classDetail": "Class Detail",
     "feedback.backToClass": "Back to Class",
     "feedback.avgRating": "Average Rating",
+    "feedback.empty": "No feedback for this class yet.",
     "feedback.responses": "Responses",
     "feedback.responseRate": "Response Rate",
     "feedback.distribution": "Rating Distribution",
