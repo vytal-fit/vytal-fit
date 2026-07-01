@@ -598,6 +598,31 @@ export const coachCertifications = pgTable(
   ],
 );
 
+/**
+ * Reusable class schedule templates ("Morning WOD Mon-Fri 07:00"). Free-text
+ * fields mirror the recurring-slot builder; instantiating real classes from a
+ * template is a later step.
+ */
+export const classTemplates = pgTable(
+  "class_templates",
+  {
+    id: text("id").primaryKey(),
+    organizationId: text("organization_id")
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    name: text("name").notNull(),
+    classType: text("class_type").notNull(),
+    time: text("time").notNull(),
+    duration: text("duration").notNull(),
+    coach: text("coach").notNull(),
+    capacity: integer("capacity").notNull().default(20),
+    location: text("location").notNull(),
+    days: text("days").notNull(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (t) => [index("class_templates_org_idx").on(t.organizationId)],
+);
+
 /** Member groups (segments/tags like "Competition Team", "Beginners"). */
 export const memberGroups = pgTable(
   "member_groups",

@@ -642,6 +642,21 @@ export async function seedDatabase(
       ).length
     : 0;
 
+  inserted.classTemplates = (
+    await db
+      .insert(schema.classTemplates)
+      .values(
+        [
+          { id: "ctpl-1", name: "Morning WOD (Mon-Fri 07:00)", classType: "WOD", time: "07:00", duration: "60 min", coach: "Andre Loureiro", capacity: 20, location: "Main Box", days: "Mon-Fri" },
+          { id: "ctpl-2", name: "Lunch Strength (Tue/Thu 12:00)", classType: "Strength", time: "12:00", duration: "75 min", coach: "Marine Robba", capacity: 15, location: "Main Box", days: "Tue/Thu" },
+          { id: "ctpl-3", name: "Evening WOD (Mon-Fri 17:30)", classType: "WOD", time: "17:30", duration: "60 min", coach: "Ricardo Ribeiro", capacity: 24, location: "Main Box", days: "Mon-Fri" },
+          { id: "ctpl-4", name: "Saturday Open Box", classType: "Open Box", time: "10:00", duration: "120 min", coach: "Silvina Resende", capacity: 30, location: "Main Box", days: "Sat" },
+        ].map((tpl) => ({ ...tpl, organizationId: ORG_1 })),
+      )
+      .onConflictDoNothing()
+      .returning({ id: schema.classTemplates.id })
+  ).length;
+
   inserted.classes = (
     await db
       .insert(schema.classes)

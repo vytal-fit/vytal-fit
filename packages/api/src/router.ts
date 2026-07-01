@@ -3,6 +3,7 @@ import { apiKeysRouter } from "./routers/apiKeys";
 import { bookingsRouter } from "./routers/bookings";
 import { certificationsRouter } from "./routers/certifications";
 import { checkInsRouter } from "./routers/checkIns";
+import { classTemplatesRouter } from "./routers/classTemplates";
 import { classTypesRouter } from "./routers/classTypes";
 import { classesRouter } from "./routers/classes";
 import { coachesRouter } from "./routers/coaches";
@@ -53,6 +54,7 @@ export const appRouter = router({
   expenses: expensesRouter,
   contracts: contractsRouter,
   certifications: certificationsRouter,
+  classTemplates: classTemplatesRouter,
   memberGroups: memberGroupsRouter,
   dashboard: dashboardRouter,
   uploads: uploadsRouter,

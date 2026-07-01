@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { useI18n } from "@/lib/i18n";
 import { useToast } from "@/components/toast";
+import { trpc } from "@/lib/trpc";
 import {
   Clock,
   Users,
@@ -30,58 +31,17 @@ interface ClassTemplate {
   days: string;
 }
 
-const mockTemplates: ClassTemplate[] = [
-  {
-    id: "ctpl-1",
-    name: "Morning WOD (Mon-Fri 07:00)",
-    classType: "WOD",
-    time: "07:00",
-    duration: "60 min",
-    coach: "Andre Loureiro",
-    capacity: 20,
-    location: "Main Box",
-    days: "Mon-Fri",
-  },
-  {
-    id: "ctpl-2",
-    name: "Lunch Strength (Tue/Thu 12:00)",
-    classType: "Strength",
-    time: "12:00",
-    duration: "75 min",
-    coach: "Marine Robba",
-    capacity: 15,
-    location: "Main Box",
-    days: "Tue/Thu",
-  },
-  {
-    id: "ctpl-3",
-    name: "Evening WOD (Mon-Fri 17:30)",
-    classType: "WOD",
-    time: "17:30",
-    duration: "60 min",
-    coach: "Ricardo Ribeiro",
-    capacity: 24,
-    location: "Main Box",
-    days: "Mon-Fri",
-  },
-  {
-    id: "ctpl-4",
-    name: "Saturday Open Box",
-    classType: "Open Box",
-    time: "10:00",
-    duration: "120 min",
-    coach: "Silvina Resende",
-    capacity: 30,
-    location: "Main Box",
-    days: "Sat",
-  },
-];
-
 export default function ClassTemplatesPage() {
   const { t } = useI18n();
   const { toast } = useToast();
 
-  const [templates, setTemplates] = useState(mockTemplates);
+  const utils = trpc.useUtils();
+  const templatesQuery = trpc.classTemplates.list.useQuery();
+  const templates: ClassTemplate[] = templatesQuery.data ?? [];
+
+  const onError = (error: { data?: { code?: string } | null }) =>
+    toast(error.data?.code === "FORBIDDEN" ? t("settings.adminOnly") : t("ui.error"), "error");
+
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [newName, setNewName] = useState("");
   const [newClassType, setNewClassType] = useState("WOD");
@@ -101,13 +61,46 @@ export default function ClassTemplatesPage() {
   const [editLocation, setEditLocation] = useState("Main Box");
   const [editDays, setEditDays] = useState("");
 
+  const createTemplate = trpc.classTemplates.create.useMutation({
+    onSuccess: () => {
+      void utils.classTemplates.list.invalidate();
+      setNewName("");
+      setNewClassType("WOD");
+      setNewTime("07:00");
+      setNewDuration("60 min");
+      setNewCoach("");
+      setNewCapacity(20);
+      setNewLocation("Main Box");
+      setNewDays("");
+      setShowCreateForm(false);
+      toast(t("classTemplates.created"), "success");
+    },
+    onError,
+  });
+
+  const updateTemplate = trpc.classTemplates.update.useMutation({
+    onSuccess: () => {
+      void utils.classTemplates.list.invalidate();
+      setEditingTemplate(null);
+      toast(t("classTemplates.updated"), "success");
+    },
+    onError,
+  });
+
+  const deleteTemplate = trpc.classTemplates.delete.useMutation({
+    onSuccess: () => {
+      void utils.classTemplates.list.invalidate();
+      toast(t("classTemplates.deleted"), "success");
+    },
+    onError,
+  });
+
   function handleCreate() {
     if (!newName.trim()) {
       toast(t("classTemplates.nameRequired"), "error");
       return;
     }
-    const tpl: ClassTemplate = {
-      id: `ctpl-${Date.now()}`,
+    createTemplate.mutate({
       name: newName.trim(),
       classType: newClassType,
       time: newTime,
@@ -116,18 +109,7 @@ export default function ClassTemplatesPage() {
       capacity: newCapacity,
       location: newLocation,
       days: newDays || "Mon-Fri",
-    };
-    setTemplates((prev) => [...prev, tpl]);
-    setNewName("");
-    setNewClassType("WOD");
-    setNewTime("07:00");
-    setNewDuration("60 min");
-    setNewCoach("");
-    setNewCapacity(20);
-    setNewLocation("Main Box");
-    setNewDays("");
-    setShowCreateForm(false);
-    toast(t("classTemplates.created"), "success");
+    });
   }
 
   function handleStartEdit(tpl: ClassTemplate) {
@@ -149,25 +131,17 @@ export default function ClassTemplatesPage() {
       toast(t("classTemplates.nameRequired"), "error");
       return;
     }
-    setTemplates((prev) =>
-      prev.map((tpl) =>
-        tpl.id === editingTemplate.id
-          ? {
-              ...tpl,
-              name: editName.trim(),
-              classType: editClassType,
-              time: editTime,
-              duration: editDuration,
-              coach: editCoach || "TBD",
-              capacity: editCapacity,
-              location: editLocation,
-              days: editDays || "Mon-Fri",
-            }
-          : tpl
-      )
-    );
-    setEditingTemplate(null);
-    toast(t("classTemplates.updated"), "success");
+    updateTemplate.mutate({
+      id: editingTemplate.id,
+      name: editName.trim(),
+      classType: editClassType,
+      time: editTime,
+      duration: editDuration,
+      coach: editCoach || "TBD",
+      capacity: editCapacity,
+      location: editLocation,
+      days: editDays || "Mon-Fri",
+    });
   }
 
   function handleCancelEdit() {
@@ -175,8 +149,7 @@ export default function ClassTemplatesPage() {
   }
 
   function handleDelete(id: string) {
-    setTemplates((prev) => prev.filter((tpl) => tpl.id !== id));
-    toast(t("classTemplates.deleted"), "success");
+    deleteTemplate.mutate({ id });
   }
 
   const inputClass =
