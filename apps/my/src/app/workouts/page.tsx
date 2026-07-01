@@ -232,46 +232,36 @@ function TimerModal({ workout, onClose, labels }: {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end md:items-center justify-center"
-      style={{ background: "rgba(0,0,0,0.7)", backdropFilter: "blur(4px)" }}
+      className="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-[rgba(0,0,0,0.7)]"
+      style={{ backdropFilter: "blur(4px)" }}
     >
-      <div
-        className="w-full max-w-sm mx-4 mb-4 md:mb-0 rounded-3xl p-6 space-y-5"
-        style={{ background: "var(--color-vytal-bg2)", border: "1px solid var(--color-vytal-border)" }}
-      >
+      <div className="w-full max-w-sm mx-4 mb-4 md:mb-0 rounded-3xl p-6 space-y-5 bg-vytal-bg2 border border-vytal-border">
         <div className="text-center">
-          <p className="text-xs font-bold uppercase tracking-widest mb-1" style={{ color: "var(--color-vytal-muted)" }}>
+          <p className="text-xs font-bold uppercase tracking-widest mb-1 text-vytal-muted">
             {labels.inProgress}
           </p>
-          <h2 className="text-xl font-black" style={{ color: "var(--color-vytal-text)" }}>
+          <h2 className="text-xl font-black text-vytal-text">
             {workout.title}
           </h2>
         </div>
 
         {/* Timer display */}
-        <div
-          className="rounded-2xl p-6 text-center"
-          style={{ background: "var(--color-vytal-bg3)" }}
-        >
+        <div className="rounded-2xl p-6 text-center bg-vytal-bg3">
           <span
-            className="text-6xl font-black tabular-nums tracking-tight"
-            style={{ color: running ? "var(--color-vytal-green)" : "var(--color-vytal-muted)", fontFamily: "var(--font-mono, monospace)" }}
+            className={cn("text-6xl font-black tabular-nums tracking-tight", running ? "text-vytal-green" : "text-vytal-muted")}
+            style={{ fontFamily: "var(--font-mono, monospace)" }}
           >
             {mins}:{secs}
           </span>
-          <p className="text-xs mt-1" style={{ color: "var(--color-vytal-muted)" }}>
+          <p className="text-xs mt-1 text-vytal-muted">
             {labels.estimated.replace("{n}", String(workout.duration))}
           </p>
           {/* Progress bar */}
-          <div
-            className="h-1.5 rounded-full mt-3 overflow-hidden"
-            style={{ background: "var(--color-vytal-bg2)" }}
-          >
+          <div className="h-1.5 rounded-full mt-3 overflow-hidden bg-vytal-bg2">
             <div
-              className="h-full rounded-full transition-all duration-1000"
+              className="h-full rounded-full transition-all duration-1000 bg-vytal-green"
               style={{
                 width: `${Math.min(100, (elapsed / (workout.duration * 60)) * 100)}%`,
-                background: "var(--color-vytal-green)",
               }}
             />
           </div>
@@ -282,19 +272,15 @@ function TimerModal({ workout, onClose, labels }: {
           {workout.exercises.map((ex, i) => (
             <div
               key={i}
-              className="flex items-center gap-2 rounded-xl px-3 py-2"
-              style={{ background: "var(--color-vytal-bg3)" }}
+              className="flex items-center gap-2 rounded-xl px-3 py-2 bg-vytal-bg3"
             >
-              <div
-                className="w-5 h-5 rounded-md flex items-center justify-center text-[9px] font-black shrink-0"
-                style={{ background: "var(--color-vytal-green)", color: "var(--color-vytal-bg)" }}
-              >
+              <div className="w-5 h-5 rounded-md flex items-center justify-center text-[9px] font-black shrink-0 bg-vytal-green text-vytal-bg">
                 {i + 1}
               </div>
-              <span className="text-xs font-semibold" style={{ color: "var(--color-vytal-text)" }}>
+              <span className="text-xs font-semibold text-vytal-text">
                 {ex.name}
               </span>
-              <span className="text-[10px] ml-auto" style={{ color: "var(--color-vytal-muted)" }}>
+              <span className="text-[10px] ml-auto text-vytal-muted">
                 {ex.sets ? `${ex.sets}x${ex.reps}` : ex.duration ?? ""}
               </span>
             </div>
@@ -305,15 +291,13 @@ function TimerModal({ workout, onClose, labels }: {
         <div className="flex gap-3">
           <button
             onClick={() => setRunning((r) => !r)}
-            className="flex-1 py-3 rounded-2xl font-bold text-sm transition-all duration-200 hover:opacity-90 hover:scale-[1.01]"
-            style={{ background: "var(--color-vytal-green)", color: "var(--color-vytal-bg)" }}
+            className="flex-1 py-3 rounded-2xl font-bold text-sm transition-all duration-200 hover:opacity-90 hover:scale-[1.01] bg-vytal-green text-vytal-bg"
           >
             {running ? labels.pause : elapsed > 0 ? labels.resume : labels.start}
           </button>
           <button
             onClick={onClose}
-            className="px-5 py-3 rounded-2xl font-bold text-sm transition-all duration-200 hover:scale-[1.01]"
-            style={{ background: "var(--color-vytal-bg3)", color: "var(--color-vytal-muted)", border: "1px solid var(--color-vytal-border)" }}
+            className="px-5 py-3 rounded-2xl font-bold text-sm transition-all duration-200 hover:scale-[1.01] bg-vytal-bg3 text-vytal-muted border border-vytal-border"
           >
             {labels.exit}
           </button>
@@ -340,8 +324,8 @@ export default function WorkoutsPage() {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div
-          className="w-8 h-8 rounded-full border-2 animate-spin"
-          style={{ borderColor: "var(--color-vytal-green)", borderTopColor: "transparent" }}
+          className="w-8 h-8 rounded-full border-2 animate-spin border-vytal-green"
+          style={{ borderTopColor: "transparent" }}
         />
       </div>
     );
@@ -376,10 +360,10 @@ export default function WorkoutsPage() {
 
       {/* ── Header ── */}
       <div>
-        <h1 className="text-2xl font-black" style={{ color: "var(--color-vytal-text)" }}>
+        <h1 className="text-2xl font-black text-vytal-text">
           {t("my.workouts.title")}
         </h1>
-        <p className="text-xs mt-0.5" style={{ color: "var(--color-vytal-muted)" }}>
+        <p className="text-xs mt-0.5 text-vytal-muted">
           {WORKOUTS.length} {t("my.workouts.subtitle")}
         </p>
       </div>
@@ -388,8 +372,8 @@ export default function WorkoutsPage() {
       {suggested.length > 0 && (
         <div>
           <div className="flex items-center gap-2 mb-3">
-            <Flame size={13} style={{ color: "var(--color-vytal-amber)" }} />
-            <p className="text-[10px] font-black uppercase tracking-widest" style={{ color: "var(--color-vytal-muted)" }}>
+            <Flame size={13} className="text-vytal-amber" />
+            <p className="text-[10px] font-black uppercase tracking-widest text-vytal-muted">
               {t("my.workouts.suggested")}
             </p>
           </div>
@@ -414,7 +398,7 @@ export default function WorkoutsPage() {
                             {w.category}
                           </span>
                         </div>
-                        <h3 className="font-black text-base leading-tight" style={{ color: "var(--color-vytal-text)" }}>
+                        <h3 className="font-black text-base leading-tight text-vytal-text">
                           {w.title}
                         </h3>
                       </div>
@@ -427,14 +411,14 @@ export default function WorkoutsPage() {
                     </div>
                     <div className="flex items-center gap-4">
                       <div className="flex items-center gap-1.5">
-                        <Clock size={11} style={{ color: "var(--color-vytal-muted)" }} />
-                        <span className="text-xs font-semibold" style={{ color: "var(--color-vytal-muted)" }}>
+                        <Clock size={11} className="text-vytal-muted" />
+                        <span className="text-xs font-semibold text-vytal-muted">
                           {w.duration} min
                         </span>
                       </div>
                       <div className="flex items-center gap-1.5">
-                        <Dumbbell size={11} style={{ color: "var(--color-vytal-muted)" }} />
-                        <span className="text-xs font-semibold" style={{ color: "var(--color-vytal-muted)" }}>
+                        <Dumbbell size={11} className="text-vytal-muted" />
+                        <span className="text-xs font-semibold text-vytal-muted">
                           {w.exercises.length} {t("my.workouts.exercises")}
                         </span>
                       </div>
@@ -487,8 +471,7 @@ export default function WorkoutsPage() {
           return (
             <div
               key={w.id}
-              className="rounded-2xl overflow-hidden transition-all duration-200"
-              style={{ background: "var(--color-vytal-bg2)", border: "1px solid var(--color-vytal-border)" }}
+              className="rounded-2xl overflow-hidden transition-all duration-200 bg-vytal-bg2 border border-vytal-border"
             >
               {/* Card header — always visible */}
               <button
@@ -503,14 +486,11 @@ export default function WorkoutsPage() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
-                    <p className="font-bold text-sm truncate" style={{ color: "var(--color-vytal-text)" }}>
+                    <p className="font-bold text-sm truncate text-vytal-text">
                       {w.title}
                     </p>
                     {w.suggested && (
-                      <span
-                        className="text-[8px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded-md shrink-0"
-                        style={{ background: "rgba(255,179,0,0.15)", color: "var(--color-vytal-amber)" }}
-                      >
+                      <span className="text-[8px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded-md shrink-0 bg-[rgba(255,179,0,0.15)] text-vytal-amber">
                         {t("my.workouts.suggestedBadge")}
                       </span>
                     )}
@@ -519,7 +499,7 @@ export default function WorkoutsPage() {
                     <span className="text-[10px] font-semibold" style={{ color: cfg.color }}>
                       {w.category}
                     </span>
-                    <span className="text-[10px]" style={{ color: "var(--color-vytal-muted)" }}>
+                    <span className="text-[10px] text-vytal-muted">
                       {w.duration} min · {w.exercises.length} {t("my.workouts.exercises")}
                     </span>
                   </div>
@@ -527,40 +507,36 @@ export default function WorkoutsPage() {
                 <div className="flex items-center gap-2 shrink-0">
                   <DifficultyDots level={w.difficulty} color={cfg.color} />
                   {isExpanded
-                    ? <ChevronUp size={15} style={{ color: "var(--color-vytal-muted)" }} />
-                    : <ChevronDown size={15} style={{ color: "var(--color-vytal-muted)" }} />
+                    ? <ChevronUp size={15} className="text-vytal-muted" />
+                    : <ChevronDown size={15} className="text-vytal-muted" />
                   }
                 </div>
               </button>
 
               {/* Expandable content */}
               {isExpanded && (
-                <div
-                  className="px-4 pb-4 space-y-3 border-t"
-                  style={{ borderColor: "var(--color-vytal-border)" }}
-                >
-                  <p className="text-xs leading-relaxed pt-3" style={{ color: "var(--color-vytal-muted)" }}>
+                <div className="px-4 pb-4 space-y-3 border-t border-vytal-border">
+                  <p className="text-xs leading-relaxed pt-3 text-vytal-muted">
                     {w.description}
                   </p>
                   <div className="space-y-1.5">
                     {w.exercises.map((ex, i) => (
                       <div
                         key={i}
-                        className="flex items-center gap-2.5 rounded-xl px-3 py-2.5"
-                        style={{ background: "var(--color-vytal-bg3)" }}
+                        className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 bg-vytal-bg3"
                       >
                         <div
-                          className="w-5 h-5 rounded-md flex items-center justify-center text-[9px] font-black shrink-0"
-                          style={{ background: cfg.color, color: "var(--color-vytal-bg)" }}
+                          className="w-5 h-5 rounded-md flex items-center justify-center text-[9px] font-black shrink-0 text-vytal-bg"
+                          style={{ background: cfg.color }}
                         >
                           {i + 1}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-xs font-bold" style={{ color: "var(--color-vytal-text)" }}>
+                          <p className="text-xs font-bold text-vytal-text">
                             {ex.name}
                           </p>
                           {ex.note && (
-                            <p className="text-[10px]" style={{ color: "var(--color-vytal-muted)" }}>
+                            <p className="text-[10px] text-vytal-muted">
                               {ex.note}
                             </p>
                           )}
@@ -577,7 +553,7 @@ export default function WorkoutsPage() {
                             </p>
                           )}
                           {ex.rest && (
-                            <p className="text-[9px]" style={{ color: "var(--color-vytal-muted)" }}>
+                            <p className="text-[9px] text-vytal-muted">
                               {t("my.workouts.rest")} {ex.rest}
                             </p>
                           )}

@@ -92,10 +92,7 @@ export default function SchedulePage() {
   if (!mounted) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
-        <div
-          className="w-8 h-8 rounded-full border-2 animate-spin"
-          style={{ borderColor: "var(--color-vytal-green)", borderTopColor: "transparent" }}
-        />
+        <div className="w-8 h-8 rounded-full border-2 border-vytal-green border-t-transparent animate-spin" />
       </div>
     );
   }
@@ -130,11 +127,10 @@ export default function SchedulePage() {
 
       {/* ── Day selector ── */}
       <div
-        className="sticky top-16 z-30 px-4 py-3"
+        className="sticky top-16 z-30 px-4 py-3 border-b border-vytal-border"
         style={{
           background: "color-mix(in srgb, var(--color-vytal-bg) 90%, transparent)",
           backdropFilter: "blur(12px)",
-          borderBottom: "1px solid var(--color-vytal-border)",
         }}
       >
         <div className="flex gap-2 overflow-x-auto pb-1">
@@ -179,8 +175,8 @@ export default function SchedulePage() {
             }}
           >
             <div className="flex items-center gap-2 mb-1">
-              <CheckCircle size={13} style={{ color: "var(--color-vytal-green)" }} />
-              <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: "var(--color-vytal-green)" }}>
+              <CheckCircle size={13} className="text-vytal-green" />
+              <p className="text-[10px] font-bold uppercase tracking-widest text-vytal-green">
                 {t("my.schedule.myBookings")}
               </p>
             </div>
@@ -195,10 +191,10 @@ export default function SchedulePage() {
                   style={{ background: cls.classType?.color ?? "var(--color-vytal-green)" }}
                 />
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-bold truncate" style={{ color: "var(--color-vytal-text)" }}>
+                  <p className="text-sm font-bold truncate text-vytal-text">
                     {cls.classType?.name}
                   </p>
-                  <p className="text-[11px]" style={{ color: "var(--color-vytal-muted)" }}>
+                  <p className="text-[11px] text-vytal-muted">
                     {cls.startTime} – {cls.endTime} · {cls.location?.name}
                   </p>
                 </div>
@@ -208,7 +204,7 @@ export default function SchedulePage() {
                   style={{ background: "rgba(255,71,87,0.15)" }}
                   title={t("my.schedule.cancelBooking")}
                 >
-                  <X size={13} style={{ color: "var(--color-vytal-red)" }} />
+                  <X size={13} className="text-vytal-red" />
                 </button>
               </div>
             ))}
@@ -250,12 +246,9 @@ export default function SchedulePage() {
 
         {/* ── Class list ── */}
         {dayClasses.length === 0 ? (
-          <div
-            className="rounded-2xl p-10 flex flex-col items-center gap-3 text-center"
-            style={{ background: "var(--color-vytal-bg2)", border: "1px solid var(--color-vytal-border)" }}
-          >
-            <Calendar size={32} style={{ color: "var(--color-vytal-muted)", opacity: 0.3 }} />
-            <p className="text-sm font-medium" style={{ color: "var(--color-vytal-muted)" }}>
+          <div className="rounded-2xl p-10 flex flex-col items-center gap-3 text-center bg-vytal-bg2 border border-vytal-border">
+            <Calendar size={32} className="text-vytal-muted opacity-30" />
+            <p className="text-sm font-medium text-vytal-muted">
               {t("my.schedule.noClasses")}
             </p>
           </div>
@@ -309,33 +302,33 @@ export default function SchedulePage() {
                             >
                               {cls.classType?.abbreviation ?? "?"}
                             </span>
-                            <span className="font-bold text-sm" style={{ color: "var(--color-vytal-text)" }}>
+                            <span className="font-bold text-sm text-vytal-text">
                               {cls.classType?.name}
                             </span>
                             {isBooked && (
-                              <CheckCircle size={13} style={{ color: "var(--color-vytal-green)" }} />
+                              <CheckCircle size={13} className="text-vytal-green" />
                             )}
                           </div>
                           <div className="flex flex-wrap gap-x-3 gap-y-1">
-                            <span className="flex items-center gap-1 text-[11px]" style={{ color: "var(--color-vytal-muted)" }}>
+                            <span className="flex items-center gap-1 text-[11px] text-vytal-muted">
                               <Clock size={10} />
                               {cls.startTime} – {cls.endTime}
                             </span>
                             {cls.location?.name && (
-                              <span className="flex items-center gap-1 text-[11px]" style={{ color: "var(--color-vytal-muted)" }}>
+                              <span className="flex items-center gap-1 text-[11px] text-vytal-muted">
                                 <MapPin size={10} />
                                 {cls.location.name}
                               </span>
                             )}
-                            <span className="flex items-center gap-1 text-[11px]" style={{ color: "var(--color-vytal-muted)" }}>
+                            <span className="flex items-center gap-1 text-[11px] text-vytal-muted">
                               <Users size={10} />
                               {cls.enrolledCount}/{cls.maxCapacity}
                             </span>
                           </div>
                           {cls.coaches?.length > 0 && (
                             <div className="flex items-center gap-1 mt-1">
-                              <Star size={10} style={{ color: "var(--color-vytal-amber)" }} />
-                              <span className="text-[11px]" style={{ color: "var(--color-vytal-muted)" }}>
+                              <Star size={10} className="text-vytal-amber" />
+                              <span className="text-[11px] text-vytal-muted">
                                 {cls.coaches.map((co) => co.name).join(", ")}
                               </span>
                             </div>
@@ -367,10 +360,7 @@ export default function SchedulePage() {
 
                       {/* Capacity bar */}
                       <div className="space-y-1">
-                        <div
-                          className="h-1.5 rounded-full overflow-hidden"
-                          style={{ background: "var(--color-vytal-bg3)" }}
-                        >
+                        <div className="h-1.5 rounded-full overflow-hidden bg-vytal-bg3">
                           <div
                             className="h-full rounded-full transition-all duration-500"
                             style={{
@@ -383,7 +373,7 @@ export default function SchedulePage() {
                             }}
                           />
                         </div>
-                        <p className="text-[10px]" style={{ color: "var(--color-vytal-muted)" }}>
+                        <p className="text-[10px] text-vytal-muted">
                           {isFull
                             ? `${t("my.schedule.full")}${cls.waitlistCount > 0 ? ` · ${cls.waitlistCount} ${t("my.schedule.waiting")}` : ""}`
                             : `${spotsLeft} ${spotsLeft !== 1 ? t("my.schedule.spotsAvailable") : t("my.schedule.spotAvailable")}`

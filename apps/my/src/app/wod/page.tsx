@@ -86,7 +86,7 @@ function CircularTimer({
           cy={88}
           r={radius}
           fill="none"
-          stroke="var(--color-vytal-bg3)"
+          className="stroke-vytal-bg3"
           strokeWidth={8}
         />
         {/* Progress */}
@@ -221,8 +221,8 @@ export default function WODPage() {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div
-          className="w-8 h-8 rounded-full border-2 animate-spin"
-          style={{ borderColor: "var(--color-vytal-green)", borderTopColor: "transparent" }}
+          className="w-8 h-8 rounded-full border-2 animate-spin border-vytal-green"
+          style={{ borderTopColor: "transparent" }}
         />
       </div>
     );
@@ -263,8 +263,7 @@ export default function WODPage() {
       {/* Toast */}
       {toast && (
         <div
-          className="fixed top-20 left-4 right-4 z-50 rounded-2xl px-4 py-3 text-sm font-semibold shadow-2xl animate-slide-in-right flex items-center gap-2"
-          style={{ background: "var(--color-vytal-green)", color: "var(--color-vytal-bg)" }}
+          className="fixed top-20 left-4 right-4 z-50 rounded-2xl px-4 py-3 text-sm font-semibold shadow-2xl animate-slide-in-right flex items-center gap-2 bg-vytal-green text-vytal-bg"
         >
           <CheckCircle size={16} />
           {toast}
@@ -288,10 +287,10 @@ export default function WODPage() {
             />
             <div className="flex items-start justify-between gap-3">
               <div>
-                <p className="text-[10px] font-bold uppercase tracking-widest mb-1.5" style={{ color: "var(--color-vytal-muted)" }}>
+                <p className="text-[10px] font-bold uppercase tracking-widest mb-1.5 text-vytal-muted">
                   {t("my.wod.todayTitle")}
                 </p>
-                <h2 className="text-3xl font-black leading-tight" style={{ color: "var(--color-vytal-green)" }}>
+                <h2 className="text-3xl font-black leading-tight text-vytal-green">
                   {mainWOD.title ?? "WOD do Dia"}
                 </h2>
                 {wodTypeMeta && (
@@ -309,18 +308,17 @@ export default function WODPage() {
               </div>
               {submitted && (
                 <div
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl shrink-0"
-                  style={{ background: "rgba(34,197,94,0.15)" }}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl shrink-0 bg-[rgba(34,197,94,0.15)]"
                 >
-                  <CheckCircle size={13} style={{ color: "var(--color-vytal-green)" }} />
-                  <span className="text-xs font-bold" style={{ color: "var(--color-vytal-green)" }}>
+                  <CheckCircle size={13} className="text-vytal-green" />
+                  <span className="text-xs font-bold text-vytal-green">
                     {t("my.wod.registered")}
                   </span>
                 </div>
               )}
             </div>
             {mainWOD.description && (
-              <p className="text-sm leading-relaxed mt-3" style={{ color: "var(--color-vytal-muted)" }}>
+              <p className="text-sm leading-relaxed mt-3 text-vytal-muted">
                 {mainWOD.description}
               </p>
             )}
@@ -334,11 +332,7 @@ export default function WODPage() {
               return (
                 <div
                   key={i}
-                  className="rounded-2xl overflow-hidden transition-all duration-200"
-                  style={{
-                    background: "var(--color-vytal-bg2)",
-                    border: "1px solid var(--color-vytal-border)",
-                  }}
+                  className="rounded-2xl overflow-hidden transition-all duration-200 bg-vytal-bg2 border border-vytal-border"
                 >
                   <button
                     className="w-full flex items-center justify-between px-4 py-3.5 text-left hover:bg-[rgba(34,197,94,0.03)] transition-colors"
@@ -351,13 +345,12 @@ export default function WODPage() {
                   >
                     <div className="flex items-center gap-3">
                       <div
-                        className="w-7 h-7 rounded-xl flex items-center justify-center text-xs font-black shrink-0"
-                        style={{ background: "var(--color-vytal-green)", color: "var(--color-vytal-bg)" }}
+                        className="w-7 h-7 rounded-xl flex items-center justify-center text-xs font-black shrink-0 bg-vytal-green text-vytal-bg"
                       >
                         {i + 1}
                       </div>
                       <div>
-                        <p className="font-bold text-sm" style={{ color: "var(--color-vytal-text)" }}>
+                        <p className="font-bold text-sm text-vytal-text">
                           {part.name}
                         </p>
                         <div className="flex items-center gap-2 mt-0.5">
@@ -371,12 +364,12 @@ export default function WODPage() {
                             {partType.labelKey.startsWith("my.") ? t(partType.labelKey) : partType.labelKey}
                           </span>
                           {part.timeCap && (
-                            <span className="text-[10px]" style={{ color: "var(--color-vytal-muted)" }}>
+                            <span className="text-[10px] text-vytal-muted">
                               {part.timeCap} min
                             </span>
                           )}
                           {part.rounds && part.intervalSeconds && (
-                            <span className="text-[10px]" style={{ color: "var(--color-vytal-muted)" }}>
+                            <span className="text-[10px] text-vytal-muted">
                               {part.rounds} rounds × {part.intervalSeconds}s
                             </span>
                           )}
@@ -384,16 +377,15 @@ export default function WODPage() {
                       </div>
                     </div>
                     {isExpanded ? (
-                      <ChevronUp size={15} style={{ color: "var(--color-vytal-muted)" }} />
+                      <ChevronUp size={15} className="text-vytal-muted" />
                     ) : (
-                      <ChevronDown size={15} style={{ color: "var(--color-vytal-muted)" }} />
+                      <ChevronDown size={15} className="text-vytal-muted" />
                     )}
                   </button>
 
                   {isExpanded && (
                     <div
-                      className="px-4 pb-4 space-y-2"
-                      style={{ borderTop: "1px solid var(--color-vytal-border)" }}
+                      className="px-4 pb-4 space-y-2 border-t border-vytal-border"
                     >
                       {part.exercises.map((ex, j) => (
                         <div
@@ -401,34 +393,31 @@ export default function WODPage() {
                           className="flex items-start gap-3 pt-3"
                         >
                           <div
-                            className="w-5 h-5 rounded-md flex items-center justify-center text-[9px] font-black shrink-0 mt-0.5"
-                            style={{ background: "var(--color-vytal-bg3)", color: "var(--color-vytal-green)" }}
+                            className="w-5 h-5 rounded-md flex items-center justify-center text-[9px] font-black shrink-0 mt-0.5 bg-vytal-bg3 text-vytal-green"
                           >
                             {j + 1}
                           </div>
                           <div className="flex-1">
-                            <p className="text-sm font-bold" style={{ color: "var(--color-vytal-text)" }}>
+                            <p className="text-sm font-bold text-vytal-text">
                               {exMap.get(ex.exerciseId) ?? ex.exerciseId}
                             </p>
                             <div className="flex flex-wrap gap-2 mt-0.5">
                               {ex.reps && (
                                 <span
-                                  className="text-xs font-bold px-2 py-0.5 rounded-md"
-                                  style={{ background: "rgba(34,197,94,0.12)", color: "var(--color-vytal-green)" }}
+                                  className="text-xs font-bold px-2 py-0.5 rounded-md bg-[rgba(34,197,94,0.12)] text-vytal-green"
                                 >
                                   {ex.reps}
                                 </span>
                               )}
                               {ex.weight && (
                                 <span
-                                  className="text-xs font-bold px-2 py-0.5 rounded-md"
-                                  style={{ background: "rgba(255,179,0,0.12)", color: "var(--color-vytal-amber)" }}
+                                  className="text-xs font-bold px-2 py-0.5 rounded-md bg-[rgba(255,179,0,0.12)] text-vytal-amber"
                                 >
                                   @ {ex.weight}
                                 </span>
                               )}
                               {ex.notes && (
-                                <span className="text-xs italic" style={{ color: "var(--color-vytal-muted)" }}>
+                                <span className="text-xs italic text-vytal-muted">
                                   {ex.notes}
                                 </span>
                               )}
@@ -445,13 +434,9 @@ export default function WODPage() {
 
           {/* ── Circular Timer ── */}
           <div
-            className="rounded-2xl p-6 flex flex-col items-center gap-5"
-            style={{
-              background: "var(--color-vytal-bg2)",
-              border: "1px solid var(--color-vytal-border)",
-            }}
+            className="rounded-2xl p-6 flex flex-col items-center gap-5 bg-vytal-bg2 border border-vytal-border"
           >
-            <p className="text-[10px] font-bold uppercase tracking-widest self-start" style={{ color: "var(--color-vytal-muted)" }}>
+            <p className="text-[10px] font-bold uppercase tracking-widest self-start text-vytal-muted">
               {t("my.wod.timer.label")}
             </p>
 
@@ -479,20 +464,16 @@ export default function WODPage() {
               </button>
               <button
                 onClick={resetTimer}
-                className="w-10 h-10 rounded-2xl flex items-center justify-center transition-all duration-200 hover:scale-110"
-                style={{
-                  background: "var(--color-vytal-bg3)",
-                  border: "1px solid var(--color-vytal-border)",
-                }}
+                className="w-10 h-10 rounded-2xl flex items-center justify-center transition-all duration-200 hover:scale-110 bg-vytal-bg3 border border-vytal-border"
                 title="Reset"
               >
-                <RotateCcw size={15} style={{ color: "var(--color-vytal-muted)" }} />
+                <RotateCcw size={15} className="text-vytal-muted" />
               </button>
             </div>
 
             {/* Duration input */}
             <div className="flex items-center gap-3">
-              <span className="text-xs font-medium" style={{ color: "var(--color-vytal-muted)" }}>
+              <span className="text-xs font-medium text-vytal-muted">
                 {t("my.wod.timer.duration")}
               </span>
               <input
@@ -501,12 +482,7 @@ export default function WODPage() {
                 max={60}
                 value={timerInputMin}
                 onChange={(e) => setTimerInputMin(e.target.value)}
-                className="w-16 text-center text-sm rounded-xl px-2 py-1.5 font-mono outline-none"
-                style={{
-                  background: "var(--color-vytal-bg3)",
-                  color: "var(--color-vytal-text)",
-                  border: "1px solid var(--color-vytal-border)",
-                }}
+                className="w-16 text-center text-sm rounded-xl px-2 py-1.5 font-mono outline-none bg-vytal-bg3 text-vytal-text border border-vytal-border"
                 onBlur={resetTimer}
               />
             </div>
@@ -514,11 +490,7 @@ export default function WODPage() {
 
           {/* ── Log Result ── */}
           <div
-            className="rounded-2xl overflow-hidden"
-            style={{
-              background: "var(--color-vytal-bg2)",
-              border: showLogForm ? "1px solid rgba(34,197,94,0.3)" : "1px solid var(--color-vytal-border)",
-            }}
+            className={`rounded-2xl overflow-hidden bg-vytal-bg2 border ${showLogForm ? "border-[rgba(34,197,94,0.3)]" : "border-vytal-border"}`}
           >
             <button
               className="w-full flex items-center justify-between px-5 py-4 hover:bg-[rgba(34,197,94,0.04)] transition-colors"
@@ -526,31 +498,29 @@ export default function WODPage() {
             >
               <div className="flex items-center gap-2.5">
                 <div
-                  className="w-7 h-7 rounded-xl flex items-center justify-center"
-                  style={{ background: "rgba(34,197,94,0.15)" }}
+                  className="w-7 h-7 rounded-xl flex items-center justify-center bg-[rgba(34,197,94,0.15)]"
                 >
-                  <Zap size={14} style={{ color: "var(--color-vytal-green)" }} />
+                  <Zap size={14} className="text-vytal-green" />
                 </div>
-                <span className="font-bold text-sm" style={{ color: "var(--color-vytal-text)" }}>
+                <span className="font-bold text-sm text-vytal-text">
                   {t("my.wod.log.register")}
                 </span>
               </div>
               {showLogForm ? (
-                <ChevronUp size={15} style={{ color: "var(--color-vytal-muted)" }} />
+                <ChevronUp size={15} className="text-vytal-muted" />
               ) : (
-                <ChevronDown size={15} style={{ color: "var(--color-vytal-muted)" }} />
+                <ChevronDown size={15} className="text-vytal-muted" />
               )}
             </button>
 
             {showLogForm && (
               <form
                 onSubmit={(e) => handleLogSubmit(e, mainWOD.id)}
-                className="px-5 pb-5 space-y-4"
-                style={{ borderTop: "1px solid var(--color-vytal-border)" }}
+                className="px-5 pb-5 space-y-4 border-t border-vytal-border"
               >
                 {/* Scale selector */}
                 <div className="pt-4">
-                  <p className="text-[10px] font-bold uppercase tracking-wider mb-2" style={{ color: "var(--color-vytal-muted)" }}>
+                  <p className="text-[10px] font-bold uppercase tracking-wider mb-2 text-vytal-muted">
                     {t("my.wod.log.scale")}
                   </p>
                   <div className="flex gap-2">
@@ -579,18 +549,13 @@ export default function WODPage() {
 
                 {/* Score type */}
                 <div>
-                  <label className="text-[10px] font-bold uppercase tracking-wider mb-2 block" style={{ color: "var(--color-vytal-muted)" }}>
+                  <label className="text-[10px] font-bold uppercase tracking-wider mb-2 block text-vytal-muted">
                     {t("my.wod.log.scoreType")}
                   </label>
                   <select
                     value={scoreType}
                     onChange={(e) => setScoreType(e.target.value)}
-                    className="w-full rounded-xl px-3 py-2.5 text-sm outline-none"
-                    style={{
-                      background: "var(--color-vytal-bg3)",
-                      color: "var(--color-vytal-text)",
-                      border: "1px solid var(--color-vytal-border)",
-                    }}
+                    className="w-full rounded-xl px-3 py-2.5 text-sm outline-none bg-vytal-bg3 text-vytal-text border border-vytal-border"
                   >
                     {SCORE_TYPE_KEYS.map((st) => (
                       <option key={st.value} value={st.value}>{t(st.key)}</option>
@@ -600,7 +565,7 @@ export default function WODPage() {
 
                 {/* Score value */}
                 <div>
-                  <label className="text-[10px] font-bold uppercase tracking-wider mb-2 block" style={{ color: "var(--color-vytal-muted)" }}>
+                  <label className="text-[10px] font-bold uppercase tracking-wider mb-2 block text-vytal-muted">
                     {t("my.wod.log.result")}
                   </label>
                   <input
@@ -613,18 +578,13 @@ export default function WODPage() {
                     }
                     value={score}
                     onChange={(e) => setScore(e.target.value)}
-                    className="w-full rounded-xl px-3 py-2.5 text-sm outline-none font-mono"
-                    style={{
-                      background: "var(--color-vytal-bg3)",
-                      color: "var(--color-vytal-text)",
-                      border: "1px solid var(--color-vytal-border)",
-                    }}
+                    className="w-full rounded-xl px-3 py-2.5 text-sm outline-none font-mono bg-vytal-bg3 text-vytal-text border border-vytal-border"
                   />
                 </div>
 
                 {/* Notes */}
                 <div>
-                  <label className="text-[10px] font-bold uppercase tracking-wider mb-2 block" style={{ color: "var(--color-vytal-muted)" }}>
+                  <label className="text-[10px] font-bold uppercase tracking-wider mb-2 block text-vytal-muted">
                     {t("my.wod.log.notes")}
                   </label>
                   <textarea
@@ -632,19 +592,13 @@ export default function WODPage() {
                     placeholder={t("my.wod.log.notesPlaceholder")}
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}
-                    className="w-full rounded-xl px-3 py-2.5 text-sm outline-none resize-none"
-                    style={{
-                      background: "var(--color-vytal-bg3)",
-                      color: "var(--color-vytal-text)",
-                      border: "1px solid var(--color-vytal-border)",
-                    }}
+                    className="w-full rounded-xl px-3 py-2.5 text-sm outline-none resize-none bg-vytal-bg3 text-vytal-text border border-vytal-border"
                   />
                 </div>
 
                 <button
                   type="submit"
-                  className="w-full py-3 rounded-xl font-bold text-sm transition-all duration-200 hover:scale-[1.01] hover:opacity-90"
-                  style={{ background: "var(--color-vytal-green)", color: "var(--color-vytal-bg)" }}
+                  className="w-full py-3 rounded-xl font-bold text-sm transition-all duration-200 hover:scale-[1.01] hover:opacity-90 bg-vytal-green text-vytal-bg"
                 >
                   {t("my.wod.log.save")}
                 </button>
@@ -654,15 +608,14 @@ export default function WODPage() {
         </div>
       ) : (
         <div
-          className="rounded-2xl p-10 flex flex-col items-center gap-4 text-center"
-          style={{ background: "var(--color-vytal-bg2)", border: "1px solid var(--color-vytal-border)" }}
+          className="rounded-2xl p-10 flex flex-col items-center gap-4 text-center bg-vytal-bg2 border border-vytal-border"
         >
-          <Dumbbell size={36} style={{ color: "var(--color-vytal-muted)", opacity: 0.3 }} />
+          <Dumbbell size={36} className="text-vytal-muted" style={{ opacity: 0.3 }} />
           <div>
-            <p className="font-bold" style={{ color: "var(--color-vytal-text)" }}>
+            <p className="font-bold text-vytal-text">
               {t("my.wod.notPublished")}
             </p>
-            <p className="text-sm mt-1" style={{ color: "var(--color-vytal-muted)" }}>
+            <p className="text-sm mt-1 text-vytal-muted">
               {t("my.wod.checkLater")}
             </p>
           </div>
@@ -671,14 +624,14 @@ export default function WODPage() {
 
       {/* ── History ── */}
       <div className="space-y-3">
-        <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: "var(--color-vytal-muted)" }}>
+        <p className="text-[10px] font-bold uppercase tracking-widest text-vytal-muted">
           {t("my.wod.history")}
         </p>
 
         {/* My recent logs */}
         {logs.length > 0 && (
           <div className="space-y-2">
-            <p className="text-xs font-bold" style={{ color: "var(--color-vytal-green)" }}>
+            <p className="text-xs font-bold text-vytal-green">
               {t("my.wod.myResults")}
             </p>
             {logs.slice(0, 3).map((log, i) => {
@@ -691,11 +644,7 @@ export default function WODPage() {
               return (
                 <div
                   key={i}
-                  className="flex items-center justify-between rounded-2xl px-4 py-3 transition-all duration-200 hover:scale-[1.01]"
-                  style={{
-                    background: "rgba(34,197,94,0.06)",
-                    border: "1px solid rgba(34,197,94,0.15)",
-                  }}
+                  className="flex items-center justify-between rounded-2xl px-4 py-3 transition-all duration-200 hover:scale-[1.01] bg-[rgba(34,197,94,0.06)] border border-[rgba(34,197,94,0.15)]"
                 >
                   <div className="flex items-center gap-3">
                     <div
@@ -705,10 +654,10 @@ export default function WODPage() {
                       <Zap size={13} style={{ color: scaleColor }} />
                     </div>
                     <div>
-                      <p className="text-sm font-bold" style={{ color: "var(--color-vytal-text)" }}>
+                      <p className="text-sm font-bold text-vytal-text">
                         {log.wodTitle}
                       </p>
-                      <p className="text-[11px]" style={{ color: "var(--color-vytal-muted)" }}>
+                      <p className="text-[11px] text-vytal-muted">
                         {new Date(log.date).toLocaleDateString("pt-PT", { weekday: "short", day: "numeric", month: "short" })}
                         {" · "}
                         <span style={{ color: scaleColor }}>{log.scale.toUpperCase().replace("_", "+")}</span>
@@ -717,12 +666,11 @@ export default function WODPage() {
                   </div>
                   <div className="text-right">
                     <p
-                      className="font-black font-mono text-base"
-                      style={{ color: "var(--color-vytal-green)" }}
+                      className="font-black font-mono text-base text-vytal-green"
                     >
                       {log.score}
                     </p>
-                    <p className="text-[10px]" style={{ color: "var(--color-vytal-muted)" }}>
+                    <p className="text-[10px] text-vytal-muted">
                       {t(SCORE_TYPE_KEYS.find((st) => st.value === log.scoreType)?.key ?? log.scoreType)}
                     </p>
                   </div>
@@ -734,31 +682,26 @@ export default function WODPage() {
 
         {/* Past WOD cards */}
         {pastWODs.length === 0 ? (
-          <p className="text-sm text-center py-4" style={{ color: "var(--color-vytal-muted)" }}>
+          <p className="text-sm text-center py-4 text-vytal-muted">
             {t("my.wod.noPastWods")}
           </p>
         ) : (
           pastWODs.slice(0, 5).map((wod) => (
             <div
               key={wod.id}
-              className="rounded-2xl px-4 py-3 transition-all duration-200 hover:scale-[1.01]"
-              style={{
-                background: "var(--color-vytal-bg2)",
-                border: "1px solid var(--color-vytal-border)",
-              }}
+              className="rounded-2xl px-4 py-3 transition-all duration-200 hover:scale-[1.01] bg-vytal-bg2 border border-vytal-border"
             >
               <div className="flex items-start justify-between gap-2">
                 <div>
-                  <p className="font-bold text-sm" style={{ color: "var(--color-vytal-text)" }}>
+                  <p className="font-bold text-sm text-vytal-text">
                     {wod.title ?? "WOD"}
                   </p>
-                  <p className="text-[11px] mt-0.5" style={{ color: "var(--color-vytal-muted)" }}>
+                  <p className="text-[11px] mt-0.5 text-vytal-muted">
                     {new Date(wod.date).toLocaleDateString("pt-PT", { weekday: "long", day: "numeric", month: "long" })}
                   </p>
                 </div>
                 <span
-                  className="text-[10px] px-2 py-1 rounded-lg font-bold flex-shrink-0"
-                  style={{ background: "var(--color-vytal-bg3)", color: "var(--color-vytal-muted)" }}
+                  className="text-[10px] px-2 py-1 rounded-lg font-bold flex-shrink-0 bg-vytal-bg3 text-vytal-muted"
                 >
                   {wod.parts.length} {wod.parts.length === 1 ? t("my.wod.part") : t("my.wod.parts")}
                 </span>

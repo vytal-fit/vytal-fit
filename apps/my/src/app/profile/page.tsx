@@ -65,8 +65,8 @@ export default function ProfilePage() {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div
-          className="w-8 h-8 rounded-full border-2 animate-spin"
-          style={{ borderColor: "var(--color-vytal-green)", borderTopColor: "transparent" }}
+          className="w-8 h-8 rounded-full border-2 border-vytal-green animate-spin"
+          style={{ borderTopColor: "transparent" }}
         />
       </div>
     );
@@ -120,8 +120,7 @@ export default function ProfilePage() {
       {/* Toast */}
       {toast && (
         <div
-          className="fixed top-20 left-4 right-4 z-50 rounded-2xl px-4 py-3 text-sm font-semibold shadow-2xl animate-slide-in-right flex items-center gap-2"
-          style={{ background: "var(--color-vytal-green)", color: "var(--color-vytal-bg)" }}
+          className="fixed top-20 left-4 right-4 z-50 rounded-2xl px-4 py-3 text-sm font-semibold shadow-2xl animate-slide-in-right flex items-center gap-2 bg-vytal-green text-vytal-bg"
         >
           <CheckCircle size={16} />
           {toast}
@@ -144,53 +143,43 @@ export default function ProfilePage() {
         {/* Avatar with gradient ring */}
         <div className="relative mb-4">
           <div
-            className="w-24 h-24 rounded-full flex items-center justify-center text-3xl font-black relative z-10"
+            className="w-24 h-24 rounded-full flex items-center justify-center text-3xl font-black relative z-10 text-vytal-bg"
             style={{
               background: "linear-gradient(135deg, var(--color-vytal-green), #16a34a)",
-              color: "var(--color-vytal-bg)",
             }}
           >
             {initials}
           </div>
           {/* Pulsing ring */}
           <div
-            className="absolute inset-0 rounded-full animate-ping opacity-20 pointer-events-none"
-            style={{ background: "var(--color-vytal-green)" }}
+            className="absolute inset-0 rounded-full animate-ping opacity-20 pointer-events-none bg-vytal-green"
           />
           {/* Static outer ring */}
           <div
-            className="absolute -inset-1.5 rounded-full pointer-events-none"
-            style={{
-              background: "transparent",
-              border: "2px solid rgba(34,197,94,0.3)",
-            }}
+            className="absolute -inset-1.5 rounded-full pointer-events-none border-2 border-[rgba(34,197,94,0.3)]"
           />
         </div>
 
-        <h1 className="text-2xl font-black" style={{ color: "var(--color-vytal-text)" }}>
+        <h1 className="text-2xl font-black text-vytal-text">
           {userName}
         </h1>
-        <p className="text-sm mt-0.5" style={{ color: "var(--color-vytal-muted)" }}>
+        <p className="text-sm mt-0.5 text-vytal-muted">
           {userEmail}
         </p>
 
         <div className="flex items-center gap-1.5 mt-2">
-          <Calendar size={11} style={{ color: "var(--color-vytal-muted)" }} />
-          <span className="text-xs" style={{ color: "var(--color-vytal-muted)" }}>
+          <Calendar size={11} className="text-vytal-muted" />
+          <span className="text-xs text-vytal-muted">
             {t("my.profile.memberSince")} {memberSince}
           </span>
         </div>
 
         {/* Pro badge */}
         <div
-          className="flex items-center gap-1.5 px-4 py-1.5 rounded-full mt-3"
-          style={{
-            background: "rgba(34,197,94,0.15)",
-            border: "1px solid rgba(34,197,94,0.3)",
-          }}
+          className="flex items-center gap-1.5 px-4 py-1.5 rounded-full mt-3 bg-[rgba(34,197,94,0.15)] border border-[rgba(34,197,94,0.3)]"
         >
-          <Zap size={11} style={{ color: "var(--color-vytal-green)" }} />
-          <span className="text-xs font-bold" style={{ color: "var(--color-vytal-green)" }}>
+          <Zap size={11} className="text-vytal-green" />
+          <span className="text-xs font-bold text-vytal-green">
             {t("my.profile.memberPro")}
           </span>
         </div>
@@ -199,42 +188,35 @@ export default function ProfilePage() {
       {/* ── Subscription card ── */}
       {plan && (
         <div
-          className="rounded-2xl p-5 relative overflow-hidden"
-          style={{
-            background: "var(--color-vytal-bg2)",
-            border: "1px solid var(--color-vytal-border)",
-          }}
+          className="rounded-2xl p-5 relative overflow-hidden bg-vytal-bg2 border border-vytal-border"
         >
           <div className="flex items-start justify-between gap-4">
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-2">
                 <div
-                  className="w-7 h-7 rounded-xl flex items-center justify-center shrink-0"
-                  style={{ background: "rgba(34,197,94,0.15)" }}
+                  className="w-7 h-7 rounded-xl flex items-center justify-center shrink-0 bg-[rgba(34,197,94,0.15)]"
                 >
-                  <CreditCard size={13} style={{ color: "var(--color-vytal-green)" }} />
+                  <CreditCard size={13} className="text-vytal-green" />
                 </div>
-                <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: "var(--color-vytal-muted)" }}>
+                <span className="text-[10px] font-bold uppercase tracking-widest text-vytal-muted">
                   {t("my.profile.subscription")}
                 </span>
               </div>
 
-              <p className="font-black text-lg" style={{ color: "var(--color-vytal-text)" }}>
+              <p className="font-black text-lg text-vytal-text">
                 {plan.name}
               </p>
 
               <div className="flex flex-wrap gap-2 mt-2">
                 <span
-                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold"
-                  style={{ background: "rgba(34,197,94,0.12)", color: "var(--color-vytal-green)" }}
+                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-[rgba(34,197,94,0.12)] text-vytal-green"
                 >
                   <CheckCircle size={9} />
                   {activeSub?.status === "active" ? t("my.profile.subActive") : t("my.profile.subPaused")}
                 </span>
                 {plan.sessionsPerWeek && (
                   <span
-                    className="px-2.5 py-1 rounded-full text-[10px] font-bold"
-                    style={{ background: "var(--color-vytal-bg3)", color: "var(--color-vytal-muted)" }}
+                    className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-vytal-bg3 text-vytal-muted"
                   >
                     {plan.sessionsPerWeek}{t("my.profile.perWeek")}
                   </span>
@@ -242,17 +224,17 @@ export default function ProfilePage() {
               </div>
 
               {activeSub?.nextBillingDate && (
-                <p className="text-xs mt-2" style={{ color: "var(--color-vytal-muted)" }}>
+                <p className="text-xs mt-2 text-vytal-muted">
                   {t("my.profile.renewal")} {new Date(activeSub.nextBillingDate).toLocaleDateString("pt-PT")}
                 </p>
               )}
             </div>
 
             <div className="text-right shrink-0">
-              <p className="text-2xl font-black" style={{ color: "var(--color-vytal-green)" }}>
+              <p className="text-2xl font-black text-vytal-green">
                 {plan.price}€
               </p>
-              <p className="text-xs" style={{ color: "var(--color-vytal-muted)" }}>
+              <p className="text-xs text-vytal-muted">
                 {planTypeLabel[plan.type] ?? ""}
               </p>
             </div>
@@ -262,30 +244,22 @@ export default function ProfilePage() {
 
       {/* ── Achievements ── */}
       <div
-        className="rounded-2xl p-5"
-        style={{
-          background: "var(--color-vytal-bg2)",
-          border: "1px solid var(--color-vytal-border)",
-        }}
+        className="rounded-2xl p-5 bg-vytal-bg2 border border-vytal-border"
       >
-        <p className="text-[10px] font-bold uppercase tracking-widest mb-3" style={{ color: "var(--color-vytal-muted)" }}>
+        <p className="text-[10px] font-bold uppercase tracking-widest mb-3 text-vytal-muted">
           {t("my.profile.achievements")}
         </p>
         <div className="grid grid-cols-4 gap-2">
           {MOCK_BADGE_KEYS.map((badge, i) => (
             <div
               key={i}
-              className="flex flex-col items-center gap-1.5 p-2.5 rounded-xl transition-all duration-200 hover:scale-105"
-              style={{
-                background: "rgba(34,197,94,0.06)",
-                border: "1px solid rgba(34,197,94,0.12)",
-              }}
+              className="flex flex-col items-center gap-1.5 p-2.5 rounded-xl transition-all duration-200 hover:scale-105 bg-[rgba(34,197,94,0.06)] border border-[rgba(34,197,94,0.12)]"
             >
               <span className="text-xl">{badge.emoji}</span>
-              <p className="text-[10px] font-bold text-center leading-tight" style={{ color: "var(--color-vytal-text)" }}>
+              <p className="text-[10px] font-bold text-center leading-tight text-vytal-text">
                 {t(badge.labelKey)}
               </p>
-              <p className="text-[8px] text-center leading-tight" style={{ color: "var(--color-vytal-muted)" }}>
+              <p className="text-[8px] text-center leading-tight text-vytal-muted">
                 {t(badge.descKey)}
               </p>
             </div>
@@ -295,11 +269,7 @@ export default function ProfilePage() {
 
       {/* ── Payment history ── */}
       <div
-        className="rounded-2xl overflow-hidden"
-        style={{
-          background: "var(--color-vytal-bg2)",
-          border: "1px solid var(--color-vytal-border)",
-        }}
+        className="rounded-2xl overflow-hidden bg-vytal-bg2 border border-vytal-border"
       >
         <button
           className="w-full flex items-center justify-between px-5 py-4 hover:bg-[rgba(34,197,94,0.03)] transition-colors"
@@ -307,19 +277,18 @@ export default function ProfilePage() {
         >
           <div className="flex items-center gap-3">
             <div
-              className="w-7 h-7 rounded-xl flex items-center justify-center"
-              style={{ background: "rgba(34,197,94,0.1)" }}
+              className="w-7 h-7 rounded-xl flex items-center justify-center bg-[rgba(34,197,94,0.1)]"
             >
-              <Shield size={13} style={{ color: "var(--color-vytal-muted)" }} />
+              <Shield size={13} className="text-vytal-muted" />
             </div>
-            <span className="text-sm font-bold" style={{ color: "var(--color-vytal-text)" }}>
+            <span className="text-sm font-bold text-vytal-text">
               {t("my.profile.paymentHistory")}
             </span>
           </div>
           <ChevronRight
             size={15}
+            className="text-vytal-muted"
             style={{
-              color: "var(--color-vytal-muted)",
               transform: showPayments ? "rotate(90deg)" : "rotate(0deg)",
               transition: "transform 0.2s",
             }}
@@ -327,30 +296,26 @@ export default function ProfilePage() {
         </button>
 
         {showPayments && (
-          <div style={{ borderTop: "1px solid var(--color-vytal-border)" }}>
+          <div className="border-t border-vytal-border">
             {payments.map((p, i) => (
               <div
                 key={p.id}
-                className="flex items-center justify-between px-5 py-3.5"
-                style={{
-                  borderTop: i > 0 ? "1px solid var(--color-vytal-border)" : "none",
-                }}
+                className={`flex items-center justify-between px-5 py-3.5 ${i > 0 ? "border-t border-vytal-border" : ""}`}
               >
                 <div>
-                  <p className="text-sm font-medium" style={{ color: "var(--color-vytal-text)" }}>
+                  <p className="text-sm font-medium text-vytal-text">
                     {p.description}
                   </p>
-                  <p className="text-xs mt-0.5" style={{ color: "var(--color-vytal-muted)" }}>
+                  <p className="text-xs mt-0.5 text-vytal-muted">
                     {p.date}
                   </p>
                 </div>
                 <div className="text-right">
-                  <p className="text-sm font-bold font-mono" style={{ color: "var(--color-vytal-text)" }}>
+                  <p className="text-sm font-bold font-mono text-vytal-text">
                     {p.amount}
                   </p>
                   <span
-                    className="text-[10px] px-2 py-0.5 rounded-full font-bold"
-                    style={{ background: "rgba(34,197,94,0.12)", color: "var(--color-vytal-green)" }}
+                    className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-[rgba(34,197,94,0.12)] text-vytal-green"
                   >
                     {t("my.profile.payment.status")}
                   </span>
@@ -363,33 +328,27 @@ export default function ProfilePage() {
 
       {/* ── Settings ── */}
       <div
-        className="rounded-2xl overflow-hidden"
-        style={{
-          background: "var(--color-vytal-bg2)",
-          border: "1px solid var(--color-vytal-border)",
-        }}
+        className="rounded-2xl overflow-hidden bg-vytal-bg2 border border-vytal-border"
       >
         <div
-          className="px-5 py-3"
-          style={{ borderBottom: "1px solid var(--color-vytal-border)" }}
+          className="px-5 py-3 border-b border-vytal-border"
         >
-          <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: "var(--color-vytal-muted)" }}>
+          <p className="text-[10px] font-bold uppercase tracking-widest text-vytal-muted">
             {t("my.profile.settings")}
           </p>
         </div>
 
         {/* Language */}
         <div
-          className="flex items-center justify-between px-5 py-4"
-          style={{ borderBottom: "1px solid var(--color-vytal-border)" }}
+          className="flex items-center justify-between px-5 py-4 border-b border-vytal-border"
         >
           <div className="flex items-center gap-3">
-            <Globe size={15} style={{ color: "var(--color-vytal-muted)" }} />
+            <Globe size={15} className="text-vytal-muted" />
             <div>
-              <p className="text-sm font-medium" style={{ color: "var(--color-vytal-text)" }}>
+              <p className="text-sm font-medium text-vytal-text">
                 {t("my.profile.language")}
               </p>
-              <p className="text-[10px]" style={{ color: "var(--color-vytal-muted)" }}>
+              <p className="text-[10px] text-vytal-muted">
                 {t("my.profile.languageSub")}
               </p>
             </div>
@@ -400,12 +359,7 @@ export default function ProfilePage() {
               setLanguage(e.target.value);
               showToast(t("my.profile.toastLanguage"));
             }}
-            className="text-xs rounded-xl px-3 py-1.5 outline-none font-medium"
-            style={{
-              background: "var(--color-vytal-bg3)",
-              color: "var(--color-vytal-text)",
-              border: "1px solid var(--color-vytal-border)",
-            }}
+            className="text-xs rounded-xl px-3 py-1.5 outline-none font-medium bg-vytal-bg3 text-vytal-text border border-vytal-border"
           >
             {languageOptions.map((o) => (
               <option key={o.value} value={o.value}>{o.label}</option>
@@ -415,16 +369,15 @@ export default function ProfilePage() {
 
         {/* Notifications toggle */}
         <div
-          className="flex items-center justify-between px-5 py-4"
-          style={{ borderBottom: "1px solid var(--color-vytal-border)" }}
+          className="flex items-center justify-between px-5 py-4 border-b border-vytal-border"
         >
           <div className="flex items-center gap-3">
-            <Bell size={15} style={{ color: "var(--color-vytal-muted)" }} />
+            <Bell size={15} className="text-vytal-muted" />
             <div>
-              <p className="text-sm font-medium" style={{ color: "var(--color-vytal-text)" }}>
+              <p className="text-sm font-medium text-vytal-text">
                 {t("my.profile.notifications")}
               </p>
-              <p className="text-[10px]" style={{ color: "var(--color-vytal-muted)" }}>
+              <p className="text-[10px] text-vytal-muted">
                 {t("my.profile.notificationsSub")}
               </p>
             </div>
@@ -454,14 +407,14 @@ export default function ProfilePage() {
         <div className="flex items-center justify-between px-5 py-4">
           <div className="flex items-center gap-3">
             {theme === "dark"
-              ? <Moon size={15} style={{ color: "var(--color-vytal-muted)" }} />
-              : <Sun size={15} style={{ color: "var(--color-vytal-muted)" }} />
+              ? <Moon size={15} className="text-vytal-muted" />
+              : <Sun size={15} className="text-vytal-muted" />
             }
             <div>
-              <p className="text-sm font-medium" style={{ color: "var(--color-vytal-text)" }}>
+              <p className="text-sm font-medium text-vytal-text">
                 {t("my.profile.theme")}
               </p>
-              <p className="text-[10px]" style={{ color: "var(--color-vytal-muted)" }}>
+              <p className="text-[10px] text-vytal-muted">
                 {theme === "dark" ? t("my.profile.themeDark") : t("my.profile.themeLight")}
               </p>
             </div>
@@ -471,12 +424,7 @@ export default function ProfilePage() {
               toggleTheme();
               showToast(t("my.profile.toastTheme"));
             }}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold transition-all duration-200 hover:scale-105"
-            style={{
-              background: "var(--color-vytal-bg3)",
-              color: "var(--color-vytal-muted)",
-              border: "1px solid var(--color-vytal-border)",
-            }}
+            className="flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold transition-all duration-200 hover:scale-105 bg-vytal-bg3 text-vytal-muted border border-vytal-border"
           >
             {theme === "dark" ? <Sun size={12} /> : <Moon size={12} />}
             {theme === "dark" ? t("my.profile.themeToggleLight") : t("my.profile.themeToggleDark")}
@@ -490,18 +438,13 @@ export default function ProfilePage() {
           logout();
           showToast(t("my.profile.toastLogout"));
         }}
-        className="w-full flex items-center justify-center gap-2.5 py-3.5 rounded-2xl font-bold text-sm transition-all duration-200 hover:scale-[1.01] hover:opacity-90"
-        style={{
-          background: "rgba(255,71,87,0.1)",
-          color: "var(--color-vytal-red)",
-          border: "1px solid rgba(255,71,87,0.2)",
-        }}
+        className="w-full flex items-center justify-center gap-2.5 py-3.5 rounded-2xl font-bold text-sm transition-all duration-200 hover:scale-[1.01] hover:opacity-90 bg-[rgba(255,71,87,0.1)] text-vytal-red border border-[rgba(255,71,87,0.2)]"
       >
         <LogOut size={15} />
         {t("my.profile.logout")}
       </button>
 
-      <p className="text-center text-[10px]" style={{ color: "var(--color-vytal-muted)", opacity: 0.5 }}>
+      <p className="text-center text-[10px] text-vytal-muted opacity-50">
         {t("my.profile.version")}
       </p>
     </div>

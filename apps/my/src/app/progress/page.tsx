@@ -88,7 +88,7 @@ function BarChart({ data }: { data: BodyEntry[] }) {
         const isLatest = i === data.length - 1;
         return (
           <div key={d.month} className="flex-1 flex flex-col items-center gap-1.5">
-            <span className="text-[9px] font-bold tabular-nums" style={{ color: isLatest ? "var(--color-vytal-green)" : "var(--color-vytal-muted)" }}>
+            <span className={cn("text-[9px] font-bold tabular-nums", isLatest ? "text-vytal-green" : "text-vytal-muted")}>
               {d.weight}
             </span>
             <div className="w-full flex items-end" style={{ height: "56px" }}>
@@ -103,10 +103,7 @@ function BarChart({ data }: { data: BodyEntry[] }) {
                 }}
               />
             </div>
-            <span
-              className="text-[9px] font-medium"
-              style={{ color: "var(--color-vytal-muted)" }}
-            >
+            <span className="text-[9px] font-medium text-vytal-muted">
               {d.month}
             </span>
           </div>
@@ -136,7 +133,7 @@ function MonthCalendar() {
       {/* Day labels */}
       <div className="grid grid-cols-7 gap-1 mb-1">
         {DAY_LABELS.map((d, i) => (
-          <div key={i} className="text-center text-[9px] font-bold uppercase" style={{ color: "var(--color-vytal-muted)" }}>
+          <div key={i} className="text-center text-[9px] font-bold uppercase text-vytal-muted">
             {d}
           </div>
         ))}
@@ -207,40 +204,32 @@ function GoalCard({
 
   return (
     <div
-      className="rounded-2xl p-4 space-y-3 transition-all duration-200 hover:scale-[1.01]"
-      style={{
-        background: "var(--color-vytal-bg2)",
-        border: `1px solid ${isComplete ? "rgba(34,197,94,0.35)" : "var(--color-vytal-border)"}`,
-      }}
+      className={cn(
+        "rounded-2xl p-4 space-y-3 transition-all duration-200 hover:scale-[1.01] bg-vytal-bg2 border",
+        isComplete ? "border-[rgba(34,197,94,0.35)]" : "border-vytal-border"
+      )}
     >
       <div className="flex items-start justify-between gap-2">
-        <p className="text-sm font-bold leading-snug" style={{ color: "var(--color-vytal-text)" }}>
+        <p className="text-sm font-bold leading-snug text-vytal-text">
           {goal.label}
         </p>
         {isComplete ? (
-          <span
-            className="text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded-lg shrink-0"
-            style={{ background: "rgba(34,197,94,0.15)", color: "var(--color-vytal-green)" }}
-          >
+          <span className="text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded-lg shrink-0 bg-[rgba(34,197,94,0.15)] text-vytal-green">
             {labelDone}
           </span>
         ) : (
           <button
             onClick={() => { setDraft(String(goal.current)); setEditing(true); }}
-            className="w-6 h-6 rounded-lg flex items-center justify-center shrink-0 transition-all duration-200 hover:scale-110"
-            style={{ background: "var(--color-vytal-bg3)" }}
+            className="w-6 h-6 rounded-lg flex items-center justify-center shrink-0 transition-all duration-200 hover:scale-110 bg-vytal-bg3"
           >
-            <Edit2 size={11} style={{ color: "var(--color-vytal-muted)" }} />
+            <Edit2 size={11} className="text-vytal-muted" />
           </button>
         )}
       </div>
 
       {/* Progress bar */}
       <div>
-        <div
-          className="h-2 rounded-full overflow-hidden"
-          style={{ background: "var(--color-vytal-bg3)" }}
-        >
+        <div className="h-2 rounded-full overflow-hidden bg-vytal-bg3">
           <div
             className="h-full rounded-full transition-all duration-700"
             style={{
@@ -260,28 +249,22 @@ function GoalCard({
                 value={draft}
                 onChange={(e) => setDraft(e.target.value)}
                 onKeyDown={(e) => { if (e.key === "Enter") commit(); if (e.key === "Escape") setEditing(false); }}
-                className="w-20 rounded-lg px-2 py-1 text-xs font-mono outline-none"
-                style={{
-                  background: "var(--color-vytal-bg3)",
-                  color: "var(--color-vytal-text)",
-                  border: "1px solid var(--color-vytal-green)",
-                }}
+                className="w-20 rounded-lg px-2 py-1 text-xs font-mono outline-none bg-vytal-bg3 text-vytal-text border border-vytal-green"
               />
-              <button onClick={commit} className="w-6 h-6 rounded-md flex items-center justify-center" style={{ background: "rgba(34,197,94,0.15)" }}>
-                <Check size={10} style={{ color: "var(--color-vytal-green)" }} />
+              <button onClick={commit} className="w-6 h-6 rounded-md flex items-center justify-center bg-[rgba(34,197,94,0.15)]">
+                <Check size={10} className="text-vytal-green" />
               </button>
-              <button onClick={() => setEditing(false)} className="w-6 h-6 rounded-md flex items-center justify-center" style={{ background: "var(--color-vytal-bg3)" }}>
-                <X size={10} style={{ color: "var(--color-vytal-muted)" }} />
+              <button onClick={() => setEditing(false)} className="w-6 h-6 rounded-md flex items-center justify-center bg-vytal-bg3">
+                <X size={10} className="text-vytal-muted" />
               </button>
             </div>
           ) : (
-            <span className="text-xs font-semibold tabular-nums" style={{ color: "var(--color-vytal-muted)" }}>
+            <span className="text-xs font-semibold tabular-nums text-vytal-muted">
               {goal.current} / {goal.target} {goal.unit}
             </span>
           )}
           <span
-            className="text-xs font-black tabular-nums"
-            style={{ color: isComplete ? "var(--color-vytal-green)" : "var(--color-vytal-muted)" }}
+            className={cn("text-xs font-black tabular-nums", isComplete ? "text-vytal-green" : "text-vytal-muted")}
           >
             {pct}%
           </span>
@@ -321,10 +304,7 @@ export default function ProgressPage() {
   if (!mounted) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
-        <div
-          className="w-8 h-8 rounded-full border-2 animate-spin"
-          style={{ borderColor: "var(--color-vytal-green)", borderTopColor: "transparent" }}
-        />
+        <div className="w-8 h-8 rounded-full border-2 animate-spin border-vytal-green border-t-transparent" />
       </div>
     );
   }
@@ -339,10 +319,7 @@ export default function ProgressPage() {
 
       {/* Toast */}
       {toast && (
-        <div
-          className="fixed top-20 left-4 right-4 z-50 rounded-2xl px-4 py-3 text-sm font-semibold shadow-2xl flex items-center gap-2 transition-all duration-300"
-          style={{ background: "var(--color-vytal-green)", color: "var(--color-vytal-bg)" }}
-        >
+        <div className="fixed top-20 left-4 right-4 z-50 rounded-2xl px-4 py-3 text-sm font-semibold shadow-2xl flex items-center gap-2 transition-all duration-300 bg-vytal-green text-vytal-bg">
           <Target size={14} />
           {toast}
         </div>
@@ -350,10 +327,10 @@ export default function ProgressPage() {
 
       {/* ── Header ── */}
       <div>
-        <h1 className="text-2xl font-black" style={{ color: "var(--color-vytal-text)" }}>
+        <h1 className="text-2xl font-black text-vytal-text">
           {t("my.progress.title")}
         </h1>
-        <p className="text-xs mt-0.5" style={{ color: "var(--color-vytal-muted)" }}>
+        <p className="text-xs mt-0.5 text-vytal-muted">
           {t("my.progress.subtitle")}
         </p>
       </div>
@@ -366,7 +343,7 @@ export default function ProgressPage() {
           border: "1px solid rgba(34,197,94,0.2)",
         }}
       >
-        <p className="text-[10px] font-black uppercase tracking-widest mb-3" style={{ color: "var(--color-vytal-muted)" }}>
+        <p className="text-[10px] font-black uppercase tracking-widest mb-3 text-vytal-muted">
           {t("my.progress.monthSummary")}
         </p>
         <div className="grid grid-cols-3 gap-3">
@@ -379,7 +356,7 @@ export default function ProgressPage() {
               <p className="text-3xl font-black tabular-nums" style={{ color: s.color }}>
                 {s.value}
               </p>
-              <p className="text-[10px] font-semibold mt-0.5" style={{ color: "var(--color-vytal-muted)" }}>
+              <p className="text-[10px] font-semibold mt-0.5 text-vytal-muted">
                 {s.label}
               </p>
             </div>
@@ -390,25 +367,22 @@ export default function ProgressPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
         {/* ── Body comp chart ── */}
-        <div
-          className="rounded-2xl p-5"
-          style={{ background: "var(--color-vytal-bg2)", border: "1px solid var(--color-vytal-border)" }}
-        >
+        <div className="rounded-2xl p-5 bg-vytal-bg2 border border-vytal-border">
           <div className="flex items-center gap-2 mb-1">
-            <TrendingUp size={13} style={{ color: "var(--color-vytal-green)" }} />
-            <p className="text-[10px] font-black uppercase tracking-widest" style={{ color: "var(--color-vytal-muted)" }}>
+            <TrendingUp size={13} className="text-vytal-green" />
+            <p className="text-[10px] font-black uppercase tracking-widest text-vytal-muted">
               {t("my.progress.bodyWeight")}
             </p>
           </div>
           <div className="flex items-center gap-3 mb-1">
-            <p className="text-3xl font-black tabular-nums" style={{ color: "var(--color-vytal-green)" }}>
+            <p className="text-3xl font-black tabular-nums text-vytal-green">
               {DEFAULT_BODY[DEFAULT_BODY.length - 1].weight}
             </p>
             <div>
-              <p className="text-xs font-bold" style={{ color: "var(--color-vytal-green)" }}>
+              <p className="text-xs font-bold text-vytal-green">
                 -{(DEFAULT_BODY[0].weight - DEFAULT_BODY[DEFAULT_BODY.length - 1].weight).toFixed(1)} kg
               </p>
-              <p className="text-[10px]" style={{ color: "var(--color-vytal-muted)" }}>
+              <p className="text-[10px] text-vytal-muted">
                 {t("my.progress.sinceJan")}
               </p>
             </div>
@@ -417,19 +391,16 @@ export default function ProgressPage() {
         </div>
 
         {/* ── Monthly training calendar ── */}
-        <div
-          className="rounded-2xl p-5"
-          style={{ background: "var(--color-vytal-bg2)", border: "1px solid var(--color-vytal-border)" }}
-        >
+        <div className="rounded-2xl p-5 bg-vytal-bg2 border border-vytal-border">
           <div className="flex items-center gap-2 mb-4">
-            <Calendar size={13} style={{ color: "var(--color-vytal-green)" }} />
-            <p className="text-[10px] font-black uppercase tracking-widest" style={{ color: "var(--color-vytal-muted)" }}>
+            <Calendar size={13} className="text-vytal-green" />
+            <p className="text-[10px] font-black uppercase tracking-widest text-vytal-muted">
               {t("my.progress.trainingCalendar")}
             </p>
           </div>
           <MonthCalendar />
-          <p className="text-[10px] mt-3" style={{ color: "var(--color-vytal-muted)" }}>
-            <span className="font-bold" style={{ color: "var(--color-vytal-green)" }}>16</span> {t("my.progress.trainingDays")}
+          <p className="text-[10px] mt-3 text-vytal-muted">
+            <span className="font-bold text-vytal-green">16</span> {t("my.progress.trainingDays")}
           </p>
         </div>
       </div>
@@ -437,8 +408,8 @@ export default function ProgressPage() {
       {/* ── Goals ── */}
       <div>
         <div className="flex items-center gap-2 mb-3">
-          <Target size={13} style={{ color: "var(--color-vytal-green)" }} />
-          <p className="text-[10px] font-black uppercase tracking-widest" style={{ color: "var(--color-vytal-muted)" }}>
+          <Target size={13} className="text-vytal-green" />
+          <p className="text-[10px] font-black uppercase tracking-widest text-vytal-muted">
             {t("my.progress.goals")}
           </p>
         </div>
@@ -452,17 +423,14 @@ export default function ProgressPage() {
       {/* ── PR timeline ── */}
       <div>
         <div className="flex items-center gap-2 mb-3">
-          <Trophy size={13} style={{ color: "var(--color-vytal-amber)" }} />
-          <p className="text-[10px] font-black uppercase tracking-widest" style={{ color: "var(--color-vytal-muted)" }}>
+          <Trophy size={13} className="text-vytal-amber" />
+          <p className="text-[10px] font-black uppercase tracking-widest text-vytal-muted">
             {t("my.progress.prTimeline")}
           </p>
         </div>
         <div className="relative">
           {/* Vertical line */}
-          <div
-            className="absolute left-4 top-2 bottom-2 w-px"
-            style={{ background: "var(--color-vytal-border)" }}
-          />
+          <div className="absolute left-4 top-2 bottom-2 w-px bg-vytal-border" />
           <div className="space-y-2 pl-10">
             {PR_TIMELINE.map((pr, i) => (
               <div
@@ -483,29 +451,25 @@ export default function ProgressPage() {
                 />
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <p className="text-sm font-bold" style={{ color: "var(--color-vytal-text)" }}>
+                    <p className="text-sm font-bold text-vytal-text">
                       {pr.exercise}
                     </p>
                     {pr.isNew && (
-                      <span
-                        className="text-[8px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded-md"
-                        style={{ background: "rgba(34,197,94,0.15)", color: "var(--color-vytal-green)" }}
-                      >
+                      <span className="text-[8px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded-md bg-[rgba(34,197,94,0.15)] text-vytal-green">
                         {t("my.progress.prNew")}
                       </span>
                     )}
                   </div>
-                  <p className="text-[10px] mt-0.5" style={{ color: "var(--color-vytal-muted)" }}>
+                  <p className="text-[10px] mt-0.5 text-vytal-muted">
                     {new Date(pr.date).toLocaleDateString("pt-PT", { day: "numeric", month: "long", year: "numeric" })}
                   </p>
                 </div>
                 <div className="text-right shrink-0">
                   <p
-                    className="font-black font-mono text-lg tabular-nums"
-                    style={{ color: pr.isNew ? "var(--color-vytal-green)" : "var(--color-vytal-amber)" }}
+                    className={cn("font-black font-mono text-lg tabular-nums", pr.isNew ? "text-vytal-green" : "text-vytal-amber")}
                   >
                     {pr.value}
-                    <span className="text-xs font-normal ml-1" style={{ color: "var(--color-vytal-muted)" }}>
+                    <span className="text-xs font-normal ml-1 text-vytal-muted">
                       {pr.unit}
                     </span>
                   </p>

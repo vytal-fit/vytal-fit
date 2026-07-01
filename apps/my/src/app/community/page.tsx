@@ -130,10 +130,7 @@ export default function CommunityPage() {
     <div className="space-y-6">
       {/* Toast */}
       {toast && (
-        <div
-          className="fixed top-20 left-4 right-4 z-50 rounded-2xl px-4 py-3 text-sm font-semibold shadow-2xl flex items-center gap-2 transition-all duration-300"
-          style={{ background: "var(--color-vytal-green)", color: "var(--color-vytal-bg)" }}
-        >
+        <div className="fixed top-20 left-4 right-4 z-50 rounded-2xl px-4 py-3 text-sm font-semibold shadow-2xl flex items-center gap-2 transition-all duration-300 bg-vytal-green text-vytal-bg">
           <Heart size={14} fill="currentColor" />
           {toast}
         </div>
@@ -141,10 +138,10 @@ export default function CommunityPage() {
 
       {/* ── Header ── */}
       <div>
-        <h1 className="text-2xl font-black" style={{ color: "var(--color-vytal-text)" }}>
+        <h1 className="text-2xl font-black text-vytal-text">
           {t("my.community.title")}
         </h1>
-        <p className="text-xs mt-0.5" style={{ color: "var(--color-vytal-muted)" }}>
+        <p className="text-xs mt-0.5 text-vytal-muted">
           {t("my.community.subtitle")}
         </p>
       </div>
@@ -175,7 +172,7 @@ export default function CommunityPage() {
                 >
                   {stat.label}
                 </p>
-                <p className="text-[9px] leading-tight" style={{ color: "var(--color-vytal-muted)" }}>
+                <p className="text-[9px] leading-tight text-vytal-muted">
                   {stat.sub}
                 </p>
               </div>
@@ -198,11 +195,8 @@ export default function CommunityPage() {
             style={{ background: "radial-gradient(circle, rgba(255,179,0,0.1) 0%, transparent 70%)" }}
           />
           <div className="flex items-center gap-2 mb-4">
-            <Star size={13} style={{ color: "var(--color-vytal-amber)" }} fill="currentColor" />
-            <span
-              className="text-[10px] font-black uppercase tracking-widest"
-              style={{ color: "var(--color-vytal-amber)" }}
-            >
+            <Star size={13} className="text-vytal-amber" fill="currentColor" />
+            <span className="text-[10px] font-black uppercase tracking-widest text-vytal-amber">
               {t("my.community.athleteOfMonth")}
             </span>
           </div>
@@ -210,20 +204,16 @@ export default function CommunityPage() {
             <>
               <div className="flex items-center gap-4">
                 <div
-                  className="w-14 h-14 rounded-2xl flex items-center justify-center text-lg font-black shrink-0 ring-2"
-                  style={{
-                    background: "rgba(255,179,0,0.2)",
-                    color: "var(--color-vytal-amber)",
-                    boxShadow: "0 0 0 2px rgba(255,179,0,0.35)",
-                  }}
+                  className="w-14 h-14 rounded-2xl flex items-center justify-center text-lg font-black shrink-0 ring-2 bg-[rgba(255,179,0,0.2)] text-vytal-amber"
+                  style={{ boxShadow: "0 0 0 2px rgba(255,179,0,0.35)" }}
                 >
                   {athlete.initials}
                 </div>
                 <div>
-                  <p className="font-black text-lg leading-tight" style={{ color: "var(--color-vytal-text)" }}>
+                  <p className="font-black text-lg leading-tight text-vytal-text">
                     {athlete.name}
                   </p>
-                  <p className="text-xs mt-0.5" style={{ color: "var(--color-vytal-amber)" }}>
+                  <p className="text-xs mt-0.5 text-vytal-amber">
                     {t("my.community.bestBadge")}
                   </p>
                 </div>
@@ -235,13 +225,12 @@ export default function CommunityPage() {
                 ].map((s, i) => (
                   <div
                     key={i}
-                    className="rounded-xl px-2 py-2 text-center"
-                    style={{ background: "rgba(255,179,0,0.08)", border: "1px solid rgba(255,179,0,0.15)" }}
+                    className="rounded-xl px-2 py-2 text-center bg-[rgba(255,179,0,0.08)] border border-[rgba(255,179,0,0.15)]"
                   >
-                    <p className="text-base font-black tabular-nums" style={{ color: "var(--color-vytal-amber)" }}>
+                    <p className="text-base font-black tabular-nums text-vytal-amber">
                       {s.value}
                     </p>
-                    <p className="text-[9px] font-medium" style={{ color: "var(--color-vytal-muted)" }}>
+                    <p className="text-[9px] font-medium text-vytal-muted">
                       {s.label}
                     </p>
                   </div>
@@ -249,28 +238,22 @@ export default function CommunityPage() {
               </div>
             </>
           ) : (
-            <p className="text-xs" style={{ color: "var(--color-vytal-muted)" }}>
+            <p className="text-xs text-vytal-muted">
               {t("my.community.noData")}
             </p>
           )}
         </div>
 
         {/* ── Leaderboard ── */}
-        <div
-          className="rounded-2xl p-5"
-          style={{ background: "var(--color-vytal-bg2)", border: "1px solid var(--color-vytal-border)" }}
-        >
+        <div className="rounded-2xl p-5 bg-vytal-bg2 border border-vytal-border">
           <div className="flex items-center gap-2 mb-4">
-            <TrendingUp size={13} style={{ color: "var(--color-vytal-green)" }} />
-            <span
-              className="text-[10px] font-black uppercase tracking-widest"
-              style={{ color: "var(--color-vytal-muted)" }}
-            >
+            <TrendingUp size={13} className="text-vytal-green" />
+            <span className="text-[10px] font-black uppercase tracking-widest text-vytal-muted">
               {t("my.community.leaderboard")}
             </span>
           </div>
           {leaderboard.length === 0 ? (
-            <p className="text-xs" style={{ color: "var(--color-vytal-muted)" }}>
+            <p className="text-xs text-vytal-muted">
               {t("my.community.noData")}
             </p>
           ) : (
@@ -280,8 +263,7 @@ export default function CommunityPage() {
                 return (
                   <div
                     key={entry.name + rank}
-                    className="flex items-center gap-3 rounded-xl px-3 py-2.5"
-                    style={{ background: "var(--color-vytal-bg3)", border: "1px solid transparent" }}
+                    className="flex items-center gap-3 rounded-xl px-3 py-2.5 bg-vytal-bg3 border border-transparent"
                   >
                     <span
                       className="text-sm font-black w-5 text-center shrink-0 tabular-nums"
@@ -296,22 +278,13 @@ export default function CommunityPage() {
                     >
                       {rank}
                     </span>
-                    <div
-                      className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-black shrink-0"
-                      style={{ background: "rgba(34,197,94,0.12)", color: "var(--color-vytal-green)" }}
-                    >
+                    <div className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-black shrink-0 bg-[rgba(34,197,94,0.12)] text-vytal-green">
                       {entry.initials}
                     </div>
-                    <span
-                      className="flex-1 text-sm font-semibold truncate"
-                      style={{ color: "var(--color-vytal-text)" }}
-                    >
+                    <span className="flex-1 text-sm font-semibold truncate text-vytal-text">
                       {entry.name}
                     </span>
-                    <span
-                      className="text-sm font-black tabular-nums shrink-0"
-                      style={{ color: "var(--color-vytal-muted)" }}
-                    >
+                    <span className="text-sm font-black tabular-nums shrink-0 text-vytal-muted">
                       {entry.checkIns}
                     </span>
                   </div>
@@ -323,24 +296,19 @@ export default function CommunityPage() {
       </div>
 
       {/* ── Compose ── */}
-      <div
-        className="rounded-2xl p-4"
-        style={{ background: "var(--color-vytal-bg2)", border: "1px solid var(--color-vytal-border)" }}
-      >
+      <div className="rounded-2xl p-4 bg-vytal-bg2 border border-vytal-border">
         <textarea
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
           placeholder={t("my.community.composePlaceholder")}
           rows={2}
-          className="w-full resize-none bg-transparent text-sm outline-none"
-          style={{ color: "var(--color-vytal-text)" }}
+          className="w-full resize-none bg-transparent text-sm outline-none text-vytal-text"
         />
         <div className="flex justify-end">
           <button
             onClick={() => draft.trim() && createPost.mutate({ content: draft.trim() })}
             disabled={!draft.trim() || createPost.isPending}
-            className="flex items-center gap-1.5 rounded-xl px-4 py-2 text-xs font-bold transition-all disabled:opacity-50"
-            style={{ background: "var(--color-vytal-green)", color: "var(--color-vytal-bg)" }}
+            className="flex items-center gap-1.5 rounded-xl px-4 py-2 text-xs font-bold transition-all disabled:opacity-50 bg-vytal-green text-vytal-bg"
           >
             <Send size={13} />
             {t("my.community.post")}
@@ -351,17 +319,14 @@ export default function CommunityPage() {
       {/* ── Activity feed ── */}
       <div>
         <div className="flex items-center gap-2 mb-3">
-          <Activity size={13} style={{ color: "var(--color-vytal-green)" }} />
-          <p
-            className="text-[10px] font-black uppercase tracking-widest"
-            style={{ color: "var(--color-vytal-muted)" }}
-          >
+          <Activity size={13} className="text-vytal-green" />
+          <p className="text-[10px] font-black uppercase tracking-widest text-vytal-muted">
             {t("my.community.feed")}
           </p>
         </div>
 
         {feed.length === 0 ? (
-          <p className="text-xs" style={{ color: "var(--color-vytal-muted)" }}>
+          <p className="text-xs text-vytal-muted">
             {t("my.community.emptyFeed")}
           </p>
         ) : (
@@ -373,9 +338,8 @@ export default function CommunityPage() {
               return (
                 <div
                   key={event.id}
-                  className="rounded-2xl px-4 py-3.5"
+                  className="rounded-2xl px-4 py-3.5 bg-vytal-bg2"
                   style={{
-                    background: "var(--color-vytal-bg2)",
                     border: event.pinned
                       ? "1px solid rgba(192,132,252,0.35)"
                       : "1px solid var(--color-vytal-border)",
@@ -390,26 +354,20 @@ export default function CommunityPage() {
                     </div>
 
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm leading-snug" style={{ color: "var(--color-vytal-text)" }}>
+                      <p className="text-sm leading-snug text-vytal-text">
                         <span className="font-bold">{event.authorName}</span>{" "}
-                        <span
-                          className="text-[9px] font-bold uppercase rounded px-1 py-0.5 align-middle"
-                          style={{ background: "var(--color-vytal-bg3)", color: "var(--color-vytal-muted)" }}
-                        >
+                        <span className="text-[9px] font-bold uppercase rounded px-1 py-0.5 align-middle bg-vytal-bg3 text-vytal-muted">
                           {t(badgeLabelKey[event.authorType] ?? "my.community.badgeAthlete")}
                         </span>
                         {isAuto ? (
-                          <span style={{ color: "var(--color-vytal-muted)" }}> {event.content}</span>
+                          <span className="text-vytal-muted"> {event.content}</span>
                         ) : (
-                          <span className="block mt-1" style={{ color: "var(--color-vytal-muted)" }}>
+                          <span className="block mt-1 text-vytal-muted">
                             {event.content}
                           </span>
                         )}
                       </p>
-                      <p
-                        className="text-[10px] mt-1"
-                        style={{ color: "var(--color-vytal-muted)", opacity: 0.7 }}
-                      >
+                      <p className="text-[10px] mt-1 text-vytal-muted opacity-70">
                         {relativeTime(event.createdAt, t("my.community.agora"))}
                       </p>
                     </div>
@@ -445,8 +403,7 @@ export default function CommunityPage() {
                       setOpenComments(openComments === event.id ? null : event.id);
                       setCommentDraft("");
                     }}
-                    className="mt-2 ml-11 flex items-center gap-1.5 text-[11px] font-semibold"
-                    style={{ color: "var(--color-vytal-muted)" }}
+                    className="mt-2 ml-11 flex items-center gap-1.5 text-[11px] font-semibold text-vytal-muted"
                   >
                     <MessageSquare size={12} />
                     {event.commentCount} {t("my.community.comments")}
@@ -506,24 +463,17 @@ function CommentThread({
   return (
     <div className="mt-3 ml-11 space-y-2">
       {comments.map((c) => (
-        <div
-          key={c.id}
-          className="rounded-xl px-3 py-2"
-          style={{ background: "var(--color-vytal-bg3)" }}
-        >
-          <p className="text-xs" style={{ color: "var(--color-vytal-text)" }}>
+        <div key={c.id} className="rounded-xl px-3 py-2 bg-vytal-bg3">
+          <p className="text-xs text-vytal-text">
             <span className="font-bold">{c.authorName}</span>{" "}
-            <span
-              className="text-[8px] font-bold uppercase rounded px-1 align-middle"
-              style={{ background: "var(--color-vytal-bg2)", color: "var(--color-vytal-muted)" }}
-            >
+            <span className="text-[8px] font-bold uppercase rounded px-1 align-middle bg-vytal-bg2 text-vytal-muted">
               {badgeLabel(c.authorType)}
             </span>
           </p>
-          <p className="text-xs mt-0.5" style={{ color: "var(--color-vytal-muted)" }}>
+          <p className="text-xs mt-0.5 text-vytal-muted">
             {c.content}
           </p>
-          <p className="text-[9px] mt-1" style={{ color: "var(--color-vytal-muted)", opacity: 0.6 }}>
+          <p className="text-[9px] mt-1 text-vytal-muted opacity-60">
             {relativeTime(c.createdAt, nowLabel)}
           </p>
         </div>
@@ -534,14 +484,12 @@ function CommentThread({
           onChange={(e) => setDraft(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && onSubmit()}
           placeholder={placeholder}
-          className="flex-1 rounded-xl px-3 py-2 text-xs outline-none"
-          style={{ background: "var(--color-vytal-bg3)", color: "var(--color-vytal-text)" }}
+          className="flex-1 rounded-xl px-3 py-2 text-xs outline-none bg-vytal-bg3 text-vytal-text"
         />
         <button
           onClick={onSubmit}
           disabled={!draft.trim() || submitting}
-          className="rounded-xl px-3 py-2 text-[11px] font-bold disabled:opacity-50"
-          style={{ background: "var(--color-vytal-green)", color: "var(--color-vytal-bg)" }}
+          className="rounded-xl px-3 py-2 text-[11px] font-bold disabled:opacity-50 bg-vytal-green text-vytal-bg"
         >
           {sendLabel}
         </button>
