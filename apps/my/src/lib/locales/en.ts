@@ -3782,6 +3782,7 @@ export const en: Record<string, string> = {
 
     // myVYTAL console — workouts
     "my.workouts.title": "Workout Library",
+    "my.workouts.startWorkout": "Start workout",
     "my.workouts.subtitle": "workouts to do at home",
     "my.workouts.suggested": "Suggested for you",
     "my.workouts.suggestedBadge": "Suggested",
