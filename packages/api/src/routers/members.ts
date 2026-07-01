@@ -4,6 +4,7 @@ import { checkIns, gymMembers, GENDERS, MEMBER_STATUSES } from "@vytal-fit/db";
 import { z } from "zod";
 import { adminProcedure, orgProcedure, router } from "../trpc";
 import { recordAudit } from "../audit";
+import { dispatchWebhooks } from "./webhooks";
 
 const RETENTION_WEEKS = 16;
 const WEEK_MS = 7 * 86_400_000;
@@ -110,6 +111,12 @@ export const membersRouter = router({
       resource: "Member",
       details: `Created member ${created.name} (#${created.memberNumber})`,
     });
+    dispatchWebhooks(ctx, "member.created", {
+      id: created.id,
+      name: created.name,
+      email: created.email,
+      memberNumber: created.memberNumber,
+    });
     return created;
   }),
 
@@ -154,6 +161,11 @@ export const membersRouter = router({
         resource: "Member",
         details: `Updated member ${updated.name}`,
         expandedDetails: Object.keys(input.data).join(", "),
+      });
+      dispatchWebhooks(ctx, "member.updated", {
+        id: updated.id,
+        name: updated.name,
+        changed: Object.keys(input.data),
       });
       return updated;
     }),

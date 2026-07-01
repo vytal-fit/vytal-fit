@@ -7,7 +7,11 @@ beforeAll(async () => {
   h = await createHarness();
 });
 
-const base = { name: "Zapier", url: "https://hooks.example.com/abc", events: ["member.created"] as const };
+const base: { name: string; url: string; events: ("member.created")[] } = {
+  name: "Zapier",
+  url: "https://hooks.example.com/abc",
+  events: ["member.created"],
+};
 
 describe("webhooks CRUD", () => {
   it("creates a webhook DISABLED by default (cost saver) and returns the secret once", async () => {

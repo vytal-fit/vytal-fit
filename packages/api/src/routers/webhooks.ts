@@ -61,6 +61,54 @@ async function deliver(
 
 const maskSecret = (s: string) => `${s.slice(0, 11)}····${s.slice(-4)}`;
 
+/**
+ * Fire-and-forget: deliver a domain event to every ACTIVE endpoint in the org
+ * that subscribes to it, logging each attempt. Never blocks or throws — the
+ * caller's mutation is unaffected. Endpoints are off by default, so this is a
+ * no-op (zero cost) until an org opts in. Durable/queued delivery is a future
+ * upgrade; today it's best-effort inline.
+ */
+export function dispatchWebhooks(
+  ctx: { db: import("../trpc").Context["db"]; session: { activeOrganizationId: string | null } | null },
+  event: string,
+  payload: unknown,
+): void {
+  const orgId = ctx.session?.activeOrganizationId;
+  if (!orgId) return;
+  void (async () => {
+    try {
+      const active = await ctx.db
+        .select()
+        .from(webhooks)
+        .where(and(eq(webhooks.organizationId, orgId), eq(webhooks.active, true)));
+      const targets = active.filter((w) => w.events.includes(event));
+      for (const wh of targets) {
+        const result = await deliver(wh.url, wh.secret, event, payload);
+        await ctx.db.insert(webhookDeliveries).values({
+          id: crypto.randomUUID(),
+          organizationId: orgId,
+          webhookId: wh.id,
+          event,
+          statusCode: result.statusCode,
+          ok: result.ok,
+          responseMs: result.responseMs,
+          payload: result.body,
+        });
+        await ctx.db
+          .update(webhooks)
+          .set({
+            lastTriggeredAt: new Date(),
+            successCount: result.ok ? wh.successCount + 1 : wh.successCount,
+            failureCount: result.ok ? wh.failureCount : wh.failureCount + 1,
+          })
+          .where(eq(webhooks.id, wh.id));
+      }
+    } catch {
+      // Best-effort: swallow so the triggering mutation is never affected.
+    }
+  })();
+}
+
 export const webhooksRouter = router({
   events: orgProcedure.query(() => [...WEBHOOK_EVENTS]),
 
