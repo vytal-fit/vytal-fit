@@ -62,7 +62,7 @@ curl -X POST https://api.vytal.fit/v1/personal-records \
 ## Save a WOD result
 
 ```bash
-curl -X POST https://api.vytal.fit/v1/wod-results \
+curl -X POST https://api.vytal.fit/v1/wods/results \
   -H "authorization: Bearer $VYTAL_API_KEY" \
   -H 'content-type: application/json' \
   -d '{
@@ -78,7 +78,7 @@ curl -X POST https://api.vytal.fit/v1/wod-results \
 ## List with filters
 
 ```bash
-curl 'https://api.vytal.fit/v1/wod-results?memberId=mem_123&wodId=wod_123' \
+curl 'https://api.vytal.fit/v1/wods/results?memberId=mem_123&wodId=wod_123' \
   -H "authorization: Bearer $VYTAL_API_KEY"
 ```
 

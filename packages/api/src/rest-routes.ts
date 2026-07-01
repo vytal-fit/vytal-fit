@@ -37,13 +37,29 @@ export function kebab(s: string): string {
   return s.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase();
 }
 
+/**
+ * Router prefixes (everything before the verb) that map to a nested REST
+ * resource instead of their own kebab name, so the surface reads hierarchically:
+ * `wodResults.list` → `GET /wods/results`, not `GET /wod-results`. The gateway's
+ * matcher prefers the most specific route, so these never clash with the
+ * parent's `/{id}` routes (e.g. `/classes/types` beats `/classes/{id}`).
+ */
+const PATH_OVERRIDES: Record<string, string[]> = {
+  wodResults: ["wods", "results"],
+  workoutFeedback: ["wods", "feedback"],
+  classTypes: ["classes", "types"],
+  classTemplates: ["classes", "templates"],
+  memberGroups: ["members", "groups"],
+};
+
 function baseRoute(
   procPath: string,
   type: "query" | "mutation",
 ): { method: HttpMethod; segments: string[]; pathParams: string[] } {
   const parts = procPath.split(".");
   const verb = parts.pop() as string;
-  const resourceSegments = parts.map(kebab);
+  const prefix = parts.join(".");
+  const resourceSegments = PATH_OVERRIDES[prefix] ?? parts.map(kebab);
   const q = type === "query";
   switch (verb) {
     case "list":
@@ -114,12 +130,18 @@ export function pathTemplate(route: RestRoute): string {
   return `/${route.segments.join("/")}`;
 }
 
-/** Match an incoming request (method + path segments) to a route. */
+/**
+ * Match an incoming request (method + path segments) to a route. When several
+ * routes match, the **most specific** wins (fewest `{param}` segments) — so a
+ * static route like `GET /members/me` or `GET /classes/types` always beats the
+ * parent's `GET /members/{id}` / `GET /classes/{id}`, regardless of table order.
+ */
 export function matchRoute(
   method: string,
   segments: string[],
 ): { route: RestRoute; params: Record<string, string> } | null {
   const m = method.toLowerCase();
+  let best: { route: RestRoute; params: Record<string, string> } | null = null;
   for (const route of buildRouteTable()) {
     if (route.method !== m) continue;
     if (route.segments.length !== segments.length) continue;
@@ -134,7 +156,10 @@ export function matchRoute(
         break;
       }
     }
-    if (ok) return { route, params };
+    if (!ok) continue;
+    if (!best || route.pathParams.length < best.route.pathParams.length) {
+      best = { route, params };
+    }
   }
-  return null;
+  return best;
 }

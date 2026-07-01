@@ -49,9 +49,9 @@ curl 'https://api.vytal.fit/v1/payments/by-member?memberId=mem_123' \
 | :-- | :-- |
 | `/v1/members` | Members and profiles |
 | `/v1/subscriptions` | Memberships and plans |
-| `/v1/classes` · `/v1/class-types` | Scheduling |
+| `/v1/classes` · `/v1/classes/types` | Scheduling |
 | `/v1/bookings` · `/v1/check-ins` | Attendance |
-| `/v1/wods` · `/v1/wod-results` | Workouts and scores |
+| `/v1/wods` · `/v1/wods/results` | Workouts and scores |
 | `/v1/personal-records` | Personal records |
 | `/v1/payments` · `/v1/expenses` | Money in and out |
 | `/v1/shop` | Products, sales, orders, suppliers |

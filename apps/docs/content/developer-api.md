@@ -58,7 +58,7 @@ never passed in a body.
 | Subscriptions | `GET /v1/subscriptions` · `GET /v1/subscriptions/plans` |
 | Payments | `GET /v1/payments` · `GET /v1/payments/stats` |
 | Records | `GET · POST /v1/personal-records` |
-| Results | `GET · POST /v1/wod-results` |
+| Results | `GET · POST /v1/wods/results` |
 | Leads | `GET /v1/leads` · `POST /v1/leads/update-stage` |
 | Dashboard | `GET /v1/dashboard/stats` · `GET /v1/dashboard/charts` |
 

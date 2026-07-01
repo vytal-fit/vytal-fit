@@ -27,6 +27,24 @@ describe("rest route table", () => {
     for (const r of table) expect(pathTemplate(r).startsWith("/trpc")).toBe(false);
   });
 
+  it("nests logical sub-resources for a restful surface (no /wod-results)", () => {
+    expect(byPath("get", "/wods/results")?.procPath).toBe("wodResults.list");
+    expect(byPath("get", "/classes/types")?.procPath).toBe("classTypes.list");
+    expect(byPath("get", "/classes/templates")?.procPath).toBe("classTemplates.list");
+    expect(byPath("get", "/members/groups")?.procPath).toBe("memberGroups.list");
+    expect(table.some((r) => pathTemplate(r) === "/wod-results")).toBe(false);
+    expect(table.some((r) => pathTemplate(r) === "/member-groups")).toBe(false);
+  });
+
+  it("matchRoute prefers the most specific route over a wildcard", () => {
+    // /members/me must resolve to members.me, never members.byId with id="me".
+    expect(matchRoute("GET", ["members", "me"])?.route.procPath).toBe("members.me");
+    expect(matchRoute("GET", ["members", "abc123"])?.route.procPath).toBe("members.byId");
+    // /classes/types beats /classes/{id}; a real id still hits byId.
+    expect(matchRoute("GET", ["classes", "types"])?.route.procPath).toBe("classTypes.list");
+    expect(matchRoute("GET", ["classes", "cl-1"])?.route.procPath).toBe("classes.byId");
+  });
+
   it("excludes private resources (API-key management is first-party only)", () => {
     expect(table.some((r) => r.resource === "apiKeys")).toBe(false);
   });
