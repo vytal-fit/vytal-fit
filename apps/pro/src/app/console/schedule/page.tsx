@@ -3,9 +3,8 @@
 import { useEffect, useState } from "react";
 import { Clock, Users, MapPin, CheckCircle, X, Star, Calendar } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useDataStore } from "@/stores/data-store";
+import { trpc } from "@/lib/trpc";
 import { useI18n } from "@/lib/i18n";
-import type { Class } from "@vytal-fit/shared";
 
 const DAYS_TO_SHOW = 7;
 
@@ -22,63 +21,72 @@ function getDaysArray(): { date: string; dayNum: string; short: string; isToday:
   return days;
 }
 
-const BOOKINGS_KEY = "vytal-console-bookings";
-
-function loadBookings(): Set<string> {
-  if (typeof window === "undefined") return new Set();
-  try {
-    const raw = localStorage.getItem(BOOKINGS_KEY);
-    return raw ? new Set(JSON.parse(raw) as string[]) : new Set();
-  } catch {
-    return new Set();
-  }
-}
-
-function saveBookings(set: Set<string>) {
-  if (typeof window === "undefined") return;
-  localStorage.setItem(BOOKINGS_KEY, JSON.stringify([...set]));
-}
-
 export default function SchedulePage() {
-  const { classes, classTypes } = useDataStore();
+  const { t } = useI18n();
+  const utils = trpc.useUtils();
+  const days = getDaysArray();
+  const from = days[0]?.date ?? "";
+  const to = days[days.length - 1]?.date ?? "";
+
+  const meQuery = trpc.members.me.useQuery();
+  const memberId = meQuery.data?.id ?? null;
+  const scheduleQuery = trpc.classes.schedule.useQuery({ from, to }, { enabled: !!from });
+  const classTypesQuery = trpc.classTypes.list.useQuery();
+  const bookingsQuery = trpc.bookings.listByMember.useQuery(
+    { memberId: memberId ?? "" },
+    { enabled: !!memberId },
+  );
+
   const [mounted, setMounted] = useState(false);
   const [selectedDay, setSelectedDay] = useState(0);
   const [filterTypeId, setFilterTypeId] = useState<string>("all");
-  const [bookings, setBookings] = useState<Set<string>>(new Set());
   const [animatingId, setAnimatingId] = useState<string | null>(null);
   const [toast, setToast] = useState<{ msg: string; type: "success" | "error" } | null>(null);
 
-  const { t } = useI18n();
-  const days = getDaysArray();
-
   useEffect(() => {
-    setBookings(loadBookings());
     setMounted(true);
   }, []);
+
+  // The member's bookings (classId → bookingId), excluding cancelled.
+  const activeBookings = (bookingsQuery.data ?? []).filter((b) => b.status !== "cancelled");
+  const bookedIds = new Set(activeBookings.map((b) => b.classId));
+  const bookingIdByClass = new Map(activeBookings.map((b) => [b.classId, b.id] as const));
 
   function showToast(msg: string, type: "success" | "error" = "success") {
     setToast({ msg, type });
     setTimeout(() => setToast(null), 3000);
   }
 
-  function toggleBooking(cls: Class) {
+  const book = trpc.bookings.book.useMutation({
+    onSuccess: () => utils.bookings.listByMember.invalidate(),
+  });
+  const cancel = trpc.bookings.cancel.useMutation({
+    onSuccess: () => utils.bookings.listByMember.invalidate(),
+  });
+
+  function toggleBooking(cls: {
+    id: string;
+    classType: { name: string } | null;
+    enrolledCount: number;
+    maxCapacity: number;
+    startTime: string;
+  }) {
+    if (!memberId) return;
     setAnimatingId(cls.id);
     setTimeout(() => setAnimatingId(null), 600);
 
-    const next = new Set(bookings);
-    if (next.has(cls.id)) {
-      next.delete(cls.id);
+    if (bookedIds.has(cls.id)) {
+      const bookingId = bookingIdByClass.get(cls.id);
+      if (bookingId) cancel.mutate({ id: bookingId });
       showToast(`${t("my.schedule.toastCancelled")}: ${cls.classType?.name ?? "Aula"}`, "error");
     } else {
+      book.mutate({ classId: cls.id, memberId });
       if (cls.enrolledCount >= cls.maxCapacity) {
         showToast(t("my.schedule.toastWaitlist"), "success");
       } else {
         showToast(`${t("my.schedule.toastBooked")} — ${cls.classType?.name ?? "Aula"} às ${cls.startTime}`, "success");
       }
-      next.add(cls.id);
     }
-    setBookings(next);
-    saveBookings(next);
   }
 
   if (!mounted) {
@@ -93,12 +101,12 @@ export default function SchedulePage() {
   }
 
   const selectedDate = days[selectedDay]?.date ?? "";
-  const dayClasses = (classes ?? [])
+  const dayClasses = (scheduleQuery.data ?? [])
     .filter((c) => c.date === selectedDate)
     .filter((c) => filterTypeId === "all" || c.classTypeId === filterTypeId)
     .sort((a, b) => a.startTime.localeCompare(b.startTime));
 
-  const myBookedIds = dayClasses.filter((c) => bookings.has(c.id));
+  const myBookedIds = dayClasses.filter((c) => bookedIds.has(c.id));
 
   return (
     <div className="flex flex-col min-h-full">
@@ -220,7 +228,7 @@ export default function SchedulePage() {
           >
             {t("my.schedule.all")}
           </button>
-          {(classTypes ?? []).filter((ct) => ct.active).map((ct) => (
+          {(classTypesQuery.data ?? []).filter((ct) => ct.active).map((ct) => (
             <button
               key={ct.id}
               onClick={() => setFilterTypeId(ct.id)}
@@ -254,7 +262,7 @@ export default function SchedulePage() {
         ) : (
           <div className="space-y-3">
             {dayClasses.map((cls) => {
-              const isBooked = bookings.has(cls.id);
+              const isBooked = bookedIds.has(cls.id);
               const isFull = cls.enrolledCount >= cls.maxCapacity;
               const spotsLeft = cls.maxCapacity - cls.enrolledCount;
               const fillPct = Math.round((cls.enrolledCount / cls.maxCapacity) * 100);

@@ -15,17 +15,10 @@ import {
   Zap,
 } from "lucide-react";
 import { useAuthStore } from "@/stores/auth-store";
-import { useDataStore } from "@/stores/data-store";
+import { trpc } from "@/lib/trpc";
 import { useAppStore } from "@/stores/app-store";
 import { useI18n } from "@/lib/i18n";
 
-
-const MOCK_PAYMENTS = [
-  { id: "p-1", description: "Plano Mensal — Junho 2026", amount: "65,00 €", date: "01/06/2026" },
-  { id: "p-2", description: "Plano Mensal — Maio 2026",  amount: "65,00 €", date: "01/05/2026" },
-  { id: "p-3", description: "Plano Mensal — Abril 2026", amount: "65,00 €", date: "01/04/2026" },
-  { id: "p-4", description: "Plano Mensal — Marco 2026", amount: "65,00 €", date: "01/03/2026" },
-];
 
 // Badge keys resolved via t() inside the component
 const MOCK_BADGE_KEYS = [
@@ -37,7 +30,17 @@ const MOCK_BADGE_KEYS = [
 
 export default function ProfilePage() {
   const { user, hydrate, logout } = useAuthStore();
-  const { members, plans, subscriptions } = useDataStore();
+  const meQuery = trpc.members.me.useQuery();
+  const memberId = meQuery.data?.id ?? null;
+  const subsQuery = trpc.subscriptions.byMember.useQuery(
+    { memberId: memberId ?? "" },
+    { enabled: !!memberId },
+  );
+  const plansQuery = trpc.subscriptions.plans.list.useQuery();
+  const paymentsQuery = trpc.payments.byMember.useQuery(
+    { memberId: memberId ?? "" },
+    { enabled: !!memberId },
+  );
   const { theme, toggleTheme, hydrate: hydrateApp } = useAppStore();
   const { t } = useI18n();
   const [mounted, setMounted] = useState(false);
@@ -68,15 +71,31 @@ export default function ProfilePage() {
     );
   }
 
-  const member = members?.[0];
+  const member = meQuery.data ?? null;
   const initials = user?.user?.name
     ? user.user.name.split(" ").map((n: string) => n[0]).join("").slice(0, 2).toUpperCase()
     : "AT";
   const userName = user?.user?.name ?? "Atleta";
   const userEmail = user?.user?.email ?? "atleta@vytal.fit";
 
-  const activeSub = (subscriptions ?? []).find((s) => s.status === "active" || s.status === "paused");
-  const plan = activeSub?.plan ?? (plans ?? [])[0] ?? null;
+  const subs = subsQuery.data ?? [];
+  const plansList = plansQuery.data ?? [];
+  const activeSub = subs.find((s) => s.status === "active" || s.status === "paused") ?? null;
+  const plan =
+    plansList.find((p) => p.id === activeSub?.planId) ?? plansList[0] ?? null;
+
+  const payments = (paymentsQuery.data ?? []).map((p) => {
+    const when = p.paidAt ?? p.createdAt;
+    return {
+      id: p.id,
+      description: p.reference
+        ? `${t("my.profile.paymentHistory")} · ${p.reference}`
+        : t("my.profile.paymentHistory"),
+      amount: `${Number(p.amount).toFixed(2).replace(".", ",")} ${p.currency === "EUR" ? "€" : p.currency}`,
+      date: new Date(when).toLocaleDateString("pt-PT"),
+      paid: p.status === "paid",
+    };
+  });
 
   const memberSince = member?.joinedAt
     ? new Date(member.joinedAt).toLocaleDateString("pt-PT", { month: "long", year: "numeric" })
@@ -308,7 +327,7 @@ export default function ProfilePage() {
 
         {showPayments && (
           <div style={{ borderTop: "1px solid var(--color-vytal-border)" }}>
-            {MOCK_PAYMENTS.map((p, i) => (
+            {payments.map((p, i) => (
               <div
                 key={p.id}
                 className="flex items-center justify-between px-5 py-3.5"

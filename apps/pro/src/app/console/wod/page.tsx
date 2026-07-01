@@ -11,9 +11,8 @@ import {
   Zap,
   Dumbbell,
 } from "lucide-react";
-import { useDataStore } from "@/stores/data-store";
+import { trpc } from "@/lib/trpc";
 import { useI18n } from "@/lib/i18n";
-import type { WOD } from "@vytal-fit/shared";
 
 const WOD_TYPE_LABELS: Record<string, { labelKey: string; color: string }> = {
   amrap:    { labelKey: "AMRAP",                    color: "var(--color-vytal-green)" },
@@ -33,8 +32,6 @@ const SCORE_TYPE_KEYS = [
   { value: "calories",    key: "my.wod.score.calories" },
 ];
 
-const LOG_KEY = "vytal-console-wod-logs";
-
 interface WODLog {
   wodId: string;
   wodTitle: string;
@@ -44,21 +41,6 @@ interface WODLog {
   scale: "rx" | "scaled" | "rx_plus";
   notes: string;
   loggedAt: string;
-}
-
-function loadLogs(): WODLog[] {
-  if (typeof window === "undefined") return [];
-  try {
-    const raw = localStorage.getItem(LOG_KEY);
-    return raw ? (JSON.parse(raw) as WODLog[]) : [];
-  } catch {
-    return [];
-  }
-}
-
-function saveLogs(logs: WODLog[]) {
-  if (typeof window === "undefined") return;
-  localStorage.setItem(LOG_KEY, JSON.stringify(logs));
 }
 
 function formatTime(seconds: number): string {
@@ -143,11 +125,18 @@ function CircularTimer({
 }
 
 export default function WODPage() {
-  const { wods } = useDataStore();
   const { t } = useI18n();
+  const utils = trpc.useUtils();
+  const meQuery = trpc.members.me.useQuery();
+  const memberId = meQuery.data?.id ?? null;
+  const wodsQuery = trpc.wods.list.useQuery();
+  const exercisesQuery = trpc.exercises.list.useQuery();
+  const resultsQuery = trpc.wodResults.list.useQuery(
+    { memberId: memberId ?? "" },
+    { enabled: !!memberId },
+  );
   const [mounted, setMounted] = useState(false);
   const [expandedParts, setExpandedParts] = useState<Set<number>>(new Set([0]));
-  const [logs, setLogs] = useState<WODLog[]>([]);
   const [showLogForm, setShowLogForm] = useState(false);
   const [score, setScore] = useState("");
   const [scoreType, setScoreType] = useState("rounds_reps");
@@ -163,7 +152,6 @@ export default function WODPage() {
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
-    setLogs(loadLogs());
     setMounted(true);
   }, []);
 
@@ -204,28 +192,29 @@ export default function WODPage() {
     setTimeout(() => setToast(null), 3000);
   }
 
-  function handleLogSubmit(e: React.FormEvent, wod: WOD) {
+  const logResult = trpc.wodResults.create.useMutation({
+    onSuccess: async () => {
+      setScore("");
+      setNotes("");
+      setSubmitted(true);
+      setShowLogForm(false);
+      showToast(t("my.wod.log.saved"));
+      setTimeout(() => setSubmitted(false), 5000);
+      await utils.wodResults.list.invalidate();
+    },
+  });
+
+  function handleLogSubmit(e: React.FormEvent, wodId: string) {
     e.preventDefault();
-    if (!score.trim()) return;
-    const log: WODLog = {
-      wodId: wod.id,
-      wodTitle: wod.title ?? "WOD",
-      date: wod.date,
+    if (!score.trim() || !memberId) return;
+    logResult.mutate({
+      wodId,
+      memberId,
       score: score.trim(),
-      scoreType,
+      scoreType: scoreType as "time" | "rounds_reps" | "reps" | "weight" | "distance" | "calories",
       scale,
-      notes: notes.trim(),
-      loggedAt: new Date().toISOString(),
-    };
-    const updated = [log, ...logs];
-    setLogs(updated);
-    saveLogs(updated);
-    setScore("");
-    setNotes("");
-    setSubmitted(true);
-    setShowLogForm(false);
-    showToast(t("my.wod.log.saved"));
-    setTimeout(() => setSubmitted(false), 5000);
+      notes: notes.trim() || undefined,
+    });
   }
 
   if (!mounted) {
@@ -240,11 +229,28 @@ export default function WODPage() {
   }
 
   const today = new Date().toISOString().split("T")[0];
-  const todayWODs = (wods ?? []).filter((w) => w.date === today);
-  const pastWODs = (wods ?? [])
+  const allWODs = (wodsQuery.data ?? []).filter((w) => w.publishedAt != null);
+  const todayWODs = allWODs.filter((w) => w.date === today);
+  const pastWODs = allWODs
     .filter((w) => w.date < today)
     .sort((a, b) => b.date.localeCompare(a.date));
   const mainWOD = todayWODs[0] ?? null;
+
+  // Resolve exercise ids → names from the shared catalog.
+  const exMap = new Map((exercisesQuery.data ?? []).map((e) => [e.id, e.name] as const));
+  const wodTitleById = new Map(allWODs.map((w) => [w.id, w.title ?? "WOD"] as const));
+
+  // Athlete's logged results, mapped to the display shape.
+  const logs: WODLog[] = (resultsQuery.data?.items ?? []).map((r) => ({
+    wodId: r.wodId,
+    wodTitle: wodTitleById.get(r.wodId) ?? "WOD",
+    date: today,
+    score: r.score,
+    scoreType: r.scoreType,
+    scale: r.scale,
+    notes: r.notes ?? "",
+    loggedAt: new Date(r.createdAt).toISOString(),
+  }));
 
   const wodTypeMeta = mainWOD
     ? (WOD_TYPE_LABELS[mainWOD.parts?.[0]?.type ?? "custom"] ?? WOD_TYPE_LABELS.custom)
@@ -402,7 +408,7 @@ export default function WODPage() {
                           </div>
                           <div className="flex-1">
                             <p className="text-sm font-bold" style={{ color: "var(--color-vytal-text)" }}>
-                              {ex.exercise?.name ?? ex.exerciseId}
+                              {exMap.get(ex.exerciseId) ?? ex.exerciseId}
                             </p>
                             <div className="flex flex-wrap gap-2 mt-0.5">
                               {ex.reps && (
@@ -538,7 +544,7 @@ export default function WODPage() {
 
             {showLogForm && (
               <form
-                onSubmit={(e) => handleLogSubmit(e, mainWOD)}
+                onSubmit={(e) => handleLogSubmit(e, mainWOD.id)}
                 className="px-5 pb-5 space-y-4"
                 style={{ borderTop: "1px solid var(--color-vytal-border)" }}
               >

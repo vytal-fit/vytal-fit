@@ -1,38 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Trophy, TrendingUp, Plus, X, ChevronUp, ChevronDown } from "lucide-react";
-import { useDataStore } from "@/stores/data-store";
+import { trpc } from "@/lib/trpc";
 import { useI18n } from "@/lib/i18n";
-import type { PersonalRecord } from "@vytal-fit/shared";
 
-const EXTRA_PRS_KEY = "vytal-console-extra-prs";
-
-interface LocalPR {
-  id: string;
-  exerciseName: string;
-  value: string;
-  unit: string;
-  achievedAt: string;
-  previousValue?: string;
-}
-
-function loadExtraPRs(): LocalPR[] {
-  if (typeof window === "undefined") return [];
-  try {
-    const raw = localStorage.getItem(EXTRA_PRS_KEY);
-    return raw ? (JSON.parse(raw) as LocalPR[]) : [];
-  } catch {
-    return [];
-  }
-}
-
-function saveExtraPRs(prs: LocalPR[]) {
-  if (typeof window === "undefined") return;
-  localStorage.setItem(EXTRA_PRS_KEY, JSON.stringify(prs));
-}
-
-const UNIT_OPTIONS = ["kg", "lbs", "reps", "time", "metros", "calorias"];
+const UNIT_OPTIONS = ["kg", "lbs", "reps", "time", "meters", "calories"] as const;
+type Unit = (typeof UNIT_OPTIONS)[number];
 
 const CATEGORY_CONFIG: Record<string, { emoji: string; color: string; bg: string }> = {
   weightlifting: { emoji: "🏋️", color: "var(--color-vytal-amber)",  bg: "rgba(255,179,0,0.1)" },
@@ -73,59 +47,54 @@ function Sparkline({ values, color }: { values: number[]; color: string }) {
 }
 
 export default function RecordsPage() {
-  const { personalRecords, exercises } = useDataStore();
   const { t } = useI18n();
-  const [mounted, setMounted] = useState(false);
-  const [extraPRs, setExtraPRs] = useState<LocalPR[]>([]);
+  const utils = trpc.useUtils();
+
+  const meQuery = trpc.members.me.useQuery();
+  const memberId = meQuery.data?.id ?? null;
+
+  const prQuery = trpc.personalRecords.list.useQuery(
+    { memberId: memberId ?? "" },
+    { enabled: !!memberId },
+  );
+  const exercisesQuery = trpc.exercises.list.useQuery();
+
   const [showForm, setShowForm] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<"date" | "name">("date");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
 
-  const [formExercise, setFormExercise] = useState("");
+  const [formExerciseId, setFormExerciseId] = useState("");
   const [formValue, setFormValue] = useState("");
-  const [formUnit, setFormUnit] = useState("kg");
+  const [formUnit, setFormUnit] = useState<Unit>("kg");
   const [formPrev, setFormPrev] = useState("");
   const [formDate, setFormDate] = useState(new Date().toISOString().split("T")[0]);
 
-  useEffect(() => {
-    setExtraPRs(loadExtraPRs());
-    setMounted(true);
-  }, []);
-
-  function showToast(msg: string) {
-    setToast(msg);
-    setTimeout(() => setToast(null), 3000);
-  }
+  const create = trpc.personalRecords.create.useMutation({
+    onSuccess: async () => {
+      setToast(t("my.records.toastAdded"));
+      setTimeout(() => setToast(null), 3000);
+      setShowForm(false);
+      setFormExerciseId("");
+      setFormValue("");
+      setFormPrev("");
+      setFormUnit("kg");
+      setFormDate(new Date().toISOString().split("T")[0]);
+      await utils.personalRecords.list.invalidate();
+    },
+  });
 
   function handleAddPR(e: React.FormEvent) {
     e.preventDefault();
-    if (!formExercise.trim() || !formValue.trim()) return;
-    const pr: LocalPR = {
-      id: `local-pr-${Date.now()}`,
-      exerciseName: formExercise.trim(),
+    if (!memberId || !formExerciseId || !formValue.trim()) return;
+    create.mutate({
+      memberId,
+      exerciseId: formExerciseId,
       value: formValue.trim(),
       unit: formUnit,
-      achievedAt: formDate,
       previousValue: formPrev.trim() || undefined,
-    };
-    const updated = [pr, ...extraPRs];
-    setExtraPRs(updated);
-    saveExtraPRs(updated);
-    setFormExercise("");
-    setFormValue("");
-    setFormPrev("");
-    setFormUnit("kg");
-    setFormDate(new Date().toISOString().split("T")[0]);
-    setShowForm(false);
-    showToast(t("my.records.toastAdded"));
-  }
-
-  function deleteExtraPR(id: string) {
-    const updated = extraPRs.filter((p) => p.id !== id);
-    setExtraPRs(updated);
-    saveExtraPRs(updated);
-    showToast(t("my.records.toastRemoved"));
+      achievedAt: new Date(formDate),
+    });
   }
 
   function toggleSort(field: "date" | "name") {
@@ -137,7 +106,9 @@ export default function RecordsPage() {
     }
   }
 
-  if (!mounted) {
+  const loading = meQuery.isLoading || (!!memberId && prQuery.isLoading);
+
+  if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div
@@ -148,13 +119,14 @@ export default function RecordsPage() {
     );
   }
 
-  const storePRs: PersonalRecord[] = personalRecords ?? [];
+  const storePRs = prQuery.data?.items ?? [];
+  const exercises = exercisesQuery.data ?? [];
 
   const sortedStorePRs = [...storePRs].sort((a, b) => {
     if (sortBy === "date") {
-      return sortDir === "desc"
-        ? b.achievedAt.localeCompare(a.achievedAt)
-        : a.achievedAt.localeCompare(b.achievedAt);
+      const da = new Date(a.achievedAt).getTime();
+      const db = new Date(b.achievedAt).getTime();
+      return sortDir === "desc" ? db - da : da - db;
     }
     const nameA = a.exercise?.name ?? "";
     const nameB = b.exercise?.name ?? "";
@@ -187,7 +159,7 @@ export default function RecordsPage() {
             {t("my.records.title")}
           </h1>
           <p className="text-xs mt-0.5" style={{ color: "var(--color-vytal-muted)" }}>
-            {storePRs.length + extraPRs.length} {t("my.records.count")}
+            {storePRs.length} {t("my.records.count")}
           </p>
         </div>
         <button
@@ -228,25 +200,22 @@ export default function RecordsPage() {
               <label className="text-[10px] font-bold uppercase tracking-wider mb-1.5 block" style={{ color: "var(--color-vytal-muted)" }}>
                 {t("my.records.exercise")}
               </label>
-              <input
-                type="text"
+              <select
                 required
-                placeholder={t("my.records.exercisePlaceholder")}
-                value={formExercise}
-                onChange={(e) => setFormExercise(e.target.value)}
-                list="exercise-suggestions"
+                value={formExerciseId}
+                onChange={(e) => setFormExerciseId(e.target.value)}
                 className="w-full rounded-xl px-3 py-2.5 text-sm outline-none"
                 style={{
                   background: "var(--color-vytal-bg3)",
                   color: "var(--color-vytal-text)",
                   border: "1px solid var(--color-vytal-border)",
                 }}
-              />
-              <datalist id="exercise-suggestions">
-                {(exercises ?? []).map((ex) => (
-                  <option key={ex.id} value={ex.name} />
+              >
+                <option value="" disabled>{t("my.records.exercisePlaceholder")}</option>
+                {exercises.map((ex) => (
+                  <option key={ex.id} value={ex.id}>{ex.name}</option>
                 ))}
-              </datalist>
+              </select>
             </div>
 
             <div className="grid grid-cols-2 gap-3">
@@ -274,7 +243,7 @@ export default function RecordsPage() {
                 </label>
                 <select
                   value={formUnit}
-                  onChange={(e) => setFormUnit(e.target.value)}
+                  onChange={(e) => setFormUnit(e.target.value as Unit)}
                   className="w-full rounded-xl px-3 py-2.5 text-sm outline-none"
                   style={{
                     background: "var(--color-vytal-bg3)",
@@ -328,7 +297,8 @@ export default function RecordsPage() {
 
             <button
               type="submit"
-              className="w-full py-3 rounded-xl font-bold text-sm transition-all duration-200 hover:scale-[1.01] hover:opacity-90"
+              disabled={create.isPending}
+              className="w-full py-3 rounded-xl font-bold text-sm transition-all duration-200 hover:scale-[1.01] hover:opacity-90 disabled:opacity-60"
               style={{ background: "var(--color-vytal-green)", color: "var(--color-vytal-bg)" }}
             >
               {t("my.records.save")}
@@ -409,7 +379,7 @@ export default function RecordsPage() {
 
       {/* ── PR list ── */}
       <div className="space-y-2">
-        {sortedStorePRs.length === 0 && extraPRs.length === 0 ? (
+        {sortedStorePRs.length === 0 ? (
           <div
             className="rounded-2xl p-10 flex flex-col items-center gap-4 text-center"
             style={{ background: "var(--color-vytal-bg2)", border: "1px solid var(--color-vytal-border)" }}
@@ -426,56 +396,6 @@ export default function RecordsPage() {
           </div>
         ) : (
           <>
-            {/* Locally added PRs */}
-            {extraPRs.map((pr) => (
-              <div
-                key={pr.id}
-                className="flex items-center gap-3 rounded-2xl px-4 py-3.5 transition-all duration-200 hover:scale-[1.01]"
-                style={{
-                  background: "rgba(34,197,94,0.07)",
-                  border: "1px solid rgba(34,197,94,0.2)",
-                }}
-              >
-                <div
-                  className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 text-base"
-                  style={{ background: "rgba(34,197,94,0.15)" }}
-                >
-                  ⚡
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-bold truncate" style={{ color: "var(--color-vytal-text)" }}>
-                    {pr.exerciseName}
-                  </p>
-                  <p className="text-[11px]" style={{ color: "var(--color-vytal-muted)" }}>
-                    {new Date(pr.achievedAt).toLocaleDateString("pt-PT", {
-                      day: "numeric",
-                      month: "short",
-                      year: "numeric",
-                    })}
-                    {pr.previousValue && ` · ${t("my.records.previous")}: ${pr.previousValue} ${pr.unit}`}
-                  </p>
-                </div>
-                <div className="text-right flex items-center gap-2.5">
-                  <div>
-                    <p className="font-black font-mono text-base" style={{ color: "var(--color-vytal-green)" }}>
-                      {pr.value}
-                      <span className="text-xs font-normal ml-1" style={{ color: "var(--color-vytal-muted)" }}>
-                        {pr.unit}
-                      </span>
-                    </p>
-                  </div>
-                  <button
-                    onClick={() => deleteExtraPR(pr.id)}
-                    className="w-7 h-7 rounded-lg flex items-center justify-center transition-all hover:scale-110"
-                    style={{ background: "rgba(255,71,87,0.12)" }}
-                    title={t("my.records.remove")}
-                  >
-                    <X size={12} style={{ color: "var(--color-vytal-red)" }} />
-                  </button>
-                </div>
-              </div>
-            ))}
-
             {/* Store PRs */}
             {sortedStorePRs.map((pr) => {
               const prev = pr.previousValue ? parseFloat(pr.previousValue) : null;
