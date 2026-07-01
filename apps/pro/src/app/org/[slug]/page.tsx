@@ -4,7 +4,6 @@ import { use, useEffect, useState } from "react";
 import { ORGANIZATION_CONFIGS } from "@vytal-fit/shared";
 import {
   MapPin,
-  Clock,
   Globe,
   AtSign,
   Phone,
@@ -17,13 +16,12 @@ import {
   CheckCircle,
   Link2,
   ChevronRight,
+  Loader2,
   Dumbbell,
 } from "lucide-react";
 import Link from "next/link";
 import type { WebsiteConfig } from "@/stores/data-store";
-import { MOCK_ORGS } from "./org-data";
-
-// MOCK_ORGS is now imported from ./org-data
+import { trpc } from "@/lib/trpc";
 
 // ---------------------------------------------------------------------------
 // Load websiteConfig from localStorage (saved by the admin settings page)
@@ -76,7 +74,7 @@ function StarDisplay({ rating }: { rating: number }) {
 
 export default function OrgPublicPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = use(params);
-  const org = MOCK_ORGS[slug];
+  const siteQuery = trpc.public.site.useQuery({ slug });
   const [websiteConfig, setWebsiteConfig] = useState<WebsiteConfig | null>(null);
   const [contactForm, setContactForm] = useState({ name: "", email: "", message: "" });
   const [contactSent, setContactSent] = useState(false);
@@ -84,6 +82,16 @@ export default function OrgPublicPage({ params }: { params: Promise<{ slug: stri
   useEffect(() => {
     setWebsiteConfig(loadWebsiteConfig(slug));
   }, [slug]);
+
+  if (siteQuery.isLoading) {
+    return (
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-vytal-green" />
+      </div>
+    );
+  }
+
+  const org = siteQuery.data;
 
   if (!org) {
     return (
@@ -102,14 +110,17 @@ export default function OrgPublicPage({ params }: { params: Promise<{ slug: stri
     );
   }
 
-  const config = ORGANIZATION_CONFIGS[org.type];
-  const verticalLabel = config?.label ?? org.type;
+  const publicSite = org.publicSite;
+  const profile = org.profile;
+  const businessType = profile?.businessType ?? "";
+  const config = businessType ? ORGANIZATION_CONFIGS[businessType] : undefined;
+  const verticalLabel = config?.label ?? businessType;
 
   // Resolve display values: websiteConfig overrides defaults when present
-  const displaySlogan = websiteConfig?.hero?.slogan || org.slogan;
+  const displaySlogan =
+    websiteConfig?.hero?.slogan || publicSite?.slogan || profile?.slogan || "";
   const heroEnabled = websiteConfig ? websiteConfig.hero.enabled : true;
   const aboutEnabled = websiteConfig ? websiteConfig.about.enabled : false;
-  const scheduleEnabled = websiteConfig ? websiteConfig.schedule.enabled : true;
   const pricingEnabled = websiteConfig ? websiteConfig.pricing.enabled : false;
   const galleryEnabled = websiteConfig ? websiteConfig.gallery.enabled : false;
   const testimonialsEnabled = websiteConfig ? websiteConfig.testimonials.enabled : false;
@@ -138,30 +149,30 @@ export default function OrgPublicPage({ params }: { params: Promise<{ slug: stri
             </div>
             <h1 className="text-3xl font-bold text-vytal-text">{org.name}</h1>
             <p className="mt-2 text-lg text-vytal-muted">{displaySlogan}</p>
-            <div className="mt-3 flex items-center justify-center gap-2">
-              <span className="rounded-full bg-vytal-green/10 px-3 py-1 text-xs font-semibold text-vytal-green">
-                {verticalLabel}
-              </span>
-              <span className="flex items-center gap-1 text-sm text-vytal-amber">
-                <Star className="h-3.5 w-3.5 fill-vytal-amber" />
-                {org.stats.rating}
-              </span>
-            </div>
+            {verticalLabel && (
+              <div className="mt-3 flex items-center justify-center gap-2">
+                <span className="rounded-full bg-vytal-green/10 px-3 py-1 text-xs font-semibold text-vytal-green">
+                  {verticalLabel}
+                </span>
+              </div>
+            )}
             <div className="mt-8 flex flex-wrap justify-center gap-3">
               <a
-                href={contactFormEnabled ? "#contact" : `mailto:${org.email}`}
+                href={contactFormEnabled || !profile?.email ? "#contact" : `mailto:${profile.email}`}
                 className="flex items-center gap-2 rounded-lg bg-vytal-green px-6 py-3 text-sm font-semibold text-vytal-bg hover:bg-vytal-green/90"
               >
                 <Mail className="h-4 w-4" />
                 {ctaText}
               </a>
-              <a
-                href={`tel:${org.phone}`}
-                className="flex items-center gap-2 rounded-lg border border-vytal-border px-6 py-3 text-sm font-semibold text-vytal-text hover:bg-vytal-bg3"
-              >
-                <Phone className="h-4 w-4" />
-                Ligar
-              </a>
+              {profile?.phone && (
+                <a
+                  href={`tel:${profile.phone}`}
+                  className="flex items-center gap-2 rounded-lg border border-vytal-border px-6 py-3 text-sm font-semibold text-vytal-text hover:bg-vytal-bg3"
+                >
+                  <Phone className="h-4 w-4" />
+                  Ligar
+                </a>
+              )}
             </div>
           </div>
         </section>
@@ -169,12 +180,10 @@ export default function OrgPublicPage({ params }: { params: Promise<{ slug: stri
 
       {/* Stats */}
       <section className="border-b border-vytal-border">
-        <div className="mx-auto grid max-w-5xl grid-cols-2 gap-px bg-vytal-border md:grid-cols-4">
+        <div className="mx-auto grid max-w-5xl grid-cols-2 gap-px bg-vytal-border">
           {[
             { label: config?.terminology.memberPlural ?? "Members", value: org.stats.members, icon: Users },
-            { label: config?.terminology.sessionPlural ?? "Classes", value: `${org.stats.classes}/sem`, icon: CalendarDays },
             { label: config?.terminology.instructorPlural ?? "Coaches", value: org.stats.coaches, icon: Dumbbell },
-            { label: "Rating", value: `${org.stats.rating}/5`, icon: Star },
           ].map((stat) => (
             <div key={stat.label} className="flex flex-col items-center gap-1 bg-vytal-bg px-6 py-8">
               <stat.icon className="h-5 w-5 text-vytal-green" />
@@ -190,10 +199,10 @@ export default function OrgPublicPage({ params }: { params: Promise<{ slug: stri
         <div className="mx-auto max-w-5xl px-6 py-8">
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             {[
-              { href: `${basePath}/schedule`, label: "Ver Horário", icon: CalendarDays, desc: `${org.stats.classes} aulas/sem` },
-              { href: `${basePath}/pricing`, label: "Ver Preços", icon: CreditCard, desc: `A partir de ${Math.min(...org.plans.map((p) => p.price))}€` },
+              { href: `${basePath}/schedule`, label: "Ver Horário", icon: CalendarDays, desc: "Aulas da semana" },
+              { href: `${basePath}/pricing`, label: "Ver Preços", icon: CreditCard, desc: `${org.stats.plans} planos` },
               { href: `${basePath}/team`, label: "A Nossa Equipa", icon: Users, desc: `${org.stats.coaches} coaches` },
-              { href: `${basePath}/contact`, label: "Contacto", icon: MessageSquare, desc: org.city },
+              { href: `${basePath}/contact`, label: "Contacto", icon: MessageSquare, desc: profile?.city ?? "Fale connosco" },
             ].map((item) => (
               <Link
                 key={item.href}
@@ -240,32 +249,9 @@ export default function OrgPublicPage({ params }: { params: Promise<{ slug: stri
         </section>
       )}
 
-      {/* Info Grid: Opening Hours + Location */}
+      {/* Info Grid: Location & Contact */}
       <section className="mx-auto max-w-5xl px-6 py-12" id="schedule">
         <div className="grid gap-8 md:grid-cols-2">
-          {/* Opening hours */}
-          {scheduleEnabled && (
-            <div className="rounded-xl border border-vytal-border bg-vytal-card p-6">
-              <div className="mb-4 flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Clock className="h-5 w-5 text-vytal-green" />
-                  <h2 className="text-lg font-semibold text-vytal-text">Horário de Funcionamento</h2>
-                </div>
-                <Link href={`${basePath}/schedule`} className="text-xs text-vytal-green hover:underline">
-                  Ver aulas →
-                </Link>
-              </div>
-              <div className="space-y-3">
-                {org.schedule.map((s) => (
-                  <div key={s.day} className="flex items-center justify-between">
-                    <span className="text-sm text-vytal-text">{s.day}</span>
-                    <span className="text-sm font-medium text-vytal-muted">{s.hours}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
           {/* Location & Contact */}
           <div className="rounded-xl border border-vytal-border bg-vytal-card p-6">
             <div className="mb-4 flex items-center gap-2">
@@ -273,44 +259,54 @@ export default function OrgPublicPage({ params }: { params: Promise<{ slug: stri
               <h2 className="text-lg font-semibold text-vytal-text">Localização & Contacto</h2>
             </div>
             <div className="space-y-3">
-              <div className="flex items-start gap-3">
-                <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-vytal-muted" />
-                <span className="text-sm text-vytal-text">
-                  {org.address}, {org.city}, {org.country}
-                </span>
-              </div>
-              <div className="flex items-center gap-3">
-                <Phone className="h-4 w-4 text-vytal-muted" />
-                <a href={`tel:${org.phone}`} className="text-sm text-vytal-text hover:text-vytal-green">
-                  {org.phone}
-                </a>
-              </div>
-              <div className="flex items-center gap-3">
-                <Mail className="h-4 w-4 text-vytal-muted" />
-                <a href={`mailto:${org.email}`} className="text-sm text-vytal-text hover:text-vytal-green">
-                  {org.email}
-                </a>
-              </div>
-              <div className="flex items-center gap-3">
-                <Globe className="h-4 w-4 text-vytal-muted" />
-                <a
-                  href={org.website}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-sm text-vytal-green hover:underline"
-                >
-                  {org.website.replace("https://", "")}
-                </a>
-              </div>
-              <div className="flex items-center gap-3">
-                <AtSign className="h-4 w-4 text-vytal-muted" />
-                <span className="text-sm text-vytal-text">{org.instagram}</span>
-              </div>
+              {(profile?.address || profile?.city || profile?.country) && (
+                <div className="flex items-start gap-3">
+                  <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-vytal-muted" />
+                  <span className="text-sm text-vytal-text">
+                    {[profile?.address, profile?.city, profile?.country].filter(Boolean).join(", ")}
+                  </span>
+                </div>
+              )}
+              {profile?.phone && (
+                <div className="flex items-center gap-3">
+                  <Phone className="h-4 w-4 text-vytal-muted" />
+                  <a href={`tel:${profile.phone}`} className="text-sm text-vytal-text hover:text-vytal-green">
+                    {profile.phone}
+                  </a>
+                </div>
+              )}
+              {profile?.email && (
+                <div className="flex items-center gap-3">
+                  <Mail className="h-4 w-4 text-vytal-muted" />
+                  <a href={`mailto:${profile.email}`} className="text-sm text-vytal-text hover:text-vytal-green">
+                    {profile.email}
+                  </a>
+                </div>
+              )}
+              {profile?.website && (
+                <div className="flex items-center gap-3">
+                  <Globe className="h-4 w-4 text-vytal-muted" />
+                  <a
+                    href={profile.website}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm text-vytal-green hover:underline"
+                  >
+                    {profile.website.replace("https://", "")}
+                  </a>
+                </div>
+              )}
+              {profile?.instagram && (
+                <div className="flex items-center gap-3">
+                  <AtSign className="h-4 w-4 text-vytal-muted" />
+                  <span className="text-sm text-vytal-text">{profile.instagram}</span>
+                </div>
+              )}
               {/* Social links */}
               <div className="flex items-center gap-2 pt-1">
-                {org.instagram && (
+                {profile?.instagram && (
                   <a
-                    href={`https://instagram.com/${org.instagram.replace("@", "")}`}
+                    href={`https://instagram.com/${profile.instagram.replace("@", "")}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex h-8 w-8 items-center justify-center rounded-lg border border-vytal-border bg-vytal-bg2 text-vytal-muted transition-colors hover:border-vytal-green/30 hover:text-vytal-green"
@@ -318,9 +314,9 @@ export default function OrgPublicPage({ params }: { params: Promise<{ slug: stri
                     <Link2 className="h-3.5 w-3.5" />
                   </a>
                 )}
-                {org.facebook && (
+                {profile?.facebook && (
                   <a
-                    href={org.facebook}
+                    href={profile.facebook}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex h-8 w-8 items-center justify-center rounded-lg border border-vytal-border bg-vytal-bg2 text-vytal-muted transition-colors hover:border-vytal-green/30 hover:text-vytal-green"
@@ -328,9 +324,9 @@ export default function OrgPublicPage({ params }: { params: Promise<{ slug: stri
                     <Link2 className="h-3.5 w-3.5" />
                   </a>
                 )}
-                {org.youtube && (
+                {profile?.youtube && (
                   <a
-                    href={org.youtube}
+                    href={profile.youtube}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex h-8 w-8 items-center justify-center rounded-lg border border-vytal-border bg-vytal-bg2 text-vytal-muted transition-colors hover:border-vytal-green/30 hover:text-vytal-green"
@@ -344,50 +340,21 @@ export default function OrgPublicPage({ params }: { params: Promise<{ slug: stri
         </div>
       </section>
 
-      {/* Pricing preview */}
+      {/* Pricing CTA */}
       {pricingEnabled && (
         <section className="border-t border-vytal-border bg-vytal-bg2" id="pricing">
-          <div className="mx-auto max-w-5xl px-6 py-12">
-            <div className="mb-6 flex items-center justify-between">
-              <SectionHeading>Planos & Preços</SectionHeading>
-              <Link href={`${basePath}/pricing`} className="text-xs text-vytal-green hover:underline">
-                Ver todos →
-              </Link>
-            </div>
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {org.plans.slice(0, 3).map((plan) => (
-                <div
-                  key={plan.id}
-                  className={`relative rounded-xl border p-6 ${
-                    plan.popular
-                      ? "border-vytal-green bg-vytal-green/5"
-                      : "border-vytal-border bg-vytal-card"
-                  }`}
-                >
-                  {plan.badge && (
-                    <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-vytal-green px-3 py-0.5 text-[10px] font-bold uppercase tracking-wider text-vytal-bg">
-                      {plan.badge}
-                    </span>
-                  )}
-                  <div className="flex items-center gap-2">
-                    <CreditCard className="h-4 w-4 text-vytal-green" />
-                    <h3 className="font-semibold text-vytal-text">{plan.name}</h3>
-                  </div>
-                  <p className="mt-3 text-3xl font-bold text-vytal-text">{plan.price}€</p>
-                  <p className="mt-1 text-sm text-vytal-muted">{plan.period}</p>
-                  <Link
-                    href={`${basePath}/pricing`}
-                    className={`mt-5 flex w-full items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-semibold transition-colors ${
-                      plan.popular
-                        ? "bg-vytal-green text-vytal-bg hover:bg-vytal-green/90"
-                        : "border border-vytal-border text-vytal-text hover:bg-vytal-bg3"
-                    }`}
-                  >
-                    Começar Agora
-                  </Link>
-                </div>
-              ))}
-            </div>
+          <div className="mx-auto max-w-5xl px-6 py-12 text-center">
+            <SectionHeading>Planos & Preços</SectionHeading>
+            <p className="mt-1 text-sm text-vytal-muted">
+              {org.stats.plans} planos disponíveis.
+            </p>
+            <Link
+              href={`${basePath}/pricing`}
+              className="mt-6 inline-flex items-center gap-2 rounded-lg bg-vytal-green px-6 py-3 text-sm font-semibold text-vytal-bg hover:bg-vytal-green/90"
+            >
+              <CreditCard className="h-4 w-4" />
+              Ver Planos
+            </Link>
           </div>
         </section>
       )}

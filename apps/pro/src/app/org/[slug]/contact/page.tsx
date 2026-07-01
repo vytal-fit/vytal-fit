@@ -7,16 +7,16 @@ import {
   Mail,
   Globe,
   Link2,
-  Clock,
   MessageSquare,
   CheckCircle,
   AtSign,
 } from "lucide-react";
-import { MOCK_ORGS } from "../org-data";
+import { trpc } from "@/lib/trpc";
 
 export default function ContactPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = use(params);
-  const org = MOCK_ORGS[slug];
+  const siteQuery = trpc.public.site.useQuery({ slug });
+  const profile = siteQuery.data?.profile;
 
   const [form, setForm] = useState({
     name: "",
@@ -28,13 +28,26 @@ export default function ContactPage({ params }: { params: Promise<{ slug: string
   const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  if (!org) {
+  if (siteQuery.isLoading) {
+    return (
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-vytal-border border-t-vytal-green" />
+      </div>
+    );
+  }
+
+  if (!siteQuery.data) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
         <p className="text-vytal-muted">Organização não encontrada</p>
       </div>
     );
   }
+
+  const org = siteQuery.data;
+  const fullAddress = [profile?.address, profile?.zipCode, profile?.city, profile?.country]
+    .filter(Boolean)
+    .join(", ");
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -182,67 +195,51 @@ export default function ContactPage({ params }: { params: Promise<{ slug: string
                 Informações de Contacto
               </h3>
               <div className="space-y-3">
-                <a
-                  href={`tel:${org.phone}`}
-                  className="flex items-center gap-3 rounded-lg p-2 text-sm text-vytal-text transition-colors hover:bg-vytal-bg3"
-                >
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-vytal-green/10">
-                    <Phone className="h-4 w-4 text-vytal-green" />
+                {profile?.phone && (
+                  <a
+                    href={`tel:${profile.phone}`}
+                    className="flex items-center gap-3 rounded-lg p-2 text-sm text-vytal-text transition-colors hover:bg-vytal-bg3"
+                  >
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-vytal-green/10">
+                      <Phone className="h-4 w-4 text-vytal-green" />
+                    </div>
+                    {profile.phone}
+                  </a>
+                )}
+                {profile?.email && (
+                  <a
+                    href={`mailto:${profile.email}`}
+                    className="flex items-center gap-3 rounded-lg p-2 text-sm text-vytal-text transition-colors hover:bg-vytal-bg3"
+                  >
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-vytal-green/10">
+                      <Mail className="h-4 w-4 text-vytal-green" />
+                    </div>
+                    <span className="truncate">{profile.email}</span>
+                  </a>
+                )}
+                {fullAddress && (
+                  <div className="flex items-start gap-3 rounded-lg p-2 text-sm text-vytal-text">
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-vytal-green/10">
+                      <MapPin className="h-4 w-4 text-vytal-green" />
+                    </div>
+                    <span>{fullAddress}</span>
                   </div>
-                  {org.phone}
-                </a>
-                <a
-                  href={`mailto:${org.email}`}
-                  className="flex items-center gap-3 rounded-lg p-2 text-sm text-vytal-text transition-colors hover:bg-vytal-bg3"
-                >
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-vytal-green/10">
-                    <Mail className="h-4 w-4 text-vytal-green" />
-                  </div>
-                  <span className="truncate">{org.email}</span>
-                </a>
-                <div className="flex items-start gap-3 rounded-lg p-2 text-sm text-vytal-text">
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-vytal-green/10">
-                    <MapPin className="h-4 w-4 text-vytal-green" />
-                  </div>
-                  <span>{org.address}, {org.zipCode} {org.city}, {org.country}</span>
-                </div>
-                <a
-                  href={org.website}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-3 rounded-lg p-2 text-sm transition-colors hover:bg-vytal-bg3"
-                >
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-vytal-green/10">
-                    <Globe className="h-4 w-4 text-vytal-green" />
-                  </div>
-                  <span className="text-vytal-green hover:underline">
-                    {org.website.replace("https://", "")}
-                  </span>
-                </a>
-              </div>
-            </div>
-
-            {/* Opening hours */}
-            <div className="rounded-2xl border border-vytal-border bg-vytal-card p-5">
-              <div className="mb-3 flex items-center gap-2">
-                <Clock className="h-4 w-4 text-vytal-green" />
-                <h3 className="text-sm font-bold uppercase tracking-wider text-vytal-muted">
-                  Horário
-                </h3>
-              </div>
-              <div className="space-y-2.5">
-                {org.schedule.map((s) => (
-                  <div key={s.day} className="flex items-center justify-between text-sm">
-                    <span className="text-vytal-text">{s.day}</span>
-                    <span
-                      className={`font-medium ${
-                        s.hours === "Fechado" ? "text-red-400/70" : "text-vytal-muted"
-                      }`}
-                    >
-                      {s.hours}
+                )}
+                {profile?.website && (
+                  <a
+                    href={profile.website}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-3 rounded-lg p-2 text-sm transition-colors hover:bg-vytal-bg3"
+                  >
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-vytal-green/10">
+                      <Globe className="h-4 w-4 text-vytal-green" />
+                    </div>
+                    <span className="text-vytal-green hover:underline">
+                      {profile.website.replace(/^https?:\/\//, "")}
                     </span>
-                  </div>
-                ))}
+                  </a>
+                )}
               </div>
             </div>
 
@@ -252,20 +249,20 @@ export default function ContactPage({ params }: { params: Promise<{ slug: string
                 Redes Sociais
               </h3>
               <div className="flex flex-wrap gap-2">
-                {org.instagram && (
+                {profile?.instagram && (
                   <a
-                    href={`https://instagram.com/${org.instagram.replace("@", "")}`}
+                    href={`https://instagram.com/${profile.instagram.replace("@", "")}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center gap-2 rounded-xl border border-vytal-border bg-vytal-bg2 px-3 py-2 text-xs font-medium text-vytal-muted transition-colors hover:border-vytal-green/30 hover:text-vytal-green"
                   >
                     <Link2 className="h-3.5 w-3.5" />
-                    {org.instagram}
+                    {profile.instagram}
                   </a>
                 )}
-                {org.facebook && (
+                {profile?.facebook && (
                   <a
-                    href={org.facebook}
+                    href={profile.facebook}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center gap-2 rounded-xl border border-vytal-border bg-vytal-bg2 px-3 py-2 text-xs font-medium text-vytal-muted transition-colors hover:border-vytal-green/30 hover:text-vytal-green"
@@ -274,9 +271,9 @@ export default function ContactPage({ params }: { params: Promise<{ slug: string
                     Facebook
                   </a>
                 )}
-                {org.youtube && (
+                {profile?.youtube && (
                   <a
-                    href={org.youtube}
+                    href={profile.youtube}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center gap-2 rounded-xl border border-vytal-border bg-vytal-bg2 px-3 py-2 text-xs font-medium text-vytal-muted transition-colors hover:border-vytal-green/30 hover:text-vytal-green"
@@ -285,10 +282,10 @@ export default function ContactPage({ params }: { params: Promise<{ slug: string
                     YouTube
                   </a>
                 )}
-                {org.instagram && (
+                {profile?.instagram && (
                   <div className="flex items-center gap-2 rounded-xl border border-vytal-border bg-vytal-bg2 px-3 py-2 text-xs font-medium text-vytal-muted">
                     <AtSign className="h-3.5 w-3.5" />
-                    {org.instagram}
+                    {profile.instagram}
                   </div>
                 )}
               </div>
@@ -305,23 +302,25 @@ export default function ContactPage({ params }: { params: Promise<{ slug: string
               <div className="text-center">
                 <MapPin className="mx-auto h-8 w-8 text-vytal-muted/40" />
                 <p className="mt-2 text-sm font-medium text-vytal-text">{org.name}</p>
-                <p className="text-xs text-vytal-muted">{org.address}, {org.city}</p>
-                <a
-                  href={`https://maps.google.com/?q=${encodeURIComponent(`${org.address}, ${org.city}, ${org.country}`)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-vytal-green/10 px-4 py-1.5 text-xs font-semibold text-vytal-green hover:bg-vytal-green/20"
-                >
-                  <MapPin className="h-3.5 w-3.5" />
-                  Abrir no Google Maps
-                </a>
+                {fullAddress && <p className="text-xs text-vytal-muted">{fullAddress}</p>}
+                {fullAddress && (
+                  <a
+                    href={`https://maps.google.com/?q=${encodeURIComponent(fullAddress)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-vytal-green/10 px-4 py-1.5 text-xs font-semibold text-vytal-green hover:bg-vytal-green/20"
+                  >
+                    <MapPin className="h-3.5 w-3.5" />
+                    Abrir no Google Maps
+                  </a>
+                )}
               </div>
             </div>
-            <div className="border-t border-vytal-border bg-vytal-card px-5 py-3">
-              <p className="text-xs text-vytal-muted">
-                {org.address}, {org.zipCode} {org.city}, {org.country}
-              </p>
-            </div>
+            {fullAddress && (
+              <div className="border-t border-vytal-border bg-vytal-card px-5 py-3">
+                <p className="text-xs text-vytal-muted">{fullAddress}</p>
+              </div>
+            )}
           </div>
         </div>
       </section>

@@ -1646,7 +1646,39 @@ export async function seedDatabase(
   // insert above is ON CONFLICT DO NOTHING, so existing rows keep their data).
   await db
     .update(schema.organizationSettings)
-    .set({ budget: ORG1_BUDGET })
+    .set({
+      budget: ORG1_BUDGET,
+      // Real public-site content so the marketing pages (home/contact) render
+      // from the API instead of mock data.
+      publicSite: {
+        enabled: true,
+        slogan: "Stronger Every Day",
+        description:
+          "O maior box de CrossFit de Aveiro. Treina com os melhores coaches, numa comunidade que te puxa para cima.",
+        seo: {
+          title: "CrossFit Aveiro",
+          description: "Box de CrossFit em Aveiro — aulas, horários, planos e loja.",
+        },
+        sections: { hero: true, schedule: true, pricing: true, team: true, shop: true, contact: true },
+        customDomain: null,
+      },
+      profile: {
+        slogan: "Stronger Every Day",
+        email: "info@crossfitaveiro.pt",
+        phone: "+351 234 567 890",
+        businessType: "crossfit_box",
+        timezone: "Europe/Lisbon",
+        currency: "EUR",
+        website: "https://crossfitaveiro.pt",
+        facebook: "https://facebook.com/crossfitaveiro",
+        instagram: "@crossfitaveiro",
+        youtube: "",
+        address: "Rua do Desporto 42",
+        city: "Aveiro",
+        zipCode: "3800-100",
+        country: "Portugal",
+      },
+    })
     .where(eq(schema.organizationSettings.organizationId, ORG_1));
 
   for (const [table, n] of Object.entries(inserted)) {
