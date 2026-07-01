@@ -1369,6 +1369,57 @@ export const expenses = pgTable(
 );
 
 /**
+ * Outbound webhook endpoints. `secret` signs deliveries (HMAC-SHA256 in the
+ * `X-Vytal-Signature` header). Success/failure counters + lastTriggeredAt are
+ * updated by the sender. Live event-dispatch is layered on later; the "Test"
+ * action already performs a real signed POST and logs a delivery.
+ */
+export const webhooks = pgTable(
+  "webhooks",
+  {
+    id: text("id").primaryKey(),
+    organizationId: text("organization_id")
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    name: text("name").notNull(),
+    url: text("url").notNull(),
+    events: jsonb("events").$type<string[]>().notNull().default([]),
+    secret: text("secret").notNull(),
+    // Disabled by default: no org incurs outbound-delivery cost until it opts in.
+    active: boolean("active").notNull().default(false),
+    lastTriggeredAt: timestamp("last_triggered_at"),
+    successCount: integer("success_count").notNull().default(0),
+    failureCount: integer("failure_count").notNull().default(0),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (t) => [index("webhooks_org_idx").on(t.organizationId)],
+);
+
+/** A single webhook delivery attempt (from a test send or a live event). */
+export const webhookDeliveries = pgTable(
+  "webhook_deliveries",
+  {
+    id: text("id").primaryKey(),
+    organizationId: text("organization_id")
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    webhookId: text("webhook_id")
+      .notNull()
+      .references(() => webhooks.id, { onDelete: "cascade" }),
+    event: text("event").notNull(),
+    statusCode: integer("status_code"),
+    ok: boolean("ok").notNull().default(false),
+    responseMs: integer("response_ms"),
+    payload: text("payload").notNull(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (t) => [
+    index("webhook_deliveries_org_idx").on(t.organizationId),
+    index("webhook_deliveries_webhook_idx").on(t.webhookId),
+  ],
+);
+
+/**
  * Audit log: an append-only trail of who did what. Written by `recordAudit`
  * after admin/destructive mutations; read (admin-only) by the settings page.
  * `action`/`resource` are free strings matching the UI's filter vocabularies.

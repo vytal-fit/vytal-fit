@@ -88,7 +88,7 @@ function baseRoute(
  * Resources excluded from the public REST surface (and its docs). API-key
  * lifecycle is first-party only: you can't mint or revoke keys *with* a key.
  */
-const PRIVATE_RESOURCES = new Set(["apiKeys", "auditLog"]);
+const PRIVATE_RESOURCES = new Set(["apiKeys", "auditLog", "webhooks"]);
 
 let cached: RestRoute[] | null = null;
 

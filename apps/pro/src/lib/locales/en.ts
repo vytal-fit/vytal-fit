@@ -3517,6 +3517,12 @@ export const en: Record<string, string> = {
 
     // Webhooks
     "webhooks.title": "Webhooks",
+    "webhooks.testOk": "Test delivered successfully",
+    "webhooks.testFail": "Test delivery failed",
+    "webhooks.secretOnce": "Save your signing secret: it is shown only once!",
+    "webhooks.empty": "No webhooks yet. Create one to receive events.",
+    "webhooks.never": "Never",
+    "webhooks.noDeliveries": "No deliveries yet. Use Test to send an event.",
     "webhooks.subtitle": "Connect external systems via real-time event notifications.",
     "webhooks.createBtn": "Create Webhook",
     "webhooks.createFormTitle": "Create Webhook",

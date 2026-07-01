@@ -757,6 +757,30 @@ export async function seedDatabase(
       .returning({ id: schema.auditLogs.id })
   ).length;
 
+  // Webhooks + a couple of delivery records (mix of success + failure).
+  inserted.webhooks = (
+    await db
+      .insert(schema.webhooks)
+      .values([
+        { id: "wh-1", organizationId: ORG_1, name: "Zapier: Novo Membro", url: "https://hooks.zapier.com/hooks/catch/123456/abcdef", events: ["member.created", "member.updated"], secret: "whsec_seed_a1b2c3d4e5f6a1b2c3d4e5f6", active: true, lastTriggeredAt: minsAgo(120), successCount: 48, failureCount: 1 },
+        { id: "wh-2", organizationId: ORG_1, name: "Slack: Pagamentos", url: "https://hooks.slack.com/services/T000/B000/XXXX", events: ["payment.success", "payment.failed"], secret: "whsec_seed_f6e5d4c3b2a1f6e5d4c3b2a1", active: true, lastTriggeredAt: minsAgo(35), successCount: 30, failureCount: 0 },
+        { id: "wh-3", organizationId: ORG_1, name: "Custom: Aula cheia", url: "https://api.example.com/webhooks/vytal", events: ["class.booked", "class.cancelled"], secret: "whsec_seed_112233445566778899aabbcc", active: false, lastTriggeredAt: minsAgo(4320), successCount: 12, failureCount: 3 },
+      ])
+      .onConflictDoNothing()
+      .returning({ id: schema.webhooks.id })
+  ).length;
+  inserted.webhookDeliveries = (
+    await db
+      .insert(schema.webhookDeliveries)
+      .values([
+        { id: "wd-1", organizationId: ORG_1, webhookId: "wh-2", event: "payment.success", statusCode: 200, ok: true, responseMs: 142, payload: '{"event":"payment.success","data":{"memberId":"m-1","amount":75}}', createdAt: minsAgo(35) },
+        { id: "wd-2", organizationId: ORG_1, webhookId: "wh-1", event: "member.created", statusCode: 200, ok: true, responseMs: 238, payload: '{"event":"member.created","data":{"id":"m-12","name":"Carlos Mendes"}}', createdAt: minsAgo(120) },
+        { id: "wd-3", organizationId: ORG_1, webhookId: "wh-3", event: "class.booked", statusCode: 500, ok: false, responseMs: 5012, payload: '{"event":"class.booked","data":{"classId":"cl-5"}}', createdAt: minsAgo(4320) },
+      ])
+      .onConflictDoNothing()
+      .returning({ id: schema.webhookDeliveries.id })
+  ).length;
+
   inserted.classes = (
     await db
       .insert(schema.classes)

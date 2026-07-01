@@ -28,6 +28,7 @@ import { supportTicketsRouter } from "./routers/supportTickets";
 import { uploadsRouter } from "./routers/uploads";
 import { wellnessCheckinsRouter } from "./routers/wellnessCheckins";
 import { wodResultsRouter } from "./routers/wodResults";
+import { webhooksRouter } from "./routers/webhooks";
 import { wodsRouter } from "./routers/wods";
 import { workoutFeedbackRouter } from "./routers/workoutFeedback";
 
@@ -63,6 +64,7 @@ export const appRouter = router({
   uploads: uploadsRouter,
   apiKeys: apiKeysRouter,
   auditLog: auditLogRouter,
+  webhooks: webhooksRouter,
 });
 
 export type AppRouter = typeof appRouter;
