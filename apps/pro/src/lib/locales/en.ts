@@ -3283,6 +3283,7 @@ export const en: Record<string, string> = {
     "certs.certification": "Certification",
     "certs.issued": "Issued",
     "certs.expiry": "Expiry",
+    "certs.noExpiry": "No expiry",
     "certs.status": "Status",
     "certs.document": "Document",
     "certs.selectCoach": "Select coach...",

@@ -1,6 +1,7 @@
 import { router } from "./trpc";
 import { apiKeysRouter } from "./routers/apiKeys";
 import { bookingsRouter } from "./routers/bookings";
+import { certificationsRouter } from "./routers/certifications";
 import { checkInsRouter } from "./routers/checkIns";
 import { classTypesRouter } from "./routers/classTypes";
 import { classesRouter } from "./routers/classes";
@@ -50,6 +51,7 @@ export const appRouter = router({
   payments: paymentsRouter,
   expenses: expensesRouter,
   contracts: contractsRouter,
+  certifications: certificationsRouter,
   dashboard: dashboardRouter,
   uploads: uploadsRouter,
   apiKeys: apiKeysRouter,

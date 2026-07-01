@@ -8,6 +8,7 @@ import {
   Plus,
   FileText,
   Bell,
+  Trash2,
   X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -28,7 +29,8 @@ interface Certification {
   documentUrl?: string;
 }
 
-function getCertStatus(expiryDate: string): Certification["status"] {
+function getCertStatus(expiryDate: string | null): Certification["status"] {
+  if (!expiryDate) return "valid"; // no expiry = permanent
   const now = new Date();
   const expiry = new Date(expiryDate);
   const diffMs = expiry.getTime() - now.getTime();
@@ -37,19 +39,6 @@ function getCertStatus(expiryDate: string): Certification["status"] {
   if (diffDays < 90) return "expiring_soon";
   return "valid";
 }
-
-const mockCertifications: Certification[] = [
-  { id: "cert-1", coachId: "coach-1", coachName: "Andre Loureiro", certName: "CrossFit Level 3", issuedDate: "2024-03-15", expiryDate: "2027-03-15", status: "valid" },
-  { id: "cert-2", coachId: "coach-1", coachName: "Andre Loureiro", certName: "First Aid & CPR", issuedDate: "2025-01-10", expiryDate: "2026-07-10", status: "expiring_soon" },
-  { id: "cert-3", coachId: "coach-2", coachName: "Marine Robba", certName: "CrossFit Level 2", issuedDate: "2023-09-20", expiryDate: "2026-09-20", status: "valid" },
-  { id: "cert-4", coachId: "coach-2", coachName: "Marine Robba", certName: "Nutrition Certification", issuedDate: "2024-06-01", expiryDate: "2026-06-01", status: "expiring_soon" },
-  { id: "cert-5", coachId: "coach-3", coachName: "Ricardo Ribeiro", certName: "CrossFit Level 1", issuedDate: "2022-11-05", expiryDate: "2025-11-05", status: "expired" },
-  { id: "cert-6", coachId: "coach-3", coachName: "Ricardo Ribeiro", certName: "Hyrox Coach", issuedDate: "2025-02-20", expiryDate: "2028-02-20", status: "valid" },
-  { id: "cert-7", coachId: "coach-4", coachName: "Sofia Mendes", certName: "CrossFit Level 1", issuedDate: "2024-08-12", expiryDate: "2027-08-12", status: "valid" },
-  { id: "cert-8", coachId: "coach-4", coachName: "Sofia Mendes", certName: "CPR Certification", issuedDate: "2025-03-01", expiryDate: "2026-06-15", status: "expiring_soon" },
-  { id: "cert-9", coachId: "coach-1", coachName: "Andre Loureiro", certName: "Weightlifting Coach L2", issuedDate: "2024-01-20", expiryDate: "2027-01-20", status: "valid" },
-  { id: "cert-10", coachId: "coach-3", coachName: "Ricardo Ribeiro", certName: "First Aid", issuedDate: "2023-05-10", expiryDate: "2025-05-10", status: "expired" },
-];
 
 const statusConfig = {
   valid: { labelKey: "certs.valid", className: "bg-vytal-green/10 text-vytal-green", icon: CheckCircle },
@@ -60,10 +49,11 @@ const statusConfig = {
 export default function CertificationsPage() {
   const { t } = useI18n();
   const { toast } = useToast();
-  // ── tRPC: coach roster (certifications themselves are still mock data) ──
+  // ── tRPC: coach roster + real certifications (status derived client-side) ──
+  const utils = trpc.useUtils();
   const coachesQuery = trpc.coaches.list.useQuery();
   const coaches = rowsToCoaches(coachesQuery.data ?? []);
-  const [certs, setCerts] = useState(mockCertifications);
+  const certsQuery = trpc.certifications.list.useQuery();
   const [showAdd, setShowAdd] = useState(false);
   const [filterStatus, setFilterStatus] = useState<"all" | Certification["status"]>("all");
   const [reminders, setReminders] = useState({ days30: true, days60: true, days90: false });
@@ -74,31 +64,51 @@ export default function CertificationsPage() {
     expiryDate: "",
   });
 
+  const certs: Certification[] = (certsQuery.data ?? []).map((c) => ({
+    id: c.id,
+    coachId: c.coachId,
+    coachName: c.coachName,
+    certName: c.name,
+    issuedDate: c.issuedDate,
+    expiryDate: c.expiryDate ?? "",
+    status: getCertStatus(c.expiryDate),
+    documentUrl: c.documentUrl ?? undefined,
+  }));
+
   const filteredCerts =
     filterStatus === "all" ? certs : certs.filter((c) => c.status === filterStatus);
 
   const expiringCount = certs.filter((c) => c.status === "expiring_soon").length;
   const expiredCount = certs.filter((c) => c.status === "expired").length;
 
+  const createCert = trpc.certifications.create.useMutation({
+    onSuccess: () => {
+      void utils.certifications.list.invalidate();
+      setShowAdd(false);
+      setNewCert({ coachId: "", certName: "", issuedDate: "", expiryDate: "" });
+      toast(t("certs.added"), "success");
+    },
+    onError: (error) =>
+      toast(error.data?.code === "FORBIDDEN" ? t("settings.adminOnly") : t("ui.error"), "error"),
+  });
+
+  const deleteCert = trpc.certifications.delete.useMutation({
+    onSuccess: () => void utils.certifications.list.invalidate(),
+    onError: (error) =>
+      toast(error.data?.code === "FORBIDDEN" ? t("settings.adminOnly") : t("ui.error"), "error"),
+  });
+
   const handleAddCert = () => {
-    if (!newCert.coachId || !newCert.certName || !newCert.issuedDate || !newCert.expiryDate) {
+    if (!newCert.coachId || !newCert.certName || !newCert.issuedDate) {
       toast(t("certs.fillAllFields"), "error");
       return;
     }
-    const coach = coaches.find((c) => c.id === newCert.coachId);
-    const cert: Certification = {
-      id: `cert-${Date.now()}`,
+    createCert.mutate({
       coachId: newCert.coachId,
-      coachName: coach?.name ?? "Unknown",
-      certName: newCert.certName,
+      name: newCert.certName,
       issuedDate: newCert.issuedDate,
-      expiryDate: newCert.expiryDate,
-      status: getCertStatus(newCert.expiryDate),
-    };
-    setCerts([cert, ...certs]);
-    setShowAdd(false);
-    setNewCert({ coachId: "", certName: "", issuedDate: "", expiryDate: "" });
-    toast(t("certs.added"), "success");
+      expiryDate: newCert.expiryDate || undefined,
+    });
   };
 
   return (
@@ -252,7 +262,9 @@ export default function CertificationsPage() {
                       {new Date(cert.issuedDate).toLocaleDateString("pt-PT")}
                     </td>
                     <td className="px-5 py-3 text-vytal-muted">
-                      {new Date(cert.expiryDate).toLocaleDateString("pt-PT")}
+                      {cert.expiryDate
+                        ? new Date(cert.expiryDate).toLocaleDateString("pt-PT")
+                        : t("certs.noExpiry")}
                     </td>
                     <td className="px-5 py-3">
                       <span className={cn("inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold", config.className)}>
@@ -261,12 +273,29 @@ export default function CertificationsPage() {
                       </span>
                     </td>
                     <td className="px-5 py-3">
-                      <button
-                        onClick={() => toast(t("certs.downloadDoc"), "success")}
-                        className="text-vytal-green hover:text-vytal-green/80 transition-colors"
-                      >
-                        <FileText className="h-4 w-4" />
-                      </button>
+                      <div className="flex items-center gap-3">
+                        {cert.documentUrl ? (
+                          <a
+                            href={cert.documentUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="text-vytal-green transition-colors hover:text-vytal-green/80"
+                            title={t("certs.document")}
+                          >
+                            <FileText className="h-4 w-4" />
+                          </a>
+                        ) : (
+                          <FileText className="h-4 w-4 text-vytal-border" />
+                        )}
+                        <button
+                          onClick={() => deleteCert.mutate({ id: cert.id })}
+                          disabled={deleteCert.isPending}
+                          className="text-vytal-muted transition-colors hover:text-vytal-red disabled:opacity-50"
+                          title={t("action.delete")}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 );

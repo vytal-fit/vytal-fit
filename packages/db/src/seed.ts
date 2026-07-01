@@ -508,6 +508,37 @@ export async function seedDatabase(
       .returning({ id: schema.coaches.id })
   ).length;
 
+  // Coach certifications (date-relative so the page always shows a mix of
+  // valid / expiring-soon / expired). Status is derived at read time.
+  inserted.coachCertifications = (
+    await db
+      .insert(schema.coachCertifications)
+      .values(
+        [
+          { coachId: "coach-1", name: "CrossFit Level 3", issued: -820, expiry: 610 },
+          { coachId: "coach-1", name: "First Aid & CPR", issued: -170, expiry: 40 },
+          { coachId: "coach-1", name: "Weightlifting Coach L2", issued: -520, expiry: 210 },
+          { coachId: "coach-2", name: "CrossFit Level 2", issued: -1010, expiry: 80 },
+          { coachId: "coach-2", name: "Nutrition Certification", issued: -390, expiry: 30 },
+          { coachId: "coach-3", name: "CrossFit Level 1", issued: -1330, expiry: -35 },
+          { coachId: "coach-3", name: "Hyrox Coach", issued: -300, expiry: 700 },
+          { coachId: "coach-3", name: "First Aid", issued: -770, expiry: -60 },
+          { coachId: "coach-4", name: "CrossFit Level 1", issued: -480, expiry: 560 },
+          { coachId: "coach-4", name: "CPR Certification", issued: -210, expiry: 55 },
+        ].map((c, i) => ({
+          id: `cert-${i + 1}`,
+          organizationId: ORG_1,
+          coachId: c.coachId,
+          name: c.name,
+          issuedDate: isoDateFromToday(c.issued),
+          expiryDate: isoDateFromToday(c.expiry),
+          documentUrl: null,
+        })),
+      )
+      .onConflictDoNothing()
+      .returning({ id: schema.coachCertifications.id })
+  ).length;
+
   inserted.locations = (
     await db
       .insert(schema.locations)

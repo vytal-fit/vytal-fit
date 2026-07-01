@@ -571,6 +571,33 @@ export const coaches = pgTable(
   (t) => [index("coaches_org_idx").on(t.organizationId)],
 );
 
+/**
+ * Coach certifications (CrossFit levels, First Aid/CPR, etc.). Status
+ * (valid / expiring / expired) is derived from `expiryDate` at read time, so it
+ * never goes stale in storage.
+ */
+export const coachCertifications = pgTable(
+  "coach_certifications",
+  {
+    id: text("id").primaryKey(),
+    organizationId: text("organization_id")
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    coachId: text("coach_id")
+      .notNull()
+      .references(() => coaches.id, { onDelete: "cascade" }),
+    name: text("name").notNull(),
+    issuedDate: date("issued_date").notNull(),
+    expiryDate: date("expiry_date"),
+    documentUrl: text("document_url"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (t) => [
+    index("coach_certifications_org_idx").on(t.organizationId),
+    index("coach_certifications_coach_idx").on(t.coachId),
+  ],
+);
+
 /** Locations (rooms/areas) — mirrors shared `Location`. */
 export const locations = pgTable(
   "locations",

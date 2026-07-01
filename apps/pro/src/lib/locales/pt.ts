@@ -3267,6 +3267,7 @@ export const pt: Record<string, string> = {
     "certs.certification": "Certificação",
     "certs.issued": "Emissao",
     "certs.expiry": "Expira",
+    "certs.noExpiry": "Permanente",
     "certs.status": "Estado",
     "certs.document": "Documento",
     "certs.selectCoach": "Selecionar coach...",

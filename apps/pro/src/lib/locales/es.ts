@@ -3263,6 +3263,7 @@ export const es: Record<string, string> = {
     "certs.certification": "Certificación",
     "certs.issued": "Emision",
     "certs.expiry": "Expira",
+    "certs.noExpiry": "Permanente",
     "certs.status": "Estado",
     "certs.document": "Documento",
     "certs.selectCoach": "Seleccionar coach...",
