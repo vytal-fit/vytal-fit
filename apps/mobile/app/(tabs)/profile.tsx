@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   View,
   Text,
@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
-import { mockNotifications } from "@vytal-fit/shared";
+import { getMyMember, listPersonalRecords, type MemberItem } from "@/lib/auth-api";
 import {
   User as UserIcon,
   CreditCard,
@@ -97,17 +97,55 @@ export default function ProfileScreen() {
   const C = useTheme();
   const styles = makeStyles(C);
   const router = useRouter();
-  const { user, logout } = useAuthStore();
+  const { user, activeOrgId, logout } = useAuthStore();
   const { theme, language, setLanguage: setAppLanguage } = useAppStore();
-  const unreadCount = mockNotifications.filter((n) => !n.read).length;
+
+  const memberId = useMemo(
+    () => user?.memberships.find((m) => m.organizationId === activeOrgId)?.id ?? user?.memberships[0]?.id ?? "",
+    [activeOrgId, user],
+  );
+
+  const [member, setMember] = useState<MemberItem | null>(null);
+  const [prCount, setPrCount] = useState(0);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    void getMyMember()
+      .then((row) => {
+        if (!cancelled) setMember(row);
+      })
+      .catch(() => {
+        if (!cancelled) setMember(null);
+      });
+
+    if (memberId) {
+      void listPersonalRecords(memberId)
+        .then((rows) => {
+          if (!cancelled) setPrCount(rows.length);
+        })
+        .catch(() => {
+          if (!cancelled) setPrCount(0);
+        });
+    }
+
+    return () => {
+      cancelled = true;
+    };
+  }, [memberId]);
 
   // Get user info from auth store, fallback to defaults
   const userName = user?.user.name ?? "Utilizador";
   const userEmail = user?.user.email ?? "";
-  const memberNumber = user?.memberships[0]?.memberNumber ?? 0;
-  const totalCheckIns = 47; // POC static
-  const streakWeeks = 12;   // POC static
-  const joinedAt = user?.memberships[0]?.joinedAt ?? "2024-01-15";
+  const memberNumber = member?.memberNumber ?? user?.memberships[0]?.memberNumber ?? 0;
+  const totalCheckIns = member?.totalCheckIns ?? 0;
+  const streakWeeks = member?.streakWeeks ?? 0;
+  const joinedAt =
+    (member?.joinedAt
+      ? typeof member.joinedAt === "string"
+        ? member.joinedAt
+        : new Date(member.joinedAt).toISOString()
+      : undefined) ?? user?.memberships[0]?.joinedAt ?? "2024-01-15";
 
   function handleLanguageCycle() {
     const langs: Array<"pt" | "en" | "es"> = ["pt", "en", "es"];
@@ -188,7 +226,6 @@ export default function ProfileScreen() {
           sublabel: t("menu.notifications.sub"),
           color: C.amber,
           onPress: () => router.push("/notifications"),
-          badge: unreadCount,
         },
       ],
     },
@@ -304,7 +341,7 @@ export default function ProfileScreen() {
             <Text style={styles.statLabel}>{t("label.weeks")}</Text>
           </View>
           <View style={[styles.statCard, styles.statCardRight]}>
-            <Text style={[styles.statValue, { color: C.green }]}>8</Text>
+            <Text style={[styles.statValue, { color: C.green }]}>{prCount}</Text>
             <Text style={styles.statLabel}>{t("label.prs")}</Text>
           </View>
         </View>

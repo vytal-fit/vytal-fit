@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   View,
   Text,
@@ -21,11 +21,21 @@ import {
   Moon,
   Bell,
 } from "lucide-react-native";
-import { mockCoaches } from "@vytal-fit/shared";
 import { useTheme } from "../_layout";
 import { t } from "@/i18n";
 import { useAuthStore } from "@/stores/auth-store";
 import type { Colors } from "@/colors";
+import {
+  listClassSchedule,
+  listWods,
+  listExercises,
+  listCoaches,
+  getMyMember,
+  listPersonalRecords,
+  type ClassScheduleItem,
+  type WodItem,
+  type CoachItem,
+} from "@/lib/auth-api";
 
 // ─── Mock data ─────────────────────────────────────────────
 const mockNewsRaw = [
@@ -47,19 +57,67 @@ const mockNewsRaw = [
   },
 ];
 
-const nextClass = {
-  name: "CrossFit",
-  time: "18:30",
-  coach: "Ana Silva",
-  enrolled: 14,
-  capacity: 20,
+// NOTE: `mockNewsRaw` above is retained: the gateway exposes no member-facing
+// news/announcements endpoint, so this section stays on placeholder data.
+
+type NextClassView = {
+  id: string;
+  name: string;
+  time: string;
+  coach: string;
+  enrolled: number;
+  capacity: number;
 };
 
-const todayWODPreview = {
-  title: "CrossFit Total",
-  type: "AMRAP 15",
-  movements: ["Power Cleans", "Box Jumps", "Toes-to-Bar"],
+type WodPreviewView = {
+  title: string;
+  type: string;
+  movements: string[];
 };
+
+/** Pick the next upcoming (non-cancelled) class from the schedule. */
+function pickNextClass(schedule: ClassScheduleItem[]): NextClassView | null {
+  const now = new Date();
+  const todayStr = now.toISOString().split("T")[0];
+  const nowMinutes = now.getHours() * 60 + now.getMinutes();
+  const upcoming = schedule
+    .filter((c) => !c.cancelledAt)
+    .filter((c) => {
+      if (c.date > todayStr) return true;
+      if (c.date < todayStr) return false;
+      const [h, m] = c.startTime.split(":").map(Number);
+      return h * 60 + (m || 0) >= nowMinutes;
+    })
+    .sort((a, b) => (a.date === b.date ? a.startTime.localeCompare(b.startTime) : a.date.localeCompare(b.date)));
+  const next = upcoming[0];
+  if (!next) return null;
+  return {
+    id: next.id,
+    name: next.classType?.name ?? t("label.class"),
+    time: next.startTime,
+    coach: next.coaches[0]?.name ?? "TBD",
+    enrolled: next.enrolledCount,
+    capacity: next.maxCapacity,
+  };
+}
+
+/** Build a compact WOD preview (title, first timed part type, movement names). */
+function buildWodPreview(wod: WodItem, exerciseNames: Map<string, string>): WodPreviewView | null {
+  const parts = wod.parts ?? [];
+  const mainPart =
+    parts.find((p) => ["amrap", "emom", "for_time", "tabata"].includes(p.type)) ?? parts[0];
+  const movements = (mainPart?.exercises ?? [])
+    .map((ex) => exerciseNames.get(ex.exerciseId) ?? ex.exerciseId)
+    .slice(0, 4);
+  const typeLabel = mainPart?.type
+    ? mainPart.type.replace(/_/g, " ").toUpperCase() + (mainPart.timeCap ? ` ${mainPart.timeCap}` : "")
+    : "";
+  return {
+    title: wod.title ?? t("screen.wod"),
+    type: typeLabel,
+    movements,
+  };
+}
 
 // Weekly training data — uses day of week to simulate realistic pattern
 // Mon/Tue/Thu/Fri = trained, Wed = active recovery, Sat/Sun = rest
@@ -277,10 +335,77 @@ function getRoleColor(role: string, C: Colors): string {
 export default function HomeScreen() {
   const router = useRouter();
   const C = useTheme();
-  const { user } = useAuthStore();
+  const { user, activeOrgId } = useAuthStore();
   const userName = user?.user.name?.split(" ")[0] ?? "Atleta";
   const greeting = getGreeting();
-  const nextOccupancy = nextClass.enrolled / nextClass.capacity;
+
+  const memberId = useMemo(
+    () => user?.memberships.find((m) => m.organizationId === activeOrgId)?.id ?? user?.memberships[0]?.id ?? "",
+    [activeOrgId, user],
+  );
+
+  const [nextClass, setNextClass] = useState<NextClassView | null>(null);
+  const [wodPreview, setWodPreview] = useState<WodPreviewView | null>(null);
+  const [coaches, setCoaches] = useState<CoachItem[]>([]);
+  const [streakWeeks, setStreakWeeks] = useState(0);
+  const [totalCheckIns, setTotalCheckIns] = useState(0);
+  const [prCount, setPrCount] = useState(0);
+
+  useEffect(() => {
+    const today = new Date().toISOString().split("T")[0];
+    const weekAhead = new Date(Date.now() + 7 * 86_400_000).toISOString().split("T")[0];
+    let cancelled = false;
+
+    void listClassSchedule(today, weekAhead)
+      .then((schedule) => {
+        if (!cancelled) setNextClass(pickNextClass(schedule));
+      })
+      .catch(() => {
+        if (!cancelled) setNextClass(null);
+      });
+
+    void Promise.all([listWods(today, today), listExercises()])
+      .then(([wods, exercises]) => {
+        if (cancelled) return;
+        const names = new Map(exercises.map((e) => [e.id, e.name]));
+        const published = wods.filter((w) => w.publishedAt);
+        const wod = published[0] ?? wods[0];
+        setWodPreview(wod ? buildWodPreview(wod, names) : null);
+      })
+      .catch(() => {
+        if (!cancelled) setWodPreview(null);
+      });
+
+    void listCoaches()
+      .then((rows) => {
+        if (!cancelled) setCoaches(rows);
+      })
+      .catch(() => {
+        if (!cancelled) setCoaches([]);
+      });
+
+    void getMyMember()
+      .then((member) => {
+        if (cancelled || !member) return;
+        setStreakWeeks(member.streakWeeks);
+        setTotalCheckIns(member.totalCheckIns);
+      })
+      .catch(() => {});
+
+    if (memberId) {
+      void listPersonalRecords(memberId)
+        .then((rows) => {
+          if (!cancelled) setPrCount(rows.length);
+        })
+        .catch(() => {});
+    }
+
+    return () => {
+      cancelled = true;
+    };
+  }, [memberId]);
+
+  const nextOccupancy = nextClass && nextClass.capacity > 0 ? nextClass.enrolled / nextClass.capacity : 0;
   const mockNews = mockNewsRaw.map((item) => ({
     ...item,
     tagColor: item.tagKey === "amber" ? C.amber : C.blue,
@@ -330,8 +455,8 @@ export default function HomeScreen() {
             <View style={[styles.statIconBox, { backgroundColor: C.amber + "20" }]}>
               <Flame size={16} color={C.amber} strokeWidth={2} />
             </View>
-            <Text style={[styles.statValue, { color: C.amber }]}>12</Text>
-            <Text style={styles.statLabel}>Semanas</Text>
+            <Text style={[styles.statValue, { color: C.amber }]}>{streakWeeks}</Text>
+            <Text style={styles.statLabel}>{t("label.weeks")}</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.statItem, { borderRightWidth: 1, borderRightColor: C.border }]}
@@ -341,8 +466,8 @@ export default function HomeScreen() {
             <View style={[styles.statIconBox, { backgroundColor: C.blue + "20" }]}>
               <CalendarCheck size={16} color={C.blue} strokeWidth={2} />
             </View>
-            <Text style={[styles.statValue, { color: C.blue }]}>47</Text>
-            <Text style={styles.statLabel}>Check-ins</Text>
+            <Text style={[styles.statValue, { color: C.blue }]}>{totalCheckIns}</Text>
+            <Text style={styles.statLabel}>{t("label.checkIns")}</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.statItem}
@@ -352,8 +477,8 @@ export default function HomeScreen() {
             <View style={[styles.statIconBox, { backgroundColor: C.green + "20" }]}>
               <Trophy size={16} color={C.green} strokeWidth={2} />
             </View>
-            <Text style={[styles.statValue, { color: C.green }]}>8</Text>
-            <Text style={styles.statLabel}>PRs</Text>
+            <Text style={[styles.statValue, { color: C.green }]}>{prCount}</Text>
+            <Text style={styles.statLabel}>{t("label.prs")}</Text>
           </TouchableOpacity>
         </View>
 
@@ -361,48 +486,54 @@ export default function HomeScreen() {
         <View style={styles.sectionHeaderRow}>
           <Text style={styles.sectionLabel}>{t("home.nextClass")}</Text>
         </View>
-        <TouchableOpacity
-          style={styles.nextClassCard}
-          onPress={() => router.push("/class-detail")}
-          activeOpacity={0.85}
-        >
-          <View style={styles.nextClassTop}>
-            <View>
-              <Text style={styles.nextClassName}>{nextClass.name}</Text>
-              <Text style={styles.nextClassCoach}>{nextClass.coach}</Text>
-            </View>
-            <View style={styles.nextClassTimeBadge}>
-              <Text style={styles.nextClassTime}>{nextClass.time}</Text>
-            </View>
-          </View>
-          <View style={styles.capacityRow}>
-            <Text style={styles.capacityText}>
-              {nextClass.enrolled}/{nextClass.capacity} {t("status.enrolled")}
-            </Text>
-            <Text style={[styles.capacityPct, {
-              color: nextOccupancy > 0.8 ? C.amber : C.green,
-            }]}>
-              {Math.round(nextOccupancy * 100)}%
-            </Text>
-          </View>
-          <View style={styles.capacityBarBg}>
-            <View
-              style={[
-                styles.capacityBarFill,
-                {
-                  width: `${nextOccupancy * 100}%` as `${number}%`,
-                  backgroundColor: nextOccupancy > 0.8 ? C.amber : C.green,
-                },
-              ]}
-            />
-          </View>
+        {nextClass ? (
           <TouchableOpacity
-            style={styles.reserveBtn}
-            onPress={() => router.push("/booking-confirm")}
+            style={styles.nextClassCard}
+            onPress={() => router.push(`/class-detail?id=${nextClass.id}`)}
+            activeOpacity={0.85}
           >
-            <Text style={styles.reserveBtnText}>RESERVAR</Text>
+            <View style={styles.nextClassTop}>
+              <View>
+                <Text style={styles.nextClassName}>{nextClass.name}</Text>
+                <Text style={styles.nextClassCoach}>{nextClass.coach}</Text>
+              </View>
+              <View style={styles.nextClassTimeBadge}>
+                <Text style={styles.nextClassTime}>{nextClass.time}</Text>
+              </View>
+            </View>
+            <View style={styles.capacityRow}>
+              <Text style={styles.capacityText}>
+                {nextClass.enrolled}/{nextClass.capacity} {t("status.enrolled")}
+              </Text>
+              <Text style={[styles.capacityPct, {
+                color: nextOccupancy > 0.8 ? C.amber : C.green,
+              }]}>
+                {Math.round(nextOccupancy * 100)}%
+              </Text>
+            </View>
+            <View style={styles.capacityBarBg}>
+              <View
+                style={[
+                  styles.capacityBarFill,
+                  {
+                    width: `${nextOccupancy * 100}%` as `${number}%`,
+                    backgroundColor: nextOccupancy > 0.8 ? C.amber : C.green,
+                  },
+                ]}
+              />
+            </View>
+            <TouchableOpacity
+              style={styles.reserveBtn}
+              onPress={() => router.push(`/booking-confirm?classId=${nextClass.id}`)}
+            >
+              <Text style={styles.reserveBtnText}>{t("btn.book")}</Text>
+            </TouchableOpacity>
           </TouchableOpacity>
-        </TouchableOpacity>
+        ) : (
+          <View style={styles.emptyCard}>
+            <Text style={styles.emptyCardText}>{t("label.noClasses")}</Text>
+          </View>
+        )}
 
         {/* ── WOD preview ── */}
         <View style={styles.sectionHeaderRow}>
@@ -411,26 +542,34 @@ export default function HomeScreen() {
             <Text style={styles.seeAll}>{t("btn.details")}</Text>
           </TouchableOpacity>
         </View>
-        <TouchableOpacity
-          style={styles.wodPreviewCard}
-          onPress={() => router.push("/wod-detail")}
-          activeOpacity={0.85}
-        >
-          <View style={styles.wodPreviewHeader}>
-            <Text style={styles.wodPreviewTitle}>{todayWODPreview.title}</Text>
-            <View style={styles.wodTypeBadge}>
-              <Text style={styles.wodTypeText}>{todayWODPreview.type}</Text>
+        {wodPreview ? (
+          <TouchableOpacity
+            style={styles.wodPreviewCard}
+            onPress={() => router.push("/wod-detail")}
+            activeOpacity={0.85}
+          >
+            <View style={styles.wodPreviewHeader}>
+              <Text style={styles.wodPreviewTitle}>{wodPreview.title}</Text>
+              {wodPreview.type ? (
+                <View style={styles.wodTypeBadge}>
+                  <Text style={styles.wodTypeText}>{wodPreview.type}</Text>
+                </View>
+              ) : null}
             </View>
+            <View style={styles.wodMovements}>
+              {wodPreview.movements.map((m, i) => (
+                <View key={i} style={styles.movementPill}>
+                  <View style={styles.movementDot} />
+                  <Text style={styles.movementText}>{m}</Text>
+                </View>
+              ))}
+            </View>
+          </TouchableOpacity>
+        ) : (
+          <View style={styles.emptyCard}>
+            <Text style={styles.emptyCardText}>{t("wod.empty")}</Text>
           </View>
-          <View style={styles.wodMovements}>
-            {todayWODPreview.movements.map((m, i) => (
-              <View key={i} style={styles.movementPill}>
-                <View style={styles.movementDot} />
-                <Text style={styles.movementText}>{m}</Text>
-              </View>
-            ))}
-          </View>
-        </TouchableOpacity>
+        )}
 
         {/* ── Quick actions ── */}
         <View style={styles.sectionHeaderRow}>
@@ -485,7 +624,7 @@ export default function HomeScreen() {
           contentContainerStyle={styles.coachScroll}
           style={styles.coachScrollWrapper}
         >
-          {mockCoaches.map((coach) => {
+          {coaches.map((coach) => {
             const rc = getRoleColor(coach.role, C);
             return (
               <TouchableOpacity
@@ -671,6 +810,19 @@ function makeStyles(C: Colors) { return StyleSheet.create({
     letterSpacing: 1.5,
   },
   seeAll: { fontSize: 12, fontWeight: "700", color: C.green },
+
+  // Empty card (no next class / no WOD)
+  emptyCard: {
+    marginHorizontal: 16,
+    backgroundColor: C.card,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: C.border,
+    paddingVertical: 24,
+    alignItems: "center",
+    marginBottom: 24,
+  },
+  emptyCardText: { fontSize: 14, color: C.muted, textAlign: "center" },
 
   // Next class card
   nextClassCard: {

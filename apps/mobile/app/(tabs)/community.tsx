@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   View,
   Text,
@@ -6,6 +6,7 @@ import {
   ScrollView,
   TouchableOpacity,
   Animated,
+  ActivityIndicator,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
@@ -26,6 +27,12 @@ import {
 import { useTheme } from "../_layout";
 import type { Colors } from "@/colors";
 import { t } from "@/i18n";
+import {
+  getCommunityFeed,
+  getCommunityStats,
+  type CommunityFeedItem,
+  type CommunityStats,
+} from "@/lib/auth-api";
 
 // ─── Types ────────────────────────────────────────────────
 type FeedEventType = "pr" | "checkin" | "wod" | "milestone";
@@ -39,87 +46,58 @@ type FeedEvent = {
   timeAgo: string;
   fistbumps: number;
   comments: number;
-};
-
-// ─── Mock Data ────────────────────────────────────────────
-const communityStats = {
-  activeMembers: 142,
-  totalFistbumps: 1840,
-  wodsDone: 387,
-};
-
-const feedEvents: FeedEvent[] = [
-  {
-    id: "fe-1",
-    authorName: "Pedro Silva",
-    authorInitials: "PS",
-    eventType: "pr",
-    content: "Novo PR! Back Squat 140kg (+5kg). Finalmente passei os 3 dígitos!",
-    timeAgo: "2h",
-    fistbumps: 18,
-    comments: 6,
-  },
-  {
-    id: "fe-2",
-    authorName: "Ana Santos",
-    authorInitials: "AS",
-    eventType: "wod",
-    content: "WOD publicado: CrossFit Total — AMRAP 15. Vemo-nos na box!",
-    timeAgo: "3h",
-    fistbumps: 12,
-    comments: 3,
-  },
-  {
-    id: "fe-3",
-    authorName: "Miguel Costa",
-    authorInitials: "MC",
-    eventType: "checkin",
-    content: "Check-in #100! Marco histórico atingido. Vamos para os 200!",
-    timeAgo: "5h",
-    fistbumps: 42,
-    comments: 15,
-  },
-  {
-    id: "fe-4",
-    authorName: "Sofia Mendes",
-    authorInitials: "SM",
-    eventType: "pr",
-    content: "FRAN 3:52 Rx! Melhor tempo de sempre. O segredo foi manter os thrusters unbroken.",
-    timeAgo: "8h",
-    fistbumps: 24,
-    comments: 7,
-  },
-  {
-    id: "fe-5",
-    authorName: "Ricardo Ribeiro",
-    authorInitials: "RR",
-    eventType: "milestone",
-    content: "12 semanas consecutivas sem falhar um treino. Consistência é tudo!",
-    timeAgo: "1d",
-    fistbumps: 36,
-    comments: 9,
-  },
-  {
-    id: "fe-6",
-    authorName: "Inês Ferreira",
-    authorInitials: "IF",
-    eventType: "wod",
-    content: "Resultado: Deadlift 5x5 @ 120kg. Dia de força bem passado.",
-    timeAgo: "1d",
-    fistbumps: 14,
-    comments: 4,
-  },
-];
-
-const athleteOfMonth = {
-  name: "José Fonte",
-  initials: "JF",
-  checkIns: 22,
-  prs: 4,
-  highlight: "Melhor série do mês",
+  hasReacted: boolean;
 };
 
 // ─── Helpers ──────────────────────────────────────────────
+function initialsOf(name: string): string {
+  return name
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
+}
+
+/** Map a stored community-post `kind` to the feed badge/event type. */
+function kindToEventType(kind: string): FeedEventType {
+  switch (kind) {
+    case "auto_pr": return "pr";
+    case "auto_wod": return "wod";
+    case "auto_milestone":
+    case "announcement": return "milestone";
+    default: return "checkin";
+  }
+}
+
+function timeAgoFrom(iso: string | Date): string {
+  const then = new Date(iso).getTime();
+  if (Number.isNaN(then)) return "";
+  const diffMs = Date.now() - then;
+  const mins = Math.max(0, Math.floor(diffMs / 60000));
+  if (mins < 60) return `${mins}m`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours}h`;
+  const days = Math.floor(hours / 24);
+  return `${days}d`;
+}
+
+function toFeedEvent(item: CommunityFeedItem): FeedEvent {
+  return {
+    id: item.id,
+    authorName: item.authorName,
+    authorInitials: initialsOf(item.authorName),
+    eventType: kindToEventType(item.kind),
+    content: item.content,
+    timeAgo: timeAgoFrom(item.createdAt),
+    // Base count excludes the viewer's own reaction; the card re-adds +1 when
+    // `fistbumped` is true, so the initial reacted state stays consistent.
+    fistbumps: Math.max(0, item.fistbumps - (item.hasReacted ? 1 : 0)),
+    comments: item.commentCount,
+    hasReacted: item.hasReacted,
+  };
+}
+
 function getEventIcon(type: FeedEventType, C: Colors): React.ReactNode {
   switch (type) {
     case "pr":
@@ -227,8 +205,40 @@ export default function CommunityScreen() {
   const router = useRouter();
   const C = useTheme();
   const styles = makeStyles(C);
+  const [feedEvents, setFeedEvents] = useState<FeedEvent[]>([]);
+  const [stats, setStats] = useState<CommunityStats | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadError, setLoadError] = useState(false);
   const [fistbumpedIds, setFistbumpedIds] = useState<Set<string>>(new Set());
   const bounceAnims = useRef<Record<string, Animated.Value>>({}).current;
+
+  useEffect(() => {
+    let cancelled = false;
+    setIsLoading(true);
+    setLoadError(false);
+
+    Promise.all([getCommunityFeed(), getCommunityStats()])
+      .then(([feed, communityStats]) => {
+        if (cancelled) return;
+        const events = feed.map(toFeedEvent);
+        setFeedEvents(events);
+        setStats(communityStats);
+        setFistbumpedIds(new Set(feed.filter((f) => f.hasReacted).map((f) => f.id)));
+      })
+      .catch(() => {
+        if (!cancelled) setLoadError(true);
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const athleteOfMonth = stats?.athleteOfMonth ?? null;
+  const totalFistbumps = feedEvents.reduce((sum, e) => sum + e.fistbumps, 0);
 
   function getBounceAnim(id: string): Animated.Value {
     if (!bounceAnims[id]) {
@@ -283,7 +293,7 @@ export default function CommunityScreen() {
             <View style={[styles.statIconBox, { backgroundColor: C.green + "20" }]}>
               <Users size={16} color={C.green} strokeWidth={2} />
             </View>
-            <Text style={[styles.statValue, { color: C.green }]}>{communityStats.activeMembers}</Text>
+            <Text style={[styles.statValue, { color: C.green }]}>{stats?.activeToday ?? 0}</Text>
             <Text style={styles.statLabel}>{t("label.activeMembers")}</Text>
           </TouchableOpacity>
           <TouchableOpacity
@@ -294,7 +304,7 @@ export default function CommunityScreen() {
             <View style={[styles.statIconBox, { backgroundColor: C.red + "20" }]}>
               <Heart size={16} color={C.red} strokeWidth={2} />
             </View>
-            <Text style={[styles.statValue, { color: C.red }]}>{communityStats.totalFistbumps}</Text>
+            <Text style={[styles.statValue, { color: C.red }]}>{totalFistbumps}</Text>
             <Text style={styles.statLabel}>{t("label.totalFistbumps")}</Text>
           </TouchableOpacity>
           <TouchableOpacity
@@ -305,32 +315,36 @@ export default function CommunityScreen() {
             <View style={[styles.statIconBox, { backgroundColor: C.orange + "20" }]}>
               <Flame size={16} color={C.orange} strokeWidth={2} />
             </View>
-            <Text style={[styles.statValue, { color: C.orange }]}>{communityStats.wodsDone}</Text>
-            <Text style={styles.statLabel}>{t("label.wodsDone")}</Text>
+            <Text style={[styles.statValue, { color: C.orange }]}>{stats?.checkInsThisWeek ?? 0}</Text>
+            <Text style={styles.statLabel}>{t("label.checkIns")}</Text>
           </TouchableOpacity>
         </View>
 
         {/* Athlete of the Month */}
-        <TouchableOpacity
-          style={styles.atomCard}
-          onPress={() => router.push("/athlete-of-month")}
-          activeOpacity={0.85}
-        >
-          <View style={styles.atomLeft}>
-            <View style={styles.atomCrown}>
-              <Award size={18} color={C.amber} strokeWidth={2} fill={C.amber + "40"} />
+        {athleteOfMonth && (
+          <TouchableOpacity
+            style={styles.atomCard}
+            onPress={() => router.push("/athlete-of-month")}
+            activeOpacity={0.85}
+          >
+            <View style={styles.atomLeft}>
+              <View style={styles.atomCrown}>
+                <Award size={18} color={C.amber} strokeWidth={2} fill={C.amber + "40"} />
+              </View>
+              <View style={styles.atomAvatar}>
+                <Text style={styles.atomAvatarText}>{athleteOfMonth.initials}</Text>
+              </View>
+              <View>
+                <Text style={styles.atomTitle}>{t("label.athleteOfMonth")}</Text>
+                <Text style={styles.atomName}>{athleteOfMonth.name}</Text>
+                <Text style={styles.atomHighlight}>
+                  {athleteOfMonth.checkIns} {t("label.checkIns")}
+                </Text>
+              </View>
             </View>
-            <View style={styles.atomAvatar}>
-              <Text style={styles.atomAvatarText}>{athleteOfMonth.initials}</Text>
-            </View>
-            <View>
-              <Text style={styles.atomTitle}>{t("label.athleteOfMonth")}</Text>
-              <Text style={styles.atomName}>{athleteOfMonth.name}</Text>
-              <Text style={styles.atomHighlight}>{athleteOfMonth.highlight}</Text>
-            </View>
-          </View>
-          <ChevronRight size={18} color={C.muted} strokeWidth={2} />
-        </TouchableOpacity>
+            <ChevronRight size={18} color={C.muted} strokeWidth={2} />
+          </TouchableOpacity>
+        )}
 
         {/* Explore Links */}
         <View style={styles.sectionHeaderRow}>
@@ -377,19 +391,33 @@ export default function CommunityScreen() {
           </TouchableOpacity>
         </View>
 
-        {feedEvents.map((event) => (
-          <FeedCard
-            key={event.id}
-            event={event}
-            fistbumped={fistbumpedIds.has(event.id)}
-            onFistbump={() => toggleFistbump(event.id)}
-            onPress={() => router.push(`/fistbump-detail?id=${event.id}`)}
-            onComment={() => router.push(`/fistbump-detail?id=${event.id}`)}
-            bounceAnim={getBounceAnim(event.id)}
-            C={C}
-            styles={styles}
-          />
-        ))}
+        {isLoading ? (
+          <View style={styles.feedStateBox}>
+            <ActivityIndicator color={C.green} />
+          </View>
+        ) : loadError ? (
+          <View style={styles.feedStateBox}>
+            <Text style={styles.feedStateText}>{t("alert.error")}</Text>
+          </View>
+        ) : feedEvents.length === 0 ? (
+          <View style={styles.feedStateBox}>
+            <Text style={styles.feedStateText}>{t("community.feedEmpty")}</Text>
+          </View>
+        ) : (
+          feedEvents.map((event) => (
+            <FeedCard
+              key={event.id}
+              event={event}
+              fistbumped={fistbumpedIds.has(event.id)}
+              onFistbump={() => toggleFistbump(event.id)}
+              onPress={() => router.push(`/fistbump-detail?id=${event.id}`)}
+              onComment={() => router.push(`/fistbump-detail?id=${event.id}`)}
+              bounceAnim={getBounceAnim(event.id)}
+              C={C}
+              styles={styles}
+            />
+          ))
+        )}
 
         <View style={{ height: 100 }} />
       </ScrollView>
@@ -594,6 +622,14 @@ function makeStyles(C: Colors) { return StyleSheet.create({
     fontWeight: "600",
     color: C.text,
   },
+
+  // Feed loading / empty / error state
+  feedStateBox: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 40,
+  },
+  feedStateText: { fontSize: 14, color: C.muted, textAlign: "center" },
 
   // Feed Card
   feedCard: {

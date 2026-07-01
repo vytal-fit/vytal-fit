@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import {
   View,
   Text,
@@ -6,14 +6,15 @@ import {
   ScrollView,
   TouchableOpacity,
   Animated,
-  Alert,
+  ActivityIndicator,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
-import { Clock, ChevronDown, ChevronUp, Play, Pause, RotateCcw, Zap, Timer } from "lucide-react-native";
+import { Clock, ChevronDown, ChevronUp, Play, Pause, RotateCcw, Zap, Timer, Dumbbell } from "lucide-react-native";
 import { useTheme } from "../_layout";
 import type { Colors } from "@/colors";
 import { t } from "@/i18n";
+import { listWods, listExercises, type WodItem } from "@/lib/auth-api";
 
 // ─── Types ───────────────────────────────────────────────
 type WODExercise = {
@@ -30,53 +31,26 @@ type WODPart = {
   exercises: WODExercise[];
 };
 
-// ─── Mock WOD Data ───────────────────────────────────────
-const todayWOD: { id: string; title: string; date: string; parts: WODPart[] } = {
-  id: "wod-1",
-  title: "CrossFit Total",
-  date: new Date().toISOString().split("T")[0],
-  parts: [
-    {
-      name: "Warm Up",
-      type: "custom" as const,
-      exercises: [
-        { name: "Row", reps: "500m", notes: "Easy pace" },
-        { name: "PVC Pass-Throughs", reps: "10" },
-        { name: "Air Squats", reps: "15" },
-        { name: "Inchworms", reps: "10" },
-        { name: "Scap Pull-Ups", reps: "10" },
-      ],
-    },
-    {
-      name: "Strength",
-      type: "strength" as const,
-      exercises: [
-        { name: "Back Squat", reps: "5-5-3-3-1-1", weight: "Build to heavy", notes: "Rest 2-3 min between sets" },
-        { name: "Strict Press", reps: "5-5-3-3-1-1", weight: "Build to heavy", notes: "Rest 2 min between sets" },
-      ],
-    },
-    {
-      name: "WOD",
-      type: "amrap" as const,
-      timeCap: 15,
-      exercises: [
-        { name: "Power Cleans", reps: "10", weight: "60/42.5 kg" },
-        { name: "Box Jumps", reps: "15", weight: "24/20 in" },
-        { name: "Toes-to-Bar", reps: "12" },
-        { name: "Calories Assault Bike", reps: "10" },
-      ],
-    },
-    {
-      name: "Cool Down",
-      type: "custom" as const,
-      exercises: [
-        { name: "Foam Roll Quads", reps: "2 min" },
-        { name: "Pigeon Stretch", reps: "1 min/side" },
-        { name: "Banded Shoulder Stretch", reps: "1 min/side" },
-      ],
-    },
-  ],
-};
+function todayYmd(): string {
+  return new Date().toISOString().split("T")[0];
+}
+
+/** Map a stored WOD row (exerciseId references) to the display shape (names). */
+function toDisplayParts(wod: WodItem, exerciseNames: Map<string, string>): WODPart[] {
+  return (wod.parts ?? []).map((part) => ({
+    name: part.name,
+    type: (["amrap", "emom", "for_time", "tabata", "strength"].includes(part.type)
+      ? part.type
+      : "custom") as WODPart["type"],
+    timeCap: part.timeCap,
+    exercises: (part.exercises ?? []).map((ex) => ({
+      name: exerciseNames.get(ex.exerciseId) ?? ex.exerciseId,
+      reps: ex.reps,
+      weight: ex.weight,
+      notes: ex.notes,
+    })),
+  }));
+}
 
 function getWODTypeBadge(type: string, C: Colors): { label: string; color: string } {
   switch (type) {
@@ -223,6 +197,46 @@ export default function WODScreen() {
   const C = useTheme();
   const styles = makeStyles(C);
 
+  const [wod, setWod] = useState<WodItem | null>(null);
+  const [exerciseNames, setExerciseNames] = useState<Map<string, string>>(new Map());
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadError, setLoadError] = useState(false);
+
+  useEffect(() => {
+    const today = todayYmd();
+    let cancelled = false;
+    setIsLoading(true);
+    setLoadError(false);
+
+    Promise.all([listWods(today, today), listExercises()])
+      .then(([wods, exercises]) => {
+        if (cancelled) return;
+        setExerciseNames(new Map(exercises.map((e) => [e.id, e.name])));
+        const published = wods.filter((w) => w.publishedAt);
+        setWod(published[0] ?? wods[0] ?? null);
+      })
+      .catch(() => {
+        if (!cancelled) setLoadError(true);
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const displayParts = useMemo(
+    () => (wod ? toDisplayParts(wod, exerciseNames) : []),
+    [wod, exerciseNames],
+  );
+  const wodTitle = wod?.title ?? t("screen.wod");
+  const defaultOpenIndex = Math.max(
+    0,
+    displayParts.findIndex((p) => p.type === "amrap" || p.type === "for_time" || p.type === "emom"),
+  );
+
   return (
     <SafeAreaView style={styles.safe} edges={["top"]}>
       <View style={styles.container}>
@@ -245,22 +259,42 @@ export default function WODScreen() {
         </View>
 
         {/* WOD Title bar */}
-        <View style={styles.wodTitleSection}>
-          <Text style={styles.wodTitle}>{todayWOD.title}</Text>
-          <View style={styles.publishedBadge}>
-            <View style={styles.liveDot} />
-            <Text style={styles.publishedText}>{t("status.published")}</Text>
+        {wod && (
+          <View style={styles.wodTitleSection}>
+            <Text style={styles.wodTitle}>{wodTitle}</Text>
+            {wod.publishedAt ? (
+              <View style={styles.publishedBadge}>
+                <View style={styles.liveDot} />
+                <Text style={styles.publishedText}>{t("status.published")}</Text>
+              </View>
+            ) : null}
           </View>
-        </View>
+        )}
 
         {/* Scrollable content */}
         <ScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
         >
-          {todayWOD.parts.map((part, i) => (
-            <WODPartCard key={i} part={part} defaultOpen={i === 2} C={C} styles={styles} />
-          ))}
+          {isLoading ? (
+            <View style={styles.emptyState}>
+              <ActivityIndicator color={C.green} />
+            </View>
+          ) : loadError ? (
+            <View style={styles.emptyState}>
+              <Dumbbell size={44} color={C.muted} strokeWidth={1.2} />
+              <Text style={styles.emptyText}>{t("alert.error")}</Text>
+            </View>
+          ) : !wod ? (
+            <View style={styles.emptyState}>
+              <Dumbbell size={44} color={C.muted} strokeWidth={1.2} />
+              <Text style={styles.emptyText}>{t("wod.empty")}</Text>
+            </View>
+          ) : (
+            displayParts.map((part, i) => (
+              <WODPartCard key={i} part={part} defaultOpen={i === defaultOpenIndex} C={C} styles={styles} />
+            ))
+          )}
 
           {/* Inline Timer */}
           <InlineTimer C={C} styles={styles} />
@@ -283,7 +317,7 @@ export default function WODScreen() {
         <View style={styles.actionBar}>
           <TouchableOpacity
             style={styles.actionSecondary}
-            onPress={() => router.push(`/wod-detail?id=${todayWOD.id}`)}
+            onPress={() => router.push(wod ? `/wod-detail?id=${wod.id}` : "/wod-detail")}
           >
             <Text style={styles.actionSecondaryText}>{t("btn.details")}</Text>
           </TouchableOpacity>
@@ -378,6 +412,15 @@ function makeStyles(C: Colors) { return StyleSheet.create({
 
   // Scroll
   scrollContent: { paddingHorizontal: 16, gap: 12 },
+
+  // Empty / loading state
+  emptyState: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 48,
+    gap: 12,
+  },
+  emptyText: { fontSize: 15, color: C.muted, textAlign: "center" },
 
   // Part Card
   partCard: {

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   View,
   Text,
@@ -6,16 +6,22 @@ import {
   ScrollView,
   TouchableOpacity,
   FlatList,
-  Alert,
+  ActivityIndicator,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { User, MapPin, Bell, Check, CalendarX, Zap } from "lucide-react-native";
-import { mockClasses } from "@vytal-fit/shared";
-import type { Class } from "@vytal-fit/shared";
 import { useTheme } from "../_layout";
 import type { Colors } from "@/colors";
 import { t } from "@/i18n";
+import {
+  listClassSchedule,
+  listMemberBookings,
+  type ClassScheduleItem,
+} from "@/lib/auth-api";
+import { useAuthStore } from "@/stores/auth-store";
+
+type ScheduleClass = ClassScheduleItem;
 
 // ─── Filter pills config ──────────────────────────────────
 const FILTERS = ["Todas", "CrossFit", "Ginástica", "Weightlifting", "Cardio"] as const;
@@ -62,9 +68,9 @@ function formatDateHeader(): string {
   return `${weekDays[now.getDay()]}, ${now.getDate()} de ${months[now.getMonth()]}`;
 }
 
-function matchesFilter(cls: Class, filter: FilterLabel): boolean {
+function matchesFilter(cls: ScheduleClass, filter: FilterLabel): boolean {
   if (filter === "Todas") return true;
-  const name = cls.classType.name.toLowerCase();
+  const name = (cls.classType?.name ?? "").toLowerCase();
   switch (filter) {
     case "CrossFit": return name.includes("crossfit");
     case "Ginástica": return name.includes("gin") || name.includes("gymnastics");
@@ -175,7 +181,7 @@ function ClassCard({
   C,
   styles,
 }: {
-  cls: Class;
+  cls: ScheduleClass;
   onPress: () => void;
   isBooked: boolean;
   onBook: () => void;
@@ -185,29 +191,35 @@ function ClassCard({
 }) {
   const adjustedEnrolled = cls.enrolledCount + enrollmentOffset;
   const isFull = adjustedEnrolled >= cls.maxCapacity;
-  const occupancy = adjustedEnrolled / cls.maxCapacity;
+  const occupancy = cls.maxCapacity > 0 ? adjustedEnrolled / cls.maxCapacity : 0;
   const coachName = cls.coaches.length > 0 ? cls.coaches[0].name : "TBD";
+  const classTypeName = cls.classType?.name ?? t("label.class");
+  const classTypeColor = cls.classType?.color ?? C.green;
+  const classTypeAbbr = cls.classType?.abbreviation ?? "";
+  const locationName = cls.location?.name ?? "-";
 
   return (
     <TouchableOpacity style={styles.card} onPress={onPress} activeOpacity={0.8}>
       <View style={styles.cardHeader}>
         <View style={styles.classTypeRow}>
           <View
-            style={[styles.colorDot, { backgroundColor: cls.classType.color }]}
+            style={[styles.colorDot, { backgroundColor: classTypeColor }]}
           />
-          <Text style={styles.classTypeName}>{cls.classType.name}</Text>
-          <View
-            style={[
-              styles.abbrevBadge,
-              { backgroundColor: cls.classType.color + "20" },
-            ]}
-          >
-            <Text
-              style={[styles.abbrevText, { color: cls.classType.color }]}
+          <Text style={styles.classTypeName}>{classTypeName}</Text>
+          {classTypeAbbr ? (
+            <View
+              style={[
+                styles.abbrevBadge,
+                { backgroundColor: classTypeColor + "20" },
+              ]}
             >
-              {cls.classType.abbreviation}
-            </Text>
-          </View>
+              <Text
+                style={[styles.abbrevText, { color: classTypeColor }]}
+              >
+                {classTypeAbbr}
+              </Text>
+            </View>
+          ) : null}
         </View>
         <Text style={styles.classTime}>
           {cls.startTime} - {cls.endTime}
@@ -221,7 +233,7 @@ function ClassCard({
         </View>
         <View style={styles.infoRow}>
           <MapPin size={14} color={C.muted} strokeWidth={1.8} />
-          <Text style={styles.infoText}>{cls.location.name}</Text>
+          <Text style={styles.infoText}>{locationName}</Text>
         </View>
       </View>
 
@@ -298,27 +310,62 @@ export default function ScheduleScreen() {
   const router = useRouter();
   const C = useTheme();
   const styles = makeStyles(C);
-  const weekDays = getWeekDays();
+  const weekDays = useMemo(() => getWeekDays(), []);
   const [selectedDate, setSelectedDate] = useState(weekDays[0].dateStr);
   const [activeFilter, setActiveFilter] = useState<FilterLabel>("Todas");
-  const [bookedIds, setBookedIds] = useState<Set<string>>(new Set(["cl-2", "cl-6"]));
+  const [classes, setClasses] = useState<ScheduleClass[]>([]);
+  const [bookedIds, setBookedIds] = useState<Set<string>>(new Set());
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadError, setLoadError] = useState(false);
 
-  const filteredClasses = mockClasses
+  const { user, activeOrgId } = useAuthStore();
+  const memberId = useMemo(
+    () => user?.memberships.find((m) => m.organizationId === activeOrgId)?.id ?? user?.memberships[0]?.id ?? "",
+    [activeOrgId, user],
+  );
+
+  useEffect(() => {
+    const from = weekDays[0].dateStr;
+    const to = weekDays[weekDays.length - 1].dateStr;
+
+    let cancelled = false;
+    setIsLoading(true);
+    setLoadError(false);
+
+    Promise.all([
+      listClassSchedule(from, to),
+      memberId ? listMemberBookings(memberId) : Promise.resolve([]),
+    ])
+      .then(([schedule, bookings]) => {
+        if (cancelled) return;
+        setClasses(schedule.filter((c) => !c.cancelledAt));
+        const active = bookings
+          .filter((b) => b.status === "confirmed" || b.status === "checked_in" || b.status === "waitlisted")
+          .map((b) => b.classId);
+        setBookedIds(new Set(active));
+      })
+      .catch(() => {
+        if (!cancelled) setLoadError(true);
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [memberId, weekDays]);
+
+  const filteredClasses = classes
     .filter((cls) => cls.date === selectedDate)
     .filter((cls) => matchesFilter(cls, activeFilter));
 
-  function toggleBooking(classId: string, _cls: Class) {
-    setBookedIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(classId)) {
-        next.delete(classId);
-        router.push("/booking-history");
-      } else {
-        next.add(classId);
-        router.push("/booking-confirm");
-      }
-      return next;
-    });
+  function toggleBooking(classId: string, _cls: ScheduleClass) {
+    if (bookedIds.has(classId)) {
+      router.push("/booking-history");
+    } else {
+      router.push(`/booking-confirm?classId=${classId}`);
+    }
   }
 
   return (
@@ -375,12 +422,23 @@ export default function ScheduleScreen() {
           showsVerticalScrollIndicator={false}
           ItemSeparatorComponent={() => <View style={styles.cardGap} />}
           ListEmptyComponent={
-            <View style={styles.emptyState}>
-              <CalendarX size={48} color={C.muted} strokeWidth={1.2} />
-              <Text style={styles.emptyText}>
-                {t("label.noClasses")}
-              </Text>
-            </View>
+            isLoading ? (
+              <View style={styles.emptyState}>
+                <ActivityIndicator color={C.green} />
+              </View>
+            ) : loadError ? (
+              <View style={styles.emptyState}>
+                <CalendarX size={48} color={C.muted} strokeWidth={1.2} />
+                <Text style={styles.emptyText}>{t("alert.error")}</Text>
+              </View>
+            ) : (
+              <View style={styles.emptyState}>
+                <CalendarX size={48} color={C.muted} strokeWidth={1.2} />
+                <Text style={styles.emptyText}>
+                  {t("label.noClasses")}
+                </Text>
+              </View>
+            )
           }
         />
       </View>

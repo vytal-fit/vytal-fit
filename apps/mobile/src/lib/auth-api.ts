@@ -126,6 +126,148 @@ export interface WodResultItem {
   } | null;
 }
 
+export interface ClassScheduleItem {
+  id: string;
+  classTypeId: string | null;
+  locationId: string | null;
+  coachIds: string[];
+  date: string;
+  startTime: string;
+  endTime: string;
+  maxCapacity: number;
+  cancelledAt?: string | Date | null;
+  classType: {
+    id: string;
+    name: string;
+    abbreviation: string;
+    color: string;
+  } | null;
+  location: {
+    id: string;
+    name: string;
+  } | null;
+  coaches: Array<{
+    id: string;
+    name: string;
+  }>;
+  enrolledCount: number;
+  waitlistCount: number;
+}
+
+export interface WodPartExercise {
+  exerciseId: string;
+  reps?: string;
+  weight?: string;
+  notes?: string;
+}
+
+export interface WodPart {
+  name: string;
+  type: "amrap" | "emom" | "for_time" | "tabata" | "strength" | "custom" | string;
+  timeCap?: number;
+  rounds?: number;
+  intervalSeconds?: number;
+  exercises: WodPartExercise[];
+}
+
+export interface WodItem {
+  id: string;
+  organizationId: string;
+  classTypeId: string;
+  date: string;
+  title?: string | null;
+  description?: string | null;
+  parts: WodPart[];
+  publishedAt?: string | Date | null;
+}
+
+export interface ExerciseItem {
+  id: string;
+  name: string;
+  category: string;
+}
+
+export interface WellnessCheckinItem {
+  id: string;
+  organizationId: string;
+  memberId: string;
+  date: string;
+  sleep?: number | null;
+  fatigue?: number | null;
+  stress?: number | null;
+  mood?: number | null;
+  notes?: string | null;
+}
+
+export interface MemberItem {
+  id: string;
+  organizationId: string | null;
+  userId?: string | null;
+  memberNumber: number;
+  name: string;
+  email: string;
+  phone?: string | null;
+  photo?: string | null;
+  status: string;
+  planId?: string | null;
+  joinedAt?: string | Date | null;
+  lastCheckIn?: string | Date | null;
+  streakWeeks: number;
+  totalCheckIns: number;
+}
+
+export interface SubscriptionItem {
+  id: string;
+  organizationId: string;
+  memberId: string;
+  planId: string;
+  status: string;
+  startDate?: string | Date | null;
+  endDate?: string | Date | null;
+  nextBillingDate?: string | Date | null;
+}
+
+export interface SubscriptionPlanItem {
+  id: string;
+  organizationId: string;
+  name: string;
+  price: number | string;
+  active: boolean;
+}
+
+export interface CommunityFeedItem {
+  id: string;
+  authorName: string;
+  authorType: string;
+  kind: string;
+  content: string;
+  pinned: boolean;
+  createdAt: string | Date;
+  fistbumps: number;
+  hasReacted: boolean;
+  commentCount: number;
+}
+
+export interface CommunityStats {
+  checkInsThisWeek: number;
+  prsThisWeek: number;
+  activeToday: number;
+  leaderboard: Array<{ name: string; initials: string; checkIns: number }>;
+  athleteOfMonth: {
+    name: string;
+    initials: string;
+    checkIns: number;
+    streak: number;
+  } | null;
+}
+
+export interface CoachItem {
+  id: string;
+  name: string;
+  role: string;
+  photo?: string | null;
+}
+
 let authToken: string | null = null;
 
 function getBaseUrl(): string {
@@ -402,6 +544,119 @@ export async function updateWodResult(
     `/results/${id}`,
     { method: "PATCH", body: input },
   );
+  return data;
+}
+
+export async function listClassSchedule(from: string, to: string): Promise<ClassScheduleItem[]> {
+  const params = new URLSearchParams({ from, to });
+  const { data } = await requestJson<ClassScheduleItem[]>(
+    `/classes/schedule?${params.toString()}`,
+    { method: "GET" },
+  );
+  return data;
+}
+
+export async function listWods(from?: string, to?: string): Promise<WodItem[]> {
+  const params = new URLSearchParams();
+  if (from) params.set("from", from);
+  if (to) params.set("to", to);
+  const query = params.toString();
+  const { data } = await requestJson<WodItem[]>(
+    `/wods${query ? `?${query}` : ""}`,
+    { method: "GET" },
+  );
+  return data;
+}
+
+export async function getWod(id: string): Promise<WodItem | null> {
+  try {
+    const { data } = await requestJson<WodItem>(`/wods/${id}`, { method: "GET" });
+    return data;
+  } catch (error) {
+    if (error instanceof AuthRequestError && error.status === 404) return null;
+    throw error;
+  }
+}
+
+export async function listExercises(category?: string): Promise<ExerciseItem[]> {
+  const params = new URLSearchParams();
+  if (category) params.set("category", category);
+  const query = params.toString();
+  const { data } = await requestJson<ExerciseItem[]>(
+    `/exercises${query ? `?${query}` : ""}`,
+    { method: "GET" },
+  );
+  return data;
+}
+
+export async function listWellnessCheckins(memberId: string, limit = 50): Promise<WellnessCheckinItem[]> {
+  const params = new URLSearchParams({ memberId, limit: String(limit) });
+  const { data } = await requestJson<{ items: WellnessCheckinItem[]; nextCursor: string | null }>(
+    `/wellness-checkins?${params.toString()}`,
+    { method: "GET" },
+  );
+  return data.items;
+}
+
+export async function upsertWellnessCheckin(
+  input: {
+    memberId: string;
+    date?: string;
+    sleep?: number;
+    fatigue?: number;
+    stress?: number;
+    mood?: number;
+    notes?: string;
+  },
+): Promise<WellnessCheckinItem> {
+  const { data } = await requestJson<WellnessCheckinItem>(
+    "/wellness-checkins/upsert",
+    { body: input },
+  );
+  return data;
+}
+
+export async function getMyMember(): Promise<MemberItem | null> {
+  const { data } = await requestJson<MemberItem | null>("/members/me", { method: "GET" });
+  return data;
+}
+
+export async function listMemberSubscriptions(memberId: string): Promise<SubscriptionItem[]> {
+  const params = new URLSearchParams({ memberId });
+  const { data } = await requestJson<SubscriptionItem[]>(
+    `/subscriptions/by-member?${params.toString()}`,
+    { method: "GET" },
+  );
+  return data;
+}
+
+export async function listSubscriptionPlans(activeOnly = false): Promise<SubscriptionPlanItem[]> {
+  const params = new URLSearchParams();
+  if (activeOnly) params.set("activeOnly", "true");
+  const query = params.toString();
+  const { data } = await requestJson<SubscriptionPlanItem[]>(
+    `/subscriptions/plans${query ? `?${query}` : ""}`,
+    { method: "GET" },
+  );
+  return data;
+}
+
+export async function getCommunityFeed(limit = 60): Promise<CommunityFeedItem[]> {
+  const params = new URLSearchParams({ limit: String(limit) });
+  const { data } = await requestJson<CommunityFeedItem[]>(
+    `/community/feed?${params.toString()}`,
+    { method: "GET" },
+  );
+  return data;
+}
+
+export async function getCommunityStats(): Promise<CommunityStats> {
+  const { data } = await requestJson<CommunityStats>("/community/stats", { method: "GET" });
+  return data;
+}
+
+export async function listCoaches(): Promise<CoachItem[]> {
+  const { data } = await requestJson<CoachItem[]>("/coaches", { method: "GET" });
   return data;
 }
 

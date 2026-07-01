@@ -14,6 +14,9 @@ import { Eye, EyeOff } from "lucide-react-native";
 import { colors } from "@/colors";
 import { useAuthStore } from "@/stores/auth-store";
 import { t } from "@/i18n";
+import { LogoLayer } from "@/components/brand/LogoLayer";
+import { VytalMark } from "@/components/brand/VytalMark";
+import { PressableScale } from "@/components/brand/PressableScale";
 
 const C = colors;
 
@@ -51,12 +54,14 @@ export default function LoginScreen() {
       style={styles.container}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
+      <LogoLayer intensity="subtle" />
       <ScrollView
         contentContainerStyle={styles.scroll}
         keyboardShouldPersistTaps="handled"
       >
         {/* Logo */}
         <View style={styles.logoContainer}>
+          <VytalMark size={72} style={styles.mark} />
           <Text style={styles.logo}><Text style={{ fontSize: 18, color: "#6b8c72" }}>my</Text>VYTAL</Text>
           <Text style={styles.tagline}>{t("login.tagline")}</Text>
         </View>
@@ -113,16 +118,15 @@ export default function LoginScreen() {
           </TouchableOpacity>
 
           {/* Login button */}
-          <TouchableOpacity
+          <PressableScale
             style={[styles.button, loading && styles.buttonDisabled]}
             onPress={handleLogin}
             disabled={loading || !email || !password}
-            activeOpacity={0.8}
           >
             <Text style={styles.buttonText}>
               {loading ? t("btn.loggingIn") : t("btn.login")}
             </Text>
-          </TouchableOpacity>
+          </PressableScale>
 
           {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
@@ -156,6 +160,9 @@ const styles = StyleSheet.create({
   logoContainer: {
     alignItems: "center",
     marginBottom: 48,
+  },
+  mark: {
+    marginBottom: 16,
   },
   logo: {
     fontSize: 36,

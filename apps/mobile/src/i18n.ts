@@ -27,6 +27,7 @@ const translations: Record<Language, Record<string, string>> = {
     "screen.mybox": "My Box",
     "screen.community": "Comunidade",
     "screen.community.subtitle": "A tua box, unida",
+    "community.feedEmpty": "Ainda sem atividade na comunidade",
     "screen.profile": "Perfil",
     "screen.login": "Entrar",
     "screen.timer": "Temporizador",
@@ -102,6 +103,7 @@ const translations: Record<Language, Record<string, string>> = {
     "label.thisMonth": "Este Mês",
     "label.bestStreak": "Melhor Série",
     "label.noClasses": "Sem aulas para este dia",
+    "label.class": "Aula",
     "label.noNotifications": "Sem notificações",
     "label.previous": "anterior",
     "label.since": "Desde",
@@ -203,6 +205,7 @@ const translations: Record<Language, Record<string, string>> = {
 
     // WOD screen
     "wod.logResult": "REGISTAR RESULTADO",
+    "wod.empty": "Sem WOD publicado para hoje",
     "wod.logSuccess": "Resultado guardado!",
     "wod.logSuccessMsg": "O teu resultado foi registado com sucesso.",
     "wod.timer": "TIMER",
@@ -684,6 +687,7 @@ const translations: Record<Language, Record<string, string>> = {
     "screen.mybox": "My Box",
     "screen.community": "Community",
     "screen.community.subtitle": "Your box, united",
+    "community.feedEmpty": "No community activity yet",
     "screen.profile": "Profile",
     "screen.login": "Login",
     "screen.timer": "Timer",
@@ -759,6 +763,7 @@ const translations: Record<Language, Record<string, string>> = {
     "label.thisMonth": "This Month",
     "label.bestStreak": "Best Streak",
     "label.noClasses": "No classes for this day",
+    "label.class": "Class",
     "label.noNotifications": "No notifications",
     "label.previous": "previous",
     "label.since": "Since",
@@ -860,6 +865,7 @@ const translations: Record<Language, Record<string, string>> = {
 
     // WOD screen
     "wod.logResult": "LOG RESULT",
+    "wod.empty": "No WOD published for today",
     "wod.logSuccess": "Result saved!",
     "wod.logSuccessMsg": "Your result has been logged successfully.",
     "wod.timer": "TIMER",
@@ -1341,6 +1347,7 @@ const translations: Record<Language, Record<string, string>> = {
     "screen.mybox": "Mi Box",
     "screen.community": "Comunidad",
     "screen.community.subtitle": "Tu box, unida",
+    "community.feedEmpty": "Aún no hay actividad en la comunidad",
     "screen.profile": "Perfil",
     "screen.login": "Entrar",
     "screen.timer": "Temporizador",
@@ -1416,6 +1423,7 @@ const translations: Record<Language, Record<string, string>> = {
     "label.thisMonth": "Este Mes",
     "label.bestStreak": "Mejor Racha",
     "label.noClasses": "Sin clases para este día",
+    "label.class": "Clase",
     "label.noNotifications": "Sin notificaciones",
     "label.previous": "anterior",
     "label.since": "Desde",
@@ -1517,6 +1525,7 @@ const translations: Record<Language, Record<string, string>> = {
 
     // WOD screen
     "wod.logResult": "REGISTRAR RESULTADO",
+    "wod.empty": "Sin WOD publicado para hoy",
     "wod.logSuccess": "¡Resultado guardado!",
     "wod.logSuccessMsg": "Tu resultado ha sido registrado con éxito.",
     "wod.timer": "TIMER",

@@ -14,6 +14,8 @@ import { mockClasses } from "@vytal-fit/shared";
 import { t } from "@/i18n";
 import { useTheme } from "./_layout";
 import type { Colors } from "@/colors";
+import { LogoLayer } from "@/components/brand/LogoLayer";
+import { VytalMark } from "@/components/brand/VytalMark";
 
 
 const TOTAL_STEPS = 4;
@@ -25,6 +27,7 @@ function StepWelcome() {
   return (
     <View style={styles.stepContainer}>
       <View style={styles.welcomeLogoContainer}>
+        <VytalMark size={96} style={styles.welcomeMark} />
         <Text style={styles.welcomeLogo}>VYTAL</Text>
       </View>
       <Text style={styles.welcomeTitle}>{t("onboarding.welcome").replace("{gym}", "CrossFit Aveiro")}</Text>
@@ -337,6 +340,7 @@ export default function OnboardingScreen() {
 
   return (
     <SafeAreaView style={styles.safe} edges={["top", "bottom"]}>
+      <LogoLayer intensity="bold" />
       <View style={styles.container}>
         {/* Progress Dots */}
         <View style={styles.progressRow}>
@@ -440,6 +444,9 @@ function makeStyles(C: Colors) { return StyleSheet.create({
     alignItems: "center",
     marginTop: 40,
     marginBottom: 32,
+  },
+  welcomeMark: {
+    marginBottom: 16,
   },
   welcomeLogo: {
     fontSize: 48,
