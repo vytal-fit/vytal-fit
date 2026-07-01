@@ -9,6 +9,7 @@ import {
   gymMembers,
   organization,
   organizationSettings,
+  storeProducts,
   subscriptionPlans,
 } from "@vytal-fit/db";
 import { z } from "zod";
@@ -141,6 +142,43 @@ export const publicRouter = router({
       photo: c.photo,
       initials: c.name.split(" ").filter(Boolean).map((n) => n[0]).slice(0, 2).join("").toUpperCase(),
       certifications: certsByCoach.get(c.id) ?? [],
+    }));
+  }),
+
+  /** Active store products (shop page). */
+  products: publicProcedure.input(slugInput).query(async ({ ctx, input }) => {
+    const [org] = await ctx.db
+      .select({ id: organization.id })
+      .from(organization)
+      .where(eq(organization.slug, input.slug))
+      .limit(1);
+    if (!org) throw new TRPCError({ code: "NOT_FOUND", message: "Organization not found." });
+
+    const rows = await ctx.db
+      .select({
+        id: storeProducts.id,
+        name: storeProducts.name,
+        description: storeProducts.description,
+        price: storeProducts.price,
+        currency: storeProducts.currency,
+        category: storeProducts.category,
+        colorName: storeProducts.color,
+        images: storeProducts.images,
+        stock: storeProducts.stock,
+      })
+      .from(storeProducts)
+      .where(and(eq(storeProducts.organizationId, org.id), eq(storeProducts.active, true)));
+
+    return rows.map((p) => ({
+      id: p.id,
+      name: p.name,
+      description: p.description,
+      price: Number(p.price),
+      currency: p.currency,
+      category: p.category,
+      colorName: p.colorName,
+      image: p.images?.[0] ?? null,
+      inStock: p.stock > 0,
     }));
   }),
 

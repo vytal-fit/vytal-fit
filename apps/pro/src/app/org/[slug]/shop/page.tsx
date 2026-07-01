@@ -2,50 +2,83 @@
 
 import { use, useState } from "react";
 import { ShoppingCart, Plus, Minus, Trash2, X, ShoppingBag } from "lucide-react";
-import { MOCK_ORGS, type OrgProduct } from "../org-data";
+import { trpc } from "@/lib/trpc";
 
-type Category = "all" | "clothing" | "accessories" | "supplements" | "equipment";
+type ProductCategory = "apparel" | "accessories" | "supplements" | "equipment";
+type Category = "all" | ProductCategory;
+
+interface Product {
+  id: string;
+  name: string;
+  description: string | null;
+  price: number;
+  currency: string;
+  category: ProductCategory;
+  colorName: string | null;
+  image: string | null;
+  inStock: boolean;
+}
 
 const CATEGORY_LABELS: Record<Category, string> = {
   all: "Todos",
-  clothing: "Vestuário",
+  apparel: "Vestuário",
   accessories: "Acessórios",
   supplements: "Suplementos",
   equipment: "Equipamento",
 };
 
+function formatPrice(price: number, currency: string): string {
+  return currency === "EUR" || !currency ? `${price.toFixed(2)}€` : `${price.toFixed(2)} ${currency}`;
+}
+
 interface CartItem {
-  product: OrgProduct;
+  product: Product;
   quantity: number;
+}
+
+function ProductTile({ product, className }: { product: Product; className?: string }) {
+  if (product.image) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        src={product.image}
+        alt={product.name}
+        className={`${className ?? ""} object-cover`}
+      />
+    );
+  }
+  return (
+    <div className={`${className ?? ""} bg-vytal-bg3 flex items-center justify-center`}>
+      <ShoppingBag className="h-1/3 w-1/3 opacity-30" />
+    </div>
+  );
 }
 
 function ProductCard({
   product,
   onAddToCart,
 }: {
-  product: OrgProduct;
-  onAddToCart: (product: OrgProduct) => void;
+  product: Product;
+  onAddToCart: (product: Product) => void;
 }) {
   return (
     <div className="group flex flex-col rounded-xl border border-vytal-border bg-vytal-card overflow-hidden transition-all hover:border-vytal-green/30 hover:shadow-sm">
-      {/* Image placeholder */}
-      <div className={`relative aspect-square w-full ${product.color} flex items-center justify-center`}>
-        <ShoppingBag className="h-10 w-10 opacity-30" />
-        {product.badge && (
-          <span className="absolute right-2 top-2 rounded-full bg-vytal-green px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-vytal-bg">
-            {product.badge}
-          </span>
-        )}
+      {/* Image / placeholder tile */}
+      <div className="relative aspect-square w-full">
+        <ProductTile product={product} className="absolute inset-0 h-full w-full" />
         <span className="absolute bottom-2 left-2 rounded-full bg-black/30 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-white backdrop-blur-sm">
-          {CATEGORY_LABELS[product.category as Category]}
+          {CATEGORY_LABELS[product.category] ?? product.category}
         </span>
       </div>
 
       <div className="flex flex-1 flex-col p-4">
         <h3 className="text-sm font-semibold text-vytal-text">{product.name}</h3>
-        <p className="mt-1 flex-1 text-xs leading-relaxed text-vytal-muted">{product.description}</p>
+        {product.colorName && (
+          <p className="mt-0.5 text-[11px] text-vytal-muted">{product.colorName}</p>
+        )}
+        <p className="mt-1 flex-1 text-xs leading-relaxed text-vytal-muted">{product.description ?? ""}</p>
         <div className="mt-3 flex items-center justify-between">
-          <span className="text-lg font-black text-vytal-text">{product.price.toFixed(2)}€</span>
+          <span className="text-lg font-black text-vytal-text">{formatPrice(product.price, product.currency)}</span>
           <button
             onClick={() => onAddToCart(product)}
             className="flex items-center gap-1.5 rounded-lg bg-vytal-green px-3 py-1.5 text-xs font-semibold text-vytal-bg transition-all hover:bg-vytal-green/90 active:scale-95"
@@ -72,6 +105,7 @@ function CartSidebar({
 }) {
   const total = cart.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
   const count = cart.reduce((sum, item) => sum + item.quantity, 0);
+  const currency = cart[0]?.product.currency ?? "EUR";
 
   return (
     <div className="fixed inset-0 z-50 flex justify-end">
@@ -107,12 +141,10 @@ function CartSidebar({
             <div className="space-y-px">
               {cart.map((item) => (
                 <div key={item.product.id} className="flex items-center gap-3 border-b border-vytal-border/50 px-5 py-4">
-                  <div className={`h-12 w-12 shrink-0 rounded-lg ${item.product.color} flex items-center justify-center`}>
-                    <ShoppingBag className="h-5 w-5 opacity-40" />
-                  </div>
+                  <ProductTile product={item.product} className="h-12 w-12 shrink-0 rounded-lg" />
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-medium text-vytal-text">{item.product.name}</p>
-                    <p className="text-xs text-vytal-muted">{(item.product.price * item.quantity).toFixed(2)}€</p>
+                    <p className="text-xs text-vytal-muted">{formatPrice(item.product.price * item.quantity, item.product.currency)}</p>
                   </div>
                   <div className="flex items-center gap-1.5">
                     <button
@@ -149,7 +181,7 @@ function CartSidebar({
             <div className="mb-4 space-y-1.5">
               <div className="flex justify-between text-sm text-vytal-muted">
                 <span>Subtotal</span>
-                <span>{total.toFixed(2)}€</span>
+                <span>{formatPrice(total, currency)}</span>
               </div>
               <div className="flex justify-between text-sm text-vytal-muted">
                 <span>Envio</span>
@@ -157,7 +189,7 @@ function CartSidebar({
               </div>
               <div className="flex justify-between border-t border-vytal-border/50 pt-2 text-base font-bold text-vytal-text">
                 <span>Total</span>
-                <span>{total.toFixed(2)}€</span>
+                <span>{formatPrice(total, currency)}</span>
               </div>
             </div>
             <button className="flex w-full items-center justify-center gap-2 rounded-xl bg-vytal-green py-3 text-sm font-bold text-vytal-bg hover:bg-vytal-green/90">
@@ -176,29 +208,25 @@ function CartSidebar({
 
 export default function ShopPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = use(params);
-  const org = MOCK_ORGS[slug];
+  const productsQuery = trpc.public.products.useQuery({ slug });
+  const siteQuery = trpc.public.site.useQuery({ slug });
   const [activeCategory, setActiveCategory] = useState<Category>("all");
   const [cart, setCart] = useState<CartItem[]>([]);
   const [cartOpen, setCartOpen] = useState(false);
 
-  if (!org) {
-    return (
-      <div className="flex min-h-[60vh] items-center justify-center">
-        <p className="text-vytal-muted">Organização não encontrada</p>
-      </div>
-    );
-  }
+  const products: Product[] = productsQuery.data ?? [];
+  const orgName = siteQuery.data?.name ?? "";
 
-  const categories: Category[] = ["all", ...Array.from(new Set(org.products.map((p) => p.category as Category)))];
+  const categories: Category[] = ["all", ...Array.from(new Set(products.map((p) => p.category)))];
 
   const filteredProducts =
     activeCategory === "all"
-      ? org.products
-      : org.products.filter((p) => p.category === activeCategory);
+      ? products
+      : products.filter((p) => p.category === activeCategory);
 
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
-  function handleAddToCart(product: OrgProduct) {
+  function handleAddToCart(product: Product) {
     setCart((prev) => {
       const existing = prev.find((item) => item.product.id === product.id);
       if (existing) {
@@ -247,7 +275,7 @@ export default function ShopPage({ params }: { params: Promise<{ slug: string }>
               </div>
               <div>
                 <h1 className="text-xl font-bold text-vytal-text">Loja</h1>
-                <p className="text-sm text-vytal-muted">{org.name} · {org.products.length} produtos</p>
+                <p className="text-sm text-vytal-muted">{orgName ? `${orgName} · ` : ""}{products.length} produtos</p>
               </div>
             </div>
             <button
@@ -289,7 +317,11 @@ export default function ShopPage({ params }: { params: Promise<{ slug: string }>
 
       {/* Product grid */}
       <section className="mx-auto max-w-5xl px-6 py-8">
-        {filteredProducts.length === 0 ? (
+        {productsQuery.isLoading ? (
+          <div className="flex min-h-[200px] items-center justify-center">
+            <div className="h-8 w-8 animate-spin rounded-full border-2 border-vytal-border border-t-vytal-green" />
+          </div>
+        ) : filteredProducts.length === 0 ? (
           <div className="flex min-h-[200px] flex-col items-center justify-center rounded-xl border border-vytal-border bg-vytal-card">
             <ShoppingBag className="h-10 w-10 text-vytal-muted/30" />
             <p className="mt-3 text-sm text-vytal-muted">Sem produtos nesta categoria</p>
@@ -319,7 +351,7 @@ export default function ShopPage({ params }: { params: Promise<{ slug: string }>
               <span className="text-sm font-bold text-vytal-bg">{cartCount} item{cartCount !== 1 ? "s" : ""}</span>
             </div>
             <span className="text-sm font-bold text-vytal-bg">
-              {cart.reduce((sum, item) => sum + item.product.price * item.quantity, 0).toFixed(2)}€
+              {formatPrice(cart.reduce((sum, item) => sum + item.product.price * item.quantity, 0), cart[0]?.product.currency ?? "EUR")}
             </span>
           </button>
         </div>
