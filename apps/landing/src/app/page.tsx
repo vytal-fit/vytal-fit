@@ -23,7 +23,7 @@ import {
   Moon,
 } from "lucide-react";
 import { STORAGE_KEYS } from "@vytal-fit/shared";
-import { LogoLayer } from "@vytal-fit/brand";
+import { LogoLayer, Reveal } from "@vytal-fit/brand";
 
 // ── Noise texture SVG ────────────────────────────────────────────────────────
 const NOISE_SVG = `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E")`;
@@ -71,6 +71,9 @@ const LANDING_KEYFRAMES = `
 .scroll-reveal[data-revealed="true"] {
   opacity: 1;
   transform: translateY(0);
+}
+@media (prefers-reduced-motion: reduce) {
+  .scroll-reveal { opacity: 1; transform: none; transition: none; }
 }
 .animated-gradient-border {
   background: linear-gradient(90deg, var(--color-vytal-green), var(--color-vytal-blue), var(--color-vytal-purple), var(--color-vytal-green));
@@ -1132,8 +1135,8 @@ function Hero({ t }: { t: (k: string) => string }) {
         </div>
 
         {/* Headline — larger with gradient text */}
-        <h1 className="text-5xl sm:text-6xl md:text-7xl font-bold text-vytal-text leading-[1.1] tracking-tight mb-6">
-          <span className="bg-gradient-to-r from-vytal-green to-vytal-blue bg-clip-text text-transparent">{t("headline").split(" ").slice(0, 3).join(" ")}</span>{" "}
+        <h1 className="text-[clamp(2.75rem,7vw,5.75rem)] font-bold text-vytal-text leading-[1.05] tracking-tight mb-6">
+          <span className="bg-gradient-to-r from-vytal-green to-[#4ade80] bg-clip-text text-transparent">{t("headline").split(" ").slice(0, 3).join(" ")}</span>{" "}
           {t("headline").split(" ").slice(3).join(" ")}
         </h1>
 
@@ -1148,7 +1151,7 @@ function Hero({ t }: { t: (k: string) => string }) {
           <div className="rounded-[14px] p-[1.5px] animated-gradient-border">
             <Link
               href="/signup"
-              className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl bg-vytal-green text-vytal-bg font-semibold text-sm hover:bg-[#16a34a] transition-all duration-150 shadow-lg shadow-[rgba(34,197,94,0.25)] hover:shadow-[rgba(34,197,94,0.4)] hover:-translate-y-0.5"
+              className="vy-shimmer inline-flex items-center gap-2 px-7 py-3.5 rounded-xl bg-vytal-green text-vytal-bg font-semibold text-sm hover:bg-[#16a34a] transition-all duration-150 shadow-lg shadow-[rgba(34,197,94,0.25)] hover:shadow-[rgba(34,197,94,0.4)] hover:-translate-y-0.5"
             >
               {t("ctaStart")}
               <ArrowRight size={16} />
@@ -1335,14 +1338,13 @@ const VERTICALS = [
 ];
 
 function VerticalsMarquee({ t }: { t: (k: string) => string }) {
-  const ref = useScrollReveal();
   const pills = VERTICALS.map((v) => ({ emoji: v.emoji, label: t(`v_${v.key}`) }));
   const doubled = [...pills, ...pills];
 
   return (
     <section className="py-20 border-t border-[rgba(34,197,94,0.08)] overflow-hidden">
       <WaveDivider color="rgba(34,197,94,0.03)" />
-      <div ref={ref} className="scroll-reveal">
+      <Reveal>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center mb-10">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[rgba(34,197,94,0.2)] bg-[rgba(34,197,94,0.05)] mb-4">
             <span className="text-xs font-medium text-vytal-green">Verticais</span>
@@ -1376,7 +1378,7 @@ function VerticalsMarquee({ t }: { t: (k: string) => string }) {
             ))}
           </div>
         </div>
-      </div>
+      </Reveal>
     </section>
   );
 }
@@ -2325,7 +2327,7 @@ function Pricing({ t }: { t: (k: string) => string }) {
                   <div className="absolute -inset-[1.5px] rounded-[18px] animated-gradient-border opacity-60" />
                 )}
                 <div
-                  className={`relative p-6 rounded-2xl border transition-all duration-200 flex flex-col flex-1 ${
+                  className={`relative p-6 rounded-2xl border transition-all duration-200 flex flex-col flex-1 hover:-translate-y-1 hover:border-vytal-green/40 ${
                     plan.highlighted
                       ? "border-[rgba(34,197,94,0.4)] bg-[rgba(34,197,94,0.04)] shadow-lg shadow-[rgba(34,197,94,0.08)] backdrop-blur-sm"
                       : "border-[rgba(34,197,94,0.1)] bg-[rgba(22,32,24,0.4)] backdrop-blur-sm"
@@ -2386,7 +2388,7 @@ function Pricing({ t }: { t: (k: string) => string }) {
                     href={plan.nameKey === "enterprise" ? "/login" : "/signup"}
                     className={`block text-center py-3 rounded-xl text-sm font-semibold transition-all duration-150 ${
                       plan.highlighted
-                        ? "bg-vytal-green text-vytal-bg hover:bg-[#16a34a] shadow-md shadow-[rgba(34,197,94,0.2)]"
+                        ? "vy-shimmer bg-vytal-green text-vytal-bg hover:bg-[#16a34a] shadow-md shadow-[rgba(34,197,94,0.2)]"
                         : "border border-[rgba(34,197,94,0.25)] text-vytal-text hover:border-[rgba(34,197,94,0.5)] hover:bg-[rgba(34,197,94,0.05)]"
                     }`}
                   >
@@ -2474,7 +2476,7 @@ function CTABanner({ t }: { t: (k: string) => string }) {
               <div className="rounded-[14px] p-[1.5px] animated-gradient-border inline-flex">
                 <Link
                   href="/signup"
-                  className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-vytal-green text-vytal-bg font-bold text-sm hover:bg-[#16a34a] transition-all duration-150 shadow-lg shadow-[rgba(34,197,94,0.3)] hover:-translate-y-0.5"
+                  className="vy-shimmer inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-vytal-green text-vytal-bg font-bold text-sm hover:bg-[#16a34a] transition-all duration-150 shadow-lg shadow-[rgba(34,197,94,0.3)] hover:-translate-y-0.5"
                 >
                   {t("ctaBannerStart")}
                   <ArrowRight size={16} />

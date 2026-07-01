@@ -4,8 +4,12 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { ArrowLeft, Sun, Moon } from "lucide-react";
 import { STORAGE_KEYS } from "@vytal-fit/shared";
+import { AnimatedMark, LogoLayer, Reveal } from "@vytal-fit/brand";
 
 // ── The mark: a vital-sign pulse on a rounded green tile ─────────────────────
+// Static specimen used where the mark must hold a fixed weight/size (lockups,
+// size ladder). The living, self-drawing version is <AnimatedMark /> from the
+// shared brand kit — used in the hero and the Logo section demo.
 function Mark({ size = 64, strokeWidth = 5 }: { size?: number; strokeWidth?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 64 64" aria-hidden="true">
@@ -229,9 +233,10 @@ function Ramp({ scale, brandStep }: { scale: [string, string][]; brandStep?: str
     <div className="overflow-x-auto -mx-1 px-1">
       <div className="flex gap-1.5 min-w-max">
         {scale.map(([step, hex]) => (
-          <div key={step} className="flex flex-col items-center" style={{ width: 66 }}>
+          <div key={step} className="group flex flex-col items-center" style={{ width: 66 }}>
             <div
-              className="w-full h-14 rounded-lg border"
+              className="w-full h-14 rounded-lg border transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:scale-[1.04]"
+              title={hex}
               style={{
                 background: hex,
                 borderColor: step === brandStep ? "#22c55e" : "var(--b-hair)",
@@ -287,10 +292,6 @@ export default function BrandPage() {
           --b-muted: #5d6f64;
           --b-hair: rgba(8,18,12,0.12);
         }
-        @keyframes brand-draw { to { stroke-dashoffset: 0; } }
-        @media (prefers-reduced-motion: no-preference) {
-          .brand-hero-pulse { stroke-dasharray: 140; stroke-dashoffset: 140; animation: brand-draw 1.1s 0.15s ease-out forwards; }
-        }
       `}</style>
 
       {/* Top bar */}
@@ -331,37 +332,44 @@ export default function BrandPage() {
         </div>
       </div>
 
-      <div className="max-w-3xl mx-auto px-7 pt-16 pb-28">
-        {/* styleguide: identity, colour, type, tokens */}
-        <p className="font-mono text-[11px] tracking-[0.34em] uppercase text-[#22c55e] mb-5">{t("eyebrow")}</p>
-
-        {/* Hero */}
-        <div className="flex items-center gap-9 flex-wrap">
-          <svg width={120} height={120} viewBox="0 0 64 64" aria-label="Vytal" className="shrink-0">
-            <rect x="2" y="2" width="60" height="60" rx="16" fill="#22c55e" />
-            <path
-              className="brand-hero-pulse"
-              d="M11 35 L23 35 L27 25 L32 45 L37 16 L41 35 L53 35"
-              fill="none"
-              stroke="#08120c"
-              strokeWidth={5}
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-          <div className="flex-1 min-w-[260px]">
-            <h1 className="text-[clamp(52px,11vw,96px)] font-extrabold tracking-[-0.05em] leading-[0.9]">
-              vytal<span className="text-[#22c55e]">.</span>
-            </h1>
-            <p className="text-[var(--b-muted)] text-lg mt-4 max-w-[54ch]">{t("lede")}</p>
+      {/* Hero — the page opens by showing the mark actually alive, over the
+          shared layered backdrop (drifting glow + grid + breathing watermark). */}
+      <div className="relative overflow-hidden">
+        <LogoLayer intensity="bold" />
+        <div className="relative z-[1] max-w-3xl mx-auto px-7 pt-16 pb-12">
+          {/* styleguide: identity, colour, type, tokens */}
+          <p className="font-mono text-[11px] tracking-[0.34em] uppercase text-[#22c55e] mb-5">{t("eyebrow")}</p>
+          <div className="flex items-center gap-9 flex-wrap">
+            <AnimatedMark size={120} className="shrink-0" style={{ borderRadius: 30 }} />
+            <div className="flex-1 min-w-[260px]">
+              <h1 className="text-[clamp(52px,11vw,112px)] font-extrabold tracking-[-0.05em] leading-[0.9]">
+                vytal<span className="text-[#22c55e]">.</span>
+              </h1>
+              <p className="text-[var(--b-muted)] text-lg mt-4 max-w-[54ch]">{t("lede")}</p>
+            </div>
           </div>
         </div>
+      </div>
 
-        <hr className="my-14 border-0 h-px bg-[var(--b-hair)]" />
+      <div className="max-w-3xl mx-auto px-7 pb-28">
+        <hr className="mt-2 mb-14 border-0 h-px bg-[var(--b-hair)]" />
 
         {/* Logo lockups: fixed dark/light demo swatches */}
+        <Reveal>
         <SectionTitle>{t("secLogo")}</SectionTitle>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-5">
+        {/* Motion demo: the living mark (self-drawing pulse + breathing tile)
+            next to the static specimen, so the signature motion is visible. */}
+        <div className="rounded-2xl border p-9 flex items-center justify-center gap-12 flex-wrap min-h-[150px] mt-5" style={{ borderColor: "var(--b-hair)", background: "#0f1610" }}>
+          <div className="flex flex-col items-center gap-2.5">
+            <AnimatedMark size={72} animated />
+            <span className="font-mono text-[10px] tracking-[0.18em] uppercase text-[#6b8c72]">animated</span>
+          </div>
+          <div className="flex flex-col items-center gap-2.5">
+            <AnimatedMark size={72} animated={false} />
+            <span className="font-mono text-[10px] tracking-[0.18em] uppercase text-[#6b8c72]">static</span>
+          </div>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
           <div className="rounded-2xl border p-9 flex flex-col items-center justify-center gap-3 min-h-[150px]" style={{ borderColor: "var(--b-hair)", background: "#0f1610" }}>
             <div className="flex items-center gap-4">
               <Mark size={56} />
@@ -377,10 +385,12 @@ export default function BrandPage() {
             <span className="font-mono text-[10px] tracking-[0.18em] uppercase text-[#5d6f64]">{t("onLight")} · #f3f7f4</span>
           </div>
         </div>
+        </Reveal>
 
         <hr className="my-14 border-0 h-px bg-[var(--b-hair)]" />
 
         {/* Sub-brands */}
+        <Reveal>
         <SectionTitle>{t("secSub")}</SectionTitle>
         <p className="text-[var(--b-muted)] text-sm max-w-[64ch] mt-3 mb-6">{t("subNote")}</p>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -400,10 +410,12 @@ export default function BrandPage() {
             </div>
           ))}
         </div>
+        </Reveal>
 
         <hr className="my-14 border-0 h-px bg-[var(--b-hair)]" />
 
         {/* Mark at sizes */}
+        <Reveal>
         <SectionTitle>{t("secMark")}</SectionTitle>
         <div className="flex items-end gap-8 flex-wrap mt-5">
           {[
@@ -416,10 +428,12 @@ export default function BrandPage() {
             </div>
           ))}
         </div>
+        </Reveal>
 
         <hr className="my-14 border-0 h-px bg-[var(--b-hair)]" />
 
         {/* COLOUR */}
+        <Reveal>
         <SectionTitle>{t("secColor")}</SectionTitle>
         <p className="text-[var(--b-muted)] text-sm max-w-[64ch] mt-3 mb-7">{t("colorNote")}</p>
 
@@ -440,7 +454,7 @@ export default function BrandPage() {
                 ["Surface raised", "#162018"], ["Hairline", "#1e2a22"],
               ].map(([nm, hex]) => (
                 <div key={hex} className="flex items-center gap-3">
-                  <span className="w-10 h-10 rounded-lg border shrink-0" style={{ background: hex, borderColor: "var(--b-hair)" }} />
+                  <span className="w-10 h-10 rounded-lg border shrink-0 transition-transform duration-200 hover:-translate-y-0.5 hover:scale-[1.06]" title={hex} style={{ background: hex, borderColor: "var(--b-hair)" }} />
                   <span className="text-[13px] font-medium flex-1">{nm}</span>
                   <span className="font-mono text-[11px] text-[var(--b-muted)] uppercase">{hex}</span>
                 </div>
@@ -452,7 +466,7 @@ export default function BrandPage() {
             <div className="flex flex-col gap-2">
               {SEMANTIC.map((s) => (
                 <div key={s.hex} className="flex items-center gap-3">
-                  <span className="w-10 h-10 rounded-lg shrink-0 flex items-center justify-center" style={{ background: `${s.hex}22` }}>
+                  <span className="w-10 h-10 rounded-lg shrink-0 flex items-center justify-center transition-transform duration-200 hover:-translate-y-0.5 hover:scale-[1.06]" title={s.hex} style={{ background: `${s.hex}22` }}>
                     <span className="w-4 h-4 rounded-[5px]" style={{ background: s.hex }} />
                   </span>
                   <span className="flex-1">
@@ -465,10 +479,12 @@ export default function BrandPage() {
             </div>
           </div>
         </div>
+        </Reveal>
 
         <hr className="my-14 border-0 h-px bg-[var(--b-hair)]" />
 
         {/* TEXT COLOURS */}
+        <Reveal>
         <SectionTitle>{t("secFontColor")}</SectionTitle>
         <p className="text-[var(--b-muted)] text-sm max-w-[64ch] mt-3 mb-7">{t("fontColorNote")}</p>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -489,10 +505,12 @@ export default function BrandPage() {
             </div>
           ))}
         </div>
+        </Reveal>
 
         <hr className="my-14 border-0 h-px bg-[var(--b-hair)]" />
 
         {/* TYPOGRAPHY */}
+        <Reveal>
         <SectionTitle>{t("secType")}</SectionTitle>
 
         <div className="mt-5">
@@ -557,10 +575,12 @@ export default function BrandPage() {
             ))}
           </div>
         </div>
+        </Reveal>
 
         <hr className="my-14 border-0 h-px bg-[var(--b-hair)]" />
 
         {/* TOKENS */}
+        <Reveal>
         <SectionTitle>{t("secTokens")}</SectionTitle>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 mt-5">
           <div>
@@ -593,10 +613,12 @@ export default function BrandPage() {
             </div>
           </div>
         </div>
+        </Reveal>
 
         <hr className="my-14 border-0 h-px bg-[var(--b-hair)]" />
 
         {/* Usage */}
+        <Reveal>
         <SectionTitle>{t("secUsage")}</SectionTitle>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 mt-5">
           <div className="rounded-xl border p-5 border-[var(--b-hair)]">
@@ -616,6 +638,7 @@ export default function BrandPage() {
             </ul>
           </div>
         </div>
+        </Reveal>
 
         <p className="mt-16 font-mono text-xs text-[var(--b-muted)] tracking-wide">
           {t("foot").split("vytal.fit").map((part, i, arr) =>
