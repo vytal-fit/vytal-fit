@@ -953,6 +953,14 @@ function Navbar({ t, lang, setLang }: { t: (k: string) => string; lang: Lang; se
                     {l.toUpperCase()}
                   </button>
                 ))}
+                {/* Mobile theme toggle (was desktop-only) */}
+                <button
+                  onClick={toggleTheme}
+                  aria-label={lightMode ? "Switch to dark mode" : "Switch to light mode"}
+                  className="ml-auto w-8 h-8 flex items-center justify-center rounded-lg border border-[rgba(34,197,94,0.2)] text-vytal-muted hover:text-vytal-green hover:border-[rgba(34,197,94,0.4)] transition-all duration-150"
+                >
+                  {lightMode ? <Sun size={14} /> : <Moon size={14} />}
+                </button>
               </div>
               <div className="flex gap-2 mt-2 px-1">
                 <Link
