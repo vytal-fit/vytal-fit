@@ -1085,6 +1085,8 @@ export const pt: Record<string, string> = {
     "coachPerformance.attendanceRate": "Taxa de Presença",
     "coachPerformance.memberRating": "Avaliação",
     "coachPerformance.attendanceTrend": "Tendência de Presença (12 Semanas)",
+    "coachPerformance.avgPerClass": "média por aula",
+    "coachPerformance.noData": "Sem dados suficientes",
     "coachPerformance.classBreakdown": "Presença por Tipo de Aula",
     "coachPerformance.bestClass": "Melhor Aula",
     "coachPerformance.bestClassDetail": "Quinta-feira 17:30 WOD — Main Box",

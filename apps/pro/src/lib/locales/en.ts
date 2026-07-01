@@ -1082,6 +1082,8 @@ export const en: Record<string, string> = {
     "coachPerformance.attendanceRate": "Attendance Rate",
     "coachPerformance.memberRating": "Member Rating",
     "coachPerformance.attendanceTrend": "Attendance Trend (12 Weeks)",
+    "coachPerformance.avgPerClass": "avg per class",
+    "coachPerformance.noData": "Not enough data yet",
     "coachPerformance.classBreakdown": "Attendance by Class Type",
     "coachPerformance.bestClass": "Best Class",
     "coachPerformance.bestClassDetail": "Thursday 17:30 WOD — Main Box",

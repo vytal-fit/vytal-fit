@@ -5,7 +5,6 @@ import {
   Calendar,
   Users,
   TrendingUp,
-  Star,
   ThumbsUp,
   ThumbsDown,
   AlertTriangle,
@@ -32,56 +31,6 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-// Mock attendance trend data (12 weeks)
-const attendanceTrendData = [
-  { week: "W1", avg: 14.2 },
-  { week: "W2", avg: 15.1 },
-  { week: "W3", avg: 14.8 },
-  { week: "W4", avg: 16.0 },
-  { week: "W5", avg: 15.5 },
-  { week: "W6", avg: 16.8 },
-  { week: "W7", avg: 15.2 },
-  { week: "W8", avg: 17.1 },
-  { week: "W9", avg: 16.4 },
-  { week: "W10", avg: 16.9 },
-  { week: "W11", avg: 15.8 },
-  { week: "W12", avg: 16.2 },
-];
-
-// Mock class breakdown data
-const classBreakdownData = [
-  { type: "WOD", attendance: 18.5 },
-  { type: "Strength", attendance: 10.2 },
-  { type: "Open Box", attendance: 6.8 },
-  { type: "Mobility", attendance: 4.8 },
-  { type: "Endurance", attendance: 12.1 },
-];
-
-// Mock feedback
-const mockFeedback = [
-  {
-    id: 1,
-    rating: 5,
-    comment: "Excellent coaching! Always motivating and pays attention to form.",
-    date: "2026-05-28",
-    author: "Ana S.",
-  },
-  {
-    id: 2,
-    rating: 4,
-    comment: "Great energy in class. Would love more scaling options for beginners.",
-    date: "2026-05-20",
-    author: "Pedro A.",
-  },
-  {
-    id: 3,
-    rating: 5,
-    comment: "Best coach for Olympic lifting. Helped me fix my clean technique.",
-    date: "2026-05-12",
-    author: "Miguel C.",
-  },
-];
-
 const roleConfig: Record<string, { label: string; className: string }> = {
   head_coach: { label: "Head Coach", className: "bg-vytal-green/10 text-vytal-green" },
   coach: { label: "Coach", className: "bg-vytal-blue/10 text-vytal-blue" },
@@ -92,9 +41,13 @@ export default function CoachPerformancePage() {
   const { t } = useI18n();
   const params = useParams();
   const id = params.id as string;
-  // ── tRPC: coach record ──
+  // ── tRPC: coach record + performance derived from real classes/attendance ──
   const coachQuery = trpc.coaches.byId.useQuery({ id });
+  const perfQuery = trpc.coaches.performance.useQuery({ id });
   const coach = coachQuery.data ? rowToCoach(coachQuery.data) : undefined;
+  const perf = perfQuery.data;
+  const attendanceTrendData = perf?.attendanceTrend ?? [];
+  const classBreakdownData = perf?.classBreakdown ?? [];
 
   if (coachQuery.isError) {
     if (coachQuery.error.data?.code === "NOT_FOUND") notFound();
@@ -175,7 +128,7 @@ export default function CoachPerformancePage() {
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <div className="rounded-xl border border-vytal-border bg-vytal-card p-4 stat-card-hover">
           <div className="flex items-start gap-3">
             <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-vytal-green/10">
@@ -185,7 +138,7 @@ export default function CoachPerformancePage() {
               <span className="text-xs font-medium uppercase tracking-wider text-vytal-muted">
                 {t("coachPerformance.classesThisMonth")}
               </span>
-              <p className="text-lg font-bold text-vytal-text">24</p>
+              <p className="text-lg font-bold text-vytal-text">{perf?.classesThisMonth ?? 0}</p>
             </div>
           </div>
         </div>
@@ -198,7 +151,7 @@ export default function CoachPerformancePage() {
               <span className="text-xs font-medium uppercase tracking-wider text-vytal-muted">
                 {t("coachPerformance.avgAttendance")}
               </span>
-              <p className="text-lg font-bold text-vytal-text">16.2</p>
+              <p className="text-lg font-bold text-vytal-text">{perf?.avgAttendance ?? 0}</p>
             </div>
           </div>
         </div>
@@ -211,20 +164,7 @@ export default function CoachPerformancePage() {
               <span className="text-xs font-medium uppercase tracking-wider text-vytal-muted">
                 {t("coachPerformance.attendanceRate")}
               </span>
-              <p className="text-lg font-bold text-vytal-text">81%</p>
-            </div>
-          </div>
-        </div>
-        <div className="rounded-xl border border-vytal-border bg-vytal-card p-4 stat-card-hover">
-          <div className="flex items-start gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-vytal-purple/10">
-              <Star className="h-4 w-4 text-vytal-purple" />
-            </div>
-            <div>
-              <span className="text-xs font-medium uppercase tracking-wider text-vytal-muted">
-                {t("coachPerformance.memberRating")}
-              </span>
-              <p className="text-lg font-bold text-vytal-text">4.7/5</p>
+              <p className="text-lg font-bold text-vytal-text">{perf?.attendanceRate ?? 0}%</p>
             </div>
           </div>
         </div>
@@ -330,10 +270,12 @@ export default function CoachPerformancePage() {
             </h3>
           </div>
           <p className="text-sm text-vytal-text font-medium">
-            {t("coachPerformance.bestClassDetail")}
+            {perf?.bestClass ? perf.bestClass.type : "-"}
           </p>
           <p className="mt-1 text-xs text-vytal-muted">
-            {t("coachPerformance.bestClassAvg")}
+            {perf?.bestClass
+              ? `${perf.bestClass.avg} ${t("coachPerformance.avgPerClass")}`
+              : t("coachPerformance.noData")}
           </p>
         </div>
         <div className="rounded-xl border border-vytal-border bg-vytal-card p-5">
@@ -346,57 +288,13 @@ export default function CoachPerformancePage() {
             </h3>
           </div>
           <p className="text-sm text-vytal-text font-medium">
-            {t("coachPerformance.worstClassDetail")}
+            {perf?.worstClass ? perf.worstClass.type : "-"}
           </p>
           <p className="mt-1 text-xs text-vytal-muted">
-            {t("coachPerformance.worstClassAvg")}
+            {perf?.worstClass
+              ? `${perf.worstClass.avg} ${t("coachPerformance.avgPerClass")}`
+              : t("coachPerformance.noData")}
           </p>
-        </div>
-      </div>
-
-      {/* Member Feedback */}
-      <div>
-        <h2 className="mb-4 text-lg font-semibold text-vytal-text">
-          {t("coachPerformance.memberFeedback")}
-        </h2>
-        <div className="space-y-3">
-          {mockFeedback.map((fb) => (
-            <div
-              key={fb.id}
-              className="rounded-xl border border-vytal-border bg-vytal-card p-5 transition-colors hover:border-[rgba(61,255,110,0.22)]"
-            >
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-2">
-                  <div className="flex items-center gap-0.5">
-                    {Array.from({ length: 5 }).map((_, i) => (
-                      <Star
-                        key={i}
-                        className={cn(
-                          "h-3.5 w-3.5",
-                          i < fb.rating
-                            ? "fill-vytal-amber text-vytal-amber"
-                            : "text-vytal-bg3"
-                        )}
-                      />
-                    ))}
-                  </div>
-                  <span className="text-xs font-semibold text-vytal-text">
-                    {fb.author}
-                  </span>
-                </div>
-                <span className="text-[10px] text-vytal-muted">
-                  {new Date(fb.date).toLocaleDateString("pt-PT", {
-                    day: "2-digit",
-                    month: "short",
-                    year: "numeric",
-                  })}
-                </span>
-              </div>
-              <p className="text-sm text-vytal-muted leading-relaxed">
-                {fb.comment}
-              </p>
-            </div>
-          ))}
         </div>
       </div>
     </div>
