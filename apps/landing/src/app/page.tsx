@@ -23,7 +23,7 @@ import {
   Moon,
 } from "lucide-react";
 import { STORAGE_KEYS } from "@vytal-fit/shared";
-import { LogoLayer, Reveal } from "@vytal-fit/brand";
+import { LogoLayer, Reveal, AnimatedMark } from "@vytal-fit/brand";
 
 // ── Noise texture SVG ────────────────────────────────────────────────────────
 const NOISE_SVG = `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E")`;
@@ -820,6 +820,7 @@ function Navbar({ t, lang, setLang }: { t: (k: string) => string; lang: Lang; se
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [lightMode, setLightMode] = useState(false);
+  const [activeSection, setActiveSection] = useState<string | null>(null);
 
   // Restore the saved theme on mount and apply it to <html>.
   useEffect(() => {
@@ -842,11 +843,31 @@ function Navbar({ t, lang, setLang }: { t: (k: string) => string; lang: Lang; se
     return () => window.removeEventListener("scroll", handler);
   }, []);
 
+  // Track which section is in view to highlight the matching nav link.
+  useEffect(() => {
+    const ids = ["funcionalidades", "precos", "testemunhos", "faq"];
+    const elements = ids
+      .map((id) => document.getElementById(id))
+      .filter((el): el is HTMLElement => el !== null);
+    if (elements.length === 0) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries.filter((e) => e.isIntersecting);
+        if (visible.length > 0) {
+          setActiveSection(visible[visible.length - 1].target.id);
+        }
+      },
+      { rootMargin: "-45% 0px -45% 0px" }
+    );
+    elements.forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
+  }, []);
+
   const navLinks = [
-    { label: t("features"), href: "#funcionalidades" },
-    { label: t("pricing"), href: "#precos" },
-    { label: t("testimonials"), href: "#testemunhos" },
-    { label: t("faq"), href: "#faq" },
+    { label: t("features"), href: "#funcionalidades", id: "funcionalidades" },
+    { label: t("pricing"), href: "#precos", id: "precos" },
+    { label: t("testimonials"), href: "#testemunhos", id: "testemunhos" },
+    { label: t("faq"), href: "#faq", id: "faq" },
   ];
 
   return (
@@ -871,7 +892,11 @@ function Navbar({ t, lang, setLang }: { t: (k: string) => string; lang: Lang; se
               <a
                 key={l.href}
                 href={l.href}
-                className="text-sm text-vytal-muted hover:text-vytal-text transition-colors duration-150"
+                className={`text-sm transition-colors duration-150 ${
+                  activeSection === l.id
+                    ? "text-vytal-green"
+                    : "text-vytal-muted hover:text-vytal-text"
+                }`}
               >
                 {l.label}
               </a>
@@ -1240,15 +1265,16 @@ function Features({ t }: { t: (k: string) => string }) {
   const ref = useScrollReveal();
 
   return (
-    <section id="funcionalidades" className="py-24 border-t border-[rgba(34,197,94,0.08)]">
+    <section id="funcionalidades" className="relative overflow-hidden py-24 border-t border-[rgba(34,197,94,0.08)]">
+      <AnimatedMark size={340} className="vy-drift absolute -top-10 -right-10 z-0 pointer-events-none" style={{ opacity: 0.04 }} />
       <WaveDivider color="rgba(34,197,94,0.03)" />
-      <div ref={ref} className="scroll-reveal max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div ref={ref} className="scroll-reveal relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[rgba(34,197,94,0.2)] bg-[rgba(34,197,94,0.05)] mb-4">
             <Zap size={12} className="text-vytal-green" />
-            <span className="text-xs font-medium text-vytal-green">{t("features")}</span>
+            <span className="text-xs font-mono uppercase tracking-[0.2em] text-vytal-green">{t("features")}</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl font-bold text-vytal-text mb-4">
+          <h2 className="text-[clamp(2rem,4.5vw,3.25rem)] font-bold tracking-tight leading-[1.1] text-vytal-text mb-4">
             {t("everythingTitle").split(".")[0]}.{" "}
             <span className="bg-gradient-to-r from-vytal-green to-vytal-blue bg-clip-text text-transparent">{t("everythingTitle").split(".").slice(1).join(".").trim()}</span>
           </h2>
@@ -1412,9 +1438,9 @@ function ProductShowcase({ t }: { t: (k: string) => string }) {
         <div className="text-center mb-12">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[rgba(34,197,94,0.2)] bg-[rgba(34,197,94,0.05)] mb-4">
             <BarChart3 size={12} className="text-vytal-green" />
-            <span className="text-xs font-medium text-vytal-green">{t("showcaseBadge")}</span>
+            <span className="text-xs font-mono uppercase tracking-[0.2em] text-vytal-green">{t("showcaseBadge")}</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl font-bold text-vytal-text mb-4">
+          <h2 className="text-[clamp(2rem,4.5vw,3.25rem)] font-bold tracking-tight leading-[1.1] text-vytal-text mb-4">
             {t("showcaseTitle")} <span className="bg-gradient-to-r from-vytal-green to-vytal-blue bg-clip-text text-transparent">{t("showcaseTitleHighlight")}</span>
           </h2>
           <p className="text-vytal-muted max-w-xl mx-auto text-sm leading-relaxed">
@@ -1717,7 +1743,7 @@ function FeatureDeepDive({ t }: { t: (k: string) => string }) {
         <div className="text-center mb-16">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[rgba(34,197,94,0.2)] bg-[rgba(34,197,94,0.05)] mb-4">
             <Zap size={12} className="text-vytal-green" />
-            <span className="text-xs font-medium text-vytal-green">{t("deepDiveBadge")}</span>
+            <span className="text-xs font-mono uppercase tracking-[0.2em] text-vytal-green">{t("deepDiveBadge")}</span>
           </div>
         </div>
 
@@ -1851,15 +1877,16 @@ function PaymentsPortugal({ t }: { t: (k: string) => string }) {
   ];
 
   return (
-    <section className="py-24 border-t border-[rgba(34,197,94,0.08)]">
+    <section className="relative overflow-hidden py-24 border-t border-[rgba(34,197,94,0.08)]">
+      <AnimatedMark size={340} className="vy-drift absolute -bottom-12 -left-10 z-0 pointer-events-none" style={{ opacity: 0.04 }} />
       <WaveDivider flip color="rgba(34,197,94,0.03)" />
-      <div ref={ref} className="scroll-reveal max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div ref={ref} className="scroll-reveal relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[rgba(34,197,94,0.2)] bg-[rgba(34,197,94,0.05)] mb-4">
             <CreditCard size={12} className="text-vytal-green" />
-            <span className="text-xs font-medium text-vytal-green">{t("paymentsBadge")}</span>
+            <span className="text-xs font-mono uppercase tracking-[0.2em] text-vytal-green">{t("paymentsBadge")}</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl font-bold text-vytal-text mb-4">
+          <h2 className="text-[clamp(2rem,4.5vw,3.25rem)] font-bold tracking-tight leading-[1.1] text-vytal-text mb-4">
             {t("paymentsTitle")}{" "}
             <span className="bg-gradient-to-r from-vytal-green to-vytal-blue bg-clip-text text-transparent">
               {t("paymentsTitleHighlight")}
@@ -1911,9 +1938,9 @@ function AutomationsAI({ t }: { t: (k: string) => string }) {
         <div className="text-center mb-12">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[rgba(34,197,94,0.2)] bg-[rgba(34,197,94,0.05)] mb-4">
             <Zap size={12} className="text-vytal-green" />
-            <span className="text-xs font-medium text-vytal-green">{t("autoBadge")}</span>
+            <span className="text-xs font-mono uppercase tracking-[0.2em] text-vytal-green">{t("autoBadge")}</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl font-bold text-vytal-text mb-4">
+          <h2 className="text-[clamp(2rem,4.5vw,3.25rem)] font-bold tracking-tight leading-[1.1] text-vytal-text mb-4">
             {t("autoTitle")}{" "}
             <span className="bg-gradient-to-r from-vytal-green to-vytal-blue bg-clip-text text-transparent">
               {t("autoTitleHighlight")}
@@ -2048,9 +2075,9 @@ function ComplianceSecurity({ t }: { t: (k: string) => string }) {
         <div className="text-center mb-12">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[rgba(34,197,94,0.2)] bg-[rgba(34,197,94,0.05)] mb-4">
             <Shield size={12} className="text-vytal-green" />
-            <span className="text-xs font-medium text-vytal-green">{t("complianceBadge")}</span>
+            <span className="text-xs font-mono uppercase tracking-[0.2em] text-vytal-green">{t("complianceBadge")}</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl font-bold text-vytal-text mb-4">
+          <h2 className="text-[clamp(2rem,4.5vw,3.25rem)] font-bold tracking-tight leading-[1.1] text-vytal-text mb-4">
             {t("complianceTitle")}{" "}
             <span className="bg-gradient-to-r from-vytal-green to-vytal-blue bg-clip-text text-transparent">
               {t("complianceTitleHighlight")}
@@ -2103,9 +2130,9 @@ function Comparison({ t }: { t: (k: string) => string }) {
         <div className="text-center mb-12">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[rgba(34,197,94,0.2)] bg-[rgba(34,197,94,0.05)] mb-4">
             <Shield size={12} className="text-vytal-green" />
-            <span className="text-xs font-medium text-vytal-green">{t("compBadge")}</span>
+            <span className="text-xs font-mono uppercase tracking-[0.2em] text-vytal-green">{t("compBadge")}</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl font-bold text-vytal-text mb-4">
+          <h2 className="text-[clamp(2rem,4.5vw,3.25rem)] font-bold tracking-tight leading-[1.1] text-vytal-text mb-4">
             {t("compTitle")}
           </h2>
           <p className="text-vytal-muted max-w-xl mx-auto text-sm leading-relaxed">
@@ -2192,9 +2219,9 @@ function Testimonials({ t }: { t: (k: string) => string }) {
         <div className="text-center mb-12">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[rgba(34,197,94,0.2)] bg-[rgba(34,197,94,0.05)] mb-4">
             <Star size={12} className="text-vytal-green" />
-            <span className="text-xs font-medium text-vytal-green">{t("testimonialsBadge")}</span>
+            <span className="text-xs font-mono uppercase tracking-[0.2em] text-vytal-green">{t("testimonialsBadge")}</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl font-bold text-vytal-text mb-4">
+          <h2 className="text-[clamp(2rem,4.5vw,3.25rem)] font-bold tracking-tight leading-[1.1] text-vytal-text mb-4">
             {t("testimonialsTitle")} <span className="bg-gradient-to-r from-vytal-green to-vytal-blue bg-clip-text text-transparent">{t("testimonialsTitleHighlight")}</span>
           </h2>
         </div>
@@ -2265,15 +2292,16 @@ function Pricing({ t }: { t: (k: string) => string }) {
   const ref = useScrollReveal();
 
   return (
-    <section id="precos" className="py-24 border-t border-[rgba(34,197,94,0.08)]">
+    <section id="precos" className="relative overflow-hidden py-24 border-t border-[rgba(34,197,94,0.08)]">
+      <AnimatedMark size={340} className="vy-drift absolute -top-12 -left-12 z-0 pointer-events-none" style={{ opacity: 0.04 }} />
       <WaveDivider color="rgba(34,197,94,0.03)" />
-      <div ref={ref} className="scroll-reveal max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div ref={ref} className="scroll-reveal relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[rgba(34,197,94,0.2)] bg-[rgba(34,197,94,0.05)] mb-4">
             <CreditCard size={12} className="text-vytal-green" />
-            <span className="text-xs font-medium text-vytal-green">{t("pricingBadge")}</span>
+            <span className="text-xs font-mono uppercase tracking-[0.2em] text-vytal-green">{t("pricingBadge")}</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl font-bold text-vytal-text mb-4">
+          <h2 className="text-[clamp(2rem,4.5vw,3.25rem)] font-bold tracking-tight leading-[1.1] text-vytal-text mb-4">
             {t("pricingTitle")} <span className="bg-gradient-to-r from-vytal-green to-vytal-blue bg-clip-text text-transparent">{t("pricingTitleHighlight")}</span>
           </h2>
           <p className="text-vytal-muted max-w-xl mx-auto text-sm leading-relaxed mb-8">
@@ -2427,9 +2455,9 @@ function FAQ({ t }: { t: (k: string) => string }) {
       <div ref={ref} className="scroll-reveal max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[rgba(34,197,94,0.2)] bg-[rgba(34,197,94,0.05)] mb-4">
-            <span className="text-xs font-medium text-vytal-green">{t("faqBadge")}</span>
+            <span className="text-xs font-mono uppercase tracking-[0.2em] text-vytal-green">{t("faqBadge")}</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl font-bold text-vytal-text mb-4">
+          <h2 className="text-[clamp(2rem,4.5vw,3.25rem)] font-bold tracking-tight leading-[1.1] text-vytal-text mb-4">
             {t("faqTitle")} <span className="bg-gradient-to-r from-vytal-green to-vytal-blue bg-clip-text text-transparent">{t("faqTitleHighlight")}</span>
           </h2>
         </div>
@@ -2460,13 +2488,14 @@ function CTABanner({ t }: { t: (k: string) => string }) {
             className="absolute -bottom-20 -right-20 w-60 h-60 rounded-full opacity-10 pointer-events-none"
             style={{ background: "radial-gradient(circle, var(--color-vytal-blue) 0%, transparent 70%)" }}
           />
+          <AnimatedMark size={340} className="vy-drift absolute -top-10 -right-8 z-0 pointer-events-none" style={{ opacity: 0.04 }} />
 
           <div className="relative z-10">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[rgba(34,197,94,0.3)] bg-[rgba(34,197,94,0.08)] mb-6">
               <span className="w-1.5 h-1.5 rounded-full bg-vytal-green animate-pulse" />
-              <span className="text-xs font-medium text-vytal-green">{t("ctaBannerBadge")}</span>
+              <span className="text-xs font-mono uppercase tracking-[0.2em] text-vytal-green">{t("ctaBannerBadge")}</span>
             </div>
-            <h2 className="text-3xl sm:text-4xl font-bold text-vytal-text mb-4">
+            <h2 className="text-[clamp(2rem,4.5vw,3.25rem)] font-bold tracking-tight leading-[1.1] text-vytal-text mb-4">
               {t("ctaBannerTitle")} <br />{t("ctaBannerTitleLine2")}
             </h2>
             <p className="text-vytal-muted mb-8 max-w-md mx-auto text-sm leading-relaxed">
