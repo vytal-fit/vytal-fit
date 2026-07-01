@@ -792,6 +792,26 @@ export async function seedDatabase(
       .returning({ id: schema.backups.id })
   ).length;
 
+  inserted.campaigns = (
+    await db
+      .insert(schema.campaigns)
+      .values([
+        { id: "camp-1", organizationId: ORG_1, name: "Desafio de Verão", subject: "Junta-te ao desafio de verão 🔥", body: "<p>Treina connosco este verão e ganha prémios!</p>", audience: "all_active", status: "sent", sentCount: 118, skippedCount: 4, failedCount: 1, sentAt: minsAgo(2880) },
+        { id: "camp-2", organizationId: ORG_1, name: "Reativação inativos", subject: "Sentimos a tua falta", body: "<p>Volta ao box com 20% no próximo mês.</p>", audience: "all_active", status: "draft" },
+      ])
+      .onConflictDoNothing()
+      .returning({ id: schema.campaigns.id })
+  ).length;
+  inserted.emailSuppressions = (
+    await db
+      .insert(schema.emailSuppressions)
+      .values([
+        { id: "sup-1", organizationId: ORG_1, email: "opted.out@example.com", reason: "unsubscribe" },
+      ])
+      .onConflictDoNothing()
+      .returning({ id: schema.emailSuppressions.id })
+  ).length;
+
   inserted.classes = (
     await db
       .insert(schema.classes)

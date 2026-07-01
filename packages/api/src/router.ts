@@ -3,6 +3,7 @@ import { apiKeysRouter } from "./routers/apiKeys";
 import { auditLogRouter } from "./routers/auditLog";
 import { backupsRouter } from "./routers/backups";
 import { bookingsRouter } from "./routers/bookings";
+import { campaignsRouter } from "./routers/campaigns";
 import { certificationsRouter } from "./routers/certifications";
 import { checkInsRouter } from "./routers/checkIns";
 import { classTemplatesRouter } from "./routers/classTemplates";
@@ -67,6 +68,7 @@ export const appRouter = router({
   auditLog: auditLogRouter,
   webhooks: webhooksRouter,
   backups: backupsRouter,
+  campaigns: campaignsRouter,
 });
 
 export type AppRouter = typeof appRouter;

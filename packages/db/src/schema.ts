@@ -1368,6 +1368,53 @@ export const expenses = pgTable(
   ],
 );
 
+/**
+ * Email suppression list (GDPR/ePrivacy): addresses that must never receive
+ * marketing. An unsubscribe adds a row here; every marketing send checks it
+ * first. Org-scoped + a unique (org, email).
+ */
+export const emailSuppressions = pgTable(
+  "email_suppressions",
+  {
+    id: text("id").primaryKey(),
+    organizationId: text("organization_id")
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    email: text("email").notNull(),
+    reason: text("reason").notNull().default("unsubscribe"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (t) => [uniqueIndex("email_suppressions_org_email_idx").on(t.organizationId, t.email)],
+);
+
+/**
+ * Marketing email campaigns. `audience` selects recipients ("all_active" or a
+ * member group id). Send counters are stamped when dispatched; every recipient
+ * passes the comms marketing policy (suppression + unsubscribe footer).
+ */
+export const campaigns = pgTable(
+  "campaigns",
+  {
+    id: text("id").primaryKey(),
+    organizationId: text("organization_id")
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    name: text("name").notNull(),
+    subject: text("subject").notNull(),
+    body: text("body").notNull(),
+    /** "all_active" | "group:<memberGroupId>" */
+    audience: text("audience").notNull().default("all_active"),
+    status: text("status").notNull().default("draft"),
+    sentCount: integer("sent_count").notNull().default(0),
+    skippedCount: integer("skipped_count").notNull().default(0),
+    failedCount: integer("failed_count").notNull().default(0),
+    createdBy: text("created_by"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    sentAt: timestamp("sent_at"),
+  },
+  (t) => [index("campaigns_org_idx").on(t.organizationId)],
+);
+
 /** History of data exports (backups): what was exported, by whom, when. */
 export const backups = pgTable(
   "backups",

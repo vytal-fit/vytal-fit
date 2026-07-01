@@ -12,7 +12,9 @@ const nextConfig: NextConfig = {
   transpilePackages: [
     "@vytal-fit/api",
     "@vytal-fit/auth",
+    "@vytal-fit/comms",
     "@vytal-fit/db",
+    "@vytal-fit/email",
     "@vytal-fit/shared",
   ],
 };

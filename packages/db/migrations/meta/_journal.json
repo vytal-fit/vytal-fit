@@ -232,6 +232,13 @@
       "when": 1782906845238,
       "tag": "0032_colorful_spitfire",
       "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "7",
+      "when": 1782908657372,
+      "tag": "0033_amazing_paibok",
+      "breakpoints": true
     }
   ]
 }
