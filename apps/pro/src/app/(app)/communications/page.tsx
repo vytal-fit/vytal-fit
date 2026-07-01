@@ -5,6 +5,7 @@ import { MessageSquare, Mail, Smartphone, Heart, Send, Plus } from "lucide-react
 import { cn } from "@/lib/utils";
 import { useToast } from "@/components/toast";
 import { useI18n } from "@/lib/i18n";
+import { trpc } from "@/lib/trpc";
 
 type Tab = "news" | "email" | "sms";
 
@@ -56,9 +57,12 @@ export default function CommunicationsPage() {
   const [newsBody, setNewsBody] = useState("");
 
   // Email state
-  const [emailTo, setEmailTo] = useState("");
+  const [emailAudience, setEmailAudience] = useState("all_active");
   const [emailSubject, setEmailSubject] = useState("");
   const [emailBody, setEmailBody] = useState("");
+  const groupsQuery = trpc.memberGroups.list.useQuery();
+  const sendCampaign = trpc.campaigns.send.useMutation();
+  const createCampaign = trpc.campaigns.create.useMutation();
 
   // SMS state
   const [smsTo, setSmsTo] = useState("");
@@ -92,16 +96,32 @@ export default function CommunicationsPage() {
     );
   }, []);
 
-  const handleSendEmail = useCallback(() => {
-    if (!emailTo.trim()) {
+  const handleSendEmail = useCallback(async () => {
+    if (!emailSubject.trim() || !emailBody.trim()) {
       toast(t("communications.recipientRequired"), "error");
       return;
     }
-    toast(`${t("communications.emailSentTo")} ${emailTo}`, "success");
-    setEmailTo("");
-    setEmailSubject("");
-    setEmailBody("");
-  }, [emailTo, toast, t]);
+    try {
+      const campaign = await createCampaign.mutateAsync({
+        name: emailSubject.trim(),
+        subject: emailSubject.trim(),
+        body: `<p>${emailBody.trim().replace(/\n/g, "<br/>")}</p>`,
+        audience: emailAudience,
+      });
+      const res = await sendCampaign.mutateAsync({ id: campaign.id });
+      toast(
+        t("communications.emailBroadcastSent")
+          .replace("{sent}", String(res.sent))
+          .replace("{skipped}", String(res.skipped)),
+        "success",
+      );
+      setEmailSubject("");
+      setEmailBody("");
+    } catch (e) {
+      const code = (e as { data?: { code?: string } })?.data?.code;
+      toast(code === "FORBIDDEN" ? t("settings.adminOnly") : t("ui.error"), "error");
+    }
+  }, [emailSubject, emailBody, emailAudience, createCampaign, sendCampaign, toast, t]);
 
   const handleSendSMS = useCallback(() => {
     if (!smsTo.trim()) {
@@ -245,15 +265,18 @@ export default function CommunicationsPage() {
           <div className="space-y-4">
             <div>
               <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">
-                {t("communications.labelTo")}
+                {t("communications.labelAudience")}
               </label>
-              <input
-                type="text"
-                placeholder={t("communications.emailToPlaceholder")}
-                value={emailTo}
-                onChange={(e) => setEmailTo(e.target.value)}
-                className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-2.5 text-sm text-vytal-text placeholder:text-vytal-muted focus:border-vytal-green/30 focus:outline-none focus:ring-1 focus:ring-vytal-green/20"
-              />
+              <select
+                value={emailAudience}
+                onChange={(e) => setEmailAudience(e.target.value)}
+                className="w-full rounded-lg border border-vytal-border bg-vytal-bg2 px-3 py-2.5 text-sm text-vytal-text focus:border-vytal-green/30 focus:outline-none focus:ring-1 focus:ring-vytal-green/20"
+              >
+                <option value="all_active">{t("communications.audienceAllActive")}</option>
+                {(groupsQuery.data ?? []).map((g) => (
+                  <option key={g.id} value={`group:${g.id}`}>{g.name}</option>
+                ))}
+              </select>
             </div>
             <div>
               <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-vytal-muted">
@@ -281,8 +304,9 @@ export default function CommunicationsPage() {
             </div>
             <div className="flex justify-end">
               <button
-                onClick={handleSendEmail}
-                className="flex items-center gap-2 rounded-lg bg-vytal-green px-6 py-2.5 text-sm font-semibold text-vytal-bg transition-colors hover:bg-vytal-green/90"
+                onClick={() => void handleSendEmail()}
+                disabled={createCampaign.isPending || sendCampaign.isPending}
+                className="flex items-center gap-2 rounded-lg bg-vytal-green px-6 py-2.5 text-sm font-semibold text-vytal-bg transition-colors hover:bg-vytal-green/90 disabled:opacity-60"
               >
                 <Send className="h-4 w-4" />
                 {t("communications.sendEmail")}
