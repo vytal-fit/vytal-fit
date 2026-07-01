@@ -14,9 +14,46 @@ const jetbrainsMono = JetBrains_Mono({
   variable: "--font-mono",
 });
 
+const SITE_URL = "https://vytal.fit";
+const SITE_DESC =
+  "Vytal is the AI-powered platform to run CrossFit boxes, functional-training gyms and studios — members, classes, payments (MB Way, Multibanco, SEPA), WODs, CRM and a public website, in one place.";
+
 export const metadata: Metadata = {
-  title: "Vytal",
-  description: "Intelligent management platform for CrossFit boxes and functional training gyms",
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: "Vytal — Intelligent management for gyms & CrossFit boxes",
+    template: "%s · Vytal",
+  },
+  description: SITE_DESC,
+  applicationName: "Vytal",
+  keywords: [
+    "gym management software",
+    "CrossFit box software",
+    "software de ginásio",
+    "gestão de box CrossFit",
+    "class booking",
+    "member management",
+    "MB Way",
+    "Multibanco",
+    "SEPA",
+    "WOD tracking",
+  ],
+  authors: [{ name: "Vytal" }],
+  alternates: { canonical: "/" },
+  openGraph: {
+    type: "website",
+    url: SITE_URL,
+    siteName: "Vytal",
+    title: "Vytal — Intelligent management for gyms & CrossFit boxes",
+    description: SITE_DESC,
+    locale: "pt_PT",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Vytal — Intelligent management for gyms & CrossFit boxes",
+    description: SITE_DESC,
+  },
+  robots: { index: true, follow: true },
 };
 
 export default function LandingLayout({
