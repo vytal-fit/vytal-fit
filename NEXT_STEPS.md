@@ -167,6 +167,18 @@ O **núcleo do produto está 100% real** (members, classes, WODs, CRM leads, pla
 - Existe já um package `@vytal-fit/email` (transporte). Falta a camada de POLICY `comms` do kloser (suppression/consent/unsubscribe): introduzir quando construir comunicações reais (SMS/email campanhas) — é onde entram `marketing`/`automations/campaigns`.
 - Restante layering (shared←db←api, org-scope validado no servidor) alinhado.
 
+## myVytal (apps/my) — design pass ("a lot of talent")
+**Root cause (confirmado):** `apps/my/src/app/globals.css` já define `@theme` com os tokens `--color-vytal-*` (Tailwind v4 → gera automaticamente utilities `text-vytal-text`, `bg-vytal-bg2`, `border-vytal-border`, etc., tal como o `pro`). **Mas nenhuma página usa utilities** — cada página tem 30–71 blocos `style={{ ... var(--color-vytal-*) }}` inline (wod 71, home 70, profile 61, community 54, workouts/progress 51, records 39, wellness 38, schedule 32). É um problema de convenção, não de tooling. É isto que faz as páginas parecerem "cada uma diferente" (larguras/espaçamentos/estilos ad-hoc).
+
+**Plano (migração mecânica, sessão dedicada — grande):**
+1. **Primitivos partilhados** em `apps/my/src/components/ui/` (Tailwind, tokens vytal): `Card`, `PageHeader`, `Section`, `StatTile`, `Field`, `Pill/Badge`, `EmptyState`. Espaçamento/raio/tipografia consistentes.
+2. **Container único**: `member-shell.tsx` já embrulha em `max-w-2xl px-4 py-6`. Remover larguras ad-hoc das páginas (login/auth ficam com o seu `max-w-sm/md`).
+3. **Migrar página a página** inline `style={{}}` → utilities + primitivos, JSX/dados intactos (todas já em tRPC real, 0 mock). Ordem por impacto: `page.tsx` (home) → `records` → `schedule` → `wod` → `workouts` → `progress` → `wellness` → `profile` → `community`.
+4. **Manter**: dark/light (tokens já trocam via `html.light`), PT/EN/ES (0 gaps), a11y (focus-visible já global).
+5. **Verificar**: `type-check -w @vytal-fit/my` + lint + (opcional) screenshots antes/depois por página; commit por página.
+
+**Nota:** não há novo backend — é puramente UI/consistência. Regra myVytal-segue-a-API mantém-se (nada de mock). Fazer em sessão fresca (pós-`/compact`) por ser um refactor extenso e mecânico.
+
 ## Pontos em aberto
 - **A-1** Âmbito exato da produção de conteúdo das BD (exercícios/WODs) — *Bruno + Juvenal*.
 - **A-2** Selecionar fornecedor de faturação certificado — *antes da F5*.
