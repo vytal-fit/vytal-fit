@@ -46,7 +46,8 @@ describe("certifications.create + list", () => {
 
   it("cross-tenant: org B never sees org A certifications", async () => {
     const rows = await h.callerB.certifications.list();
-    expect(rows.every((r) => r.organizationId !== "org-a")).toBe(true);
+    // org A's certs are attached to coach-a; org B's list must never include it.
+    expect(rows.every((r) => r.coachId !== "coach-a")).toBe(true);
   });
 
   it("throws UNAUTHORIZED without a session", async () => {

@@ -81,7 +81,7 @@ export default function ClassHistoryPage() {
   const [filterCoach, setFilterCoach] = useState("all");
 
   const historyQuery = trpc.classes.history.useQuery({});
-  const mockHistory: HistoryEntry[] = useMemo(
+  const history: HistoryEntry[] = useMemo(
     () => historyQuery.data?.entries ?? [],
     [historyQuery.data],
   );
@@ -89,17 +89,17 @@ export default function ClassHistoryPage() {
   const attendanceByTypeData = historyQuery.data?.attendanceByType ?? [];
   const noShowReasonsData = historyQuery.data?.noShowsByType ?? [];
 
-  const classTypes = useMemo(() => [...new Set(mockHistory.map((h) => h.classType))], [mockHistory]);
-  const coaches = useMemo(() => [...new Set(mockHistory.map((h) => h.coach).filter((c) => c !== "—"))], [mockHistory]);
+  const classTypes = useMemo(() => [...new Set(history.map((h) => h.classType))], [history]);
+  const coaches = useMemo(() => [...new Set(history.map((h) => h.coach).filter((c) => c !== "-"))], [history]);
 
   const filtered = useMemo(() =>
-    mockHistory.filter((h) => {
+    history.filter((h) => {
       if (filterType !== "all" && h.classType !== filterType) return false;
       if (filterCoach !== "all" && h.coach !== filterCoach) return false;
       if (search && !h.classType.toLowerCase().includes(search.toLowerCase()) && !h.coach.toLowerCase().includes(search.toLowerCase())) return false;
       return true;
     }),
-    [mockHistory, search, filterType, filterCoach]
+    [history, search, filterType, filterCoach]
   );
 
   const totalClasses = filtered.length;
