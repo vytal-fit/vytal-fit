@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ArrowRight, Rocket, FileJson } from "lucide-react";
-import { listReadmeDocs } from "@vytal-fit/shared/readme-docs";
+import { listReadmeDocs } from "@vytal-fit/content/readme-docs";
 import { DocsShell } from "@/components/docs-shell";
 import { buildNav } from "@/lib/nav";
 

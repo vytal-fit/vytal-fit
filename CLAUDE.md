@@ -23,8 +23,17 @@ packages/
   api/          — tRPC routers (shared backend logic)
   db/           — Drizzle ORM schema + migrations
   auth/         — Better Auth instance + schema
-  shared/       — Shared types, constants, utilities
+  email/        — Transactional email transport
+  content/      — Filesystem doc/markdown loaders (IO layer for the docs reader)
+  shared/       — PURE domain layer: types, constants, deterministic utils (zero IO, zero internal deps)
 ```
+
+### Package layering (per the kloser reference)
+
+Fixed dependency direction, never inverted: `shared` (pure, zero IO) ← everything;
+`db → shared`; `api → db, shared, email`. **Decision test — "does it touch IO?"**
+DB / network / env / filesystem / transport → NOT `shared` (→ `db`, `email`, or
+`content`). Pure, no side effects → `shared`.
 
 ## Tech Stack
 

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ChevronLeft, ExternalLink } from "lucide-react";
-import { getEngineeringDoc, listEngineeringDocs } from "@vytal-fit/shared/engineering-docs";
+import { getEngineeringDoc, listEngineeringDocs } from "@vytal-fit/content/engineering-docs";
 import { Markdown } from "@/components/markdown";
 
 export const dynamic = "force-static";

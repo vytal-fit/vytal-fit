@@ -159,8 +159,9 @@ O **núcleo do produto está 100% real** (members, classes, WODs, CRM leads, pla
 - **D6 (não fazer)**: `members/[id]/{body,nutrition,assessments,referrals}`.
 
 ## Alinhamento com kloser (arquitetura)
-- **Violação zero-IO em `@vytal-fit/shared`**: `docs.ts`/`readme-docs.ts`/`engineering-docs.ts` importam `node:fs`/`node:path` (leitura de ficheiros). Regra kloser: `shared` é domínio PURO, zero IO. Estão fora do index puro (subpath exports) e são usados por `apps/docs` + `apps/pro/src/lib/readme-docs.ts`. **Fix correto**: extrair para uma camada IO própria (novo package `@vytal-fit/content` que depende de `shared`), consumida por ambas as apps. Passo dedicado (pode partir o build dos docs) — não fazer no meio do sweep de features.
-- Restante layering (shared←db←api, org-scope validado no servidor) está alinhado. Falta a separação `comms`/`email` policy do kloser: introduzir quando construir comunicações reais (SMS/email campanhas).
+- **FEITO — zero-IO em `@vytal-fit/shared`**: extraídos `docs.ts`/`readme-docs.ts`/`engineering-docs.ts` (leitura de ficheiros com `node:fs` + `gray-matter`) para um novo package IO `@vytal-fit/content`. `shared` volta a ser 100% puro (só zod). Consumidores (`apps/docs` ×4, `apps/pro/src/lib/readme-docs.ts`) apontam para `@vytal-fit/content/*`; transpilePackages + deps + vitest project atualizados; docs build verde (16 páginas). 
+- Existe já um package `@vytal-fit/email` (transporte). Falta a camada de POLICY `comms` do kloser (suppression/consent/unsubscribe): introduzir quando construir comunicações reais (SMS/email campanhas) — é onde entram `marketing`/`automations/campaigns`.
+- Restante layering (shared←db←api, org-scope validado no servidor) alinhado.
 
 ## Pontos em aberto
 - **A-1** Âmbito exato da produção de conteúdo das BD (exercícios/WODs) — *Bruno + Juvenal*.

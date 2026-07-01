@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, ArrowRight } from "lucide-react";
-import { getReadmeDoc, listReadmeDocs } from "@vytal-fit/shared/readme-docs";
+import { getReadmeDoc, listReadmeDocs } from "@vytal-fit/content/readme-docs";
 import { Markdown } from "@/components/markdown";
 import { DocsShell } from "@/components/docs-shell";
 import { buildNav, flattenNav } from "@/lib/nav";

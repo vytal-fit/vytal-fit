@@ -3,4 +3,4 @@ export {
   listReadmeDocs,
   type ReadmeDoc,
   type ReadmeDocMeta,
-} from "@vytal-fit/shared/readme-docs";
+} from "@vytal-fit/content/readme-docs";

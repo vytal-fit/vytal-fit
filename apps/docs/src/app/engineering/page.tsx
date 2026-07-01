@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ChevronLeft, FileText } from "lucide-react";
-import { listEngineeringDocs } from "@vytal-fit/shared/engineering-docs";
+import { listEngineeringDocs } from "@vytal-fit/content/engineering-docs";
 
 export const dynamic = "force-static";
 

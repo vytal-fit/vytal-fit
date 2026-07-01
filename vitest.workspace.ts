@@ -45,6 +45,13 @@ const projects: TestProjectConfiguration[] = [
   },
   {
     test: {
+      name: "@vytal-fit/content",
+      include: ["packages/content/tests/*.test.ts"],
+      environment: "node",
+    },
+  },
+  {
+    test: {
       name: "@vytal-fit/pro",
       include: ["apps/pro/src/**/*.test.ts"],
       environment: "node",
