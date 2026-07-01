@@ -812,6 +812,52 @@ export async function seedDatabase(
       .returning({ id: schema.emailSuppressions.id })
   ).length;
 
+  // Automation drip sequences + steps + a few enrollments.
+  inserted.automationSequences = (
+    await db
+      .insert(schema.automationSequences)
+      .values([
+        { id: "seq-1", organizationId: ORG_1, name: "Boas-vindas a novos membros", trigger: "new_member", active: true },
+        { id: "seq-2", organizationId: ORG_1, name: "Reativação de inativos", trigger: "inactive", active: false },
+      ])
+      .onConflictDoNothing()
+      .returning({ id: schema.automationSequences.id })
+  ).length;
+  inserted.automationSteps = (
+    await db
+      .insert(schema.automationSteps)
+      .values([
+        { id: "step-1", organizationId: ORG_1, sequenceId: "seq-1", stepOrder: 0, delayDays: 0, subject: "Bem-vindo ao box! 🎉", body: "<p>Estamos muito felizes por te ter connosco.</p>" },
+        { id: "step-2", organizationId: ORG_1, sequenceId: "seq-1", stepOrder: 1, delayDays: 3, subject: "Dicas para os primeiros treinos", body: "<p>Aqui vão dicas para arrancares bem.</p>" },
+        { id: "step-3", organizationId: ORG_1, sequenceId: "seq-1", stepOrder: 2, delayDays: 7, subject: "Como está a correr?", body: "<p>Uma semana depois: conta-nos como vai.</p>" },
+        { id: "step-4", organizationId: ORG_1, sequenceId: "seq-2", stepOrder: 0, delayDays: 0, subject: "Sentimos a tua falta", body: "<p>Volta ao box, temos novidades.</p>" },
+        { id: "step-5", organizationId: ORG_1, sequenceId: "seq-2", stepOrder: 1, delayDays: 7, subject: "20% para regressares", body: "<p>Oferta especial de regresso.</p>" },
+      ])
+      .onConflictDoNothing()
+      .returning({ id: schema.automationSteps.id })
+  ).length;
+  inserted.automationEnrollments = (
+    await db
+      .insert(schema.automationEnrollments)
+      .values(
+        mockMembers
+          .filter((m) => m.organizationId === ORG_1)
+          .slice(0, 8)
+          .map((m, i) => ({
+            id: `enr-${i + 1}`,
+            organizationId: ORG_1,
+            sequenceId: "seq-1",
+            memberEmail: m.email,
+            currentStep: (i % 3) + 1,
+            status: i % 4 === 0 ? "completed" : "active",
+            sentCount: (i % 3) + 1,
+            lastSentAt: minsAgo(i * 300 + 60),
+          })),
+      )
+      .onConflictDoNothing()
+      .returning({ id: schema.automationEnrollments.id })
+  ).length;
+
   inserted.classes = (
     await db
       .insert(schema.classes)

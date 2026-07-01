@@ -239,6 +239,13 @@
       "when": 1782908657372,
       "tag": "0033_amazing_paibok",
       "breakpoints": true
+    },
+    {
+      "idx": 34,
+      "version": "7",
+      "when": 1782909550228,
+      "tag": "0034_groovy_stingray",
+      "breakpoints": true
     }
   ]
 }

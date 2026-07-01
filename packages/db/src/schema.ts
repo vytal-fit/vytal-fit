@@ -1369,6 +1369,68 @@ export const expenses = pgTable(
 );
 
 /**
+ * Automation drip sequences: a trigger + an ordered list of delayed emails.
+ * Enrollments track each member's progress. The send/schedule engine reuses the
+ * comms marketing policy; delayed-step scheduling is layered on later.
+ */
+export const automationSequences = pgTable(
+  "automation_sequences",
+  {
+    id: text("id").primaryKey(),
+    organizationId: text("organization_id")
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    name: text("name").notNull(),
+    /** new_member | inactive | trial | manual */
+    trigger: text("trigger").notNull().default("manual"),
+    active: boolean("active").notNull().default(false),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (t) => [index("automation_sequences_org_idx").on(t.organizationId)],
+);
+
+export const automationSteps = pgTable(
+  "automation_steps",
+  {
+    id: text("id").primaryKey(),
+    organizationId: text("organization_id")
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    sequenceId: text("sequence_id")
+      .notNull()
+      .references(() => automationSequences.id, { onDelete: "cascade" }),
+    stepOrder: integer("step_order").notNull().default(0),
+    delayDays: integer("delay_days").notNull().default(0),
+    subject: text("subject").notNull(),
+    body: text("body").notNull(),
+  },
+  (t) => [index("automation_steps_seq_idx").on(t.sequenceId)],
+);
+
+export const automationEnrollments = pgTable(
+  "automation_enrollments",
+  {
+    id: text("id").primaryKey(),
+    organizationId: text("organization_id")
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    sequenceId: text("sequence_id")
+      .notNull()
+      .references(() => automationSequences.id, { onDelete: "cascade" }),
+    memberEmail: text("member_email").notNull(),
+    currentStep: integer("current_step").notNull().default(0),
+    status: text("status").notNull().default("active"),
+    sentCount: integer("sent_count").notNull().default(0),
+    enrolledAt: timestamp("enrolled_at").notNull().defaultNow(),
+    lastSentAt: timestamp("last_sent_at"),
+  },
+  (t) => [
+    index("automation_enrollments_seq_idx").on(t.sequenceId),
+    uniqueIndex("automation_enrollments_uq").on(t.sequenceId, t.memberEmail),
+  ],
+);
+
+/**
  * Email suppression list (GDPR/ePrivacy): addresses that must never receive
  * marketing. An unsubscribe adds a row here; every marketing send checks it
  * first. Org-scoped + a unique (org, email).

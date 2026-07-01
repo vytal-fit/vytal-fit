@@ -7,10 +7,10 @@ import {
   Pause,
   Plus,
   Clock,
-  Eye,
-  MousePointer,
   Send,
-  TrendingUp,
+  Users,
+  CheckCircle,
+  Trash2,
   X,
   ChevronDown,
 } from "lucide-react";
@@ -18,6 +18,7 @@ import { cn } from "@/lib/utils";
 import { useI18n } from "@/lib/i18n";
 import { useToast } from "@/components/toast";
 import { Breadcrumbs } from "@/components/breadcrumbs";
+import { trpc } from "@/lib/trpc";
 
 interface CampaignEmail {
   subject: string;
@@ -41,52 +42,6 @@ interface Campaign {
   clickRate: number;
 }
 
-const mockCampaigns: Campaign[] = [
-  {
-    id: "camp-1",
-    name: "New Member Welcome",
-    trigger: "new_member",
-    status: "active",
-    emails: [
-      { subject: "Bem-vindo ao CrossFit Aveiro!", delay: 0, previewText: "Estamos muito felizes por te ter connosco..." },
-      { subject: "Dicas para os teus primeiros treinos", delay: 3, previewText: "Aqui estao algumas dicas para tirares o maximo..." },
-      { subject: "Como esta a ser a tua experiencia?", delay: 7, previewText: "Ja la vai uma semana! Conta-nos como..." },
-      { subject: "Conhece os nossos planos especiais", delay: 14, previewText: "Temos planos que se adaptam ao teu ritmo..." },
-      { subject: "1 mes juntos! Parabens!", delay: 30, previewText: "Ja passou um mes desde que te juntaste..." },
-    ],
-    stats: { sent: 635, opened: 495, clicked: 178, converted: 42 },
-    openRate: 78,
-    clickRate: 28,
-  },
-  {
-    id: "camp-2",
-    name: "Win-Back Inactive",
-    trigger: "inactive",
-    status: "active",
-    emails: [
-      { subject: "Sentimos a tua falta!", delay: 0, previewText: "Ja nao te vemos ha algum tempo..." },
-      { subject: "Oferta especial para voltares", delay: 7, previewText: "Preparamos algo especial para ti..." },
-      { subject: "Ultima oportunidade - 20% desconto", delay: 14, previewText: "Nao percas esta oportunidade unica..." },
-    ],
-    stats: { sent: 189, opened: 43, clicked: 12, converted: 5 },
-    openRate: 23,
-    clickRate: 6,
-  },
-  {
-    id: "camp-3",
-    name: "Trial Follow-Up",
-    trigger: "trial",
-    status: "paused",
-    emails: [
-      { subject: "Como foi a tua aula experimental?", delay: 1, previewText: "Esperamos que tenhas gostado da experiencia..." },
-      { subject: "Plano especial para novos membros", delay: 7, previewText: "Temos uma oferta exclusiva para ti..." },
-    ],
-    stats: { sent: 87, opened: 57, clicked: 23, converted: 11 },
-    openRate: 65,
-    clickRate: 26,
-  },
-];
-
 const triggerLabels: Record<string, string> = {
   new_member: "New Member",
   inactive: "Inactive (14 days)",
@@ -94,10 +49,34 @@ const triggerLabels: Record<string, string> = {
   manual: "Manual",
 };
 
+interface CampaignRow {
+  id: string;
+  name: string;
+  trigger: Campaign["trigger"];
+  status: "active" | "draft";
+  emails: CampaignEmail[];
+  enrolled: number;
+  sent: number;
+  completed: number;
+}
+
 export default function CampaignsPage() {
   const { t } = useI18n();
   const { toast } = useToast();
-  const [campaigns, setCampaigns] = useState(mockCampaigns);
+  const utils = trpc.useUtils();
+
+  const listQuery = trpc.automations.list.useQuery();
+  const campaigns: CampaignRow[] = (listQuery.data ?? []).map((s) => ({
+    id: s.id,
+    name: s.name,
+    trigger: s.trigger as Campaign["trigger"],
+    status: s.active ? "active" : "draft",
+    emails: s.steps.map((st) => ({ subject: st.subject, delay: st.delayDays, previewText: st.body })),
+    enrolled: s.enrolled,
+    sent: s.sent,
+    completed: s.completed,
+  }));
+
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [showCreate, setShowCreate] = useState(false);
   const [newCampaign, setNewCampaign] = useState({
@@ -108,15 +87,44 @@ export default function CampaignsPage() {
     { subject: "", delay: 0, previewText: "" },
   ]);
 
+  const onError = (e: { data?: { code?: string } | null }) =>
+    toast(e.data?.code === "FORBIDDEN" ? t("settings.adminOnly") : t("ui.error"), "error");
+
+  const setActive = trpc.automations.setActive.useMutation({
+    onSuccess: () => {
+      void utils.automations.list.invalidate();
+      toast(t("campaigns.statusUpdated"), "success");
+    },
+    onError,
+  });
+  const createSeq = trpc.automations.create.useMutation({
+    onSuccess: () => {
+      void utils.automations.list.invalidate();
+      setShowCreate(false);
+      setNewCampaign({ name: "", trigger: "new_member" });
+      setNewEmails([{ subject: "", delay: 0, previewText: "" }]);
+      toast(t("campaigns.created"), "success");
+    },
+    onError,
+  });
+  const deleteSeq = trpc.automations.delete.useMutation({
+    onSuccess: () => void utils.automations.list.invalidate(),
+    onError,
+  });
+  const enrollSeq = trpc.automations.enroll.useMutation({
+    onSuccess: (r) => {
+      void utils.automations.list.invalidate();
+      toast(
+        t("campaigns.enrolledResult").replace("{enrolled}", String(r.enrolled)).replace("{sent}", String(r.sent)),
+        "success",
+      );
+    },
+    onError,
+  });
+
   const toggleStatus = (id: string) => {
-    setCampaigns((prev) =>
-      prev.map((c) =>
-        c.id === id
-          ? { ...c, status: c.status === "active" ? "paused" : "active" }
-          : c
-      )
-    );
-    toast(t("campaigns.statusUpdated"), "success");
+    const c = campaigns.find((x) => x.id === id);
+    if (c) setActive.mutate({ id, active: c.status !== "active" });
   };
 
   const handleCreate = () => {
@@ -124,21 +132,15 @@ export default function CampaignsPage() {
       toast(t("campaigns.fillAllFields"), "error");
       return;
     }
-    const camp: Campaign = {
-      id: `camp-${Date.now()}`,
+    createSeq.mutate({
       name: newCampaign.name,
       trigger: newCampaign.trigger,
-      status: "draft",
-      emails: newEmails,
-      stats: { sent: 0, opened: 0, clicked: 0, converted: 0 },
-      openRate: 0,
-      clickRate: 0,
-    };
-    setCampaigns((prev) => [...prev, camp]);
-    setShowCreate(false);
-    setNewCampaign({ name: "", trigger: "new_member" });
-    setNewEmails([{ subject: "", delay: 0, previewText: "" }]);
-    toast(t("campaigns.created"), "success");
+      steps: newEmails.map((e) => ({
+        subject: e.subject,
+        body: e.previewText || e.subject,
+        delayDays: e.delay,
+      })),
+    });
   };
 
   const addEmailToSequence = () => {
@@ -197,16 +199,10 @@ export default function CampaignsPage() {
                         "rounded-full px-2 py-0.5 text-[10px] font-semibold",
                         campaign.status === "active"
                           ? "bg-vytal-green/10 text-vytal-green"
-                          : campaign.status === "paused"
-                          ? "bg-vytal-amber/10 text-vytal-amber"
                           : "bg-vytal-muted/10 text-vytal-muted"
                       )}
                     >
-                      {campaign.status === "active"
-                        ? t("campaigns.active")
-                        : campaign.status === "paused"
-                        ? t("campaigns.paused")
-                        : t("campaigns.draft")}
+                      {campaign.status === "active" ? t("campaigns.active") : t("campaigns.draft")}
                     </span>
                   </div>
                   <div className="flex items-center gap-4 mt-1 text-xs text-vytal-muted">
@@ -219,17 +215,17 @@ export default function CampaignsPage() {
                 <div className="flex items-center gap-6">
                   <div className="text-center">
                     <div className="flex items-center gap-1 text-xs text-vytal-muted">
-                      <Eye className="h-3 w-3" />
-                      {t("campaigns.openRate")}
+                      <Users className="h-3 w-3" />
+                      {t("campaigns.enrolled")}
                     </div>
-                    <span className="text-sm font-bold text-vytal-text">{campaign.openRate}%</span>
+                    <span className="text-sm font-bold text-vytal-text">{campaign.enrolled}</span>
                   </div>
                   <div className="text-center">
                     <div className="flex items-center gap-1 text-xs text-vytal-muted">
-                      <MousePointer className="h-3 w-3" />
-                      {t("campaigns.clickRate")}
+                      <Send className="h-3 w-3" />
+                      {t("campaigns.sent")}
                     </div>
-                    <span className="text-sm font-bold text-vytal-text">{campaign.clickRate}%</span>
+                    <span className="text-sm font-bold text-vytal-text">{campaign.sent}</span>
                   </div>
                   <button
                     onClick={(e) => {
@@ -260,13 +256,12 @@ export default function CampaignsPage() {
 
               {isExpanded && (
                 <div className="border-t border-vytal-border p-5 space-y-4">
-                  {/* Stats */}
-                  <div className="grid grid-cols-4 gap-3">
+                  {/* Stats (real: enrollment + sends) */}
+                  <div className="grid grid-cols-3 gap-3">
                     {[
-                      { label: t("campaigns.sent"), value: campaign.stats.sent, icon: Send },
-                      { label: t("campaigns.opened"), value: campaign.stats.opened, icon: Eye },
-                      { label: t("campaigns.clicked"), value: campaign.stats.clicked, icon: MousePointer },
-                      { label: t("campaigns.converted"), value: campaign.stats.converted, icon: TrendingUp },
+                      { label: t("campaigns.enrolled"), value: campaign.enrolled, icon: Users },
+                      { label: t("campaigns.sent"), value: campaign.sent, icon: Send },
+                      { label: t("campaigns.completed"), value: campaign.completed, icon: CheckCircle },
                     ].map((stat) => (
                       <div key={stat.label} className="rounded-lg bg-vytal-bg3 p-3 text-center">
                         <stat.icon className="h-4 w-4 text-vytal-muted mx-auto mb-1" />
@@ -274,6 +269,25 @@ export default function CampaignsPage() {
                         <div className="text-[10px] text-vytal-muted">{stat.label}</div>
                       </div>
                     ))}
+                  </div>
+
+                  {/* Actions */}
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => enrollSeq.mutate({ id: campaign.id })}
+                      disabled={enrollSeq.isPending}
+                      className="flex items-center gap-2 rounded-lg bg-vytal-green px-4 py-2 text-xs font-semibold text-vytal-bg transition-colors hover:bg-vytal-green/90 disabled:opacity-60"
+                    >
+                      <Send className="h-3.5 w-3.5" />
+                      {t("campaigns.enrollNow")}
+                    </button>
+                    <button
+                      onClick={() => deleteSeq.mutate({ id: campaign.id })}
+                      className="flex items-center gap-2 rounded-lg border border-vytal-red/30 px-4 py-2 text-xs font-semibold text-vytal-red transition-colors hover:bg-vytal-red/10"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                      {t("action.delete")}
+                    </button>
                   </div>
 
                   {/* Sequence timeline */}

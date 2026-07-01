@@ -1,6 +1,7 @@
 import { router } from "./trpc";
 import { apiKeysRouter } from "./routers/apiKeys";
 import { auditLogRouter } from "./routers/auditLog";
+import { automationsRouter } from "./routers/automations";
 import { backupsRouter } from "./routers/backups";
 import { bookingsRouter } from "./routers/bookings";
 import { campaignsRouter } from "./routers/campaigns";
@@ -69,6 +70,7 @@ export const appRouter = router({
   webhooks: webhooksRouter,
   backups: backupsRouter,
   campaigns: campaignsRouter,
+  automations: automationsRouter,
 });
 
 export type AppRouter = typeof appRouter;
