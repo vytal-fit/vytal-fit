@@ -71,6 +71,8 @@ export const en: Record<string, string> = {
     // Media Library
     "media.title": "Media Library",
     "media.upload": "Upload",
+    "media.addAsset": "Add asset",
+    "media.assetName": "Asset name",
     "media.uploadStarted": "Upload started!",
     "media.dragDrop": "Drag and drop files here",
     "media.supportedFormats": "JPG, PNG, MP4, PDF up to 100MB",

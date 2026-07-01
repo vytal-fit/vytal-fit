@@ -1369,6 +1369,29 @@ export const expenses = pgTable(
 );
 
 /**
+ * Media library assets (catalog). Binary upload runs through the `uploads` S3
+ * seam later; this is the metadata catalog: name, kind, folder, URL, size.
+ */
+export const mediaAssets = pgTable(
+  "media_assets",
+  {
+    id: text("id").primaryKey(),
+    organizationId: text("organization_id")
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    name: text("name").notNull(),
+    /** image | video | document */
+    type: text("type").notNull().default("document"),
+    folder: text("folder").notNull().default("Documents"),
+    url: text("url"),
+    sizeBytes: integer("size_bytes").notNull().default(0),
+    uploadedBy: text("uploaded_by"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (t) => [index("media_assets_org_idx").on(t.organizationId)],
+);
+
+/**
  * Automation drip sequences: a trigger + an ordered list of delayed emails.
  * Enrollments track each member's progress. The send/schedule engine reuses the
  * comms marketing policy; delayed-step scheduling is layered on later.

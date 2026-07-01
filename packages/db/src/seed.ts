@@ -812,6 +812,22 @@ export async function seedDatabase(
       .returning({ id: schema.emailSuppressions.id })
   ).length;
 
+  // Media library catalog.
+  inserted.mediaAssets = (
+    await db
+      .insert(schema.mediaAssets)
+      .values([
+        { id: "media-1", organizationId: ORG_1, name: "Back Squat Tutorial", type: "video", folder: "Exercises", sizeBytes: 47_185_920, uploadedBy: "André Loureiro" },
+        { id: "media-2", organizationId: ORG_1, name: "Clean & Jerk Demo", type: "video", folder: "Exercises", sizeBytes: 65_011_712, uploadedBy: "Ricardo Ribeiro" },
+        { id: "media-3", organizationId: ORG_1, name: "Team Photo Junho", type: "image", folder: "Events", sizeBytes: 5_347_737, uploadedBy: "Marine Robba" },
+        { id: "media-4", organizationId: ORG_1, name: "Logo alta resolução", type: "image", folder: "Marketing", sizeBytes: 1_258_291, uploadedBy: "Silvina Resende" },
+        { id: "media-5", organizationId: ORG_1, name: "Contrato de adesão.pdf", type: "document", folder: "Documents", sizeBytes: 327_680, uploadedBy: "Silvina Resende" },
+        { id: "media-6", organizationId: ORG_1, name: "PAR-Q.pdf", type: "document", folder: "Documents", sizeBytes: 184_320, uploadedBy: "Silvina Resende" },
+      ])
+      .onConflictDoNothing()
+      .returning({ id: schema.mediaAssets.id })
+  ).length;
+
   // Automation drip sequences + steps + a few enrollments.
   inserted.automationSequences = (
     await db

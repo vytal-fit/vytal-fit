@@ -19,6 +19,7 @@ import { expensesRouter } from "./routers/expenses";
 import { leadsRouter } from "./routers/leads";
 import { locationsRouter } from "./routers/locations";
 import { memberGroupsRouter } from "./routers/memberGroups";
+import { mediaRouter } from "./routers/media";
 import { membersRouter } from "./routers/members";
 import { messagesRouter } from "./routers/messages";
 import { notificationsRouter } from "./routers/notifications";
@@ -71,6 +72,7 @@ export const appRouter = router({
   backups: backupsRouter,
   campaigns: campaignsRouter,
   automations: automationsRouter,
+  media: mediaRouter,
 });
 
 export type AppRouter = typeof appRouter;

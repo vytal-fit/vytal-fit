@@ -18,6 +18,14 @@ import { useI18n } from "@/lib/i18n";
 import { useToast } from "@/components/toast";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { EmptyState } from "@/components/empty-state";
+import { trpc } from "@/lib/trpc";
+
+function humanBytes(n: number): string {
+  if (!n) return "-";
+  if (n < 1024) return `${n} B`;
+  if (n < 1024 * 1024) return `${(n / 1024).toFixed(0)} KB`;
+  return `${(n / (1024 * 1024)).toFixed(1)} MB`;
+}
 
 // ---------------------------------------------------------------------------
 // Types
@@ -33,34 +41,8 @@ interface MediaItem {
   uploadedDate: string;
   uploadedBy: string;
   folder: string;
+  url?: string;
 }
-
-// ---------------------------------------------------------------------------
-// Mock data
-// ---------------------------------------------------------------------------
-
-const mockMedia: MediaItem[] = [
-  { id: "m-1", name: "Back Squat Tutorial", type: "video", size: "45 MB", uploadedDate: "2026-05-28", uploadedBy: "Andre", folder: "Exercises" },
-  { id: "m-2", name: "Clean & Jerk Demo", type: "video", size: "62 MB", uploadedDate: "2026-05-25", uploadedBy: "Ricardo", folder: "Exercises" },
-  { id: "m-3", name: "Deadlift Form Guide", type: "video", size: "38 MB", uploadedDate: "2026-05-20", uploadedBy: "Andre", folder: "Exercises" },
-  { id: "m-4", name: "Snatch Progression", type: "video", size: "55 MB", uploadedDate: "2026-05-18", uploadedBy: "Ricardo", folder: "Exercises" },
-  { id: "m-5", name: "Muscle-Up Tutorial", type: "video", size: "41 MB", uploadedDate: "2026-05-15", uploadedBy: "Andre", folder: "Exercises" },
-  { id: "m-6", name: "Handstand Walk Drills", type: "video", size: "33 MB", uploadedDate: "2026-05-12", uploadedBy: "Marine", folder: "Exercises" },
-  { id: "m-7", name: "Double Under Technique", type: "video", size: "28 MB", uploadedDate: "2026-05-10", uploadedBy: "Ricardo", folder: "Exercises" },
-  { id: "m-8", name: "Thruster Breakdown", type: "video", size: "36 MB", uploadedDate: "2026-05-08", uploadedBy: "Andre", folder: "Exercises" },
-  { id: "m-9", name: "Rope Climb Tips", type: "video", size: "30 MB", uploadedDate: "2026-05-05", uploadedBy: "Marine", folder: "Exercises" },
-  { id: "m-10", name: "Kipping Pull-Up Guide", type: "video", size: "34 MB", uploadedDate: "2026-05-02", uploadedBy: "Ricardo", folder: "Exercises" },
-  { id: "m-11", name: "Summer Throwdown 2025", type: "image", size: "4.2 MB", uploadedDate: "2026-05-30", uploadedBy: "Owner", folder: "Events" },
-  { id: "m-12", name: "New Gym Photo", type: "image", size: "3.8 MB", uploadedDate: "2026-05-22", uploadedBy: "Owner", folder: "Marketing" },
-  { id: "m-13", name: "Team Photo June 2026", type: "image", size: "5.1 MB", uploadedDate: "2026-06-01", uploadedBy: "Marine", folder: "Events" },
-  { id: "m-14", name: "Logo High-Res", type: "image", size: "1.2 MB", uploadedDate: "2026-04-15", uploadedBy: "Owner", folder: "Marketing" },
-  { id: "m-15", name: "Open Day Flyer", type: "image", size: "2.5 MB", uploadedDate: "2026-05-01", uploadedBy: "Marine", folder: "Marketing" },
-  { id: "m-16", name: "Membership Agreement.pdf", type: "document", size: "320 KB", uploadedDate: "2026-03-10", uploadedBy: "Owner", folder: "Documents" },
-  { id: "m-17", name: "PAR-Q Form.pdf", type: "document", size: "180 KB", uploadedDate: "2026-03-10", uploadedBy: "Owner", folder: "Documents" },
-  { id: "m-18", name: "Liability Waiver.pdf", type: "document", size: "210 KB", uploadedDate: "2026-03-12", uploadedBy: "Owner", folder: "Documents" },
-  { id: "m-19", name: "Price List 2026.pdf", type: "document", size: "150 KB", uploadedDate: "2026-01-05", uploadedBy: "Owner", folder: "Documents" },
-  { id: "m-20", name: "Staff Handbook.pdf", type: "document", size: "480 KB", uploadedDate: "2026-02-20", uploadedBy: "Owner", folder: "Documents" },
-];
 
 const FOLDER_KEYS = ["all", "exercises", "events", "documents", "marketing"] as const;
 type FolderKey = typeof FOLDER_KEYS[number];
@@ -87,7 +69,22 @@ export default function MediaLibraryPage() {
   const { t } = useI18n();
   const { toast } = useToast();
 
-  const [media, setMedia] = useState<MediaItem[]>(mockMedia);
+  const utils = trpc.useUtils();
+  const mediaQuery = trpc.media.list.useQuery();
+  const media: MediaItem[] = useMemo(
+    () =>
+      (mediaQuery.data ?? []).map((a) => ({
+        id: a.id,
+        name: a.name,
+        type: a.type as MediaType,
+        size: humanBytes(a.sizeBytes),
+        uploadedDate: new Date(a.createdAt).toISOString().slice(0, 10),
+        uploadedBy: a.uploadedBy ?? "-",
+        folder: a.folder,
+        url: a.url ?? undefined,
+      })),
+    [mediaQuery.data],
+  );
   const [filterType, setFilterType] = useState<"all" | MediaType>("all");
   const [search, setSearch] = useState("");
   const [activeFolderKey, setActiveFolderKey] = useState<FolderKey>("all");
@@ -95,8 +92,26 @@ export default function MediaLibraryPage() {
   // Derive the raw folder value used in data for filtering (always English)
   const activeFolder = FOLDER_VALUES[activeFolderKey];
   const [showUpload, setShowUpload] = useState(false);
-  const [dragOver, setDragOver] = useState(false);
+  const [newName, setNewName] = useState("");
+  const [newType, setNewType] = useState<MediaType>("document");
+  const [newFolder, setNewFolder] = useState("Documents");
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
+
+  const onError = (e: { data?: { code?: string } | null }) =>
+    toast(e.data?.code === "FORBIDDEN" ? t("settings.adminOnly") : t("ui.error"), "error");
+  const createAsset = trpc.media.create.useMutation({
+    onSuccess: () => {
+      void utils.media.list.invalidate();
+      setNewName("");
+      setShowUpload(false);
+      toast(t("media.uploadStarted"), "success");
+    },
+    onError,
+  });
+  const deleteAsset = trpc.media.delete.useMutation({
+    onSuccess: () => void utils.media.list.invalidate(),
+    onError,
+  });
 
   // Filter
   const filteredMedia = useMemo(() => {
@@ -117,29 +132,23 @@ export default function MediaLibraryPage() {
   // Actions
   const handleConfirmDelete = useCallback(() => {
     if (!deleteTarget) return;
-    const removed = media.find((m) => m.id === deleteTarget.id);
-    setMedia((prev) => prev.filter((m) => m.id !== deleteTarget.id));
-    toast(t("media.deleted"), "success", {
-      action: removed
-        ? {
-            label: t("action.undo"),
-            onClick: () => setMedia((prev) => [...prev, removed]),
-          }
-        : undefined,
-    });
+    deleteAsset.mutate({ id: deleteTarget.id });
+    toast(t("media.deleted"), "success");
     setDeleteTarget(null);
-  }, [deleteTarget, media, toast, t]);
+  }, [deleteTarget, deleteAsset, toast, t]);
 
   const handleCopyLink = useCallback(
     (item: MediaItem) => {
-      toast(t("toast.linkCopied").replace("{name}", item.name), "success");
+      if (item.url) void navigator.clipboard.writeText(item.url);
+      toast(t("toast.linkCopied").replace("{name}", item.name), item.url ? "success" : "info");
     },
     [toast, t]
   );
 
   const handleDownload = useCallback(
     (item: MediaItem) => {
-      toast(t("toast.downloading").replace("{name}", item.name), "success");
+      if (item.url) window.open(item.url, "_blank");
+      else toast(t("toast.downloading").replace("{name}", item.name), "info");
     },
     [toast, t]
   );
@@ -161,34 +170,55 @@ export default function MediaLibraryPage() {
         </button>
       </div>
 
-      {/* Upload zone */}
+      {/* Add asset (metadata catalog — binary upload via S3 is the next step) */}
       {showUpload && (
-        <div
-          className={cn(
-            "relative rounded-xl border-2 border-dashed p-8 text-center transition-colors",
-            dragOver
-              ? "border-vytal-green bg-vytal-green/5"
-              : "border-vytal-border bg-vytal-bg2"
-          )}
-          onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
-          onDragLeave={() => setDragOver(false)}
-          onDrop={(e) => { e.preventDefault(); setDragOver(false); toast(t("media.uploadStarted"), "success"); setShowUpload(false); }}
-        >
+        <div className="relative rounded-xl border border-vytal-green/30 bg-vytal-bg2 p-6">
           <button
             onClick={() => setShowUpload(false)}
             className="absolute right-3 top-3 text-vytal-muted hover:text-vytal-text"
           >
             <X className="h-4 w-4" />
           </button>
-          <Upload className="mx-auto h-10 w-10 text-vytal-muted" />
-          <p className="mt-3 text-sm text-vytal-text">{t("media.dragDrop")}</p>
-          <p className="mt-1 text-xs text-vytal-muted">{t("media.supportedFormats")}</p>
-          <button
-            onClick={() => { toast(t("media.uploadStarted"), "success"); setShowUpload(false); }}
-            className="mt-4 rounded-lg border border-vytal-green/30 px-4 py-2 text-sm text-vytal-green hover:bg-vytal-green/10 transition-colors"
-          >
-            {t("media.browseFiles")}
-          </button>
+          <div className="mb-4 flex items-center gap-2">
+            <Upload className="h-5 w-5 text-vytal-green" />
+            <h3 className="text-base font-semibold text-vytal-text">{t("media.addAsset")}</h3>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-3">
+            <input
+              type="text"
+              value={newName}
+              onChange={(e) => setNewName(e.target.value)}
+              placeholder={t("media.assetName")}
+              className="w-full rounded-lg border border-vytal-border bg-vytal-bg px-3 py-2 text-sm text-vytal-text placeholder:text-vytal-muted focus:border-vytal-green/30 focus:outline-none focus:ring-1 focus:ring-vytal-green/20"
+            />
+            <select
+              value={newType}
+              onChange={(e) => setNewType(e.target.value as MediaType)}
+              className="rounded-lg border border-vytal-border bg-vytal-bg px-3 py-2 text-sm text-vytal-text focus:outline-none"
+            >
+              <option value="document">{t("media.type.document")}</option>
+              <option value="image">{t("media.type.image")}</option>
+              <option value="video">{t("media.type.video")}</option>
+            </select>
+            <select
+              value={newFolder}
+              onChange={(e) => setNewFolder(e.target.value)}
+              className="rounded-lg border border-vytal-border bg-vytal-bg px-3 py-2 text-sm text-vytal-text focus:outline-none"
+            >
+              {(["Exercises", "Events", "Documents", "Marketing"] as const).map((f) => (
+                <option key={f} value={f}>{f}</option>
+              ))}
+            </select>
+          </div>
+          <div className="mt-4 flex justify-end">
+            <button
+              onClick={() => newName.trim() && createAsset.mutate({ name: newName.trim(), type: newType, folder: newFolder })}
+              disabled={!newName.trim() || createAsset.isPending}
+              className="rounded-lg bg-vytal-green px-5 py-2 text-sm font-semibold text-vytal-bg transition-colors hover:bg-vytal-green/90 disabled:opacity-60"
+            >
+              {t("media.addAsset")}
+            </button>
+          </div>
         </div>
       )}
 

@@ -71,6 +71,8 @@ export const pt: Record<string, string> = {
     // Media Library
     "media.title": "Biblioteca de Multimédia",
     "media.upload": "Carregar",
+    "media.addAsset": "Adicionar recurso",
+    "media.assetName": "Nome do recurso",
     "media.uploadStarted": "Upload iniciado!",
     "media.dragDrop": "Arraste e largue ficheiros aqui",
     "media.supportedFormats": "JPG, PNG, MP4, PDF até 100MB",
