@@ -10,6 +10,7 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
+    "@vytal-fit/brand": "*",
     "@vytal-fit/shared": "*",
     "lucide-react": "^1.7.0",
     "next": "15.5.18",

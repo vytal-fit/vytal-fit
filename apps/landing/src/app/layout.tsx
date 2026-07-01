@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { Inter, JetBrains_Mono } from "next/font/google";
+import { BrandStyles } from "@vytal-fit/brand";
 import "./globals.css";
 
 const inter = Inter({
@@ -26,6 +27,7 @@ export default function LandingLayout({
   return (
     <html lang="pt" className="dark" suppressHydrationWarning>
       <body className={`${inter.variable} ${jetbrainsMono.variable} antialiased`}>
+        <BrandStyles />
         {children}
       </body>
     </html>
