@@ -31,6 +31,7 @@ import { referralsRouter } from "./routers/referrals";
 import { shopRouter } from "./routers/shop";
 import { subscriptionsRouter } from "./routers/subscriptions";
 import { supportTicketsRouter } from "./routers/supportTickets";
+import { todayRouter } from "./routers/today";
 import { uploadsRouter } from "./routers/uploads";
 import { wellnessCheckinsRouter } from "./routers/wellnessCheckins";
 import { wodResultsRouter } from "./routers/wodResults";
@@ -68,6 +69,7 @@ export const appRouter = router({
   community: communityRouter,
   memberGroups: memberGroupsRouter,
   dashboard: dashboardRouter,
+  today: todayRouter,
   uploads: uploadsRouter,
   apiKeys: apiKeysRouter,
   auditLog: auditLogRouter,

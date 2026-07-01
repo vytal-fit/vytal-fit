@@ -67,7 +67,6 @@ import { trpc } from "@/lib/trpc";
 import { useI18n, type Language } from "@/lib/i18n";
 import { CommandPalette } from "@/components/command-palette";
 import { CreateOrgWizard, type CreateOrgData } from "@/components/create-org-wizard";
-import { DailyBriefing } from "@/components/daily-briefing";
 
 interface NavItem {
   href: string;
@@ -88,6 +87,8 @@ interface NavGroup {
 const allNavGroups: NavGroup[] = [
   {
     items: [
+      // today — the daily briefing landing (all roles)
+      { href: "/today", labelKey: "nav.today", icon: Sun },
       // dashboard — all roles
       { href: "/dashboard", labelKey: "nav.dashboard", icon: LayoutDashboard },
       // members — coach (read-only access), owner full access
@@ -917,8 +918,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const logout = useAuthStore((s) => s.logout);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const rightSidebarOpen = useAppStore((s) => s.rightSidebarOpen);
-  const toggleRightSidebar = useAppStore((s) => s.toggleRightSidebar);
   const setRightSidebarOpen = useAppStore((s) => s.setRightSidebarOpen);
   const sidebarCollapsed = useAppStore((s) => s.sidebarCollapsed);
   const toggleSidebar = useAppStore((s) => s.toggleSidebar);
@@ -1381,18 +1380,18 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           <div className="flex items-center gap-3">
             <LanguageSwitcher />
             <ThemeToggle />
-            <button
-              onClick={toggleRightSidebar}
+            <Link
+              href="/today"
               className={cn(
                 "hidden md:flex h-9 w-9 items-center justify-center rounded-lg transition-colors",
-                rightSidebarOpen
+                pathname.startsWith("/today")
                   ? "bg-vytal-green/10 text-vytal-green"
                   : "text-vytal-muted hover:bg-vytal-bg3 hover:text-vytal-text"
               )}
-              title={t("briefing.title")}
+              title={t("nav.today")}
             >
-              <BarChart3 className="h-[18px] w-[18px]" />
-            </button>
+              <Sun className="h-[18px] w-[18px]" />
+            </Link>
             <NotificationsDropdown />
 
             {/* User — separated with border */}
@@ -1405,37 +1404,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       </main>
 
       </div>
-
-      {/* Right Panel — Daily Briefing (elegant drawer) */}
-      {rightSidebarOpen && (
-        <div className="fixed inset-0 z-30 hidden md:block" onClick={toggleRightSidebar}>
-          <div className="absolute inset-0 bg-black/20 backdrop-blur-[2px]" />
-        </div>
-      )}
-      <aside
-        className={cn(
-          "fixed right-0 top-0 bottom-0 z-40 hidden w-80 flex-col border-l border-vytal-border bg-vytal-bg2 shadow-2xl transition-transform duration-300 ease-in-out md:flex",
-          rightSidebarOpen ? "translate-x-0" : "translate-x-full"
-        )}
-      >
-        {/* Panel header */}
-        <div className="flex h-16 items-center justify-between border-b border-vytal-border px-5">
-          <div className="flex items-center gap-2">
-            <BarChart3 className="h-4 w-4 text-vytal-green" />
-            <span className="text-sm font-semibold text-vytal-text">{t("briefing.title")}</span>
-          </div>
-          <button
-            onClick={toggleRightSidebar}
-            className="flex h-7 w-7 items-center justify-center rounded-lg text-vytal-muted transition-colors hover:bg-vytal-bg3 hover:text-vytal-text"
-          >
-            <XIcon className="h-4 w-4" />
-          </button>
-        </div>
-        {/* Panel content */}
-        <div className="flex-1 overflow-y-auto">
-          <DailyBriefing />
-        </div>
-      </aside>
 
       {/* Floating Messenger-style chat widget */}
       <FloatingChat />
