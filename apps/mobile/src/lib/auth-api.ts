@@ -1,6 +1,10 @@
 import { Platform } from "react-native";
 import * as SecureStore from "expo-secure-store";
-import { STORAGE_KEYS, type UserWithOrgs } from "@vytal-fit/shared";
+import {
+  STORAGE_KEYS,
+  type OrganizationFeatures,
+  type UserWithOrgs,
+} from "@vytal-fit/shared";
 
 const AUTH_TOKEN_KEY = STORAGE_KEYS.authToken;
 const AUTH_SNAPSHOT_KEY = STORAGE_KEYS.authSnapshot;
@@ -442,6 +446,19 @@ export async function getFullOrganization(
     }
     throw error;
   }
+}
+
+export interface OrgSettingsResponse {
+  features: OrganizationFeatures;
+  [key: string]: unknown;
+}
+
+export async function getOrgSettings(orgId: string): Promise<OrgSettingsResponse> {
+  const { data } = await requestJson<OrgSettingsResponse>(
+    `/org-settings/${orgId}`,
+    { method: "GET" },
+  );
+  return data;
 }
 
 export async function updateActiveSpace(spaceId: string): Promise<void> {
