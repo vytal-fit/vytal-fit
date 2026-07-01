@@ -623,6 +623,75 @@ export const classTemplates = pgTable(
   (t) => [index("class_templates_org_idx").on(t.organizationId)],
 );
 
+/**
+ * Community feed posts. Authors can be staff (owner/coach) or athletes; a few
+ * `kind`s are system-generated (auto PR/milestone/WOD). Author identity is the
+ * session user (snapshotted `authorName` + `authorType` for a stable badge),
+ * which avoids depending on the not-yet-present gym_members.user_id link.
+ */
+export const communityPosts = pgTable(
+  "community_posts",
+  {
+    id: text("id").primaryKey(),
+    organizationId: text("organization_id")
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    authorUserId: text("author_user_id"),
+    authorName: text("author_name").notNull(),
+    /** owner | coach | athlete | system — drives the badge shown in the feed. */
+    authorType: text("author_type").notNull().default("athlete"),
+    /** post | announcement | auto_pr | auto_milestone | auto_wod */
+    kind: text("kind").notNull().default("post"),
+    content: text("content").notNull(),
+    pinned: boolean("pinned").notNull().default(false),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (t) => [
+    index("community_posts_org_idx").on(t.organizationId),
+    index("community_posts_org_created_idx").on(t.organizationId, t.createdAt),
+  ],
+);
+
+/** Fistbump reactions on a post. One per (post, actor). */
+export const communityReactions = pgTable(
+  "community_reactions",
+  {
+    id: text("id").primaryKey(),
+    organizationId: text("organization_id")
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    postId: text("post_id")
+      .notNull()
+      .references(() => communityPosts.id, { onDelete: "cascade" }),
+    actorId: text("actor_id").notNull(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (t) => [
+    index("community_reactions_post_idx").on(t.postId),
+    uniqueIndex("community_reactions_uq").on(t.postId, t.actorId),
+  ],
+);
+
+/** Comments on a post. */
+export const communityComments = pgTable(
+  "community_comments",
+  {
+    id: text("id").primaryKey(),
+    organizationId: text("organization_id")
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    postId: text("post_id")
+      .notNull()
+      .references(() => communityPosts.id, { onDelete: "cascade" }),
+    authorUserId: text("author_user_id"),
+    authorName: text("author_name").notNull(),
+    authorType: text("author_type").notNull().default("athlete"),
+    content: text("content").notNull(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (t) => [index("community_comments_post_idx").on(t.postId)],
+);
+
 /** Member groups (segments/tags like "Competition Team", "Beginners"). */
 export const memberGroups = pgTable(
   "member_groups",

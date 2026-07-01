@@ -17,7 +17,7 @@ export const ORGANIZATION_CONFIGS: Record<string, OrganizationTypeConfig> = {
     },
     features: {
       wods: true, leaderboard: true, personalRecords: true, rxScaled: true,
-      timers: true, rmCalculator: true, gamification: true, fistbumps: true,
+      timers: true, rmCalculator: true, gamification: true, fistbumps: true, community: true,
       dropins: true, tvDisplay: true, movementLibrary: true, beltSystem: false,
       personalTraining: true, nutritionTracking: false, bodyComposition: true,
       groupClasses: true, openGym: true, store: true,
@@ -43,7 +43,7 @@ export const ORGANIZATION_CONFIGS: Record<string, OrganizationTypeConfig> = {
     },
     features: {
       wods: true, leaderboard: true, personalRecords: true, rxScaled: false,
-      timers: true, rmCalculator: true, gamification: true, fistbumps: true,
+      timers: true, rmCalculator: true, gamification: true, fistbumps: true, community: true,
       dropins: false, tvDisplay: true, movementLibrary: true, beltSystem: false,
       personalTraining: true, nutritionTracking: false, bodyComposition: true,
       groupClasses: true, openGym: true, store: true,
@@ -69,7 +69,7 @@ export const ORGANIZATION_CONFIGS: Record<string, OrganizationTypeConfig> = {
     },
     features: {
       wods: false, leaderboard: false, personalRecords: true, rxScaled: false,
-      timers: false, rmCalculator: true, gamification: true, fistbumps: false,
+      timers: false, rmCalculator: true, gamification: true, fistbumps: false, community: true,
       dropins: false, tvDisplay: false, movementLibrary: true, beltSystem: false,
       personalTraining: true, nutritionTracking: true, bodyComposition: true,
       groupClasses: true, openGym: true, store: true,
@@ -95,7 +95,7 @@ export const ORGANIZATION_CONFIGS: Record<string, OrganizationTypeConfig> = {
     },
     features: {
       wods: false, leaderboard: false, personalRecords: false, rxScaled: false,
-      timers: true, rmCalculator: false, gamification: true, fistbumps: false,
+      timers: true, rmCalculator: false, gamification: true, fistbumps: false, community: true,
       dropins: true, tvDisplay: false, movementLibrary: true, beltSystem: false,
       personalTraining: true, nutritionTracking: false, bodyComposition: false,
       groupClasses: true, openGym: true, store: true,
@@ -121,7 +121,7 @@ export const ORGANIZATION_CONFIGS: Record<string, OrganizationTypeConfig> = {
     },
     features: {
       wods: false, leaderboard: false, personalRecords: false, rxScaled: false,
-      timers: false, rmCalculator: false, gamification: true, fistbumps: false,
+      timers: false, rmCalculator: false, gamification: true, fistbumps: false, community: true,
       dropins: false, tvDisplay: false, movementLibrary: true, beltSystem: false,
       personalTraining: true, nutritionTracking: false, bodyComposition: true,
       groupClasses: true, openGym: false, store: true,
@@ -147,7 +147,7 @@ export const ORGANIZATION_CONFIGS: Record<string, OrganizationTypeConfig> = {
     },
     features: {
       wods: false, leaderboard: true, personalRecords: false, rxScaled: false,
-      timers: true, rmCalculator: false, gamification: true, fistbumps: true,
+      timers: true, rmCalculator: false, gamification: true, fistbumps: true, community: true,
       dropins: false, tvDisplay: false, movementLibrary: true, beltSystem: true,
       personalTraining: true, nutritionTracking: false, bodyComposition: false,
       groupClasses: true, openGym: true, store: true,
@@ -173,7 +173,7 @@ export const ORGANIZATION_CONFIGS: Record<string, OrganizationTypeConfig> = {
     },
     features: {
       wods: false, leaderboard: false, personalRecords: true, rxScaled: false,
-      timers: true, rmCalculator: true, gamification: true, fistbumps: false,
+      timers: true, rmCalculator: true, gamification: true, fistbumps: false, community: true,
       dropins: false, tvDisplay: false, movementLibrary: true, beltSystem: false,
       personalTraining: true, nutritionTracking: true, bodyComposition: true,
       groupClasses: false, openGym: false, store: false,
@@ -199,7 +199,7 @@ export const ORGANIZATION_CONFIGS: Record<string, OrganizationTypeConfig> = {
     },
     features: {
       wods: false, leaderboard: true, personalRecords: true, rxScaled: false,
-      timers: true, rmCalculator: false, gamification: true, fistbumps: false,
+      timers: true, rmCalculator: false, gamification: true, fistbumps: false, community: true,
       dropins: false, tvDisplay: false, movementLibrary: false, beltSystem: false,
       personalTraining: true, nutritionTracking: false, bodyComposition: false,
       groupClasses: true, openGym: true, store: true,
@@ -225,7 +225,7 @@ export const ORGANIZATION_CONFIGS: Record<string, OrganizationTypeConfig> = {
     },
     features: {
       wods: false, leaderboard: false, personalRecords: false, rxScaled: false,
-      timers: false, rmCalculator: false, gamification: true, fistbumps: false,
+      timers: false, rmCalculator: false, gamification: true, fistbumps: false, community: true,
       dropins: false, tvDisplay: false, movementLibrary: true, beltSystem: true,
       personalTraining: true, nutritionTracking: false, bodyComposition: false,
       groupClasses: true, openGym: false, store: true,
@@ -251,7 +251,7 @@ export const ORGANIZATION_CONFIGS: Record<string, OrganizationTypeConfig> = {
     },
     features: {
       wods: false, leaderboard: false, personalRecords: true, rxScaled: false,
-      timers: false, rmCalculator: false, gamification: true, fistbumps: false,
+      timers: false, rmCalculator: false, gamification: true, fistbumps: false, community: true,
       dropins: false, tvDisplay: false, movementLibrary: true, beltSystem: false,
       personalTraining: true, nutritionTracking: true, bodyComposition: true,
       groupClasses: true, openGym: true, store: true,
@@ -277,7 +277,7 @@ export const ORGANIZATION_CONFIGS: Record<string, OrganizationTypeConfig> = {
     },
     features: {
       wods: false, leaderboard: true, personalRecords: true, rxScaled: false,
-      timers: true, rmCalculator: false, gamification: true, fistbumps: true,
+      timers: true, rmCalculator: false, gamification: true, fistbumps: true, community: true,
       dropins: false, tvDisplay: true, movementLibrary: false, beltSystem: false,
       personalTraining: true, nutritionTracking: false, bodyComposition: false,
       groupClasses: true, openGym: true, store: true,
@@ -303,7 +303,7 @@ export const ORGANIZATION_CONFIGS: Record<string, OrganizationTypeConfig> = {
     },
     features: {
       wods: false, leaderboard: true, personalRecords: true, rxScaled: false,
-      timers: true, rmCalculator: false, gamification: true, fistbumps: true,
+      timers: true, rmCalculator: false, gamification: true, fistbumps: true, community: true,
       dropins: true, tvDisplay: false, movementLibrary: true, beltSystem: true,
       personalTraining: true, nutritionTracking: false, bodyComposition: false,
       groupClasses: true, openGym: true, store: true,
@@ -329,7 +329,7 @@ export const ORGANIZATION_CONFIGS: Record<string, OrganizationTypeConfig> = {
     },
     features: {
       wods: false, leaderboard: true, personalRecords: true, rxScaled: false,
-      timers: true, rmCalculator: false, gamification: true, fistbumps: true,
+      timers: true, rmCalculator: false, gamification: true, fistbumps: true, community: true,
       dropins: true, tvDisplay: true, movementLibrary: false, beltSystem: false,
       personalTraining: false, nutritionTracking: false, bodyComposition: false,
       groupClasses: true, openGym: false, store: true,
@@ -355,7 +355,7 @@ export const ORGANIZATION_CONFIGS: Record<string, OrganizationTypeConfig> = {
     },
     features: {
       wods: true, leaderboard: true, personalRecords: true, rxScaled: false,
-      timers: true, rmCalculator: false, gamification: true, fistbumps: true,
+      timers: true, rmCalculator: false, gamification: true, fistbumps: true, community: true,
       dropins: false, tvDisplay: false, movementLibrary: false, beltSystem: false,
       personalTraining: true, nutritionTracking: true, bodyComposition: false,
       groupClasses: true, openGym: true, store: true,
@@ -381,7 +381,7 @@ export const ORGANIZATION_CONFIGS: Record<string, OrganizationTypeConfig> = {
     },
     features: {
       wods: false, leaderboard: true, personalRecords: true, rxScaled: false,
-      timers: false, rmCalculator: false, gamification: true, fistbumps: true,
+      timers: false, rmCalculator: false, gamification: true, fistbumps: true, community: true,
       dropins: false, tvDisplay: false, movementLibrary: true, beltSystem: true,
       personalTraining: true, nutritionTracking: false, bodyComposition: true,
       groupClasses: true, openGym: true, store: true,
@@ -407,7 +407,7 @@ export const ORGANIZATION_CONFIGS: Record<string, OrganizationTypeConfig> = {
     },
     features: {
       wods: false, leaderboard: false, personalRecords: true, rxScaled: false,
-      timers: true, rmCalculator: false, gamification: false, fistbumps: false,
+      timers: true, rmCalculator: false, gamification: false, fistbumps: false, community: false,
       dropins: false, tvDisplay: false, movementLibrary: true, beltSystem: false,
       personalTraining: true, nutritionTracking: false, bodyComposition: true,
       groupClasses: true, openGym: false, store: false,
@@ -433,7 +433,7 @@ export const ORGANIZATION_CONFIGS: Record<string, OrganizationTypeConfig> = {
     },
     features: {
       wods: true, leaderboard: true, personalRecords: true, rxScaled: false,
-      timers: true, rmCalculator: true, gamification: true, fistbumps: true,
+      timers: true, rmCalculator: true, gamification: true, fistbumps: true, community: true,
       dropins: true, tvDisplay: true, movementLibrary: true, beltSystem: false,
       personalTraining: true, nutritionTracking: true, bodyComposition: true,
       groupClasses: true, openGym: true, store: true,
@@ -459,7 +459,7 @@ export const ORGANIZATION_CONFIGS: Record<string, OrganizationTypeConfig> = {
     },
     features: {
       wods: true, leaderboard: true, personalRecords: true, rxScaled: false,
-      timers: true, rmCalculator: false, gamification: true, fistbumps: true,
+      timers: true, rmCalculator: false, gamification: true, fistbumps: true, community: true,
       dropins: true, tvDisplay: false, movementLibrary: true, beltSystem: false,
       personalTraining: false, nutritionTracking: false, bodyComposition: false,
       groupClasses: true, openGym: false, store: true,
@@ -485,7 +485,7 @@ export const ORGANIZATION_CONFIGS: Record<string, OrganizationTypeConfig> = {
     },
     features: {
       wods: false, leaderboard: false, personalRecords: false, rxScaled: false,
-      timers: false, rmCalculator: false, gamification: true, fistbumps: true,
+      timers: false, rmCalculator: false, gamification: true, fistbumps: true, community: true,
       dropins: true, tvDisplay: false, movementLibrary: true, beltSystem: true,
       personalTraining: true, nutritionTracking: false, bodyComposition: false,
       groupClasses: true, openGym: false, store: true,
@@ -511,7 +511,7 @@ export const ORGANIZATION_CONFIGS: Record<string, OrganizationTypeConfig> = {
     },
     features: {
       wods: true, leaderboard: true, personalRecords: true, rxScaled: true,
-      timers: true, rmCalculator: true, gamification: true, fistbumps: true,
+      timers: true, rmCalculator: true, gamification: true, fistbumps: true, community: true,
       dropins: true, tvDisplay: true, movementLibrary: true, beltSystem: true,
       personalTraining: true, nutritionTracking: true, bodyComposition: true,
       groupClasses: true, openGym: true, store: true,

@@ -70,6 +70,7 @@ export interface OrganizationFeatures {
   openGym: boolean;           // Open gym / free practice slots
   personalTraining: boolean;  // PT scheduling
   // Community & Engagement
+  community: boolean;         // Social feed (posts, reactions, comments)
   gamification: boolean;      // Streaks, medals, points
   fistbumps: boolean;         // Social reactions
   dropins: boolean;           // Cross-gym visits

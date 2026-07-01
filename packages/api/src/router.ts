@@ -7,6 +7,7 @@ import { classTemplatesRouter } from "./routers/classTemplates";
 import { classTypesRouter } from "./routers/classTypes";
 import { classesRouter } from "./routers/classes";
 import { coachesRouter } from "./routers/coaches";
+import { communityRouter } from "./routers/community";
 import { contractsRouter } from "./routers/contracts";
 import { dashboardRouter } from "./routers/dashboard";
 import { exercisesRouter } from "./routers/exercises";
@@ -55,6 +56,7 @@ export const appRouter = router({
   contracts: contractsRouter,
   certifications: certificationsRouter,
   classTemplates: classTemplatesRouter,
+  community: communityRouter,
   memberGroups: memberGroupsRouter,
   dashboard: dashboardRouter,
   uploads: uploadsRouter,

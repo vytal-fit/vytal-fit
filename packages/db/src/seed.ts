@@ -657,6 +657,68 @@ export async function seedDatabase(
       .returning({ id: schema.classTemplates.id })
   ).length;
 
+  // Community feed: a mix of a pinned staff announcement, auto-events and
+  // athlete posts, with reactions + a couple of comments. Times are relative.
+  const minsAgo = (m: number) => new Date(Date.now() - m * 60_000);
+  const communitySeed = [
+    { id: "cp-1", authorName: "Coach Miguel", authorType: "coach", kind: "announcement", content: "Amanhã: FRAN edition às 18:30. Vamos com tudo! 🔥", pinned: true, mins: 60 },
+    { id: "cp-2", authorName: "Ana Silva", authorType: "athlete", kind: "auto_pr", content: "bateu PR no Back Squat com 95 kg!", pinned: false, mins: 130 },
+    { id: "cp-3", authorName: "Pedro Ferreira", authorType: "athlete", kind: "auto_milestone", content: "completou 100 check-ins no box!", pinned: false, mins: 200 },
+    { id: "cp-4", authorName: "Mariana Costa", authorType: "athlete", kind: "post", content: "Alguém para o open gym de sábado de manhã?", pinned: false, mins: 320 },
+    { id: "cp-5", authorName: "Rui Mendes", authorType: "athlete", kind: "auto_pr", content: "fez PR no Clean & Jerk com 110 kg!", pinned: false, mins: 500 },
+    { id: "cp-6", authorName: "Silvina Resende", authorType: "owner", kind: "announcement", content: "Novo horário de verão em vigor a partir de segunda. Vejam o calendário.", pinned: false, mins: 900 },
+  ];
+  inserted.communityPosts = (
+    await db
+      .insert(schema.communityPosts)
+      .values(
+        communitySeed.map((p) => ({
+          id: p.id,
+          organizationId: ORG_1,
+          authorUserId: null,
+          authorName: p.authorName,
+          authorType: p.authorType,
+          kind: p.kind,
+          content: p.content,
+          pinned: p.pinned,
+          createdAt: minsAgo(p.mins),
+        })),
+      )
+      .onConflictDoNothing()
+      .returning({ id: schema.communityPosts.id })
+  ).length;
+
+  // Reactions: spread distinct actor ids so counts look organic.
+  const reactionRows = communitySeed.flatMap((p, pi) => {
+    const n = [14, 22, 31, 5, 9, 8][pi] ?? 3;
+    return Array.from({ length: Math.min(n, 12) }, (_, i) => ({
+      id: `cr-${p.id}-${i}`,
+      organizationId: ORG_1,
+      postId: p.id,
+      actorId: `seed-actor-${i}`,
+      createdAt: minsAgo(p.mins - 1),
+    }));
+  });
+  inserted.communityReactions = (
+    await db
+      .insert(schema.communityReactions)
+      .values(reactionRows)
+      .onConflictDoNothing()
+      .returning({ id: schema.communityReactions.id })
+  ).length;
+
+  inserted.communityComments = (
+    await db
+      .insert(schema.communityComments)
+      .values([
+        { id: "cc-1", organizationId: ORG_1, postId: "cp-1", authorUserId: null, authorName: "Ana Silva", authorType: "athlete", content: "Vamos! 💪", createdAt: minsAgo(50) },
+        { id: "cc-2", organizationId: ORG_1, postId: "cp-1", authorUserId: null, authorName: "Rui Mendes", authorType: "athlete", content: "Conta comigo", createdAt: minsAgo(40) },
+        { id: "cc-3", organizationId: ORG_1, postId: "cp-4", authorUserId: null, authorName: "Coach Miguel", authorType: "coach", content: "Abro o box às 09:00 :)", createdAt: minsAgo(300) },
+      ])
+      .onConflictDoNothing()
+      .returning({ id: schema.communityComments.id })
+  ).length;
+
   inserted.classes = (
     await db
       .insert(schema.classes)

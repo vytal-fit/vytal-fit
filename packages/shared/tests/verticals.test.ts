@@ -53,6 +53,7 @@ const FEATURE_KEYS = [
   "groupClasses",
   "openGym",
   "personalTraining",
+  "community",
   "gamification",
   "fistbumps",
   "dropins",

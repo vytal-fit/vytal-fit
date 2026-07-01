@@ -492,6 +492,7 @@ export const en: Record<string, string> = {
     "feature.timers": "Timers (AMRAP, EMOM, etc.)",
     "feature.rmCalculator": "RM Calculator",
     "feature.gamification": "Gamification (streaks, medals)",
+    "feature.community": "Community / Social Feed",
     "feature.fistbumps": "Fistbumps / Social Reactions",
     "feature.dropins": "Drop-ins / External Visits",
     "feature.tvDisplay": "TV Display / Coachboard",

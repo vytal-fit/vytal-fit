@@ -197,6 +197,13 @@
       "when": 1782890711482,
       "tag": "0027_dizzy_banshee",
       "breakpoints": true
+    },
+    {
+      "idx": 28,
+      "version": "7",
+      "when": 1782892421898,
+      "tag": "0028_wandering_blur",
+      "breakpoints": true
     }
   ]
 }

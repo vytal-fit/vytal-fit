@@ -30,7 +30,7 @@ const FEATURE_GROUPS: FeatureGroup[] = [
   },
   {
     titleKey: "onboarding.categoryCommunity",
-    keys: ["gamification", "fistbumps", "dropins", "beltSystem"],
+    keys: ["community", "gamification", "fistbumps", "dropins", "beltSystem"],
   },
   {
     titleKey: "onboarding.categoryHealth",
