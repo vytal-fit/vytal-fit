@@ -812,6 +812,22 @@ export async function seedDatabase(
       .returning({ id: schema.emailSuppressions.id })
   ).length;
 
+  // Scheduled social posts (marketing).
+  inserted.socialPosts = (
+    await db
+      .insert(schema.socialPosts)
+      .values([
+        { id: "sp-1", organizationId: ORG_1, platform: "instagram", content: "Novo WOD disponível! Quem vem destruir hoje? #crossfit #aveiro", scheduledDate: isoDateFromToday(1), scheduledTime: "18:00", status: "scheduled", imageLabel: "WOD Photo" },
+        { id: "sp-2", organizationId: ORG_1, platform: "facebook", content: "Parabéns aos atletas que completaram o desafio deste mês!", scheduledDate: isoDateFromToday(2), scheduledTime: "10:00", status: "scheduled", imageLabel: "Group Photo" },
+        { id: "sp-3", organizationId: ORG_1, platform: "instagram", content: "Member Spotlight: Ana Silva bateu PR no Clean & Jerk!", scheduledDate: isoDateFromToday(3), scheduledTime: "19:00", status: "scheduled" },
+        { id: "sp-4", organizationId: ORG_1, platform: "linkedin", content: "Estamos a contratar coaches certificados. Junta-te à equipa!", scheduledDate: isoDateFromToday(4), scheduledTime: "09:00", status: "draft" },
+        { id: "sp-5", organizationId: ORG_1, platform: "instagram", content: "Treino de hoje: 21-15-9 Thrusters & Pull-ups. #fran", scheduledDate: isoDateFromToday(-2), scheduledTime: "07:00", status: "published" },
+        { id: "sp-6", organizationId: ORG_1, platform: "facebook", content: "Obrigado a todos que vieram ao evento de aniversário!", scheduledDate: isoDateFromToday(-5), scheduledTime: "20:00", status: "published", imageLabel: "Anniversary" },
+      ])
+      .onConflictDoNothing()
+      .returning({ id: schema.socialPosts.id })
+  ).length;
+
   // Media library catalog.
   inserted.mediaAssets = (
     await db

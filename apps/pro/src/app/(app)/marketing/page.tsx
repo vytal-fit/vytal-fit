@@ -15,12 +15,12 @@ import {
   X,
   ChevronLeft,
   ChevronRight,
-  Eye,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/lib/i18n";
 import { useToast } from "@/components/toast";
 import { Breadcrumbs } from "@/components/breadcrumbs";
+import { trpc } from "@/lib/trpc";
 
 type Platform = "instagram" | "facebook" | "linkedin";
 type PostStatus = "scheduled" | "published" | "draft";
@@ -40,17 +40,6 @@ const platformConfig: Record<Platform, { label: string; icon: typeof Camera; col
   facebook: { label: "Facebook", icon: Globe, color: "text-blue-500" },
   linkedin: { label: "LinkedIn", icon: Briefcase, color: "text-sky-600" },
 };
-
-const mockPosts: ScheduledPost[] = [
-  { id: "post-1", platform: "instagram", content: "Novo WOD disponivel! Quem vem destruir hoje? #crossfit #wod #aveiro", scheduledDate: "2026-06-05", scheduledTime: "18:00", status: "scheduled", imageLabel: "WOD Photo" },
-  { id: "post-2", platform: "facebook", content: "Parabens a todos os atletas que completaram o desafio de Maio! Resultados incriveis!", scheduledDate: "2026-06-04", scheduledTime: "10:00", status: "scheduled", imageLabel: "Group Photo" },
-  { id: "post-3", platform: "instagram", content: "Member Spotlight: Ana Silva bateu o seu PR no Clean & Jerk! 65kg!", scheduledDate: "2026-06-06", scheduledTime: "19:00", status: "scheduled", imageLabel: "Ana PR" },
-  { id: "post-4", platform: "linkedin", content: "CrossFit Aveiro esta a contratar! Procuramos coaches certificados para se juntarem a equipa.", scheduledDate: "2026-06-07", scheduledTime: "09:00", status: "draft" },
-  { id: "post-5", platform: "instagram", content: "Open Box este sabado das 09:00 as 11:00. Tragam um amigo! #openbox #crossfit", scheduledDate: "2026-06-08", scheduledTime: "18:30", status: "scheduled" },
-  { id: "post-6", platform: "facebook", content: "Promocao de Verao! 20% desconto no plano trimestral. Valido ate 30 de Junho.", scheduledDate: "2026-06-09", scheduledTime: "12:00", status: "scheduled", imageLabel: "Promo Banner" },
-  { id: "post-7", platform: "instagram", content: "Treino de hoje: 21-15-9 Thrusters & Pull-ups. Quem se atreve? #fran #benchmark", scheduledDate: "2026-06-03", scheduledTime: "07:00", status: "published" },
-  { id: "post-8", platform: "facebook", content: "Obrigado a todos que vieram ao evento de aniversario! 3 anos de CrossFit Aveiro!", scheduledDate: "2026-06-01", scheduledTime: "20:00", status: "published", imageLabel: "Anniversary" },
-];
 
 const statusBadgeClass: Record<PostStatus, string> = {
   scheduled: "bg-vytal-blue/10 text-vytal-blue",
@@ -76,7 +65,17 @@ export default function MarketingPage() {
   const { t } = useI18n();
   const { toast } = useToast();
 
-  const [posts, setPosts] = useState(mockPosts);
+  const utils = trpc.useUtils();
+  const postsQuery = trpc.marketing.posts.useQuery();
+  const posts: ScheduledPost[] = (postsQuery.data ?? []).map((p) => ({
+    id: p.id,
+    platform: p.platform as Platform,
+    content: p.content,
+    scheduledDate: p.scheduledDate,
+    scheduledTime: p.scheduledTime,
+    status: p.status as PostStatus,
+    imageLabel: p.imageLabel ?? undefined,
+  }));
   const [showCreate, setShowCreate] = useState(false);
   const [calendarMonth, setCalendarMonth] = useState(5); // June = 5 (0-indexed)
   const [calendarYear, setCalendarYear] = useState(2026);
@@ -107,23 +106,32 @@ export default function MarketingPage() {
   const publishedCount = posts.filter((p) => p.status === "published").length;
   const scheduledCount = posts.filter((p) => p.status === "scheduled").length;
 
-  const handleCreate = (publish: boolean) => {
+  const onError = (e: { data?: { code?: string } | null }) =>
+    toast(e.data?.code === "FORBIDDEN" ? t("settings.adminOnly") : t("ui.error"), "error");
+  const createPost = trpc.marketing.create.useMutation({ onError });
+  const setStatus = trpc.marketing.setStatus.useMutation({ onError });
+
+  const handleCreate = async (publish: boolean) => {
     if (!newPost.content || !newPost.scheduledDate) {
       toast(t("marketing.fillRequired"), "error");
       return;
     }
-    const post: ScheduledPost = {
-      id: `post-${Date.now()}`,
-      platform: newPost.platform,
-      content: newPost.content,
-      scheduledDate: newPost.scheduledDate,
-      scheduledTime: newPost.scheduledTime,
-      status: publish ? "published" : "scheduled",
-    };
-    setPosts([post, ...posts]);
-    setShowCreate(false);
-    setNewPost({ platform: "instagram", content: "", scheduledDate: "", scheduledTime: "18:00" });
-    toast(publish ? t("marketing.published") : t("marketing.scheduled"), "success");
+    try {
+      const created = await createPost.mutateAsync({
+        platform: newPost.platform,
+        content: newPost.content,
+        scheduledDate: newPost.scheduledDate,
+        scheduledTime: newPost.scheduledTime,
+        status: "scheduled",
+      });
+      if (publish) await setStatus.mutateAsync({ id: created.id, status: "published" });
+      await utils.marketing.posts.invalidate();
+      setShowCreate(false);
+      setNewPost({ platform: "instagram", content: "", scheduledDate: "", scheduledTime: "18:00" });
+      toast(publish ? t("marketing.published") : t("marketing.scheduled"), "success");
+    } catch {
+      /* onError already surfaced it */
+    }
   };
 
   const prevMonth = () => {
@@ -166,20 +174,20 @@ export default function MarketingPage() {
         <div className="rounded-xl border border-vytal-border bg-vytal-bg2 p-5">
           <div className="flex items-center gap-3 mb-2">
             <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-vytal-blue/10">
-              <TrendingUp className="h-4.5 w-4.5 text-vytal-blue" />
+              <Clock className="h-4.5 w-4.5 text-vytal-blue" />
             </div>
-            <span className="text-sm text-vytal-muted">{t("marketing.avgEngagement")}</span>
+            <span className="text-sm text-vytal-muted">{t("status.scheduled")}</span>
           </div>
-          <span className="text-3xl font-bold text-vytal-text">4.2%</span>
+          <span className="text-3xl font-bold text-vytal-text">{scheduledCount}</span>
         </div>
         <div className="rounded-xl border border-vytal-border bg-vytal-bg2 p-5">
           <div className="flex items-center gap-3 mb-2">
             <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-vytal-amber/10">
-              <Eye className="h-4.5 w-4.5 text-vytal-amber" />
+              <TrendingUp className="h-4.5 w-4.5 text-vytal-amber" />
             </div>
-            <span className="text-sm text-vytal-muted">{t("marketing.bestPost")}</span>
+            <span className="text-sm text-vytal-muted">{t("status.published")}</span>
           </div>
-          <span className="text-sm font-bold text-vytal-text truncate block">Member Spotlight: Ana Silva</span>
+          <span className="text-3xl font-bold text-vytal-text">{publishedCount}</span>
         </div>
       </div>
 
@@ -370,13 +378,13 @@ export default function MarketingPage() {
 
             <div className="flex justify-end gap-3">
               <button
-                onClick={() => handleCreate(true)}
+                onClick={() => void handleCreate(true)}
                 className="rounded-lg border border-vytal-border px-4 py-2 text-sm font-medium text-vytal-muted hover:text-vytal-text transition-colors"
               >
                 {t("marketing.publishNow")}
               </button>
               <button
-                onClick={() => handleCreate(false)}
+                onClick={() => void handleCreate(false)}
                 className="flex items-center gap-2 rounded-lg bg-vytal-green px-5 py-2 text-sm font-semibold text-vytal-bg transition-colors hover:bg-vytal-green/90"
               >
                 <Clock className="h-4 w-4" />

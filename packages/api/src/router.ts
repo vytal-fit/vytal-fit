@@ -19,6 +19,7 @@ import { expensesRouter } from "./routers/expenses";
 import { leadsRouter } from "./routers/leads";
 import { locationsRouter } from "./routers/locations";
 import { memberGroupsRouter } from "./routers/memberGroups";
+import { marketingRouter } from "./routers/marketing";
 import { mediaRouter } from "./routers/media";
 import { membersRouter } from "./routers/members";
 import { messagesRouter } from "./routers/messages";
@@ -73,6 +74,7 @@ export const appRouter = router({
   campaigns: campaignsRouter,
   automations: automationsRouter,
   media: mediaRouter,
+  marketing: marketingRouter,
 });
 
 export type AppRouter = typeof appRouter;

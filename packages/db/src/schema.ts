@@ -1369,6 +1369,31 @@ export const expenses = pgTable(
 );
 
 /**
+ * Scheduled social posts (marketing). Real CRUD + scheduling metadata; actual
+ * publishing to Instagram/Facebook/LinkedIn needs platform OAuth (later).
+ */
+export const socialPosts = pgTable(
+  "social_posts",
+  {
+    id: text("id").primaryKey(),
+    organizationId: text("organization_id")
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    /** instagram | facebook | linkedin */
+    platform: text("platform").notNull().default("instagram"),
+    content: text("content").notNull(),
+    scheduledDate: date("scheduled_date").notNull(),
+    scheduledTime: text("scheduled_time").notNull().default("09:00"),
+    /** draft | scheduled | published */
+    status: text("status").notNull().default("draft"),
+    imageLabel: text("image_label"),
+    createdBy: text("created_by"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (t) => [index("social_posts_org_idx").on(t.organizationId)],
+);
+
+/**
  * Media library assets (catalog). Binary upload runs through the `uploads` S3
  * seam later; this is the metadata catalog: name, kind, folder, URL, size.
  */
