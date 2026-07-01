@@ -220,7 +220,11 @@ describe("organization settings", () => {
     const org1 = rows.find((r) => r.organizationId === ORG_1);
     expect(org1?.features).toEqual(ORGANIZATION_CONFIGS["crossfit_box"]?.features);
     expect(org1?.branding.accentColor).toBe("#22c55e");
-    expect(org1?.publicSite.enabled).toBe(false);
+    // org-1 ships real public-site + profile content so the marketing pages
+    // render from the API (other orgs keep the disabled default).
+    expect(org1?.publicSite.enabled).toBe(true);
+    expect(org1?.publicSite.slogan).toBe("Stronger Every Day");
+    expect(org1?.profile?.email).toBe("info@crossfitaveiro.pt");
     expect(org1?.terminologyOverrides).toBeNull();
 
     const org2 = rows.find((r) => r.organizationId === "org-2");
