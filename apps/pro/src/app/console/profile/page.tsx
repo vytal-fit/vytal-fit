@@ -20,18 +20,28 @@ import { useAppStore } from "@/stores/app-store";
 import { useI18n } from "@/lib/i18n";
 
 
-// Badge keys resolved via t() inside the component
-const MOCK_BADGE_KEYS = [
-  { emoji: "🔥", labelKey: "my.profile.badge.dedicated",   descKey: "my.profile.badge.dedicatedDesc" },
-  { emoji: "💎", labelKey: "my.profile.badge.century",     descKey: "my.profile.badge.centuryDesc" },
-  { emoji: "🏆", labelKey: "my.profile.badge.champ",       descKey: "my.profile.badge.champDesc" },
-  { emoji: "⚡", labelKey: "my.profile.badge.starter",     descKey: "my.profile.badge.starterDesc" },
+// Achievement catalog. `earned` derives real unlock state from member stats —
+// no fabricated "all unlocked" badges; labels/descs resolved via t().
+const BADGE_DEFS: {
+  emoji: string;
+  labelKey: string;
+  descKey: string;
+  earned: (s: { streakWeeks: number; totalCheckIns: number; prCount: number }) => boolean;
+}[] = [
+  { emoji: "⚡", labelKey: "my.profile.badge.starter",   descKey: "my.profile.badge.starterDesc",   earned: (s) => s.totalCheckIns >= 1 },
+  { emoji: "🔥", labelKey: "my.profile.badge.dedicated", descKey: "my.profile.badge.dedicatedDesc", earned: (s) => s.streakWeeks >= 4 },
+  { emoji: "💎", labelKey: "my.profile.badge.century",   descKey: "my.profile.badge.centuryDesc",   earned: (s) => s.totalCheckIns >= 100 },
+  { emoji: "🏆", labelKey: "my.profile.badge.champ",     descKey: "my.profile.badge.champDesc",     earned: (s) => s.prCount >= 1 },
 ];
 
 export default function ProfilePage() {
   const { user, hydrate, logout } = useAuthStore();
   const meQuery = trpc.members.me.useQuery();
   const memberId = meQuery.data?.id ?? null;
+  const prBadgeQuery = trpc.personalRecords.list.useQuery(
+    { memberId: memberId ?? "" },
+    { enabled: !!memberId },
+  );
   const subsQuery = trpc.subscriptions.byMember.useQuery(
     { memberId: memberId ?? "" },
     { enabled: !!memberId },
@@ -271,24 +281,33 @@ export default function ProfilePage() {
           {t("my.profile.achievements")}
         </p>
         <div className="grid grid-cols-4 gap-2">
-          {MOCK_BADGE_KEYS.map((badge, i) => (
-            <div
-              key={i}
-              className="flex flex-col items-center gap-1.5 p-2.5 rounded-xl transition-all duration-200 hover:scale-105"
-              style={{
-                background: "rgba(34,197,94,0.06)",
-                border: "1px solid rgba(34,197,94,0.12)",
-              }}
-            >
-              <span className="text-xl">{badge.emoji}</span>
-              <p className="text-[10px] font-bold text-center leading-tight" style={{ color: "var(--color-vytal-text)" }}>
-                {t(badge.labelKey)}
-              </p>
-              <p className="text-[8px] text-center leading-tight" style={{ color: "var(--color-vytal-muted)" }}>
-                {t(badge.descKey)}
-              </p>
-            </div>
-          ))}
+          {BADGE_DEFS.map((badge, i) => {
+            const earned = badge.earned({
+              streakWeeks: meQuery.data?.streakWeeks ?? 0,
+              totalCheckIns: meQuery.data?.totalCheckIns ?? 0,
+              prCount: prBadgeQuery.data?.items.length ?? 0,
+            });
+            return (
+              <div
+                key={i}
+                className="flex flex-col items-center gap-1.5 p-2.5 rounded-xl transition-all duration-200 hover:scale-105"
+                style={{
+                  background: earned ? "rgba(34,197,94,0.06)" : "var(--color-vytal-bg3)",
+                  border: earned ? "1px solid rgba(34,197,94,0.12)" : "1px solid var(--color-vytal-border)",
+                  opacity: earned ? 1 : 0.4,
+                  filter: earned ? undefined : "grayscale(1)",
+                }}
+              >
+                <span className="text-xl">{badge.emoji}</span>
+                <p className="text-[10px] font-bold text-center leading-tight" style={{ color: "var(--color-vytal-text)" }}>
+                  {t(badge.labelKey)}
+                </p>
+                <p className="text-[8px] text-center leading-tight" style={{ color: "var(--color-vytal-muted)" }}>
+                  {t(badge.descKey)}
+                </p>
+              </div>
+            );
+          })}
         </div>
       </div>
 
