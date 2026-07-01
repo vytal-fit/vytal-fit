@@ -1,65 +1,60 @@
 ---
-title: Auth and Sessions
+title: Authentication
 category:
   uri: Core Concepts
 slug: auth-and-sessions
 position: 0
 ---
 
-Auth runs on `api.vytal.fit` (Better Auth). One sign-in, two ways to carry the
-session: both resolve to the same session, and the **active organization always
-comes from the session, never from the client**.
+Every request to the Vytal API authenticates with an **organization API key**,
+sent Stripe-style as a Bearer token:
 
-## Two auth modes
-
-| | Browser apps | Mobile / server |
-| --- | --- | --- |
-| Carrier | Session **cookie** | **Bearer token** |
-| Where it comes from | Set automatically on sign-in | `set-auth-token` response header on sign-in |
-| How you send it | `credentials: "include"` | `Authorization: Bearer <token>` |
-
-## Endpoints
-
-- `POST /auth/sign-in/email`: sign in (sets the cookie **and** returns `set-auth-token`)
-- `POST /auth/sign-up/email`: create an account and sign in
-- `POST /auth/sign-out`: end the session
-- `GET /auth/session`: read the current session, or `null` when signed out
-- `PATCH /me/session`: switch the active organization
-- `GET /openapi.json`: the machine-readable contract
-
-## Sign in (browser)
-
-```bash
-curl -i -c vytal.cookies -X POST https://api.vytal.fit/auth/sign-in/email \
-  -H 'content-type: application/json' \
-  -d '{"email":"you@example.com","password":"your-password"}'
+```
+Authorization: Bearer vk_live_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 ```
 
-## Sign in (mobile / server)
+The key both identifies you and scopes every call to exactly one organization
+(the gym). You never pass an org id in a request: it is implied by the key.
+
+## Getting a key
+
+Keys are created and revoked from the Vytal app, under **Settings → API Keys**,
+the same way you manage keys in Stripe. They cannot be minted through the API
+itself.
+
+1. Open **Settings → API Keys** in proVytal.
+2. Click **Create API Key**, give it a name (e.g. "Zapier", "Website").
+3. Copy the `vk_live_…` secret **immediately**: it is shown once and never
+   stored in a recoverable form. If you lose it, revoke and create another.
+
+A key stays valid until you revoke it. Revoking takes effect immediately.
+
+## Using a key
 
 ```bash
-# the token is in the `set-auth-token` response header
-curl -i -X POST https://api.vytal.fit/auth/sign-in/email \
-  -H 'content-type: application/json' \
-  -d '{"email":"you@example.com","password":"your-password"}'
-
-# reuse it on later requests
-curl https://api.vytal.fit/auth/session \
-  -H 'authorization: Bearer YOUR_TOKEN'
+curl https://api.vytal.fit/v1/members \
+  -H 'authorization: Bearer vk_live_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
 ```
 
-## Switch the active organization
-
-```bash
-curl -b vytal.cookies -X PATCH https://api.vytal.fit/me/session \
-  -H 'content-type: application/json' \
-  -d '{"activeOrganizationId":"org-1"}'
+```js
+const res = await fetch("https://api.vytal.fit/v1/members", {
+  headers: { authorization: `Bearer ${process.env.VYTAL_API_KEY}` },
+});
+const { items } = await res.json();
 ```
 
-## Rules
+## Keep keys secret
 
-- Google social login is enabled when the deployment is configured for it.
-- For credentialed browser requests, CORS echoes the requesting app origin,
-  never `*`.
-- Use `/me/session` for active-organization changes; treat `memberId` and
-  `activeOrganizationId` as session-scoped, not client-supplied.
+- Treat a key like a password. Store it in a secret manager or an environment
+  variable, never in client-side code, a public repo, or a mobile bundle.
+- Use a separate key per integration so you can revoke one without disrupting
+  the others.
+- A missing or invalid key returns `401`; see [Errors](./errors).
+
+## First-party vs third-party
+
+Vytal's own web and mobile apps are first-party: they sign in with Better Auth
+and talk to an internal surface directly. **Third-party integrations always use
+an API key** against the public `/v1` gateway documented here: session-only
+callers are rejected. That separation is deliberate, so external access is
+always attributable to a key you control.

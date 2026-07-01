@@ -7,59 +7,43 @@ position: 1
 ---
 
 The shortest path from zero to a working Vytal integration. Every request is
-scoped to the caller's **active organization** (the gym).
+scoped to your API key's **organization** (the gym).
 
 > 👍 Prerequisites
 >
-> A Vytal account and the base URL `https://api.vytal.fit`. No SDK required:
+> A Vytal account and the base URL `https://api.vytal.fit/v1`. No SDK required:
 > these examples are plain `curl` and `fetch`.
 
-## Authentication in 30 seconds
+## 1. Create an API key
 
-One sign-in, two equivalent ways to carry the session:
-
-- **Browser apps**: sign-in sets a session **cookie**. Send it on every
-  request (cross-origin: `credentials: "include"`).
-- **Mobile / server**: sign-in returns a **token** in the `set-auth-token`
-  response header. Send it as `Authorization: Bearer <token>`.
-
-## 1. Sign in
+In proVytal, open **Settings → API Keys**, click **Create API Key**, and copy
+the `vk_live_…` secret. It is shown once. Keep it in an environment variable:
 
 ```bash
-# -i shows response headers (the bearer token is in `set-auth-token`);
-# -c saves the session cookie for browser-style calls.
-curl -i -c vytal.cookies -X POST https://api.vytal.fit/auth/sign-in/email \
-  -H 'content-type: application/json' \
-  -d '{"email":"you@example.com","password":"your-password"}'
+export VYTAL_API_KEY=vk_live_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 ```
 
-## 2. Choose the active gym
+## 2. Make your first call
+
+Every request carries the key as a Bearer token. The org is implied by the key,
+so there is nothing else to set up.
 
 ```bash
-# gyms you belong to
-curl -b vytal.cookies https://api.vytal.fit/organizations
+# your gym's members
+curl https://api.vytal.fit/v1/members \
+  -H "authorization: Bearer $VYTAL_API_KEY"
 
-# set the active one: every later request is scoped to it
-curl -b vytal.cookies -X PATCH https://api.vytal.fit/me/session \
-  -H 'content-type: application/json' \
-  -d '{"activeOrganizationId":"org-1"}'
+# today's class schedule
+curl https://api.vytal.fit/v1/classes/schedule \
+  -H "authorization: Bearer $VYTAL_API_KEY"
 ```
 
-Bearer equivalent (mobile / server):
+## 3. Write something
 
 ```bash
-curl https://api.vytal.fit/organizations \
-  -H 'authorization: Bearer YOUR_TOKEN'
-```
-
-## 3. Your first business request
-
-```bash
-# a member's bookings
-curl -b vytal.cookies 'https://api.vytal.fit/bookings?memberId=m-1'
-
 # book a member into a class (auto-waitlists if the class is full)
-curl -b vytal.cookies -X POST https://api.vytal.fit/bookings \
+curl -X POST https://api.vytal.fit/v1/bookings/book \
+  -H "authorization: Bearer $VYTAL_API_KEY" \
   -H 'content-type: application/json' \
   -d '{"classId":"cl-1","memberId":"m-1"}'
 ```
@@ -67,24 +51,18 @@ curl -b vytal.cookies -X POST https://api.vytal.fit/bookings \
 ## In JavaScript
 
 ```js
-const api = "https://api.vytal.fit";
+const api = "https://api.vytal.fit/v1";
+const auth = { authorization: `Bearer ${process.env.VYTAL_API_KEY}` };
 
-await fetch(`${api}/auth/sign-in/email`, {
-  method: "POST",
-  credentials: "include",
-  headers: { "content-type": "application/json" },
-  body: JSON.stringify({ email, password }),
-});
-
-const { items } = await fetch(`${api}/organizations`, {
-  credentials: "include",
-}).then((r) => r.json());
+const { items } = await fetch(`${api}/members`, { headers: auth }).then((r) =>
+  r.json(),
+);
 ```
 
 ## Next
 
+- [Authentication](./auth-and-sessions): API keys in depth.
 - [Conventions](./conventions): org scope, list shape, dates, idempotency.
 - [Errors](./errors): the single error shape and status codes.
-- [Auth and Sessions](./auth-and-sessions): cookie vs bearer in depth.
-- [API Examples](./examples): copy/paste for records and results.
+- [API Examples](./examples): copy/paste for bookings, records, and results.
 - [OpenAPI spec](https://api.vytal.fit/openapi.json): the machine-readable contract.

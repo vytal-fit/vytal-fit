@@ -6,59 +6,78 @@ slug: developer-api
 position: 2
 ---
 
-The Vytal API is a single REST surface on `api.vytal.fit`. The pro app, the
-athlete portal, the mobile clients, and partner integrations all read and write
-through it, and every call runs in the context of one active organization.
+The Vytal API is a single REST surface at `https://api.vytal.fit/v1`. Partner
+integrations read and write bookings, memberships, payments, classes, results,
+and more, and every call runs in the context of the organization behind your
+API key.
 
-> 📘 New here? Start with the [Quickstart](./quickstart): sign in, pick a gym,
-> make your first call in three requests.
+> 📘 New here? Start with the [Quickstart](./quickstart): create a key and make
+> your first call in two requests.
 
 ## Hosts
 
 | Host | Serves |
 | :-- | :-- |
-| `api.vytal.fit` | The REST API and the OpenAPI contract |
+| `api.vytal.fit/v1` | The REST API |
+| `api.vytal.fit/openapi.json` | The OpenAPI contract |
 | `pro.vytal.fit` | proVytal, the staff backoffice |
 | `my.vytal.fit` | myVytal, the athlete portal |
 | `vytal.fit` | The public marketing site |
 
+## Authentication
+
+Send your organization API key as a Bearer token on every request:
+
+```
+Authorization: Bearer vk_live_…
+```
+
+Create and revoke keys in **Settings → API Keys** (see
+[Authentication](./auth-and-sessions)). The organization is implied by the key,
+never passed in a body.
+
 ## What you can do
 
-- **Authenticate** with email/password or Google, by cookie or bearer token.
-- **Switch the active organization** so every later call is scoped to one gym.
-- **Manage bookings**: book a member, cancel, or read a class roster; full
-  classes auto-waitlist.
-- **Track performance**: log personal records and WOD results.
-- **Check runtime health** for monitoring and deploys.
+- **Members & memberships**: list, create, update, archive members; manage
+  subscriptions and plans.
+- **Scheduling**: read the class schedule and history; create classes; manage
+  bookings and the waitlist; record attendance and check-ins.
+- **Training**: log personal records and WOD results; publish WODs; collect
+  workout feedback and wellness check-ins.
+- **Commerce**: products, sales, orders, suppliers, payments, and expenses.
+- **CRM**: leads, stages, and activity logs.
+- **Insight**: dashboard stats, charts, and analytics.
 
-## Endpoints at a glance
+## Surface at a glance
 
-| Resource | Method · Path | Purpose |
-| :-- | :-- | :-- |
-| Auth | `POST /auth/sign-in/email` | Sign in (cookie + bearer token) |
-| Auth | `POST /auth/sign-up/email` | Create an account and sign in |
-| Auth | `POST /auth/sign-out` | End the session |
-| Session | `GET /auth/session` | Read the current session |
-| Session | `PATCH /me/session` | Switch the active organization |
-| Organizations | `GET /organizations` | List gyms you belong to |
-| Bookings | `GET · POST /bookings` | Read or create bookings |
-| Records | `GET · POST /records` | Personal records |
-| Results | `GET · POST /results` | WOD results |
-| Health | `GET /health` | Runtime and database status |
-| Spec | `GET /openapi.json` | The machine-readable contract |
+| Resource | Example |
+| :-- | :-- |
+| Members | `GET /v1/members` · `POST /v1/members` |
+| Classes | `GET /v1/classes/schedule` · `POST /v1/classes` |
+| Bookings | `POST /v1/bookings/book` · `POST /v1/bookings/cancel` |
+| Subscriptions | `GET /v1/subscriptions` · `GET /v1/subscriptions/plans` |
+| Payments | `GET /v1/payments` · `GET /v1/payments/stats` |
+| Records | `GET · POST /v1/personal-records` |
+| Results | `GET · POST /v1/wod-results` |
+| Leads | `GET /v1/leads` · `POST /v1/leads/update-stage` |
+| Dashboard | `GET /v1/dashboard/stats` · `GET /v1/dashboard/charts` |
+
+The complete, always-current list is in the
+[OpenAPI document](https://api.vytal.fit/openapi.json).
 
 ## The contract
 
-- **Root-level REST paths**, no version prefix in the URL.
+- **Versioned base path** `/v1`; resources are clean nouns beneath it.
 - **One [error shape](./errors)** with predictable status codes.
 - **Consistent [conventions](./conventions)** for list responses, dates, and
   idempotency.
-- The full, machine-readable spec is the
-  [OpenAPI document](https://api.vytal.fit/openapi.json).
+- The spec is generated directly from the live backend, so it never drifts from
+  what's deployed.
 
 ## Keep reading
 
-- **[Auth and Sessions](./auth-and-sessions)**: cookie vs bearer in depth.
-- **[API Examples](./examples)**: copy/paste for records and results.
-- **[Mobile Integration](./mobile)**: the bearer-token flow for native apps.
+- **[Authentication](./auth-and-sessions)**: API keys in depth.
+- **[REST Principles](./rest-api-principles)**: how paths and methods are shaped.
+- **[API Examples](./examples)**: copy/paste for bookings, records, and results.
+- **[Server & Integrations](./mobile)**: patterns for server-to-server callers.
 - **[Deployment](./deployment)**: hosts, origins, and environment variables.

@@ -1213,6 +1213,36 @@ export const expenses = pgTable(
   ],
 );
 
+/**
+ * External API keys (the paid developer-API gate). Only the SHA-256 hash of the
+ * key is stored; the plaintext (`vk_live_…`) is shown once at creation. Every
+ * external REST call authenticates with one and is scoped to its organization.
+ */
+export const apiKeys = pgTable(
+  "api_keys",
+  {
+    id: text("id").primaryKey(),
+    organizationId: text("organization_id")
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    name: text("name").notNull(),
+    /** Display prefix, e.g. "vk_live_a1b2". */
+    prefix: text("prefix").notNull(),
+    /** Last 4 chars for display (e.g. "·9f3c"). */
+    last4: text("last4").notNull(),
+    /** SHA-256 hex of the full key. */
+    keyHash: text("key_hash").notNull().unique(),
+    createdBy: text("created_by"),
+    lastUsedAt: timestamp("last_used_at"),
+    revokedAt: timestamp("revoked_at"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (t) => [
+    index("api_keys_org_idx").on(t.organizationId),
+    index("api_keys_hash_idx").on(t.keyHash),
+  ],
+);
+
 /** Reusable contract/waiver templates (Membership Agreement, PAR-Q, RGPD…). */
 export const contractTemplates = pgTable(
   "contract_templates",

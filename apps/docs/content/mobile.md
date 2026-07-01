@@ -1,55 +1,52 @@
 ---
-title: Mobile Integration
+title: Server & Integrations
 category:
   uri: Guides
 slug: mobile
 position: 1
 ---
 
-Native apps use the same API host as the browser apps, but they carry a bearer
-token from secure storage instead of a browser cookie.
+Server-to-server callers, background jobs, and partner integrations all talk to
+the same `https://api.vytal.fit/v1` surface with an organization API key.
 
-> 📘 Cookie-free by design
+> 📘 Key handling by design
 >
-> Mobile never relies on cookies. Sign in once, read the token from the
-> `set-auth-token` response header, store it securely, and send it as
-> `Authorization: Bearer <token>` on every later request.
+> The API key is a long-lived secret. Store it in your platform's secret manager
+> or an environment variable, send it as `Authorization: Bearer vk_live_…`, and
+> never ship it in client-side or mobile code where it can be extracted.
 
 ## Base URL
 
-Point the app at the production API host:
-
 ```bash
-EXPO_PUBLIC_API_URL=https://api.vytal.fit
+VYTAL_API_URL=https://api.vytal.fit/v1
+VYTAL_API_KEY=vk_live_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 ```
 
-## Auth flow
-
-1. **Sign in** with email and password.
-2. **Read the token** from the `set-auth-token` response header.
-3. **Store it** in secure storage (Keychain / Keystore), never in plain
-   `AsyncStorage`.
-4. **Send it** as `Authorization: Bearer <token>` on every request, including
-   `GET /auth/session` on later launches to restore the session.
-5. **Set the active organization** with `PATCH /me/session` when the athlete
-   belongs to more than one gym.
-
-## Example calls
+## Making calls
 
 ```bash
-# 1. sign in: the token is in the `set-auth-token` response header (-i shows it)
-curl -i -X POST https://api.vytal.fit/auth/sign-in/email \
-  -H 'content-type: application/json' \
-  -d '{"email":"jose@vytal.fit","password":"VytalDemo2026!"}'
+# read: your gym's members
+curl "$VYTAL_API_URL/members" \
+  -H "authorization: Bearer $VYTAL_API_KEY"
 
-# 2. reuse the token on every later request
-curl https://api.vytal.fit/organizations \
-  -H 'authorization: Bearer <token>'
+# write: record a check-in
+curl -X POST "$VYTAL_API_URL/check-ins" \
+  -H "authorization: Bearer $VYTAL_API_KEY" \
+  -H 'content-type: application/json' \
+  -d '{"memberId":"mem_123"}'
 ```
 
 ## Rules
 
-- Keep the token in secure storage; treat it like a password.
-- Talk to `api.vytal.fit` directly; there is no mobile-only host.
-- `memberId` and `activeOrganizationId` are session-scoped, never
-  client-supplied.
+- Keep the key server-side; treat it like a password.
+- Use one key per integration, so you can revoke a single one cleanly.
+- `memberId` and the organization are resolved from the key and the request,
+  never client-supplied org ids.
+- Retry `429` and `503` with backoff; don't retry `4xx` without changing the
+  request. See [Errors](./errors).
+
+## Vytal's own mobile app
+
+The Vytal iOS/Android app is first-party: it signs in with Better Auth and uses
+a session token against an internal surface, not a `vk_live_` key. Third-party
+apps and services use API keys as shown above.

@@ -1,22 +1,22 @@
 /**
  * OpenAPI 3.1 contract for the Vytal API — **generated from the tRPC router**.
  *
- * The served surface is tRPC over HTTP at `/api/trpc/{procedure}`. Rather than
- * hand-maintaining a spec that drifts, this walks `appRouter` and emits one
- * operation per procedure, with request schemas produced from each procedure's
- * Zod input via Zod 4's native `z.toJSONSchema`. New routers/procedures appear
- * in `/openapi.json` automatically.
+ * The public surface is a clean REST gateway at `/v1/*` (see `rest-routes.ts`,
+ * which both this spec and the live gateway consume, so docs never drift from
+ * what works). Rather than hand-maintaining a spec, this walks `appRouter` and
+ * emits one operation per REST route, with request schemas produced from each
+ * procedure's Zod input via Zod 4's native `z.toJSONSchema`. New
+ * routers/procedures appear in `/openapi.json` automatically.
  *
  * Conventions encoded:
- *   - Auth is a **session cookie** (browser) or **Bearer token** (mobile/server).
- *   - Every resource is **scoped to the caller's active organization**.
- *   - Queries are `GET /trpc/{path}?input=<json>`; mutations are
- *     `POST /trpc/{path}` with the JSON input as the body. Responses use the
- *     tRPC envelope `{ "result": { "data": ... } }`.
+ *   - Auth is an **organization API key**: `Authorization: Bearer vk_live_…`.
+ *   - Every resource is **scoped to the key's organization**.
+ *   - Lists return `{ "items": [ ... ] }`; single resources return bare.
  *   - Errors share one shape: `{ "error": "<CODE>", "message": "<human>" }`.
  */
 import { z } from "zod";
 import { appRouter } from "./router";
+import { buildRouteTable, pathTemplate } from "./rest-routes";
 
 const ERROR_REF = { $ref: "#/components/responses/Error" } as const;
 
@@ -70,11 +70,11 @@ function buildSpec() {
   const paths: JsonObject = {};
   const tagSet = new Set<string>();
 
-  for (const [path, proc] of Object.entries(procedures)) {
+  for (const route of buildRouteTable()) {
+    const { procPath, type, method, pathParams } = route;
+    const proc = procedures[procPath];
     const def = (proc as { _def?: JsonObject })._def ?? {};
-    const type = (def.type as "query" | "mutation") ?? "query";
-    const ns = path.split(".")[0];
-    tagSet.add(ns);
+    tagSet.add(route.resource);
 
     const inputs = def.inputs as unknown[] | undefined;
     const inputZod = inputs && inputs.length ? inputs[inputs.length - 1] : undefined;
@@ -83,7 +83,7 @@ function buildSpec() {
       try {
         inputSchema = sanitizeSchema(
           z.toJSONSchema(inputZod as z.ZodType, { io: "input" }),
-          path,
+          procPath,
           sharedSchemas,
         );
       } catch {
@@ -91,16 +91,16 @@ function buildSpec() {
       }
     }
 
+    const httpPath = pathTemplate(route);
+    const verb = procPath.split(".").pop();
+
     const operation: JsonObject = {
-      operationId: path,
-      tags: [titleCase(ns)],
-      summary: `${type === "query" ? "Query" : "Mutation"}: ${path}`,
-      security: [{ cookieAuth: [] }, { bearerAuth: [] }],
+      operationId: procPath,
+      tags: [titleCase(route.resource)],
+      summary: `${titleCase(route.resource)}: ${verb}`,
+      security: [{ apiKeyAuth: [] }, { cookieAuth: [] }],
       responses: {
-        "200": {
-          description: "OK — tRPC envelope `{ result: { data } }`.",
-          content: { "application/json": { schema: { type: "object" } } },
-        },
+        "200": { description: "Success.", content: { "application/json": { schema: { type: "object" } } } },
         "400": ERROR_REF,
         "401": ERROR_REF,
         "403": ERROR_REF,
@@ -108,34 +108,42 @@ function buildSpec() {
       },
     };
 
-    const httpPath = `/trpc/${path}`;
-    if (type === "query") {
-      if (inputSchema) {
-        operation.parameters = [
-          {
-            name: "input",
+    const parameters: JsonObject[] = pathParams.map((p) => ({
+      name: p,
+      in: "path",
+      required: true,
+      schema: { type: "string" },
+    }));
+
+    if (method === "get") {
+      const schemaObj = inputSchema as { properties?: Record<string, JsonObject>; required?: string[] } | null;
+      if (schemaObj?.properties) {
+        for (const [name, prop] of Object.entries(schemaObj.properties)) {
+          if (pathParams.includes(name)) continue;
+          parameters.push({
+            name,
             in: "query",
-            required: false,
-            description: "Procedure input, JSON-encoded.",
-            schema: inputSchema,
-          },
-        ];
+            required: (schemaObj.required ?? []).includes(name),
+            schema: prop,
+          });
+        }
       }
-      paths[httpPath] = { get: operation };
-    } else {
-      if (inputSchema) {
-        operation.requestBody = {
-          required: true,
-          content: { "application/json": { schema: inputSchema } },
-        };
-      }
-      paths[httpPath] = { post: operation };
+    } else if (inputSchema) {
+      operation.requestBody = {
+        required: true,
+        content: { "application/json": { schema: inputSchema } },
+      };
     }
+    if (parameters.length) operation.parameters = parameters;
+
+    const item = (paths[httpPath] as JsonObject) ?? {};
+    item[method] = operation;
+    paths[httpPath] = item;
   }
 
   const tags = [...tagSet]
     .sort()
-    .map((t) => ({ name: titleCase(t), description: `${titleCase(t)} procedures.` }));
+    .map((t) => ({ name: titleCase(t), description: `${titleCase(t)} endpoints.` }));
 
   return {
     openapi: "3.1.0",
@@ -149,45 +157,50 @@ function buildSpec() {
         "scoped to the caller's **active organization** (the gym) and isolated",
         "per tenant.",
         "",
-        "This contract is **generated from the tRPC router**, so it always matches",
-        "the deployed surface.",
+        "The reference below is generated directly from the live backend, so it",
+        "always matches what's deployed.",
         "",
         "## Authentication",
-        "Sign in with `POST /api/auth/sign-in/email`. **Browser apps** receive a",
-        "session cookie; send it with `credentials: \"include\"`. **Mobile /",
-        "server** clients read the token from the `set-auth-token` response header",
-        "and send it as `Authorization: Bearer <token>`.",
+        "Every request authenticates with an **organization API key**:",
+        "`Authorization: Bearer vk_live_…`. Keys are created and revoked from",
+        "**Settings → API Keys** in the Vytal app (never via the API itself, the",
+        "same way Stripe issues keys). Each key is scoped to one organization, so",
+        "the org is always implicit and metered per key.",
+        "",
+        "Vytal's own web and mobile apps are first-party and use session auth",
+        "against the internal tRPC surface: third-party integrations must use a",
+        "key.",
         "",
         "## Conventions",
         "- **Org scope** is implicit (from the session), never a body field.",
-        "- **Queries** are `GET /trpc/{path}?input=<json>`; **mutations** are",
-        "  `POST /trpc/{path}` with the JSON input as the body.",
-        "- **Responses** use the tRPC envelope `{ \"result\": { \"data\": ... } }`.",
-        "- **Errors** return `{ \"error\": \"CODE\", \"message\": \"...\" }`.",
+        "- **Lists** return `{ \"items\": [ ... ] }`; single resources return bare.",
+        "- **Errors** return `{ \"error\": \"CODE\", \"message\": \"...\" }` with the",
+        "  matching HTTP status (401, 403, 404, 400).",
       ].join("\n"),
       contact: { name: "Vytal", url: "https://vytal.fit" },
     },
     servers: [
-      { url: "https://api.vytal.fit/api", description: "Production" },
-      { url: "http://localhost:3001/api", description: "Local development" },
+      { url: "https://api.vytal.fit/v1", description: "Production" },
+      { url: "http://localhost:3001/v1", description: "Local development" },
     ],
-    security: [{ cookieAuth: [] }, { bearerAuth: [] }],
+    security: [{ apiKeyAuth: [] }, { cookieAuth: [] }],
     tags,
     paths,
     components: {
       securitySchemes: {
+        apiKeyAuth: {
+          type: "http",
+          scheme: "bearer",
+          bearerFormat: "API Key",
+          description:
+            "External access. Send your organization API key as `Authorization: Bearer vk_live_…` (Stripe-style). Create and manage keys in Settings → API Keys; every request is scoped and metered to that key's organization. **Required for all third-party / server-to-server calls.**",
+        },
         cookieAuth: {
           type: "apiKey",
           in: "cookie",
           name: "better-auth.session_token",
           description:
-            "Session cookie set by POST /api/auth/sign-in/email. Browser clients send it with credentials.",
-        },
-        bearerAuth: {
-          type: "http",
-          scheme: "bearer",
-          description:
-            "Session token from the `set-auth-token` header on sign-in; send as `Authorization: Bearer <token>`.",
+            "First-party session cookie (Vytal's own web apps). Not available to third parties — external integrations must use an API key.",
         },
       },
       responses: {

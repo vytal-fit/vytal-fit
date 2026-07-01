@@ -22,3 +22,16 @@ export {
   keyFromAssetToken,
   type AssetImageType,
 } from "./lib/assets";
+export {
+  extractApiKey,
+  generateApiKey,
+  hashApiKey,
+  resolveApiKeySession,
+} from "./api-keys";
+export {
+  buildRouteTable,
+  matchRoute,
+  pathTemplate,
+  type HttpMethod,
+  type RestRoute,
+} from "./rest-routes";

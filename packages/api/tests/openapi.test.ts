@@ -37,24 +37,28 @@ type Operation = { responses?: Record<string, unknown>; tags?: string[] };
 const paths = openApiSpec.paths as unknown as Record<string, Record<string, Operation>>;
 
 describe("openApiSpec", () => {
-  it("is OpenAPI 3.1 with core metadata and a security scheme", () => {
+  it("is OpenAPI 3.1 with core metadata and both security schemes", () => {
     expect(openApiSpec.openapi).toBe("3.1.0");
     expect(openApiSpec.info.title).toBe("Vytal API");
+    // API-key (Stripe-style Bearer) is the public scheme; cookie is first-party.
+    expect(openApiSpec.components.securitySchemes.apiKeyAuth).toBeTruthy();
+    expect(openApiSpec.components.securitySchemes.apiKeyAuth.scheme).toBe("bearer");
     expect(openApiSpec.components.securitySchemes.cookieAuth).toBeTruthy();
   });
 
-  it("covers the whole router, incl. newer procedures", () => {
+  it("exposes clean REST paths — never /trpc — and covers the router", () => {
     const opCount = Object.values(paths).reduce((n, m) => n + Object.keys(m).length, 0);
-    expect(opCount).toBeGreaterThan(100);
-    // Generated from the router — newer routers must show up automatically.
-    for (const p of [
-      "/trpc/members.list",
-      "/trpc/payments.stats",
-      "/trpc/expenses.list",
-      "/trpc/dashboard.charts",
-    ]) {
+    expect(opCount).toBeGreaterThan(80);
+    // Clean REST, generated from the shared route table.
+    for (const p of ["/members", "/payments/stats", "/expenses", "/dashboard/charts"]) {
       expect(paths[p], `missing generated path: ${p}`).toBeDefined();
     }
+    // No tRPC path or verb-in-path convention must ever leak.
+    for (const p of Object.keys(paths)) {
+      expect(p.startsWith("/trpc"), `leaked tRPC path: ${p}`).toBe(false);
+    }
+    // API-key management is first-party only — never on the public REST surface.
+    expect(paths["/api-keys"], "api-keys must not be public").toBeUndefined();
     expect((openApiSpec.components.schemas as Record<string, unknown>).Error).toBeDefined();
   });
 

@@ -8,20 +8,20 @@ position: 0
 
 Concrete request and response shapes for the most common Vytal workflows.
 
-> 📘 Every call needs a session
+> 📘 Every call needs an API key
 >
-> The examples below use a bearer token (`Authorization: Bearer <token>`).
-> Browser apps send the session cookie with `credentials: "include"` instead.
-> See [Auth and Sessions](./auth-and-sessions).
+> The examples below send `Authorization: Bearer $VYTAL_API_KEY`. Create a key
+> in **Settings → API Keys** (see [Authentication](./auth-and-sessions)). The
+> base URL is `https://api.vytal.fit/v1`.
 
 ## Book a class
 
 A full class auto-waitlists instead of failing.
 
 ```bash
-curl -X POST https://api.vytal.fit/bookings \
+curl -X POST https://api.vytal.fit/v1/bookings/book \
+  -H "authorization: Bearer $VYTAL_API_KEY" \
   -H 'content-type: application/json' \
-  -H 'authorization: Bearer <token>' \
   -d '{"classId":"class_123","memberId":"mem_123"}'
 ```
 
@@ -38,20 +38,18 @@ curl -X POST https://api.vytal.fit/bookings \
 ## Cancel a booking
 
 ```bash
-curl -X DELETE https://api.vytal.fit/bookings/book_123 \
-  -H 'authorization: Bearer <token>'
-```
-
-```json
-{ "id": "book_123", "status": "cancelled" }
+curl -X POST https://api.vytal.fit/v1/bookings/cancel \
+  -H "authorization: Bearer $VYTAL_API_KEY" \
+  -H 'content-type: application/json' \
+  -d '{"bookingId":"book_123"}'
 ```
 
 ## Add a personal record
 
 ```bash
-curl -X POST https://api.vytal.fit/records \
+curl -X POST https://api.vytal.fit/v1/personal-records \
+  -H "authorization: Bearer $VYTAL_API_KEY" \
   -H 'content-type: application/json' \
-  -H 'authorization: Bearer <token>' \
   -d '{
     "memberId":"mem_123",
     "exerciseId":"thruster",
@@ -64,9 +62,9 @@ curl -X POST https://api.vytal.fit/records \
 ## Save a WOD result
 
 ```bash
-curl -X POST https://api.vytal.fit/results \
+curl -X POST https://api.vytal.fit/v1/wod-results \
+  -H "authorization: Bearer $VYTAL_API_KEY" \
   -H 'content-type: application/json' \
-  -H 'authorization: Bearer <token>' \
   -d '{
     "wodId":"wod_123",
     "memberId":"mem_123",
@@ -77,11 +75,11 @@ curl -X POST https://api.vytal.fit/results \
   }'
 ```
 
-## Query with filters
+## List with filters
 
 ```bash
-curl 'https://api.vytal.fit/results?memberId=mem_123&wodId=wod_123' \
-  -H 'authorization: Bearer <token>'
+curl 'https://api.vytal.fit/v1/wod-results?memberId=mem_123&wodId=wod_123' \
+  -H "authorization: Bearer $VYTAL_API_KEY"
 ```
 
 ```json

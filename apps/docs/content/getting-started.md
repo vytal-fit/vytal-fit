@@ -13,9 +13,8 @@ billing.
 
 > 📘 The one rule worth knowing up front
 >
-> Every request runs in the context of one **active organization** (a gym).
-> Authenticate once, choose the active org, and every later call is scoped to
-> it. Cross-tenant access is impossible by design.
+> Every request carries an **organization API key**, and every call is scoped to
+> that key's gym. Cross-tenant access is impossible by design.
 
 ## The surfaces
 
@@ -24,31 +23,30 @@ billing.
 | Public site | `vytal.fit` | Marketing, schedules, sign-up |
 | proVytal | `pro.vytal.fit` | Staff and backoffice |
 | myVytal | `my.vytal.fit` | The athlete portal |
-| API | `api.vytal.fit` | Integrations and these docs |
+| API | `api.vytal.fit/v1` | Integrations and the contract |
 
 ## Start here
 
-- **[Quickstart](./quickstart)**: zero to a working call in three requests.
-- **[Auth and Sessions](./auth-and-sessions)**: cookie vs bearer, in depth.
+- **[Quickstart](./quickstart)**: create a key, make a call.
+- **[Authentication](./auth-and-sessions)**: API keys in depth.
 - **[Conventions](./conventions)**: org scope, list shape, dates, idempotency.
 - **[Errors](./errors)**: one error shape, predictable status codes.
-- **[API Examples](./examples)**: copy/paste for records and results.
-- **[Mobile Integration](./mobile)**: the bearer-token flow for native apps.
+- **[API Examples](./examples)**: copy/paste for bookings, records, results.
+- **[REST Principles](./rest-api-principles)**: how the surface is shaped.
 
 ## A typical first integration
 
-1. **Sign in** and capture the session (cookie for browsers, bearer for
-   servers and mobile).
-2. **Pick the active gym** so every call is scoped correctly.
-3. **Read something real**: a member's bookings or today's classes.
-4. **Write something**: book a member into a class; full classes auto-waitlist.
+1. **Create an API key** in Settings → API Keys and store it as a secret.
+2. **Read something real**: your members, or today's classes.
+3. **Write something**: book a member into a class; full classes auto-waitlist.
+4. **Handle errors** on the shared `{ error, message }` shape.
 
 When you are ready for the machine-readable contract, point your tooling at the
 [OpenAPI spec](https://api.vytal.fit/openapi.json).
 
 ## What to expect
 
-- Root-level REST paths, no version prefix in the URL.
-- Cross-origin browser auth with `credentials: "include"`.
+- A versioned `/v1` base path with clean, resource-oriented routes.
+- API-key auth on every call (`Authorization: Bearer vk_live_…`).
 - Org-scoped data with strict tenant isolation.
 - PT, EN, and ES across every product surface.

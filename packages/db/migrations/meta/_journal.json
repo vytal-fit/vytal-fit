@@ -169,6 +169,13 @@
       "when": 1782857344494,
       "tag": "0023_smooth_spirit",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1782858868293,
+      "tag": "0024_aspiring_sprite",
+      "breakpoints": true
     }
   ]
 }
