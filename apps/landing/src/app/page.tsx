@@ -991,7 +991,7 @@ function Navbar({ t, lang, setLang }: { t: (k: string) => string; lang: Lang; se
 function FloatingStatsCard() {
   return (
     <div
-      className="absolute hidden lg:flex flex-col gap-1.5 p-3.5 rounded-xl border border-[rgba(34,197,94,0.2)] bg-[rgba(8,12,10,0.85)] backdrop-blur-md shadow-xl shadow-black/30 w-[150px]"
+      className="absolute hidden lg:flex flex-col gap-1.5 p-3.5 rounded-xl border border-[rgba(34,197,94,0.2)] bg-[color-mix(in_srgb,var(--color-vytal-bg)_85%,transparent)] backdrop-blur-md shadow-xl shadow-black/30 w-[150px]"
       style={{
         top: "18%",
         right: "6%",
@@ -1021,7 +1021,7 @@ function FloatingStatsCard() {
 function FloatingCalendarCard() {
   return (
     <div
-      className="absolute hidden lg:flex flex-col gap-1.5 p-3.5 rounded-xl border border-[rgba(0,212,255,0.2)] bg-[rgba(8,12,10,0.85)] backdrop-blur-md shadow-xl shadow-black/30 w-[140px]"
+      className="absolute hidden lg:flex flex-col gap-1.5 p-3.5 rounded-xl border border-[rgba(0,212,255,0.2)] bg-[color-mix(in_srgb,var(--color-vytal-bg)_85%,transparent)] backdrop-blur-md shadow-xl shadow-black/30 w-[140px]"
       style={{
         bottom: "22%",
         left: "5%",
@@ -1050,7 +1050,7 @@ function FloatingCalendarCard() {
 function FloatingMembersCard() {
   return (
     <div
-      className="absolute hidden lg:flex flex-col gap-1 p-3 rounded-xl border border-[rgba(192,132,252,0.2)] bg-[rgba(8,12,10,0.85)] backdrop-blur-md shadow-xl shadow-black/30 w-[130px]"
+      className="absolute hidden lg:flex flex-col gap-1 p-3 rounded-xl border border-[rgba(192,132,252,0.2)] bg-[color-mix(in_srgb,var(--color-vytal-bg)_85%,transparent)] backdrop-blur-md shadow-xl shadow-black/30 w-[130px]"
       style={{
         top: "55%",
         right: "3%",
@@ -1210,7 +1210,7 @@ function SocialProof({ t }: { t: (k: string) => string }) {
           {gyms.map((gym, i) => (
             <div
               key={gym}
-              className="flex items-center justify-center px-4 py-3.5 rounded-xl border border-[rgba(34,197,94,0.1)] bg-[rgba(22,32,24,0.4)] hover:border-[rgba(34,197,94,0.25)] hover:bg-[rgba(34,197,94,0.04)] transition-all duration-150 group backdrop-blur-sm"
+              className="flex items-center justify-center px-4 py-3.5 rounded-xl border border-[rgba(34,197,94,0.1)] bg-[color-mix(in_srgb,var(--color-vytal-bg3)_40%,transparent)] hover:border-[rgba(34,197,94,0.25)] hover:bg-[rgba(34,197,94,0.04)] transition-all duration-150 group backdrop-blur-sm"
               style={{ animationDelay: `${i * 0.1}s` }}
             >
               <span className="text-xs font-medium text-vytal-muted group-hover:text-vytal-text transition-colors text-center leading-tight">
@@ -1264,7 +1264,7 @@ function Features({ t }: { t: (k: string) => string }) {
             return (
               <div
                 key={keys.title}
-                className="group relative p-6 rounded-2xl border border-[rgba(34,197,94,0.1)] bg-[rgba(22,32,24,0.4)] backdrop-blur-sm hover:border-[rgba(34,197,94,0.3)] hover:bg-[rgba(22,32,24,0.7)] hover:-translate-y-1 hover:shadow-[0_0_30px_rgba(34,197,94,0.1)] transition-all duration-300 overflow-hidden"
+                className="group relative p-6 rounded-2xl border border-[rgba(34,197,94,0.1)] bg-[color-mix(in_srgb,var(--color-vytal-bg3)_40%,transparent)] backdrop-blur-sm hover:border-[rgba(34,197,94,0.3)] hover:bg-[color-mix(in_srgb,var(--color-vytal-bg3)_70%,transparent)] hover:-translate-y-1 hover:shadow-[0_0_30px_rgba(34,197,94,0.1)] transition-all duration-300 overflow-hidden"
               >
                 {/* Hover glow */}
                 <div
@@ -1370,7 +1370,7 @@ function VerticalsMarquee({ t }: { t: (k: string) => string }) {
             {doubled.map((pill, i) => (
               <div
                 key={i}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-[rgba(34,197,94,0.15)] bg-[rgba(22,32,24,0.6)] backdrop-blur-sm shrink-0 mx-1.5 hover:border-[rgba(34,197,94,0.4)] hover:bg-[rgba(34,197,94,0.07)] transition-all duration-150 cursor-default"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-[rgba(34,197,94,0.15)] bg-[color-mix(in_srgb,var(--color-vytal-bg3)_60%,transparent)] backdrop-blur-sm shrink-0 mx-1.5 hover:border-[rgba(34,197,94,0.4)] hover:bg-[rgba(34,197,94,0.07)] transition-all duration-150 cursor-default"
               >
                 <span className="text-base leading-none">{pill.emoji}</span>
                 <span className="text-xs font-medium text-vytal-text whitespace-nowrap">{pill.label}</span>
@@ -1423,7 +1423,7 @@ function ProductShowcase({ t }: { t: (k: string) => string }) {
         </div>
 
         {/* Tab bar */}
-        <div className="flex items-center justify-center gap-1 mb-8 p-1 rounded-xl bg-[rgba(22,32,24,0.6)] border border-[rgba(34,197,94,0.1)] w-fit mx-auto backdrop-blur-sm">
+        <div className="flex items-center justify-center gap-1 mb-8 p-1 rounded-xl bg-[color-mix(in_srgb,var(--color-vytal-bg3)_60%,transparent)] border border-[rgba(34,197,94,0.1)] w-fit mx-auto backdrop-blur-sm">
           {TAB_META.map((tb) => (
             <button
               key={tb.id}
@@ -1446,7 +1446,7 @@ function ProductShowcase({ t }: { t: (k: string) => string }) {
             className={`relative rounded-2xl border border-[rgba(34,197,94,0.15)] overflow-hidden h-80 bg-gradient-to-br ${tab.gradient}`}
           >
             {/* Mock UI chrome */}
-            <div className="absolute top-0 left-0 right-0 h-10 bg-[rgba(8,12,10,0.8)] flex items-center gap-2 px-4 border-b border-[rgba(34,197,94,0.08)]">
+            <div className="absolute top-0 left-0 right-0 h-10 bg-[color-mix(in_srgb,var(--color-vytal-bg)_80%,transparent)] flex items-center gap-2 px-4 border-b border-[rgba(34,197,94,0.08)]">
               <div className="flex gap-1.5">
                 <div className="w-3 h-3 rounded-full bg-vytal-red/60" />
                 <div className="w-3 h-3 rounded-full bg-vytal-amber/60" />
@@ -1459,7 +1459,7 @@ function ProductShowcase({ t }: { t: (k: string) => string }) {
               {mockItems.map((item, i) => (
                 <div
                   key={item}
-                  className="rounded-lg border border-[rgba(34,197,94,0.1)] bg-[rgba(8,12,10,0.6)] backdrop-blur-sm flex flex-col items-center justify-center gap-1 p-2 hover:border-[rgba(34,197,94,0.3)] transition-colors"
+                  className="rounded-lg border border-[rgba(34,197,94,0.1)] bg-[color-mix(in_srgb,var(--color-vytal-bg)_60%,transparent)] backdrop-blur-sm flex flex-col items-center justify-center gap-1 p-2 hover:border-[rgba(34,197,94,0.3)] transition-colors"
                   style={{ animationDelay: `${i * 0.05}s` }}
                 >
                   <div
@@ -1517,7 +1517,7 @@ function CheckinMockup() {
     { name: "Maria Santos", status: "noshow" },
   ];
   return (
-    <div className="rounded-2xl border border-[rgba(34,197,94,0.15)] bg-[rgba(8,12,10,0.9)] p-5 shadow-xl shadow-black/40">
+    <div className="rounded-2xl border border-[rgba(34,197,94,0.15)] bg-[color-mix(in_srgb,var(--color-vytal-bg)_90%,transparent)] p-5 shadow-xl shadow-black/40">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div>
@@ -1533,7 +1533,7 @@ function CheckinMockup() {
       {/* Member rows */}
       <div className="space-y-2 mb-4">
         {members.map((m) => (
-          <div key={m.name} className="flex items-center gap-3 p-2.5 rounded-xl bg-[rgba(22,32,24,0.6)] border border-[rgba(34,197,94,0.07)]">
+          <div key={m.name} className="flex items-center gap-3 p-2.5 rounded-xl bg-[color-mix(in_srgb,var(--color-vytal-bg3)_60%,transparent)] border border-[rgba(34,197,94,0.07)]">
             <div className="w-7 h-7 rounded-full bg-[rgba(34,197,94,0.15)] flex items-center justify-center text-[10px] font-bold text-vytal-green">
               {m.name.split(" ").map((n) => n[0]).join("")}
             </div>
@@ -1570,7 +1570,7 @@ function CRMMockup() {
     { title: "Subscrito", color: "var(--color-vytal-green)", cards: ["Ana P."] },
   ];
   return (
-    <div className="rounded-2xl border border-[rgba(34,197,94,0.15)] bg-[rgba(8,12,10,0.9)] p-4 shadow-xl shadow-black/40">
+    <div className="rounded-2xl border border-[rgba(34,197,94,0.15)] bg-[color-mix(in_srgb,var(--color-vytal-bg)_90%,transparent)] p-4 shadow-xl shadow-black/40">
       <div className="text-xs font-semibold text-vytal-text mb-3">Pipeline de Vendas</div>
       <div className="grid grid-cols-4 gap-2">
         {columns.map((col) => (
@@ -1580,7 +1580,7 @@ function CRMMockup() {
               <span className="text-[9px] font-semibold uppercase tracking-wider" style={{ color: col.color }}>{col.title}</span>
             </div>
             {col.cards.map((card) => (
-              <div key={card} className="px-2 py-2 rounded-lg border text-[9px] text-vytal-text bg-[rgba(22,32,24,0.8)] cursor-grab active:cursor-grabbing hover:border-opacity-50 transition-colors"
+              <div key={card} className="px-2 py-2 rounded-lg border text-[9px] text-vytal-text bg-[color-mix(in_srgb,var(--color-vytal-bg3)_80%,transparent)] cursor-grab active:cursor-grabbing hover:border-opacity-50 transition-colors"
                 style={{ borderColor: `${col.color}30` }}>
                 {card}
               </div>
@@ -1595,9 +1595,9 @@ function CRMMockup() {
 
 function WebsiteMockup() {
   return (
-    <div className="rounded-2xl border border-[rgba(34,197,94,0.15)] bg-[rgba(8,12,10,0.9)] overflow-hidden shadow-xl shadow-black/40">
+    <div className="rounded-2xl border border-[rgba(34,197,94,0.15)] bg-[color-mix(in_srgb,var(--color-vytal-bg)_90%,transparent)] overflow-hidden shadow-xl shadow-black/40">
       {/* Browser chrome */}
-      <div className="flex items-center gap-2 px-3 py-2 bg-[rgba(22,32,24,0.8)] border-b border-[rgba(34,197,94,0.08)]">
+      <div className="flex items-center gap-2 px-3 py-2 bg-[color-mix(in_srgb,var(--color-vytal-bg3)_80%,transparent)] border-b border-[rgba(34,197,94,0.08)]">
         <div className="flex gap-1">
           <div className="w-2 h-2 rounded-full bg-vytal-red/60" />
           <div className="w-2 h-2 rounded-full bg-vytal-amber/60" />
@@ -1642,12 +1642,12 @@ function AnalyticsMockup() {
   const bars = [30, 55, 40, 70, 60, 85, 75, 90, 65, 80, 95, 70];
   const stats = [{ label: "Receita", value: "€12.4k", change: "+18%" }, { label: "Membros", value: "247", change: "+12" }, { label: "Retenção", value: "87%", change: "+3%" }];
   return (
-    <div className="rounded-2xl border border-[rgba(34,197,94,0.15)] bg-[rgba(8,12,10,0.9)] p-4 shadow-xl shadow-black/40">
+    <div className="rounded-2xl border border-[rgba(34,197,94,0.15)] bg-[color-mix(in_srgb,var(--color-vytal-bg)_90%,transparent)] p-4 shadow-xl shadow-black/40">
       <div className="text-xs font-semibold text-vytal-text mb-3">Analytics — Junho 2026</div>
       {/* Stats row */}
       <div className="grid grid-cols-3 gap-2 mb-3">
         {stats.map((s) => (
-          <div key={s.label} className="rounded-xl bg-[rgba(22,32,24,0.6)] border border-[rgba(34,197,94,0.08)] p-2">
+          <div key={s.label} className="rounded-xl bg-[color-mix(in_srgb,var(--color-vytal-bg3)_60%,transparent)] border border-[rgba(34,197,94,0.08)] p-2">
             <div className="text-[8px] text-vytal-muted mb-0.5">{s.label}</div>
             <div className="text-xs font-bold text-vytal-text">{s.value}</div>
             <div className="text-[8px] text-vytal-green">{s.change}</div>
@@ -1655,7 +1655,7 @@ function AnalyticsMockup() {
         ))}
       </div>
       {/* Chart */}
-      <div className="rounded-xl bg-[rgba(22,32,24,0.4)] border border-[rgba(34,197,94,0.06)] p-3">
+      <div className="rounded-xl bg-[color-mix(in_srgb,var(--color-vytal-bg3)_40%,transparent)] border border-[rgba(34,197,94,0.06)] p-3">
         <div className="text-[8px] text-vytal-muted mb-2">Presenças por mês</div>
         <div className="flex items-end gap-1 h-12">
           {bars.map((h, i) => (
@@ -1872,7 +1872,7 @@ function PaymentsPortugal({ t }: { t: (k: string) => string }) {
           {methods.map((m) => (
             <div
               key={m.key}
-              className="flex flex-col items-center gap-3 p-5 rounded-2xl border border-[rgba(34,197,94,0.1)] bg-[rgba(22,32,24,0.4)] backdrop-blur-sm hover:border-[rgba(34,197,94,0.3)] hover:-translate-y-1 hover:shadow-[0_0_20px_rgba(34,197,94,0.08)] transition-all duration-200 group"
+              className="flex flex-col items-center gap-3 p-5 rounded-2xl border border-[rgba(34,197,94,0.1)] bg-[color-mix(in_srgb,var(--color-vytal-bg3)_40%,transparent)] backdrop-blur-sm hover:border-[rgba(34,197,94,0.3)] hover:-translate-y-1 hover:shadow-[0_0_20px_rgba(34,197,94,0.08)] transition-all duration-200 group"
             >
               <div className="transition-transform duration-200 group-hover:scale-110">
                 {m.icon}
@@ -1924,7 +1924,7 @@ function AutomationsAI({ t }: { t: (k: string) => string }) {
 
         <div className="grid lg:grid-cols-2 gap-8">
           {/* Automations column */}
-          <div className="rounded-2xl border border-vytal-border bg-[rgba(22,32,24,0.4)] backdrop-blur-sm p-6">
+          <div className="rounded-2xl border border-vytal-border bg-[color-mix(in_srgb,var(--color-vytal-bg3)_40%,transparent)] backdrop-blur-sm p-6">
             <h3 className="text-sm font-bold text-vytal-green uppercase tracking-wider mb-5 flex items-center gap-2">
               <div className="w-5 h-5 rounded-md bg-[rgba(34,197,94,0.15)] flex items-center justify-center">
                 <Zap size={11} className="text-vytal-green" />
@@ -1935,9 +1935,9 @@ function AutomationsAI({ t }: { t: (k: string) => string }) {
               {automations.map((item) => (
                 <div
                   key={item.titleKey}
-                  className="flex items-start gap-3 p-3.5 rounded-xl border border-[rgba(34,197,94,0.08)] bg-[rgba(8,12,10,0.4)] hover:border-[rgba(34,197,94,0.2)] hover:bg-[rgba(8,12,10,0.6)] transition-all duration-150 group"
+                  className="flex items-start gap-3 p-3.5 rounded-xl border border-[rgba(34,197,94,0.08)] bg-[color-mix(in_srgb,var(--color-vytal-bg)_40%,transparent)] hover:border-[rgba(34,197,94,0.2)] hover:bg-[color-mix(in_srgb,var(--color-vytal-bg)_60%,transparent)] transition-all duration-150 group"
                 >
-                  <div className="w-9 h-9 rounded-xl flex items-center justify-center text-base shrink-0 bg-[rgba(22,32,24,0.8)] border border-[rgba(34,197,94,0.1)]">
+                  <div className="w-9 h-9 rounded-xl flex items-center justify-center text-base shrink-0 bg-[color-mix(in_srgb,var(--color-vytal-bg3)_80%,transparent)] border border-[rgba(34,197,94,0.1)]">
                     {item.icon}
                   </div>
                   <div>
@@ -1961,9 +1961,9 @@ function AutomationsAI({ t }: { t: (k: string) => string }) {
               {aiInsights.map((item) => (
                 <div
                   key={item.titleKey}
-                  className="flex items-start gap-3 p-3.5 rounded-xl border border-[rgba(0,212,255,0.08)] bg-[rgba(8,12,10,0.4)] hover:border-[rgba(0,212,255,0.2)] hover:bg-[rgba(8,12,10,0.6)] transition-all duration-150 group"
+                  className="flex items-start gap-3 p-3.5 rounded-xl border border-[rgba(0,212,255,0.08)] bg-[color-mix(in_srgb,var(--color-vytal-bg)_40%,transparent)] hover:border-[rgba(0,212,255,0.2)] hover:bg-[color-mix(in_srgb,var(--color-vytal-bg)_60%,transparent)] transition-all duration-150 group"
                 >
-                  <div className="w-9 h-9 rounded-xl flex items-center justify-center text-base shrink-0 bg-[rgba(22,32,24,0.8)] border border-[rgba(0,212,255,0.1)]">
+                  <div className="w-9 h-9 rounded-xl flex items-center justify-center text-base shrink-0 bg-[color-mix(in_srgb,var(--color-vytal-bg3)_80%,transparent)] border border-[rgba(0,212,255,0.1)]">
                     {item.icon}
                   </div>
                   <div>
@@ -2063,7 +2063,7 @@ function ComplianceSecurity({ t }: { t: (k: string) => string }) {
           {badges.map((badge) => (
             <div
               key={badge.key}
-              className="flex flex-col items-center gap-3 p-5 rounded-2xl border bg-[rgba(22,32,24,0.4)] backdrop-blur-sm hover:-translate-y-1 hover:shadow-[0_0_20px_rgba(34,197,94,0.08)] transition-all duration-200 group"
+              className="flex flex-col items-center gap-3 p-5 rounded-2xl border bg-[color-mix(in_srgb,var(--color-vytal-bg3)_40%,transparent)] backdrop-blur-sm hover:-translate-y-1 hover:shadow-[0_0_20px_rgba(34,197,94,0.08)] transition-all duration-200 group"
               style={{ borderColor: `${badge.color}20` }}
             >
               <div
@@ -2115,7 +2115,7 @@ function Comparison({ t }: { t: (k: string) => string }) {
 
         <div className="rounded-2xl border border-vytal-border overflow-hidden backdrop-blur-sm">
           {/* Header */}
-          <div className="grid grid-cols-5 bg-[rgba(22,32,24,0.8)]">
+          <div className="grid grid-cols-5 bg-[color-mix(in_srgb,var(--color-vytal-bg3)_80%,transparent)]">
             <div className="col-span-2 px-6 py-4 text-xs font-semibold text-vytal-muted uppercase tracking-wider">
               {t("compColFeature")}
             </div>
@@ -2141,7 +2141,7 @@ function Comparison({ t }: { t: (k: string) => string }) {
             <div
               key={row.key}
               className={`grid grid-cols-5 border-t border-[rgba(34,197,94,0.06)] ${
-                idx % 2 === 0 ? "bg-[rgba(8,12,10,0.4)]" : "bg-[rgba(22,32,24,0.2)]"
+                idx % 2 === 0 ? "bg-[color-mix(in_srgb,var(--color-vytal-bg)_40%,transparent)]" : "bg-[color-mix(in_srgb,var(--color-vytal-bg3)_20%,transparent)]"
               } hover:bg-[rgba(34,197,94,0.03)] transition-colors`}
             >
               <div className="col-span-2 px-6 py-4 text-sm text-vytal-text">{t(row.key)}</div>
@@ -2203,7 +2203,7 @@ function Testimonials({ t }: { t: (k: string) => string }) {
           {TESTIMONIAL_META.map((tm) => (
             <div
               key={tm.nameKey}
-              className="relative p-6 rounded-2xl border border-[rgba(34,197,94,0.1)] bg-[rgba(22,32,24,0.4)] backdrop-blur-sm hover:border-[rgba(34,197,94,0.22)] hover:-translate-y-1 hover:shadow-[0_0_30px_rgba(34,197,94,0.08)] transition-all duration-300 group"
+              className="relative p-6 rounded-2xl border border-[rgba(34,197,94,0.1)] bg-[color-mix(in_srgb,var(--color-vytal-bg3)_40%,transparent)] backdrop-blur-sm hover:border-[rgba(34,197,94,0.22)] hover:-translate-y-1 hover:shadow-[0_0_30px_rgba(34,197,94,0.08)] transition-all duration-300 group"
             >
               {/* Stars */}
               <div className="flex gap-1 mb-4">
@@ -2281,7 +2281,7 @@ function Pricing({ t }: { t: (k: string) => string }) {
           </p>
 
           {/* Toggle */}
-          <div className="inline-flex items-center gap-3 p-1 rounded-xl bg-[rgba(22,32,24,0.6)] border border-[rgba(34,197,94,0.1)] backdrop-blur-sm">
+          <div className="inline-flex items-center gap-3 p-1 rounded-xl bg-[color-mix(in_srgb,var(--color-vytal-bg3)_60%,transparent)] border border-[rgba(34,197,94,0.1)] backdrop-blur-sm">
             <button
               onClick={() => setAnnual(false)}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-150 ${
@@ -2330,7 +2330,7 @@ function Pricing({ t }: { t: (k: string) => string }) {
                   className={`relative p-6 rounded-2xl border transition-all duration-200 flex flex-col flex-1 hover:-translate-y-1 hover:border-vytal-green/40 ${
                     plan.highlighted
                       ? "border-[rgba(34,197,94,0.4)] bg-[rgba(34,197,94,0.04)] shadow-lg shadow-[rgba(34,197,94,0.08)] backdrop-blur-sm"
-                      : "border-[rgba(34,197,94,0.1)] bg-[rgba(22,32,24,0.4)] backdrop-blur-sm"
+                      : "border-[rgba(34,197,94,0.1)] bg-[color-mix(in_srgb,var(--color-vytal-bg3)_40%,transparent)] backdrop-blur-sm"
                   }`}
                 >
                   {plan.highlighted && (
@@ -2450,7 +2450,7 @@ function CTABanner({ t }: { t: (k: string) => string }) {
   return (
     <section className="py-24 border-t border-[rgba(34,197,94,0.08)]">
       <div ref={ref} className="scroll-reveal max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <div className="relative rounded-3xl border border-[rgba(34,197,94,0.2)] bg-[rgba(22,32,24,0.6)] backdrop-blur-sm p-12 overflow-hidden">
+        <div className="relative rounded-3xl border border-[rgba(34,197,94,0.2)] bg-[color-mix(in_srgb,var(--color-vytal-bg3)_60%,transparent)] backdrop-blur-sm p-12 overflow-hidden">
           {/* Background blobs */}
           <div
             className="absolute -top-20 -left-20 w-60 h-60 rounded-full opacity-10 pointer-events-none"
