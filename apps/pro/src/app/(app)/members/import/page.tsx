@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useRef } from "react";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -41,15 +41,40 @@ const fieldToMemberKey: Record<string, string> = {
   Status: "status",
 };
 
-const MOCK_CSV_PREVIEW = [
-  ["Carlos Mendes", "carlos@email.com", "912111222", "123456789", "1990-05-15", "M", "Unlimited", "active"],
-  ["Rita Sousa", "rita@email.com", "913222333", "234567890", "1988-11-20", "F", "3x/week", "active"],
-  ["Bruno Pereira", "bruno@email.com", "914333444", "345678901", "1995-03-08", "M", "Unlimited", "trial"],
-  ["Mariana Lopes", "mariana@email.com", "915444555", "", "1992-07-25", "F", "5x/week", "active"],
-  ["Diogo Martins", "diogo@email.com", "916555666", "567890123", "1999-01-12", "M", "Unlimited", "active"],
-];
+/** Minimal RFC-4180-ish CSV parser: handles quoted fields, escaped quotes, and CRLF. */
+function parseCsv(text: string): string[][] {
+  const out: string[][] = [];
+  let row: string[] = [];
+  let cell = "";
+  let inQuotes = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (inQuotes) {
+      if (c === '"') {
+        if (text[i + 1] === '"') { cell += '"'; i++; } else inQuotes = false;
+      } else cell += c;
+    } else if (c === '"') inQuotes = true;
+    else if (c === ",") { row.push(cell); cell = ""; }
+    else if (c === "\n") { row.push(cell); out.push(row); row = []; cell = ""; }
+    else if (c !== "\r") cell += c;
+  }
+  if (cell.length > 0 || row.length > 0) { row.push(cell); out.push(row); }
+  return out.filter((r) => r.some((v) => v.trim() !== ""));
+}
 
-const MOCK_HEADERS = ["nome", "email", "telefone", "nif", "nascimento", "sexo", "plano", "estado"];
+/** Guess the target field for a CSV header (PT/EN/ES aliases). */
+function guessField(header: string): string {
+  const h = header.trim().toLowerCase();
+  if (/nome|name|nombre/.test(h)) return "Name";
+  if (/mail|correo/.test(h)) return "Email";
+  if (/telefone|phone|telemovel|telefono|\btel\b|movil|móvil/.test(h)) return "Phone";
+  if (/nif|vat|tax|fiscal/.test(h)) return "NIF";
+  if (/nascimento|birth|\bdob\b|nacimiento/.test(h)) return "Date of Birth";
+  if (/sexo|gender|genero|género/.test(h)) return "Gender";
+  if (/plano|\bplan\b/.test(h)) return "Plan";
+  if (/estado|status|situacao|situação/.test(h)) return "Status";
+  return "-- Skip --";
+}
 
 type Step = 1 | 2 | 3;
 
@@ -72,22 +97,50 @@ export default function MemberImportPage() {
   const createMember = trpc.members.create.useMutation();
   const [step, setStep] = useState<Step>(1);
   const [fileName, setFileName] = useState<string | null>(null);
-  const [mappings, setMappings] = useState<string[]>(
-    MOCK_HEADERS.map((_, i) => FIELDS[i] ?? "-- Skip --")
-  );
+  const [headers, setHeaders] = useState<string[]>([]);
+  const [rows, setRows] = useState<string[][]>([]);
+  const [mappings, setMappings] = useState<string[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [importing, setImporting] = useState(false);
   const [imported, setImported] = useState(false);
   const [importResult, setImportResult] = useState<{ created: number; skipped: number; errors: number }>({ created: 0, skipped: 0, errors: 0 });
 
-  function handleFileDrop() {
-    setFileName("members_export.csv");
-    setStep(2);
-    toast("File loaded: 5 rows detected", "success");
+  function handleFile(file: File) {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const parsed = parseCsv(String(reader.result ?? ""));
+      if (parsed.length < 2) {
+        toast(t("memberImport.emptyFile"), "error");
+        return;
+      }
+      const [hdr, ...body] = parsed;
+      setHeaders(hdr);
+      setRows(body);
+      setMappings(hdr.map((h) => guessField(h)));
+      setFileName(file.name);
+      setStep(2);
+      toast(`${file.name} · ${body.length} ${t("memberImport.rowsDetected")}`, "success");
+    };
+    reader.onerror = () => toast(t("memberImport.readError"), "error");
+    reader.readAsText(file);
+  }
+
+  function downloadTemplate() {
+    const header = "nome,email,telefone,nif,nascimento,sexo,plano,estado";
+    const example = "Ana Exemplo,ana@exemplo.com,912000000,123456789,1990-01-01,F,Unlimited,active";
+    const blob = new Blob([`${header}\n${example}\n`], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "vytal-members-template.csv";
+    a.click();
+    URL.revokeObjectURL(url);
+    toast(t("memberImport.templateDownloaded"), "success");
   }
 
   // Map CSV data using column mappings
   const mappedData: ValidationRow[] = useMemo(() => {
-    return MOCK_CSV_PREVIEW.map((row) => {
+    return rows.map((row) => {
       const data: Record<string, string> = {};
       const errors: string[] = [];
 
@@ -117,7 +170,7 @@ export default function MemberImportPage() {
         isDuplicate,
       };
     });
-  }, [mappings, existingMembers]);
+  }, [rows, mappings, existingMembers]);
 
   const readyCount = mappedData.filter((r) => r.valid).length;
   const duplicateCount = mappedData.filter((r) => r.isDuplicate).length;
@@ -227,11 +280,20 @@ export default function MemberImportPage() {
       {/* Step 1: Upload */}
       {step === 1 && (
         <div className="space-y-4">
-          <button
-            type="button"
-            onClick={handleFileDrop}
+          <label
             className="flex w-full cursor-pointer flex-col items-center gap-4 rounded-xl border-2 border-dashed border-vytal-border bg-vytal-card p-12 transition-colors hover:border-vytal-green/30"
           >
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".csv,text/csv"
+              className="hidden"
+              onChange={(e) => {
+                const f = e.target.files?.[0];
+                if (f) handleFile(f);
+                e.target.value = "";
+              }}
+            />
             <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-vytal-green/10">
               <Upload className="h-8 w-8 text-vytal-green" />
             </div>
@@ -243,11 +305,11 @@ export default function MemberImportPage() {
                 {t("memberImport.supportsFormats")}
               </p>
             </div>
-          </button>
+          </label>
 
           <button
             type="button"
-            onClick={() => toast("Template downloaded!", "success")}
+            onClick={downloadTemplate}
             className="flex items-center gap-2 rounded-lg border border-vytal-border px-4 py-2.5 text-sm text-vytal-text transition-colors hover:bg-vytal-bg3"
           >
             <Download className="h-4 w-4" />
@@ -266,10 +328,10 @@ export default function MemberImportPage() {
                 {fileName}
               </span>
               <span className="rounded bg-vytal-bg3 px-2 py-0.5 text-[10px] text-vytal-muted">
-                {MOCK_CSV_PREVIEW.length} {t("memberImport.rowsDetected")}
+                {rows.length} {t("memberImport.rowsDetected")}
               </span>
               <span className="rounded bg-vytal-green/10 px-2 py-0.5 text-[10px] text-vytal-green">
-                {mappedFieldCount}/{MOCK_HEADERS.length} mapped
+                {mappedFieldCount}/{headers.length} mapped
               </span>
             </div>
 
@@ -277,7 +339,7 @@ export default function MemberImportPage() {
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-vytal-border">
-                    {MOCK_HEADERS.map((header, i) => (
+                    {headers.map((header, i) => (
                       <th key={i} className="px-3 py-2 text-left">
                         <div className="space-y-2">
                           <span className="text-[10px] font-medium uppercase tracking-wider text-vytal-muted">
@@ -309,7 +371,7 @@ export default function MemberImportPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-vytal-border">
-                  {MOCK_CSV_PREVIEW.map((row, ri) => (
+                  {rows.map((row, ri) => (
                     <tr
                       key={ri}
                       className="bg-vytal-card transition-colors hover:bg-vytal-bg3"
@@ -522,6 +584,9 @@ export default function MemberImportPage() {
               onClick={() => {
                 setStep(1);
                 setFileName(null);
+                setHeaders([]);
+                setRows([]);
+                setMappings([]);
                 setImported(false);
                 setImportResult({ created: 0, skipped: 0, errors: 0 });
               }}
