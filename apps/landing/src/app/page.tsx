@@ -23,7 +23,7 @@ import {
   Moon,
 } from "lucide-react";
 import { STORAGE_KEYS } from "@vytal-fit/shared";
-import { LogoLayer, Reveal, AnimatedMark } from "@vytal-fit/brand";
+import { LogoLayer, Reveal, AnimatedMark, Spotlight, Magnetic, TiltCard } from "@vytal-fit/brand";
 
 // ── Noise texture SVG ────────────────────────────────────────────────────────
 const NOISE_SVG = `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E")`;
@@ -1150,7 +1150,11 @@ function Hero({ t }: { t: (k: string) => string }) {
       <FloatingCalendarCard />
       <FloatingMembersCard />
 
+      <Spotlight size={620} className="relative z-10 w-full">
       <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center page-enter">
+        {/* Large animated mark — hero focal accent */}
+        <AnimatedMark size={128} animated className="vy-breathe mx-auto mb-6" />
+
         {/* Badge */}
         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[rgba(34,197,94,0.3)] bg-[rgba(34,197,94,0.06)] mb-8 backdrop-blur-sm">
           <span className="w-1.5 h-1.5 rounded-full bg-vytal-green animate-pulse" />
@@ -1159,8 +1163,8 @@ function Hero({ t }: { t: (k: string) => string }) {
           </span>
         </div>
 
-        {/* Headline — larger with gradient text */}
-        <h1 className="text-[clamp(2.75rem,7vw,5.75rem)] font-bold text-vytal-text leading-[1.05] tracking-tight mb-6">
+        {/* Headline — bold editorial scale with gradient text */}
+        <h1 className="text-[clamp(3rem,9vw,7rem)] font-bold text-vytal-text leading-[0.98] tracking-[-0.02em] mb-6">
           <span className="bg-gradient-to-r from-vytal-green to-[#4ade80] bg-clip-text text-transparent">{t("headline").split(" ").slice(0, 3).join(" ")}</span>{" "}
           {t("headline").split(" ").slice(3).join(" ")}
         </h1>
@@ -1173,15 +1177,17 @@ function Hero({ t }: { t: (k: string) => string }) {
         {/* CTAs */}
         <div className="flex flex-col sm:flex-row gap-3 items-center justify-center mb-16">
           {/* Animated gradient border CTA */}
-          <div className="rounded-[14px] p-[1.5px] animated-gradient-border">
-            <Link
-              href="/signup"
-              className="vy-shimmer inline-flex items-center gap-2 px-7 py-3.5 rounded-xl bg-vytal-green text-vytal-bg font-semibold text-sm hover:bg-[#16a34a] transition-all duration-150 shadow-lg shadow-[rgba(34,197,94,0.25)] hover:shadow-[rgba(34,197,94,0.4)] hover:-translate-y-0.5"
-            >
-              {t("ctaStart")}
-              <ArrowRight size={16} />
-            </Link>
-          </div>
+          <Magnetic>
+            <div className="rounded-[14px] p-[1.5px] animated-gradient-border">
+              <Link
+                href="/signup"
+                className="vy-shimmer inline-flex items-center gap-2 px-7 py-3.5 rounded-xl bg-vytal-green text-vytal-bg font-semibold text-sm hover:bg-[#16a34a] transition-all duration-150 shadow-lg shadow-[rgba(34,197,94,0.25)] hover:shadow-[rgba(34,197,94,0.4)] hover:-translate-y-0.5"
+              >
+                {t("ctaStart")}
+                <ArrowRight size={16} />
+              </Link>
+            </div>
+          </Magnetic>
           <Link
             href="/@crossfit-aveiro"
             className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl border border-[rgba(34,197,94,0.25)] text-vytal-text font-medium text-sm hover:border-[rgba(34,197,94,0.5)] hover:bg-[rgba(34,197,94,0.05)] transition-all duration-150 backdrop-blur-sm"
@@ -1209,6 +1215,7 @@ function Hero({ t }: { t: (k: string) => string }) {
           ))}
         </div>
       </div>
+      </Spotlight>
     </section>
   );
 }
@@ -1288,8 +1295,9 @@ function Features({ t }: { t: (k: string) => string }) {
             const Icon = FEATURE_ICONS[idx];
             const color = FEATURE_COLORS[idx];
             return (
-              <div
+              <TiltCard
                 key={keys.title}
+                max={7}
                 className="group relative p-6 rounded-2xl border border-[rgba(34,197,94,0.1)] bg-[color-mix(in_srgb,var(--color-vytal-bg3)_40%,transparent)] backdrop-blur-sm hover:border-[rgba(34,197,94,0.3)] hover:bg-[color-mix(in_srgb,var(--color-vytal-bg3)_70%,transparent)] hover:-translate-y-1 hover:shadow-[0_0_30px_rgba(34,197,94,0.1)] transition-all duration-300 overflow-hidden"
               >
                 {/* Hover glow */}
@@ -1330,7 +1338,7 @@ function Features({ t }: { t: (k: string) => string }) {
                 >
                   {t("featLearnMore")} <ArrowRight size={12} />
                 </Link>
-              </div>
+              </TiltCard>
             );
           })}
         </div>
@@ -2344,8 +2352,9 @@ function Pricing({ t }: { t: (k: string) => string }) {
                 : plan.priceVal;
 
             return (
-              <div
+              <TiltCard
                 key={plan.nameKey}
+                max={7}
                 className={`relative flex flex-col ${
                   plan.highlighted ? "md:-mt-2 md:mb-[-8px]" : ""
                 }`}
@@ -2423,7 +2432,7 @@ function Pricing({ t }: { t: (k: string) => string }) {
                     {t(plan.ctaKey)}
                   </Link>
                 </div>
-              </div>
+              </TiltCard>
             );
           })}
         </div>
@@ -2502,15 +2511,17 @@ function CTABanner({ t }: { t: (k: string) => string }) {
               {t("ctaBannerSubtitle")}
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <div className="rounded-[14px] p-[1.5px] animated-gradient-border inline-flex">
-                <Link
-                  href="/signup"
-                  className="vy-shimmer inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-vytal-green text-vytal-bg font-bold text-sm hover:bg-[#16a34a] transition-all duration-150 shadow-lg shadow-[rgba(34,197,94,0.3)] hover:-translate-y-0.5"
-                >
-                  {t("ctaBannerStart")}
-                  <ArrowRight size={16} />
-                </Link>
-              </div>
+              <Magnetic>
+                <div className="rounded-[14px] p-[1.5px] animated-gradient-border inline-flex">
+                  <Link
+                    href="/signup"
+                    className="vy-shimmer inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-vytal-green text-vytal-bg font-bold text-sm hover:bg-[#16a34a] transition-all duration-150 shadow-lg shadow-[rgba(34,197,94,0.3)] hover:-translate-y-0.5"
+                  >
+                    {t("ctaBannerStart")}
+                    <ArrowRight size={16} />
+                  </Link>
+                </div>
+              </Magnetic>
               <Link
                 href="/@crossfit-aveiro"
                 className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl border border-[rgba(34,197,94,0.25)] text-vytal-text font-medium text-sm hover:border-[rgba(34,197,94,0.5)] hover:bg-[rgba(34,197,94,0.05)] transition-all duration-150"
