@@ -177,7 +177,12 @@ O **núcleo do produto está 100% real** (members, classes, WODs, CRM leads, pla
 4. **Manter**: dark/light (tokens já trocam via `html.light`), PT/EN/ES (0 gaps), a11y (focus-visible já global).
 5. **Verificar**: `type-check -w @vytal-fit/my` + lint + (opcional) screenshots antes/depois por página; commit por página.
 
-**Nota:** não há novo backend — é puramente UI/consistência. Regra myVytal-segue-a-API mantém-se (nada de mock). Fazer em sessão fresca (pós-`/compact`) por ser um refactor extenso e mecânico.
+**Nota:** não há novo backend — é puramente UI/consistência. Regra myVytal-segue-a-API mantém-se (nada de mock).
+
+**Feito (2026-07-01):**
+- ✅ **Primitivos** criados em `apps/my/src/components/ui/` (`Card`, `PageHeader`, `StatTile`, `Section`, `Badge`, `EmptyState` + barrel). Prontos para adoção incremental.
+- ✅ **Container**: auditoria revelou que a inconsistência real página-a-página era **só o `home`** — embrulhava `px-4 py-6 max-w-2xl mx-auto md:max-w-5xl` **dentro** do container do `member-shell` (`max-w-2xl px-4 py-6`), logo padding duplo + largura divergente. Todas as outras 8 páginas de conteúdo já usam `space-y-6` raiz e herdam o container do shell. `home` alinhado (`space-y-6`); agora todas as páginas encaixam igual.
+- **Reavaliação:** os `style={{ var(--color-vytal-*) }}` inline **renderizam corretamente** e trocam dark/light (referenciam os mesmos tokens que as utilities gerariam). A reescrita inline→utilities é **cosmética/opcional** (churn sem ganho visual), não um defeito. Adotar primitivos onde limpar padrões repetidos (empty states, cards simples) é o passo de maior valor restante, a fazer incrementalmente por página quando se tocar em cada uma.
 
 ## Pontos em aberto
 - **A-1** Âmbito exato da produção de conteúdo das BD (exercícios/WODs) — *Bruno + Juvenal*.
