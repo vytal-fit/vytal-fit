@@ -598,6 +598,40 @@ export const coachCertifications = pgTable(
   ],
 );
 
+/** Member groups (segments/tags like "Competition Team", "Beginners"). */
+export const memberGroups = pgTable(
+  "member_groups",
+  {
+    id: text("id").primaryKey(),
+    organizationId: text("organization_id")
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    name: text("name").notNull(),
+    description: text("description"),
+    color: text("color").notNull().default("#22c55e"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (t) => [index("member_groups_org_idx").on(t.organizationId)],
+);
+
+/** Membership of a member in a group (many-to-many). */
+export const memberGroupMembers = pgTable(
+  "member_group_members",
+  {
+    id: text("id").primaryKey(),
+    groupId: text("group_id")
+      .notNull()
+      .references(() => memberGroups.id, { onDelete: "cascade" }),
+    memberId: text("member_id")
+      .notNull()
+      .references(() => gymMembers.id, { onDelete: "cascade" }),
+  },
+  (t) => [
+    index("member_group_members_group_idx").on(t.groupId),
+    uniqueIndex("member_group_members_uq").on(t.groupId, t.memberId),
+  ],
+);
+
 /** Locations (rooms/areas) — mirrors shared `Location`. */
 export const locations = pgTable(
   "locations",

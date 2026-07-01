@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { useI18n } from "@/lib/i18n";
 import { useToast } from "@/components/toast";
+import { trpc } from "@/lib/trpc";
 import {
   Users,
   Plus,
@@ -30,66 +31,6 @@ interface MemberGroup {
   members: GroupMember[];
 }
 
-const mockGroups: MemberGroup[] = [
-  {
-    id: "grp-1",
-    name: "Coaches",
-    description: "Equipa de coaches do box",
-    color: "#22c55e",
-    members: [
-      { id: "m-1", name: "Andre Loureiro", email: "andre@vytal.fit" },
-      { id: "m-2", name: "Marine Robba", email: "marine@vytal.fit" },
-      { id: "m-3", name: "Ricardo Ribeiro", email: "ricardo@vytal.fit" },
-    ],
-  },
-  {
-    id: "grp-2",
-    name: "CF Teens",
-    description: "Membros adolescentes (13-17 anos)",
-    color: "#3b82f6",
-    members: [
-      { id: "m-10", name: "Tomas Fernandes", email: "tomas@email.com" },
-      { id: "m-11", name: "Beatriz Costa", email: "beatriz@email.com" },
-      { id: "m-12", name: "Diogo Martins", email: "diogo@email.com" },
-      { id: "m-13", name: "Ines Rocha", email: "ines@email.com" },
-    ],
-  },
-  {
-    id: "grp-3",
-    name: "Competition Team",
-    description: "Atletas que competem em throwdowns e competicoes",
-    color: "#f59e0b",
-    members: [
-      { id: "m-20", name: "Pedro Almeida", email: "pedro@email.com" },
-      { id: "m-21", name: "Sofia Santos", email: "sofia@email.com" },
-      { id: "m-22", name: "Miguel Costa", email: "miguel@email.com" },
-    ],
-  },
-  {
-    id: "grp-4",
-    name: "Beginners",
-    description: "Membros nos primeiros 3 meses",
-    color: "#8b5cf6",
-    members: [
-      { id: "m-30", name: "Tiago Neves", email: "tiago@email.com" },
-      { id: "m-31", name: "Marta Oliveira", email: "marta@email.com" },
-      { id: "m-32", name: "Catarina Lopes", email: "catarina@email.com" },
-      { id: "m-33", name: "Rui Sousa", email: "rui@email.com" },
-      { id: "m-34", name: "Joana Silva", email: "joana@email.com" },
-    ],
-  },
-  {
-    id: "grp-5",
-    name: "VIP Members",
-    description: "Membros com plano anual ou premium",
-    color: "#ec4899",
-    members: [
-      { id: "m-40", name: "Ana Silva", email: "ana@email.com" },
-      { id: "m-41", name: "Jose Fonte", email: "jose@email.com" },
-    ],
-  },
-];
-
 const colorOptions = [
   "#22c55e", "#3b82f6", "#f59e0b", "#8b5cf6", "#ec4899", "#ef4444", "#14b8a6", "#6b7280",
 ];
@@ -98,7 +39,10 @@ export default function GroupsPage() {
   const { t } = useI18n();
   const { toast } = useToast();
 
-  const [groups, setGroups] = useState<MemberGroup[]>(mockGroups);
+  const utils = trpc.useUtils();
+  const groupsQuery = trpc.memberGroups.list.useQuery();
+  const groups: MemberGroup[] = groupsQuery.data ?? [];
+
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [newName, setNewName] = useState("");
@@ -110,24 +54,49 @@ export default function GroupsPage() {
   const [editDescription, setEditDescription] = useState("");
   const [editColor, setEditColor] = useState(colorOptions[0]);
 
+  const onError = (error: { data?: { code?: string } | null }) =>
+    toast(error.data?.code === "FORBIDDEN" ? t("settings.adminOnly") : t("ui.error"), "error");
+
+  const createGroup = trpc.memberGroups.create.useMutation({
+    onSuccess: () => {
+      void utils.memberGroups.list.invalidate();
+      setNewName("");
+      setNewDescription("");
+      setNewColor(colorOptions[0]);
+      setShowCreateForm(false);
+      toast(t("groups.created"), "success");
+    },
+    onError,
+  });
+
+  const updateGroup = trpc.memberGroups.update.useMutation({
+    onSuccess: () => {
+      void utils.memberGroups.list.invalidate();
+      setEditingGroup(null);
+      toast(t("groups.updated"), "success");
+    },
+    onError,
+  });
+
+  const deleteGroup = trpc.memberGroups.delete.useMutation({
+    onSuccess: () => {
+      void utils.memberGroups.list.invalidate();
+      toast(t("groups.deleted"), "success");
+      setDeleteTarget(null);
+    },
+    onError,
+  });
+
   function handleCreateGroup() {
     if (!newName.trim()) {
       toast(t("groups.nameRequired"), "error");
       return;
     }
-    const newGroup: MemberGroup = {
-      id: `grp-${Date.now()}`,
+    createGroup.mutate({
       name: newName.trim(),
-      description: newDescription.trim(),
+      description: newDescription.trim() || undefined,
       color: newColor,
-      members: [],
-    };
-    setGroups((prev) => [...prev, newGroup]);
-    setNewName("");
-    setNewDescription("");
-    setNewColor(colorOptions[0]);
-    setShowCreateForm(false);
-    toast(t("groups.created"), "success");
+    });
   }
 
   function handleStartEdit(group: MemberGroup) {
@@ -144,15 +113,12 @@ export default function GroupsPage() {
       toast(t("groups.nameRequired"), "error");
       return;
     }
-    setGroups((prev) =>
-      prev.map((g) =>
-        g.id === editingGroup.id
-          ? { ...g, name: editName.trim(), description: editDescription.trim(), color: editColor }
-          : g
-      )
-    );
-    setEditingGroup(null);
-    toast(t("groups.updated"), "success");
+    updateGroup.mutate({
+      id: editingGroup.id,
+      name: editName.trim(),
+      description: editDescription.trim(),
+      color: editColor,
+    });
   }
 
   function handleCancelEdit() {
@@ -161,17 +127,7 @@ export default function GroupsPage() {
 
   function handleConfirmDelete() {
     if (!deleteTarget) return;
-    const removed = groups.find((g) => g.id === deleteTarget.id);
-    setGroups((prev) => prev.filter((g) => g.id !== deleteTarget.id));
-    toast(t("groups.deleted"), "success", {
-      action: removed
-        ? {
-            label: t("action.undo"),
-            onClick: () => setGroups((prev) => [...prev, removed]),
-          }
-        : undefined,
-    });
-    setDeleteTarget(null);
+    deleteGroup.mutate({ id: deleteTarget.id });
   }
 
   const inputClass =

@@ -146,8 +146,11 @@ Auditoria 2026-06-30 (`useDataStore` = store mock/localStorage de domínio):
 
 ## Inventário de mock residual (2026-06-30, fim de sessão)
 O **núcleo do produto está 100% real** (members, classes, WODs, CRM leads, planos, pagamentos, despesas, bookings/presenças, check-ins, settings completos, loja, dashboard KPIs, portal do atleta, financials inteiro). O que falta são **páginas de features secundárias/avançadas** cujo UI foi prototipado antes do backend; cada uma precisa da sua própria tabela + router:
-- **Feito nesta sessão**: `staff/certifications` → tabela `coach_certifications` (migração 0025, status derivado de `expiryDate` em runtime) + router `certifications` (list join coach / create staff+ / delete admin+) + UI real (add/delete, download de documento, empty-state) + seed org-1 (10 certs date-relative com mix valid/expiring/expired) + 7 testes. Exposto no `/v1`.
-- **Precisam de tabela/API nova**: `automations/campaigns`, `marketing`, `media`, `classes/history`, `classes/templates`, `members/groups`, `members/retention`, `staff/[id]/performance`, `settings/{audit-log,backup,webhooks}`.
+- **Feito nesta sessão**:
+  - `staff/certifications` → tabela `coach_certifications` (migração 0025, status derivado de `expiryDate` em runtime) + router `certifications` (list join coach / create staff+ / delete admin+) + UI real (add/delete, download de documento, empty-state) + seed org-1 (10 certs date-relative com mix valid/expiring/expired) + 7 testes. Exposto no `/v1`.
+  - `members/groups` → tabelas `member_groups` + `member_group_members` (migração 0026) + router `memberGroups` (list com membros / create+update staff / delete admin) + UI real (create/edit/delete ligados a mutações) + seed org-1 (4 grupos, 12 memberships) + 7 testes. Exposto no `/v1`.
+  - `classes/history` já era dados reais (`classes.history`); só limpo o placeholder em-dash "—" → "-".
+- **Precisam de tabela/API nova**: `automations/campaigns`, `marketing`, `media`, `classes/templates`, `members/retention`, `staff/[id]/performance`, `settings/{audit-log,backup,webhooks}`.
 - **Widgets ilustrativos sobre dados já reais** (secundário, não bloqueante): `financials/{dunning,sepa}` (return-files/creditor fallback), `screen` (leaderboard + schedule ticker), `members/[id]` (notas de staff, comms, activity timeline → precisam de member_notes/comms), `dashboard` (member-growth/revenue/heatmap → séries históricas, F5).
 - **D6 (não fazer)**: `members/[id]/{body,nutrition,assessments,referrals}`.
 

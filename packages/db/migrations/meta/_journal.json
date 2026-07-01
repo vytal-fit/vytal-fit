@@ -183,6 +183,13 @@
       "when": 1782889480931,
       "tag": "0025_fair_nomad",
       "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1782890264409,
+      "tag": "0026_shallow_sunset_bain",
+      "breakpoints": true
     }
   ]
 }

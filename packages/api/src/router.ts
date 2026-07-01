@@ -12,6 +12,7 @@ import { exercisesRouter } from "./routers/exercises";
 import { expensesRouter } from "./routers/expenses";
 import { leadsRouter } from "./routers/leads";
 import { locationsRouter } from "./routers/locations";
+import { memberGroupsRouter } from "./routers/memberGroups";
 import { membersRouter } from "./routers/members";
 import { messagesRouter } from "./routers/messages";
 import { notificationsRouter } from "./routers/notifications";
@@ -52,6 +53,7 @@ export const appRouter = router({
   expenses: expensesRouter,
   contracts: contractsRouter,
   certifications: certificationsRouter,
+  memberGroups: memberGroupsRouter,
   dashboard: dashboardRouter,
   uploads: uploadsRouter,
   apiKeys: apiKeysRouter,

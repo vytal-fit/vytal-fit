@@ -600,6 +600,48 @@ export async function seedDatabase(
       .returning({ id: schema.gymMembers.id })
   ).length;
 
+  // Member groups (segments) + their memberships. Only reference org-1 members.
+  const org1MemberIds = mockMembers
+    .filter((m) => m.organizationId === ORG_1)
+    .map((m) => m.id);
+  const groupSeeds = [
+    { id: "grp-1", name: "Competition Team", description: "Atletas que competem em throwdowns e competicoes", color: "#f59e0b", take: [0, 1, 2] },
+    { id: "grp-2", name: "Beginners", description: "Membros nos primeiros 3 meses", color: "#8b5cf6", take: [3, 4, 5, 6] },
+    { id: "grp-3", name: "VIP Members", description: "Membros com plano anual ou premium", color: "#ec4899", take: [7, 8] },
+    { id: "grp-4", name: "CF Teens", description: "Membros adolescentes (13-17 anos)", color: "#3b82f6", take: [9, 10, 11] },
+  ];
+  inserted.memberGroups = (
+    await db
+      .insert(schema.memberGroups)
+      .values(
+        groupSeeds.map((g) => ({
+          id: g.id,
+          organizationId: ORG_1,
+          name: g.name,
+          description: g.description,
+          color: g.color,
+        })),
+      )
+      .onConflictDoNothing()
+      .returning({ id: schema.memberGroups.id })
+  ).length;
+
+  const groupMemberRows = groupSeeds.flatMap((g) =>
+    g.take
+      .map((idx) => org1MemberIds[idx])
+      .filter((mid): mid is string => Boolean(mid))
+      .map((mid) => ({ id: `${g.id}:${mid}`, groupId: g.id, memberId: mid })),
+  );
+  inserted.memberGroupMembers = groupMemberRows.length
+    ? (
+        await db
+          .insert(schema.memberGroupMembers)
+          .values(groupMemberRows)
+          .onConflictDoNothing()
+          .returning({ id: schema.memberGroupMembers.id })
+      ).length
+    : 0;
+
   inserted.classes = (
     await db
       .insert(schema.classes)
