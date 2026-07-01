@@ -27,6 +27,7 @@ import { notificationsRouter } from "./routers/notifications";
 import { paymentsRouter } from "./routers/payments";
 import { orgSettingsRouter } from "./routers/orgSettings";
 import { personalRecordsRouter } from "./routers/personalRecords";
+import { publicRouter } from "./routers/public";
 import { referralsRouter } from "./routers/referrals";
 import { shopRouter } from "./routers/shop";
 import { subscriptionsRouter } from "./routers/subscriptions";
@@ -70,6 +71,7 @@ export const appRouter = router({
   memberGroups: memberGroupsRouter,
   dashboard: dashboardRouter,
   today: todayRouter,
+  public: publicRouter,
   uploads: uploadsRouter,
   apiKeys: apiKeysRouter,
   auditLog: auditLogRouter,
