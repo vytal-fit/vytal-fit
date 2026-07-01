@@ -20,6 +20,7 @@ import {
 import { trpc } from "@/lib/trpc";
 import { useI18n } from "@/lib/i18n";
 import { useOrgFormat } from "@/lib/org-format";
+import { AnimatedMark, LogoLayer } from "@vytal-fit/brand";
 
 // ---------------------------------------------------------------------------
 // Tone → token utility mapping
@@ -183,26 +184,32 @@ export default function TodayPage() {
     <div className="mx-auto max-w-6xl space-y-6 p-4 sm:p-6">
       {/* Sunrise header band */}
       <header className="relative overflow-hidden rounded-3xl border border-vytal-border bg-vytal-bg2 bg-[linear-gradient(180deg,rgba(255,179,0,0.10),transparent)] px-6 py-8 sm:px-10 sm:py-12">
-        <div className="mb-6 flex flex-wrap items-center gap-3">
-          <span className="text-sm font-semibold text-vytal-text">
-            {t("nav.today")}
-          </span>
-          <span className="rounded-full border border-vytal-border bg-vytal-bg3 px-2 py-0.5 text-[11px] font-medium uppercase tracking-wide text-vytal-amber">
-            {t("today.beta")}
-          </span>
-          {dateStr ? (
-            <span className="text-sm capitalize text-vytal-muted">
-              {formatDate(dateStr)}
+        <LogoLayer intensity="subtle" />
+        <div className="relative z-10">
+          <div className="mb-6 flex flex-wrap items-center gap-3">
+            <span className="text-sm font-semibold text-vytal-text">
+              {t("nav.today")}
             </span>
-          ) : null}
-        </div>
-        <div className="text-center">
-          <p className="text-2xl font-semibold text-vytal-text sm:text-3xl">
-            {t(`today.greeting.${part}`)}
-          </p>
-          <p className="mx-auto mt-2 max-w-2xl text-base text-vytal-muted sm:text-lg">
-            {t(`today.tagline.${part}`)}
-          </p>
+            <span className="rounded-full border border-vytal-border bg-vytal-bg3 px-2 py-0.5 text-[11px] font-medium uppercase tracking-wide text-vytal-amber">
+              {t("today.beta")}
+            </span>
+            {dateStr ? (
+              <span className="text-sm capitalize text-vytal-muted">
+                {formatDate(dateStr)}
+              </span>
+            ) : null}
+          </div>
+          <div className="flex flex-col items-center gap-3 text-center">
+            <div className="flex items-center gap-3">
+              <AnimatedMark size={40} animated />
+              <p className="text-2xl font-semibold text-vytal-text sm:text-3xl">
+                {t(`today.greeting.${part}`)}
+              </p>
+            </div>
+            <p className="mx-auto max-w-2xl text-base text-vytal-muted sm:text-lg">
+              {t(`today.tagline.${part}`)}
+            </p>
+          </div>
         </div>
       </header>
 

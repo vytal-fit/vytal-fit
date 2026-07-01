@@ -7,6 +7,7 @@ import { Eye, EyeOff, LogIn } from "lucide-react";
 import { useAuthStore } from "@/stores/auth-store";
 import { useI18n } from "@/lib/i18n";
 import { AuthDivider, SocialLogin } from "@/components/social-login";
+import { LogoLayer } from "@vytal-fit/brand";
 
 /** Post-auth target from `?redirect=`/`?invite=`, else /welcome. Same-origin relative paths only (open-redirect guard). */
 function resolvePostAuthTarget(params: URLSearchParams): string {
@@ -46,8 +47,9 @@ function LoginForm() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-md">
-      <div className="rounded-2xl border border-vytal-border bg-vytal-card backdrop-blur-xl p-8">
+    <div className="relative mx-auto w-full max-w-md">
+      <LogoLayer intensity="bold" />
+      <div className="relative z-10 rounded-2xl border border-vytal-border bg-vytal-card backdrop-blur-xl p-8">
         <div className="mb-8 text-center">
           <svg width={44} height={44} viewBox="0 0 64 64" aria-hidden="true" className="mx-auto mb-3">
             <rect x="2" y="2" width="60" height="60" rx="16" fill="#22c55e" />
@@ -137,7 +139,7 @@ function LoginForm() {
           <button
             type="submit"
             disabled={loading}
-            className="flex w-full items-center justify-center gap-2 rounded-lg bg-vytal-green px-4 py-3 text-sm font-semibold text-vytal-bg transition-all hover:bg-vytal-green/90 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="vy-shimmer flex w-full items-center justify-center gap-2 rounded-lg bg-vytal-green px-4 py-3 text-sm font-semibold text-vytal-bg transition-all hover:bg-vytal-green/90 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? (
               <div className="h-4 w-4 animate-spin rounded-full border-2 border-vytal-bg border-t-transparent" />

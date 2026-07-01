@@ -371,7 +371,7 @@ export default function ConsoleLayout({ children }: { children: React.ReactNode 
                 <div
                   className={cn(
                     "w-8 h-8 rounded-xl flex items-center justify-center transition-all duration-200",
-                    isActive ? "scale-110" : "scale-100 opacity-50"
+                    isActive ? "scale-110 vy-breathe" : "scale-100 opacity-50"
                   )}
                   style={{
                     background: isActive ? "rgba(34,197,94,0.15)" : "transparent",

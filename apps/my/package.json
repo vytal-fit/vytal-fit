@@ -14,6 +14,7 @@
     "@trpc/client": "^11.16.0",
     "@trpc/react-query": "^11.16.0",
     "@vytal-fit/api": "*",
+    "@vytal-fit/brand": "*",
     "@vytal-fit/shared": "*",
     "better-auth": "^1.6.16",
     "clsx": "^2.1.1",

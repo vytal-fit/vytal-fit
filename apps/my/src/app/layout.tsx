@@ -4,6 +4,7 @@ import { Inter, JetBrains_Mono } from "next/font/google";
 import { TRPCProvider } from "@/components/trpc-provider";
 import MemberShell from "@/components/member-shell";
 import { I18nProvider } from "@/lib/i18n";
+import { BrandStyles } from "@vytal-fit/brand";
 import "./globals.css";
 
 const inter = Inter({
@@ -29,6 +30,7 @@ export default function MyLayout({
   return (
     <html lang="pt" className="dark" suppressHydrationWarning>
       <body className={`${inter.variable} ${jetbrainsMono.variable} antialiased`}>
+        <BrandStyles />
         <TRPCProvider>
           <I18nProvider>
             <MemberShell>{children}</MemberShell>

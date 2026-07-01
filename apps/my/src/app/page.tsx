@@ -20,6 +20,7 @@ import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/stores/auth-store";
 import { trpc } from "@/lib/trpc";
 import { useI18n } from "@/lib/i18n";
+import { LogoLayer, AnimatedMark } from "@vytal-fit/brand";
 
 function getGreetingKey(): string {
   const h = new Date().getHours();
@@ -118,20 +119,27 @@ export default function ConsolePage() {
           border: "1px solid rgba(34,197,94,0.2)",
         }}
       >
+        {/* Brand motion layer */}
+        <LogoLayer intensity="bold" />
         {/* Background glow */}
         <div
           className="absolute -top-8 -right-8 w-40 h-40 rounded-full pointer-events-none"
           style={{ background: "radial-gradient(circle, rgba(34,197,94,0.12) 0%, transparent 70%)" }}
         />
-        <p className="text-sm font-medium mb-1 text-vytal-muted">
-          {t(getGreetingKey())},
-        </p>
-        <h1 className="text-3xl font-black tracking-tight mb-2 text-vytal-text">
-          {firstName}
-        </h1>
-        <p className="text-xs leading-relaxed italic max-w-sm text-vytal-muted">
-          &ldquo;{t(getMotivationalQuoteKey())}&rdquo;
-        </p>
+        <div className="relative z-10">
+          <div className="flex items-center gap-3 mb-1">
+            <AnimatedMark size={36} animated className="vy-breathe" />
+            <p className="text-sm font-medium text-vytal-muted">
+              {t(getGreetingKey())},
+            </p>
+          </div>
+          <h1 className="text-3xl font-black tracking-tight mb-2 text-vytal-text">
+            {firstName}
+          </h1>
+          <p className="text-xs leading-relaxed italic max-w-sm text-vytal-muted">
+            &ldquo;{t(getMotivationalQuoteKey())}&rdquo;
+          </p>
+        </div>
       </div>
 
       {/* ── Stats strip ── */}
@@ -328,7 +336,10 @@ export default function ConsolePage() {
 
                 <Link
                   href="/schedule"
-                  className="block w-full py-2 rounded-xl text-xs font-bold text-center transition-all duration-200 hover:opacity-90 hover:scale-[1.01]"
+                  className={cn(
+                    "block w-full py-2 rounded-xl text-xs font-bold text-center transition-all duration-200 hover:opacity-90 hover:scale-[1.01]",
+                    nextClass.enrolledCount >= nextClass.maxCapacity ? "" : "vy-shimmer",
+                  )}
                   style={{
                     background: nextClass.enrolledCount >= nextClass.maxCapacity
                       ? "var(--color-vytal-bg3)"

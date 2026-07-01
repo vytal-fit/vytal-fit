@@ -5,6 +5,7 @@ import { I18nProvider } from "@/lib/i18n";
 import { TRPCProvider } from "@/components/trpc-provider";
 import { AuthProvider } from "@/providers/auth-provider";
 import { ThemeInitializer } from "@/providers/theme-initializer";
+import { BrandStyles } from "@vytal-fit/brand";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -29,6 +30,7 @@ export default function RootLayout({
   return (
     <html lang="pt" className="dark" suppressHydrationWarning>
       <body className={`${inter.variable} ${jetbrainsMono.variable} antialiased`}>
+        <BrandStyles />
         <TRPCProvider>
           <I18nProvider>
             <AuthProvider>
