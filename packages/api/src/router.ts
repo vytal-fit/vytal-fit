@@ -27,6 +27,7 @@ import { notificationsRouter } from "./routers/notifications";
 import { paymentsRouter } from "./routers/payments";
 import { orgSettingsRouter } from "./routers/orgSettings";
 import { personalRecordsRouter } from "./routers/personalRecords";
+import { referralsRouter } from "./routers/referrals";
 import { shopRouter } from "./routers/shop";
 import { subscriptionsRouter } from "./routers/subscriptions";
 import { supportTicketsRouter } from "./routers/supportTickets";
@@ -51,6 +52,7 @@ export const appRouter = router({
   workoutFeedback: workoutFeedbackRouter,
   wellnessCheckins: wellnessCheckinsRouter,
   personalRecords: personalRecordsRouter,
+  referrals: referralsRouter,
   leads: leadsRouter,
   subscriptions: subscriptionsRouter,
   notifications: notificationsRouter,

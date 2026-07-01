@@ -1391,6 +1391,38 @@ export const classFeedback = pgTable(
 );
 
 /**
+ * Member referral program. Each row is one referral made by an existing member
+ * (`referrerMemberId` → gym_members) inviting a prospective person
+ * (`referredName`/`referredEmail`). `status` tracks pending → converted/expired;
+ * `rewardAmount` is the payout owed to the referrer, `rewardApplied` whether it
+ * has been granted. Stats (totals, conversion, top referrers) derive from here.
+ */
+export const memberReferrals = pgTable(
+  "member_referrals",
+  {
+    id: text("id").primaryKey(),
+    organizationId: text("organization_id")
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    referrerMemberId: text("referrer_member_id")
+      .notNull()
+      .references(() => gymMembers.id, { onDelete: "cascade" }),
+    referredName: text("referred_name").notNull(),
+    referredEmail: text("referred_email").notNull(),
+    /** pending | converted | expired */
+    status: text("status").notNull().default("pending"),
+    rewardApplied: boolean("reward_applied").notNull().default(false),
+    /** Payout owed to the referrer, in whole currency units. */
+    rewardAmount: integer("reward_amount").notNull().default(0),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (t) => [
+    index("member_referrals_org_idx").on(t.organizationId),
+    index("member_referrals_referrer_idx").on(t.referrerMemberId),
+  ],
+);
+
+/**
  * Scheduled social posts (marketing). Real CRUD + scheduling metadata; actual
  * publishing to Instagram/Facebook/LinkedIn needs platform OAuth (later).
  */

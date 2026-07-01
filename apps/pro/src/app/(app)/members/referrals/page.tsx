@@ -18,46 +18,8 @@ import { Breadcrumbs } from "@/components/breadcrumbs";
 import { useI18n } from "@/lib/i18n";
 import { useToast } from "@/components/toast";
 import { useDataStore, formatCurrency } from "@/stores/data-store";
+import { trpc } from "@/lib/trpc";
 import { cn } from "@/lib/utils";
-
-interface Referral {
-  id: string;
-  referrerName: string;
-  referredName: string;
-  referredEmail: string;
-  status: "pending" | "converted" | "expired";
-  date: string;
-  rewardApplied: boolean;
-}
-
-interface TopReferrer {
-  name: string;
-  initials: string;
-  referrals: number;
-  converted: number;
-  rewardEarned: string;
-}
-
-const mockReferrals: Referral[] = [
-  { id: "ref-1", referrerName: "Ana Silva", referredName: "Carlos Mendes", referredEmail: "carlos@email.com", status: "converted", date: "2026-06-02", rewardApplied: true },
-  { id: "ref-2", referrerName: "Pedro Almeida", referredName: "Sofia Ribeiro", referredEmail: "sofia@email.com", status: "converted", date: "2026-06-01", rewardApplied: true },
-  { id: "ref-3", referrerName: "Ana Silva", referredName: "Joao Martins", referredEmail: "joao@email.com", status: "pending", date: "2026-05-30", rewardApplied: false },
-  { id: "ref-4", referrerName: "Rita Costa", referredName: "Bruno Ferreira", referredEmail: "bruno@email.com", status: "converted", date: "2026-05-28", rewardApplied: true },
-  { id: "ref-5", referrerName: "Miguel Costa", referredName: "Helena Cardoso", referredEmail: "helena@email.com", status: "expired", date: "2026-05-15", rewardApplied: false },
-  { id: "ref-6", referrerName: "Ines Ferreira", referredName: "Tiago Neves", referredEmail: "tiago@email.com", status: "converted", date: "2026-05-12", rewardApplied: true },
-  { id: "ref-7", referrerName: "Pedro Almeida", referredName: "Maria Oliveira", referredEmail: "maria@email.com", status: "converted", date: "2026-05-10", rewardApplied: true },
-  { id: "ref-8", referrerName: "Ana Silva", referredName: "Andre Santos", referredEmail: "andre@email.com", status: "converted", date: "2026-05-08", rewardApplied: true },
-  { id: "ref-9", referrerName: "Rita Costa", referredName: "Catarina Lima", referredEmail: "catarina@email.com", status: "pending", date: "2026-05-05", rewardApplied: false },
-  { id: "ref-10", referrerName: "Miguel Costa", referredName: "Rui Pereira", referredEmail: "rui@email.com", status: "converted", date: "2026-04-28", rewardApplied: true },
-];
-
-const topReferrers: TopReferrer[] = [
-  { name: "Ana Silva", initials: "AS", referrals: 8, converted: 7, rewardEarned: "70" },
-  { name: "Pedro Almeida", initials: "PA", referrals: 5, converted: 4, rewardEarned: "40" },
-  { name: "Rita Costa", initials: "RC", referrals: 4, converted: 3, rewardEarned: "30" },
-  { name: "Miguel Costa", initials: "MC", referrals: 3, converted: 2, rewardEarned: "20" },
-  { name: "Ines Ferreira", initials: "IF", referrals: 3, converted: 2, rewardEarned: "20" },
-];
 
 const statusColors: Record<string, string> = {
   pending: "bg-vytal-amber/10 text-vytal-amber",
@@ -70,6 +32,12 @@ export default function ReferralsPage() {
   const { toast } = useToast();
   const orgSettings = useDataStore((s) => s.orgSettings);
 
+  const referralsQuery = trpc.referrals.list.useQuery();
+  const statsQuery = trpc.referrals.stats.useQuery();
+  const referrals = referralsQuery.data ?? [];
+  const stats = statsQuery.data;
+  const topReferrers = stats?.topReferrers ?? [];
+
   const [copiedLink, setCopiedLink] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [rewardType, setRewardType] = useState<"discount" | "free_month" | "credit">("discount");
@@ -79,10 +47,10 @@ export default function ReferralsPage() {
 
   const referralLink = `https://vytal.fit/${orgSettings.slug}/referral`;
 
-  const totalReferrals = 23;
-  const convertedReferrals = 18;
-  const revenueFromReferrals = 1350;
-  const avgValuePerReferral = 75;
+  const totalReferrals = stats?.total ?? 0;
+  const convertedReferrals = stats?.converted ?? 0;
+  const rewardsPaid = stats?.rewardsPaid ?? 0;
+  const conversionRate = stats?.conversionRate ?? 0;
 
   function handleCopyLink() {
     navigator.clipboard.writeText(referralLink);
@@ -122,8 +90,8 @@ export default function ReferralsPage() {
         {[
           { label: "Total Referrals", value: totalReferrals.toString(), icon: Users, color: "text-vytal-blue" },
           { label: "Converted", value: convertedReferrals.toString(), icon: TrendingUp, color: "text-vytal-green" },
-          { label: "Revenue from Referrals", value: formatCurrency(revenueFromReferrals), icon: DollarSign, color: "text-vytal-amber" },
-          { label: "Avg Value / Referral", value: formatCurrency(avgValuePerReferral), icon: Gift, color: "text-vytal-purple" },
+          { label: "Rewards Paid", value: formatCurrency(rewardsPaid), icon: DollarSign, color: "text-vytal-amber" },
+          { label: "Conversion Rate", value: `${conversionRate}%`, icon: Gift, color: "text-vytal-purple" },
         ].map((stat) => (
           <div key={stat.label} className="rounded-xl border border-vytal-border bg-vytal-card p-4">
             <div className="flex items-center gap-2 mb-2">
@@ -372,7 +340,7 @@ export default function ReferralsPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-vytal-border">
-                {mockReferrals.map((ref) => (
+                {referrals.map((ref) => (
                   <tr key={ref.id} className="transition-colors hover:bg-vytal-bg3">
                     <td className="py-2.5 text-sm text-vytal-text">{ref.referrerName}</td>
                     <td className="py-2.5">
@@ -394,7 +362,9 @@ export default function ReferralsPage() {
                     <td className="py-2.5">
                       <div className="flex items-center gap-1.5">
                         <Clock className="h-3 w-3 text-vytal-muted" />
-                        <span className="text-xs text-vytal-muted">{ref.date}</span>
+                        <span className="text-xs text-vytal-muted">
+                          {new Date(ref.createdAt).toISOString().split("T")[0]}
+                        </span>
                       </div>
                     </td>
                   </tr>

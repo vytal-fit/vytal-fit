@@ -970,6 +970,38 @@ export async function seedDatabase(
       .returning({ id: schema.classFeedback.id })
   ).length;
 
+  // Member referral program (org-1). Referrers are real gym members.
+  inserted.memberReferrals = (
+    await db
+      .insert(schema.memberReferrals)
+      .values(
+        [
+          { referrer: "m-2", name: "Carlos Mendes", email: "carlos@email.com", status: "converted", rewardApplied: true, reward: 10 },
+          { referrer: "m-7", name: "Sofia Ribeiro", email: "sofia.r@email.com", status: "converted", rewardApplied: true, reward: 10 },
+          { referrer: "m-2", name: "Joao Martins", email: "joao@email.com", status: "pending", rewardApplied: false, reward: 10 },
+          { referrer: "m-3", name: "Bruno Ferreira", email: "bruno@email.com", status: "converted", rewardApplied: true, reward: 10 },
+          { referrer: "m-9", name: "Helena Cardoso", email: "helena@email.com", status: "expired", rewardApplied: false, reward: 10 },
+          { referrer: "m-8", name: "Tiago Neves", email: "tiago@email.com", status: "converted", rewardApplied: true, reward: 10 },
+          { referrer: "m-7", name: "Maria Oliveira", email: "maria@email.com", status: "converted", rewardApplied: true, reward: 10 },
+          { referrer: "m-2", name: "Andre Santos", email: "andre@email.com", status: "converted", rewardApplied: true, reward: 10 },
+          { referrer: "m-3", name: "Catarina Lima", email: "catarina@email.com", status: "pending", rewardApplied: false, reward: 10 },
+          { referrer: "m-9", name: "Rui Pereira", email: "rui@email.com", status: "converted", rewardApplied: true, reward: 10 },
+        ].map((r, i) => ({
+          id: `mref-${i + 1}`,
+          organizationId: ORG_1,
+          referrerMemberId: r.referrer,
+          referredName: r.name,
+          referredEmail: r.email,
+          status: r.status,
+          rewardApplied: r.rewardApplied,
+          rewardAmount: r.reward,
+          createdAt: minsAgo(i * 1440 + 720),
+        })),
+      )
+      .onConflictDoNothing()
+      .returning({ id: schema.memberReferrals.id })
+  ).length;
+
   inserted.wods = (
     await db
       .insert(schema.wods)
