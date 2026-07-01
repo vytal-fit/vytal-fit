@@ -2,21 +2,30 @@
 
 import { use, useState } from "react";
 import { CalendarDays, Clock, Users, Lock } from "lucide-react";
-import { MOCK_ORGS } from "../org-data";
+import { trpc } from "@/lib/trpc";
 import Link from "next/link";
 
 const DAYS = ["Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado", "Domingo"];
 const DAYS_SHORT = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"];
 
-// All distinct class types for the legend
-function getClassTypes(slug: string) {
-  const org = MOCK_ORGS[slug];
-  if (!org) return [];
-  const seen = new Map<string, string>();
-  for (const c of org.weeklyClasses) {
-    if (!seen.has(c.name)) seen.set(c.name, c.color);
-  }
-  return Array.from(seen.entries()).map(([name, color]) => ({ name, color }));
+type ScheduleClass = {
+  id: string;
+  day: number;
+  time: string;
+  endTime: string;
+  name: string;
+  color: string;
+  coach: string;
+  spots: number;
+  spotsLeft: number;
+};
+
+/** Minutes between two "HH:MM" times. */
+function durationMinutes(start: string, end: string): number {
+  const [sh, sm] = start.split(":").map(Number);
+  const [eh, em] = end.split(":").map(Number);
+  const mins = (eh * 60 + em) - (sh * 60 + sm);
+  return mins > 0 ? mins : 0;
 }
 
 function BookModal({ onClose, className }: { onClose: () => void; className: string }) {
@@ -51,20 +60,30 @@ function BookModal({ onClose, className }: { onClose: () => void; className: str
 
 export default function SchedulePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = use(params);
-  const org = MOCK_ORGS[slug];
+  const scheduleQuery = trpc.public.weeklySchedule.useQuery({ slug });
+  const siteQuery = trpc.public.site.useQuery({ slug });
   const [activeDay, setActiveDay] = useState(0); // 0=Mon default
   const [bookingClass, setBookingClass] = useState<string | null>(null);
 
-  if (!org) {
+  if (scheduleQuery.isLoading) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
-        <p className="text-vytal-muted">Organização não encontrada</p>
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-vytal-border border-t-vytal-green" />
       </div>
     );
   }
 
-  const classTypes = getClassTypes(slug);
-  const dayClasses = org.weeklyClasses
+  const orgName = siteQuery.data?.name ?? "";
+  const weeklyClasses: ScheduleClass[] = scheduleQuery.data ?? [];
+
+  // All distinct class types for the legend
+  const seen = new Map<string, string>();
+  for (const c of weeklyClasses) {
+    if (!seen.has(c.name)) seen.set(c.name, c.color);
+  }
+  const classTypes = Array.from(seen.entries()).map(([name, color]) => ({ name, color }));
+
+  const dayClasses = weeklyClasses
     .filter((c) => c.day === activeDay)
     .sort((a, b) => a.time.localeCompare(b.time));
 
@@ -83,7 +102,7 @@ export default function SchedulePage({ params }: { params: Promise<{ slug: strin
             </div>
             <div>
               <h1 className="text-xl font-bold text-vytal-text">Horário de Aulas</h1>
-              <p className="text-sm text-vytal-muted">{org.name} · {org.stats.classes} aulas/semana</p>
+              <p className="text-sm text-vytal-muted">{orgName} · {weeklyClasses.length} aulas/semana</p>
             </div>
           </div>
         </div>
@@ -94,7 +113,7 @@ export default function SchedulePage({ params }: { params: Promise<{ slug: strin
         <div className="mx-auto max-w-5xl px-6">
           <div className="flex gap-0.5 overflow-x-auto py-2">
             {DAYS.map((day, idx) => {
-              const count = org.weeklyClasses.filter((c) => c.day === idx).length;
+              const count = weeklyClasses.filter((c) => c.day === idx).length;
               return (
                 <button
                   key={day}
@@ -131,10 +150,12 @@ export default function SchedulePage({ params }: { params: Promise<{ slug: strin
             {dayClasses.map((cls) => {
               const isFull = cls.spotsLeft === 0;
               const isAlmostFull = cls.spotsLeft > 0 && cls.spotsLeft <= 3;
+              const duration = durationMinutes(cls.time, cls.endTime);
               return (
                 <div
                   key={cls.id}
-                  className={`group relative rounded-xl border bg-vytal-card p-4 transition-all hover:shadow-sm ${cls.color}`}
+                  className="group relative rounded-xl border bg-vytal-card p-4 transition-all hover:shadow-sm"
+                  style={{ color: cls.color, borderColor: `${cls.color}4d` }}
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0">
@@ -142,7 +163,7 @@ export default function SchedulePage({ params }: { params: Promise<{ slug: strin
                       <div className="mt-1 flex items-center gap-3 text-xs opacity-80">
                         <span className="flex items-center gap-1">
                           <Clock className="h-3 w-3" />
-                          {cls.time} · {cls.duration}min
+                          {cls.time} · {duration}min
                         </span>
                       </div>
                       <p className="mt-1.5 text-xs opacity-70">{cls.coach}</p>
@@ -198,7 +219,8 @@ export default function SchedulePage({ params }: { params: Promise<{ slug: strin
               {classTypes.map(({ name, color }) => (
                 <span
                   key={name}
-                  className={`rounded-full border px-3 py-1 text-xs font-medium ${color}`}
+                  className="rounded-full border px-3 py-1 text-xs font-medium"
+                  style={{ color, borderColor: `${color}4d`, backgroundColor: `${color}1a` }}
                 >
                   {name}
                 </span>
@@ -207,21 +229,6 @@ export default function SchedulePage({ params }: { params: Promise<{ slug: strin
           </div>
         </section>
       )}
-
-      {/* Opening hours info */}
-      <section className="border-t border-vytal-border bg-vytal-bg2">
-        <div className="mx-auto max-w-5xl px-6 py-6">
-          <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-vytal-muted">Horário de Funcionamento</p>
-          <div className="grid gap-2 sm:grid-cols-3">
-            {org.schedule.map((s) => (
-              <div key={s.day} className="flex items-center justify-between rounded-lg border border-vytal-border bg-vytal-card px-4 py-2.5">
-                <span className="text-sm text-vytal-text">{s.day}</span>
-                <span className="text-sm font-medium text-vytal-muted">{s.hours}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
     </>
   );
 }
