@@ -267,6 +267,13 @@
       "when": 1782911351173,
       "tag": "0037_futuristic_metal_master",
       "breakpoints": true
+    },
+    {
+      "idx": 38,
+      "version": "7",
+      "when": 1782918369189,
+      "tag": "0038_fluffy_frog_thor",
+      "breakpoints": true
     }
   ]
 }
