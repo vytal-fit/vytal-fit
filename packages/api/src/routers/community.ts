@@ -1,9 +1,25 @@
 import { TRPCError } from "@trpc/server";
-import { and, desc, eq, inArray } from "drizzle-orm";
-import { communityComments, communityPosts, communityReactions } from "@vytal-fit/db";
+import { and, desc, eq, gte, inArray } from "drizzle-orm";
+import {
+  checkIns,
+  communityComments,
+  communityPosts,
+  communityReactions,
+  gymMembers,
+  personalRecords,
+} from "@vytal-fit/db";
 import { hasMinRole, type UserRole } from "@vytal-fit/shared";
 import { z } from "zod";
 import { orgProcedure, router, staffProcedure } from "../trpc";
+
+const initials = (name: string) =>
+  name
+    .split(" ")
+    .map((n) => n[0])
+    .filter(Boolean)
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
 
 /** Map the caller's org role to the badge shown next to their name. */
 function badgeFor(role: UserRole | null): "owner" | "coach" | "athlete" {
@@ -66,6 +82,68 @@ export const communityRouter = router({
         commentCount: commentCount.get(p.id) ?? 0,
       }));
     }),
+
+  /**
+   * Engagement stats for the community landing (all derived from real data):
+   * check-ins this week, PRs this week, members active today, a 30-day check-in
+   * leaderboard, and the month's top athlete.
+   */
+  stats: orgProcedure.query(async ({ ctx }) => {
+    const org = ctx.activeOrganizationId;
+    const now = Date.now();
+    const weekAgo = new Date(now - 7 * 86_400_000);
+    const monthAgo = new Date(now - 30 * 86_400_000);
+    const startOfToday = new Date(new Date().toISOString().slice(0, 10) + "T00:00:00.000Z");
+
+    const [weekCheckins, todayCheckins, weekPrs, monthCheckins, members] = await Promise.all([
+      ctx.db
+        .select({ id: checkIns.id })
+        .from(checkIns)
+        .where(and(eq(checkIns.organizationId, org), gte(checkIns.checkedInAt, weekAgo))),
+      ctx.db
+        .select({ memberId: checkIns.memberId })
+        .from(checkIns)
+        .where(and(eq(checkIns.organizationId, org), gte(checkIns.checkedInAt, startOfToday))),
+      ctx.db
+        .select({ id: personalRecords.id })
+        .from(personalRecords)
+        .where(and(eq(personalRecords.organizationId, org), gte(personalRecords.achievedAt, weekAgo))),
+      ctx.db
+        .select({ memberId: checkIns.memberId })
+        .from(checkIns)
+        .where(and(eq(checkIns.organizationId, org), gte(checkIns.checkedInAt, monthAgo))),
+      ctx.db
+        .select({ id: gymMembers.id, name: gymMembers.name, streakWeeks: gymMembers.streakWeeks })
+        .from(gymMembers)
+        .where(eq(gymMembers.organizationId, org)),
+    ]);
+
+    const nameById = new Map(members.map((m) => [m.id, m.name]));
+    const monthCount = new Map<string, number>();
+    for (const c of monthCheckins) monthCount.set(c.memberId, (monthCount.get(c.memberId) ?? 0) + 1);
+
+    const leaderboard = [...monthCount.entries()]
+      .map(([memberId, count]) => ({
+        name: nameById.get(memberId) ?? "-",
+        initials: initials(nameById.get(memberId) ?? "-"),
+        checkIns: count,
+      }))
+      .sort((a, b) => b.checkIns - a.checkIns)
+      .slice(0, 5);
+
+    const top = leaderboard[0];
+    const topMember = top ? members.find((m) => m.name === top.name) : undefined;
+
+    return {
+      checkInsThisWeek: weekCheckins.length,
+      prsThisWeek: weekPrs.length,
+      activeToday: new Set(todayCheckins.map((c) => c.memberId)).size,
+      leaderboard,
+      athleteOfMonth: top
+        ? { name: top.name, initials: top.initials, checkIns: top.checkIns, streak: topMember?.streakWeeks ?? 0 }
+        : null,
+    };
+  }),
 
   /** Create a post. Anyone in the org can post; only staff may announce. */
   post: orgProcedure
