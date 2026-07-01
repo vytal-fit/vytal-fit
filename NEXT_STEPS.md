@@ -184,6 +184,23 @@ O **núcleo do produto está 100% real** (members, classes, WODs, CRM leads, pla
 - ✅ **Container**: auditoria revelou que a inconsistência real página-a-página era **só o `home`** — embrulhava `px-4 py-6 max-w-2xl mx-auto md:max-w-5xl` **dentro** do container do `member-shell` (`max-w-2xl px-4 py-6`), logo padding duplo + largura divergente. Todas as outras 8 páginas de conteúdo já usam `space-y-6` raiz e herdam o container do shell. `home` alinhado (`space-y-6`); agora todas as páginas encaixam igual.
 - **Reavaliação:** os `style={{ var(--color-vytal-*) }}` inline **renderizam corretamente** e trocam dark/light (referenciam os mesmos tokens que as utilities gerariam). A reescrita inline→utilities é **cosmética/opcional** (churn sem ganho visual), não um defeito. Adotar primitivos onde limpar padrões repetidos (empty states, cards simples) é o passo de maior valor restante, a fazer incrementalmente por página quando se tocar em cada uma.
 
+## Zero-mock — estado (2026-07-01)
+A marcha "zero mock" está **essencialmente concluída** em todas as superfícies com dados de domínio:
+- **pro (app)**: zero-mock (só `orgSettings`/troca de org = preferências, correto).
+- **pro /console** (portal de membro web via middleware): zero-mock (schedule, records, home, wod, profile).
+- **pro site público `org/[slug]`**: zero-mock — novo router `public` (unauth, slug-scoped: `site`/`plans`/`coaches`/`weeklySchedule`/`products`); home/schedule/team/pricing/shop/contact todas em API real; `org-data.ts` (MOCK_ORGS) **eliminado**; conteúdo `publicSite`/`profile` semeado para org-1.
+- **Today**: novo briefing diário (`today.briefing`) a substituir o drawer mock; landing `/today`.
+- **members/referrals** e **members/import (CSV real)**: em API real.
+- **apps/my**: real (design pass feito).
+- **apps/landing**: marketing estático (sem dados de domínio — nada a ligar).
+
+**Únicos mocks restantes (deferidos — "não fazer"):** `members/[id]/{body,nutrition,assessments}` (useDataStore).
+
+**Follow-ups reais (não-mock):**
+- Aplicar migração `0038` (member_referrals) + reseed no Neon prod para a página referrals mostrar dados live.
+- Editor de conteúdo do site (Settings → website) para orgs editarem `publicSite`/`profile` (hoje só semeado para org-1; outras orgs mostram vazio nas páginas públicas).
+- Reseed prod para popular `publicSite`/`profile` das restantes orgs.
+
 ## Pontos em aberto
 - **A-1** Âmbito exato da produção de conteúdo das BD (exercícios/WODs) — *Bruno + Juvenal*.
 - **A-2** Selecionar fornecedor de faturação certificado — *antes da F5*.
