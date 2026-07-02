@@ -172,12 +172,12 @@ export function Hero({ t }: { t: (k: string) => string }) {
   const close = words.slice(-3).join(" ");
 
   return (
-    <section className="relative p-3 sm:p-4">
+    <section className="relative">
       <div
         ref={frameRef}
         onPointerMove={onPointerMove}
         onPointerLeave={onPointerLeave}
-        className="relative flex min-h-[calc(100svh-1.5rem)] sm:min-h-[calc(100svh-2rem)] flex-col items-center justify-center overflow-hidden rounded-[1.5rem] sm:rounded-[2rem] bg-black"
+        className="relative flex min-h-[100svh] flex-col items-center justify-center overflow-hidden bg-black"
       >
         {/* Video backdrop (poster-only under reduced motion) */}
         {reduced ? (
@@ -187,12 +187,12 @@ export function Hero({ t }: { t: (k: string) => string }) {
             alt=""
             aria-hidden="true"
             className="absolute inset-0 h-full w-full object-cover"
-            style={{ filter: "brightness(0.55) saturate(0.9)" }}
+            style={{ filter: "brightness(0.75) contrast(1.06) saturate(1.05)" }}
           />
         ) : (
           <video
             className="absolute inset-0 h-full w-full object-cover"
-            style={{ filter: "brightness(0.55) saturate(0.9)" }}
+            style={{ filter: "brightness(0.75) contrast(1.06) saturate(1.05)" }}
             src="/hero/hero-loop.mp4"
             poster="/hero/hero-poster.jpg"
             autoPlay
@@ -210,8 +210,18 @@ export function Hero({ t }: { t: (k: string) => string }) {
           className="absolute inset-0 pointer-events-none"
           style={{
             background:
-              "radial-gradient(120% 90% at 50% 115%, rgba(34,197,94,0.28), transparent 55%), linear-gradient(to bottom, rgba(0,0,0,0.55), rgba(0,0,0,0.15) 35%, rgba(0,0,0,0.72))",
+              "radial-gradient(110% 80% at 50% 110%, rgba(34,197,94,0.22), transparent 55%), linear-gradient(to bottom, rgba(0,0,0,0.5), rgba(0,0,0,0.12) 30%, rgba(0,0,0,0.45) 75%, rgba(0,0,0,0.7))",
           }}
+        />
+        {/* Green tint unifying the footage with the brand */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{ background: "rgba(34,197,94,0.10)", mixBlendMode: "soft-light" }}
+        />
+        {/* Seamless melt into the page below */}
+        <div
+          className="absolute inset-x-0 bottom-0 h-40 pointer-events-none"
+          style={{ background: "linear-gradient(to bottom, transparent, var(--color-vytal-bg))" }}
         />
         {/* Cursor spotlight reveal */}
         {!reduced && (
