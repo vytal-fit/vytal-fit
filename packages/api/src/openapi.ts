@@ -98,7 +98,7 @@ function buildSpec() {
       operationId: procPath,
       tags: [titleCase(route.resource)],
       summary: `${titleCase(route.resource)}: ${verb}`,
-      security: [{ apiKeyAuth: [] }, { cookieAuth: [] }],
+      security: [{ apiKeyAuth: [] }, { bearerAuth: [] }, { cookieAuth: [] }],
       responses: {
         "200": { description: "Success.", content: { "application/json": { schema: { type: "object" } } } },
         "400": ERROR_REF,
@@ -183,7 +183,7 @@ function buildSpec() {
       { url: "https://api.vytal.fit/v1", description: "Production" },
       { url: "http://localhost:3001/v1", description: "Local development" },
     ],
-    security: [{ apiKeyAuth: [] }, { cookieAuth: [] }],
+    security: [{ apiKeyAuth: [] }, { bearerAuth: [] }, { cookieAuth: [] }],
     tags,
     paths,
     components: {
@@ -193,14 +193,21 @@ function buildSpec() {
           scheme: "bearer",
           bearerFormat: "API Key",
           description:
-            "External access. Send your organization API key as `Authorization: Bearer vk_live_…` (Stripe-style). Create and manage keys in Settings → API Keys; every request is scoped and metered to that key's organization. **Required for all third-party / server-to-server calls.**",
+            "**Partners / server-to-server.** Send your organization API key as `Authorization: Bearer vk_live_…` (Stripe-style). Create and manage keys in Settings → API Keys; every request is scoped and metered to that key's organization.",
+        },
+        bearerAuth: {
+          type: "http",
+          scheme: "bearer",
+          bearerFormat: "JWT",
+          description:
+            "**First-party session (OAuth / Better Auth).** Vytal's own apps authenticate with a session token via `Authorization: Bearer <token>` — the web apps use tRPC with this session, native/mobile and internal tooling can call `/v1` REST with the same bearer. Not issued to third parties (partners use an API key).",
         },
         cookieAuth: {
           type: "apiKey",
           in: "cookie",
           name: "better-auth.session_token",
           description:
-            "First-party session cookie (Vytal's own web apps). Not available to third parties — external integrations must use an API key.",
+            "First-party session **cookie** (browser). Equivalent to the bearer session for same-site web apps. External integrations must use an API key.",
         },
       },
       responses: {
