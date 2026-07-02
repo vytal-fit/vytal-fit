@@ -6,7 +6,7 @@ import { Users, Calendar, TrendingUp, ArrowRight, Play, ChevronDown } from "luci
 import { motion, useMotionValue, useReducedMotion, useSpring, useTransform, type MotionValue } from "motion/react";
 import { Magnetic } from "@vytal-fit/brand";
 import { KineticText, CountUp, EASE_OUT_EXPO } from "@vytal-fit/brand/motion";
-import { NOISE_SVG } from "@/lib/constants";
+import { APP_LINKS, NOISE_SVG } from "@/lib/constants";
 
 // Cinematic hero: an inset, rounded "screen" filled with a dark training-floor
 // video (Pexels free license, re-encoded 720p24), green-graded with gradient +
@@ -297,7 +297,7 @@ export function Hero({ t }: { t: (k: string) => string }) {
             <Magnetic>
               <div className="animated-gradient-border rounded-[14px] p-[1.5px]">
                 <Link
-                  href="/signup"
+                  href={APP_LINKS.getStarted}
                   className="vy-shimmer inline-flex items-center gap-2 rounded-xl bg-vytal-green px-7 py-3.5 text-sm font-semibold text-black shadow-lg shadow-[rgba(34,197,94,0.35)] transition-all duration-150 hover:-translate-y-0.5 hover:bg-[#16a34a] hover:shadow-[rgba(34,197,94,0.5)]"
                 >
                   {t("ctaStart")}
@@ -306,7 +306,7 @@ export function Hero({ t }: { t: (k: string) => string }) {
               </div>
             </Magnetic>
             <Link
-              href="/@crossfit-aveiro"
+              href={APP_LINKS.demo}
               className="inline-flex items-center gap-2 rounded-xl border border-white/25 bg-black/30 px-7 py-3.5 text-sm font-medium text-white backdrop-blur-sm transition-all duration-150 hover:border-vytal-green/60 hover:bg-[rgba(34,197,94,0.1)]"
             >
               <Play size={15} className="text-vytal-green" />

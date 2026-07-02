@@ -1,5 +1,6 @@
 "use client";
 
+import { APP_LINKS } from "@/lib/constants";
 import Link from "next/link";
 import { ArrowRight, Play } from "lucide-react";
 import { motion, useReducedMotion } from "motion/react";
@@ -59,7 +60,7 @@ export function CTABanner({ t }: { t: (k: string) => string }) {
                   <Magnetic>
                     <div className="rounded-[14px] p-[1.5px] animated-gradient-border inline-flex">
                       <Link
-                        href="/signup"
+                        href={APP_LINKS.getStarted}
                         className="vy-shimmer inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-vytal-green text-vytal-bg font-bold text-sm hover:bg-[#16a34a] transition-all duration-150 shadow-lg shadow-[rgba(34,197,94,0.3)] hover:-translate-y-0.5"
                       >
                         {t("ctaBannerStart")}
@@ -70,7 +71,7 @@ export function CTABanner({ t }: { t: (k: string) => string }) {
                 </RevealItem>
                 <RevealItem>
                   <Link
-                    href="/@crossfit-aveiro"
+                    href={APP_LINKS.demo}
                     className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl border border-[rgba(34,197,94,0.25)] text-vytal-text font-medium text-sm hover:border-[rgba(34,197,94,0.5)] hover:bg-[rgba(34,197,94,0.05)] transition-all duration-150"
                   >
                     <Play size={14} className="text-vytal-green" />

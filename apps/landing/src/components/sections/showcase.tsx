@@ -1,5 +1,6 @@
 "use client";
 
+import { APP_LINKS } from "@/lib/constants";
 import { useState } from "react";
 import Link from "next/link";
 import { Check, BarChart3, ArrowRight } from "lucide-react";
@@ -11,7 +12,6 @@ import {
   type MotionValue,
 } from "motion/react";
 import { EASE_OUT_EXPO, StickyScene } from "@vytal-fit/brand/motion";
-import { WaveDivider } from "@/components/decor";
 
 // ── Product Showcase ──────────────────────────────────────────────────────────
 const TAB_META = [
@@ -100,7 +100,7 @@ function ShowcaseBody({
           ))}
         </ul>
         <Link
-          href="/signup"
+          href={APP_LINKS.getStarted}
           className="inline-flex items-center gap-2 mt-8 px-5 py-2.5 rounded-lg text-sm font-semibold text-vytal-bg transition-all duration-150 hover:-translate-y-0.5"
           style={{ background: tab.accent }}
         >
@@ -200,7 +200,6 @@ export function ProductShowcase({ t }: { t: (k: string) => string }) {
 
   return (
     <section className="py-24 border-t border-[rgba(34,197,94,0.08)]">
-      <WaveDivider flip color="rgba(34,197,94,0.03)" />
       {/* Classic click-tabs: always on mobile, everywhere under reduced motion */}
       <div className={reduced ? "" : "md:hidden"}>
         <ShowcaseBody t={t} activeTab={activeTab} setActiveTab={setActiveTab} animate={!reduced} />

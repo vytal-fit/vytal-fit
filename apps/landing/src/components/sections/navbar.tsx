@@ -1,5 +1,6 @@
 "use client";
 
+import { APP_LINKS } from "@/lib/constants";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Menu, Sun, Moon } from "lucide-react";
@@ -63,12 +64,16 @@ export function Navbar({ t, lang, setLang }: { t: (k: string) => string; lang: L
     { label: t("faq"), href: "#faq", id: "faq" },
   ];
 
+  // At the top of the page the nav floats over the dark hero video, so its
+  // idle text must stay light regardless of theme.
+  const overHero = !scrolled && !mobileOpen;
+
   return (
     <nav
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled
-          ? "bg-vytal-bg/95 backdrop-blur-md border-b border-[rgba(34,197,94,0.1)] shadow-lg shadow-black/20"
-          : "bg-transparent"
+        overHero
+          ? "bg-transparent"
+          : "bg-vytal-bg/95 backdrop-blur-md border-b border-[rgba(34,197,94,0.1)] shadow-lg shadow-black/10"
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -76,7 +81,7 @@ export function Navbar({ t, lang, setLang }: { t: (k: string) => string; lang: L
           {/* Logo */}
           <a href="#" className="flex items-center gap-0.5 shrink-0">
             <span className="text-xl font-bold text-vytal-green tracking-tight">Vytal</span>
-            <span className="text-xl font-bold text-vytal-muted tracking-tight">.fit</span>
+            <span className={`text-xl font-bold tracking-tight ${overHero ? "text-white/60" : "text-vytal-muted"}`}>.fit</span>
           </a>
 
           {/* Desktop links */}
@@ -88,6 +93,8 @@ export function Navbar({ t, lang, setLang }: { t: (k: string) => string; lang: L
                 className={`relative text-sm transition-colors duration-150 ${
                   activeSection === l.id
                     ? "text-vytal-green"
+                    : overHero
+                    ? "text-white/70 hover:text-white"
                     : "text-vytal-muted hover:text-vytal-text"
                 }`}
               >
@@ -117,6 +124,8 @@ export function Navbar({ t, lang, setLang }: { t: (k: string) => string; lang: L
                   className={`text-xs font-semibold px-2 py-1 rounded transition-all duration-150 ${
                     lang === l
                       ? "bg-[rgba(34,197,94,0.15)] text-vytal-green"
+                      : overHero
+                      ? "text-white/60 hover:text-white"
                       : "text-vytal-muted hover:text-vytal-text"
                   }`}
                 >
@@ -128,18 +137,26 @@ export function Navbar({ t, lang, setLang }: { t: (k: string) => string; lang: L
             <button
               onClick={toggleTheme}
               aria-label={lightMode ? "Switch to dark mode" : "Switch to light mode"}
-              className="w-8 h-8 flex items-center justify-center rounded-lg border border-[rgba(34,197,94,0.2)] text-vytal-muted hover:text-vytal-green hover:border-[rgba(34,197,94,0.4)] transition-all duration-150"
+              className={`w-8 h-8 flex items-center justify-center rounded-lg border transition-all duration-150 ${
+                overHero
+                  ? "border-white/25 text-white/70 hover:text-vytal-green hover:border-vytal-green/50"
+                  : "border-[rgba(34,197,94,0.2)] text-vytal-muted hover:text-vytal-green hover:border-[rgba(34,197,94,0.4)]"
+              }`}
             >
               {lightMode ? <Sun size={14} /> : <Moon size={14} />}
             </button>
             <Link
-              href="/login"
-              className="text-sm px-4 py-2 rounded-lg border border-[rgba(34,197,94,0.25)] text-vytal-text hover:border-[rgba(34,197,94,0.5)] hover:bg-[rgba(34,197,94,0.05)] transition-all duration-150"
+              href={APP_LINKS.signIn}
+              className={`text-sm px-4 py-2 rounded-lg border transition-all duration-150 ${
+                overHero
+                  ? "border-white/30 text-white hover:border-vytal-green/60 hover:bg-white/10"
+                  : "border-[rgba(34,197,94,0.25)] text-vytal-text hover:border-[rgba(34,197,94,0.5)] hover:bg-[rgba(34,197,94,0.05)]"
+              }`}
             >
               {t("signIn")}
             </Link>
             <Link
-              href="/signup"
+              href={APP_LINKS.getStarted}
               className="text-sm px-4 py-2 rounded-lg bg-vytal-green text-vytal-bg font-semibold hover:bg-[#16a34a] transition-colors duration-150"
             >
               {t("ctaStart")}
@@ -149,7 +166,9 @@ export function Navbar({ t, lang, setLang }: { t: (k: string) => string; lang: L
           {/* Mobile hamburger */}
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
-            className="md:hidden p-2 rounded-lg text-vytal-muted hover:text-vytal-text hover:bg-[rgba(34,197,94,0.06)] transition-colors"
+            className={`md:hidden p-2 rounded-lg transition-colors hover:bg-[rgba(34,197,94,0.06)] ${
+              overHero ? "text-white/80 hover:text-white" : "text-vytal-muted hover:text-vytal-text"
+            }`}
           >
             <Menu size={20} />
           </button>
@@ -195,13 +214,13 @@ export function Navbar({ t, lang, setLang }: { t: (k: string) => string; lang: L
               </div>
               <div className="flex gap-2 mt-2 px-1">
                 <Link
-                  href="/login"
+                  href={APP_LINKS.signIn}
                   className="flex-1 text-center text-sm px-4 py-2.5 rounded-lg border border-[rgba(34,197,94,0.25)] text-vytal-text"
                 >
                   {t("signIn")}
                 </Link>
                 <Link
-                  href="/signup"
+                  href={APP_LINKS.getStarted}
                   className="flex-1 text-center text-sm px-4 py-2.5 rounded-lg bg-vytal-green text-vytal-bg font-semibold"
                 >
                   {t("ctaStart")}

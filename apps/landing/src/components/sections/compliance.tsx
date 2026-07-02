@@ -2,7 +2,6 @@
 
 import { Shield } from "lucide-react";
 import { RevealGroup, RevealItem, STAGGER } from "@vytal-fit/brand/motion";
-import { WaveDivider } from "@/components/decor";
 
 // ── Compliance & Segurança ───────────────────────────────────────────────────
 export function ComplianceSecurity({ t }: { t: (k: string) => string }) {
@@ -65,7 +64,6 @@ export function ComplianceSecurity({ t }: { t: (k: string) => string }) {
 
   return (
     <section className="py-24 border-t border-[rgba(34,197,94,0.08)]">
-      <WaveDivider flip color="rgba(34,197,94,0.03)" />
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         <RevealGroup className="text-center mb-12" stagger={0.08} amount={0.4}>
           <RevealItem>

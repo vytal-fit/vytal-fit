@@ -1,31 +1,53 @@
 "use client";
 
 import { motion, useReducedMotion } from "motion/react";
+import {
+  Dumbbell,
+  Activity,
+  Building2,
+  Flower2,
+  PersonStanding,
+  Swords,
+  Target,
+  Waves,
+  Music,
+  HeartPulse,
+  Trophy,
+  Mountain,
+  Bike,
+  Footprints,
+  Medal,
+  Stethoscope,
+  Weight,
+  Flame,
+  Sailboat,
+  Plus,
+  type LucideIcon,
+} from "lucide-react";
 import { Reveal } from "@vytal-fit/brand";
-import { WaveDivider } from "@/components/decor";
 
 // ── Verticals Marquee ────────────────────────────────────────────────────────
-const VERTICALS = [
-  { emoji: "🏋️", key: "crossfit_box" },
-  { emoji: "💪", key: "functional_training" },
-  { emoji: "💪", key: "gym" },
-  { emoji: "🧘", key: "yoga_studio" },
-  { emoji: "🎓", key: "pilates_studio" },
-  { emoji: "🥊", key: "martial_arts" },
-  { emoji: "🎯", key: "personal_training" },
-  { emoji: "🏊", key: "swimming" },
-  { emoji: "🩰", key: "dance_studio" },
-  { emoji: "🏢", key: "health_club" },
-  { emoji: "⚽", key: "sports_club" },
-  { emoji: "🧗", key: "climbing_gym" },
-  { emoji: "🚴", key: "cycling_studio" },
-  { emoji: "🏃", key: "running_club" },
-  { emoji: "🤸", key: "gymnastics_academy" },
-  { emoji: "🏥", key: "rehabilitation" },
-  { emoji: "🏆", key: "weightlifting_club" },
-  { emoji: "☀️", key: "bootcamp" },
-  { emoji: "🏄", key: "surf_water_sports" },
-  { emoji: "➕", key: "other" },
+const VERTICALS: { Icon: LucideIcon; key: string }[] = [
+  { Icon: Dumbbell, key: "crossfit_box" },
+  { Icon: Activity, key: "functional_training" },
+  { Icon: Building2, key: "gym" },
+  { Icon: Flower2, key: "yoga_studio" },
+  { Icon: PersonStanding, key: "pilates_studio" },
+  { Icon: Swords, key: "martial_arts" },
+  { Icon: Target, key: "personal_training" },
+  { Icon: Waves, key: "swimming" },
+  { Icon: Music, key: "dance_studio" },
+  { Icon: HeartPulse, key: "health_club" },
+  { Icon: Trophy, key: "sports_club" },
+  { Icon: Mountain, key: "climbing_gym" },
+  { Icon: Bike, key: "cycling_studio" },
+  { Icon: Footprints, key: "running_club" },
+  { Icon: Medal, key: "gymnastics_academy" },
+  { Icon: Stethoscope, key: "rehabilitation" },
+  { Icon: Weight, key: "weightlifting_club" },
+  { Icon: Flame, key: "bootcamp" },
+  { Icon: Sailboat, key: "surf_water_sports" },
+  { Icon: Plus, key: "other" },
 ];
 
 function MarqueeRow({
@@ -33,7 +55,7 @@ function MarqueeRow({
   reverse,
   reduced,
 }: {
-  pills: { emoji: string; label: string }[];
+  pills: { Icon: LucideIcon; label: string }[];
   reverse?: boolean;
   reduced: boolean;
 }) {
@@ -52,7 +74,7 @@ function MarqueeRow({
           whileHover={reduced ? undefined : { y: -3, scale: 1.03 }}
           className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-[rgba(34,197,94,0.15)] bg-[color-mix(in_srgb,var(--color-vytal-bg3)_60%,transparent)] backdrop-blur-sm shrink-0 mx-1.5 hover:border-[rgba(34,197,94,0.4)] hover:bg-[rgba(34,197,94,0.07)] transition-colors duration-150 cursor-default"
         >
-          <span className="text-base leading-none">{pill.emoji}</span>
+          <pill.Icon size={13} className="text-vytal-green shrink-0" />
           <span className="text-xs font-medium text-vytal-text whitespace-nowrap">{pill.label}</span>
         </motion.div>
       ))}
@@ -62,14 +84,13 @@ function MarqueeRow({
 
 export function VerticalsMarquee({ t }: { t: (k: string) => string }) {
   const reduced = useReducedMotion() ?? false;
-  const pills = VERTICALS.map((v) => ({ emoji: v.emoji, label: t(`v_${v.key}`) }));
+  const pills = VERTICALS.map((v) => ({ Icon: v.Icon, label: t(`v_${v.key}`) }));
   const half = Math.ceil(pills.length / 2);
   const rowA = pills.slice(0, half);
   const rowB = pills.slice(half);
 
   return (
     <section className="pt-20 pb-10 border-t border-[rgba(34,197,94,0.08)] overflow-hidden">
-      <WaveDivider color="rgba(34,197,94,0.03)" />
       <Reveal>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center mb-10">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[rgba(34,197,94,0.2)] bg-[rgba(34,197,94,0.05)] mb-4">

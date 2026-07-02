@@ -1,28 +1,26 @@
 "use client";
 
-import { Zap, BarChart3 } from "lucide-react";
+import { Zap, BarChart3, Mail, Target, Rocket, Gift, TrendingDown, CalendarClock, Dumbbell, Gauge } from "lucide-react";
 import { RevealGroup, RevealItem } from "@vytal-fit/brand/motion";
-import { WaveDivider } from "@/components/decor";
 
 // ── Automations & AI ─────────────────────────────────────────────────────────
 export function AutomationsAI({ t }: { t: (k: string) => string }) {
   const automations = [
-    { titleKey: "autoA1Title", descKey: "autoA1Desc", icon: "✉️", color: "var(--color-vytal-green)" },
-    { titleKey: "autoA2Title", descKey: "autoA2Desc", icon: "🎯", color: "var(--color-vytal-orange)" },
-    { titleKey: "autoA3Title", descKey: "autoA3Desc", icon: "🚀", color: "var(--color-vytal-blue)" },
-    { titleKey: "autoA4Title", descKey: "autoA4Desc", icon: "🎂", color: "var(--color-vytal-purple)" },
+    { titleKey: "autoA1Title", descKey: "autoA1Desc", Icon: Mail, color: "var(--color-vytal-green)" },
+    { titleKey: "autoA2Title", descKey: "autoA2Desc", Icon: Target, color: "var(--color-vytal-orange)" },
+    { titleKey: "autoA3Title", descKey: "autoA3Desc", Icon: Rocket, color: "var(--color-vytal-blue)" },
+    { titleKey: "autoA4Title", descKey: "autoA4Desc", Icon: Gift, color: "var(--color-vytal-purple)" },
   ];
 
   const aiInsights = [
-    { titleKey: "autoB1Title", descKey: "autoB1Desc", icon: "🔮", color: "var(--color-vytal-red)" },
-    { titleKey: "autoB2Title", descKey: "autoB2Desc", icon: "🧠", color: "var(--color-vytal-green)" },
-    { titleKey: "autoB3Title", descKey: "autoB3Desc", icon: "🏋️", color: "var(--color-vytal-blue)" },
-    { titleKey: "autoB4Title", descKey: "autoB4Desc", icon: "📊", color: "var(--color-vytal-amber)" },
+    { titleKey: "autoB1Title", descKey: "autoB1Desc", Icon: TrendingDown, color: "var(--color-vytal-red)" },
+    { titleKey: "autoB2Title", descKey: "autoB2Desc", Icon: CalendarClock, color: "var(--color-vytal-green)" },
+    { titleKey: "autoB3Title", descKey: "autoB3Desc", Icon: Dumbbell, color: "var(--color-vytal-blue)" },
+    { titleKey: "autoB4Title", descKey: "autoB4Desc", Icon: Gauge, color: "var(--color-vytal-amber)" },
   ];
 
   return (
     <section className="py-24 border-t border-[rgba(34,197,94,0.08)]">
-      <WaveDivider color="rgba(34,197,94,0.03)" />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <RevealGroup className="text-center mb-12" stagger={0.08} amount={0.4}>
           <RevealItem>
@@ -62,8 +60,8 @@ export function AutomationsAI({ t }: { t: (k: string) => string }) {
                   key={item.titleKey}
                   className="flex items-start gap-3 p-3.5 rounded-xl border border-[rgba(34,197,94,0.08)] bg-[color-mix(in_srgb,var(--color-vytal-bg)_40%,transparent)] hover:border-[rgba(34,197,94,0.2)] hover:bg-[color-mix(in_srgb,var(--color-vytal-bg)_60%,transparent)] transition-all duration-150 group"
                 >
-                  <div className="w-9 h-9 rounded-xl flex items-center justify-center text-base shrink-0 bg-[color-mix(in_srgb,var(--color-vytal-bg3)_80%,transparent)] border border-[rgba(34,197,94,0.1)]">
-                    {item.icon}
+                  <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 bg-[color-mix(in_srgb,var(--color-vytal-bg3)_80%,transparent)] border border-[rgba(34,197,94,0.1)]">
+                    <item.Icon size={15} style={{ color: item.color }} />
                   </div>
                   <div>
                     <div className="text-sm font-semibold text-vytal-text mb-0.5">{t(item.titleKey)}</div>
@@ -75,7 +73,7 @@ export function AutomationsAI({ t }: { t: (k: string) => string }) {
           </RevealItem>
 
           {/* AI column */}
-          <RevealItem className="rounded-2xl border border-[rgba(0,212,255,0.12)] bg-[rgba(0,30,40,0.4)] backdrop-blur-sm p-6">
+          <RevealItem className="rounded-2xl border border-[rgba(0,212,255,0.18)] bg-[color-mix(in_srgb,var(--color-vytal-bg3)_40%,transparent)] backdrop-blur-sm p-6">
             <h3 className="text-sm font-bold text-vytal-blue uppercase tracking-wider mb-5 flex items-center gap-2">
               <div className="w-5 h-5 rounded-md bg-[rgba(0,212,255,0.15)] flex items-center justify-center">
                 <BarChart3 size={11} className="text-vytal-blue" />
@@ -88,8 +86,8 @@ export function AutomationsAI({ t }: { t: (k: string) => string }) {
                   key={item.titleKey}
                   className="flex items-start gap-3 p-3.5 rounded-xl border border-[rgba(0,212,255,0.08)] bg-[color-mix(in_srgb,var(--color-vytal-bg)_40%,transparent)] hover:border-[rgba(0,212,255,0.2)] hover:bg-[color-mix(in_srgb,var(--color-vytal-bg)_60%,transparent)] transition-all duration-150 group"
                 >
-                  <div className="w-9 h-9 rounded-xl flex items-center justify-center text-base shrink-0 bg-[color-mix(in_srgb,var(--color-vytal-bg3)_80%,transparent)] border border-[rgba(0,212,255,0.1)]">
-                    {item.icon}
+                  <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 bg-[color-mix(in_srgb,var(--color-vytal-bg3)_80%,transparent)] border border-[rgba(0,212,255,0.1)]">
+                    <item.Icon size={15} style={{ color: item.color }} />
                   </div>
                   <div>
                     <div className="text-sm font-semibold text-vytal-text mb-0.5">{t(item.titleKey)}</div>

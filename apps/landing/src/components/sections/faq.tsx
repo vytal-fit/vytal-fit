@@ -4,7 +4,6 @@ import { useState } from "react";
 import { ChevronDown } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { EASE_OUT_EXPO } from "@vytal-fit/brand/motion";
-import { WaveDivider } from "@/components/decor";
 import { useScrollReveal } from "@/lib/hooks";
 
 // ── FAQ accordion ───────────────────────────────────────────────────────────
@@ -58,7 +57,6 @@ export function FAQ({ t }: { t: (k: string) => string }) {
 
   return (
     <section id="faq" className="py-24 border-t border-[rgba(34,197,94,0.08)]">
-      <WaveDivider flip color="rgba(34,197,94,0.03)" />
       <div ref={ref} className="scroll-reveal max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[rgba(34,197,94,0.2)] bg-[rgba(34,197,94,0.05)] mb-4">

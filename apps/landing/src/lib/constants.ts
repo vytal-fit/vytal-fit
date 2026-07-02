@@ -54,3 +54,10 @@ export const LANDING_KEYFRAMES = `
   animation: landing-gradient-shift 4s ease infinite;
 }
 `;
+
+// Live product destinations for landing CTAs (landing itself has no auth routes).
+export const APP_LINKS = {
+  signIn: "https://pro.vytal.fit/login",
+  getStarted: "https://pro.vytal.fit/register",
+  demo: "https://pro.vytal.fit/login",
+} as const;

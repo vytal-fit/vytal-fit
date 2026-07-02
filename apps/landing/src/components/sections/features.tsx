@@ -1,28 +1,27 @@
 "use client";
 
+import { APP_LINKS } from "@/lib/constants";
 import Link from "next/link";
 import { Users, Calendar, Dumbbell, TrendingUp, CreditCard, Globe, Zap, ArrowRight } from "lucide-react";
 import { AnimatedMark, TiltCard } from "@vytal-fit/brand";
 import { RevealGroup, RevealItem } from "@vytal-fit/brand/motion";
-import { WaveDivider } from "@/components/decor";
 
 // ── Features ─────────────────────────────────────────────────────────────────
 const FEATURE_ICONS = [Users, Calendar, Dumbbell, TrendingUp, CreditCard, Globe];
 const FEATURE_COLORS = ["var(--color-vytal-green)", "var(--color-vytal-blue)", "var(--color-vytal-purple)", "var(--color-vytal-amber)", "var(--color-vytal-orange)", "var(--color-vytal-green)"];
 const FEATURE_KEYS = [
-  { title: "feat1", desc: "feat1d", href: "/@crossfit-aveiro" },
-  { title: "feat2", desc: "feat2d", href: "/@crossfit-aveiro/schedule" },
-  { title: "feat3", desc: "feat3d", href: "/@crossfit-aveiro" },
-  { title: "feat4", desc: "feat4d", href: "/signup" },
-  { title: "feat5", desc: "feat5d", href: "/signup" },
-  { title: "feat6", desc: "feat6d", href: "/@crossfit-aveiro/shop" },
+  { title: "feat1", desc: "feat1d", href: APP_LINKS.demo },
+  { title: "feat2", desc: "feat2d", href: APP_LINKS.demo },
+  { title: "feat3", desc: "feat3d", href: APP_LINKS.demo },
+  { title: "feat4", desc: "feat4d", href: APP_LINKS.getStarted },
+  { title: "feat5", desc: "feat5d", href: APP_LINKS.getStarted },
+  { title: "feat6", desc: "feat6d", href: APP_LINKS.demo },
 ];
 
 export function Features({ t }: { t: (k: string) => string }) {
   return (
     <section id="funcionalidades" className="relative overflow-hidden py-24 border-t border-[rgba(34,197,94,0.08)]">
       <AnimatedMark size={340} className="vy-drift absolute -top-10 -right-10 z-0 pointer-events-none" style={{ opacity: "var(--vy-watermark-opacity, 0.04)" }} />
-      <WaveDivider color="rgba(34,197,94,0.03)" />
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <RevealGroup className="text-center mb-16" stagger={0.08} amount={0.4}>
           <RevealItem>
