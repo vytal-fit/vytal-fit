@@ -58,7 +58,7 @@ export function Comparison({ t }: { t: (k: string) => string }) {
 
         <div className="rounded-2xl border border-vytal-border overflow-hidden backdrop-blur-sm">
           {/* Header */}
-          <div className="grid grid-cols-5 bg-[color-mix(in_srgb,var(--color-vytal-bg3)_80%,transparent)]">
+          <div className="grid grid-cols-6 bg-[color-mix(in_srgb,var(--color-vytal-bg3)_80%,transparent)]">
             <div className="col-span-2 px-6 py-4 text-xs font-semibold text-vytal-muted uppercase tracking-wider">
               {t("compColFeature")}
             </div>
@@ -86,7 +86,7 @@ export function Comparison({ t }: { t: (k: string) => string }) {
             {COMPARISON_DATA.map((row, idx) => (
               <RevealItem key={row.key} duration={0.55}>
                 <div
-                  className={`grid grid-cols-5 border-t border-[rgba(34,197,94,0.06)] ${
+                  className={`grid grid-cols-6 border-t border-[rgba(34,197,94,0.06)] ${
                     idx % 2 === 0 ? "bg-[color-mix(in_srgb,var(--color-vytal-bg)_40%,transparent)]" : "bg-[color-mix(in_srgb,var(--color-vytal-bg3)_20%,transparent)]"
                   } hover:bg-[rgba(34,197,94,0.03)] transition-colors`}
                 >

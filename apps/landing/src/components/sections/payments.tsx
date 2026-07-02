@@ -13,8 +13,9 @@ export function PaymentsPortugal({ t }: { t: (k: string) => string }) {
       icon: (
         <svg width="28" height="28" viewBox="0 0 48 48" fill="none">
           <rect width="48" height="48" rx="10" fill="rgba(255,71,87,0.12)" />
-          <path d="M12 24a12 12 0 1 1 24 0 12 12 0 0 1-24 0z" fill="none" stroke="var(--color-vytal-red)" strokeWidth="2.5"/>
-          <path d="M20 20l4 4 4-4M20 28l4-4 4 4" stroke="var(--color-vytal-red)" strokeWidth="2" strokeLinecap="round"/>
+          <rect x="16" y="10" width="16" height="28" rx="4" stroke="var(--color-vytal-red)" strokeWidth="2.5" fill="none"/>
+          <path d="M22 33h4" stroke="var(--color-vytal-red)" strokeWidth="2" strokeLinecap="round"/>
+          <path d="M21 21l3 4 3-4" stroke="var(--color-vytal-red)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
         </svg>
       ),
       color: "var(--color-vytal-red)",
@@ -80,7 +81,7 @@ export function PaymentsPortugal({ t }: { t: (k: string) => string }) {
 
   return (
     <section className="relative overflow-hidden py-24 border-t border-[rgba(34,197,94,0.08)]">
-      <AnimatedMark size={340} className="vy-drift absolute -bottom-12 -left-10 z-0 pointer-events-none" style={{ opacity: 0.04 }} />
+      <AnimatedMark size={340} className="vy-drift absolute -bottom-12 -left-10 z-0 pointer-events-none" style={{ opacity: "var(--vy-watermark-opacity, 0.04)" }} />
       <WaveDivider flip color="rgba(34,197,94,0.03)" />
       <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         <RevealGroup className="text-center mb-12" stagger={0.08} amount={0.4}>

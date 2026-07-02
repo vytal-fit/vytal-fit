@@ -21,7 +21,7 @@ const FEATURE_KEYS = [
 export function Features({ t }: { t: (k: string) => string }) {
   return (
     <section id="funcionalidades" className="relative overflow-hidden py-24 border-t border-[rgba(34,197,94,0.08)]">
-      <AnimatedMark size={340} className="vy-drift absolute -top-10 -right-10 z-0 pointer-events-none" style={{ opacity: 0.04 }} />
+      <AnimatedMark size={340} className="vy-drift absolute -top-10 -right-10 z-0 pointer-events-none" style={{ opacity: "var(--vy-watermark-opacity, 0.04)" }} />
       <WaveDivider color="rgba(34,197,94,0.03)" />
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <RevealGroup className="text-center mb-16" stagger={0.08} amount={0.4}>

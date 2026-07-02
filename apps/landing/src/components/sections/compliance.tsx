@@ -95,11 +95,11 @@ export function ComplianceSecurity({ t }: { t: (k: string) => string }) {
             <RevealItem
               key={badge.key}
               className="flex flex-col items-center gap-3 p-5 rounded-2xl border bg-[color-mix(in_srgb,var(--color-vytal-bg3)_40%,transparent)] backdrop-blur-sm hover:-translate-y-1 hover:shadow-[0_0_20px_rgba(34,197,94,0.08)] transition-all duration-200 group"
-              style={{ borderColor: `${badge.color}20` }}
+              style={{ borderColor: `color-mix(in srgb, ${badge.color} 18%, transparent)` }}
             >
               <div
                 className="w-12 h-12 rounded-xl flex items-center justify-center transition-transform duration-200 group-hover:scale-110"
-                style={{ background: `${badge.color}12` }}
+                style={{ background: `color-mix(in srgb, ${badge.color} 10%, transparent)` }}
               >
                 {badge.icon}
               </div>

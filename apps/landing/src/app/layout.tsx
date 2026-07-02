@@ -69,8 +69,15 @@ export default function LandingLayout({
   children: ReactNode;
 }>) {
   return (
-    <html lang="pt" className="dark" suppressHydrationWarning>
+    <html lang="pt" suppressHydrationWarning>
       <body className={`${inter.variable} ${jetbrainsMono.variable} ${instrumentSerif.variable} antialiased`}>
+        {/* Resolve theme before first paint: stored choice wins, else system. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              'try{var t=localStorage.getItem("vytal-landing-theme");if(t==="light"||(!t&&matchMedia("(prefers-color-scheme: light)").matches))document.documentElement.classList.add("light")}catch(e){}',
+          }}
+        />
         <BrandStyles />
         {children}
       </body>

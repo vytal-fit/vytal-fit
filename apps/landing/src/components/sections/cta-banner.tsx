@@ -34,7 +34,7 @@ export function CTABanner({ t }: { t: (k: string) => string }) {
             animate={reduced ? undefined : { opacity: [0.4, 1, 0.4], scale: [1, 1.08, 1] }}
             transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
           />
-          <AnimatedMark size={340} className="vy-drift absolute -top-10 -right-8 z-0 pointer-events-none" style={{ opacity: 0.04 }} />
+          <AnimatedMark size={340} className="vy-drift absolute -top-10 -right-8 z-0 pointer-events-none" style={{ opacity: "var(--vy-watermark-opacity, 0.04)" }} />
 
           <div className="relative z-10">
             <RevealGroup stagger={0.1} amount={0.3}>

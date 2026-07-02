@@ -77,7 +77,7 @@ function CRMMockup() {
             </div>
             {col.cards.map((card) => (
               <div key={card} className="px-2 py-2 rounded-lg border text-[9px] text-vytal-text bg-[color-mix(in_srgb,var(--color-vytal-bg3)_80%,transparent)] cursor-grab active:cursor-grabbing hover:border-opacity-50 transition-colors"
-                style={{ borderColor: `${col.color}30` }}>
+                style={{ borderColor: `color-mix(in srgb, ${col.color} 25%, transparent)` }}>
                 {card}
               </div>
             ))}

@@ -18,7 +18,7 @@ export function Navbar({ t, lang, setLang }: { t: (k: string) => string; lang: L
   // Restore the saved theme on mount and apply it to <html>.
   useEffect(() => {
     const stored = localStorage.getItem(STORAGE_KEYS.landingTheme);
-    const isLight = stored === "light";
+    const isLight = stored ? stored === "light" : window.matchMedia("(prefers-color-scheme: light)").matches;
     setLightMode(isLight);
     document.documentElement.classList.toggle("light", isLight);
   }, []);
