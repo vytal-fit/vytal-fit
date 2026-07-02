@@ -1,10 +1,17 @@
 import { Platform } from "react-native";
 import * as SecureStore from "expo-secure-store";
+import { TRPCClientError } from "@trpc/client";
 import {
   STORAGE_KEYS,
   type OrganizationFeatures,
   type UserWithOrgs,
 } from "@vytal-fit/shared";
+import { api } from "./trpc";
+
+/** True when a tRPC error carries the given server error code (e.g. NOT_FOUND). */
+function isTRPCCode(error: unknown, code: string): boolean {
+  return error instanceof TRPCClientError && error.data?.code === code;
+}
 
 const AUTH_TOKEN_KEY = STORAGE_KEYS.authToken;
 const AUTH_SNAPSHOT_KEY = STORAGE_KEYS.authSnapshot;
@@ -524,47 +531,29 @@ export async function setActiveOrganization(organizationId: string): Promise<voi
 }
 
 export async function listMemberBookings(memberId: string): Promise<BookingRecord[]> {
-  const params = new URLSearchParams({ memberId });
-  const { data } = await requestJson<{ items: BookingRecord[] }>(
-    `/bookings?${params.toString()}`,
-    { method: "GET" },
-  );
-  return data.items;
+  return (await api.bookings.listByMember.query({ memberId })) as unknown as BookingRecord[];
 }
 
 export async function bookClass(classId: string, memberId: string): Promise<BookingRecord> {
-  const { data } = await requestJson<BookingRecord>("/bookings", {
-    body: { classId, memberId },
-  });
-  return data;
+  return (await api.bookings.book.mutate({ classId, memberId })) as unknown as BookingRecord;
 }
 
 export async function cancelBooking(bookingId: string): Promise<BookingRecord> {
-  const { data } = await requestJson<BookingRecord>(
-    `/bookings/${bookingId}`,
-    { method: "DELETE" },
-  );
-  return data;
+  // Router input key is `id` (not `bookingId`).
+  return (await api.bookings.cancel.mutate({ id: bookingId })) as unknown as BookingRecord;
 }
 
 export async function listPersonalRecords(memberId: string, exerciseId?: string): Promise<PersonalRecordItem[]> {
-  const params = new URLSearchParams({ memberId });
-  if (exerciseId) params.set("exerciseId", exerciseId);
-  const { data } = await requestJson<{ items: PersonalRecordItem[] }>(
-    `/records?${params.toString()}`,
-    { method: "GET" },
-  );
-  return data.items;
+  const res = await api.personalRecords.list.query({ memberId, exerciseId });
+  return res.items as unknown as PersonalRecordItem[];
 }
 
 export async function createPersonalRecord(
   input: Omit<PersonalRecordItem, "id">,
 ): Promise<PersonalRecordItem> {
-  const { data } = await requestJson<PersonalRecordItem>(
-    "/records",
-    { body: input },
-  );
-  return data;
+  return (await api.personalRecords.create.mutate(
+    input as unknown as Parameters<typeof api.personalRecords.create.mutate>[0],
+  )) as unknown as PersonalRecordItem;
 }
 
 export async function updatePersonalRecord(
@@ -574,31 +563,24 @@ export async function updatePersonalRecord(
     exerciseId?: string;
   },
 ): Promise<PersonalRecordItem> {
-  const { data } = await requestJson<PersonalRecordItem>(
-    `/records/${id}`,
-    { method: "PATCH", body: input },
-  );
-  return data;
+  // Router shape: { id, data: {...} }.
+  return (await api.personalRecords.update.mutate({
+    id,
+    data: input as unknown as Parameters<typeof api.personalRecords.update.mutate>[0]["data"],
+  })) as unknown as PersonalRecordItem;
 }
 
 export async function listWodResults(memberId: string, wodId?: string): Promise<WodResultItem[]> {
-  const params = new URLSearchParams({ memberId });
-  if (wodId) params.set("wodId", wodId);
-  const { data } = await requestJson<{ items: WodResultItem[] }>(
-    `/results?${params.toString()}`,
-    { method: "GET" },
-  );
-  return data.items;
+  const res = await api.wodResults.list.query({ memberId, wodId });
+  return res.items as unknown as WodResultItem[];
 }
 
 export async function createWodResult(
   input: Omit<WodResultItem, "id">,
 ): Promise<WodResultItem> {
-  const { data } = await requestJson<WodResultItem>(
-    "/results",
-    { body: input },
-  );
-  return data;
+  return (await api.wodResults.create.mutate(
+    input as unknown as Parameters<typeof api.wodResults.create.mutate>[0],
+  )) as unknown as WodResultItem;
 }
 
 export async function updateWodResult(
@@ -608,62 +590,38 @@ export async function updateWodResult(
     wodId?: string;
   },
 ): Promise<WodResultItem> {
-  const { data } = await requestJson<WodResultItem>(
-    `/results/${id}`,
-    { method: "PATCH", body: input },
-  );
-  return data;
+  // Router shape: { id, data: {...} }.
+  return (await api.wodResults.update.mutate({
+    id,
+    data: input as unknown as Parameters<typeof api.wodResults.update.mutate>[0]["data"],
+  })) as unknown as WodResultItem;
 }
 
 export async function listClassSchedule(from: string, to: string): Promise<ClassScheduleItem[]> {
-  const params = new URLSearchParams({ from, to });
-  const { data } = await requestJson<ClassScheduleItem[]>(
-    `/classes/schedule?${params.toString()}`,
-    { method: "GET" },
-  );
-  return data;
+  return (await api.classes.schedule.query({ from, to })) as unknown as ClassScheduleItem[];
 }
 
 export async function listWods(from?: string, to?: string): Promise<WodItem[]> {
-  const params = new URLSearchParams();
-  if (from) params.set("from", from);
-  if (to) params.set("to", to);
-  const query = params.toString();
-  const { data } = await requestJson<WodItem[]>(
-    `/wods${query ? `?${query}` : ""}`,
-    { method: "GET" },
-  );
-  return data;
+  return (await api.wods.list.query({ from, to })) as unknown as WodItem[];
 }
 
 export async function getWod(id: string): Promise<WodItem | null> {
   try {
-    const { data } = await requestJson<WodItem>(`/wods/${id}`, { method: "GET" });
-    return data;
+    return (await api.wods.byId.query({ id })) as unknown as WodItem;
   } catch (error) {
-    if (error instanceof AuthRequestError && error.status === 404) return null;
+    if (isTRPCCode(error, "NOT_FOUND")) return null;
     throw error;
   }
 }
 
 export async function listExercises(category?: string): Promise<ExerciseItem[]> {
-  const params = new URLSearchParams();
-  if (category) params.set("category", category);
-  const query = params.toString();
-  const { data } = await requestJson<ExerciseItem[]>(
-    `/exercises${query ? `?${query}` : ""}`,
-    { method: "GET" },
-  );
-  return data;
+  const input = { category } as unknown as Parameters<typeof api.exercises.list.query>[0];
+  return (await api.exercises.list.query(input)) as unknown as ExerciseItem[];
 }
 
 export async function listWellnessCheckins(memberId: string, limit = 50): Promise<WellnessCheckinItem[]> {
-  const params = new URLSearchParams({ memberId, limit: String(limit) });
-  const { data } = await requestJson<{ items: WellnessCheckinItem[]; nextCursor: string | null }>(
-    `/wellness-checkins?${params.toString()}`,
-    { method: "GET" },
-  );
-  return data.items;
+  const res = await api.wellnessCheckins.list.query({ memberId, limit });
+  return res.items as unknown as WellnessCheckinItem[];
 }
 
 export async function upsertWellnessCheckin(
@@ -677,147 +635,110 @@ export async function upsertWellnessCheckin(
     notes?: string;
   },
 ): Promise<WellnessCheckinItem> {
-  const { data } = await requestJson<WellnessCheckinItem>(
-    "/wellness-checkins/upsert",
-    { body: input },
-  );
-  return data;
+  return (await api.wellnessCheckins.upsert.mutate(input)) as unknown as WellnessCheckinItem;
 }
 
 export async function getMyMember(): Promise<MemberItem | null> {
-  const { data } = await requestJson<MemberItem | null>("/members/me", { method: "GET" });
-  return data;
+  return (await api.members.me.query()) as unknown as MemberItem | null;
 }
 
 export async function listMemberSubscriptions(memberId: string): Promise<SubscriptionItem[]> {
-  const params = new URLSearchParams({ memberId });
-  const { data } = await requestJson<SubscriptionItem[]>(
-    `/subscriptions/by-member?${params.toString()}`,
-    { method: "GET" },
-  );
-  return data;
+  return (await api.subscriptions.byMember.query({ memberId })) as unknown as SubscriptionItem[];
 }
 
 export async function listSubscriptionPlans(activeOnly = false): Promise<SubscriptionPlanItem[]> {
-  const params = new URLSearchParams();
-  if (activeOnly) params.set("activeOnly", "true");
-  const query = params.toString();
-  const { data } = await requestJson<SubscriptionPlanItem[]>(
-    `/subscriptions/plans${query ? `?${query}` : ""}`,
-    { method: "GET" },
-  );
-  return data;
+  return (await api.subscriptions.plans.list.query({ activeOnly })) as unknown as SubscriptionPlanItem[];
 }
 
 export async function getCommunityFeed(limit = 60): Promise<CommunityFeedItem[]> {
-  const params = new URLSearchParams({ limit: String(limit) });
-  const { data } = await requestJson<CommunityFeedItem[]>(
-    `/community/feed?${params.toString()}`,
-    { method: "GET" },
-  );
-  return data;
+  return (await api.community.feed.query({ limit })) as unknown as CommunityFeedItem[];
 }
 
 export async function getCommunityStats(): Promise<CommunityStats> {
-  const { data } = await requestJson<CommunityStats>("/community/stats", { method: "GET" });
-  return data;
+  return (await api.community.stats.query()) as unknown as CommunityStats;
 }
 
 export async function listCoaches(): Promise<CoachItem[]> {
-  const { data } = await requestJson<CoachItem[]>("/coaches", { method: "GET" });
-  return data;
+  return (await api.coaches.list.query()) as unknown as CoachItem[];
 }
 
 export async function getCoach(id: string): Promise<CoachItem | null> {
   try {
-    const { data } = await requestJson<CoachItem>(`/coaches/${id}`, { method: "GET" });
-    return data;
+    return (await api.coaches.byId.query({ id })) as unknown as CoachItem;
   } catch (error) {
-    if (error instanceof AuthRequestError && error.status === 404) return null;
+    if (isTRPCCode(error, "NOT_FOUND")) return null;
     throw error;
   }
 }
 
 export async function getClass(id: string): Promise<ClassScheduleItem | null> {
   try {
-    const { data } = await requestJson<ClassScheduleItem>(`/classes/${id}`, { method: "GET" });
-    return data;
+    return (await api.classes.byId.query({ id })) as unknown as ClassScheduleItem;
   } catch (error) {
-    if (error instanceof AuthRequestError && error.status === 404) return null;
+    if (isTRPCCode(error, "NOT_FOUND")) return null;
     throw error;
   }
 }
 
 export async function listBookingsByClass(classId: string): Promise<ClassRosterEntry[]> {
-  const params = new URLSearchParams({ classId });
-  const { data } = await requestJson<{ items: ClassRosterEntry[] }>(
-    `/bookings/list-by-class?${params.toString()}`,
-    { method: "GET" },
-  );
-  return data.items;
+  return (await api.bookings.listByClass.query({ classId })) as unknown as ClassRosterEntry[];
 }
 
 export async function getCommunityComments(postId: string): Promise<CommunityCommentItem[]> {
-  const params = new URLSearchParams({ postId });
-  const { data } = await requestJson<{ items: CommunityCommentItem[] }>(
-    `/community/comments?${params.toString()}`,
-    { method: "GET" },
-  );
-  return data.items;
+  return (await api.community.comments.query({ postId })) as unknown as CommunityCommentItem[];
 }
 
 export async function addCommunityComment(
   postId: string,
   content: string,
 ): Promise<CommunityCommentItem> {
-  const { data } = await requestJson<CommunityCommentItem>("/community/comment", {
-    body: { postId, content },
-  });
-  return data;
+  return (await api.community.comment.mutate({ postId, content })) as unknown as CommunityCommentItem;
 }
 
 export async function reactToPost(postId: string): Promise<{ reacted: boolean }> {
-  const { data } = await requestJson<{ reacted: boolean }>("/community/react", {
-    body: { postId },
-  });
-  return data;
+  return api.community.react.mutate({ postId });
 }
 
 export async function createCommunityPost(
   content: string,
   kind: "post" | "announcement" = "post",
 ): Promise<CommunityFeedItem> {
-  const { data } = await requestJson<CommunityFeedItem>("/community/post", {
-    body: { content, kind },
-  });
-  return data;
+  // The router returns the raw post row (no derived engagement counts); a
+  // freshly created post has none, so map them to their zero values to keep
+  // the CommunityFeedItem shape the screens consume.
+  const created = await api.community.post.mutate({ content, kind });
+  return {
+    ...(created as unknown as Omit<
+      CommunityFeedItem,
+      "fistbumps" | "hasReacted" | "commentCount"
+    >),
+    fistbumps: 0,
+    hasReacted: false,
+    commentCount: 0,
+  };
 }
 
 export async function listNotifications(
   opts: { read?: boolean; memberId?: string; limit?: number } = {},
 ): Promise<NotificationItem[]> {
-  const params = new URLSearchParams();
-  if (opts.read !== undefined) params.set("read", String(opts.read));
-  if (opts.memberId) params.set("memberId", opts.memberId);
-  params.set("limit", String(opts.limit ?? 50));
-  const { data } = await requestJson<{ items: NotificationItem[]; nextCursor: string | null }>(
-    `/notifications?${params.toString()}`,
-    { method: "GET" },
-  );
-  return data.items;
+  const res = await api.notifications.list.query({
+    read: opts.read,
+    memberId: opts.memberId,
+    limit: opts.limit ?? 50,
+  });
+  return res.items as unknown as NotificationItem[];
 }
 
 export async function markNotificationRead(id: string): Promise<void> {
-  await requestJson("/notifications/mark-read", { body: { id } });
+  await api.notifications.markRead.mutate({ id });
 }
 
 export async function markAllNotificationsRead(): Promise<void> {
-  await requestJson("/notifications/mark-all-read", { method: "POST", body: {} });
+  await api.notifications.markAllRead.mutate({});
 }
 
 export async function listMedia(): Promise<MediaAssetItem[]> {
-  const { data } = await requestJson<{ items: MediaAssetItem[] }>("/media", { method: "GET" });
-  return data.items;
+  return (await api.media.list.query()) as unknown as MediaAssetItem[];
 }
 
 export async function submitClassFeedback(
@@ -825,8 +746,10 @@ export async function submitClassFeedback(
   rating: number,
   comment?: string,
 ): Promise<void> {
-  await requestJson("/classes/submit-feedback", {
-    body: { classId, rating, ...(comment ? { comment } : {}) },
+  await api.classes.submitFeedback.mutate({
+    classId,
+    rating,
+    ...(comment ? { comment } : {}),
   });
 }
 
