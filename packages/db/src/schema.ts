@@ -1762,3 +1762,26 @@ export const messages = pgTable(
     index("messages_conversation_idx").on(t.conversationId),
   ],
 );
+
+/**
+ * Early-bird / pré-reserva waitlist captured from the public marketing site.
+ * Not tenant-owned (no organizationId): these are prospects, not members.
+ */
+export const waitlist = pgTable(
+  "waitlist",
+  {
+    id: text("id").primaryKey(),
+    name: text("name").notNull(),
+    email: text("email").notNull(),
+    gymName: text("gym_name"),
+    vertical: text("vertical"),
+    message: text("message"),
+    locale: text("locale").notNull().default("pt"),
+    source: text("source").notNull().default("landing"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (t) => [
+    uniqueIndex("waitlist_email_idx").on(t.email),
+    index("waitlist_created_at_idx").on(t.createdAt),
+  ],
+);

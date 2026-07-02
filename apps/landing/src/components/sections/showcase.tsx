@@ -1,6 +1,5 @@
 "use client";
 
-import { APP_LINKS } from "@/lib/constants";
 import { useState } from "react";
 import Link from "next/link";
 import { Check, BarChart3, ArrowRight } from "lucide-react";
@@ -100,7 +99,7 @@ function ShowcaseBody({
           ))}
         </ul>
         <Link
-          href={APP_LINKS.getStarted}
+          href="#early-bird"
           className="inline-flex items-center gap-2 mt-8 px-5 py-2.5 rounded-lg text-sm font-semibold text-vytal-bg transition-all duration-150 hover:-translate-y-0.5"
           style={{ background: tab.accent }}
         >

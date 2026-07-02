@@ -60,7 +60,7 @@ export function CTABanner({ t }: { t: (k: string) => string }) {
                   <Magnetic>
                     <div className="rounded-[14px] p-[1.5px] animated-gradient-border inline-flex">
                       <Link
-                        href={APP_LINKS.getStarted}
+                        href="#early-bird"
                         className="vy-shimmer inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-vytal-green text-vytal-bg font-bold text-sm hover:bg-[#16a34a] transition-all duration-150 shadow-lg shadow-[rgba(34,197,94,0.3)] hover:-translate-y-0.5"
                       >
                         {t("ctaBannerStart")}

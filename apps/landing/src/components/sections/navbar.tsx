@@ -39,7 +39,7 @@ export function Navbar({ t, lang, setLang }: { t: (k: string) => string; lang: L
 
   // Track which section is in view to highlight the matching nav link.
   useEffect(() => {
-    const ids = ["funcionalidades", "precos", "testemunhos", "faq"];
+    const ids = ["funcionalidades", "early-bird", "testemunhos", "faq"];
     const elements = ids
       .map((id) => document.getElementById(id))
       .filter((el): el is HTMLElement => el !== null);
@@ -59,7 +59,7 @@ export function Navbar({ t, lang, setLang }: { t: (k: string) => string; lang: L
 
   const navLinks = [
     { label: t("features"), href: "#funcionalidades", id: "funcionalidades" },
-    { label: t("pricing"), href: "#precos", id: "precos" },
+    { label: t("earlyAccess"), href: "#early-bird", id: "early-bird" },
     { label: t("testimonials"), href: "#testemunhos", id: "testemunhos" },
     { label: t("faq"), href: "#faq", id: "faq" },
   ];
@@ -79,10 +79,10 @@ export function Navbar({ t, lang, setLang }: { t: (k: string) => string; lang: L
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <a href="#" className="flex items-center gap-0.5 shrink-0">
+          <Link href="/" className="flex items-center gap-0.5 shrink-0">
             <span className="text-xl font-bold text-vytal-green tracking-tight">Vytal</span>
             <span className={`text-xl font-bold tracking-tight ${overHero ? "text-white/60" : "text-vytal-muted"}`}>.fit</span>
-          </a>
+          </Link>
 
           {/* Desktop links */}
           <div className="hidden md:flex items-center gap-8">
@@ -156,7 +156,7 @@ export function Navbar({ t, lang, setLang }: { t: (k: string) => string; lang: L
               {t("signIn")}
             </Link>
             <Link
-              href={APP_LINKS.getStarted}
+              href="#early-bird"
               className="text-sm px-4 py-2 rounded-lg bg-vytal-green text-vytal-bg font-semibold hover:bg-[#16a34a] transition-colors duration-150"
             >
               {t("ctaStart")}
@@ -220,7 +220,7 @@ export function Navbar({ t, lang, setLang }: { t: (k: string) => string; lang: L
                   {t("signIn")}
                 </Link>
                 <Link
-                  href={APP_LINKS.getStarted}
+                  href="#early-bird"
                   className="flex-1 text-center text-sm px-4 py-2.5 rounded-lg bg-vytal-green text-vytal-bg font-semibold"
                 >
                   {t("ctaStart")}

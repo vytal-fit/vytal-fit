@@ -297,7 +297,7 @@ export function Hero({ t }: { t: (k: string) => string }) {
             <Magnetic>
               <div className="animated-gradient-border rounded-[14px] p-[1.5px]">
                 <Link
-                  href={APP_LINKS.getStarted}
+                  href="#early-bird"
                   className="vy-shimmer inline-flex items-center gap-2 rounded-xl bg-vytal-green px-7 py-3.5 text-sm font-semibold text-black shadow-lg shadow-[rgba(34,197,94,0.35)] transition-all duration-150 hover:-translate-y-0.5 hover:bg-[#16a34a] hover:shadow-[rgba(34,197,94,0.5)]"
                 >
                   {t("ctaStart")}

@@ -1,49 +1,58 @@
 "use client";
 
+import Link from "next/link";
 import { RevealGroup, RevealItem, STAGGER } from "@vytal-fit/brand/motion";
 
 // ── Footer ─────────────────────────────────────────────────────────────────────
+// External destinations use plain <a target="_blank">; in-app anchors (#…) and
+// internal routes use next/link so client navigation stays instant.
 const FOOTER_COL_META = [
   {
     titleKey: "footerProduct",
     links: [
-      { labelKey: "fpFeat",    href: "#funcionalidades" },
-      { labelKey: "fpPricing", href: "#precos" },
-      { labelKey: "fpNews",    href: "#" },
-      { labelKey: "fpRoadmap", href: "#" },
-      { labelKey: "fpApi",     href: "#" },
+      { labelKey: "fpFeat",    href: "/#funcionalidades" },
+      { labelKey: "earlyAccess", href: "/#early-bird" },
+      { labelKey: "fpNews",    href: "/about" },
+      { labelKey: "fpRoadmap", href: "/about" },
+      { labelKey: "fpApi",     href: "/contact" },
     ],
   },
   {
     titleKey: "footerResources",
     links: [
-      { labelKey: "frHelp",   href: "#" },
-      { labelKey: "frBlog",   href: "#" },
-      { labelKey: "frVideos", href: "#" },
+      { labelKey: "frHelp",   href: "/contact" },
+      { labelKey: "frBlog",   href: "/about" },
+      { labelKey: "frVideos", href: "/contact" },
       { labelKey: "frBrand",  href: "/brand" },
-      { labelKey: "frStatus", href: "#" },
+      { labelKey: "frStatus", href: "/contact" },
     ],
   },
   {
     titleKey: "footerCompany",
     links: [
-      { labelKey: "fcAbout",    href: "#" },
-      { labelKey: "fcCareers",  href: "#" },
-      { labelKey: "fcPartners", href: "#" },
-      { labelKey: "fcPress",    href: "#" },
-      { labelKey: "fcContact",  href: "#" },
+      { labelKey: "fcAbout",    href: "/about" },
+      { labelKey: "fcCareers",  href: "/about" },
+      { labelKey: "fcPartners", href: "/contact" },
+      { labelKey: "fcPress",    href: "/contact" },
+      { labelKey: "fcContact",  href: "/contact" },
     ],
   },
   {
     titleKey: "footerLegal",
     links: [
-      { labelKey: "flTerms",   href: "#" },
-      { labelKey: "flPrivacy", href: "#" },
-      { labelKey: "flRgpd",    href: "#" },
-      { labelKey: "flCookies", href: "#" },
-      { labelKey: "flDpa",     href: "#" },
+      { labelKey: "flTerms",   href: "/legal/terms" },
+      { labelKey: "flPrivacy", href: "/legal/privacy" },
+      { labelKey: "flRgpd",    href: "/legal/gdpr" },
+      { labelKey: "flCookies", href: "/legal/cookies" },
+      { labelKey: "flDpa",     href: "/legal/dpa" },
     ],
   },
+];
+
+const SOCIAL_LINKS = [
+  { label: "Instagram", short: "IG", href: "https://instagram.com/vytal.fit" },
+  { label: "LinkedIn", short: "LI", href: "https://www.linkedin.com/company/vytal-fit" },
+  { label: "Twitter/X", short: "X", href: "https://x.com/vytalfit" },
 ];
 
 export function Footer({ t }: { t: (k: string) => string }) {
@@ -53,27 +62,25 @@ export function Footer({ t }: { t: (k: string) => string }) {
         <RevealGroup className="grid grid-cols-2 md:grid-cols-5 gap-8 mb-12" stagger={STAGGER.tight} amount={0.2}>
           {/* Brand col */}
           <RevealItem className="col-span-2 md:col-span-1">
-            <a href="#" className="flex items-center gap-0.5 mb-4">
+            <Link href="/" className="flex items-center gap-0.5 mb-4">
               <span className="text-xl font-bold text-vytal-green">Vytal</span>
               <span className="text-xl font-bold text-vytal-muted">.fit</span>
-            </a>
+            </Link>
             <p className="text-xs text-vytal-muted leading-relaxed mb-4">
               {t("footerTagline")}
             </p>
             {/* Social links */}
             <div className="flex gap-2">
-              {[
-                { label: "Instagram", icon: "IG" },
-                { label: "LinkedIn", icon: "LI" },
-                { label: "Twitter/X", icon: "X" },
-              ].map((s) => (
+              {SOCIAL_LINKS.map((s) => (
                 <a
                   key={s.label}
-                  href="#"
+                  href={s.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   aria-label={s.label}
                   className="w-8 h-8 rounded-lg border border-[rgba(34,197,94,0.15)] flex items-center justify-center text-[10px] font-bold text-vytal-muted hover:border-[rgba(34,197,94,0.4)] hover:text-vytal-green transition-all duration-150"
                 >
-                  {s.icon}
+                  {s.short}
                 </a>
               ))}
             </div>
@@ -88,12 +95,12 @@ export function Footer({ t }: { t: (k: string) => string }) {
               <ul className="space-y-2.5">
                 {col.links.map((link) => (
                   <li key={link.labelKey}>
-                    <a
+                    <Link
                       href={link.href}
                       className="text-xs text-vytal-muted hover:text-vytal-text transition-colors duration-150"
                     >
                       {t(link.labelKey)}
-                    </a>
+                    </Link>
                   </li>
                 ))}
               </ul>

@@ -29,7 +29,7 @@ export default async function Image() {
         }}
       >
         {/* Photo backdrop (satori accepts ArrayBuffer sources) */}
-        {/* eslint-disable-next-line @next/next/no-img-element, jsx-a11y/alt-text */}
+        {/* eslint-disable-next-line jsx-a11y/alt-text */}
         <img
           src={bg as unknown as string}
           width={1200}

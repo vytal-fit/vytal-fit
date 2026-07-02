@@ -14,7 +14,7 @@ import { PaymentsPortugal } from "@/components/sections/payments";
 import { AutomationsAI } from "@/components/sections/automations";
 import { Comparison } from "@/components/sections/comparison";
 import { Testimonials } from "@/components/sections/testimonials";
-import { Pricing } from "@/components/sections/pricing";
+import { EarlyBird } from "@/components/sections/early-bird";
 import { ComplianceSecurity } from "@/components/sections/compliance";
 import { FAQ } from "@/components/sections/faq";
 import { CTABanner } from "@/components/sections/cta-banner";
@@ -49,7 +49,7 @@ export default function LandingPage() {
         <AutomationsAI t={t} />
         <Comparison t={t} />
         <Testimonials t={t} />
-        <Pricing t={t} />
+        <EarlyBird t={t} lang={lang} />
         <ComplianceSecurity t={t} />
         <FAQ t={t} />
         <CTABanner t={t} />
