@@ -6,35 +6,23 @@ import { RevealGroup, RevealItem, STAGGER } from "@vytal-fit/brand/motion";
 // ── Footer ─────────────────────────────────────────────────────────────────────
 // External destinations use plain <a target="_blank">; in-app anchors (#…) and
 // internal routes use next/link so client navigation stays instant.
+// Pre-launch footer: every link points to a real, matching destination.
+// Aspirational links (blog, careers, roadmap, status…) are intentionally
+// omitted until those pages exist, rather than routing to a mismatched page.
 const FOOTER_COL_META = [
   {
     titleKey: "footerProduct",
     links: [
       { labelKey: "fpFeat",    href: "/#funcionalidades" },
       { labelKey: "earlyAccess", href: "/#early-bird" },
-      { labelKey: "fpNews",    href: "/about" },
-      { labelKey: "fpRoadmap", href: "/about" },
-      { labelKey: "fpApi",     href: "/contact" },
-    ],
-  },
-  {
-    titleKey: "footerResources",
-    links: [
-      { labelKey: "frHelp",   href: "/contact" },
-      { labelKey: "frBlog",   href: "/about" },
-      { labelKey: "frVideos", href: "/contact" },
-      { labelKey: "frBrand",  href: "/brand" },
-      { labelKey: "frStatus", href: "/contact" },
     ],
   },
   {
     titleKey: "footerCompany",
     links: [
-      { labelKey: "fcAbout",    href: "/about" },
-      { labelKey: "fcCareers",  href: "/about" },
-      { labelKey: "fcPartners", href: "/contact" },
-      { labelKey: "fcPress",    href: "/contact" },
-      { labelKey: "fcContact",  href: "/contact" },
+      { labelKey: "fcAbout",   href: "/about" },
+      { labelKey: "fcContact", href: "/contact" },
+      { labelKey: "frBrand",   href: "/brand" },
     ],
   },
   {
@@ -59,7 +47,7 @@ export function Footer({ t }: { t: (k: string) => string }) {
   return (
     <footer className="border-t border-[rgba(34,197,94,0.08)] py-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <RevealGroup className="grid grid-cols-2 md:grid-cols-5 gap-8 mb-12" stagger={STAGGER.tight} amount={0.2}>
+        <RevealGroup className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12" stagger={STAGGER.tight} amount={0.2}>
           {/* Brand col */}
           <RevealItem className="col-span-2 md:col-span-1">
             <Link href="/" className="flex items-center gap-0.5 mb-4">
