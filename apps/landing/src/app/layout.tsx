@@ -23,12 +23,12 @@ const instrumentSerif = Instrument_Serif({
 
 const SITE_URL = "https://vytal.fit";
 const SITE_DESC =
-  "Vytal is the AI-powered platform to run CrossFit boxes, functional-training gyms and studios — members, classes, payments (MB Way, Multibanco, SEPA), WODs, CRM and a public website, in one place.";
+  "Vytal is the AI-powered platform to run CrossFit boxes, functional-training gyms and studios · members, classes, payments (MB Way, Multibanco, SEPA), WODs, CRM and a public website, in one place.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "Vytal — Intelligent management for gyms & CrossFit boxes",
+    default: "Vytal · Intelligent management for gyms & CrossFit boxes",
     template: "%s · Vytal",
   },
   description: SITE_DESC,
@@ -51,13 +51,13 @@ export const metadata: Metadata = {
     type: "website",
     url: SITE_URL,
     siteName: "Vytal",
-    title: "Vytal — Intelligent management for gyms & CrossFit boxes",
+    title: "Vytal · Intelligent management for gyms & CrossFit boxes",
     description: SITE_DESC,
     locale: "pt_PT",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Vytal — Intelligent management for gyms & CrossFit boxes",
+    title: "Vytal · Intelligent management for gyms & CrossFit boxes",
     description: SITE_DESC,
   },
   robots: { index: true, follow: true },

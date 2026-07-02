@@ -94,7 +94,9 @@ export function Pricing({ t }: { t: (k: string) => string }) {
             const cardInner = (
               <>
                 <div className="mb-6">
-                  <h3 className="font-bold text-vytal-text text-lg mb-1">{t(plan.nameKey)}</h3>
+                  <h3 className="font-bold text-vytal-text text-lg mb-1">
+                    {plan.nameKey.charAt(0).toUpperCase() + plan.nameKey.slice(1)}
+                  </h3>
                   <p className="text-xs text-vytal-muted mb-4">{t(plan.descKey)}</p>
                   <div className="flex items-end gap-1">
                     {displayPrice === null ? (
@@ -103,14 +105,12 @@ export function Pricing({ t }: { t: (k: string) => string }) {
                       <>
                         <span className="text-5xl font-bold text-vytal-text tracking-tight">
                           {displayPrice === 0 ? (
-                            t("free")
+                            t("planFreePrice")
                           ) : (
                             <CountUp to={displayPrice} suffix="€" duration={1.2} />
                           )}
                         </span>
-                        {displayPrice > 0 && (
-                          <span className="text-sm text-vytal-muted mb-2">/mo</span>
-                        )}
+                        <span className="text-sm text-vytal-muted mb-2">{t(plan.periodKey)}</span>
                       </>
                     )}
                   </div>

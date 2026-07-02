@@ -139,7 +139,7 @@ function AnalyticsMockup() {
   const stats = [{ label: "Receita", value: "€12.4k", change: "+18%" }, { label: "Membros", value: "247", change: "+12" }, { label: "Retenção", value: "87%", change: "+3%" }];
   return (
     <div className="rounded-2xl border border-[rgba(34,197,94,0.15)] bg-[color-mix(in_srgb,var(--color-vytal-bg)_90%,transparent)] p-4 shadow-xl shadow-black/40">
-      <div className="text-xs font-semibold text-vytal-text mb-3">Analytics — Junho 2026</div>
+      <div className="text-xs font-semibold text-vytal-text mb-3">Analytics · Junho 2026</div>
       {/* Stats row */}
       <div className="grid grid-cols-3 gap-2 mb-3">
         {stats.map((s) => (

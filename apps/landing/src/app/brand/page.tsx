@@ -9,7 +9,7 @@ import { AnimatedMark, LogoLayer, Reveal } from "@vytal-fit/brand";
 // ── The mark: a vital-sign pulse on a rounded green tile ─────────────────────
 // Static specimen used where the mark must hold a fixed weight/size (lockups,
 // size ladder). The living, self-drawing version is <AnimatedMark /> from the
-// shared brand kit — used in the hero and the Logo section demo.
+// shared brand kit · used in the hero and the Logo section demo.
 function Mark({ size = 64, strokeWidth = 5 }: { size?: number; strokeWidth?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 64 64" aria-hidden="true">
@@ -332,7 +332,7 @@ export default function BrandPage() {
         </div>
       </div>
 
-      {/* Hero — the page opens by showing the mark actually alive, over the
+      {/* Hero · the page opens by showing the mark actually alive, over the
           shared layered backdrop (drifting glow + grid + breathing watermark). */}
       <div className="relative overflow-hidden">
         <LogoLayer intensity="bold" />
@@ -539,7 +539,7 @@ export default function BrandPage() {
                 key={row.name}
                 className="flex items-baseline justify-between gap-6 border-t first:border-t-0 py-5 border-[var(--b-hair)]"
               >
-                {/* specimen — overflow-x-clip clips only horizontally, so the y
+                {/* specimen · overflow-x-clip clips only horizontally, so the y
                     descender is never cut by the row below */}
                 <div className="min-w-0 flex-1 overflow-x-clip">
                   <span
@@ -555,7 +555,7 @@ export default function BrandPage() {
                     {row.sample}
                   </span>
                 </div>
-                {/* spec — single line, right-aligned */}
+                {/* spec · single line, right-aligned */}
                 <span className="shrink-0 font-mono text-[10.5px] tracking-[0.12em] uppercase text-[var(--b-muted)] text-right">
                   {row.name} · {row.px}/{Math.round(row.px * row.lh)} · {row.w}
                 </span>

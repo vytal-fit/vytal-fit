@@ -80,7 +80,7 @@ export function PaymentsPortugal({ t }: { t: (k: string) => string }) {
   ];
 
   return (
-    <section className="relative overflow-hidden py-24 border-t border-[rgba(34,197,94,0.08)]">
+    <section className="relative overflow-hidden pt-24 pb-14 border-t border-[rgba(34,197,94,0.08)]">
       <AnimatedMark size={340} className="vy-drift absolute -bottom-12 -left-10 z-0 pointer-events-none" style={{ opacity: "var(--vy-watermark-opacity, 0.04)" }} />
       <WaveDivider flip color="rgba(34,197,94,0.03)" />
       <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">

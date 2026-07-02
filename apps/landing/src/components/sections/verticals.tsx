@@ -68,7 +68,7 @@ export function VerticalsMarquee({ t }: { t: (k: string) => string }) {
   const rowB = pills.slice(half);
 
   return (
-    <section className="py-20 border-t border-[rgba(34,197,94,0.08)] overflow-hidden">
+    <section className="pt-20 pb-10 border-t border-[rgba(34,197,94,0.08)] overflow-hidden">
       <WaveDivider color="rgba(34,197,94,0.03)" />
       <Reveal>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center mb-10">
