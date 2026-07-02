@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { Inter, Instrument_Serif, JetBrains_Mono } from "next/font/google";
 import { BrandStyles } from "@vytal-fit/brand";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
 const inter = Inter({
@@ -80,6 +81,7 @@ export default function LandingLayout({
         />
         <BrandStyles />
         {children}
+        <Analytics />
       </body>
     </html>
   );

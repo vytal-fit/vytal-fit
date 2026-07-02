@@ -3,6 +3,7 @@
 import { NOISE_SVG, LANDING_KEYFRAMES } from "@/lib/constants";
 import { useLandingLang } from "@/lib/hooks";
 import { SmoothScroll } from "@/components/smooth-scroll";
+import { JsonLd } from "@/components/json-ld";
 import { Navbar } from "@/components/sections/navbar";
 import { Hero } from "@/components/sections/hero";
 import { SocialProof } from "@/components/sections/social-proof";
@@ -27,6 +28,7 @@ export default function LandingPage() {
   return (
     <SmoothScroll>
     <div className="min-h-screen bg-vytal-bg text-vytal-text">
+      <JsonLd />
       {/* Injected keyframes */}
       <style dangerouslySetInnerHTML={{ __html: LANDING_KEYFRAMES }} />
 

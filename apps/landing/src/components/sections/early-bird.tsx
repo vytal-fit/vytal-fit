@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from "react";
 import { Check, Sparkles, Crown, Rocket, Headset, ArrowRight, Loader2 } from "lucide-react";
 import { AnimatedBorder, RevealGroup, RevealItem } from "@vytal-fit/brand/motion";
+import { track } from "@vercel/analytics";
 import type { Lang } from "@/lib/copy";
 
 // Early-bird / pré-reserva capture. Replaces public pricing for the pre-launch
@@ -112,6 +113,7 @@ export function EarlyBird({ t, lang }: { t: (k: string) => string; lang: Lang })
       });
       if (!res.ok) throw new Error("bad status");
       setStatus("done");
+      track("early_bird_submit", { vertical: form.vertical || "unknown", locale: lang });
     } catch {
       setStatus("error");
     }
