@@ -2,13 +2,11 @@
 
 import { CreditCard } from "lucide-react";
 import { AnimatedMark } from "@vytal-fit/brand";
+import { RevealGroup, RevealItem, STAGGER } from "@vytal-fit/brand/motion";
 import { WaveDivider } from "@/components/decor";
-import { useScrollReveal } from "@/lib/hooks";
 
 // ── Payments Portugal ────────────────────────────────────────────────────────
 export function PaymentsPortugal({ t }: { t: (k: string) => string }) {
-  const ref = useScrollReveal();
-
   const methods = [
     {
       key: "paymentsMbway",
@@ -84,24 +82,33 @@ export function PaymentsPortugal({ t }: { t: (k: string) => string }) {
     <section className="relative overflow-hidden py-24 border-t border-[rgba(34,197,94,0.08)]">
       <AnimatedMark size={340} className="vy-drift absolute -bottom-12 -left-10 z-0 pointer-events-none" style={{ opacity: 0.04 }} />
       <WaveDivider flip color="rgba(34,197,94,0.03)" />
-      <div ref={ref} className="scroll-reveal relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[rgba(34,197,94,0.2)] bg-[rgba(34,197,94,0.05)] mb-4">
-            <CreditCard size={12} className="text-vytal-green" />
-            <span className="text-xs font-mono uppercase tracking-[0.2em] text-vytal-green">{t("paymentsBadge")}</span>
-          </div>
-          <h2 className="text-[clamp(2rem,4.5vw,3.25rem)] font-bold tracking-tight leading-[1.1] text-vytal-text mb-4">
-            {t("paymentsTitle")}{" "}
-            <span className="bg-gradient-to-r from-vytal-green to-vytal-blue bg-clip-text text-transparent">
-              {t("paymentsTitleHighlight")}
-            </span>
-          </h2>
-          <p className="text-vytal-muted text-sm max-w-lg mx-auto">{t("paymentsSubtitle")}</p>
-        </div>
+      <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+        <RevealGroup className="text-center mb-12" stagger={0.08} amount={0.4}>
+          <RevealItem>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[rgba(34,197,94,0.2)] bg-[rgba(34,197,94,0.05)] mb-4">
+              <CreditCard size={12} className="text-vytal-green" />
+              <span className="text-xs font-mono uppercase tracking-[0.2em] text-vytal-green">{t("paymentsBadge")}</span>
+            </div>
+          </RevealItem>
+          <RevealItem>
+            <h2 className="text-[clamp(2rem,4.5vw,3.25rem)] font-bold tracking-tight leading-[1.1] text-vytal-text mb-4">
+              {t("paymentsTitle")}{" "}
+              <span
+                className="font-normal italic bg-gradient-to-r from-vytal-green to-[#86efac] bg-clip-text text-transparent"
+                style={{ fontFamily: "var(--font-accent), serif" }}
+              >
+                {t("paymentsTitleHighlight")}
+              </span>
+            </h2>
+          </RevealItem>
+          <RevealItem>
+            <p className="text-vytal-muted text-sm max-w-lg mx-auto">{t("paymentsSubtitle")}</p>
+          </RevealItem>
+        </RevealGroup>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+        <RevealGroup className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4" stagger={STAGGER.tight} amount={0.2}>
           {methods.map((m) => (
-            <div
+            <RevealItem
               key={m.key}
               className="flex flex-col items-center gap-3 p-5 rounded-2xl border border-[rgba(34,197,94,0.1)] bg-[color-mix(in_srgb,var(--color-vytal-bg3)_40%,transparent)] backdrop-blur-sm hover:border-[rgba(34,197,94,0.3)] hover:-translate-y-1 hover:shadow-[0_0_20px_rgba(34,197,94,0.08)] transition-all duration-200 group"
             >
@@ -109,9 +116,9 @@ export function PaymentsPortugal({ t }: { t: (k: string) => string }) {
                 {m.icon}
               </div>
               <span className="text-xs font-semibold text-vytal-text text-center">{t(m.key)}</span>
-            </div>
+            </RevealItem>
           ))}
-        </div>
+        </RevealGroup>
       </div>
     </section>
   );

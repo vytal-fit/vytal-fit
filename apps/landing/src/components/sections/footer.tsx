@@ -1,5 +1,7 @@
 "use client";
 
+import { RevealGroup, RevealItem, STAGGER } from "@vytal-fit/brand/motion";
+
 // ── Footer ─────────────────────────────────────────────────────────────────────
 const FOOTER_COL_META = [
   {
@@ -48,9 +50,9 @@ export function Footer({ t }: { t: (k: string) => string }) {
   return (
     <footer className="border-t border-[rgba(34,197,94,0.08)] py-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-8 mb-12">
+        <RevealGroup className="grid grid-cols-2 md:grid-cols-5 gap-8 mb-12" stagger={STAGGER.tight} amount={0.2}>
           {/* Brand col */}
-          <div className="col-span-2 md:col-span-1">
+          <RevealItem className="col-span-2 md:col-span-1">
             <a href="#" className="flex items-center gap-0.5 mb-4">
               <span className="text-xl font-bold text-vytal-green">Vytal</span>
               <span className="text-xl font-bold text-vytal-muted">.fit</span>
@@ -75,11 +77,11 @@ export function Footer({ t }: { t: (k: string) => string }) {
                 </a>
               ))}
             </div>
-          </div>
+          </RevealItem>
 
           {/* Link cols */}
           {FOOTER_COL_META.map((col) => (
-            <div key={col.titleKey}>
+            <RevealItem key={col.titleKey}>
               <h4 className="text-xs font-semibold text-vytal-text uppercase tracking-wider mb-4">
                 {t(col.titleKey)}
               </h4>
@@ -95,9 +97,9 @@ export function Footer({ t }: { t: (k: string) => string }) {
                   </li>
                 ))}
               </ul>
-            </div>
+            </RevealItem>
           ))}
-        </div>
+        </RevealGroup>
 
         {/* Bottom bar */}
         <div className="flex flex-col sm:flex-row items-center justify-between pt-8 border-t border-[rgba(34,197,94,0.08)] gap-4">

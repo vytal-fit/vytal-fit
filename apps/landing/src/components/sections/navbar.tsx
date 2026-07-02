@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Menu, Sun, Moon } from "lucide-react";
+import { motion, useReducedMotion } from "motion/react";
 import { STORAGE_KEYS } from "@vytal-fit/shared";
 import type { Lang } from "@/lib/copy";
 
@@ -12,6 +13,7 @@ export function Navbar({ t, lang, setLang }: { t: (k: string) => string; lang: L
   const [mobileOpen, setMobileOpen] = useState(false);
   const [lightMode, setLightMode] = useState(false);
   const [activeSection, setActiveSection] = useState<string | null>(null);
+  const reduced = useReducedMotion();
 
   // Restore the saved theme on mount and apply it to <html>.
   useEffect(() => {
@@ -83,13 +85,23 @@ export function Navbar({ t, lang, setLang }: { t: (k: string) => string; lang: L
               <a
                 key={l.href}
                 href={l.href}
-                className={`text-sm transition-colors duration-150 ${
+                className={`relative text-sm transition-colors duration-150 ${
                   activeSection === l.id
                     ? "text-vytal-green"
                     : "text-vytal-muted hover:text-vytal-text"
                 }`}
               >
                 {l.label}
+                {activeSection === l.id &&
+                  (reduced ? (
+                    <span className="absolute -bottom-1.5 left-0 right-0 h-[2px] rounded-full bg-vytal-green" />
+                  ) : (
+                    <motion.span
+                      layoutId="nav-underline"
+                      className="absolute -bottom-1.5 left-0 right-0 h-[2px] rounded-full bg-vytal-green"
+                      transition={{ type: "spring", stiffness: 400, damping: 32 }}
+                    />
+                  ))}
               </a>
             ))}
           </div>

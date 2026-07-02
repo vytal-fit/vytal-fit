@@ -2,12 +2,15 @@
 
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { EASE_OUT_EXPO } from "@vytal-fit/brand/motion";
 import { WaveDivider } from "@/components/decor";
 import { useScrollReveal } from "@/lib/hooks";
 
 // ── FAQ accordion ───────────────────────────────────────────────────────────
 function FAQItem({ question, answer }: { question: string; answer: string }) {
   const [open, setOpen] = useState(false);
+  const reduced = useReducedMotion();
   return (
     <div className="border border-vytal-border rounded-xl overflow-hidden backdrop-blur-sm">
       <button
@@ -20,11 +23,22 @@ function FAQItem({ question, answer }: { question: string; answer: string }) {
           className={`shrink-0 text-vytal-green transition-transform duration-200 ${open ? "rotate-180" : ""}`}
         />
       </button>
-      {open && (
-        <div className="px-6 pb-5 text-vytal-muted text-sm leading-relaxed border-t border-[rgba(34,197,94,0.08)] pt-4">
-          {answer}
-        </div>
-      )}
+      <AnimatePresence initial={false}>
+        {open && (
+          <motion.div
+            key="answer"
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={reduced ? { duration: 0 } : { duration: 0.4, ease: EASE_OUT_EXPO }}
+            style={{ overflow: "hidden" }}
+          >
+            <div className="px-6 pb-5 text-vytal-muted text-sm leading-relaxed border-t border-[rgba(34,197,94,0.08)] pt-4">
+              {answer}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
@@ -51,7 +65,13 @@ export function FAQ({ t }: { t: (k: string) => string }) {
             <span className="text-xs font-mono uppercase tracking-[0.2em] text-vytal-green">{t("faqBadge")}</span>
           </div>
           <h2 className="text-[clamp(2rem,4.5vw,3.25rem)] font-bold tracking-tight leading-[1.1] text-vytal-text mb-4">
-            {t("faqTitle")} <span className="bg-gradient-to-r from-vytal-green to-vytal-blue bg-clip-text text-transparent">{t("faqTitleHighlight")}</span>
+            {t("faqTitle")}{" "}
+            <span
+              className="font-normal italic bg-gradient-to-r from-vytal-green to-[#86efac] bg-clip-text text-transparent"
+              style={{ fontFamily: "var(--font-accent), serif" }}
+            >
+              {t("faqTitleHighlight")}
+            </span>
           </h2>
         </div>
         <div className="space-y-3">

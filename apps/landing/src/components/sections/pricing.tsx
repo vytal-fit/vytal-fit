@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Check, X, CreditCard } from "lucide-react";
 import { AnimatedMark, TiltCard } from "@vytal-fit/brand";
+import { AnimatedBorder, CountUp, RevealGroup, RevealItem } from "@vytal-fit/brand/motion";
 import { WaveDivider } from "@/components/decor";
 import { useScrollReveal, usePricingToggle } from "@/lib/hooks";
 
@@ -43,7 +44,13 @@ export function Pricing({ t }: { t: (k: string) => string }) {
             <span className="text-xs font-mono uppercase tracking-[0.2em] text-vytal-green">{t("pricingBadge")}</span>
           </div>
           <h2 className="text-[clamp(2rem,4.5vw,3.25rem)] font-bold tracking-tight leading-[1.1] text-vytal-text mb-4">
-            {t("pricingTitle")} <span className="bg-gradient-to-r from-vytal-green to-vytal-blue bg-clip-text text-transparent">{t("pricingTitleHighlight")}</span>
+            {t("pricingTitle")}{" "}
+            <span
+              className="font-normal italic bg-gradient-to-r from-vytal-green to-[#86efac] bg-clip-text text-transparent"
+              style={{ fontFamily: "var(--font-accent), serif" }}
+            >
+              {t("pricingTitleHighlight")}
+            </span>
           </h2>
           <p className="text-vytal-muted max-w-xl mx-auto text-sm leading-relaxed mb-8">
             {t("pricingSubtitle")}
@@ -73,7 +80,7 @@ export function Pricing({ t }: { t: (k: string) => string }) {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <RevealGroup className="grid grid-cols-1 md:grid-cols-3 gap-6" stagger={0.12} amount={0.15}>
           {PLAN_META.map((plan) => {
             const displayPrice =
               plan.priceVal === null
@@ -84,91 +91,104 @@ export function Pricing({ t }: { t: (k: string) => string }) {
                 ? Math.round(plan.priceVal * 0.8)
                 : plan.priceVal;
 
-            return (
-              <TiltCard
-                key={plan.nameKey}
-                max={7}
-                className={`relative flex flex-col ${
-                  plan.highlighted ? "md:-mt-2 md:mb-[-8px]" : ""
-                }`}
-              >
-                {/* Animated gradient border for popular plan */}
-                {plan.highlighted && (
-                  <div className="absolute -inset-[1.5px] rounded-[18px] animated-gradient-border opacity-60" />
-                )}
-                <div
-                  className={`relative p-6 rounded-2xl border transition-all duration-200 flex flex-col flex-1 hover:-translate-y-1 hover:border-vytal-green/40 ${
-                    plan.highlighted
-                      ? "border-[rgba(34,197,94,0.4)] bg-[rgba(34,197,94,0.04)] shadow-lg shadow-[rgba(34,197,94,0.08)] backdrop-blur-sm"
-                      : "border-[rgba(34,197,94,0.1)] bg-[color-mix(in_srgb,var(--color-vytal-bg3)_40%,transparent)] backdrop-blur-sm"
-                  }`}
-                >
-                  {plan.highlighted && (
-                    <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                      <span
-                        className="px-3 py-1 rounded-full bg-vytal-green text-vytal-bg text-xs font-bold inline-flex items-center gap-1.5"
-                        style={{ animation: "landing-pulse-glow 2s ease-in-out infinite" }}
-                      >
-                        <span className="w-1.5 h-1.5 rounded-full bg-vytal-bg animate-pulse" />
-                        {t("mostPopular")}
-                      </span>
-                    </div>
-                  )}
-
-                  <div className="mb-6">
-                    <h3 className="font-bold text-vytal-text text-lg mb-1">{t(plan.nameKey)}</h3>
-                    <p className="text-xs text-vytal-muted mb-4">{t(plan.descKey)}</p>
-                    <div className="flex items-end gap-1">
-                      {displayPrice === null ? (
-                        <span className="text-3xl font-bold text-vytal-text">{t("onRequest")}</span>
-                      ) : (
-                        <>
-                          <span className="text-5xl font-bold text-vytal-text tracking-tight">
-                            {displayPrice === 0 ? t("free") : `${displayPrice}€`}
-                          </span>
-                          {displayPrice > 0 && (
-                            <span className="text-sm text-vytal-muted mb-2">/mo</span>
+            const cardInner = (
+              <>
+                <div className="mb-6">
+                  <h3 className="font-bold text-vytal-text text-lg mb-1">{t(plan.nameKey)}</h3>
+                  <p className="text-xs text-vytal-muted mb-4">{t(plan.descKey)}</p>
+                  <div className="flex items-end gap-1">
+                    {displayPrice === null ? (
+                      <span className="text-3xl font-bold text-vytal-text">{t("onRequest")}</span>
+                    ) : (
+                      <>
+                        <span className="text-5xl font-bold text-vytal-text tracking-tight">
+                          {displayPrice === 0 ? (
+                            t("free")
+                          ) : (
+                            <CountUp to={displayPrice} suffix="€" duration={1.2} />
                           )}
-                        </>
-                      )}
-                    </div>
-                    {annual && plan.priceVal && plan.priceVal > 0 && (
-                      <p className="text-xs text-vytal-green mt-1">
-                        {t("billedAnnually")} {plan.priceVal * 12 - Math.round(plan.priceVal * 0.8) * 12}{t("perYear")}
-                      </p>
+                        </span>
+                        {displayPrice > 0 && (
+                          <span className="text-sm text-vytal-muted mb-2">/mo</span>
+                        )}
+                      </>
                     )}
                   </div>
-
-                  <ul className="space-y-2.5 mb-6 flex-1">
-                    {plan.featureKeys.map((fk) => (
-                      <li key={fk} className="flex items-start gap-2.5 text-sm text-vytal-text">
-                        <Check size={14} className="text-vytal-green shrink-0 mt-0.5" />
-                        {t(fk)}
-                      </li>
-                    ))}
-                    {plan.notIncludedKeys.map((fk) => (
-                      <li key={fk} className="flex items-start gap-2.5 text-sm text-vytal-muted/50">
-                        <X size={14} className="text-[rgba(255,71,87,0.3)] shrink-0 mt-0.5" />
-                        {t(fk)}
-                      </li>
-                    ))}
-                  </ul>
-
-                  <Link
-                    href={plan.nameKey === "enterprise" ? "/login" : "/signup"}
-                    className={`block text-center py-3 rounded-xl text-sm font-semibold transition-all duration-150 ${
-                      plan.highlighted
-                        ? "vy-shimmer bg-vytal-green text-vytal-bg hover:bg-[#16a34a] shadow-md shadow-[rgba(34,197,94,0.2)]"
-                        : "border border-[rgba(34,197,94,0.25)] text-vytal-text hover:border-[rgba(34,197,94,0.5)] hover:bg-[rgba(34,197,94,0.05)]"
-                    }`}
-                  >
-                    {t(plan.ctaKey)}
-                  </Link>
+                  {annual && plan.priceVal && plan.priceVal > 0 && (
+                    <p className="text-xs text-vytal-green mt-1">
+                      {t("billedAnnually")} {plan.priceVal * 12 - Math.round(plan.priceVal * 0.8) * 12}{t("perYear")}
+                    </p>
+                  )}
                 </div>
-              </TiltCard>
+
+                <ul className="space-y-2.5 mb-6 flex-1">
+                  {plan.featureKeys.map((fk) => (
+                    <li key={fk} className="flex items-start gap-2.5 text-sm text-vytal-text">
+                      <Check size={14} className="text-vytal-green shrink-0 mt-0.5" />
+                      {t(fk)}
+                    </li>
+                  ))}
+                  {plan.notIncludedKeys.map((fk) => (
+                    <li key={fk} className="flex items-start gap-2.5 text-sm text-vytal-muted/50">
+                      <X size={14} className="text-[rgba(255,71,87,0.3)] shrink-0 mt-0.5" />
+                      {t(fk)}
+                    </li>
+                  ))}
+                </ul>
+
+                <Link
+                  href={plan.nameKey === "enterprise" ? "/login" : "/signup"}
+                  className={`block text-center py-3 rounded-xl text-sm font-semibold transition-all duration-150 ${
+                    plan.highlighted
+                      ? "vy-shimmer bg-vytal-green text-vytal-bg hover:bg-[#16a34a] shadow-md shadow-[rgba(34,197,94,0.2)]"
+                      : "border border-[rgba(34,197,94,0.25)] text-vytal-text hover:border-[rgba(34,197,94,0.5)] hover:bg-[rgba(34,197,94,0.05)]"
+                  }`}
+                >
+                  {t(plan.ctaKey)}
+                </Link>
+              </>
+            );
+
+            return (
+              <RevealItem
+                key={plan.nameKey}
+                className={plan.highlighted ? "md:-mt-2 md:mb-[-8px]" : ""}
+                duration={0.7}
+              >
+                <TiltCard max={7} className="relative flex flex-col h-full">
+                  {plan.highlighted ? (
+                    <>
+                      {/* Badge sits above the rotating ring (which clips overflow) */}
+                      <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-20">
+                        <span
+                          className="px-3 py-1 rounded-full bg-vytal-green text-vytal-bg text-xs font-bold inline-flex items-center gap-1.5"
+                          style={{ animation: "landing-pulse-glow 2s ease-in-out infinite" }}
+                        >
+                          <span className="w-1.5 h-1.5 rounded-full bg-vytal-bg animate-pulse" />
+                          {t("mostPopular")}
+                        </span>
+                      </div>
+                      <AnimatedBorder
+                        colors={["#22c55e", "rgba(34,197,94,0.06)", "#4ade80"]}
+                        borderWidth={1.5}
+                        radius={24}
+                        duration={5}
+                        className="flex flex-col flex-1 shadow-lg shadow-[rgba(34,197,94,0.08)]"
+                        innerClassName="p-6 flex flex-col flex-1 bg-[color-mix(in_srgb,var(--color-vytal-bg)_95%,var(--color-vytal-green))]"
+                      >
+                        {cardInner}
+                      </AnimatedBorder>
+                    </>
+                  ) : (
+                    <div className="relative p-6 rounded-2xl border border-[rgba(34,197,94,0.1)] bg-[color-mix(in_srgb,var(--color-vytal-bg3)_40%,transparent)] backdrop-blur-sm transition-all duration-200 flex flex-col flex-1 hover:-translate-y-1 hover:border-vytal-green/40">
+                      {cardInner}
+                    </div>
+                  )}
+                </TiltCard>
+              </RevealItem>
             );
           })}
-        </div>
+        </RevealGroup>
 
         <p className="text-center text-xs text-vytal-muted mt-8">
           {t("pricingNote")}

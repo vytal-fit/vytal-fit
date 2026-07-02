@@ -1,6 +1,7 @@
 "use client";
 
 import { Check, Zap } from "lucide-react";
+import { ParallaxLayer, RevealGroup, RevealItem } from "@vytal-fit/brand/motion";
 import { WaveDivider } from "@/components/decor";
 import { useScrollReveal } from "@/lib/hooks";
 
@@ -221,31 +222,37 @@ export function FeatureDeepDive({ t }: { t: (k: string) => string }) {
             const { Mockup } = feat;
             const isLeft = feat.side === "left";
             const textBlock = (
-              <div className="flex flex-col justify-center">
-                <h3 className="text-2xl sm:text-3xl font-bold text-vytal-text mb-4" style={{ color: feat.accent }}>
-                  {t(feat.titleKey)}
-                </h3>
-                <p className="text-vytal-muted leading-relaxed mb-6 text-sm">{t(feat.descKey)}</p>
+              <RevealGroup className="flex flex-col justify-center" stagger={0.08} amount={0.3}>
+                <RevealItem>
+                  <h3 className="text-2xl sm:text-3xl font-bold text-vytal-text mb-4" style={{ color: feat.accent }}>
+                    {t(feat.titleKey)}
+                  </h3>
+                </RevealItem>
+                <RevealItem>
+                  <p className="text-vytal-muted leading-relaxed mb-6 text-sm">{t(feat.descKey)}</p>
+                </RevealItem>
                 <ul className="space-y-3">
                   {feat.bulletKeys.map((bk) => (
-                    <li key={bk} className="flex items-start gap-3 text-sm text-vytal-text">
-                      <div
-                        className="w-5 h-5 rounded-full flex items-center justify-center shrink-0 mt-0.5"
-                        style={{ background: `${feat.accent}20` }}
-                      >
-                        <Check size={11} style={{ color: feat.accent }} />
-                      </div>
-                      {t(bk)}
+                    <li key={bk}>
+                      <RevealItem className="flex items-start gap-3 text-sm text-vytal-text">
+                        <div
+                          className="w-5 h-5 rounded-full flex items-center justify-center shrink-0 mt-0.5"
+                          style={{ background: `${feat.accent}20` }}
+                        >
+                          <Check size={11} style={{ color: feat.accent }} />
+                        </div>
+                        {t(bk)}
+                      </RevealItem>
                     </li>
                   ))}
                 </ul>
-              </div>
+              </RevealGroup>
             );
             const mockupBlock = (
               <div className="flex items-center justify-center">
-                <div className="w-full max-w-md">
+                <ParallaxLayer distance={isLeft ? 40 : -40} className="w-full max-w-md">
                   <Mockup />
-                </div>
+                </ParallaxLayer>
               </div>
             );
             return (

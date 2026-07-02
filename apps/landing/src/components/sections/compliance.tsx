@@ -1,13 +1,11 @@
 "use client";
 
 import { Shield } from "lucide-react";
+import { RevealGroup, RevealItem, STAGGER } from "@vytal-fit/brand/motion";
 import { WaveDivider } from "@/components/decor";
-import { useScrollReveal } from "@/lib/hooks";
 
 // ── Compliance & Segurança ───────────────────────────────────────────────────
 export function ComplianceSecurity({ t }: { t: (k: string) => string }) {
-  const ref = useScrollReveal();
-
   const badges = [
     {
       key: "complianceRgpd",
@@ -68,24 +66,33 @@ export function ComplianceSecurity({ t }: { t: (k: string) => string }) {
   return (
     <section className="py-24 border-t border-[rgba(34,197,94,0.08)]">
       <WaveDivider flip color="rgba(34,197,94,0.03)" />
-      <div ref={ref} className="scroll-reveal max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[rgba(34,197,94,0.2)] bg-[rgba(34,197,94,0.05)] mb-4">
-            <Shield size={12} className="text-vytal-green" />
-            <span className="text-xs font-mono uppercase tracking-[0.2em] text-vytal-green">{t("complianceBadge")}</span>
-          </div>
-          <h2 className="text-[clamp(2rem,4.5vw,3.25rem)] font-bold tracking-tight leading-[1.1] text-vytal-text mb-4">
-            {t("complianceTitle")}{" "}
-            <span className="bg-gradient-to-r from-vytal-green to-vytal-blue bg-clip-text text-transparent">
-              {t("complianceTitleHighlight")}
-            </span>
-          </h2>
-          <p className="text-vytal-muted text-sm max-w-lg mx-auto">{t("complianceSubtitle")}</p>
-        </div>
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+        <RevealGroup className="text-center mb-12" stagger={0.08} amount={0.4}>
+          <RevealItem>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[rgba(34,197,94,0.2)] bg-[rgba(34,197,94,0.05)] mb-4">
+              <Shield size={12} className="text-vytal-green" />
+              <span className="text-xs font-mono uppercase tracking-[0.2em] text-vytal-green">{t("complianceBadge")}</span>
+            </div>
+          </RevealItem>
+          <RevealItem>
+            <h2 className="text-[clamp(2rem,4.5vw,3.25rem)] font-bold tracking-tight leading-[1.1] text-vytal-text mb-4">
+              {t("complianceTitle")}{" "}
+              <span
+                className="font-normal italic bg-gradient-to-r from-vytal-green to-[#86efac] bg-clip-text text-transparent"
+                style={{ fontFamily: "var(--font-accent), serif" }}
+              >
+                {t("complianceTitleHighlight")}
+              </span>
+            </h2>
+          </RevealItem>
+          <RevealItem>
+            <p className="text-vytal-muted text-sm max-w-lg mx-auto">{t("complianceSubtitle")}</p>
+          </RevealItem>
+        </RevealGroup>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+        <RevealGroup className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4" stagger={STAGGER.tight} amount={0.2}>
           {badges.map((badge) => (
-            <div
+            <RevealItem
               key={badge.key}
               className="flex flex-col items-center gap-3 p-5 rounded-2xl border bg-[color-mix(in_srgb,var(--color-vytal-bg3)_40%,transparent)] backdrop-blur-sm hover:-translate-y-1 hover:shadow-[0_0_20px_rgba(34,197,94,0.08)] transition-all duration-200 group"
               style={{ borderColor: `${badge.color}20` }}
@@ -97,9 +104,9 @@ export function ComplianceSecurity({ t }: { t: (k: string) => string }) {
                 {badge.icon}
               </div>
               <span className="text-xs font-semibold text-vytal-text text-center leading-tight">{t(badge.key)}</span>
-            </div>
+            </RevealItem>
           ))}
-        </div>
+        </RevealGroup>
       </div>
     </section>
   );
