@@ -2,6 +2,7 @@
 
 import { NOISE_SVG, LANDING_KEYFRAMES } from "@/lib/constants";
 import { useLandingLang } from "@/lib/hooks";
+import { SmoothScroll } from "@/components/smooth-scroll";
 import { Navbar } from "@/components/sections/navbar";
 import { Hero } from "@/components/sections/hero";
 import { SocialProof } from "@/components/sections/social-proof";
@@ -24,6 +25,7 @@ export default function LandingPage() {
   const { lang, setLang, t } = useLandingLang();
 
   return (
+    <SmoothScroll>
     <div className="min-h-screen bg-vytal-bg text-vytal-text">
       {/* Injected keyframes */}
       <style dangerouslySetInnerHTML={{ __html: LANDING_KEYFRAMES }} />
@@ -54,5 +56,6 @@ export default function LandingPage() {
       </main>
       <Footer t={t} />
     </div>
+    </SmoothScroll>
   );
 }

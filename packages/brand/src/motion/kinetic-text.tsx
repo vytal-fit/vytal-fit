@@ -19,6 +19,7 @@ export function KineticText({
   blur = 8,
   once = true,
   className,
+  unitClassName,
   style,
 }: {
   text: string;
@@ -31,6 +32,9 @@ export function KineticText({
   blur?: number;
   once?: boolean;
   className?: string;
+  /** Applied to each word/char span (e.g. gradient bg-clip-text, which must
+   * live on the animated spans themselves, not the container). */
+  unitClassName?: string;
   style?: CSSProperties;
 }) {
   const reduced = useReducedMotion();
@@ -77,7 +81,8 @@ export function KineticText({
           <motion.span
             key={i}
             variants={unit}
-            style={{ display: "inline-block", whiteSpace: "pre", willChange: "transform, filter" }}
+            className={unitClassName}
+            style={{ display: "inline-block", whiteSpace: "pre" }}
           >
             {u}
           </motion.span>
