@@ -1,10 +1,12 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
   StyleSheet,
   ScrollView,
   TouchableOpacity,
+  ActivityIndicator,
+  Image,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
@@ -13,20 +15,51 @@ import { ArrowLeft, Camera, Plus } from "lucide-react-native";
 import { useTheme } from "./_layout";
 import type { Colors } from "@/colors";
 import { t } from "@/i18n";
+import { listMedia, type MediaAssetItem } from "@/lib/auth-api";
 
-const mockPhotos = [
-  { id: "p-1", date: "2026-06-01" },
-  { id: "p-2", date: "2026-05-15" },
-  { id: "p-3", date: "2026-05-01" },
-  { id: "p-4", date: "2026-04-15" },
-  { id: "p-5", date: "2026-04-01" },
-  { id: "p-6", date: "2026-03-15" },
-];
+type GalleryImage = { id: string; url: string; date: string };
 
 export default function PhotoGalleryScreen() {
   const C = useTheme();
   const styles = makeStyles(C);
   const router = useRouter();
+  const [photos, setPhotos] = useState<GalleryImage[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadError, setLoadError] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    setIsLoading(true);
+    setLoadError(false);
+
+    void listMedia()
+      .then((assets: MediaAssetItem[]) => {
+        if (cancelled) return;
+        const images = assets
+          .filter((asset) => asset.type === "image" && Boolean(asset.url))
+          .map<GalleryImage>((asset) => ({
+            id: asset.id,
+            url: asset.url as string,
+            date:
+              typeof asset.createdAt === "string"
+                ? asset.createdAt.slice(0, 10)
+                : asset.createdAt instanceof Date
+                  ? asset.createdAt.toISOString().slice(0, 10)
+                  : "",
+          }));
+        setPhotos(images);
+      })
+      .catch(() => {
+        if (!cancelled) setLoadError(true);
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   return (
     <SafeAreaView style={styles.safe} edges={["top"]}>
@@ -43,16 +76,38 @@ export default function PhotoGalleryScreen() {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
         >
-          <View style={styles.grid}>
-            {mockPhotos.map((photo) => (
-              <View key={photo.id} style={styles.photoCard}>
-                <View style={styles.photoPlaceholder}>
-                  <Camera size={28} color={C.muted} strokeWidth={1.5} />
+          {isLoading ? (
+            <View style={styles.stateBox}>
+              <ActivityIndicator color={C.green} />
+            </View>
+          ) : loadError ? (
+            <View style={styles.stateBox}>
+              <Text style={styles.stateText}>{t("alert.error")}</Text>
+            </View>
+          ) : photos.length === 0 ? (
+            <View style={styles.stateBox}>
+              <Text style={styles.stateText}>{t("common.empty")}</Text>
+            </View>
+          ) : (
+            <View style={styles.grid}>
+              {photos.map((photo) => (
+                <View key={photo.id} style={styles.photoCard}>
+                  <View style={styles.photoPlaceholder}>
+                    {photo.url ? (
+                      <Image
+                        source={{ uri: photo.url }}
+                        style={styles.photoImage}
+                        resizeMode="cover"
+                      />
+                    ) : (
+                      <Camera size={28} color={C.muted} strokeWidth={1.5} />
+                    )}
+                  </View>
+                  {Boolean(photo.date) && <Text style={styles.photoDate}>{photo.date}</Text>}
                 </View>
-                <Text style={styles.photoDate}>{photo.date}</Text>
-              </View>
-            ))}
-          </View>
+              ))}
+            </View>
+          )}
 
           <TouchableOpacity style={styles.addButton}>
             <Plus size={20} color="#080c0a" strokeWidth={2.5} />
@@ -88,7 +143,17 @@ function makeStyles(C: Colors) { return StyleSheet.create({
   photoPlaceholder: {
     aspectRatio: 1, borderRadius: 14, backgroundColor: C.surface2,
     borderWidth: 1, borderColor: C.border, alignItems: "center",
-    justifyContent: "center",
+    justifyContent: "center", overflow: "hidden",
+  },
+  photoImage: {
+    width: "100%", height: "100%",
+  },
+  stateBox: {
+    alignItems: "center", justifyContent: "center", paddingVertical: 48,
+    marginBottom: 20,
+  },
+  stateText: {
+    fontSize: 14, color: C.muted, textAlign: "center",
   },
   photoDate: {
     fontSize: 11, color: C.muted, fontWeight: "600", marginTop: 6,

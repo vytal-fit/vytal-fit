@@ -1,20 +1,26 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
   StyleSheet,
   FlatList,
   TouchableOpacity,
+  ActivityIndicator,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
-import { mockLeaderboard } from "@vytal-fit/shared";
 import { ArrowLeft, Zap, Heart } from "lucide-react-native";
 import { useTheme } from "./_layout";
 import type { Colors } from "@/colors";
 import { t } from "@/i18n";
+import { getCommunityStats } from "@/lib/auth-api";
 
-const CURRENT_USER_NAME = "Jose Fonte";
+type LiveEntry = {
+  rank: number;
+  name: string;
+  initials: string;
+  checkIns: number;
+};
 
 
 function getMedalEmoji(rank: number): string {
@@ -43,47 +49,43 @@ function getMedalColor(rank: number, C: Colors): string {
   }
 }
 
-function getScaleLabel(scale: string): string {
-  switch (scale) {
-    case "rx":
-      return "Rx";
-    case "scaled":
-      return "Scaled";
-    case "rx_plus":
-      return "Rx+";
-    default:
-      return scale;
-  }
-}
-
-function getScaleColor(scale: string, C: Colors): string {
-  switch (scale) {
-    case "rx":
-      return C.green;
-    case "scaled":
-      return C.blue;
-    case "rx_plus":
-      return C.purple;
-    default:
-      return C.muted;
-  }
-}
-
-function getInitials(name: string): string {
-  return name
-    .split(" ")
-    .map((n) => n[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2);
-}
-
 // ─── Screen ──────────────────────────────────────────────
 export default function LeaderboardScreen() {
   const C = useTheme();
   const styles = makeStyles(C);
   const router = useRouter();
+  const [entries, setEntries] = useState<LiveEntry[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadError, setLoadError] = useState(false);
   const [fistbumpedRanks, setFistbumpedRanks] = useState<Set<number>>(new Set());
+
+  useEffect(() => {
+    let cancelled = false;
+    setIsLoading(true);
+    setLoadError(false);
+
+    void getCommunityStats()
+      .then((stats) => {
+        if (cancelled) return;
+        const hydrated = stats.leaderboard.map<LiveEntry>((row, index) => ({
+          rank: index + 1,
+          name: row.name,
+          initials: row.initials,
+          checkIns: row.checkIns,
+        }));
+        setEntries(hydrated);
+      })
+      .catch(() => {
+        if (!cancelled) setLoadError(true);
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   function toggleFistbump(rank: number) {
     setFistbumpedRanks((prev) => {
@@ -109,126 +111,122 @@ export default function LeaderboardScreen() {
           <View style={{ width: 44 }} />
         </View>
 
-        {/* WOD Title */}
-        <View style={styles.wodSection}>
-          <Text style={styles.wodTitle}>FRAN</Text>
-          <Text style={styles.wodSubtitle}>For Time - 21-15-9 Thrusters & Pull-Ups</Text>
-        </View>
-
-        {/* Top 3 Podium */}
-        <View style={styles.podium}>
-          {mockLeaderboard.slice(0, 3).map((entry) => {
-            const medalColor = getMedalColor(entry.rank, C);
-            const isFirst = entry.rank === 1;
-            return (
-              <View
-                key={entry.rank}
-                style={[
-                  styles.podiumItem,
-                  isFirst && styles.podiumItemFirst,
-                ]}
-              >
-                <View
-                  style={[
-                    styles.podiumAvatar,
-                    { borderColor: medalColor },
-                    isFirst && styles.podiumAvatarFirst,
-                  ]}
-                >
-                  <Text
+        {isLoading ? (
+          <View style={styles.stateBox}>
+            <ActivityIndicator color={C.green} />
+          </View>
+        ) : loadError ? (
+          <View style={styles.stateBox}>
+            <Text style={styles.stateText}>{t("common.error")}</Text>
+          </View>
+        ) : entries.length === 0 ? (
+          <View style={styles.stateBox}>
+            <Text style={styles.stateText}>{t("common.empty")}</Text>
+          </View>
+        ) : (
+          <>
+            {/* Top 3 Podium */}
+            <View style={styles.podium}>
+              {entries.slice(0, 3).map((entry) => {
+                const medalColor = getMedalColor(entry.rank, C);
+                const isFirst = entry.rank === 1;
+                return (
+                  <View
+                    key={entry.rank}
                     style={[
-                      styles.podiumInitials,
-                      { color: medalColor },
-                      isFirst && styles.podiumInitialsFirst,
+                      styles.podiumItem,
+                      isFirst && styles.podiumItemFirst,
                     ]}
                   >
-                    {getInitials(entry.memberName)}
-                  </Text>
-                </View>
-                <View style={[styles.rankBadge, { backgroundColor: medalColor + "25" }]}>
-                  <Text style={[styles.rankText, { color: medalColor }]}>
-                    {getMedalEmoji(entry.rank)}
-                  </Text>
-                </View>
-                <Text style={styles.podiumName} numberOfLines={1}>
-                  {entry.memberName.split(" ")[0]}
-                </Text>
-                <Text style={[styles.podiumScore, { color: medalColor }]}>
-                  {entry.score}
-                </Text>
-              </View>
-            );
-          })}
-        </View>
+                    <View
+                      style={[
+                        styles.podiumAvatar,
+                        { borderColor: medalColor },
+                        isFirst && styles.podiumAvatarFirst,
+                      ]}
+                    >
+                      <Text
+                        style={[
+                          styles.podiumInitials,
+                          { color: medalColor },
+                          isFirst && styles.podiumInitialsFirst,
+                        ]}
+                      >
+                        {entry.initials}
+                      </Text>
+                    </View>
+                    <View style={[styles.rankBadge, { backgroundColor: medalColor + "25" }]}>
+                      <Text style={[styles.rankText, { color: medalColor }]}>
+                        {getMedalEmoji(entry.rank)}
+                      </Text>
+                    </View>
+                    <Text style={styles.podiumName} numberOfLines={1}>
+                      {entry.name.split(" ")[0]}
+                    </Text>
+                    <Text style={[styles.podiumScore, { color: medalColor }]}>
+                      {entry.checkIns}
+                    </Text>
+                  </View>
+                );
+              })}
+            </View>
 
-        {/* Full Leaderboard */}
-        <FlatList
-          data={mockLeaderboard}
-          keyExtractor={(item) => String(item.rank)}
-          contentContainerStyle={styles.listContent}
-          showsVerticalScrollIndicator={false}
-          renderItem={({ item }) => {
-            const medalColor = getMedalColor(item.rank, C);
-            const scaleColor = getScaleColor(item.scale, C);
-            const isCurrentUser = item.memberName === CURRENT_USER_NAME;
-            const isBumped = fistbumpedRanks.has(item.rank);
-            return (
-              <View style={[
-                styles.entryCard,
-                isCurrentUser && styles.entryCardCurrentUser,
-              ]}>
-                <View style={styles.entryLeft}>
-                  <View style={[styles.positionBadge, { backgroundColor: medalColor + "18" }]}>
-                    <Text style={[styles.positionText, { color: medalColor }]}>
-                      {item.rank}
-                    </Text>
-                  </View>
-                  <View style={[
-                    styles.entryAvatar,
-                    isCurrentUser && { borderColor: C.green, borderWidth: 2 },
-                  ]}>
-                    <Text style={styles.entryInitials}>
-                      {getInitials(item.memberName)}
-                    </Text>
-                  </View>
-                  <View style={styles.entryInfo}>
-                    <Text style={[styles.entryName, isCurrentUser && { color: C.green }]}>
-                      {item.memberName}{isCurrentUser ? ` ${t("leaderboard.you")}` : ""}
-                    </Text>
-                    <View style={styles.entryMeta}>
-                      <View style={[styles.scaleBadge, { backgroundColor: scaleColor + "18" }]}>
-                        <Text style={[styles.scaleText, { color: scaleColor }]}>
-                          {getScaleLabel(item.scale)}
+            {/* Full Leaderboard */}
+            <FlatList
+              data={entries}
+              keyExtractor={(item) => String(item.rank)}
+              contentContainerStyle={styles.listContent}
+              showsVerticalScrollIndicator={false}
+              renderItem={({ item }) => {
+                const medalColor = getMedalColor(item.rank, C);
+                const isBumped = fistbumpedRanks.has(item.rank);
+                return (
+                  <View style={styles.entryCard}>
+                    <View style={styles.entryLeft}>
+                      <View style={[styles.positionBadge, { backgroundColor: medalColor + "18" }]}>
+                        <Text style={[styles.positionText, { color: medalColor }]}>
+                          {item.rank}
                         </Text>
                       </View>
+                      <View style={styles.entryAvatar}>
+                        <Text style={styles.entryInitials}>
+                          {item.initials}
+                        </Text>
+                      </View>
+                      <View style={styles.entryInfo}>
+                        <Text style={styles.entryName}>
+                          {item.name}
+                        </Text>
+                        <View style={styles.entryMeta}>
+                          <Text style={styles.entryMetaText}>
+                            {item.checkIns} {t("label.checkIns")}
+                          </Text>
+                        </View>
+                      </View>
+                    </View>
+                    <View style={styles.entryRight}>
+                      <Text style={styles.entryScore}>{item.checkIns}</Text>
+                      <View style={styles.prIcon}>
+                        <Zap size={14} color={C.amber} strokeWidth={2} />
+                      </View>
+                      <TouchableOpacity
+                        style={styles.fistbumpButton}
+                        onPress={() => toggleFistbump(item.rank)}
+                      >
+                        <Heart
+                          size={14}
+                          color={isBumped ? C.red : C.muted}
+                          strokeWidth={2}
+                          fill={isBumped ? C.red : "none"}
+                        />
+                      </TouchableOpacity>
                     </View>
                   </View>
-                </View>
-                <View style={styles.entryRight}>
-                  <Text style={styles.entryScore}>{item.score}</Text>
-                  {item.isPR && (
-                    <View style={styles.prIcon}>
-                      <Zap size={14} color={C.amber} strokeWidth={2} />
-                    </View>
-                  )}
-                  {!isCurrentUser && (
-                    <TouchableOpacity
-                      style={styles.fistbumpButton}
-                      onPress={() => toggleFistbump(item.rank)}
-                    >
-                      <Heart
-                        size={14}
-                        color={isBumped ? C.red : C.muted}
-                        strokeWidth={2}
-                        fill={isBumped ? C.red : "none"}
-                      />
-                    </TouchableOpacity>
-                  )}
-                </View>
-              </View>
-            );
-          }}
-        />
+                );
+              }}
+            />
+          </>
+        )}
       </View>
     </SafeAreaView>
   );
@@ -268,22 +266,17 @@ function makeStyles(C: Colors) { return StyleSheet.create({
     color: C.text,
   },
 
-  // WOD Section
-  wodSection: {
-    paddingHorizontal: 20,
-    paddingBottom: 16,
+  // Loading / empty / error state
+  stateBox: {
+    flex: 1,
     alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 48,
   },
-  wodTitle: {
-    fontSize: 24,
-    fontWeight: "800",
-    color: C.green,
-    letterSpacing: 1,
-  },
-  wodSubtitle: {
-    fontSize: 13,
+  stateText: {
+    fontSize: 14,
     color: C.muted,
-    marginTop: 4,
+    textAlign: "center",
   },
 
   // Podium
@@ -292,6 +285,7 @@ function makeStyles(C: Colors) { return StyleSheet.create({
     justifyContent: "center",
     alignItems: "flex-end",
     paddingHorizontal: 20,
+    paddingTop: 8,
     paddingBottom: 20,
     gap: 12,
   },
@@ -410,15 +404,10 @@ function makeStyles(C: Colors) { return StyleSheet.create({
     flexDirection: "row",
     gap: 6,
   },
-  scaleBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 6,
-  },
-  scaleText: {
-    fontSize: 10,
-    fontWeight: "800",
-    letterSpacing: 0.5,
+  entryMetaText: {
+    fontSize: 12,
+    color: C.muted,
+    fontWeight: "600",
   },
   entryRight: {
     flexDirection: "row",
@@ -437,12 +426,6 @@ function makeStyles(C: Colors) { return StyleSheet.create({
     backgroundColor: C.amber + "18",
     alignItems: "center",
     justifyContent: "center",
-  },
-
-  // Current user highlight
-  entryCardCurrentUser: {
-    borderColor: C.green + "40",
-    backgroundColor: C.green + "08",
   },
 
   // Fistbump button

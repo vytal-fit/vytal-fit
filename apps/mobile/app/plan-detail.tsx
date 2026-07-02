@@ -1,47 +1,29 @@
-import React from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   View,
   Text,
   StyleSheet,
   ScrollView,
   TouchableOpacity,
+  ActivityIndicator,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
-import { mockSubscriptions, mockClassTypes } from "@vytal-fit/shared";
-import { ArrowLeft, Check, Calendar, CreditCard } from "lucide-react-native";
+import { ArrowLeft, Calendar, CreditCard } from "lucide-react-native";
 
 // ─── Colors ──────────────────────────────────────────────
 import { useTheme } from "./_layout";
 import type { Colors } from "@/colors";
 import { t } from "@/i18n";
+import {
+  listMemberSubscriptions,
+  listSubscriptionPlans,
+  type SubscriptionItem,
+  type SubscriptionPlanItem,
+} from "@/lib/auth-api";
+import { useAuthStore } from "@/stores/auth-store";
 
-// Current user's subscription (first one, member m-1)
-const userSub = mockSubscriptions.find((s) => s.memberId === "m-1")!;
-const plan = userSub.plan;
-
-function getTypeLabel(type: string): string {
-  switch (type) {
-    case "monthly":
-      return t("planDetail.monthly");
-    case "quarterly":
-      return t("planDetail.quarterly");
-    case "semester":
-      return t("planDetail.semester");
-    case "annual":
-      return t("planDetail.annual");
-    case "session_pack":
-      return t("planDetail.sessionPack");
-    case "day_pass":
-      return t("planDetail.dayPass");
-    case "trial":
-      return t("planDetail.trial");
-    default:
-      return type;
-  }
-}
-
-function formatDate(dateStr: string): string {
+function formatDate(dateStr: string | Date): string {
   const d = new Date(dateStr);
   const months = t("planDetail.months").split(",");
   return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
@@ -52,16 +34,69 @@ export default function PlanDetailScreen() {
   const C = useTheme();
   const styles = makeStyles(C);
   const router = useRouter();
-
-  const allowedTypes = mockClassTypes.filter((ct) =>
-    plan.allowedClassTypes.includes(ct.id)
+  const { user, activeOrgId } = useAuthStore();
+  const memberId = useMemo(
+    () => user?.memberships.find((m) => m.organizationId === activeOrgId)?.id ?? user?.memberships[0]?.id ?? "",
+    [activeOrgId, user],
   );
 
-  const hasSessionLimit = plan.maxSessions != null;
-  const sessionsUsed = userSub.sessionsUsed || 0;
-  const sessionProgress = hasSessionLimit
-    ? sessionsUsed / (plan.maxSessions || 1)
-    : 0;
+  const [userSub, setUserSub] = useState<SubscriptionItem | null>(null);
+  const [plan, setPlan] = useState<SubscriptionPlanItem | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadError, setLoadError] = useState(false);
+
+  useEffect(() => {
+    if (!memberId) return;
+
+    let cancelled = false;
+    setIsLoading(true);
+    setLoadError(false);
+
+    Promise.all([listMemberSubscriptions(memberId), listSubscriptionPlans()])
+      .then(([subs, plans]) => {
+        if (cancelled) return;
+        const active = subs.find((s) => s.status === "active") ?? subs[0] ?? null;
+        setUserSub(active);
+        setPlan(active ? plans.find((p) => p.id === active.planId) ?? null : null);
+      })
+      .catch(() => {
+        if (!cancelled) setLoadError(true);
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [memberId]);
+
+  if (isLoading || loadError || !userSub || !plan) {
+    return (
+      <SafeAreaView style={styles.safe} edges={["top"]}>
+        <View style={styles.container}>
+          <View style={styles.header}>
+            <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+              <ArrowLeft size={24} color={C.text} strokeWidth={1.8} />
+            </TouchableOpacity>
+            <Text style={styles.headerTitle}>{t("menu.plan")}</Text>
+            <View style={{ width: 44 }} />
+          </View>
+          <View style={styles.centerState}>
+            {isLoading ? (
+              <ActivityIndicator color={C.green} />
+            ) : (
+              <Text style={styles.centerStateText}>
+                {loadError ? t("common.error") : t("common.empty")}
+              </Text>
+            )}
+          </View>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  const priceNumber = typeof plan.price === "string" ? Number(plan.price) : plan.price;
 
   return (
     <SafeAreaView style={styles.safe} edges={["top"]}>
@@ -85,12 +120,9 @@ export default function PlanDetailScreen() {
               <CreditCard size={24} color={C.green} strokeWidth={1.8} />
             </View>
             <Text style={styles.planName}>{plan.name}</Text>
-            <View style={styles.planTypeBadge}>
-              <Text style={styles.planTypeText}>{getTypeLabel(plan.type)}</Text>
-            </View>
             <View style={styles.priceRow}>
-              <Text style={styles.priceValue}>{plan.price.toFixed(2)}</Text>
-              <Text style={styles.priceCurrency}>{plan.currency}</Text>
+              <Text style={styles.priceValue}>{priceNumber.toFixed(2)}</Text>
+              <Text style={styles.priceCurrency}>EUR</Text>
             </View>
             <View style={styles.statusBadge}>
               <View style={styles.statusDot} />
@@ -98,65 +130,19 @@ export default function PlanDetailScreen() {
             </View>
           </View>
 
-          {/* Sessions Progress (if applicable) */}
-          {hasSessionLimit && (
-            <View style={styles.sectionCard}>
-              <View style={styles.sectionHeader}>
-                <Text style={styles.sectionTitle}>{t("planDetail.sessions")}</Text>
-                <Text style={styles.sectionBadge}>
-                  {sessionsUsed}/{plan.maxSessions}
-                </Text>
-              </View>
-              <View style={styles.progressBarBg}>
-                <View
-                  style={[
-                    styles.progressBarFill,
-                    {
-                      width: `${Math.min(sessionProgress * 100, 100)}%`,
-                      backgroundColor:
-                        sessionProgress > 0.8 ? C.amber : C.green,
-                    },
-                  ]}
-                />
-              </View>
-              <Text style={styles.sessionNote}>
-                {t("planDetail.sessionsLeft").replace(
-                  "{count}",
-                  String((plan.maxSessions || 0) - sessionsUsed)
-                )}
-              </Text>
-            </View>
-          )}
-
-          {/* Allowed Class Types */}
-          <View style={styles.sectionCard}>
-            <Text style={styles.sectionTitle}>{t("planDetail.includedClasses")}</Text>
-            <View style={styles.classTypeList}>
-              {allowedTypes.map((ct) => (
-                <View key={ct.id} style={styles.classTypeRow}>
-                  <View style={styles.classTypeLeft}>
-                    <View style={[styles.classTypeDot, { backgroundColor: ct.color }]} />
-                    <Text style={styles.classTypeName}>{ct.name}</Text>
-                  </View>
-                  <View style={[styles.checkCircle, { backgroundColor: C.green + "18" }]}>
-                    <Check size={14} color={C.green} strokeWidth={2.5} />
-                  </View>
-                </View>
-              ))}
-            </View>
-          </View>
-
           {/* Billing Info */}
           <View style={styles.sectionCard}>
             <Text style={styles.sectionTitle}>{t("planDetail.billingInfo")}</Text>
             <View style={styles.billingList}>
-              <View style={styles.billingRow}>
-                <View style={styles.billingLeft}>
-                  <Calendar size={16} color={C.muted} strokeWidth={1.8} />
-                  <Text style={styles.billingLabel}>{t("planDetail.start")}</Text>
+              {userSub.startDate && (
+                <View style={styles.billingRow}>
+                  <View style={styles.billingLeft}>
+                    <Calendar size={16} color={C.muted} strokeWidth={1.8} />
+                    <Text style={styles.billingLabel}>{t("planDetail.start")}</Text>
+                  </View>
+                  <Text style={styles.billingValue}>{formatDate(userSub.startDate)}</Text>
                 </View>
-                <Text style={styles.billingValue}>{formatDate(userSub.startDate)}</Text>
-              </View>
+              )}
               {userSub.nextBillingDate && (
                 <View style={styles.billingRow}>
                   <View style={styles.billingLeft}>
@@ -226,6 +212,17 @@ function makeStyles(C: Colors) { return StyleSheet.create({
     paddingHorizontal: 16,
     paddingBottom: 40,
     gap: 12,
+  },
+  centerState: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 24,
+  },
+  centerStateText: {
+    fontSize: 15,
+    color: C.muted,
+    textAlign: "center",
   },
 
   // Plan Card

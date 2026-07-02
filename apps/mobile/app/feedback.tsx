@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -6,16 +6,17 @@ import {
   ScrollView,
   TouchableOpacity,
   TextInput,
+  ActivityIndicator,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { ArrowLeft, Send, ChevronDown, CheckCircle } from "lucide-react-native";
-import { mockCoaches } from "@vytal-fit/shared";
 
 // ─── Colors ──────────────────────────────────────────────
 import { useTheme } from "./_layout";
 import type { Colors } from "@/colors";
 import { t } from "@/i18n";
+import { listCoaches, type CoachItem } from "@/lib/auth-api";
 
 type Tab = "box" | "vytal";
 const feedbackTypeKeys = [
@@ -31,10 +32,38 @@ export default function FeedbackScreen() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<Tab>("box");
 
+  // Coaches (live)
+  const [coaches, setCoaches] = useState<CoachItem[]>([]);
+  const [coachesLoading, setCoachesLoading] = useState(false);
+  const [coachesError, setCoachesError] = useState(false);
+
   // Box form
   const [selectedCoach, setSelectedCoach] = useState(0);
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
+
+  useEffect(() => {
+    let cancelled = false;
+    setCoachesLoading(true);
+    setCoachesError(false);
+
+    void listCoaches()
+      .then((rows) => {
+        if (cancelled) return;
+        setCoaches(rows);
+        setSelectedCoach(0);
+      })
+      .catch(() => {
+        if (!cancelled) setCoachesError(true);
+      })
+      .finally(() => {
+        if (!cancelled) setCoachesLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   // Vytal form
   const [feedbackType, setFeedbackType] = useState(0);
@@ -45,7 +74,8 @@ export default function FeedbackScreen() {
   const [vytalSent, setVytalSent] = useState(false);
 
   function cycleCoach() {
-    setSelectedCoach((prev) => (prev + 1) % mockCoaches.length);
+    if (coaches.length === 0) return;
+    setSelectedCoach((prev) => (prev + 1) % coaches.length);
   }
 
   function cycleFeedbackType() {
@@ -133,10 +163,19 @@ export default function FeedbackScreen() {
                   <TouchableOpacity
                     style={styles.selector}
                     onPress={cycleCoach}
+                    disabled={coaches.length === 0}
                   >
-                    <Text style={styles.selectorText}>
-                      {mockCoaches[selectedCoach].name}
-                    </Text>
+                    {coachesLoading ? (
+                      <ActivityIndicator color={C.green} />
+                    ) : (
+                      <Text style={styles.selectorText}>
+                        {coachesError
+                          ? t("alert.error")
+                          : coaches.length > 0
+                            ? coaches[selectedCoach]?.name ?? t("common.empty")
+                            : t("common.empty")}
+                      </Text>
+                    )}
                     <ChevronDown size={16} color={C.green} strokeWidth={2.5} />
                   </TouchableOpacity>
 

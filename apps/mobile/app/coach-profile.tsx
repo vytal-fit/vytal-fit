@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   View,
   Text,
@@ -6,16 +6,22 @@ import {
   ScrollView,
   TouchableOpacity,
   Linking,
+  ActivityIndicator,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter, useLocalSearchParams } from "expo-router";
-import { ArrowLeft, Mail, Phone } from "lucide-react-native";
-import { mockCoaches } from "@vytal-fit/shared";
+import { ArrowLeft, Mail } from "lucide-react-native";
 
 // ─── Colors ──────────────────────────────────────────────
 import { useTheme } from "./_layout";
 import type { Colors } from "@/colors";
 import { t } from "@/i18n";
+import {
+  getCoach,
+  listClassSchedule,
+  type CoachItem,
+  type ClassScheduleItem,
+} from "@/lib/auth-api";
 
 function getInitials(name: string): string {
   return name
@@ -52,31 +58,9 @@ function getRoleColor(role: string, C: Colors): string {
   }
 }
 
-// ─── Mock Coach Data ─────────────────────────────────────
-const mockCoachBios: Record<string, string> = {
-  "coach-1":
-    "CrossFit Level 3 Trainer com mais de 10 anos de experiencia. Especialista em halterofilia e programacao de treino. Competiu em varios regionais e formou dezenas de atletas.",
-  "coach-2":
-    "CrossFit Level 2 Trainer. Background em ginástica artística e movimentos de peso corporal. Apaixonada por ensinar fundamentos e ajudar atletas a superar os seus limites.",
-  "coach-3":
-    "CrossFit Level 2 Trainer e Halterofilia Nível 2. Especialista em movimentos olímpicos, snatch e clean & jerk. Organizador de workshops técnicos mensais.",
-  "coach-4":
-    "CrossFit Level 1 Trainer. Focada em mobilidade, aquecimento e prevenção de lesões. Formação em fisioterapia desportiva.",
-};
+const WEEKDAYS = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
 
-const mockCoachPhones: Record<string, string> = {
-  "coach-1": "+351 912 345 001",
-  "coach-2": "+351 912 345 002",
-  "coach-3": "+351 912 345 003",
-  "coach-4": "+351 912 345 004",
-};
-
-const mockWeeklyClasses = [
-  { day: "Segunda", time: "07:00", type: "CrossFit" },
-  { day: "Segunda", time: "18:30", type: "CrossFit" },
-  { day: "Quarta", time: "07:00", type: "CrossFit" },
-  { day: "Sexta", time: "09:00", type: "Halterofilia" },
-];
+type WeeklyClass = { day: string; time: string; type: string };
 
 // ─── Screen ──────────────────────────────────────────────
 export default function CoachProfileScreen() {
@@ -85,10 +69,90 @@ export default function CoachProfileScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
 
-  const coach = mockCoaches.find((c) => c.id === id) || mockCoaches[0];
-  const roleColor = getRoleColor(coach.role, C);
-  const bio = mockCoachBios[coach.id] || t("coachProfile.noBio");
-  const phone = mockCoachPhones[coach.id] || "";
+  const [coach, setCoach] = useState<CoachItem | null>(null);
+  const [weeklyClasses, setWeeklyClasses] = useState<WeeklyClass[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadError, setLoadError] = useState(false);
+
+  useEffect(() => {
+    if (!id) return;
+
+    let cancelled = false;
+    setIsLoading(true);
+    setLoadError(false);
+
+    const today = new Date();
+    const to = new Date();
+    to.setDate(to.getDate() + 6);
+    const from = today.toISOString().slice(0, 10);
+    const toYmd = to.toISOString().slice(0, 10);
+
+    Promise.all([getCoach(id), listClassSchedule(from, toYmd)])
+      .then(([coachRow, schedule]) => {
+        if (cancelled) return;
+        setCoach(coachRow);
+        const forCoach = schedule
+          .filter((c) => !c.cancelledAt && c.coaches.some((co) => co.id === id))
+          .sort((a, b) => (a.date + a.startTime).localeCompare(b.date + b.startTime))
+          .map<WeeklyClass>((c) => ({
+            day: WEEKDAYS[new Date(c.date).getDay()] ?? c.date,
+            time: c.startTime,
+            type: c.classType?.name ?? "",
+          }));
+        setWeeklyClasses(forCoach);
+      })
+      .catch(() => {
+        if (!cancelled) setLoadError(true);
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [id]);
+
+  const roleColor = useMemo(() => getRoleColor(coach?.role ?? "", C), [coach, C]);
+  const bio = t("coachProfile.noBio");
+
+  if (isLoading) {
+    return (
+      <SafeAreaView style={styles.safe} edges={["top"]}>
+        <View style={styles.container}>
+          <View style={styles.header}>
+            <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+              <ArrowLeft size={22} color={C.text} strokeWidth={2} />
+            </TouchableOpacity>
+            <Text style={styles.headerTitle}>{t("coachProfile.title")}</Text>
+            <View style={{ width: 44 }} />
+          </View>
+          <View style={styles.emptyState}>
+            <ActivityIndicator color={C.green} />
+          </View>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  if (loadError || !coach) {
+    return (
+      <SafeAreaView style={styles.safe} edges={["top"]}>
+        <View style={styles.container}>
+          <View style={styles.header}>
+            <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+              <ArrowLeft size={22} color={C.text} strokeWidth={2} />
+            </TouchableOpacity>
+            <Text style={styles.headerTitle}>{t("coachProfile.title")}</Text>
+            <View style={{ width: 44 }} />
+          </View>
+          <View style={styles.emptyState}>
+            <Text style={styles.bioText}>{loadError ? t("common.error") : t("common.empty")}</Text>
+          </View>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.safe} edges={["top"]}>
@@ -127,18 +191,14 @@ export default function CoachProfileScreen() {
           </View>
 
           {/* Contact Info */}
-          <View style={styles.contactCard}>
-            <View style={styles.contactRow}>
-              <Mail size={16} color={C.blue} strokeWidth={2} />
-              <Text style={styles.contactText}>{coach.email}</Text>
-            </View>
-            {phone && (
+          {coach.email && (
+            <View style={styles.contactCard}>
               <View style={styles.contactRow}>
-                <Phone size={16} color={C.green} strokeWidth={2} />
-                <Text style={styles.contactText}>{phone}</Text>
+                <Mail size={16} color={C.blue} strokeWidth={2} />
+                <Text style={styles.contactText}>{coach.email}</Text>
               </View>
-            )}
-          </View>
+            </View>
+          )}
 
           {/* Bio */}
           <View style={styles.bioCard}>
@@ -149,28 +209,36 @@ export default function CoachProfileScreen() {
           {/* Weekly Classes */}
           <View style={styles.classesCard}>
             <Text style={styles.classesTitle}>{t("coachProfile.weeklyClasses")}</Text>
-            {mockWeeklyClasses.map((cls, i) => (
-              <View key={i} style={styles.classRow}>
-                <View style={styles.classLeft}>
-                  <View style={styles.classDot} />
-                  <Text style={styles.classDay}>{cls.day}</Text>
+            {weeklyClasses.length === 0 ? (
+              <Text style={styles.bioText}>{t("common.empty")}</Text>
+            ) : (
+              weeklyClasses.map((cls, i) => (
+                <View key={i} style={styles.classRow}>
+                  <View style={styles.classLeft}>
+                    <View style={styles.classDot} />
+                    <Text style={styles.classDay}>{cls.day}</Text>
+                  </View>
+                  <Text style={styles.classTime}>{cls.time}</Text>
+                  {cls.type ? (
+                    <View style={styles.classTypeBadge}>
+                      <Text style={styles.classTypeText}>{cls.type}</Text>
+                    </View>
+                  ) : null}
                 </View>
-                <Text style={styles.classTime}>{cls.time}</Text>
-                <View style={styles.classTypeBadge}>
-                  <Text style={styles.classTypeText}>{cls.type}</Text>
-                </View>
-              </View>
-            ))}
+              ))
+            )}
           </View>
 
           {/* Send Email Button */}
-          <TouchableOpacity
-            style={styles.emailButton}
-            onPress={() => Linking.openURL(`mailto:${coach.email}`)}
-          >
-            <Mail size={18} color="#080c0a" strokeWidth={2.5} />
-            <Text style={styles.emailButtonText}>{t("coachProfile.sendEmail")}</Text>
-          </TouchableOpacity>
+          {coach.email ? (
+            <TouchableOpacity
+              style={styles.emailButton}
+              onPress={() => Linking.openURL(`mailto:${coach.email}`)}
+            >
+              <Mail size={18} color="#080c0a" strokeWidth={2.5} />
+              <Text style={styles.emailButtonText}>{t("coachProfile.sendEmail")}</Text>
+            </TouchableOpacity>
+          ) : null}
 
           <View style={{ height: 30 }} />
         </ScrollView>
@@ -218,6 +286,12 @@ function makeStyles(C: Colors) { return StyleSheet.create({
     paddingHorizontal: 16,
     paddingBottom: 20,
     gap: 14,
+  },
+  emptyState: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 24,
   },
 
   // Profile Section

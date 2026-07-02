@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import {
   View,
   Text,
@@ -6,14 +6,15 @@ import {
   FlatList,
   TouchableOpacity,
   TextInput,
+  ActivityIndicator,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
-import { mockExercises } from "@vytal-fit/shared";
 import { ArrowLeft, Search } from "lucide-react-native";
 import { useTheme } from "./_layout";
 import type { Colors } from "@/colors";
 import { t } from "@/i18n";
+import { listExercises, type ExerciseItem } from "@/lib/auth-api";
 
 
 function getCategoryColor(category: string, C: Colors): string {
@@ -56,17 +57,41 @@ export default function ExerciseLibraryScreen() {
   const styles = makeStyles(C);
   const router = useRouter();
   const [search, setSearch] = useState("");
+  const [exercises, setExercises] = useState<ExerciseItem[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadError, setLoadError] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    setIsLoading(true);
+    setLoadError(false);
+
+    void listExercises()
+      .then((rows) => {
+        if (!cancelled) setExercises(rows);
+      })
+      .catch(() => {
+        if (!cancelled) setLoadError(true);
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const filteredExercises = useMemo(() => {
-    if (!search.trim()) return mockExercises;
+    if (!search.trim()) return exercises;
     const q = search.toLowerCase();
-    return mockExercises.filter(
+    return exercises.filter(
       (ex) =>
         ex.name.toLowerCase().includes(q) ||
         ex.category.toLowerCase().includes(q) ||
         (ex.equipment && ex.equipment.some((e) => e.toLowerCase().includes(q)))
     );
-  }, [search]);
+  }, [search, exercises]);
 
   return (
     <SafeAreaView style={styles.safe} edges={["top"]}>
@@ -142,9 +167,19 @@ export default function ExerciseLibraryScreen() {
             );
           }}
           ListEmptyComponent={
-            <View style={styles.emptyState}>
-              <Text style={styles.emptyText}>{t("exercises.empty")}</Text>
-            </View>
+            isLoading ? (
+              <View style={styles.emptyState}>
+                <ActivityIndicator color={C.green} />
+              </View>
+            ) : loadError ? (
+              <View style={styles.emptyState}>
+                <Text style={styles.emptyText}>{t("common.error")}</Text>
+              </View>
+            ) : (
+              <View style={styles.emptyState}>
+                <Text style={styles.emptyText}>{t("exercises.empty")}</Text>
+              </View>
+            )
           }
         />
       </View>

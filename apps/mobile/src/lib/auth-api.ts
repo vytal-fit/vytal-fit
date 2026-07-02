@@ -189,6 +189,13 @@ export interface ExerciseItem {
   id: string;
   name: string;
   category: string;
+  videoUrl?: string;
+  thumbnailUrl?: string;
+  gifUrl?: string;
+  description?: string;
+  equipment?: string[];
+  muscleGroups?: string[];
+  scaledVariations?: string[];
 }
 
 export interface WellnessCheckinItem {
@@ -269,7 +276,51 @@ export interface CoachItem {
   id: string;
   name: string;
   role: string;
+  email?: string;
   photo?: string | null;
+}
+
+export interface ClassRosterEntry {
+  id: string;
+  memberId: string;
+  classId: string;
+  status: string;
+  bookedAt?: string | Date | null;
+  checkedInAt?: string | Date | null;
+  memberName: string;
+  memberNumber: number;
+  memberEmail: string;
+}
+
+export interface CommunityCommentItem {
+  id: string;
+  authorName: string;
+  authorType: string;
+  content: string;
+  createdAt: string | Date;
+}
+
+export interface NotificationItem {
+  id: string;
+  organizationId: string;
+  memberId: string;
+  type: string;
+  title: string;
+  body: string;
+  read: boolean;
+  createdAt: string | Date;
+}
+
+export interface MediaAssetItem {
+  id: string;
+  organizationId: string;
+  name: string;
+  type: string;
+  folder: string;
+  url?: string | null;
+  sizeBytes: number;
+  uploadedBy?: string | null;
+  createdAt: string | Date;
 }
 
 let authToken: string | null = null;
@@ -677,6 +728,108 @@ export async function listCoaches(): Promise<CoachItem[]> {
   return data;
 }
 
+export async function getCoach(id: string): Promise<CoachItem | null> {
+  try {
+    const { data } = await requestJson<CoachItem>(`/coaches/${id}`, { method: "GET" });
+    return data;
+  } catch (error) {
+    if (error instanceof AuthRequestError && error.status === 404) return null;
+    throw error;
+  }
+}
+
+export async function getClass(id: string): Promise<ClassScheduleItem | null> {
+  try {
+    const { data } = await requestJson<ClassScheduleItem>(`/classes/${id}`, { method: "GET" });
+    return data;
+  } catch (error) {
+    if (error instanceof AuthRequestError && error.status === 404) return null;
+    throw error;
+  }
+}
+
+export async function listBookingsByClass(classId: string): Promise<ClassRosterEntry[]> {
+  const params = new URLSearchParams({ classId });
+  const { data } = await requestJson<{ items: ClassRosterEntry[] }>(
+    `/bookings/list-by-class?${params.toString()}`,
+    { method: "GET" },
+  );
+  return data.items;
+}
+
+export async function getCommunityComments(postId: string): Promise<CommunityCommentItem[]> {
+  const params = new URLSearchParams({ postId });
+  const { data } = await requestJson<{ items: CommunityCommentItem[] }>(
+    `/community/comments?${params.toString()}`,
+    { method: "GET" },
+  );
+  return data.items;
+}
+
+export async function addCommunityComment(
+  postId: string,
+  content: string,
+): Promise<CommunityCommentItem> {
+  const { data } = await requestJson<CommunityCommentItem>("/community/comment", {
+    body: { postId, content },
+  });
+  return data;
+}
+
+export async function reactToPost(postId: string): Promise<{ reacted: boolean }> {
+  const { data } = await requestJson<{ reacted: boolean }>("/community/react", {
+    body: { postId },
+  });
+  return data;
+}
+
+export async function createCommunityPost(
+  content: string,
+  kind: "post" | "announcement" = "post",
+): Promise<CommunityFeedItem> {
+  const { data } = await requestJson<CommunityFeedItem>("/community/post", {
+    body: { content, kind },
+  });
+  return data;
+}
+
+export async function listNotifications(
+  opts: { read?: boolean; memberId?: string; limit?: number } = {},
+): Promise<NotificationItem[]> {
+  const params = new URLSearchParams();
+  if (opts.read !== undefined) params.set("read", String(opts.read));
+  if (opts.memberId) params.set("memberId", opts.memberId);
+  params.set("limit", String(opts.limit ?? 50));
+  const { data } = await requestJson<{ items: NotificationItem[]; nextCursor: string | null }>(
+    `/notifications?${params.toString()}`,
+    { method: "GET" },
+  );
+  return data.items;
+}
+
+export async function markNotificationRead(id: string): Promise<void> {
+  await requestJson("/notifications/mark-read", { body: { id } });
+}
+
+export async function markAllNotificationsRead(): Promise<void> {
+  await requestJson("/notifications/mark-all-read", { method: "POST", body: {} });
+}
+
+export async function listMedia(): Promise<MediaAssetItem[]> {
+  const { data } = await requestJson<{ items: MediaAssetItem[] }>("/media", { method: "GET" });
+  return data.items;
+}
+
+export async function submitClassFeedback(
+  classId: string,
+  rating: number,
+  comment?: string,
+): Promise<void> {
+  await requestJson("/classes/submit-feedback", {
+    body: { classId, rating, ...(comment ? { comment } : {}) },
+  });
+}
+
 export async function signOut(): Promise<void> {
   try {
     await requestJson("/auth/sign-out", { method: "POST" });
@@ -689,4 +842,14 @@ export async function signOut(): Promise<void> {
 
 export function setRuntimeAuthToken(token: string | null): void {
   authToken = token;
+}
+
+/** Base API origin — exported for the tRPC client. */
+export function getApiBaseUrl(): string {
+  return getBaseUrl();
+}
+
+/** Current in-memory bearer token — exported for the tRPC client's auth header. */
+export function getAuthToken(): string | null {
+  return authToken;
 }

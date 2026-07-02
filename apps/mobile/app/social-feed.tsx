@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
   View,
   Text,
@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   TextInput,
   Animated,
+  ActivityIndicator,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
@@ -16,6 +17,12 @@ import { ArrowLeft, Heart, MessageCircle, Send } from "lucide-react-native";
 import { useTheme } from "./_layout";
 import type { Colors } from "@/colors";
 import { t } from "@/i18n";
+import {
+  addCommunityComment,
+  getCommunityFeed,
+  reactToPost,
+  type CommunityFeedItem,
+} from "@/lib/auth-api";
 
 // ─── Types ───────────────────────────────────────────────
 type PostType = "pr" | "result" | "checkin" | "photo";
@@ -54,100 +61,91 @@ function getInitials(name: string): string {
     .slice(0, 2);
 }
 
-// ─── Mock Data ───────────────────────────────────────────
-const initialPosts: SocialPost[] = [
-  {
-    id: "sp-1",
-    authorName: "Pedro Silva",
-    authorInitials: "PS",
-    timeAgo: "2h",
-    postType: "pr",
-    content: "Novo PR! Back Squat 140kg (+5kg). Finalmente passei os 3 dígitos no squat! Próximo objetivo: 150kg.",
-    fistbumps: 18,
-    comments: 6,
-  },
-  {
-    id: "sp-2",
-    authorName: "Ana Santos",
-    authorInitials: "AS",
-    timeAgo: "4h",
-    postType: "result",
-    content: "FRAN 3:52 Rx! Melhor tempo de sempre. O segredo foi manter os thrusters unbroken ate ao set de 15.",
-    fistbumps: 12,
-    comments: 4,
-  },
-  {
-    id: "sp-3",
-    authorName: "Miguel Costa",
-    authorInitials: "MC",
-    timeAgo: "5h",
-    postType: "checkin",
-    content: "Dia de treino feito! 5a feira consecutiva sem faltar. A consistencia paga.",
-    fistbumps: 8,
-    comments: 2,
-  },
-  {
-    id: "sp-4",
-    authorName: "Sofia Mendes",
-    authorInitials: "SM",
-    timeAgo: "8h",
-    postType: "photo",
-    content: "Team WOD com a malta! Nada como um bom treino de equipa para comecar o dia.",
-    fistbumps: 24,
-    comments: 7,
-  },
-  {
-    id: "sp-5",
-    authorName: "Ricardo Ribeiro",
-    authorInitials: "RR",
-    timeAgo: "1d",
-    postType: "pr",
-    content: "Clean & Jerk 120kg! Depois de meses a trabalhar a técnica, finalmente subi. Obrigado Coach André!",
-    fistbumps: 32,
-    comments: 11,
-  },
-  {
-    id: "sp-6",
-    authorName: "Marine Robba",
-    authorInitials: "MR",
-    timeAgo: "1d",
-    postType: "result",
-    content: "MURPH 38:15 com colete. Primeira vez sub-40. Esta equipa puxa por nos!",
-    fistbumps: 28,
-    comments: 9,
-  },
-  {
-    id: "sp-7",
-    authorName: "Jose Fonte",
-    authorInitials: "JF",
-    timeAgo: "2d",
-    postType: "checkin",
-    content: "100 check-ins na box! Marco histórico atingido. Vamos para os 200!",
-    fistbumps: 42,
-    comments: 15,
-  },
-  {
-    id: "sp-8",
-    authorName: "Andre Loureiro",
-    authorInitials: "AL",
-    timeAgo: "2d",
-    postType: "photo",
-    content: "Nova area de weightlifting pronta! 4 plataformas novas com bumper plates Eleiko. Venham testar!",
-    fistbumps: 36,
-    comments: 8,
-  },
-];
+/** Map a stored community-post `kind` to the feed post badge/type. */
+function kindToPostType(kind: string): PostType {
+  switch (kind) {
+    case "auto_pr":
+      return "pr";
+    case "auto_wod":
+      return "result";
+    case "announcement":
+    case "auto_milestone":
+      return "checkin";
+    default:
+      return "checkin";
+  }
+}
+
+function timeAgoFrom(iso: string | Date): string {
+  const then = new Date(iso).getTime();
+  if (Number.isNaN(then)) return "";
+  const diffMs = Date.now() - then;
+  const mins = Math.max(0, Math.floor(diffMs / 60000));
+  if (mins < 60) return `${mins}m`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours}h`;
+  const days = Math.floor(hours / 24);
+  return `${days}d`;
+}
+
+function toSocialPost(item: CommunityFeedItem): SocialPost {
+  return {
+    id: item.id,
+    authorName: item.authorName,
+    authorInitials: getInitials(item.authorName),
+    timeAgo: timeAgoFrom(item.createdAt),
+    postType: kindToPostType(item.kind),
+    content: item.content,
+    fistbumps: item.fistbumps,
+    comments: item.commentCount,
+  };
+}
 
 // ─── Screen ──────────────────────────────────────────────
 export default function SocialFeedScreen() {
   const C = useTheme();
   const styles = makeStyles(C);
   const router = useRouter();
-  const [posts, setPosts] = useState(initialPosts);
+  const [posts, setPosts] = useState<SocialPost[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadError, setLoadError] = useState(false);
   const [fistbumpedIds, setFistbumpedIds] = useState<Set<string>>(new Set());
   const [commentingId, setCommentingId] = useState<string | null>(null);
   const [commentText, setCommentText] = useState("");
   const bounceAnims = useRef<Record<string, Animated.Value>>({}).current;
+
+  useEffect(() => {
+    let cancelled = false;
+    setIsLoading(true);
+    setLoadError(false);
+
+    void getCommunityFeed()
+      .then((feed) => {
+        if (cancelled) return;
+        // Base fistbump count excludes the viewer's own reaction; the card
+        // re-adds +1 while `fistbumpedIds` holds the id.
+        setPosts(
+          feed.map((item) => {
+            const post = toSocialPost(item);
+            return {
+              ...post,
+              fistbumps: Math.max(0, item.fistbumps - (item.hasReacted ? 1 : 0)),
+            };
+          }),
+        );
+        setFistbumpedIds(new Set(feed.filter((f) => f.hasReacted).map((f) => f.id)));
+      })
+      .catch(() => {
+        if (!cancelled) setLoadError(true);
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   function getBounceAnim(id: string): Animated.Value {
     if (!bounceAnims[id]) {
@@ -163,13 +161,13 @@ export default function SocialFeedScreen() {
       Animated.spring(anim, { toValue: 1, friction: 3, useNativeDriver: true }),
     ]).start();
 
+    const wasBumped = fistbumpedIds.has(id);
     setPosts((prev) =>
       prev.map((post) => {
         if (post.id !== id) return post;
-        const isBumped = fistbumpedIds.has(id);
         return {
           ...post,
-          fistbumps: isBumped ? post.fistbumps - 1 : post.fistbumps + 1,
+          fistbumps: wasBumped ? post.fistbumps - 1 : post.fistbumps + 1,
         };
       })
     );
@@ -182,10 +180,30 @@ export default function SocialFeedScreen() {
       }
       return next;
     });
+
+    void reactToPost(id).catch(() => {
+      // Revert optimistic update on failure.
+      setPosts((prev) =>
+        prev.map((post) => {
+          if (post.id !== id) return post;
+          return {
+            ...post,
+            fistbumps: wasBumped ? post.fistbumps + 1 : post.fistbumps - 1,
+          };
+        })
+      );
+      setFistbumpedIds((prev) => {
+        const next = new Set(prev);
+        if (wasBumped) next.add(id);
+        else next.delete(id);
+        return next;
+      });
+    });
   }
 
   function submitComment(postId: string) {
-    if (!commentText.trim()) return;
+    const text = commentText.trim();
+    if (!text) return;
     setPosts((prev) =>
       prev.map((post) =>
         post.id === postId ? { ...post, comments: post.comments + 1 } : post
@@ -193,6 +211,14 @@ export default function SocialFeedScreen() {
     );
     setCommentText("");
     setCommentingId(null);
+    void addCommunityComment(postId, text).catch(() => {
+      // Revert optimistic comment count on failure.
+      setPosts((prev) =>
+        prev.map((post) =>
+          post.id === postId ? { ...post, comments: Math.max(0, post.comments - 1) } : post
+        )
+      );
+    });
   }
 
   return (
@@ -212,7 +238,20 @@ export default function SocialFeedScreen() {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
         >
-          {posts.map((post) => {
+          {isLoading ? (
+            <View style={styles.feedStateBox}>
+              <ActivityIndicator color={C.green} />
+            </View>
+          ) : loadError ? (
+            <View style={styles.feedStateBox}>
+              <Text style={styles.feedStateText}>{t("alert.error")}</Text>
+            </View>
+          ) : posts.length === 0 ? (
+            <View style={styles.feedStateBox}>
+              <Text style={styles.feedStateText}>{t("community.feedEmpty")}</Text>
+            </View>
+          ) : (
+            posts.map((post) => {
             const badge = getPostTypeBadge(post.postType, C);
             const isBumped = fistbumpedIds.has(post.id);
             return (
@@ -293,7 +332,8 @@ export default function SocialFeedScreen() {
                 )}
               </View>
             );
-          })}
+          })
+          )}
 
           <View style={{ height: 30 }} />
         </ScrollView>
@@ -341,6 +381,18 @@ function makeStyles(C: Colors) { return StyleSheet.create({
     paddingHorizontal: 16,
     paddingBottom: 20,
     gap: 12,
+  },
+
+  // Feed loading / empty / error state
+  feedStateBox: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 48,
+  },
+  feedStateText: {
+    fontSize: 14,
+    color: C.muted,
+    textAlign: "center",
   },
 
   // Post Card

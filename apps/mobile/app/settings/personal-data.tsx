@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -6,19 +6,19 @@ import {
   ScrollView,
   TouchableOpacity,
   TextInput,
+  ActivityIndicator,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { ArrowLeft, Save, CheckCircle } from "lucide-react-native";
-import { mockMembers } from "@vytal-fit/shared";
 
 // ─── Colors ──────────────────────────────────────────────
 import { useTheme } from "../_layout";
 import type { Colors } from "@/colors";
 import { t } from "@/i18n";
+import { getMyMember } from "@/lib/auth-api";
 
 const tshirtSizes = ["XS", "S", "M", "L", "XL", "XXL"];
-const currentUser = mockMembers[0];
 
 // ─── Screen ──────────────────────────────────────────────
 export default function PersonalDataScreen() {
@@ -26,24 +26,49 @@ export default function PersonalDataScreen() {
   const styles = makeStyles(C);
   const router = useRouter();
 
-  const [name, setName] = useState(currentUser.name);
-  const [nickname, setNickname] = useState("Ze");
-  const [email, setEmail] = useState(currentUser.email);
-  const [phone, setPhone] = useState(currentUser.phone || "");
-  const [emergency, setEmergency] = useState("Maria Fonte - 911222333");
-  const [dob, setDob] = useState("1993-06-15");
-  const [gender, setGender] = useState<"M" | "F">(
-    currentUser.gender === "female" ? "F" : "M"
-  );
-  const [nif, setNif] = useState("234567890");
-  const [address, setAddress] = useState("Rua das Flores, 42");
-  const [city, setCity] = useState("Lisboa");
-  const [zip, setZip] = useState("1200-100");
-  const [country, setCountry] = useState("Portugal");
-  const [tshirt, setTshirt] = useState("L");
-  const [weight, setWeight] = useState("82");
-  const [height, setHeight] = useState("178");
+  // Prefilled from the member API (name/email/phone). The member UPDATE
+  // endpoint is admin-only, so these are editable locally but not persisted.
+  const [name, setName] = useState("");
+  const [nickname, setNickname] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  // Fields with no member-accessible API source: kept blank and local-only.
+  const [emergency, setEmergency] = useState("");
+  const [dob, setDob] = useState("");
+  const [gender, setGender] = useState<"M" | "F">("M");
+  const [nif, setNif] = useState("");
+  const [address, setAddress] = useState("");
+  const [city, setCity] = useState("");
+  const [zip, setZip] = useState("");
+  const [country, setCountry] = useState("");
+  const [tshirt, setTshirt] = useState("");
+  const [weight, setWeight] = useState("");
+  const [height, setHeight] = useState("");
   const [saved, setSaved] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    setIsLoading(true);
+
+    void getMyMember()
+      .then((member) => {
+        if (cancelled || !member) return;
+        setName(member.name);
+        setEmail(member.email);
+        setPhone(member.phone ?? "");
+      })
+      .catch(() => {
+        // Prefill is best-effort; leave fields blank on failure.
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const bmi =
     weight && height
@@ -75,6 +100,12 @@ export default function PersonalDataScreen() {
           <Text style={styles.headerTitle}>{t("screen.personalData")}</Text>
           <View style={{ width: 44 }} />
         </View>
+
+        {isLoading && (
+          <View style={styles.loadingBox}>
+            <ActivityIndicator color={C.green} />
+          </View>
+        )}
 
         <ScrollView
           showsVerticalScrollIndicator={false}
@@ -293,6 +324,13 @@ function makeStyles(C: Colors) { return StyleSheet.create({
     fontSize: 18,
     fontWeight: "700",
     color: C.text,
+  },
+
+  // Loading
+  loadingBox: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 20,
   },
 
   // Scroll

@@ -11,8 +11,11 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
+    "@trpc/client": "^11.16.0",
+    "@vytal-fit/api": "*",
     "@vytal-fit/auth": "*",
     "@vytal-fit/shared": "*",
+    "superjson": "^2.2.6",
     "expo": "~54.0.0",
     "expo-camera": "~17.0.10",
     "expo-constants": "~18.0.0",

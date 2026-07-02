@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   View,
   Text,
@@ -6,16 +6,20 @@ import {
   ScrollView,
   TouchableOpacity,
   TextInput,
+  ActivityIndicator,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { ArrowLeft, CheckCircle } from "lucide-react-native";
-import { mockWODs } from "@vytal-fit/shared";
 import { useTheme } from "./_layout";
 import type { Colors } from "@/colors";
 import { t } from "@/i18n";
-import { createWodResult } from "@/lib/auth-api";
+import { createWodResult, listWods, type WodItem } from "@/lib/auth-api";
 import { useAuthStore } from "@/stores/auth-store";
+
+function todayYmd(): string {
+  return new Date().toISOString().split("T")[0];
+}
 
 
 // ─── Score Type Config ──────────────────────────────────
@@ -69,11 +73,41 @@ export default function ScoreEntryScreen() {
   // Reps input
   const [totalReps, setTotalReps] = useState("");
   const [saving, setSaving] = useState(false);
-  const memberId = user?.memberships.find((m) => m.organizationId === activeOrgId)?.id ?? user?.memberships[0]?.id ?? "";
-  const wod = mockWODs[0];
+  const memberId = useMemo(
+    () => user?.memberships.find((m) => m.organizationId === activeOrgId)?.id ?? user?.memberships[0]?.id ?? "",
+    [activeOrgId, user],
+  );
+
+  const [wod, setWod] = useState<WodItem | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadError, setLoadError] = useState(false);
+
+  useEffect(() => {
+    const today = todayYmd();
+    let cancelled = false;
+    setIsLoading(true);
+    setLoadError(false);
+
+    void listWods(today, today)
+      .then((wods) => {
+        if (cancelled) return;
+        const published = wods.filter((w) => w.publishedAt);
+        setWod(published[0] ?? wods[0] ?? null);
+      })
+      .catch(() => {
+        if (!cancelled) setLoadError(true);
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const handleSave = () => {
-    if (!memberId) return;
+    if (!memberId || !wod) return;
     setSaving(true);
     void (async () => {
       try {
@@ -121,8 +155,20 @@ export default function ScoreEntryScreen() {
         >
           {/* WOD Title */}
           <View style={styles.wodSection}>
-            <Text style={styles.wodTitle}>FRAN</Text>
-            <Text style={styles.wodSubtitle}>For Time - 21-15-9</Text>
+            {isLoading ? (
+              <ActivityIndicator color={C.green} />
+            ) : loadError ? (
+              <Text style={styles.wodSubtitle}>{t("common.error")}</Text>
+            ) : !wod ? (
+              <Text style={styles.wodSubtitle}>{t("common.empty")}</Text>
+            ) : (
+              <>
+                <Text style={styles.wodTitle}>{wod.title || t("screen.wod")}</Text>
+                {wod.description ? (
+                  <Text style={styles.wodSubtitle}>{wod.description}</Text>
+                ) : null}
+              </>
+            )}
           </View>
 
           {/* Score Type Selector */}
@@ -331,7 +377,7 @@ export default function ScoreEntryScreen() {
 
         {/* Save Button */}
         <View style={styles.bottomBar}>
-          <TouchableOpacity style={[styles.saveButton, saving && styles.saveButtonSaving]} onPress={handleSave} disabled={saving}>
+          <TouchableOpacity style={[styles.saveButton, (saving || !wod) && styles.saveButtonSaving]} onPress={handleSave} disabled={saving || !wod}>
             {saving ? (
               <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
                 <CheckCircle size={18} color="#080c0a" strokeWidth={2.5} />

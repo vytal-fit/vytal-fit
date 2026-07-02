@@ -1,22 +1,25 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
   StyleSheet,
   ScrollView,
   TouchableOpacity,
+  ActivityIndicator,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { mockClasses, mockMembers } from "@vytal-fit/shared";
 import { ArrowLeft, MapPin, Clock, Users, CheckCircle } from "lucide-react-native";
 import { useTheme } from "./_layout";
 import type { Colors } from "@/colors";
 import { t } from "@/i18n";
+import {
+  getClass,
+  listBookingsByClass,
+  type ClassScheduleItem,
+  type ClassRosterEntry,
+} from "@/lib/auth-api";
 
-
-// Mock enrolled members (first 5 members)
-const enrolledMembers = mockMembers.slice(0, 5);
 
 function getInitials(name: string): string {
   return name
@@ -37,9 +40,37 @@ export default function ClassDetailScreen() {
   const [showBookedBanner, setShowBookedBanner] = useState(false);
   const [showCancelledBanner, setShowCancelledBanner] = useState(false);
 
-  const cls = mockClasses.find((c) => c.id === id);
+  const [cls, setCls] = useState<ClassScheduleItem | null>(null);
+  const [enrolledMembers, setEnrolledMembers] = useState<ClassRosterEntry[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadError, setLoadError] = useState(false);
 
-  if (!cls) {
+  useEffect(() => {
+    if (!id) return;
+
+    let cancelled = false;
+    setIsLoading(true);
+    setLoadError(false);
+
+    Promise.all([getClass(id), listBookingsByClass(id)])
+      .then(([classRow, roster]) => {
+        if (cancelled) return;
+        setCls(classRow);
+        setEnrolledMembers(roster);
+      })
+      .catch(() => {
+        if (!cancelled) setLoadError(true);
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [id]);
+
+  if (isLoading) {
     return (
       <SafeAreaView style={styles.safe} edges={["top"]}>
         <View style={styles.container}>
@@ -47,7 +78,22 @@ export default function ClassDetailScreen() {
             <ArrowLeft size={24} color={C.text} strokeWidth={1.8} />
           </TouchableOpacity>
           <View style={styles.emptyState}>
-            <Text style={styles.emptyText}>{t("classDetail.notFound")}</Text>
+            <ActivityIndicator color={C.green} />
+          </View>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  if (loadError || !cls) {
+    return (
+      <SafeAreaView style={styles.safe} edges={["top"]}>
+        <View style={styles.container}>
+          <TouchableOpacity style={styles.backButton} onPress={() => router.back()} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+            <ArrowLeft size={24} color={C.text} strokeWidth={1.8} />
+          </TouchableOpacity>
+          <View style={styles.emptyState}>
+            <Text style={styles.emptyText}>{loadError ? t("common.error") : t("classDetail.notFound")}</Text>
           </View>
         </View>
       </SafeAreaView>
@@ -57,6 +103,10 @@ export default function ClassDetailScreen() {
   const isFull = cls.enrolledCount >= cls.maxCapacity;
   const occupancy = cls.enrolledCount / cls.maxCapacity;
   const coachName = cls.coaches.length > 0 ? cls.coaches[0].name : "TBD";
+  const classTypeName = cls.classType?.name ?? "";
+  const classTypeColor = cls.classType?.color ?? C.green;
+  const classTypeAbbrev = cls.classType?.abbreviation ?? "";
+  const locationName = cls.location?.name ?? "";
 
   return (
     <SafeAreaView style={styles.safe} edges={["top"]}>
@@ -75,16 +125,18 @@ export default function ClassDetailScreen() {
           contentContainerStyle={styles.scrollContent}
         >
           {/* Class Type Banner */}
-          <View style={[styles.banner, { borderLeftColor: cls.classType.color }]}>
+          <View style={[styles.banner, { borderLeftColor: classTypeColor }]}>
             <View style={styles.bannerTop}>
               <View style={styles.classTypeRow}>
-                <View style={[styles.colorDot, { backgroundColor: cls.classType.color }]} />
-                <Text style={styles.classTypeName}>{cls.classType.name}</Text>
-                <View style={[styles.abbrevBadge, { backgroundColor: cls.classType.color + "20" }]}>
-                  <Text style={[styles.abbrevText, { color: cls.classType.color }]}>
-                    {cls.classType.abbreviation}
-                  </Text>
-                </View>
+                <View style={[styles.colorDot, { backgroundColor: classTypeColor }]} />
+                <Text style={styles.classTypeName}>{classTypeName}</Text>
+                {classTypeAbbrev ? (
+                  <View style={[styles.abbrevBadge, { backgroundColor: classTypeColor + "20" }]}>
+                    <Text style={[styles.abbrevText, { color: classTypeColor }]}>
+                      {classTypeAbbrev}
+                    </Text>
+                  </View>
+                ) : null}
               </View>
             </View>
           </View>
@@ -99,7 +151,7 @@ export default function ClassDetailScreen() {
             <View style={styles.infoCard}>
               <MapPin size={18} color={C.blue} strokeWidth={1.8} />
               <Text style={styles.infoCardLabel}>{t("classDetail.location")}</Text>
-              <Text style={styles.infoCardValue}>{cls.location.name}</Text>
+              <Text style={styles.infoCardValue}>{locationName}</Text>
             </View>
           </View>
 
@@ -145,26 +197,30 @@ export default function ClassDetailScreen() {
           <View style={styles.sectionCard}>
             <Text style={styles.sectionTitle}>{t("classDetail.enrolledSection")}</Text>
             <View style={styles.memberList}>
-              {enrolledMembers.map((member) => (
-                <View key={member.id} style={styles.memberRow}>
-                  <View style={styles.memberAvatar}>
-                    <Text style={styles.memberInitials}>{getInitials(member.name)}</Text>
-                  </View>
-                  <View style={styles.memberInfo}>
-                    <Text style={styles.memberName}>{member.name}</Text>
-                    <Text style={styles.memberStatus}>
-                      {member.status === "active" ? t("status.active") : t("status.trial")}
+              {enrolledMembers.length === 0 ? (
+                <Text style={styles.moreMembers}>{t("common.empty")}</Text>
+              ) : (
+                <>
+                  {enrolledMembers.slice(0, 5).map((member) => (
+                    <View key={member.id} style={styles.memberRow}>
+                      <View style={styles.memberAvatar}>
+                        <Text style={styles.memberInitials}>{getInitials(member.memberName)}</Text>
+                      </View>
+                      <View style={styles.memberInfo}>
+                        <Text style={styles.memberName}>{member.memberName}</Text>
+                        <Text style={styles.memberStatus}>#{member.memberNumber}</Text>
+                      </View>
+                      <View style={styles.checkedBadge}>
+                        <Text style={styles.checkedText}>{t("classDetail.enrolledBadge")}</Text>
+                      </View>
+                    </View>
+                  ))}
+                  {enrolledMembers.length > 5 && (
+                    <Text style={styles.moreMembers}>
+                      {t("classDetail.moreEnrolled").replace("{n}", String(enrolledMembers.length - 5))}
                     </Text>
-                  </View>
-                  <View style={styles.checkedBadge}>
-                    <Text style={styles.checkedText}>{t("classDetail.enrolledBadge")}</Text>
-                  </View>
-                </View>
-              ))}
-              {cls.enrolledCount > 5 && (
-                <Text style={styles.moreMembers}>
-                  {t("classDetail.moreEnrolled").replace("{n}", String(cls.enrolledCount - 5))}
-                </Text>
+                  )}
+                </>
               )}
             </View>
           </View>
@@ -217,7 +273,7 @@ export default function ClassDetailScreen() {
               style={styles.bookButton}
               onPress={() =>
                 router.push(
-                  `/booking-confirm?classId=${cls.id}&className=${encodeURIComponent(cls.classType.name)}&startTime=${encodeURIComponent(`${cls.startTime} - ${cls.endTime}`)}&coach=${encodeURIComponent(coachName)}&location=${encodeURIComponent(cls.location.name)}`,
+                  `/booking-confirm?classId=${cls.id}&className=${encodeURIComponent(classTypeName)}&startTime=${encodeURIComponent(`${cls.startTime} - ${cls.endTime}`)}&coach=${encodeURIComponent(coachName)}&location=${encodeURIComponent(locationName)}`,
                 )
               }
             >

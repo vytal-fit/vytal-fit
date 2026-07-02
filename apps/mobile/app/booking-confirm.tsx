@@ -9,11 +9,10 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { ArrowLeft, Check, MapPin, Clock, User } from "lucide-react-native";
-import { mockClasses } from "@vytal-fit/shared";
 import { useTheme } from "./_layout";
 import type { Colors } from "@/colors";
 import { t } from "@/i18n";
-import { bookClass } from "@/lib/auth-api";
+import { bookClass, getClass, type ClassScheduleItem } from "@/lib/auth-api";
 import { useAuthStore } from "@/stores/auth-store";
 
 
@@ -33,14 +32,34 @@ export default function BookingConfirmScreen() {
   const [confirmed, setConfirmed] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [cls, setCls] = useState<ClassScheduleItem | null>(null);
 
   const scaleAnim = useRef(new Animated.Value(0)).current;
-  const classId = params.classId ?? mockClasses[0]?.id ?? "";
-  const className = params.className ?? mockClasses[0]?.classType.name ?? "WOD";
-  const startTime = params.startTime ?? "07:00 - 08:00";
-  const coach = params.coach ?? "Coach Andre Loureiro";
-  const location = params.location ?? "Main Box";
+  const classId = params.classId ?? "";
   const memberId = user?.memberships.find((m) => m.organizationId === activeOrgId)?.id ?? user?.memberships[0]?.id ?? "";
+
+  useEffect(() => {
+    if (!classId) return;
+
+    let cancelled = false;
+    void getClass(classId)
+      .then((row) => {
+        if (!cancelled) setCls(row);
+      })
+      .catch(() => {
+        // Display falls back to route params if the class fetch fails.
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [classId]);
+
+  const className = params.className ?? cls?.classType?.name ?? "";
+  const startTime = params.startTime ?? (cls ? `${cls.startTime} - ${cls.endTime}` : "");
+  const coach = params.coach ?? (cls && cls.coaches.length > 0 ? cls.coaches[0].name : "");
+  const location = params.location ?? cls?.location?.name ?? "";
+  const dateLabel = cls?.date ?? "";
 
   useEffect(() => {
     if (confirmed) {
@@ -114,19 +133,25 @@ export default function BookingConfirmScreen() {
         <View style={styles.content}>
           {/* Class Summary */}
           <View style={styles.classCard}>
-            <Text style={styles.classType}>WOD</Text>
+            <Text style={styles.classType}>{className}</Text>
             <View style={styles.classDetailRow}>
               <Clock size={16} color={C.muted} strokeWidth={2} />
-              <Text style={styles.classDetailText}>07:00 - 08:00 | Quinta-feira, 5 Jun</Text>
+              <Text style={styles.classDetailText}>
+                {[startTime, dateLabel].filter(Boolean).join(" | ")}
+              </Text>
             </View>
-            <View style={styles.classDetailRow}>
-              <User size={16} color={C.muted} strokeWidth={2} />
-              <Text style={styles.classDetailText}>Coach Andre Loureiro</Text>
-            </View>
-            <View style={styles.classDetailRow}>
-              <MapPin size={16} color={C.muted} strokeWidth={2} />
-              <Text style={styles.classDetailText}>Main Box</Text>
-            </View>
+            {coach ? (
+              <View style={styles.classDetailRow}>
+                <User size={16} color={C.muted} strokeWidth={2} />
+                <Text style={styles.classDetailText}>{coach}</Text>
+              </View>
+            ) : null}
+            {location ? (
+              <View style={styles.classDetailRow}>
+                <MapPin size={16} color={C.muted} strokeWidth={2} />
+                <Text style={styles.classDetailText}>{location}</Text>
+              </View>
+            ) : null}
           </View>
 
           <Text style={styles.confirmHeading}>{t("bookingConfirm.question")}</Text>

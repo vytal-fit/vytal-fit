@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   View,
   Text,
@@ -6,15 +6,20 @@ import {
   ScrollView,
   TouchableOpacity,
   TextInput,
+  ActivityIndicator,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { ArrowLeft, Save, CheckCircle } from "lucide-react-native";
-import { mockExercises } from "@vytal-fit/shared";
 import { useTheme } from "./_layout";
 import type { Colors } from "@/colors";
 import { t } from "@/i18n";
-import { createPersonalRecord, listPersonalRecords } from "@/lib/auth-api";
+import {
+  createPersonalRecord,
+  listPersonalRecords,
+  listExercises,
+  type ExerciseItem,
+} from "@/lib/auth-api";
 import { useAuthStore } from "@/stores/auth-store";
 
 
@@ -27,39 +32,60 @@ export default function PREntryScreen() {
   const router = useRouter();
   const { exerciseId } = useLocalSearchParams<{ exerciseId: string }>();
   const { user, activeOrgId } = useAuthStore();
-  const memberId = user?.memberships.find((m) => m.organizationId === activeOrgId)?.id ?? user?.memberships[0]?.id ?? "";
+  const memberId = useMemo(
+    () => user?.memberships.find((m) => m.organizationId === activeOrgId)?.id ?? user?.memberships[0]?.id ?? "",
+    [activeOrgId, user],
+  );
 
-  const exercise = mockExercises.find((e) => e.id === exerciseId) || mockExercises[0];
+  const [exercise, setExercise] = useState<ExerciseItem | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadError, setLoadError] = useState(false);
   const [existingPR, setExistingPR] = useState<{ value: string; unit: string; previousValue?: string } | null>(null);
 
-  const [rmValues, setRmValues] = useState<string[]>(
-    rmLabels.map((_, i) => {
-      if (i === 0 && existingPR) return existingPR.value;
-      return "";
-    })
-  );
+  const [rmValues, setRmValues] = useState<string[]>(rmLabels.map(() => ""));
   const [notes, setNotes] = useState("");
   const [saving, setSaving] = useState(false);
 
-  React.useEffect(() => {
-    if (!memberId) return;
+  useEffect(() => {
+    let cancelled = false;
+    setIsLoading(true);
+    setLoadError(false);
+
     void (async () => {
-      const records = await listPersonalRecords(memberId, exercise.id);
-      const current = records[0];
-      if (current) {
-        setExistingPR({
-          value: current.value,
-          unit: current.unit,
-          previousValue: current.previousValue ?? undefined,
-        });
-        setRmValues((prev) => {
-          const next = [...prev];
-          next[0] = current.value;
-          return next;
-        });
+      try {
+        const exercises = await listExercises();
+        if (cancelled) return;
+        const resolved = exercises.find((e) => e.id === exerciseId) ?? exercises[0] ?? null;
+        setExercise(resolved);
+
+        if (resolved && memberId) {
+          const records = await listPersonalRecords(memberId, resolved.id);
+          if (cancelled) return;
+          const current = records[0];
+          if (current) {
+            setExistingPR({
+              value: current.value,
+              unit: current.unit,
+              previousValue: current.previousValue ?? undefined,
+            });
+            setRmValues((prev) => {
+              const next = [...prev];
+              next[0] = current.value;
+              return next;
+            });
+          }
+        }
+      } catch {
+        if (!cancelled) setLoadError(true);
+      } finally {
+        if (!cancelled) setIsLoading(false);
       }
     })();
-  }, [exercise.id, memberId]);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [exerciseId, memberId]);
 
   function updateRM(index: number, value: string) {
     const newValues = [...rmValues];
@@ -68,7 +94,7 @@ export default function PREntryScreen() {
   }
 
   function handleSave() {
-    if (!memberId) return;
+    if (!memberId || !exercise) return;
     setSaving(true);
     void (async () => {
       try {
@@ -103,6 +129,19 @@ export default function PREntryScreen() {
           <View style={{ width: 44 }} />
         </View>
 
+        {isLoading ? (
+          <View style={styles.stateBox}>
+            <ActivityIndicator color={C.green} />
+          </View>
+        ) : loadError ? (
+          <View style={styles.stateBox}>
+            <Text style={styles.stateText}>{t("common.error")}</Text>
+          </View>
+        ) : !exercise ? (
+          <View style={styles.stateBox}>
+            <Text style={styles.stateText}>{t("common.empty")}</Text>
+          </View>
+        ) : (
         <ScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
@@ -190,6 +229,7 @@ export default function PREntryScreen() {
 
           <View style={{ height: 30 }} />
         </ScrollView>
+        )}
       </View>
     </SafeAreaView>
   );
@@ -257,6 +297,20 @@ function makeStyles(C: Colors) { return StyleSheet.create({
     fontSize: 18,
     fontWeight: "700",
     color: C.text,
+  },
+
+  // States
+  stateBox: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 48,
+    paddingHorizontal: 16,
+  },
+  stateText: {
+    fontSize: 15,
+    color: C.muted,
+    textAlign: "center",
   },
 
   // Scroll

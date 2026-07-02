@@ -1,14 +1,14 @@
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   View,
   Text,
   StyleSheet,
   FlatList,
   TouchableOpacity,
+  ActivityIndicator,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
-import { mockNotifications } from "@vytal-fit/shared";
 import {
   ArrowLeft,
   Trophy,
@@ -23,6 +23,13 @@ import {
 import { useTheme } from "./_layout";
 import type { Colors } from "@/colors";
 import { t } from "@/i18n";
+import {
+  listNotifications,
+  markAllNotificationsRead,
+  markNotificationRead,
+  type NotificationItem,
+} from "@/lib/auth-api";
+import { useAuthStore } from "@/stores/auth-store";
 
 function getNotificationIcon(type: string, C: Colors): { icon: React.ReactNode; color: string } {
   switch (type) {
@@ -65,27 +72,68 @@ export default function NotificationsScreen() {
   const C = useTheme();
   const styles = makeStyles(C);
   const router = useRouter();
-  const [readIds, setReadIds] = useState<Set<string>>(() => {
-    const initial = new Set<string>();
-    mockNotifications.forEach((n) => {
-      if (n.read) initial.add(n.id);
-    });
-    return initial;
-  });
+  const { user, activeOrgId } = useAuthStore();
+  const memberId = useMemo(
+    () => user?.memberships.find((m) => m.organizationId === activeOrgId)?.id ?? user?.memberships[0]?.id ?? "",
+    [activeOrgId, user],
+  );
+
+  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadError, setLoadError] = useState(false);
+  const [readIds, setReadIds] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    if (!memberId) return;
+
+    let cancelled = false;
+    setIsLoading(true);
+    setLoadError(false);
+
+    void listNotifications({ memberId })
+      .then((rows) => {
+        if (cancelled) return;
+        setNotifications(rows);
+        setReadIds(new Set(rows.filter((n) => n.read).map((n) => n.id)));
+      })
+      .catch(() => {
+        if (!cancelled) setLoadError(true);
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [memberId]);
 
   function markAsRead(id: string) {
+    if (readIds.has(id)) return;
     setReadIds((prev) => {
       const next = new Set(prev);
       next.add(id);
       return next;
     });
+    void markNotificationRead(id).catch(() => {
+      // Revert on failure.
+      setReadIds((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+    });
   }
 
   function markAllAsRead() {
-    setReadIds(new Set(mockNotifications.map((n) => n.id)));
+    const previous = readIds;
+    setReadIds(new Set(notifications.map((n) => n.id)));
+    void markAllNotificationsRead().catch(() => {
+      setReadIds(previous);
+    });
   }
 
-  const unreadCount = mockNotifications.filter((n) => !readIds.has(n.id)).length;
+  const unreadCount = notifications.filter((n) => !readIds.has(n.id)).length;
 
   return (
     <SafeAreaView style={styles.safe} edges={["top"]}>
@@ -113,46 +161,56 @@ export default function NotificationsScreen() {
         </View>
 
         {/* Notification List */}
-        <FlatList
-          data={mockNotifications}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.listContent}
-          showsVerticalScrollIndicator={false}
-          renderItem={({ item }) => {
-            const { icon, color } = getNotificationIcon(item.type, C);
-            const isRead = readIds.has(item.id);
-            return (
-              <TouchableOpacity
-                style={[
-                  styles.notifCard,
-                  !isRead && styles.notifCardUnread,
-                ]}
-                onPress={() => markAsRead(item.id)}
-              >
-                <View style={[styles.notifIconBox, { backgroundColor: color + "15" }]}>
-                  {icon}
-                </View>
-                <View style={styles.notifContent}>
-                  <View style={styles.notifHeader}>
-                    <Text style={[styles.notifTitle, !isRead && styles.notifTitleUnread]}>
-                      {item.title}
-                    </Text>
-                    <Text style={styles.notifTime}>{timeAgo(item.createdAt)}</Text>
+        {isLoading ? (
+          <View style={styles.emptyState}>
+            <ActivityIndicator color={C.green} />
+          </View>
+        ) : loadError ? (
+          <View style={styles.emptyState}>
+            <Text style={styles.emptyText}>{t("alert.error")}</Text>
+          </View>
+        ) : (
+          <FlatList
+            data={notifications}
+            keyExtractor={(item) => item.id}
+            contentContainerStyle={styles.listContent}
+            showsVerticalScrollIndicator={false}
+            renderItem={({ item }) => {
+              const { icon, color } = getNotificationIcon(item.type, C);
+              const isRead = readIds.has(item.id);
+              return (
+                <TouchableOpacity
+                  style={[
+                    styles.notifCard,
+                    !isRead && styles.notifCardUnread,
+                  ]}
+                  onPress={() => markAsRead(item.id)}
+                >
+                  <View style={[styles.notifIconBox, { backgroundColor: color + "15" }]}>
+                    {icon}
                   </View>
-                  <Text style={styles.notifBody} numberOfLines={2}>
-                    {item.body}
-                  </Text>
-                </View>
-                {!isRead && <View style={styles.unreadDot} />}
-              </TouchableOpacity>
-            );
-          }}
-          ListEmptyComponent={
-            <View style={styles.emptyState}>
-              <Text style={styles.emptyText}>{t("label.noNotifications")}</Text>
-            </View>
-          }
-        />
+                  <View style={styles.notifContent}>
+                    <View style={styles.notifHeader}>
+                      <Text style={[styles.notifTitle, !isRead && styles.notifTitleUnread]}>
+                        {item.title}
+                      </Text>
+                      <Text style={styles.notifTime}>{timeAgo(String(item.createdAt))}</Text>
+                    </View>
+                    <Text style={styles.notifBody} numberOfLines={2}>
+                      {item.body}
+                    </Text>
+                  </View>
+                  {!isRead && <View style={styles.unreadDot} />}
+                </TouchableOpacity>
+              );
+            }}
+            ListEmptyComponent={
+              <View style={styles.emptyState}>
+                <Text style={styles.emptyText}>{t("label.noNotifications")}</Text>
+              </View>
+            }
+          />
+        )}
       </View>
     </SafeAreaView>
   );

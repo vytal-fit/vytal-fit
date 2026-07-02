@@ -1,26 +1,31 @@
-import React from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   View,
   Text,
   StyleSheet,
   ScrollView,
   TouchableOpacity,
+  ActivityIndicator,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { ArrowLeft, Clock, Trophy, Calendar } from "lucide-react-native";
-import { mockWODs } from "@vytal-fit/shared";
 import { useTheme } from "./_layout";
 import type { Colors } from "@/colors";
 import { t } from "@/i18n";
+import {
+  getWod,
+  listWods,
+  listExercises,
+  listWodResults,
+  type WodItem,
+  type WodResultItem,
+} from "@/lib/auth-api";
+import { useAuthStore } from "@/stores/auth-store";
 
-
-// ─── Mock History ────────────────────────────────────────
-const mockHistory = [
-  { id: "h-1", date: "2026-05-15", score: "3:42", scale: "Rx", isPR: false },
-  { id: "h-2", date: "2025-12-10", score: "4:05", scale: "Rx", isPR: false },
-  { id: "h-3", date: "2025-08-22", score: "4:38", scale: "Scaled", isPR: false },
-];
+function todayYmd(): string {
+  return new Date().toISOString().split("T")[0];
+}
 
 function getWODTypeBadge(type: string, C: Colors): { label: string; color: string } {
   switch (type) {
@@ -59,9 +64,56 @@ export default function WODDetailScreen() {
   const styles = makeStyles(C);
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
+  const { user, activeOrgId } = useAuthStore();
+  const memberId = useMemo(
+    () => user?.memberships.find((m) => m.organizationId === activeOrgId)?.id ?? user?.memberships[0]?.id ?? "",
+    [activeOrgId, user],
+  );
 
-  const wod = mockWODs.find((w) => w.id === id) || mockWODs[0];
-  const personalBest = wod.title === "FRAN" ? "3:12" : wod.title === "CINDY" ? "18+4" : null;
+  const [wod, setWod] = useState<WodItem | null>(null);
+  const [exerciseNames, setExerciseNames] = useState<Map<string, string>>(new Map());
+  const [history, setHistory] = useState<WodResultItem[]>([]);
+  const [personalBest, setPersonalBest] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadError, setLoadError] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    setIsLoading(true);
+    setLoadError(false);
+
+    void (async () => {
+      try {
+        const today = todayYmd();
+        const [loadedWod, exercises] = await Promise.all([
+          id ? getWod(id) : listWods(today, today).then((rows) => rows[0] ?? null),
+          listExercises(),
+        ]);
+        if (cancelled) return;
+        setExerciseNames(new Map(exercises.map((e) => [e.id, e.name])));
+        setWod(loadedWod);
+
+        if (loadedWod && memberId) {
+          const results = await listWodResults(memberId, loadedWod.id);
+          if (cancelled) return;
+          setHistory(results);
+          const pr = results.find((r) => r.isPR);
+          setPersonalBest(pr?.score ?? null);
+        } else {
+          setHistory([]);
+          setPersonalBest(null);
+        }
+      } catch {
+        if (!cancelled) setLoadError(true);
+      } finally {
+        if (!cancelled) setIsLoading(false);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [id, memberId]);
 
   return (
     <SafeAreaView style={styles.safe} edges={["top"]}>
@@ -78,6 +130,19 @@ export default function WODDetailScreen() {
           <View style={{ width: 44 }} />
         </View>
 
+        {isLoading ? (
+          <View style={styles.stateBox}>
+            <ActivityIndicator color={C.green} />
+          </View>
+        ) : loadError ? (
+          <View style={styles.stateBox}>
+            <Text style={styles.stateText}>{t("common.error")}</Text>
+          </View>
+        ) : !wod ? (
+          <View style={styles.stateBox}>
+            <Text style={styles.stateText}>{t("common.empty")}</Text>
+          </View>
+        ) : (
         <ScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
@@ -161,7 +226,7 @@ export default function WODDetailScreen() {
                       <View style={styles.exerciseInfo}>
                         <View style={styles.exerciseMainRow}>
                           <Text style={styles.exerciseName}>
-                            {ex.exercise?.name || ex.exerciseId}
+                            {exerciseNames.get(ex.exerciseId) || ex.exerciseId}
                           </Text>
                           {ex.reps && (
                             <Text style={styles.exerciseReps}>{ex.reps}</Text>
@@ -183,39 +248,50 @@ export default function WODDetailScreen() {
 
           {/* History */}
           <Text style={styles.sectionTitle}>{t("wodDetail.history")}</Text>
-          {mockHistory.map((entry) => (
-            <View key={entry.id} style={styles.historyCard}>
-              <View style={styles.historyLeft}>
-                <Text style={styles.historyDate}>
-                  {entry.date.split("-").reverse().slice(0, 2).join("/")}
-                </Text>
-                <View
-                  style={[
-                    styles.scaleBadge,
-                    {
-                      backgroundColor:
-                        entry.scale === "Rx" ? C.green + "18" : C.amber + "18",
-                    },
-                  ]}
-                >
-                  <Text
-                    style={[
-                      styles.scaleText,
-                      {
-                        color: entry.scale === "Rx" ? C.green : C.amber,
-                      },
-                    ]}
-                  >
-                    {entry.scale}
-                  </Text>
-                </View>
-              </View>
-              <Text style={styles.historyScore}>{entry.score}</Text>
+          {history.length === 0 ? (
+            <View style={styles.historyEmpty}>
+              <Text style={styles.stateText}>{t("common.empty")}</Text>
             </View>
-          ))}
+          ) : (
+            history.map((entry) => {
+              const isRx = entry.scale === "rx" || entry.scale === "rx_plus";
+              const scaleLabel =
+                entry.scale === "rx_plus" ? "Rx+" : entry.scale === "rx" ? "Rx" : "Scaled";
+              return (
+                <View key={entry.id} style={styles.historyCard}>
+                  <View style={styles.historyLeft}>
+                    <Text style={styles.historyDate}>
+                      {(entry.wod?.date ?? wod.date).split("-").reverse().slice(0, 2).join("/")}
+                    </Text>
+                    <View
+                      style={[
+                        styles.scaleBadge,
+                        {
+                          backgroundColor: isRx ? C.green + "18" : C.amber + "18",
+                        },
+                      ]}
+                    >
+                      <Text
+                        style={[
+                          styles.scaleText,
+                          {
+                            color: isRx ? C.green : C.amber,
+                          },
+                        ]}
+                      >
+                        {scaleLabel}
+                      </Text>
+                    </View>
+                  </View>
+                  <Text style={styles.historyScore}>{entry.score}</Text>
+                </View>
+              );
+            })
+          )}
 
           <View style={{ height: 30 }} />
         </ScrollView>
+        )}
       </View>
     </SafeAreaView>
   );
@@ -253,6 +329,24 @@ function makeStyles(C: Colors) { return StyleSheet.create({
     fontSize: 18,
     fontWeight: "700",
     color: C.text,
+  },
+
+  // States
+  stateBox: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 48,
+    paddingHorizontal: 16,
+  },
+  stateText: {
+    fontSize: 15,
+    color: C.muted,
+    textAlign: "center",
+  },
+  historyEmpty: {
+    paddingVertical: 20,
+    alignItems: "center",
   },
 
   // Scroll
