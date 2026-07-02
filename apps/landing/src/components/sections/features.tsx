@@ -1,0 +1,98 @@
+"use client";
+
+import Link from "next/link";
+import { Users, Calendar, Dumbbell, TrendingUp, CreditCard, Globe, Zap, ArrowRight } from "lucide-react";
+import { AnimatedMark, TiltCard } from "@vytal-fit/brand";
+import { WaveDivider } from "@/components/decor";
+import { useScrollReveal } from "@/lib/hooks";
+
+// ── Features ─────────────────────────────────────────────────────────────────
+const FEATURE_ICONS = [Users, Calendar, Dumbbell, TrendingUp, CreditCard, Globe];
+const FEATURE_COLORS = ["var(--color-vytal-green)", "var(--color-vytal-blue)", "var(--color-vytal-purple)", "var(--color-vytal-amber)", "var(--color-vytal-orange)", "var(--color-vytal-green)"];
+const FEATURE_KEYS = [
+  { title: "feat1", desc: "feat1d", href: "/@crossfit-aveiro" },
+  { title: "feat2", desc: "feat2d", href: "/@crossfit-aveiro/schedule" },
+  { title: "feat3", desc: "feat3d", href: "/@crossfit-aveiro" },
+  { title: "feat4", desc: "feat4d", href: "/signup" },
+  { title: "feat5", desc: "feat5d", href: "/signup" },
+  { title: "feat6", desc: "feat6d", href: "/@crossfit-aveiro/shop" },
+];
+
+export function Features({ t }: { t: (k: string) => string }) {
+  const ref = useScrollReveal();
+
+  return (
+    <section id="funcionalidades" className="relative overflow-hidden py-24 border-t border-[rgba(34,197,94,0.08)]">
+      <AnimatedMark size={340} className="vy-drift absolute -top-10 -right-10 z-0 pointer-events-none" style={{ opacity: 0.04 }} />
+      <WaveDivider color="rgba(34,197,94,0.03)" />
+      <div ref={ref} className="scroll-reveal relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-16">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[rgba(34,197,94,0.2)] bg-[rgba(34,197,94,0.05)] mb-4">
+            <Zap size={12} className="text-vytal-green" />
+            <span className="text-xs font-mono uppercase tracking-[0.2em] text-vytal-green">{t("features")}</span>
+          </div>
+          <h2 className="text-[clamp(2rem,4.5vw,3.25rem)] font-bold tracking-tight leading-[1.1] text-vytal-text mb-4">
+            {t("everythingTitle").split(".")[0]}.{" "}
+            <span className="bg-gradient-to-r from-vytal-green to-vytal-blue bg-clip-text text-transparent">{t("everythingTitle").split(".").slice(1).join(".").trim()}</span>
+          </h2>
+          <p className="text-vytal-muted max-w-xl mx-auto text-sm leading-relaxed">
+            {t("everythingSubtitle")}
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {FEATURE_KEYS.map((keys, idx) => {
+            const Icon = FEATURE_ICONS[idx];
+            const color = FEATURE_COLORS[idx];
+            return (
+              <TiltCard
+                key={keys.title}
+                max={7}
+                className="group relative p-6 rounded-2xl border border-[rgba(34,197,94,0.1)] bg-[color-mix(in_srgb,var(--color-vytal-bg3)_40%,transparent)] backdrop-blur-sm hover:border-[rgba(34,197,94,0.3)] hover:bg-[color-mix(in_srgb,var(--color-vytal-bg3)_70%,transparent)] hover:-translate-y-1 hover:shadow-[0_0_30px_rgba(34,197,94,0.1)] transition-all duration-300 overflow-hidden"
+              >
+                {/* Hover glow */}
+                <div
+                  className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
+                  style={{
+                    background: `radial-gradient(circle at 0% 0%, ${color}08 0%, transparent 60%)`,
+                  }}
+                />
+                {/* Decorative circle */}
+                <svg className="absolute top-3 right-3 w-16 h-16 opacity-[0.04] group-hover:opacity-[0.08] transition-opacity pointer-events-none" aria-hidden="true">
+                  <circle cx="32" cy="32" r="30" stroke={color} strokeWidth="1" fill="none" />
+                  <circle cx="32" cy="32" r="20" stroke={color} strokeWidth="0.5" fill="none" />
+                </svg>
+                {/* Decorative line */}
+                <svg className="absolute bottom-0 left-6 right-6 h-[1px] opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" aria-hidden="true">
+                  <line x1="0" y1="0" x2="100%" y2="0" stroke={color} strokeWidth="1" strokeOpacity="0.2" />
+                </svg>
+                {/* Icon with glow */}
+                <div className="relative">
+                  <div
+                    className="absolute inset-0 rounded-xl blur-xl opacity-0 group-hover:opacity-40 transition-opacity duration-300"
+                    style={{ background: color }}
+                  />
+                  <div
+                    className="relative w-10 h-10 rounded-xl flex items-center justify-center mb-4"
+                    style={{ background: `${color}14` }}
+                  >
+                    <Icon size={20} style={{ color }} />
+                  </div>
+                </div>
+                <h3 className="font-semibold text-vytal-text mb-2 text-sm">{t(keys.title)}</h3>
+                <p className="text-xs text-vytal-muted leading-relaxed">{t(keys.desc)}</p>
+                <Link
+                  href={keys.href}
+                  className="mt-4 inline-flex items-center gap-1 text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                  style={{ color }}
+                >
+                  {t("featLearnMore")} <ArrowRight size={12} />
+                </Link>
+              </TiltCard>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
