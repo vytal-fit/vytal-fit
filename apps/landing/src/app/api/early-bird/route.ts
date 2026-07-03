@@ -1,9 +1,53 @@
 import { NextResponse } from "next/server";
 import { getDb, waitlist } from "@vytal-fit/db";
+import { sendEmail } from "@vytal-fit/email";
 
 // Node runtime: the Postgres driver is not edge-compatible.
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+
+// Fire-and-forget team notification. Never blocks or fails the signup: the
+// lead is already safe in the DB, so email problems must not surface to the
+// visitor. Skipped automatically when no provider is configured (logs instead).
+async function notifyTeam(lead: {
+  name: string;
+  email: string;
+  gymName: string | null;
+  vertical: string | null;
+  message: string | null;
+  locale: string;
+}): Promise<void> {
+  const to = process.env.WAITLIST_NOTIFY_TO || process.env.EMAIL_FROM;
+  if (!to) return;
+  const rows: [string, string][] = [
+    ["Nome", lead.name],
+    ["Email", lead.email],
+    ["Espaço", lead.gymName ?? "-"],
+    ["Tipo", lead.vertical ?? "-"],
+    ["Idioma", lead.locale],
+  ];
+  if (lead.message) rows.push(["Mensagem", lead.message]);
+
+  const text = `Nova pré-reserva / early-bird do site.\n\n${rows
+    .map(([k, v]) => `${k}: ${v}`)
+    .join("\n")}`;
+  const html = `<h2>Nova pré-reserva · early-bird</h2><table cellpadding="6" style="font-family:system-ui,sans-serif;font-size:14px">${rows
+    .map(([k, v]) => `<tr><td style="color:#6b8c72">${k}</td><td><strong>${v}</strong></td></tr>`)
+    .join("")}</table>`;
+
+  try {
+    await sendEmail({
+      to,
+      replyTo: lead.email,
+      subject: `Nova pré-reserva · ${lead.name}`,
+      text,
+      html,
+      tags: ["waitlist", "early-bird"],
+    });
+  } catch (err) {
+    console.error("[early-bird] notification email failed", err);
+  }
+}
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -50,6 +94,8 @@ export async function POST(request: Request) {
       })
       // A repeat sign-up with the same email is a success, not an error.
       .onConflictDoNothing({ target: waitlist.email });
+
+    await notifyTeam({ name, email, gymName, vertical, message, locale });
 
     return NextResponse.json({ ok: true });
   } catch (err) {
