@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useRef, useState, type FormEvent } from "react";
 import { Check, Sparkles, Crown, Rocket, Headset, ArrowRight, Loader2 } from "lucide-react";
 import { AnimatedBorder, RevealGroup, RevealItem } from "@vytal-fit/brand/motion";
 import { track } from "@vercel/analytics";
@@ -17,6 +17,7 @@ const COPY: Record<Lang, {
   submit: string; submitting: string;
   doneTitle: string; doneBody: string;
   error: string; privacy: string;
+  consentText: string; consentLink: string; consentAfter: string;
 }> = {
   pt: {
     badge: "Acesso antecipado",
@@ -40,6 +41,9 @@ const COPY: Record<Lang, {
     doneBody: "Obrigado. Recebemos a sua pré-reserva e entramos em contacto muito em breve.",
     error: "Algo correu mal. Tente novamente ou escreva para vendas@vytal.fit.",
     privacy: "Sem spam. Usamos os seus dados apenas para falar sobre o acesso antecipado.",
+    consentText: "Li e aceito a",
+    consentLink: "Política de Privacidade",
+    consentAfter: "e autorizo o contacto sobre o acesso antecipado.",
   },
   en: {
     badge: "Early access",
@@ -63,6 +67,9 @@ const COPY: Record<Lang, {
     doneBody: "Thank you. We've got your pre-registration and we'll be in touch very soon.",
     error: "Something went wrong. Please try again or email vendas@vytal.fit.",
     privacy: "No spam. We only use your details to talk about early access.",
+    consentText: "I have read and accept the",
+    consentLink: "Privacy Policy",
+    consentAfter: "and consent to being contacted about early access.",
   },
   es: {
     badge: "Acceso anticipado",
@@ -86,6 +93,9 @@ const COPY: Record<Lang, {
     doneBody: "Gracias. Hemos recibido tu prerreserva y te contactaremos muy pronto.",
     error: "Algo salió mal. Inténtalo de nuevo o escribe a vendas@vytal.fit.",
     privacy: "Sin spam. Usamos tus datos solo para hablar del acceso anticipado.",
+    consentText: "He leído y acepto la",
+    consentLink: "Política de Privacidad",
+    consentAfter: "y autorizo el contacto sobre el acceso anticipado.",
   },
 };
 
@@ -101,6 +111,10 @@ export function EarlyBird({ t, lang }: { t: (k: string) => string; lang: Lang })
   const c = COPY[lang];
   const [status, setStatus] = useState<"idle" | "sending" | "done" | "error">("idle");
   const [form, setForm] = useState({ name: "", email: "", gymName: "", vertical: "" });
+  const [consent, setConsent] = useState(false);
+  // Honeypot: bots fill it, humans never see it. Timing: humans take > 1.5s.
+  const [company, setCompany] = useState("");
+  const mountRef = useRef(Date.now());
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
@@ -109,7 +123,13 @@ export function EarlyBird({ t, lang }: { t: (k: string) => string; lang: Lang })
       const res = await fetch("/api/early-bird", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ ...form, locale: lang }),
+        body: JSON.stringify({
+          ...form,
+          locale: lang,
+          consent,
+          company,
+          elapsedMs: Date.now() - mountRef.current,
+        }),
       });
       if (!res.ok) throw new Error("bad status");
       setStatus("done");
@@ -227,6 +247,36 @@ export function EarlyBird({ t, lang }: { t: (k: string) => string; lang: Lang })
                       </option>
                     ))}
                   </select>
+
+                  {/* Honeypot — visually hidden, off the tab order; bots fill it */}
+                  <input
+                    type="text"
+                    name="company"
+                    value={company}
+                    onChange={(e) => setCompany(e.target.value)}
+                    tabIndex={-1}
+                    autoComplete="off"
+                    aria-hidden="true"
+                    className="absolute -left-[9999px] h-0 w-0 opacity-0"
+                  />
+
+                  {/* RGPD consent */}
+                  <label className="flex items-start gap-2.5 text-left text-[11px] text-vytal-muted leading-relaxed">
+                    <input
+                      type="checkbox"
+                      required
+                      checked={consent}
+                      onChange={(e) => setConsent(e.target.checked)}
+                      className="mt-0.5 h-4 w-4 shrink-0 accent-vytal-green"
+                    />
+                    <span>
+                      {c.consentText}{" "}
+                      <a href="/legal/privacy" target="_blank" rel="noopener noreferrer" className="text-vytal-green underline underline-offset-2">
+                        {c.consentLink}
+                      </a>{" "}
+                      {c.consentAfter}
+                    </span>
+                  </label>
 
                   <button
                     type="submit"
