@@ -68,7 +68,24 @@ export function KineticText({
   };
 
   return (
-    <Tag className={className} style={style} aria-label={text}>
+    <Tag className={className} style={style}>
+      {/* Real text for screen readers (aria-label on a generic span is
+          prohibited ARIA); the animated pieces below are decorative. */}
+      <span
+        style={{
+          position: "absolute",
+          width: 1,
+          height: 1,
+          padding: 0,
+          margin: -1,
+          overflow: "hidden",
+          clip: "rect(0 0 0 0)",
+          whiteSpace: "nowrap",
+          border: 0,
+        }}
+      >
+        {text}
+      </span>
       <motion.span
         style={{ display: "inline" }}
         variants={container}

@@ -77,9 +77,9 @@ export function Footer({ t }: { t: (k: string) => string }) {
           {/* Link cols */}
           {FOOTER_COL_META.map((col) => (
             <RevealItem key={col.titleKey}>
-              <h4 className="text-xs font-semibold text-vytal-text uppercase tracking-wider mb-4">
+              <h3 className="text-xs font-semibold text-vytal-text uppercase tracking-wider mb-4">
                 {t(col.titleKey)}
-              </h4>
+              </h3>
               <ul className="space-y-2.5">
                 {col.links.map((link) => (
                   <li key={link.labelKey}>

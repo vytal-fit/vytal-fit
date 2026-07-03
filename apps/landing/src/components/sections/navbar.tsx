@@ -166,6 +166,8 @@ export function Navbar({ t, lang, setLang }: { t: (k: string) => string; lang: L
           {/* Mobile hamburger */}
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
+            aria-label={mobileOpen ? "Fechar menu" : "Abrir menu"}
+            aria-expanded={mobileOpen}
             className={`md:hidden p-2 rounded-lg transition-colors hover:bg-[rgba(34,197,94,0.06)] ${
               overHero ? "text-white/80 hover:text-white" : "text-vytal-muted hover:text-vytal-text"
             }`}

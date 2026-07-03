@@ -55,9 +55,11 @@ export const LANDING_KEYFRAMES = `
 }
 `;
 
-// Live product destinations for landing CTAs (landing itself has no auth routes).
+// Landing CTAs. Pre-launch: signup and demo aren't public yet, so every
+// conversion CTA drives to the on-page early-bird form; only "sign in" goes
+// to the live product (for existing/demo accounts).
 export const APP_LINKS = {
   signIn: "https://pro.vytal.fit/login",
-  getStarted: "https://pro.vytal.fit/register",
-  demo: "https://pro.vytal.fit/login",
+  getStarted: "#early-bird",
+  demo: "#early-bird",
 } as const;
